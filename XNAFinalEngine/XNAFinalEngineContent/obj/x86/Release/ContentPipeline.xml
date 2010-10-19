@@ -1,0 +1,472 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent xmlns:Pipeline="Microsoft.Xna.Framework.Content.Pipeline">
+  <Asset Type="Pipeline:BuildItemCollection">
+    <Item>
+      <Source>Textures\WiimoteSensors.png</Source>
+      <Name>Textures\WiimoteSensors</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\WiimoteSensors.xnb</Output>
+      <Time>2010-03-25T16:30:32-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\System\KeyLeftArrow.png</Source>
+      <Name>Textures\System\KeyLeftArrow</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Parameters>
+        <Data Key="GenerateMipmaps">True</Data>
+        <Data Key="TextureFormat">DxtCompressed</Data>
+      </Parameters>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\System\KeyLeftArrow.xnb</Output>
+      <Time>2010-10-19T00:48:44.5935221-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\MousePointer.dds</Source>
+      <Name>Textures\MousePointer</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\MousePointer.xnb</Output>
+      <Time>2010-03-31T15:08:58-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\OceanEnviromentMapCloudyHills.dds</Source>
+      <Name>Textures\OceanEnviromentMapCloudyHills</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\OceanEnviromentMapCloudyHills.xnb</Output>
+      <Time>2008-06-30T19:27:58-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\OceanWavesNormal.dds</Source>
+      <Name>Textures\OceanWavesNormal</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\OceanWavesNormal.xnb</Output>
+      <Time>2008-06-30T19:27:54-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\ScreenBorderFadeout.dds</Source>
+      <Name>Textures\ScreenBorderFadeout</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\ScreenBorderFadeout.xnb</Output>
+      <Time>2008-02-03T18:15:54-02:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\ShadowDistanceFadeoutMap.dds</Source>
+      <Name>Textures\ShadowDistanceFadeoutMap</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\ShadowDistanceFadeoutMap.xnb</Output>
+      <Time>2008-02-03T18:15:54-02:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\Skybox-GrimNight.dds</Source>
+      <Name>Textures\Skybox-GrimNight</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\Skybox-GrimNight.xnb</Output>
+      <Time>2008-01-01T20:22:28-02:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\Skybox-Miramar.dds</Source>
+      <Name>Textures\Skybox-Miramar</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\Skybox-Miramar.xnb</Output>
+      <Time>2010-06-25T21:08:58.8772297-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\Skybox-Space.dds</Source>
+      <Name>Textures\Skybox-Space</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\Skybox-Space.xnb</Output>
+      <Time>2007-04-09T10:35:12-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\UIElements.dds</Source>
+      <Name>Textures\UIElements</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\UIElements.xnb</Output>
+      <Time>2009-08-20T15:31:14-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\RANDOMNORMAL.png</Source>
+      <Name>Textures\RANDOMNORMAL</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\RANDOMNORMAL.xnb</Output>
+      <Time>2007-11-08T17:45:42-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\System\KeyDownArrow.png</Source>
+      <Name>Textures\System\KeyDownArrow</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Parameters>
+        <Data Key="GenerateMipmaps">True</Data>
+        <Data Key="TextureFormat">DxtCompressed</Data>
+      </Parameters>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\System\KeyDownArrow.xnb</Output>
+      <Time>2010-10-19T01:07:03.7063878-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\System\KeyRightArrow.png</Source>
+      <Name>Textures\System\KeyRightArrow</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Parameters>
+        <Data Key="GenerateMipmaps">True</Data>
+        <Data Key="TextureFormat">DxtCompressed</Data>
+      </Parameters>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\System\KeyRightArrow.xnb</Output>
+      <Time>2010-10-19T01:05:48.7050979-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Textures\System\KeyUpArrow.png</Source>
+      <Name>Textures\System\KeyUpArrow</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Parameters>
+        <Data Key="GenerateMipmaps">True</Data>
+        <Data Key="TextureFormat">DxtCompressed</Data>
+      </Parameters>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Textures\System\KeyUpArrow.xnb</Output>
+      <Time>2010-10-19T01:06:29.6884421-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Fonts\Arial12.spritefont</Source>
+      <Name>Fonts\Arial12</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Fonts\Arial12.xnb</Output>
+      <Time>2010-10-18T02:27:25.3168874-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Fonts\Arial14.spritefont</Source>
+      <Name>Fonts\Arial14</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Fonts\Arial14.xnb</Output>
+      <Time>2010-10-18T02:29:57.4405884-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Fonts\Arial8.spritefont</Source>
+      <Name>Fonts\Arial8</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Fonts\Arial8.xnb</Output>
+      <Time>2010-10-18T02:36:44.5288725-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Shaders\Blinn.fx</Source>
+      <Name>Shaders\Blinn</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Shaders\Blinn.xnb</Output>
+      <Time>2010-10-19T01:22:09.985224-03:00</Time>
+      <Dependency>
+        <Key>Shaders\Common.fxh</Key>
+        <Value>2010-10-18T15:22:11.598234-03:00</Value>
+      </Dependency>
+    </Item>
+    <Item>
+      <Source>Shaders\CarPaint.fx</Source>
+      <Name>Shaders\CarPaint</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Shaders\CarPaint.xnb</Output>
+      <Time>2010-10-18T15:21:34.3021008-03:00</Time>
+      <Dependency>
+        <Key>Shaders\Common.fxh</Key>
+        <Value>2010-10-18T15:22:11.598234-03:00</Value>
+      </Dependency>
+    </Item>
+    <Item>
+      <Source>Shaders\Constant.fx</Source>
+      <Name>Shaders\Constant</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Shaders\Constant.xnb</Output>
+      <Time>2010-10-18T15:23:01.7741039-03:00</Time>
+      <Dependency>
+        <Key>Shaders\Common.fxh</Key>
+        <Value>2010-10-18T15:22:11.598234-03:00</Value>
+      </Dependency>
+    </Item>
+    <Item>
+      <Source>Shaders\ConstantDecal.fx</Source>
+      <Name>Shaders\ConstantDecal</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Shaders\ConstantDecal.xnb</Output>
+      <Time>2010-10-18T15:23:09.7585606-03:00</Time>
+      <Dependency>
+        <Key>Shaders\Common.fxh</Key>
+        <Value>2010-10-18T15:22:11.598234-03:00</Value>
+      </Dependency>
+    </Item>
+    <Item>
+      <Source>Shaders\Ocean.fx</Source>
+      <Name>Shaders\Ocean</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Shaders\Ocean.xnb</Output>
+      <Time>2010-10-18T15:41:03.726988-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Shaders\ParallaxMapping.fx</Source>
+      <Name>Shaders\ParallaxMapping</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Shaders\ParallaxMapping.xnb</Output>
+      <Time>2010-10-18T15:30:32.3348745-03:00</Time>
+      <Dependency>
+        <Key>Shaders\Common.fxh</Key>
+        <Value>2010-10-18T15:22:11.598234-03:00</Value>
+      </Dependency>
+    </Item>
+    <Item>
+      <Source>Shaders\PostBlur.fx</Source>
+      <Name>Shaders\PostBlur</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Shaders\PostBlur.xnb</Output>
+      <Time>2010-10-18T15:30:24.1594069-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Shaders\PostCombineShadows.fx</Source>
+      <Name>Shaders\PostCombineShadows</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Shaders\PostCombineShadows.xnb</Output>
+      <Time>2010-10-18T15:30:42.9424812-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Shaders\PostShadowMap.fx</Source>
+      <Name>Shaders\PostShadowMap</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Shaders\PostShadowMap.xnb</Output>
+      <Time>2010-10-18T15:30:56.6712664-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Shaders\PreDepthNormal.fx</Source>
+      <Name>Shaders\PreDepthNormal</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Shaders\PreDepthNormal.xnb</Output>
+      <Time>2010-10-18T15:32:26.6384123-03:00</Time>
+      <Dependency>
+        <Key>Shaders\CommonDepthNormals.fxh</Key>
+        <Value>2010-10-18T15:22:50.3664514-03:00</Value>
+      </Dependency>
+    </Item>
+    <Item>
+      <Source>Shaders\PreSkybox.fx</Source>
+      <Name>Shaders\PreSkybox</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Shaders\PreSkybox.xnb</Output>
+      <Time>2010-10-18T15:32:30.2866209-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Shaders\PostSSAOHorizonBased.fx</Source>
+      <Name>Shaders\PostSSAOHorizonBased</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Shaders\PostSSAOHorizonBased.xnb</Output>
+      <Time>2010-10-18T15:31:46.0620914-03:00</Time>
+      <Dependency>
+        <Key>Shaders\CommonDepthNormals.fxh</Key>
+        <Value>2010-10-18T15:22:50.3664514-03:00</Value>
+      </Dependency>
+    </Item>
+    <Item>
+      <Source>Shaders\PostSSAORayMarching.fx</Source>
+      <Name>Shaders\PostSSAORayMarching</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Shaders\PostSSAORayMarching.xnb</Output>
+      <Time>2010-10-18T15:35:49.775031-03:00</Time>
+      <Dependency>
+        <Key>Shaders\CommonDepthNormals.fxh</Key>
+        <Value>2010-10-18T15:22:50.3664514-03:00</Value>
+      </Dependency>
+    </Item>
+    <Item>
+      <Source>Shaders\PostSSAOSimple.fx</Source>
+      <Name>Shaders\PostSSAOSimple</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Shaders\PostSSAOSimple.xnb</Output>
+      <Time>2010-10-18T15:40:37.3424789-03:00</Time>
+      <Dependency>
+        <Key>Shaders\CommonDepthNormals.fxh</Key>
+        <Value>2010-10-18T15:22:50.3664514-03:00</Value>
+      </Dependency>
+    </Item>
+    <Item>
+      <Source>Models\System\Key.fbx</Source>
+      <Name>Models\System\Key</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+      <Parameters>
+        <Data Key="GenerateTangentFrames">True</Data>
+      </Parameters>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Models\System\Key.xnb</Output>
+      <Time>2010-10-19T01:41:33.2727602-03:00</Time>
+      <Dependency>
+        <Key>obj\x86\Release\Models\System\Key_0.xml</Key>
+        <Value>2010-10-19T04:22:53.6014433-03:00</Value>
+      </Dependency>
+    </Item>
+    <Item>
+      <Source>Models\System\SpaceKey.fbx</Source>
+      <Name>Models\System\SpaceKey</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+      <Parameters>
+        <Data Key="GenerateTangentFrames">True</Data>
+      </Parameters>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Models\System\SpaceKey.xnb</Output>
+      <Time>2010-10-19T02:02:20.8021148-03:00</Time>
+      <Dependency>
+        <Key>obj\x86\Release\Models\System\SpaceKey_0.xml</Key>
+        <Value>2010-10-19T04:22:53.7764533-03:00</Value>
+      </Dependency>
+    </Item>
+    <Item>
+      <Source>Videos\LogosIntro.wmv</Source>
+      <Name>Videos\LogosIntro</Name>
+      <Importer>WmvImporter</Importer>
+      <Processor>VideoProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Videos\LogosIntro.xnb</Output>
+      <Extra>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Videos\LogosIntro.wmv</Extra>
+      <Time>2010-10-18T12:11:06.3814611-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Music\01 - Artexflow - Feeling Good.mp3</Source>
+      <Name>Music\01 - Artexflow - Feeling Good</Name>
+      <Importer>Mp3Importer</Importer>
+      <Processor>SongProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Music\01 - Artexflow - Feeling Good.xnb</Output>
+      <Extra>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Music\01 - Artexflow - Feeling Good.wma</Extra>
+      <Time>2010-10-18T16:11:02.6998834-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Music\02 - DJlang59 - Thinking About It The Dirty H20 Remix.mp3</Source>
+      <Name>Music\02 - DJlang59 - Thinking About It The Dirty H20 Remix</Name>
+      <Importer>Mp3Importer</Importer>
+      <Processor>SongProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Music\02 - DJlang59 - Thinking About It The Dirty H20 Remix.xnb</Output>
+      <Extra>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Music\02 - DJlang59 - Thinking About It The Dirty H20 Remix.wma</Extra>
+      <Time>2010-10-18T17:24:14.639088-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Music\03 - Tres Cinicos - Que vas a hacer.mp3</Source>
+      <Name>Music\03 - Tres Cinicos - Que vas a hacer</Name>
+      <Importer>Mp3Importer</Importer>
+      <Processor>SongProcessor</Processor>
+      <Options>None</Options>
+      <Output>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Music\03 - Tres Cinicos - Que vas a hacer.xnb</Output>
+      <Extra>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\Music\03 - Tres Cinicos - Que vas a hacer.wma</Extra>
+      <Time>2010-06-01T17:03:22-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Models\System\Key.fbx</Source>
+      <Importer>FbxImporter</Importer>
+      <Options>IntermediateFile, DontCacheImportedData</Options>
+      <Output>obj\x86\Release\Models\System\Key_0.xml</Output>
+      <Time>2010-10-19T01:41:33.2727602-03:00</Time>
+    </Item>
+    <Item>
+      <Source>Models\System\SpaceKey.fbx</Source>
+      <Importer>FbxImporter</Importer>
+      <Options>IntermediateFile, DontCacheImportedData</Options>
+      <Output>obj\x86\Release\Models\System\SpaceKey_0.xml</Output>
+      <Time>2010-10-19T02:02:20.8021148-03:00</Time>
+    </Item>
+    <BuildSuccessful>true</BuildSuccessful>
+    <Settings>
+      <TargetPlatform>Windows</TargetPlatform>
+      <TargetProfile>HiDef</TargetProfile>
+      <BuildConfiguration>Release</BuildConfiguration>
+      <CompressContent>true</CompressContent>
+      <RootDirectory>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngineContent\</RootDirectory>
+      <LoggerRootDirectory>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\</LoggerRootDirectory>
+      <IntermediateDirectory>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngineContent\obj\x86\Release\</IntermediateDirectory>
+      <OutputDirectory>D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngine\bin\Content\</OutputDirectory>
+    </Settings>
+    <Assemblies>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.XImporter.dll</Key>
+        <Value>2010-08-23T12:41:18-03:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.VideoImporters.dll</Key>
+        <Value>2010-08-23T12:41:18-03:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.TextureImporter.dll</Key>
+        <Value>2010-08-23T12:41:18-03:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.FBXImporter.dll</Key>
+        <Value>2010-08-23T12:41:18-03:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.EffectImporter.dll</Key>
+        <Value>2010-08-23T12:41:18-03:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Program Files (x86)\Microsoft XNA\XNA Game Studio\v4.0\References\Windows\x86\Microsoft.Xna.Framework.Content.Pipeline.AudioImporters.dll</Key>
+        <Value>2010-08-23T12:41:18-03:00</Value>
+      </Assembly>
+      <Assembly>
+        <Key>C:\Windows\Microsoft.Net\assembly\GAC_32\Microsoft.Xna.Framework.Content.Pipeline\v4.0_4.0.0.0__842cf8be1de50553\Microsoft.Xna.Framework.Content.Pipeline.dll</Key>
+        <Value>2010-10-10T01:24:50.7520391-03:00</Value>
+      </Assembly>
+    </Assemblies>
+  </Asset>
+</XnaContent>

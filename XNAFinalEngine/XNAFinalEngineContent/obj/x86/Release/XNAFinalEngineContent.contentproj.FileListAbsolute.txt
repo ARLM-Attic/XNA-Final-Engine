@@ -1,0 +1,3 @@
+D:\Desarrollo3D\Proyectos Visual\XNAFinalEngine40\XNAFinalEngine\XNAFinalEngineContent\obj\x86\Release\ResolveAssemblyReference.cache
+D:\Desarrollo3D\Proyectos Visual\XNAFinalEngine\XNAFinalEngine\XNAFinalEngineContent\obj\x86\Release\ResolveAssemblyReference.cache
+D:\Desarrollo3D\Proyectos Visual\XNAFinalEngineCodePlex\XNAFinalEngine\XNAFinalEngineContent\obj\x86\Release\ResolveAssemblyReference.cache
