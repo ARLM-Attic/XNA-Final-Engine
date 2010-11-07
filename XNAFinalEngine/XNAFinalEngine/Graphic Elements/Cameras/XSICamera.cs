@@ -143,7 +143,7 @@ namespace XNAFinalEngine.GraphicElements
         private void HandleCamera()
         {
 
-            #region is in S mode or not?
+            #region Is in S mode or not?
 
             if (sMode)
             {
@@ -209,7 +209,7 @@ namespace XNAFinalEngine.GraphicElements
 
             // Distance or zoom
             distance -= Mouse.WheelDelta * Distance / 1300;
-            if (distance > 350) distance = 350;
+            if (distance > FarPlane) distance = FarPlane;
             if (distance < 2) distance = 2;
 
             // Update orientation

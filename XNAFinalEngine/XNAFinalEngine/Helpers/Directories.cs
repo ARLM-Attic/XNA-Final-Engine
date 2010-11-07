@@ -70,6 +70,11 @@ namespace XNAFinalEngine.Helpers
         /// Video directory
         /// </summary>
         public static string VideosDirectory { get { return GameDataDirectory + "Videos"; } }
+
+        /// <summary>
+        /// Particles directory
+        /// </summary>
+        public static string ParticlesDirectory { get { return GameDataDirectory + "Particles"; } }
         		
 		#endregion
 

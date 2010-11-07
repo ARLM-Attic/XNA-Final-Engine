@@ -188,7 +188,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedBumpHeight = null;
         /// <summary>
-        /// Set Bump Height (valor mayor igual a cero)
+        /// Set Bump Height (greater or equal to 0)
         /// </summary>
         private void SetBumpHeight(float _bumpHeight)
         {
@@ -222,7 +222,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedTextureRepeatX = null;
         /// <summary>
-        /// Set Texture Repeat X (valor mayor igual a cero)
+        /// Set Texture Repeat X (greater or equal to 0)
         /// </summary>
         private void SetTextureRepeatX(float _textureRepeatX)
         {
@@ -256,7 +256,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedTextureRepeatY = null;
         /// <summary>
-        /// Set Texture Repeat Y (valor mayor igual a cero)
+        /// Set Texture Repeat Y (greater or equal to 0)
         /// </summary>
         private void SetTextureRepeatY(float _textureRepeatY)
         {
@@ -358,7 +358,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedFresnelBias = null;
         /// <summary>
-        /// Set FresnelBias (valor mayor igual a cero)
+        /// Set FresnelBias (greater or equal to 0)
         /// </summary>
         private void SetFresnelBias(float _fresnelBias)
         {
@@ -392,7 +392,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedFresnelExponent = null;
         /// <summary>
-        /// Set Fresnel Exponent (valor mayor igual a cero)
+        /// Set Fresnel Exponent (greater or equal to 0)
         /// </summary>
         private void SetFresnelExponent(float _fresnelExponent)
         {
@@ -425,7 +425,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedHDRMultiplier = null;
         /// <summary>
-        /// Set HDR Multiplier (valor mayor igual a cero)
+        /// Set HDR Multiplier (greater or equal to 0)
         /// </summary>
         private void SetHDRMultiplier(float _hdrMultiplier)
         {
@@ -561,7 +561,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedReflectionStrength = null;
         /// <summary>
-        /// Set Reflection Strength (valor mayor igual a cero)
+        /// Set Reflection Strength (greater or equal to 0)
         /// </summary>
         private void SetReflectionStrength(float _reflectionStrength)
         {
@@ -595,7 +595,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedWaterColorStrength = null;
         /// <summary>
-        /// Set Water Color Strength (valor mayor igual a cero)
+        /// Set Water Color Strength (greater or equal to 0)
         /// </summary>
         private void SetWaterColorStrength(float _waterColorStrength)
         {
@@ -629,7 +629,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedWaveAmplitude = null;
         /// <summary>
-        /// Set Wave Amplitude (valor mayor igual a cero)
+        /// Set Wave Amplitude (greater or equal to 0)
         /// </summary>
         private void SetWaveAmplitude(float _waveAmplitude)
         {
@@ -663,7 +663,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedWaveFrequency = null;
         /// <summary>
-        /// Set Wave Frequency (valor mayor igual a cero)
+        /// Set Wave Frequency (greater or equal to 0)
         /// </summary>
         private void SetWaveFrequency(float _waveFrequency)
         {
@@ -699,7 +699,10 @@ namespace XNAFinalEngine.GraphicElements
             } // if (File.Exists)
             try
             {
-                reflectionTexture = EngineManager.Content.Load<TextureCube>(fullFilename);
+                if (EngineManager.UsesSystemContent)
+                    reflectionTexture = EngineManager.SystemContent.Load<TextureCube>(fullFilename);
+                else
+                    reflectionTexture = EngineManager.CurrentContent.Load<TextureCube>(fullFilename);
 
             } // try
             catch (Exception)
@@ -773,7 +776,7 @@ namespace XNAFinalEngine.GraphicElements
 		{
             Effect = LoadShader("Ocean");
             
-            GetParameters();
+            GetParametersHandles();
 
             // Load the default reflection texture
             ReflectionTexture("OceanEnviromentMapCloudyHills");
@@ -785,12 +788,12 @@ namespace XNAFinalEngine.GraphicElements
         
         #endregion
         
-		#region GetParameters
+		#region Get Parameters Handles
 		
         /// <summary>
         /// Get the handles of the parameters from the shader.
 		/// </summary>
-		protected override void GetParameters()
+		protected override void GetParametersHandles()
 		{
 			try
 			{
@@ -821,11 +824,11 @@ namespace XNAFinalEngine.GraphicElements
                 epWaveAmplitude = Effect.Parameters["WaveAmp"];
                 epWaveFrequency = Effect.Parameters["WaveFreq"];
 			} // try
-			catch (Exception ex)
+			catch
 			{
-                throw new Exception("Get the handles from the ocean material failed. " + ex.ToString());
+                throw new Exception("Get the handles from the ocean material failed.");
 			} // catch
-		} // GetParameters
+		} // GetParametersHandles
 
 		#endregion
 
@@ -834,8 +837,11 @@ namespace XNAFinalEngine.GraphicElements
         /// <summary>
         /// Render this shader/material; to do this job it takes an object model, its associated lights, and its matrices.
 		/// </summary>		
-        public override void Render(Matrix worldMatrix, PointLight[] pointLight, DirectionalLight[] directionalLight, SpotLight[] spotLight, Model model)
-		{   
+        internal override void Render(Matrix worldMatrix, PointLight[] pointLight, DirectionalLight[] directionalLight, SpotLight[] spotLight, Model model)
+        {
+
+            #region Set Parameters
+
             try
             {
                 // Matrices //
@@ -865,10 +871,13 @@ namespace XNAFinalEngine.GraphicElements
                 SetWaveAmplitude(waveAmplitude);
                 SetWaveFrequency(waveFrequency);
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception("Unable to set the ocean material parameters " + e.Message);
+                throw new Exception("Unable to set the ocean material parameters.");
             }
+
+            #endregion
+
             base.Render(model);
         } // Render
 

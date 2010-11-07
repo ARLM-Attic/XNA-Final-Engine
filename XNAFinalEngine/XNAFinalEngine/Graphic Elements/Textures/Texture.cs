@@ -123,8 +123,11 @@ namespace XNAFinalEngine.GraphicElements
                 throw new Exception("Failed to load texture: File " + fullFilename + " does not exists!");
             } // if (File.Exists)
             try
-            {   
-                internalXnaTexture = EngineManager.Content.Load<Texture2D>(fullFilename);
+            {
+                if (EngineManager.UsesSystemContent)
+                    internalXnaTexture = EngineManager.SystemContent.Load<Texture2D>(fullFilename);
+                else
+                    internalXnaTexture = EngineManager.CurrentContent.Load<Texture2D>(fullFilename);
 
                 // Get info from the texture directly.
                 textureWidth = internalXnaTexture.Width;

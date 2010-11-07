@@ -113,12 +113,12 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         protected virtual void Update()
         {
-            double newElapsed = elapsed + EngineManager.ElapsedTimeThisFrameInSeconds;
+            double newElapsed = elapsed + EngineManager.FrameTime;
             double percentage;
             if (newElapsed < duration)
             {
                 // The percentage of the duration of the animation that we need to realice in this frame.
-                percentage = EngineManager.ElapsedTimeThisFrameInSeconds / duration;
+                percentage = EngineManager.FrameTime / duration;
                 elapsed = newElapsed;
             }
             else

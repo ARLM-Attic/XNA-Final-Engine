@@ -28,11 +28,9 @@ namespace XNAFinalEngine.Scenes
 
         #region Variables
 
-        private SceneLamborghiniLP640 lp640Scene;
-
         private ContainerObject cShadowObjects;
 
-        private GraphicObject plane;
+        private GraphicObject plane, box;
 
         #region Lights
 
@@ -45,15 +43,14 @@ namespace XNAFinalEngine.Scenes
 
         #region PrePostScreenShaders
 
-        private bool esssao = true;
-        private bool esshadow = true;
-        private PreDepthNormalShader preDepthShader;
-        private ShadowMapShader shadowMapShader;
+        private bool esssao = false;
+        private bool esshadow = false;
+        private PreDepthNormal preDepthNormal;
+        private ShadowMap shadowMap;
         private SSAOHorizonBased ssaoHB;
-        private SSAORayMarching ssaoRM;
         private Blur blurShadow;
         private Blur blurSSAO;
-        private ConvineShadows convineShadow;
+        private CombineShadows combineShadow;
 
         #endregion
 
@@ -95,31 +92,32 @@ namespace XNAFinalEngine.Scenes
         /// </summary>
         public override void Load()
         {
-            ApplicationLogic.Camera = new FixedCamera(new Vector3(0, 0, 20), new Vector3(0, 0, 0));
+            float scale = 10;
 
-            lp640Scene = new SceneLamborghiniLP640();
-            lp640Scene.Load();
-            lp640Scene.DirectionAngle = -30;
+            ApplicationLogic.Camera = new FixedCamera(new Vector3(-2 * scale, 30 * scale, 20 * scale), new Vector3(0, 0, 0));
+            //ApplicationLogic.Camera = new XSICamera(Vector3.Zero, 20 * scale);
 
-            plane = new GraphicObject(new GraphicElements.Plane(50,50), new Constant());
+            box = new GraphicObject(new Box(2), new CarPaint());
+
+            plane = new GraphicObject(new GraphicElements.Plane(10, 10), new Constant(Color.Red));
 
             cShadowObjects = new ContainerObject();
-            cShadowObjects.AddContainerObject(lp640Scene.Model);
-            cShadowObjects.AddGraphicObject(plane);
+            cShadowObjects.AddObject(box);
+            cShadowObjects.AddObject(plane);
 
-            plane.RotateAbs(90, 0, 0);
-
-            float scale = 20;
+            plane.RotateAbs(-90, 0, 0);
+            plane.TranslateAbs(0, -1, 0);
+            
             cShadowObjects.ScaleAbs(scale);
-
+            
             #region Lights
 
             AmbientLight.LightColor = new Color(150, 150, 150);
 
-            directionalLight = new DirectionalLight(new Vector3(-0.1f, -1.0f, 0.1f), new Color(100, 120, 130));
-            pointLight1 = new PointLight(new Vector3(15 * scale, 12 * scale, -30 * scale), new Color(100, 100, 100));
-            pointLight2 = new PointLight(new Vector3(-30 * scale, 50 * scale, 1 * scale), new Color(180, 180, 180));
-            pointLight3 = new PointLight(new Vector3(-20 * scale, 3.1f * scale, -20 * scale), new Color(140, 140, 140));
+            directionalLight = new GraphicElements.DirectionalLight(new Vector3(-0.1f, -1.0f, 1.1f), new Color(100, 120, 130));
+            pointLight1 = new PointLight(new Vector3(15 * scale, 12 * scale, -30 * scale), new Color(200, 100, 100));
+            pointLight2 = new PointLight(new Vector3(-30 * scale, 50 * scale, 1 * scale), new Color(0, 250, 0));
+            pointLight3 = new PointLight(new Vector3(-20 * scale, 3.1f * scale, -20 * scale), new Color(0, 0, 250));
             spotLight = new SpotLight(new Vector3(-20 * scale, 10 * scale, 0), new Vector3(2, -1, 0), new Color(100, 100, 150), 30, 1);
 
             cShadowObjects.AssociateLight(pointLight1);
@@ -131,31 +129,29 @@ namespace XNAFinalEngine.Scenes
 
             #region Post Screen Shaders
 
-            preDepthShader = new PreDepthNormalShader(true);
-            preDepthShader.FarPlane = 200;
+            preDepthNormal = new PreDepthNormal(true) { FarPlane = 50 * scale };
 
-            shadowMapShader = new ShadowMapShader(RenderToTexture.SizeType.Custom512x512);
-            shadowMapShader.LightDirection = new Vector3(-0.1f, -0.7f, -0.1f);
-            shadowMapShader.AssociatedLight = directionalLight;
-            shadowMapShader.ShadowColor = new Color(130, 130, 130);
-            shadowMapShader.VirtualLightDistance = 150;
-            shadowMapShader.FarPlane = 200;
-            blurShadow = new Blur();
-            blurShadow.BlurWidth = 3;
-            blurSSAO = new Blur();
-            blurSSAO.BlurWidth = 2.0f;
-            ssaoHB = new SSAOHorizonBased(RenderToTexture.SizeType.FullScreen);
-            ssaoHB.NumberSteps = 32;
-            ssaoHB.NumberDirections = 15;
-            ssaoHB.Radius = 0.1f;
-            ssaoHB.LineAttenuation = 1.5f;
-            ssaoHB.Contrast = 1.5f;
+            shadowMap = new ShadowMap(RenderToTexture.SizeType.Custom512x512);
+            shadowMap.AssociatedLight = directionalLight;
+            shadowMap.ShadowColor = new Color(130, 130, 130);
+            shadowMap.VirtualLightDistance = 20 * scale;
+            shadowMap.FarPlane = 30 * scale;
 
-            ssaoRM = new SSAORayMarching();
-            convineShadow = new ConvineShadows();
+            blurShadow = new Blur() { BlurWidth = 5f };
+            blurSSAO = new Blur() { BlurWidth = 1.5f };
+            ssaoHB = new SSAOHorizonBased(RenderToTexture.SizeType.HalfScreen)
+            {
+                NumberSteps = 32,
+                NumberDirections = 15,
+                Radius = 0.2f,
+                LineAttenuation = 1.0f,
+                Contrast = 2.0f,
+                AngleBias = 30
+            };
+            combineShadow = new CombineShadows();
 
             #endregion
-
+            
             #region Augmented Reality
 
             webCamTexture = new GraphicElements.Texture();
@@ -165,14 +161,14 @@ namespace XNAFinalEngine.Scenes
             //artoolkitplus = new ARToolKitPlus(webCam);
             
             // ARTAG
-            webCam = new DirectShowWebCam(800, 600, 3, 30);
+            webCam = new DirectShowWebCam(0, 640, 480, 3, 30);
             artag = new ARTag(webCam);
             markerArray = artag.AddArtagMarkerArray("base0");
 
             #endregion
 
             EngineManager.ShowFPS = true;
-
+            
         } // Load
 
         #endregion
@@ -201,7 +197,6 @@ namespace XNAFinalEngine.Scenes
                 ApplicationLogic.Camera.ViewMatrix = artoolkitplus.ViewMatrix;
                 ApplicationLogic.Camera.ProjectionMatrix = artoolkitplus.ProjectionMatrix;
             }
-            lp640Scene.Update();
         } // Update
 
         #endregion
@@ -213,6 +208,7 @@ namespace XNAFinalEngine.Scenes
         /// </summary>
         public override void Render()
         {
+
             #region Pre Work
 
             if (Keyboard.LeftJustPressed)
@@ -225,14 +221,14 @@ namespace XNAFinalEngine.Scenes
             }
             if (esshadow)
             {
-                shadowMapShader.GenerateLightDepthBuffer(cShadowObjects);
-                shadowMapShader.GenerateShadowMap(cShadowObjects);
-                blurShadow.GenerateBlur(shadowMapShader.ShadowMapTexture);
+                shadowMap.GenerateLightDepthBuffer(cShadowObjects);
+                shadowMap.GenerateShadows(cShadowObjects);
+                blurShadow.GenerateBlur(shadowMap.ShadowMapTexture);
             }
             if (esssao)
             {
-                preDepthShader.GenerateDepthNormalMap(cShadowObjects);
-                ssaoHB.GenerateSSAO(PreDepthNormalShader.HighPrecisionDepthMapTexture.XnaTexture, PreDepthNormalShader.NormalDepthMapTexture.XnaTexture);
+                preDepthNormal.GenerateDepthNormalMap(cShadowObjects);
+                ssaoHB.GenerateSSAO(preDepthNormal.HighPrecisionDepthMapTexture.XnaTexture, preDepthNormal.NormalDepthMapTexture.XnaTexture);
                 blurSSAO.GenerateBlur(ssaoHB.SSAOTexture);
             }
 
@@ -243,24 +239,28 @@ namespace XNAFinalEngine.Scenes
             webCamTexture.XnaTexture = webCam.XNATexture;
             webCamTexture.RenderOnFullScreen();
             SpriteManager.DrawSprites();
-            lp640Scene.Model.Render();
+            box.Render();
 
             #region Post Work
 
             if (esshadow)
             {
-                convineShadow.GenerateConvineShadows(blurShadow.BlurMapTexture);
+                combineShadow.GenerateCombineShadows(blurShadow.BlurMapTexture);
+                //shadowMap.lightDepthBufferTexture.RenderOnFullScreen();
                 SpriteManager.DrawSprites();
             }
             if (esssao)
             {
-                convineShadow.GenerateConvineShadows(blurSSAO.BlurMapTexture);
+                combineShadow.GenerateCombineShadows(blurSSAO.BlurMapTexture);
+                //ssaoHB.SSAOTexture.RenderOnFullScreen();
                 SpriteManager.DrawSprites();
             }
             //ssaoHB.Test();
-            //UIMousePointer.RenderMousePointer();
+            //shadowMap.Test();
+            UIMousePointer.RenderMousePointer();
 
             #endregion
+
         } // Render
 
         #endregion

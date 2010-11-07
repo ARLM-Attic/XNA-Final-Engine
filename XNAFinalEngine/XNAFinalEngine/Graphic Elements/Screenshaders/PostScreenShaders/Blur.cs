@@ -120,7 +120,7 @@ namespace XNAFinalEngine.GraphicElements
             Effect = LoadShader("PostBlur");
             Effect.CurrentTechnique = Effect.Techniques["Blur"];
 
-            GetParameters();
+            GetParametersHandles();
 
             BlurMapTexture = new RenderToTexture(_rendeTargetSize, false, false, 0);
             blurMapTempTexture = new RenderToTexture(_rendeTargetSize, false, false, 0);
@@ -131,12 +131,12 @@ namespace XNAFinalEngine.GraphicElements
 
 		#endregion
 
-		#region Get parameters
+		#region Get parameters handles
 
 		/// <summary>
         /// Get the handles of the parameters from the shader.
 		/// </summary>
-		protected void GetParameters()
+		protected void GetParametersHandles()
 		{
             try
             {
@@ -145,15 +145,15 @@ namespace XNAFinalEngine.GraphicElements
 			    epSceneMap = Effect.Parameters["sceneMap"];
 			    epBlurMap = Effect.Parameters["blurMap"];
             }
-            catch (Exception ex)
+            catch
             {
-                throw new Exception("Get the handles from the blur shader failed. " + ex.ToString());
+                throw new Exception("Get the handles from the blur shader failed.");
             }
-		} // GetParameters
+		} // GetParametersHandles
 
 		#endregion
-        
-        #region SetAtributes
+
+        #region Set parameters
 
         /// <summary>
         /// Set to the shader the specific atributes of this effect.
@@ -165,19 +165,19 @@ namespace XNAFinalEngine.GraphicElements
 
         #endregion
 
-        #region GenerateBlur
+        #region Generate blur
         
         /// <summary>
-		/// Generate the blur.
+		/// Generate the blur effect.
 		/// </summary>
 		public void GenerateBlur(RenderToTexture sceneMapTexture)
 		{   
-            SetParameters();
             
             // Only apply if the texture is valid
 			if (sceneMapTexture == null || sceneMapTexture.XnaTexture == null)
 				return;
 
+            SetParameters();
 			epWindowSize.SetValue(new float[] { sceneMapTexture.Width, sceneMapTexture.Height });
 			epSceneMap.SetValue(sceneMapTexture.XnaTexture);
 

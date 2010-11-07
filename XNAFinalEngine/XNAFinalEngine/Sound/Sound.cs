@@ -44,10 +44,6 @@ namespace XNAFinalEngine.Sounds
 
     /// <summary>
     /// Play sound files. Supports positional sound and some other effects.
-    /// We can’t dispose the sound from the system resources if we want to use it again in the same content manager.
-    /// Because of that is difficult to use a good resource scheme.
-    /// The XNA audio capabilities are also limited in other ways, for instance we can’t use more than 2 sound's channels.
-    /// However, the XNA audio library is good enough for small to medium projects, and its code is clean.
     /// </summary>
     public class Sound
     {
@@ -60,14 +56,90 @@ namespace XNAFinalEngine.Sounds
         private SoundEffect soundEffect;
 
         /// <summary>
-        /// Sound Effect Instance.
-        /// </summary>
-        private SoundEffectInstance soundEffectInstance;
-
-        /// <summary>
         /// The name of the sound file.
         /// </summary>
         private String soundFilename = "";
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Load the sound file.
+        /// </summary>
+        public Sound(string _soundFilename)
+        {
+            soundFilename = _soundFilename;
+            string fullFilename = Directories.SoundsDirectory + "\\" + _soundFilename;
+            if (File.Exists(fullFilename + ".xnb") == false)
+            {
+                throw new Exception("Failed to load sound. File " + fullFilename + " does not exists!");
+            } // if (File.Exists)
+            try
+            {
+                if (EngineManager.UsesSystemContent)
+                    soundEffect = EngineManager.SystemContent.Load<SoundEffect>(fullFilename);
+                else
+                    soundEffect = EngineManager.CurrentContent.Load<SoundEffect>(fullFilename);
+            } // try
+            catch (Exception exception)
+            {
+                throw new Exception("Failed to load sound file: " + fullFilename + "\n" + exception.Message);
+            }
+        } // Sound
+
+        #endregion
+
+        #region Play
+
+        /// <summary>
+        /// Play a new instance of this sound.
+        /// </summary>
+        public SoundInstance Play(float _volume = 1.0f)
+        {
+            SoundInstance soundInstance = new SoundInstance(soundEffect, _volume);
+            SoundManager.AddSound(soundInstance);
+            return soundInstance;
+        } // Play
+
+        /// <summary>
+        /// Play a new instance of this sound.
+        /// </summary>
+        public SoundInstance Play(XNAFinalEngine.GraphicElements.Object _listenerObject, XNAFinalEngine.GraphicElements.Object _emitterObject,
+                                  float _volume = 1.0f, float _dopplerScale = 1.0f)
+        {
+            SoundInstance soundInstance = new SoundInstance(soundEffect, _listenerObject, _emitterObject, _volume, _dopplerScale);
+            SoundManager.AddSound(soundInstance);
+            return soundInstance;
+        } // Play
+
+        /// <summary>
+        /// Play a new instance of this sound.
+        /// </summary>
+        public SoundInstance Play(Camera _listenerObject, XNAFinalEngine.GraphicElements.Object _emitterObject,
+                                  float _volume = 1.0f, float _dopplerScale = 1.0f)
+        {
+            SoundInstance soundInstance = new SoundInstance(soundEffect, _listenerObject, _emitterObject, _volume, _dopplerScale);
+            SoundManager.AddSound(soundInstance);
+            return soundInstance;
+        } // Play
+
+        #endregion
+
+    } // Sound
+
+    /// <summary>
+    /// Sound Instance.
+    /// </summary>
+    public class SoundInstance
+    {
+
+        #region Variables
+
+        /// <summary>
+        /// Sound Effect Instance.
+        /// </summary>
+        private SoundEffectInstance soundEffectInstance;
 
         /// <summary>
         /// Audio emitter, it’s needed by the positional sound.
@@ -75,9 +147,19 @@ namespace XNAFinalEngine.Sounds
         private AudioEmitter emitter = new AudioEmitter();
 
         /// <summary>
+        /// Emitter last position.
+        /// </summary>
+        private Vector3 emitterLastPosition;
+
+        /// <summary>
         /// Audio Listener, it’s needed by the positional sound.
         /// </summary>
         private AudioListener listener = new AudioListener();
+
+        /// <summary>
+        /// Listener last position.
+        /// </summary>
+        private Vector3 listenerLastPosition;
 
         /// <summary>
         /// The graphic object that will be the sound listener.
@@ -94,22 +176,6 @@ namespace XNAFinalEngine.Sounds
         /// </summary>
         private XNAFinalEngine.GraphicElements.Object emitterObject = null;
 
-        /// <summary>
-        /// Sounds volume for this sound. Range between 0.0f to 1.0f. It will be multiplied by the master sound volume.
-        /// </summary>
-        private float volume = 0.8f;
-
-        /// <summary>
-        /// Doppler scale.
-        /// This value determines how much to modify the calculated Doppler effect between this object and a AudioListener.
-        /// Values below 1.0 scale down the Doppler effect to make it less apparent. Values above 1.0 exaggerate the Doppler effect.
-        /// A value of 1.0 leaves the effect unmodified.
-        /// Note that this value modifies only the calculated Doppler between this object and a AudioListener.
-        /// The calculated Doppler is a product of the relationship between AudioEmitter.Velocity and AudioListener.Velocity.
-        /// If the calculation yields a result of no Doppler effect, this value has no effect.
-        /// </summary>
-        private float dopplerScale = 1;
-
         #endregion
 
         #region Properties
@@ -117,11 +183,7 @@ namespace XNAFinalEngine.Sounds
         /// <summary>
         /// Sounds volume for this sound. Range between 0.0f to 1.0f. It will be multiplied by the master sound volume.
         /// </summary>
-        public float Volume
-        {
-            get { return volume; }
-            set { volume = value; }
-        }
+        public float Volume { get; set; }
 
         /// <summary>
         /// Doppler scale
@@ -133,90 +195,76 @@ namespace XNAFinalEngine.Sounds
         /// If the calculation yields a result of no Doppler effect, this value has no effect.
         /// </summary>
         /// </summary>
-        public float DopplerScale
-        {
-            get { return dopplerScale; }
-            set { dopplerScale = value; }
-        }
-
+        public float DopplerScale { get; set; }
+                
         /// <summary>
-        /// XNA sound state
+        /// Is over?
         /// </summary>
-        public SoundState State { get { return soundEffectInstance.State; } }
+        public bool IsOver { get { return soundEffectInstance.State == SoundState.Stopped; } }
 
         #endregion
 
         #region Constructor
 
         /// <summary>
-        /// Hidden method that avoids hierarchy's problems.
+        /// Creates a 2D sound.
         /// </summary>
-        protected Sound() { }
-
-        /// <summary>
-        /// Creates a 2D sound. Initial state = stop.
-        /// </summary>
-        public Sound(string _soundFilename)
+        public SoundInstance(SoundEffect soundEffect, float _volume = 1.0f)
         {
-            soundFilename = _soundFilename;
-            string fullFilename = Directories.SoundsDirectory + "\\" + _soundFilename;
-            if (File.Exists(fullFilename + ".xnb") == false)
-            {
-                throw new Exception("Failed to load sound. File " + fullFilename + " does not exists!");
-            } // if (File.Exists)
-            try
-            {
-                soundEffect = EngineManager.Content.Load<SoundEffect>(fullFilename);
-                soundEffectInstance = soundEffect.CreateInstance();
-            } // try
-            catch (Exception exception)
-            {
-                throw new Exception("Failed to load sound file: " + fullFilename + "\n" + exception.Message);
-            }
-            SoundManager.AddSound(this);
-        } // Sound
+            soundEffectInstance = soundEffect.CreateInstance();
+            Volume = _volume;
+            soundEffectInstance.Play();
+        } // SoundInstance
 
         /// <summary>
-        /// Creates a 3D sound. Initial state = stop.
+        /// Creates a 3D sound.
         /// The listener is a graphic object.
         /// </summary>
-        public Sound(string _soundFilename, XNAFinalEngine.GraphicElements.Object _listenerObject, XNAFinalEngine.GraphicElements.Object _emitterObject) : this(_soundFilename)
+        public SoundInstance(SoundEffect soundEffect,
+                             XNAFinalEngine.GraphicElements.Object _listenerObject, XNAFinalEngine.GraphicElements.Object _emitterObject,
+                             float _volume = 1.0f, float _dopplerScale = 1.0f)
         {
+            soundEffectInstance = soundEffect.CreateInstance();
+            Volume = _volume;
+            DopplerScale = _dopplerScale;
             listenerObject = _listenerObject;
             emitterObject = _emitterObject;
+            listenerLastPosition = _listenerObject.WorldPosition;
+            emitterLastPosition = _emitterObject.WorldPosition;
             soundEffectInstance.Apply3D(listener, emitter);
-        } // Sound
+            soundEffectInstance.Play();
+        } // SoundInstance
 
         /// <summary>
-        /// Creates a 3D sound. Initial state = stop.
+        /// Creates a 3D sound.
         /// The listener is a camera.
         /// </summary>
-        public Sound(string _soundFilename, Camera _listenerObject, XNAFinalEngine.GraphicElements.Object _emitterObject) : this(_soundFilename)
+        public SoundInstance(SoundEffect soundEffect,
+                             Camera _listenerObject, XNAFinalEngine.GraphicElements.Object _emitterObject,
+                             float _volume = 1.0f, float _dopplerScale = 1.0f)
         {
+            soundEffectInstance = soundEffect.CreateInstance();
+            Volume = _volume;
+            DopplerScale = _dopplerScale;
             listenerCamera = _listenerObject;
             emitterObject = _emitterObject;
+            listenerLastPosition = _listenerObject.Position;
+            emitterLastPosition = _emitterObject.WorldPosition;
             soundEffectInstance.Apply3D(listener, emitter);
-        } // Sound
+            soundEffectInstance.Play();
+        } // SoundInstance
 
         #endregion
 
-        #region Stop Play Pause
+        #region Stop Pause Resume
 
         /// <summary>
         /// Stop the sound.
         /// </summary>
         public void Stop()
-        {            
+        {
             soundEffectInstance.Stop();
         } // Stop
-
-        /// <summary>
-        /// Play the sound from the start.
-        /// </summary>
-        public void Play()
-        {
-            soundEffectInstance.Play();
-        } // Play
 
         /// <summary>
         /// Pause the sound.
@@ -239,34 +287,34 @@ namespace XNAFinalEngine.Sounds
         #region Update
 
         /// <summary>
-        /// Update sound parameters.
+        /// Update sound instance parameters.
         /// </summary>
-        public virtual void Update()
+        internal virtual void Update()
         {
             if (soundEffectInstance.State == SoundState.Playing)
             {
-                soundEffectInstance.Volume = volume * SoundManager.MasterSoundVolume;
-                if (emitterObject != null) // Si el sonido es 3D
+                soundEffectInstance.Volume = Volume;
+                if (emitterObject != null) // If the sound is 3D
                 {
-                    if (listenerObject != null) // Si el objeto receptor es un objeto grafico
+                    if (listenerObject != null) // If the listener is a graphic object
                     {
                         listener.Position = listenerObject.WorldPosition;
                         listener.Forward = listenerObject.WorldMatrix.Forward;
                         listener.Up = listenerObject.WorldMatrix.Up;
-                        listener.Velocity = listenerObject.Velocity;
+                        listener.Velocity = (listenerObject.WorldPosition - listenerLastPosition) / (float)EngineManager.FrameTime;
                     }
-                    else // Si el objeto receptor es una camara
+                    else // If the listener is a camera
                     {
                         listener.Position = ApplicationLogic.Camera.Position;
-                        listener.Forward = ApplicationLogic.Camera.ZAxis; // Z or -Z?
+                        listener.Forward = -ApplicationLogic.Camera.ZAxis; // Z or -Z?
                         listener.Up = ApplicationLogic.Camera.YAxis;
-                        //listener.Velocity = ApplicationLogic.Camera.Velocity; // TODO
+                        listener.Velocity = (listenerCamera.Position - listenerLastPosition) / (float)EngineManager.FrameTime;
                     }
                     emitter.Position = emitterObject.WorldPosition;
                     emitter.Forward = emitterObject.WorldMatrix.Forward;
                     emitter.Up = emitterObject.WorldMatrix.Up;
-                    emitter.Velocity = emitterObject.Velocity;
-                    emitter.DopplerScale = dopplerScale;
+                    emitter.Velocity = (emitterObject.WorldPosition - emitterLastPosition) / (float)EngineManager.FrameTime;
+                    emitter.DopplerScale = DopplerScale;
                     soundEffectInstance.Apply3D(listener, emitter);
                 }
             }
@@ -274,21 +322,9 @@ namespace XNAFinalEngine.Sounds
 
         #endregion
 
-        #region Dispose
+    } // SoundInstance
 
-        /// <summary>
-        /// Dispose the sound.
-        /// </summary>
-        public void Dispose()
-        {
-            SoundManager.RemoveSound(this);
-            // We can’t dispose the sound from the system resources if we want to use it again in the same content mananger.
-            //soundEffectInstance.Dispose();
-            //soundEffect.Dispose();
-        } // Dispose
-
-        #endregion
-
-    } // Sound
 } // XNAFinalEngine.Sounds
+
+
 

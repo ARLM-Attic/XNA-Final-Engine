@@ -124,7 +124,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedShininess = null;
         /// <summary>
-        /// Set surface's shininess (valor mayor igual a cero)
+        /// Set surface's shininess (greater or equal to 0)
         /// </summary>
         private void SetShininess(float _shininess)
         {
@@ -158,7 +158,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedParallaxAmount = null;
         /// <summary>
-        /// Set surface's Parallax Amount (valor mayor igual a cero y menos igual que 1)
+        /// Set surface's Parallax Amount (value between 0 and 1)
         /// </summary>
         private void SetParallaxAmount(float _parallaxAmount)
         {
@@ -256,7 +256,7 @@ namespace XNAFinalEngine.GraphicElements
 		{
             Effect = LoadShader("ParallaxMapping");
             
-            GetParameters();
+            GetParametersHandles();
 
             LoadUITestElements();
         } // Parallax Mapping
@@ -291,20 +291,20 @@ namespace XNAFinalEngine.GraphicElements
 
         #endregion
         
-		#region GetParameters
+		#region Get Parameters Handles
 		
         /// <summary>
         /// Get the handles of the parameters from the shader.
 		/// </summary>
-		protected override void GetParameters()
+		protected override void GetParametersHandles()
 		{
 			try
 			{
                 // Matrices //
-                GetCommonParameters();
+                GetCommonParametersHandles();
                 // Lights //
-                GetAmbientLightParameters();
-                GetDirectionalLight1Parameters();
+                GetAmbientLightParametersHandles();
+                GetDirectionalLight1ParametersHandles();
                 // Surface //                
                 epSpecularColor = Effect.Parameters["specularColor"];
                 epParallaxAmount = Effect.Parameters["parallaxAmount"];
@@ -313,25 +313,25 @@ namespace XNAFinalEngine.GraphicElements
                 epDiffuseTexture = Effect.Parameters["DiffuseTexture"];
                 epNormalTexture = Effect.Parameters["normalTexture"];
 			}
-			catch (Exception ex)
+			catch
 			{
-                throw new Exception("Get the handles from the parallax mapping material failed. " + ex.ToString());				
+                throw new Exception("Get the handles from the parallax mapping material failed.");
 			}
-		} // GetParameters
+		} // GetParametersHandles
 
 		#endregion
 
         #region Set Attributes
 
         /// <summary>
-        /// Set to the shader the parrallax mapping specific atributes of this material.
+        /// Set to the shader the specific atributes of this material.
         /// </summary>
-        private void SetParallaxMappingAttributes()
+        private void SetParallaxMappingParameters()
         {
             SetShininess(shininess);
             SetParallaxAmount(parallaxAmount);
             SetSpecularColor(specularColor);
-        } // SetParallaxMappingAttributes
+        } // SetParallaxMappingParameters
 
         #endregion
 
@@ -340,24 +340,30 @@ namespace XNAFinalEngine.GraphicElements
         /// <summary>
         /// Render this shader/material; to do this job it takes an object model, its associated lights, and its matrices.
 		/// </summary>		
-        public override void Render(Matrix worldMatrix, PointLight[] pointLight, DirectionalLight[] directionalLight, SpotLight[] spotLight, Model model)
-		{   
+        internal override void Render(Matrix worldMatrix, PointLight[] pointLight, DirectionalLight[] directionalLight, SpotLight[] spotLight, Model model)
+        {
+
+            #region Set Parameters
+
             try
             {
-                SetCommomAtributes(worldMatrix);
+                SetCommomParameters(worldMatrix);
+                SetAmbientLightParameters();
+                SetParallaxMappingParameters();
                 SetDiffuseTexture(diffuseTexture);
                 SetNormalTexture(normalTexture);
-                SetAmbientLightAttributes();
-                SetParallaxMappingAttributes();
                 if (directionalLight != null)
                 {
-                    SetDirectionalLight1Attributes(directionalLight[0]);
+                    SetDirectionalLight1Parameters(directionalLight[0]);
                 }
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception("Unable to set the shader parameters " + e.Message);
+                throw new Exception("Unable to set the parallax mapping shader parameters.");
             }
+
+            #endregion
+
             base.Render(model);
         } // Render
 
@@ -423,7 +429,7 @@ namespace XNAFinalEngine.GraphicElements
         #region Shader Parameters
 
         /// <summary>
-        /// Effect handles for all material shaders
+        /// Effect handles for all material shaders.
         /// </summary>
         protected static EffectParameter
             // Matrices // 
@@ -439,11 +445,11 @@ namespace XNAFinalEngine.GraphicElements
         #region Matrices
 
         /// <summary>
-        /// Last used transpose inverse world matrix
+        /// Last used transpose inverse world matrix.
         /// </summary>
         private static Matrix? lastUsedTransposeInverseWorldMatrix = null;
         /// <summary>
-        /// Set transpose inverse world matrix
+        /// Set transpose inverse world matrix.
         /// </summary>
         private Matrix TransposeInverseWorldMatrix
         {
@@ -458,11 +464,11 @@ namespace XNAFinalEngine.GraphicElements
         } // TransposeInvertWorldMatrix
 
         /// <summary>
-        /// Last used world matrix
+        /// Last used world matrix.
         /// </summary>
         private static Matrix? lastUsedWorldMatrix = null;
         /// <summary>
-        /// Set world matrix
+        /// Set world matrix.
         /// </summary>
         private Matrix WorldMatrix
         {
@@ -477,11 +483,11 @@ namespace XNAFinalEngine.GraphicElements
         } // WorldMatrix
 
         /// <summary>
-        /// Last used inverse view matrix
+        /// Last used inverse view matrix.
         /// </summary>
         private static Matrix? lastUsedInverseViewMatrix = null;
         /// <summary>
-        /// Set view inverse matrix
+        /// Set view inverse matrix.
         /// </summary>
         private Matrix InverseViewMatrix
         {
@@ -496,11 +502,11 @@ namespace XNAFinalEngine.GraphicElements
         } // InverseViewMatrix
 
         /// <summary>
-        /// Last used world view projection matrix
+        /// Last used world view projection matrix.
         /// </summary>
         private static Matrix? lastUsedWorldViewProjMatrix = null;
         /// <summary>
-        /// Set world view projection matrix
+        /// Set world view projection matrix.
         /// </summary>
         private Matrix WorldViewProjMatrix
         {
@@ -515,11 +521,11 @@ namespace XNAFinalEngine.GraphicElements
         } // WorldViewProjMatrix
 
         /// <summary>
-        /// Last used view projection matrix
+        /// Last used view projection matrix.
         /// </summary>
         private static Matrix? lastUsedViewProjMatrix = null;
         /// <summary>
-        /// Set view projection matrix
+        /// Set view projection matrix.
         /// </summary>
         private Matrix ViewProjMatrix
         {
@@ -538,25 +544,25 @@ namespace XNAFinalEngine.GraphicElements
         #region Surface
 
         /// <summary>
-        /// Surface color
+        /// Surface color.
         /// </summary>
         private Color surfaceColor = Color.White;
 
         /// <summary>
-        /// Surface color
+        /// Surface color.
         /// </summary>
         public Color SurfaceColor
         {
             get { return surfaceColor; }
             set { surfaceColor = value; }
-        }
+        } // SurfaceColor
 
         /// <summary>
-        /// Last used surface color
+        /// Last used surface color.
         /// </summary>
         private static Color? lastUsedSurfaceColor = null;
         /// <summary>
-        /// Set surface color
+        /// Set surface color.
         /// </summary>
         private void SetSurfaceColor(Color _surfaceColor)
         {
@@ -568,12 +574,12 @@ namespace XNAFinalEngine.GraphicElements
         } // SetSurfaceColor
 
         /// <summary>
-        /// Alpha blending
+        /// Alpha blending.
         /// </summary>
         private float alphaBlending = 1.0f;
 
         /// <summary>
-        /// Alpha blending
+        /// Alpha blending.
         /// </summary>
         public float AlphaBlending
         {
@@ -582,7 +588,7 @@ namespace XNAFinalEngine.GraphicElements
         } // AlphaBlending
 
         /// <summary>
-        /// Last used alpha blending
+        /// Last used alpha blending.
         /// </summary>
         private static float? lastUsedAlphaBlending = null;
         /// <summary>
@@ -602,9 +608,9 @@ namespace XNAFinalEngine.GraphicElements
         #endregion
 
         /// <summary>
-        /// Get the common handlers parameters from the shader.
+        /// Get the common handlers from the shader.
         /// </summary>
-        protected void GetCommonParameters()
+        protected void GetCommonParametersHandles()
         {
             // Matrices //
             epWorldIT = Effect.Parameters["WorldIT"];
@@ -615,12 +621,12 @@ namespace XNAFinalEngine.GraphicElements
             // Alpha Blending //
             epSurfaceColor = Effect.Parameters["SurfaceColor"];
             epAlphaBlending = Effect.Parameters["AlphaBlending"];
-        } // GetCommonParameters
+        } // GetCommonParametersHandles
 
         /// <summary>
         /// Set to the shader the common atributes of this material.
         /// </summary>
-        protected virtual void SetCommomAtributes(Matrix worldMatrix)
+        protected virtual void SetCommomParameters(Matrix worldMatrix)
         {
             // Initialization of the Matrices
             TransposeInverseWorldMatrix = Matrix.Transpose(Matrix.Invert(worldMatrix));
@@ -631,7 +637,7 @@ namespace XNAFinalEngine.GraphicElements
             // Inicialization of the alpha blending
             SetSurfaceColor(surfaceColor);
             SetAlphaBlending(alphaBlending);
-        } // SetCommomAtributes
+        } // SetCommomParameters
 
         #endregion
 
@@ -645,11 +651,11 @@ namespace XNAFinalEngine.GraphicElements
         protected static EffectParameter epAmbientLightColor;
 
         /// <summary>
-        /// Last used ambient light color
+        /// Last used ambient light color.
         /// </summary>
         private static Color? lastUsedAmbientLightColor = null;
         /// <summary>
-        /// Set ambient light color
+        /// Set ambient light color.
         /// </summary>
         protected void SetAmbientLightColor(Color _ambientLightColor)
         {
@@ -658,25 +664,25 @@ namespace XNAFinalEngine.GraphicElements
                 lastUsedAmbientLightColor = _ambientLightColor;
                 epAmbientLightColor.SetValue(new Vector3(_ambientLightColor.R / 255f, _ambientLightColor.G / 255f, _ambientLightColor.B / 255f));
             }
-        } // AmbientLightColor
+        } // SetAmbientLightColor
 
         #endregion
 
         /// <summary>
         /// Get the handle of the parameters from the shader.
         /// </summary>
-        protected void GetAmbientLightParameters()
+        protected void GetAmbientLightParametersHandles()
         {
             epAmbientLightColor = Effect.Parameters["AmbientLightColor"];
-        } // GetAmbientLightParameters
+        } // GetAmbientLightParametersHandles
 
         /// <summary>
         /// Set the ambient light parameters to the shader.
         /// </summary>
-        public virtual void SetAmbientLightAttributes()
+        public virtual void SetAmbientLightParameters()
         {
             SetAmbientLightColor(AmbientLight.LightColor);
-        } // SetAmbientLightAttributes
+        } // SetAmbientLightParameters
 
         #endregion
 
@@ -691,11 +697,11 @@ namespace XNAFinalEngine.GraphicElements
                                          epDirectionalLight1Color;
 
         /// <summary>
-        /// Last used directional light 1 color
+        /// Last used directional light 1 color.
         /// </summary>
         private static Color? lastUsedDirectionalLight1Color = null;
         /// <summary>
-        /// Set directional light 1 color
+        /// Set directional light 1 color.
         /// </summary>
         protected void SetDirectionalLight1Color(Color _directionalLight1Color)
         {
@@ -707,11 +713,11 @@ namespace XNAFinalEngine.GraphicElements
         } // SetDirectionalLight1Color
 
         /// <summary>
-        /// Last used directional light 1 direction
+        /// Last used directional light 1 direction.
         /// </summary>
         private static Vector3? lastUsedDirectionalLight1Dir = null;
         /// <summary>
-        /// Set directional light 1 direction
+        /// Set directional light 1 direction.
         /// </summary>
         protected void SetDirectionalLight1Dir(Vector3 _directionalLight1Dir)
         {
@@ -727,16 +733,16 @@ namespace XNAFinalEngine.GraphicElements
         /// <summary>
         /// Get the handle of the parameters from the shader.
         /// </summary>
-        protected void GetDirectionalLight1Parameters()
+        protected void GetDirectionalLight1ParametersHandles()
         {
             epDirectionalLight1Color = Effect.Parameters["DirectionalLightColor"];
             epDirectionalLight1Dir = Effect.Parameters["DirectionalLightDir"];
-        } // GetDirectionalLight1Parameters
+        } // GetDirectionalLight1ParametersHandles
 
         /// <summary>
         /// Set the directional light parameters to the shader.
         /// </summary>
-        public virtual void SetDirectionalLight1Attributes(DirectionalLight directionalLight)
+        public virtual void SetDirectionalLight1Parameters(DirectionalLight directionalLight)
         {
             if (directionalLight != null)
             {
@@ -747,7 +753,7 @@ namespace XNAFinalEngine.GraphicElements
             {
                 SetDirectionalLight1Color(Color.Black);
             }
-        } // SetDirectionalLight1Attributes
+        } // SetDirectionalLight1Parameters
 
         #endregion
 

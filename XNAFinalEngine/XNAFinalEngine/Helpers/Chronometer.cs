@@ -120,7 +120,7 @@ namespace XNAFinalEngine.Helpers
         {
             if (!IsPause)
             {
-                ElapsedTime += EngineManager.ElapsedTimeThisFrameInSeconds;
+                ElapsedTime += EngineManager.FrameTime;
             }
         } // Update
 

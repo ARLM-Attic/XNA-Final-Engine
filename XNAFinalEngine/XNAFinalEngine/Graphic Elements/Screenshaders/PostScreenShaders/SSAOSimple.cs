@@ -79,7 +79,8 @@ namespace XNAFinalEngine.GraphicElements
                                 epSampleRadius,
                                 epDistanceScale,
                                 epProjection,
-                                epCornerFustrum;
+                                epCornerFustrum,
+                                epInverseResolution;
 
         #endregion
 
@@ -171,6 +172,26 @@ namespace XNAFinalEngine.GraphicElements
 
         #endregion
 
+        #region Inverse Resolution
+
+        /// <summary>
+        /// Last used inverse resolution
+        /// </summary>
+        private static Vector2? lastUsedInverseResolution = null;
+        /// <summary>
+        /// Set inverse resolution.
+        /// </summary>
+        private void SetInverseResolution(Vector2 _inverseResolution)
+        {
+            if (lastUsedInverseResolution != _inverseResolution)
+            {
+                lastUsedInverseResolution = _inverseResolution;
+                epInverseResolution.SetValue(_inverseResolution);
+            }
+        } // SetInverseResolution
+
+        #endregion
+
         #endregion
 
         #region Constructor
@@ -187,23 +208,22 @@ namespace XNAFinalEngine.GraphicElements
             if (SSAOTexture == null)
                 SSAOTexture = new RenderToTexture(_rendeTargetSize);
 
-            GetParameters();
+            GetParametersHandles();
 
             // Set some parameters automatically
             randomNormalTexture = new Texture("RANDOMNORMAL");
             epRandomTexture.SetValue(randomNormalTexture.XnaTexture);
-            SetCornerFustrum(CalculateCorner());
-            Effect.Parameters["g_InvResolution"].SetValue(new Vector2(1 / (float)EngineManager.Width, 1 / (float)EngineManager.Height));
+            
         } // SSAOSimple
 
 		#endregion
 
-		#region Get parameters
+		#region Get parameters handles
 
 		/// <summary>
         /// Get the handles of the parameters from the shader.
 		/// </summary>
-		protected void GetParameters()
+		protected void GetParametersHandles()
 		{
             try
             {
@@ -212,13 +232,14 @@ namespace XNAFinalEngine.GraphicElements
                 epSampleRadius = Effect.Parameters["sampleRadius"];
                 epDistanceScale = Effect.Parameters["distanceScale"];
                 epProjection = Effect.Parameters["Projection"];
-                epCornerFustrum = Effect.Parameters["cornerFustrum"];	
+                epCornerFustrum = Effect.Parameters["cornerFustrum"];
+                epInverseResolution = Effect.Parameters["g_InvResolution"];
 		    }
-            catch (Exception ex)
+            catch
             {
-                throw new Exception("Get the handles from the SSAO Simple shader failed. " + ex.ToString());
+                throw new Exception("Get the handles from the SSAO Simple shader failed.");
             }
-		} // GetParameters
+		} // GetParametersHandles
 
 		#endregion
 
@@ -239,7 +260,7 @@ namespace XNAFinalEngine.GraphicElements
 
         #endregion
 
-        #region GenerateSSAO
+        #region Generate SSAO
 
         /// <summary>
         /// Generate SSAO texture
@@ -251,6 +272,8 @@ namespace XNAFinalEngine.GraphicElements
             epProjection.SetValue(ApplicationLogic.Camera.ProjectionMatrix);
             SetSampleRadius(sampleRadius);
             SetDistanceScale(distanceScale);
+            SetCornerFustrum(CalculateCorner());
+            SetInverseResolution(new Vector2(1 / (float)EngineManager.Width, 1 / (float)EngineManager.Height));
                         
             // Start rendering onto the shadow map
             SSAOTexture.EnableRenderTarget();

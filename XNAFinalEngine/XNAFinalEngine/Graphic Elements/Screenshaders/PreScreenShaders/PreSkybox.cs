@@ -181,10 +181,10 @@ namespace XNAFinalEngine.GraphicElements
             Effect = LoadShader("PreSkybox");
             Effect.CurrentTechnique = Effect.Techniques["ModelShader30"];
             
-            GetParameters();
+            GetParametersHandles();
 
             // Load the cubic texture
-            string fullFilename = Directories.TexturesDirectory + "\\Skybox-" + _textureFilename;
+            string fullFilename = Directories.TexturesDirectory + "\\Skybox\\" + _textureFilename;
 
             if (File.Exists(fullFilename + ".xnb") == false)
             {
@@ -192,7 +192,10 @@ namespace XNAFinalEngine.GraphicElements
             } // if (File.Exists)
             try
             {
-                SetCubeMapTexture(EngineManager.Content.Load<TextureCube>(fullFilename));
+                if (EngineManager.UsesSystemContent)
+                    SetCubeMapTexture(EngineManager.SystemContent.Load<TextureCube>(fullFilename));
+                else
+                    SetCubeMapTexture(EngineManager.CurrentContent.Load<TextureCube>(fullFilename));     
 
             } // try
             catch (Exception)
@@ -203,12 +206,12 @@ namespace XNAFinalEngine.GraphicElements
 
         #endregion
 
-        #region Get Parameters
+        #region Get parameters handles
 
         /// <summary>
         /// Get the handles of the parameters from the shader.
         /// </summary>
-        protected virtual void GetParameters()
+        protected virtual void GetParametersHandles()
         {
             try
 			{
@@ -217,27 +220,27 @@ namespace XNAFinalEngine.GraphicElements
                 epCubeMapTexture = Effect.Parameters["CubeMapTexture"];
                 epAlphaBlending = Effect.Parameters["AlphaBlending"];
             }
-            catch (Exception ex)
+            catch
             {
-                throw new Exception("Get the handles from the skybox shader failed. " + ex.ToString());
+                throw new Exception("Get the handles from the skybox shader failed.");
             }
-        } // GetParameters
+        } // GetParametersHandles
 
         #endregion
 
-        #region SetAtributes
+        #region Set Parameters
 
         /// <summary>
         /// Set to the shader the specific atributes of this effect.
         /// </summary>
-        public virtual void SetAtributes()
+        public virtual void SetParameters()
         {
             // Matrices
             SetViewProjectionMatrix(ApplicationLogic.Camera.ViewMatrix * ApplicationLogic.Camera.ProjectionMatrix);
             // Others
             SetSkyboxIntesity(skyboxIntesity);
             SetAlphaBlending(alphaBlending);
-        } // SetAtributes
+        } // SetParameters
 
         #endregion
 
@@ -248,8 +251,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         public void Render()
         {
-            // SetAtributes
-            SetAtributes();
+            SetParameters();
             try
             {
                 foreach (EffectPass pass in Effect.CurrentTechnique.Passes)
@@ -257,11 +259,11 @@ namespace XNAFinalEngine.GraphicElements
                     pass.Apply();
                     skybox.Render();
                 }
-            } // try
+            }
             catch (Exception ex)
             {
                 throw new Exception("Failed to render the skybox: " + ex.ToString());
-            } // catch			
+            }		
         } // Render
 
         #endregion

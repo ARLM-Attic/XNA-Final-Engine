@@ -103,7 +103,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedNumberSteps = null;
         /// <summary>
-        /// Set Number of Steps (valor mayor a cero)
+        /// Set Number of Steps (greater or equal to 0)
         /// </summary>
         private void SetNumberSteps(float _numberSteps)
         {
@@ -136,7 +136,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedNumberRays = null;
         /// <summary>
-        /// Set Number of Rays (valor mayor a cero)
+        /// Set Number of Rays (greater or equal to 0)
         /// </summary>
         private void SetNumberRays(float _numberRays)
         {
@@ -169,7 +169,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedNumberDirections = null;
         /// <summary>
-        /// Set Number of Directions (valor mayor a cero)
+        /// Set Number of Directions (greater or equal to 0)
         /// </summary>
         private void SetNumberDirections(float _numberDirections)
         {
@@ -202,7 +202,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedContrast = null;
         /// <summary>
-        /// Contrast (valor mayor igual a cero y menos igual a 2)
+        /// Contrast (value between 0 and 2)
         /// </summary>
         private void SetContrast(float _contrast)
         {
@@ -235,7 +235,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedLineAttenuation = null;
         /// <summary>
-        /// Set Line Attenuation (valor mayor igual a cero y menos igual a 2)
+        /// Set Line Attenuation (value between 0 and 2)
         /// </summary>
         private void SetLineAttenuation(float _lineAttenuation)
         {
@@ -268,7 +268,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedAspectRatio = null;
         /// <summary>
-        /// Set Aspect Ratio (valor mayor igual a 1 y menos igual a 3)
+        /// Set Aspect Ratio (value between 1 and 3)
         /// </summary>
         private void SetAspectRatio(float _aspectRatio)
         {
@@ -305,11 +305,11 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedFarPlane = null;
         /// <summary>
-        /// Set Far Plane (value between 1 and 100000)
+        /// Set Far Plane (greater or equal to 1)
         /// </summary>
         private void SetFarPlane(float _farPlane)
         {
-            if (lastUsedFarPlane != _farPlane && _farPlane >= 1.0f && _farPlane <= 100000.0f)
+            if (lastUsedFarPlane != _farPlane && _farPlane >= 1.0f)
             {
                 lastUsedFarPlane = _farPlane;
                 epFarPlane.SetValue(_farPlane);
@@ -338,7 +338,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedRadius = null;
         /// <summary>
-        /// Set Radius (valor mayor igual a cero y menos igual a 2)
+        /// Set Radius (value between 0 and 2)
         /// </summary>
         private void SetRadius(float _radius)
         {
@@ -367,10 +367,9 @@ namespace XNAFinalEngine.GraphicElements
             if (SSAOTexture == null)
                 SSAOTexture = new RenderToTexture(_rendeTargetSize);
 
-            GetParameters();
+            GetParametersHandles();
 
             // Set some parameters automatically
-            AspectRatio = EngineManager.AspectRatio;
             FarPlane = ApplicationLogic.Camera.FarPlane;
 
             LoadUITestElements();
@@ -378,12 +377,12 @@ namespace XNAFinalEngine.GraphicElements
 
 		#endregion
 
-		#region Get Parameters
+		#region Get parameters handles
 
 		/// <summary>
         /// Get the handles of the parameters from the shader.
 		/// </summary>
-		protected void GetParameters()
+		protected void GetParametersHandles()
 		{	
             try
 			{
@@ -401,21 +400,22 @@ namespace XNAFinalEngine.GraphicElements
                 epFocalLenght = Effect.Parameters["g_FocalLen"];
                 epRadius = Effect.Parameters["g_R"];
             }
-            catch (Exception ex)
+            catch
             {
-                throw new Exception("Get the handles from the SSAO Ray Marching shader failed. " + ex.ToString());
+                throw new Exception("Get the handles from the SSAO Ray Marching shader failed.");
             }
-		} // GetParameters
+		} // GetParametersHandles
 
 		#endregion
 
-        #region Set Attributes
+        #region Set parameters
 
         /// <summary>
         /// Set to the shader the specific atributes of this effect.
         /// </summary>
-        public void SetAttributes()
+        public void SetParameters()
         {
+            AspectRatio = EngineManager.AspectRatio;
             SetNumberSteps(NumberSteps);
             SetNumberRays(NumberRays);
             SetNumberDirections(NumberDirections);
@@ -424,11 +424,11 @@ namespace XNAFinalEngine.GraphicElements
             SetAspectRatio(AspectRatio);
             SetFarPlane(FarPlane);
             SetRadius(Radius);
-        } // SetAttributes
+        } // SetParameters
 
         #endregion
 
-        #region GenerateSSAO
+        #region Generate SSAO
 
         /// <summary>
         /// Generate SSAO texture
@@ -439,7 +439,7 @@ namespace XNAFinalEngine.GraphicElements
             epDepthNormalTexture.SetValue(_normalTexture);
             epHighPresicionDepthTexture.SetValue(_depthTexture);
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
-            SetAttributes();
+            SetParameters();
                         
             // Start rendering onto the render target
             SSAOTexture.EnableRenderTarget();

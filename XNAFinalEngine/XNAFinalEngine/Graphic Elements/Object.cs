@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.GraphicElements
@@ -60,32 +61,32 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         protected List<Animation> activeAnimations = new List<Animation>();
 
-        /// <summary>
-        /// Object's velocity (affected by animations).
-        /// </summary>
-        protected Vector3 velocity = Vector3.Zero;
-
         #region Place in the world
 
         /// <summary>
         /// Position, rotation and scaling of the object (local).
         /// </summary>
-        protected Matrix objectMatrix;
+        private Matrix objectMatrix;
 
         /// <summary>
         /// Position of the object (local).
         /// </summary>
-        protected Vector3 position = Vector3.Zero;
+        private Vector3 position = Vector3.Zero;
 
         /// <summary>
         /// Rotation of the object (local).
         /// </summary>
-        protected Matrix rotation = Matrix.Identity;
+        private Matrix rotation = Matrix.Identity;
 
         /// <summary>
         /// Scale of the object (local).
         /// </summary>
-        protected Vector3 scale = new Vector3(1, 1, 1);
+        private Vector3 scale = new Vector3(1, 1, 1);
+
+        /// <summary>
+        /// Used for velocity.
+        /// </summary>
+        private Vector3 lastWorldPosition = Vector3.Zero;
 
         #endregion
 
@@ -100,16 +101,7 @@ namespace XNAFinalEngine.GraphicElements
         {
             get { return father; }
             set { father = value; }
-        }
-
-        /// <summary>
-        /// Object's velocity (affected by animations).
-        /// </summary>
-        public Vector3 Velocity
-        {
-            get { return velocity; }
-            set { velocity = value; }
-        }
+        } // Father
 
         #region Place in the world
         

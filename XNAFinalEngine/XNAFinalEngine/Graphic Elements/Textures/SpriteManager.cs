@@ -102,7 +102,7 @@ namespace XNAFinalEngine.GraphicElements
             // Create sprite batch if we have not done it yet.
             // Use device from texture to create the sprite batch.
             if (spriteBatch == null)
-                spriteBatch = new SpriteBatch(sprites[0].texture.GraphicsDevice);
+                spriteBatch = new SpriteBatch(EngineManager.Device);
 
             // Start rendering sprites
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.Default, RasterizerState.CullNone);

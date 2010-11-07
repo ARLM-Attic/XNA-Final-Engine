@@ -44,8 +44,8 @@ namespace XNAFinalEngine.GraphicElements
     /// <summary>
     /// A simple FPS Camera.
     /// WASD for movement, mouse movement for orientation.
-    /// Developed by Gonzalo Webber and Lucrecia Ibaldi for Red Fire,
-    /// a project in this engine for Computación Grafica (Universidad Nacional del Sur).
+    /// Developed by Gonzalo Webber and Lucrecia Ibaldi for Red Fire.
+    /// This class is a part of a project developed in this engine for the subject Computación Grafica (Universidad Nacional del Sur).
     /// </summary>
     public class FPSCamera : Camera
     {
@@ -100,7 +100,7 @@ namespace XNAFinalEngine.GraphicElements
             set
             {
                 height = value;
-                position.Y = height;
+                Position = new Vector3(Position.X, height, Position.Z);
             }
         } // Height
 
@@ -141,8 +141,8 @@ namespace XNAFinalEngine.GraphicElements
             #region Orientation
 
             // Orientation
-            yaw += (Mouse.XMovement) * rotationFactor * (float)EngineManager.ElapsedTimeThisFrameInSeconds;
-            pitch += (Mouse.YMovement) * rotationFactor * (float)EngineManager.ElapsedTimeThisFrameInSeconds;
+            yaw += (Mouse.XMovement) * rotationFactor * (float)EngineManager.FrameTime;
+            pitch += (Mouse.YMovement) * rotationFactor * (float)EngineManager.FrameTime;
             // Upper bound
             if (pitch > HalfPI - 1f)
             {
@@ -162,7 +162,7 @@ namespace XNAFinalEngine.GraphicElements
             #region Movement
 
             float deltaX = 0, deltaZ = 0;
-            float deltaTime = (float)EngineManager.ElapsedTimeThisFrameInSeconds;
+            float deltaTime = (float)EngineManager.FrameTime;
             if (Keyboard.KeyPressed(Keys.W))
             {
                 deltaZ = moveFactor * deltaTime;
@@ -179,7 +179,6 @@ namespace XNAFinalEngine.GraphicElements
             {
                 deltaX = -moveFactor * deltaTime;
             }
-            position.Y = height;
             TranslateLocal(-deltaZ, MoveDirections.Z);
             TranslateLocal(-deltaX, MoveDirections.X);
 

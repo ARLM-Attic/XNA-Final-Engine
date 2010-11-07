@@ -69,12 +69,17 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         private static GameWindow window;
 
+        /// <summary>
+        /// Uses system content?
+        /// </summary>
+        private static bool usesSystemContent = true;
+
         #region Time
 
         /// <summary>
         /// Elapsed time of this frame (in ms). Always have something valid here in case we devide through this values!
         /// </summary>
-        private static double elapsedTimeThisFrameInMs = 0.0001f;
+        private static double frameTimeInMs = 0.0001f;
 
         /// <summary>
         /// Total time of the application (in ms).
@@ -113,7 +118,7 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// Exit the application? Exit takes action in the beggining of the update.
         /// </summary>
-        public static bool Exit { get; set; } // Override base.Exit(); // I don't want that the application exit when the engine wants, first it needs to finish the frame.
+        public static new bool Exit { get; set; } // Override base.Exit(); // I don't want that the application exit when the engine wants, first it needs to finish the frame.
 
         /// <summary>
         /// Window resolution width.
@@ -141,9 +146,19 @@ namespace XNAFinalEngine.EngineCore
         public static GraphicsDevice Device { get; private set; }
 
         /// <summary>
-        /// XNA Content.
+        /// Uses system content manager? Or uses a custom content manager?
         /// </summary>
-        public static new ContentManager Content { get; private set; }
+        public static bool UsesSystemContent { get { return usesSystemContent; } set { usesSystemContent = value;  } }
+
+        /// <summary>
+        /// Current content manager. It will be used if UsesSystemContent is false.
+        /// </summary>
+        public static ContentManager CurrentContent { get; set; }
+
+        /// <summary>
+        /// System content manager.
+        /// </summary>
+        public static ContentManager SystemContent { get; private set; }
 
         /// <summary>
         /// XNA Services.
@@ -187,9 +202,14 @@ namespace XNAFinalEngine.EngineCore
         #region Time
 
         /// <summary>
+        /// Elapsed time of this frame (in seconds)
+        /// </summary>
+        public static double FrameTime { get { return frameTimeInMs / 1000.0f; } }
+
+        /// <summary>
         /// Elapsed time of this frame (in ms).
         /// </summary>
-        public static double ElapsedTimeThisFrameInMilliseconds { get { return elapsedTimeThisFrameInMs; } }
+        public static double FrameTimeInMilliseconds { get { return frameTimeInMs; } }
 
         /// <summary>
         /// Total time of the application (in seconds).
@@ -200,11 +220,6 @@ namespace XNAFinalEngine.EngineCore
         /// Total time of the application (in ms).
         /// </summary>
         public static double TotalTimeMilliseconds { get { return totalTimeMs; } }
-
-        /// <summary>
-        /// Elapsed time of this frame (in seconds)
-        /// </summary>
-        public static double ElapsedTimeThisFrameInSeconds { get { return elapsedTimeThisFrameInMs / 1000.0f; } }
 
         #endregion
 
@@ -218,7 +233,7 @@ namespace XNAFinalEngine.EngineCore
         /// if it's fullscreen or windowed, if we can change windows size,
         /// and if it has v-sync and multisampling (O if not, 2, 4, 8 and 16 are the quality).
         /// </summary>
-        public EngineManager(string _title, Size _resolution, float _aspectRatio, bool _fullscreen, bool _changeWindowSize, bool _vsync, int _multiSampleQuality)
+        public EngineManager(string _title, Size _resolution, float _aspectRatio, bool _fullscreen, bool _changeWindowSize, bool _vsync, int framePerSeconds, int _multiSampleQuality)
         {            
             // Set window title
             Window.Title = _title;
@@ -256,11 +271,20 @@ namespace XNAFinalEngine.EngineCore
             // VSync
             GraphicsManager.SynchronizeWithVerticalRetrace = _vsync;
 
-            // Se actualiza ni bien puede. No a intervalos definidos de tiempo.
-            this.IsFixedTimeStep = false;
+            // Frame per seconds
+            if (framePerSeconds == 0)
+            {
+                // Se actualiza ni bien puede. No a intervalos definidos de tiempo.
+                this.IsFixedTimeStep = false;
+            }
+            else
+            {
+                this.IsFixedTimeStep = true;
+                this.TargetElapsedTime = TimeSpan.FromSeconds(1.0f / framePerSeconds);
+            }
 
-            // Content manager
-            Content = base.Content;
+            // System content manager
+            SystemContent = base.Content;
 
             // Services
             Services = base.Services;
@@ -270,9 +294,9 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// Creates the XNA window and set its main parameters using the settings file 
         /// </summary>
-        public EngineManager() : this(Application.ProductName, new Size(Settings.Settings.Default.ResolutionWidth, Settings.Settings.Default.ResolutionHeight),
+        public EngineManager() : this(Settings.Settings.Default.WindowName, new Size(Settings.Settings.Default.ResolutionWidth, Settings.Settings.Default.ResolutionHeight),
                                       Settings.Settings.Default.AspectRatio, Settings.Settings.Default.Fullscreen, Settings.Settings.Default.ChangeWindowSize,
-                                      Settings.Settings.Default.VSync, Settings.Settings.Default.MultiSampleQuality)
+                                      Settings.Settings.Default.VSync, Settings.Settings.Default.FramePerSeconds, Settings.Settings.Default.MultiSampleQuality)
         {
         } // EngineManager
 
@@ -423,12 +447,12 @@ namespace XNAFinalEngine.EngineCore
                 GameTime = _gameTime;
 
                 lastFrameTotalTimeMs = totalTimeMs;
-                elapsedTimeThisFrameInMs = GameTime.ElapsedGameTime.TotalMilliseconds;
+                frameTimeInMs = GameTime.ElapsedGameTime.TotalMilliseconds;
                 totalTimeMs = GameTime.TotalGameTime.TotalMilliseconds;
 
                 // Make sure elapsedTimeThisFrameInMs is never 0
-                if (elapsedTimeThisFrameInMs <= 0)
-                    elapsedTimeThisFrameInMs = 1;
+                if (frameTimeInMs <= 0)
+                    frameTimeInMs = 1;
 
                 // Increase frame counter for FramesPerSecond
                 frameCountThisSecond++;
@@ -452,7 +476,7 @@ namespace XNAFinalEngine.EngineCore
 
                 Chronometer.UpdateAllChronometers();
 
-                SoundManager.UpdateSoundParameters();
+                SoundManager.UpdateSound();
 
                 MusicManager.Update();
 

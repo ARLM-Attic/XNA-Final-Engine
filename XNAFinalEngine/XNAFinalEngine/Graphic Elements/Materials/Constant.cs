@@ -44,7 +44,7 @@ namespace XNAFinalEngine.GraphicElements
     /// <summary>
     /// Constant Material.
     /// It doesn't have local illumination; however it can be affected by global illumination.
-    /// This shader could be used like a plane mask.
+    /// This shader could also be used like a plane mask.
     /// </summary>
     public class Constant : Material
     {
@@ -108,7 +108,7 @@ namespace XNAFinalEngine.GraphicElements
         public Constant()
 		{
             Effect = LoadShader("Constant");
-            GetParameters();
+            GetParametersHandles();
             LoadUITestElements();
         } // Constant
 
@@ -147,25 +147,23 @@ namespace XNAFinalEngine.GraphicElements
 
 		#endregion
         
-		#region GetParameters
+		#region Get Parameters Handles
 
         /// <summary>
         /// Get the handles of the parameters from the shader.
         /// </summary>
-		protected override void GetParameters()
+		protected override void GetParametersHandles()
 		{
 			try
-			{
-                // Matrixes and Lights //
-                GetCommonParameters();
-                // Textures //
+			{   
+                GetCommonParametersHandles();
                 epDiffuseTexture = Effect.Parameters["DiffuseTexture"];
 			}
-			catch (Exception ex)
+			catch
 			{
-                throw new Exception("Get the handles from the constant material failed. " + ex.ToString());				
+                throw new Exception("Get the handles from the constant material failed.");				
 			}
-		} // GetParameters
+		} // GetParametersHandles
 
 		#endregion
 
@@ -174,11 +172,14 @@ namespace XNAFinalEngine.GraphicElements
         /// <summary>
         /// Render this shader/material; to do this job it takes an object model, its associated lights, and its matrixes.
 		/// </summary>		
-        public override void Render(Matrix worldMatrix, PointLight[] pointLight, DirectionalLight[] directionalLight, SpotLight[] spotLight, Model model)
-		{   
+        internal override void Render(Matrix worldMatrix, PointLight[] pointLight, DirectionalLight[] directionalLight, SpotLight[] spotLight, Model model)
+        {
+
+            #region Set Parameters
+
             try
             {
-                SetCommomAtributes(worldMatrix);
+                SetCommomParameters(worldMatrix);
                 if (diffuseTexture == null)
                     Effect.CurrentTechnique = Effect.Techniques["ConstantWithoutTexture"];
                 else
@@ -187,10 +188,13 @@ namespace XNAFinalEngine.GraphicElements
                     SetDiffuseTexture(diffuseTexture);
                 }
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception("Unable to set the shader parameters " + e.Message);
+                throw new Exception("Unable to set the constant shader parameters.");
             }
+
+            #endregion
+
             base.Render(model);
         } // Render
 
@@ -246,7 +250,7 @@ namespace XNAFinalEngine.GraphicElements
         #region Shader Parameters
 
         /// <summary>
-        /// Effect handles for all material shaders
+        /// Effect handles for all material shaders.
         /// </summary>
         protected static EffectParameter
             // Matrices // 
@@ -262,11 +266,11 @@ namespace XNAFinalEngine.GraphicElements
         #region Matrices
 
         /// <summary>
-        /// Last used transpose inverse world matrix
+        /// Last used transpose inverse world matrix.
         /// </summary>
         private static Matrix? lastUsedTransposeInverseWorldMatrix = null;
         /// <summary>
-        /// Set transpose inverse world matrix
+        /// Set transpose inverse world matrix.
         /// </summary>
         private Matrix TransposeInverseWorldMatrix
         {
@@ -281,11 +285,11 @@ namespace XNAFinalEngine.GraphicElements
         } // TransposeInvertWorldMatrix
 
         /// <summary>
-        /// Last used world matrix
+        /// Last used world matrix.
         /// </summary>
         private static Matrix? lastUsedWorldMatrix = null;
         /// <summary>
-        /// Set world matrix
+        /// Set world matrix.
         /// </summary>
         private Matrix WorldMatrix
         {
@@ -300,11 +304,11 @@ namespace XNAFinalEngine.GraphicElements
         } // WorldMatrix
 
         /// <summary>
-        /// Last used inverse view matrix
+        /// Last used inverse view matrix.
         /// </summary>
         private static Matrix? lastUsedInverseViewMatrix = null;
         /// <summary>
-        /// Set view inverse matrix
+        /// Set view inverse matrix.
         /// </summary>
         private Matrix InverseViewMatrix
         {
@@ -319,11 +323,11 @@ namespace XNAFinalEngine.GraphicElements
         } // InverseViewMatrix
 
         /// <summary>
-        /// Last used world view projection matrix
+        /// Last used world view projection matrix.
         /// </summary>
         private static Matrix? lastUsedWorldViewProjMatrix = null;
         /// <summary>
-        /// Set world view projection matrix
+        /// Set world view projection matrix.
         /// </summary>
         private Matrix WorldViewProjMatrix
         {
@@ -338,11 +342,11 @@ namespace XNAFinalEngine.GraphicElements
         } // WorldViewProjMatrix
 
         /// <summary>
-        /// Last used view projection matrix
+        /// Last used view projection matrix.
         /// </summary>
         private static Matrix? lastUsedViewProjMatrix = null;
         /// <summary>
-        /// Set view projection matrix
+        /// Set view projection matrix.
         /// </summary>
         private Matrix ViewProjMatrix
         {
@@ -361,25 +365,25 @@ namespace XNAFinalEngine.GraphicElements
         #region Surface
 
         /// <summary>
-        /// Surface color
+        /// Surface color.
         /// </summary>
         private Color surfaceColor = Color.White;
 
         /// <summary>
-        /// Surface color
+        /// Surface color.
         /// </summary>
         public Color SurfaceColor
         {
             get { return surfaceColor; }
             set { surfaceColor = value; }
-        }
+        } // SurfaceColor
 
         /// <summary>
-        /// Last used surface color
+        /// Last used surface color.
         /// </summary>
         private static Color? lastUsedSurfaceColor = null;
         /// <summary>
-        /// Set surface color
+        /// Set surface color.
         /// </summary>
         private void SetSurfaceColor(Color _surfaceColor)
         {
@@ -391,12 +395,12 @@ namespace XNAFinalEngine.GraphicElements
         } // SetSurfaceColor
 
         /// <summary>
-        /// Alpha blending
+        /// Alpha blending.
         /// </summary>
         private float alphaBlending = 1.0f;
 
         /// <summary>
-        /// Alpha blending
+        /// Alpha blending.
         /// </summary>
         public float AlphaBlending
         {
@@ -405,7 +409,7 @@ namespace XNAFinalEngine.GraphicElements
         } // AlphaBlending
 
         /// <summary>
-        /// Last used alpha blending
+        /// Last used alpha blending.
         /// </summary>
         private static float? lastUsedAlphaBlending = null;
         /// <summary>
@@ -425,9 +429,9 @@ namespace XNAFinalEngine.GraphicElements
         #endregion
 
         /// <summary>
-        /// Get the common handlers parameters from the shader.
+        /// Get the common handlers from the shader.
         /// </summary>
-        protected void GetCommonParameters()
+        protected void GetCommonParametersHandles()
         {
             // Matrices //
             epWorldIT = Effect.Parameters["WorldIT"];
@@ -438,12 +442,12 @@ namespace XNAFinalEngine.GraphicElements
             // Alpha Blending //
             epSurfaceColor = Effect.Parameters["SurfaceColor"];
             epAlphaBlending = Effect.Parameters["AlphaBlending"];
-        } // GetCommonParameters
+        } // GetCommonParametersHandles
 
         /// <summary>
         /// Set to the shader the common atributes of this material.
         /// </summary>
-        protected virtual void SetCommomAtributes(Matrix worldMatrix)
+        protected virtual void SetCommomParameters(Matrix worldMatrix)
         {
             // Initialization of the Matrices
             TransposeInverseWorldMatrix = Matrix.Transpose(Matrix.Invert(worldMatrix));
@@ -454,7 +458,7 @@ namespace XNAFinalEngine.GraphicElements
             // Inicialization of the alpha blending
             SetSurfaceColor(surfaceColor);
             SetAlphaBlending(alphaBlending);
-        } // SetCommomAtributes
+        } // SetCommomParameters
 
         #endregion
 

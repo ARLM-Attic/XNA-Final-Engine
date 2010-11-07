@@ -281,11 +281,11 @@ technique CarPaint3PointLight
 		VertexShader = compile vs_3_0 VertexShaderFunctionThreeLights();
 		ZEnable = true;
 		ZWriteEnable = true;
-#ifdef FX_COMPOSER
-        CullMode = None;   // For FX Composer
-        AlphaBlendEnable = true;
+		AlphaBlendEnable = true;
 		SrcBlend = SRCALPHA;
 		DestBlend = INVSRCALPHA;
+#ifdef FX_COMPOSER
+        CullMode = None;   // For FX Composer
 #else
         CullMode = CCW;    // For The Engine	
 #endif	
@@ -300,11 +300,11 @@ technique CarPaint1PointLight
 		VertexShader = compile vs_3_0 VertexShaderFunctionOneLight();
 		ZEnable = true;
 		ZWriteEnable = true;
-#ifdef FX_COMPOSER
-        CullMode = None;   // For FX Composer
 		AlphaBlendEnable = true;
 		SrcBlend = SRCALPHA;
 		DestBlend = INVSRCALPHA;
+#ifdef FX_COMPOSER
+        CullMode = None;   // For FX Composer
 #else
         CullMode = CCW;    // For The Engine	
 #endif

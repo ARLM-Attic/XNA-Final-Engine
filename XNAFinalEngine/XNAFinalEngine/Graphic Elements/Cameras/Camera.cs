@@ -109,7 +109,7 @@ namespace XNAFinalEngine.GraphicElements
 		/// <summary>
 		/// Camera position.
 		/// </summary>
-		protected Vector3 position = new Vector3(0,0,0);
+		private Vector3 position = new Vector3(0,0,0);
 
 		/// <summary>
 		/// Quaternion used for rotation.
@@ -120,6 +120,11 @@ namespace XNAFinalEngine.GraphicElements
         /// Camera up vector. It can change, depends of the camera orientation.
         /// </summary>
         private Vector3 vectorUp = Vector3.Up;
+
+        /// <summary>
+        /// Used for velocity.
+        /// </summary>
+        private Vector3 lastPosition = Vector3.Zero;
 
 		#endregion
 
@@ -200,7 +205,11 @@ namespace XNAFinalEngine.GraphicElements
         public Vector3 Position
         {
             get { return position; }
-            set { position = value; }
+            set
+            {
+                lastPosition = position;
+                position = value;
+            }
         } // Position
 
 		/// <summary>
@@ -259,7 +268,7 @@ namespace XNAFinalEngine.GraphicElements
 		{   
 			// Build a look at matrix and get the quaternion from that
             Orientation = Quaternion.CreateFromRotationMatrix(Matrix.CreateLookAt(_position, _lookPosition, upVector));
-            position = _position;
+            Position = _position;
             LookAtPosition = _lookPosition;
 		} // SetLookAt
 
@@ -329,7 +338,7 @@ namespace XNAFinalEngine.GraphicElements
 			Vector3 dir = direction == MoveDirections.X ? XAxis :
 				          direction == MoveDirections.Y ? YAxis :
                                                           ZAxis;
-            position += dir * amount;
+            Position += dir * amount;
 		} // Translate
 
 		#endregion
@@ -417,7 +426,7 @@ namespace XNAFinalEngine.GraphicElements
 			Orientation.Normalize();
 			Matrix rotMatrix = Matrix.CreateFromQuaternion(Orientation);
 			
-            viewMatrix = Matrix.CreateTranslation(-position) * rotMatrix;
+            viewMatrix = Matrix.CreateTranslation(-Position) * rotMatrix;
 		} // UpdateViewMatrix()
 		#endregion
 

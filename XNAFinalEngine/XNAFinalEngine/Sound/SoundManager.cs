@@ -32,12 +32,14 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 #endregion
 
 namespace XNAFinalEngine.Sounds
 {
+
     /// <summary>
     /// The sound content needs to be updating his parameters every frame, this class does this.
     /// It also manages the master sound volume.
@@ -55,7 +57,17 @@ namespace XNAFinalEngine.Sounds
         /// <summary>
         /// List of sounds that are currently playing.
         /// </summary>
-        private static List<Sound> sounds = new List<Sound>();
+        private static List<SoundInstance> sounds = new List<SoundInstance>();
+
+        /// <summary>
+        /// Adjust the effect of distance calculations on the sounds.
+        /// </summary>
+        private static float distanceScale = 10f;
+
+        /// <summary>
+        /// Master doppler scale.
+        /// </summary>
+        private static float masterDopplerScale = 1f;
 
         #endregion
 
@@ -70,25 +82,61 @@ namespace XNAFinalEngine.Sounds
             set { masterSoundVolume = value; }
         } // MasterSoundVolume
 
-        #endregion
-
-        #region Add and Remove Sounds
+        /// <summary>
+        /// Adjust the effect of distance calculations on the sounds.
+        /// </summary>
+        public static float DistanceScale
+        {
+            get { return distanceScale; }
+            set { distanceScale = value; }
+        } // DistanceScale
 
         /// <summary>
-        /// Remove the sound from the list of sounds currently playing.
+        /// Master doppler scale.
         /// </summary>
-        public static void RemoveSound(Sound sound)
+        public static float MasterDopplerScale
         {
-            sounds.Remove(sound);
-        } // RemoveSound
+            get { return masterDopplerScale; }
+            set { masterDopplerScale = value; }
+        } // DopplerScale
+
+        #endregion
+
+        #region Add Sounds
 
         /// <summary>
         /// Add the sound to the list of sounds currently playing.
         /// </summary>
-        public static void AddSound(Sound sound)
+        internal static void AddSound(SoundInstance soundInstance)
         {
-            sounds.Add(sound);
+            sounds.Add(soundInstance);
         } // AddSound
+
+        #endregion
+
+        #region Pause Resume
+
+        /// <summary>
+        /// Pause all sounds.
+        /// </summary>
+        public void PauseAllSounds()
+        {
+            foreach (SoundInstance soundInstance in sounds)
+            {
+                soundInstance.Pause();
+            }
+        } // PauseAllSounds
+
+        /// <summary>
+        /// Resume all sounds.
+        /// </summary>
+        public void ResumeAllSounds()
+        {
+            foreach (SoundInstance soundInstance in sounds)
+            {
+                soundInstance.Resume();
+            }
+        } // ResumeAllSounds
 
         #endregion
 
@@ -97,13 +145,20 @@ namespace XNAFinalEngine.Sounds
         /// <summary>
         /// Update automatically in every frame the sound's parameters of all the sounds currently playing.
         /// </summary>
-        public static void UpdateSoundParameters()
+        public static void UpdateSound()
         {
-            foreach (Sound sound in sounds)
+            // Update general parameters
+            SoundEffect.DistanceScale = DistanceScale;
+            SoundEffect.DopplerScale = MasterDopplerScale;
+            SoundEffect.MasterVolume = MasterSoundVolume;
+            // Remove sound instances that are over.
+            sounds = (from SoundInstance soundInstance in sounds where !soundInstance.IsOver select soundInstance).ToList<SoundInstance>();
+            // Update sounds.
+            foreach (SoundInstance soundInstance in sounds)
             {
-                sound.Update();
+                soundInstance.Update();
             }
-        } // UpdateSoundParameters
+        } // UpdateSound
 
         #endregion
 

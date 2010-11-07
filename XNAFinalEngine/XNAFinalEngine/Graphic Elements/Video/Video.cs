@@ -140,7 +140,11 @@ namespace XNAFinalEngine.GraphicElements
             } // if (File.Exists)
             try
             {
-                video = EngineManager.Content.Load<Microsoft.Xna.Framework.Media.Video>(fullFilename);
+                if (EngineManager.UsesSystemContent)
+                    video = EngineManager.SystemContent.Load<Microsoft.Xna.Framework.Media.Video>(fullFilename);
+                else
+                    video = EngineManager.CurrentContent.Load<Microsoft.Xna.Framework.Media.Video>(fullFilename);
+                
             } // try
             catch (Exception)
             {

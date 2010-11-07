@@ -82,9 +82,9 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private void HandleCamera()
         {
-            float moveFactor = (float)EngineManager.ElapsedTimeThisFrameInSeconds * 20;
-            float rollFactor = (float)EngineManager.ElapsedTimeThisFrameInSeconds * 1;
-            float rotationFactor = (float)EngineManager.ElapsedTimeThisFrameInSeconds / 10;
+            float moveFactor = (float)EngineManager.FrameTime * 20;
+            float rollFactor = (float)EngineManager.FrameTime * 1;
+            float rotationFactor = (float)EngineManager.FrameTime / 10;
                         
             // Orientation
             if (Mouse.LeftButtonPressed)

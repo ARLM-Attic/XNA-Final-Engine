@@ -67,7 +67,7 @@ namespace XNAFinalEngine.GraphicElements
             // Load shader
             try
             {
-                return EngineManager.Content.Load<Effect>(Path.Combine(Directories.ShadersDirectory, filename));
+                return EngineManager.SystemContent.Load<Effect>(Path.Combine(Directories.ShadersDirectory, filename));
             } // try
             catch
             {
@@ -77,15 +77,15 @@ namespace XNAFinalEngine.GraphicElements
 
         #endregion
 
-        #region Get Parameters
+        #region Get Parameters Handles
 
         /// <summary>
         /// Get the handles of the parameters from the shader.
 		/// </summary>
-        protected virtual void GetParameters()
+        protected virtual void GetParametersHandles()
         {
             // Overrite it //
-        } // GetParameters
+        } // GetParametersHandles
 
         #endregion
 
@@ -94,7 +94,7 @@ namespace XNAFinalEngine.GraphicElements
         /// <summary>
         /// Render this shader/material; to do this job it takes an object model, its associated lights, and its matrices.
         /// </summary>
-        public virtual void Render(Matrix worldMatrix, PointLight[] pointLight, DirectionalLight[] directionalLight, SpotLight[] spotLight, Model model)
+        internal virtual void Render(Matrix worldMatrix, PointLight[] pointLight, DirectionalLight[] directionalLight, SpotLight[] spotLight, Model model)
         {
             // Overrite it //
         } // Render

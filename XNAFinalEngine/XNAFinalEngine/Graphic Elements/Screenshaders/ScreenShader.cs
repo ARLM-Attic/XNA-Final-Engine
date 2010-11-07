@@ -65,7 +65,7 @@ namespace XNAFinalEngine.GraphicElements
             // Load shader
             try
             {
-                return EngineManager.Content.Load<Effect>(Path.Combine(Directories.ShadersDirectory, filename));
+                return EngineManager.SystemContent.Load<Effect>(Path.Combine(Directories.ShadersDirectory, filename));
             } // try
             catch
             {

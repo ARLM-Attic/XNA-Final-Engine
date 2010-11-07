@@ -109,7 +109,12 @@ namespace XNAFinalEngine.AugmentedReality
         /// <summary>
         /// Create and initialize the webcam.
         /// </summary>
-        public DirectShowWebCam(int _width, int _height, int _bytesPerPixel, int _fps)
+        /// <param name="deviceNumber">The device number normally is 0, but sometimes there are other device that works like webcam and in that cases maybe the number changes to 1</param>
+        /// <param name="_width">Width resolution</param>
+        /// <param name="_height">Height resolution</param>
+        /// <param name="_bytesPerPixel">Bytes per pixel</param>
+        /// <param name="_fps">The desire frame per seconds</param>
+        public DirectShowWebCam(int deviceNumber = 0, int _width = 640, int _height = 480, int _bytesPerPixel = 3, int _fps = 30)
         {
             // Coloco la informacion base de la camara //
             width = _width;
@@ -129,21 +134,21 @@ namespace XNAFinalEngine.AugmentedReality
                     break;
                 default: throw new Exception("Bytes per pixel not suported");
             }
-            
+
             DsDevice[] vidCapDev = DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice);
             //These are 'dummy' pixels
             byte[] pixels = new byte[width * height * bytesPerPixel];
             //Create a new bitmap source
             BitmapSource bmpsrc = BitmapSource.Create(width, height, 96, 96, mediaBitmapSourcePixelFormat, null, pixels, width * bytesPerPixel);
-
+            
             //Create our helper class
             buf = new DirectShowBitmapBuffer(bmpsrc);
-            IntPtr buffPointer = buf.BufferPointer;
+            //IntPtr buffPointer = buf.BufferPointer;
 
             panel = new System.Windows.Forms.Panel();
             short bitsPerPixel = (short)(bytesPerPixel * 8);
-            int deviceNum = 1; // Podria ser distinto de 0 si hay mas de un dispositivo audio visual, como por ejemplo una capturadora de TV.
-            cameraCapture = new DirectShowCapture(deviceNum, width, height, bitsPerPixel, fps, panel, sampleGrabberSubType);
+
+            cameraCapture = new DirectShowCapture(deviceNumber, width, height, bitsPerPixel, fps, panel, sampleGrabberSubType);
             dispacher = new AuxiliaryClass();
             cameraCapture.Dispatcher = dispacher.Dispatcher;
             cameraCapture.SampleEvent += new DirectShowCapture.SampleDelegate(SampleEvent);

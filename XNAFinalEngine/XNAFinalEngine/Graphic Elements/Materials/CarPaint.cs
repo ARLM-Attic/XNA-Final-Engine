@@ -94,11 +94,11 @@ namespace XNAFinalEngine.GraphicElements
         #region Floats
 
         /// <summary>
-        /// Shininess
+        /// Shininess.
         /// </summary>
         private float shininess = 25.0f;
         /// <summary>
-        /// Shininess
+        /// Shininess.
         /// </summary>
         public float Shininess
         {
@@ -107,11 +107,11 @@ namespace XNAFinalEngine.GraphicElements
         } // Shininess
 
         /// <summary>
-        /// Last used shininess
+        /// Last used shininess.
         /// </summary>
         private static float? lastUsedShininess = null;
         /// <summary>
-        /// Set surface's shininess (valor mayor igual a cero)
+        /// Set surface's shininess (greater or equal to 0)
         /// </summary>
         private void SetShininess(float _shininess)
         {
@@ -140,7 +140,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedFresnelBias = null;
         /// <summary>
-        /// Set surface's fresnel bias (valor mayor a cero)
+        /// Set surface's fresnel bias (greater or equal to 0)
         /// </summary>
         private void SetFresnelBias(float _fresnelBias)
         {
@@ -170,7 +170,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedFresnelPower = null;
         /// <summary>
-        /// Set surface's fresnel power (valor mayor a cero)
+        /// Set surface's fresnel power (greater or equal to 0)
         /// </summary>
         private void SetFresnelPower(float _fresnelPower)
         {
@@ -200,7 +200,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float ?lastUsedReflection = null;
         /// <summary>
-        /// Set surface's reflection (valor entre 0 y 1)
+        /// Set surface's reflection (value between 0 and 1)
         /// </summary>
         private void SetReflection(float _reflection)
         {
@@ -323,8 +323,10 @@ namespace XNAFinalEngine.GraphicElements
             } // if (File.Exists)
             try
             {
-                reflectionTexture = EngineManager.Content.Load<TextureCube>(fullFilename);
-
+                if (EngineManager.UsesSystemContent)
+                    reflectionTexture = EngineManager.SystemContent.Load<TextureCube>(fullFilename);
+                else
+                    reflectionTexture = EngineManager.CurrentContent.Load<TextureCube>(fullFilename);
             } // try
             catch (Exception)
             {
@@ -362,7 +364,7 @@ namespace XNAFinalEngine.GraphicElements
 		{
             Effect = LoadShader("CarPaint");
 
-            GetParameters();
+            GetParametersHandles();
 
             ReflectionTexture(_reflectionTexture);
             
@@ -371,22 +373,22 @@ namespace XNAFinalEngine.GraphicElements
 
 		#endregion
         
-		#region GetParameters
+		#region Get Parameters Handles
 		
         /// <summary>
         /// Get the handles of the parameters from the shader.
 		/// </summary>
-		protected override void GetParameters()
+		protected override void GetParametersHandles()
 		{
 			try
 			{
                 // Matrices //
-                GetCommonParameters();
+                GetCommonParametersHandles();
                 // Lights //
-                GetAmbientLightParameters();
-                GetPointLight1Parameters();
-                GetPointLight2Parameters();
-                GetPointLight3Parameters();
+                GetAmbientLightParametersHandles();
+                GetPointLight1ParametersHandles();
+                GetPointLight2ParametersHandles();
+                GetPointLight3ParametersHandles();
                 // Textures //
                 EPcubeMapTexture = Effect.Parameters["CubeEnvMap"];
                 // Surface //
@@ -398,20 +400,20 @@ namespace XNAFinalEngine.GraphicElements
                 epFresnelPower = Effect.Parameters["fresnelpower"];
                 epReflection = Effect.Parameters["reflection"];
 			} // try
-			catch (Exception ex)
+			catch
 			{
-                throw new Exception("Get the handles from the car paint material failed. " + ex.ToString());
+                throw new Exception("Get the handles from the car paint material failed.");
 			} // catch
-		} // GetParameters
+		} // GetParametersHandles
 
 		#endregion
 
         #region Set Car Paint Attributes
 
         /// <summary>
-        /// Set to the shader the car paint specific atributes of this material.
+        /// Set to the shader the specific atributes of this material.
         /// </summary>
-        private void SetCarPaintAttributes()
+        private void SetCarPaintParameters()
         {
             SetSpecularColor(SpecularColor);
             SetShininess(Shininess);
@@ -421,7 +423,7 @@ namespace XNAFinalEngine.GraphicElements
             SetFresnelPower(FresnelPower);
             SetReflection(Reflection);
             SetReflectionTexture(reflectionTexture);
-        } // SetCarPaintAttributes
+        } // SetCarPaintParameters
 
         #endregion
 
@@ -430,39 +432,44 @@ namespace XNAFinalEngine.GraphicElements
         /// <summary>
         /// Render this shader/material; to do this job it takes an object model, its associated lights, and its matrices.
 		/// </summary>		
-        public override void Render(Matrix worldMatrix, PointLight[] pointLight, DirectionalLight[] directionalLight, SpotLight[] spotLight, Model model)
-		{   
+        internal override void Render(Matrix worldMatrix, PointLight[] pointLight, DirectionalLight[] directionalLight, SpotLight[] spotLight, Model model)
+        {
+
+            #region Set Parameters
+
             try
             {
                 if (pointLight != null)
                 {
                     if (pointLight.Length == 1)
                     {
-                        SetPointLight1Attributes(pointLight[0]);
+                        SetPointLight1Parameters(pointLight[0]);
                         Effect.CurrentTechnique = Effect.Techniques["CarPaint1PointLight"];
                     }
                     else
                     {
-                        SetPointLight1Attributes(pointLight[0]);
-                        SetPointLight2Attributes(pointLight[1]);
+                        SetPointLight1Parameters(pointLight[0]);
+                        SetPointLight2Parameters(pointLight[1]);
                         if (pointLight.Length == 3)
-                            SetPointLight3Attributes(pointLight[2]);
+                            SetPointLight3Parameters(pointLight[2]);
                         Effect.CurrentTechnique = Effect.Techniques["CarPaint3PointLight"];
                     }
                 }
                 else
                 {
-                    SetPointLight1Attributes(null);
+                    SetPointLight1Parameters(null);
                     Effect.CurrentTechnique = Effect.Techniques["CarPaint1PointLight"];
                 }
-                SetCarPaintAttributes();
-                SetCommomAtributes(worldMatrix);
-                SetAmbientLightAttributes();
+                SetCarPaintParameters();
+                SetCommomParameters(worldMatrix);
+                SetAmbientLightParameters();
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception("Unable to set the car paint parameters " + e.Message);
+                throw new Exception("Unable to set the car paint parameters.");
             }
+            #endregion
+
             base.Render(model);
         } // Render
 
@@ -546,13 +553,13 @@ namespace XNAFinalEngine.GraphicElements
         #endregion
 
         // Common code to other shaders //
-        
+
         #region Common Atributes
 
         #region Shader Parameters
 
         /// <summary>
-        /// Effect handles for all material shaders
+        /// Effect handles for all material shaders.
         /// </summary>
         protected static EffectParameter
             // Matrices // 
@@ -568,11 +575,11 @@ namespace XNAFinalEngine.GraphicElements
         #region Matrices
 
         /// <summary>
-        /// Last used transpose inverse world matrix
+        /// Last used transpose inverse world matrix.
         /// </summary>
         private static Matrix? lastUsedTransposeInverseWorldMatrix = null;
         /// <summary>
-        /// Set transpose inverse world matrix
+        /// Set transpose inverse world matrix.
         /// </summary>
         private Matrix TransposeInverseWorldMatrix
         {
@@ -587,11 +594,11 @@ namespace XNAFinalEngine.GraphicElements
         } // TransposeInvertWorldMatrix
 
         /// <summary>
-        /// Last used world matrix
+        /// Last used world matrix.
         /// </summary>
         private static Matrix? lastUsedWorldMatrix = null;
         /// <summary>
-        /// Set world matrix
+        /// Set world matrix.
         /// </summary>
         private Matrix WorldMatrix
         {
@@ -606,11 +613,11 @@ namespace XNAFinalEngine.GraphicElements
         } // WorldMatrix
 
         /// <summary>
-        /// Last used inverse view matrix
+        /// Last used inverse view matrix.
         /// </summary>
         private static Matrix? lastUsedInverseViewMatrix = null;
         /// <summary>
-        /// Set view inverse matrix
+        /// Set view inverse matrix.
         /// </summary>
         private Matrix InverseViewMatrix
         {
@@ -625,11 +632,11 @@ namespace XNAFinalEngine.GraphicElements
         } // InverseViewMatrix
 
         /// <summary>
-        /// Last used world view projection matrix
+        /// Last used world view projection matrix.
         /// </summary>
         private static Matrix? lastUsedWorldViewProjMatrix = null;
         /// <summary>
-        /// Set world view projection matrix
+        /// Set world view projection matrix.
         /// </summary>
         private Matrix WorldViewProjMatrix
         {
@@ -644,11 +651,11 @@ namespace XNAFinalEngine.GraphicElements
         } // WorldViewProjMatrix
 
         /// <summary>
-        /// Last used view projection matrix
+        /// Last used view projection matrix.
         /// </summary>
         private static Matrix? lastUsedViewProjMatrix = null;
         /// <summary>
-        /// Set view projection matrix
+        /// Set view projection matrix.
         /// </summary>
         private Matrix ViewProjMatrix
         {
@@ -667,25 +674,25 @@ namespace XNAFinalEngine.GraphicElements
         #region Surface
 
         /// <summary>
-        /// Surface color
+        /// Surface color.
         /// </summary>
         private Color surfaceColor = Color.White;
 
         /// <summary>
-        /// Surface color
+        /// Surface color.
         /// </summary>
         public Color SurfaceColor
         {
             get { return surfaceColor; }
             set { surfaceColor = value; }
-        }
+        } // SurfaceColor
 
         /// <summary>
-        /// Last used surface color
+        /// Last used surface color.
         /// </summary>
         private static Color? lastUsedSurfaceColor = null;
         /// <summary>
-        /// Set surface color
+        /// Set surface color.
         /// </summary>
         private void SetSurfaceColor(Color _surfaceColor)
         {
@@ -697,12 +704,12 @@ namespace XNAFinalEngine.GraphicElements
         } // SetSurfaceColor
 
         /// <summary>
-        /// Alpha blending
+        /// Alpha blending.
         /// </summary>
         private float alphaBlending = 1.0f;
 
         /// <summary>
-        /// Alpha blending
+        /// Alpha blending.
         /// </summary>
         public float AlphaBlending
         {
@@ -711,7 +718,7 @@ namespace XNAFinalEngine.GraphicElements
         } // AlphaBlending
 
         /// <summary>
-        /// Last used alpha blending
+        /// Last used alpha blending.
         /// </summary>
         private static float? lastUsedAlphaBlending = null;
         /// <summary>
@@ -731,9 +738,9 @@ namespace XNAFinalEngine.GraphicElements
         #endregion
 
         /// <summary>
-        /// Get the common handlers parameters from the shader.
+        /// Get the common handlers from the shader.
         /// </summary>
-        protected void GetCommonParameters()
+        protected void GetCommonParametersHandles()
         {
             // Matrices //
             epWorldIT = Effect.Parameters["WorldIT"];
@@ -744,12 +751,12 @@ namespace XNAFinalEngine.GraphicElements
             // Alpha Blending //
             epSurfaceColor = Effect.Parameters["SurfaceColor"];
             epAlphaBlending = Effect.Parameters["AlphaBlending"];
-        } // GetCommonParameters
+        } // GetCommonParametersHandles
 
         /// <summary>
         /// Set to the shader the common atributes of this material.
         /// </summary>
-        protected virtual void SetCommomAtributes(Matrix worldMatrix)
+        protected virtual void SetCommomParameters(Matrix worldMatrix)
         {
             // Initialization of the Matrices
             TransposeInverseWorldMatrix = Matrix.Transpose(Matrix.Invert(worldMatrix));
@@ -760,7 +767,7 @@ namespace XNAFinalEngine.GraphicElements
             // Inicialization of the alpha blending
             SetSurfaceColor(surfaceColor);
             SetAlphaBlending(alphaBlending);
-        } // SetCommomAtributes
+        } // SetCommomParameters
 
         #endregion
 
@@ -774,11 +781,11 @@ namespace XNAFinalEngine.GraphicElements
         protected static EffectParameter epAmbientLightColor;
 
         /// <summary>
-        /// Last used ambient light color
+        /// Last used ambient light color.
         /// </summary>
         private static Color? lastUsedAmbientLightColor = null;
         /// <summary>
-        /// Set ambient light color
+        /// Set ambient light color.
         /// </summary>
         protected void SetAmbientLightColor(Color _ambientLightColor)
         {
@@ -787,25 +794,25 @@ namespace XNAFinalEngine.GraphicElements
                 lastUsedAmbientLightColor = _ambientLightColor;
                 epAmbientLightColor.SetValue(new Vector3(_ambientLightColor.R / 255f, _ambientLightColor.G / 255f, _ambientLightColor.B / 255f));
             }
-        } // AmbientLightColor
+        } // SetAmbientLightColor
 
         #endregion
 
         /// <summary>
         /// Get the handle of the parameters from the shader.
         /// </summary>
-        protected void GetAmbientLightParameters()
+        protected void GetAmbientLightParametersHandles()
         {
             epAmbientLightColor = Effect.Parameters["AmbientLightColor"];
-        } // GetAmbientLightParameters
+        } // GetAmbientLightParametersHandles
 
         /// <summary>
         /// Set the ambient light parameters to the shader.
         /// </summary>
-        public virtual void SetAmbientLightAttributes()
+        public virtual void SetAmbientLightParameters()
         {
             SetAmbientLightColor(AmbientLight.LightColor);
-        } // SetAmbientLightAttributes
+        } // SetAmbientLightParameters
 
         #endregion
 
@@ -814,7 +821,7 @@ namespace XNAFinalEngine.GraphicElements
         #region Shader Parameters
 
         /// <summary>
-        /// Effect handles
+        /// Effect handles.
         /// </summary>
         protected static EffectParameter epPointLight1Pos,
                                          epPointLight1Color;
@@ -822,11 +829,11 @@ namespace XNAFinalEngine.GraphicElements
         #region Color
 
         /// <summary>
-        /// Last used point light 1 color
+        /// Last used point light 1 color.
         /// </summary>
         private static Color? lastUsedPointLight1Color = null;
         /// <summary>
-        /// Set point light 1 color
+        /// Set point light 1 color.
         /// </summary>
         protected void SetPointLight1Color(Color _pointLight1Color)
         {
@@ -842,11 +849,11 @@ namespace XNAFinalEngine.GraphicElements
         #region Position
 
         /// <summary>
-        /// Last used point light 1 position
+        /// Last used point light 1 position.
         /// </summary>
         private static Vector3? lastUsedPointLight1Pos = null;
         /// <summary>
-        /// Set point light 1 position
+        /// Set point light 1 position.
         /// </summary>
         protected void SetPointLight1Pos(Vector3 _pointLight1Pos)
         {
@@ -864,16 +871,16 @@ namespace XNAFinalEngine.GraphicElements
         /// <summary>
         /// Get the handle of the parameters from the shader.
         /// </summary>
-        protected void GetPointLight1Parameters()
+        protected void GetPointLight1ParametersHandles()
         {
             epPointLight1Color = Effect.Parameters["PointLightColor"];
             epPointLight1Pos = Effect.Parameters["PointLightPos"];
-        } // GetPointLight1Parameters
+        } // GetPointLight1ParametersHandles
 
         /// <summary>
         /// Set the point light parameters to the shader.
         /// </summary>
-        public virtual void SetPointLight1Attributes(PointLight pointLight)
+        public virtual void SetPointLight1Parameters(PointLight pointLight)
         {
             if (pointLight != null)
             {
@@ -884,7 +891,7 @@ namespace XNAFinalEngine.GraphicElements
             {
                 SetPointLight1Color(Color.Black);
             }
-        } // SetPointLight1Attributes
+        } // SetPointLight1Parameters
 
         #endregion
 
@@ -901,11 +908,11 @@ namespace XNAFinalEngine.GraphicElements
         #region Color
 
         /// <summary>
-        /// Last used point light 2 color
+        /// Last used point light 2 color.
         /// </summary>
         private static Color? lastUsedPointLight2Color = null;
         /// <summary>
-        /// Set point light 2 color
+        /// Set point light 2 color.
         /// </summary>
         protected void SetPointLight2Color(Color _pointLight2Color)
         {
@@ -921,11 +928,11 @@ namespace XNAFinalEngine.GraphicElements
         #region Position
 
         /// <summary>
-        /// Last used point light 2 position
+        /// Last used point light 2 position.
         /// </summary>
         private static Vector3? lastUsedPointLight2Pos = null;
         /// <summary>
-        /// Set point light 2 position
+        /// Set point light 2 position.
         /// </summary>
         protected void SetPointLight2Pos(Vector3 _pointLight2Pos)
         {
@@ -943,16 +950,16 @@ namespace XNAFinalEngine.GraphicElements
         /// <summary>
         /// Get the handle of the parameters from the shader.
         /// </summary>
-        protected void GetPointLight2Parameters()
+        protected void GetPointLight2ParametersHandles()
         {
             epPointLight2Color = Effect.Parameters["PointLightColor2"];
             epPointLight2Pos = Effect.Parameters["PointLightPos2"];
-        } // GetPointLight2Parameters
+        } // GetPointLight2ParametersHandles
 
         /// <summary>
         /// Set the point light parameters to the shader.
         /// </summary>
-        public virtual void SetPointLight2Attributes(PointLight pointLight)
+        public virtual void SetPointLight2Parameters(PointLight pointLight)
         {
             if (pointLight != null)
             {
@@ -963,7 +970,7 @@ namespace XNAFinalEngine.GraphicElements
             {
                 SetPointLight2Color(Color.Black);
             }
-        } // SetPointLight2Attributes
+        } // SetPointLight2Parameters
 
         #endregion
 
@@ -980,11 +987,11 @@ namespace XNAFinalEngine.GraphicElements
         #region Color
 
         /// <summary>
-        /// Last used point light 3 color
+        /// Last used point light 3 color.
         /// </summary>
         private static Color? lastUsedPointLight3Color = null;
         /// <summary>
-        /// Set point light 3 color
+        /// Set point light 3 color.
         /// </summary>
         protected void SetPointLight3Color(Color _pointLight3Color)
         {
@@ -1000,11 +1007,11 @@ namespace XNAFinalEngine.GraphicElements
         #region Position
 
         /// <summary>
-        /// Last used point light 3 position
+        /// Last used point light 3 position.
         /// </summary>
         private static Vector3? lastUsedPointLight3Pos = null;
         /// <summary>
-        /// Set point light 3 position
+        /// Set point light 3 position.
         /// </summary>
         protected void SetPointLight3Pos(Vector3 _pointLight3Pos)
         {
@@ -1022,16 +1029,16 @@ namespace XNAFinalEngine.GraphicElements
         /// <summary>
         /// Get the handle of the parameters from the shader.
         /// </summary>
-        protected void GetPointLight3Parameters()
+        protected void GetPointLight3ParametersHandles()
         {
             epPointLight3Color = Effect.Parameters["PointLightColor3"];
             epPointLight3Pos = Effect.Parameters["PointLightPos3"];
-        } // GetPointLight3Parameters
+        } // GetPointLight3ParametersHandles
 
         /// <summary>
         /// Set the point light parameters to the shader.
         /// </summary>
-        public virtual void SetPointLight3Attributes(PointLight pointLight)
+        public virtual void SetPointLight3Parameters(PointLight pointLight)
         {
             if (pointLight != null)
             {
@@ -1042,7 +1049,7 @@ namespace XNAFinalEngine.GraphicElements
             {
                 SetPointLight3Color(Color.Black);
             }
-        } // SetPointLight3Attributes
+        } // SetPointLight3Parameters
 
         #endregion
         

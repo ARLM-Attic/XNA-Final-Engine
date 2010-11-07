@@ -126,8 +126,7 @@ namespace XNAFinalEngine.GraphicElements
             get
             {
                 Matrix worlMatrix = WorldMatrix;
-                if (!matrixWhenBoundingSphereWasCalculated.HasValue ||
-                    matrixWhenBoundingSphereWasCalculated.Value != worlMatrix)
+                if (!matrixWhenBoundingSphereWasCalculated.HasValue || matrixWhenBoundingSphereWasCalculated.Value != worlMatrix)
                 {
                     matrixWhenBoundingSphereWasCalculated = worlMatrix;
                     boundingSphere = model.BoundingSphere(worlMatrix);
@@ -146,8 +145,7 @@ namespace XNAFinalEngine.GraphicElements
             get
             {   
                 Matrix worlMatrix = WorldMatrix;
-                if (!matrixWhenBoundingSphereWasCalculated.HasValue ||
-                    matrixWhenBoundingSphereWasCalculated.Value != worlMatrix)
+                if (!matrixWhenBoundingSphereWasCalculated.HasValue || matrixWhenBoundingSphereWasCalculated.Value != worlMatrix)
                 {   
                     return model.BoundingSphereOptimized(worlMatrix);
                 }
@@ -164,8 +162,7 @@ namespace XNAFinalEngine.GraphicElements
             get
             {
                 Matrix worlMatrix = WorldMatrix;
-                if (!matrixWhenBoundingBoxWasCalculated.HasValue ||
-                    matrixWhenBoundingBoxWasCalculated.Value != worlMatrix)
+                if (!matrixWhenBoundingBoxWasCalculated.HasValue || matrixWhenBoundingBoxWasCalculated.Value != worlMatrix)
                 {
                     matrixWhenBoundingBoxWasCalculated = worlMatrix;
                     boundingBox = model.BoundingBox(worlMatrix);

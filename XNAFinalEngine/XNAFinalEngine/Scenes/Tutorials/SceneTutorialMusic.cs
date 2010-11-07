@@ -134,14 +134,14 @@ namespace XNAFinalEngine.Scenes
 
             #region Load Models
 
-            gKeyLeftArrow = new GraphicObject("System\\key", new Blinn("System\\KeyLeftArrow") { SurfaceColor = new Color(50, 50, 50) });
+            gKeyLeftArrow = new GraphicObject("Tutorials\\key", new Blinn("Tutorials\\KeyLeftArrow") { SurfaceColor = new Color(50, 50, 50) });
             gKeyLeftArrow.TranslateAbs(-1.5f, 0, 0);
-            gKeyRightArrow = new GraphicObject("System\\key", new Blinn("System\\KeyRightArrow") { SurfaceColor = new Color(50, 50, 50) });
+            gKeyRightArrow = new GraphicObject("Tutorials\\key", new Blinn("Tutorials\\KeyRightArrow") { SurfaceColor = new Color(50, 50, 50) });
             gKeyRightArrow.TranslateAbs(1.5f,0,0);
-            gKeyUpArrow = new GraphicObject("System\\key", new Blinn("System\\KeyUpArrow") { SurfaceColor = new Color(50, 50, 50) });
+            gKeyUpArrow = new GraphicObject("Tutorials\\key", new Blinn("Tutorials\\KeyUpArrow") { SurfaceColor = new Color(50, 50, 50) });
             gKeyUpArrow.TranslateAbs(0, 0, -1.75f);
-            gKeyDownArrow = new GraphicObject("System\\key", new Blinn("System\\KeyDownArrow") { SurfaceColor = new Color(50, 50, 50) });
-            gSpaceKey = new GraphicObject("System\\SpaceKey", new Blinn() { SurfaceColor = new Color(50, 50, 50) });
+            gKeyDownArrow = new GraphicObject("Tutorials\\key", new Blinn("Tutorials\\KeyDownArrow") { SurfaceColor = new Color(50, 50, 50) });
+            gSpaceKey = new GraphicObject("Tutorials\\SpaceKey", new Blinn() { SurfaceColor = new Color(50, 50, 50) });
             gSpaceKey.TranslateAbs(-10, 0, 0);
             
             gPlaneTextCursors = new GraphicObject(new GraphicElements.Plane(5, 5), new Constant(new XNAFinalEngine.GraphicElements.Texture(), 1));
@@ -221,7 +221,7 @@ namespace XNAFinalEngine.Scenes
 
             if (chronometer.ElapsedTime < 10)
             {
-                cameraCursors.Position = new Vector3(cameraCursors.Position.X, cameraCursors.Position.Y, cameraCursors.Position.Z - (float)EngineManager.ElapsedTimeThisFrameInSeconds * 0.1f);
+                cameraCursors.Position = new Vector3(cameraCursors.Position.X, cameraCursors.Position.Y, cameraCursors.Position.Z - (float)EngineManager.FrameTime * 0.1f);
             }
             else
             {
@@ -231,18 +231,18 @@ namespace XNAFinalEngine.Scenes
                 }
                 else
                 {
-                    cameraCursors.Position = new Vector3(cameraCursors.Position.X, cameraCursors.Position.Y, cameraCursors.Position.Z + (float)EngineManager.ElapsedTimeThisFrameInSeconds * 0.1f);
+                    cameraCursors.Position = new Vector3(cameraCursors.Position.X, cameraCursors.Position.Y, cameraCursors.Position.Z + (float)EngineManager.FrameTime * 0.1f);
                 }
             }
             if (chronometer2.ElapsedTime > 5 && chronometer2.ElapsedTime < 15)
             {
-                cameraCursors.Position = new Vector3(cameraCursors.Position.X + (float)EngineManager.ElapsedTimeThisFrameInSeconds * 0.1f, cameraCursors.Position.Y, cameraCursors.Position.Z);
+                cameraCursors.Position = new Vector3(cameraCursors.Position.X + (float)EngineManager.FrameTime * 0.1f, cameraCursors.Position.Y, cameraCursors.Position.Z);
             }
             else
             {
                 if (chronometer2.ElapsedTime >= 15 && chronometer2.ElapsedTime < 25)
                 {
-                    cameraCursors.Position = new Vector3(cameraCursors.Position.X - (float)EngineManager.ElapsedTimeThisFrameInSeconds * 0.1f, cameraCursors.Position.Y, cameraCursors.Position.Z);
+                    cameraCursors.Position = new Vector3(cameraCursors.Position.X - (float)EngineManager.FrameTime * 0.1f, cameraCursors.Position.Y, cameraCursors.Position.Z);
                 }
                 else
                 {
@@ -263,12 +263,12 @@ namespace XNAFinalEngine.Scenes
             }
             if (Input.Keyboard.UpPressed)
             {
-                MusicManager.Volume = MusicManager.Volume + 0.5f * (float)(EngineManager.ElapsedTimeThisFrameInSeconds);
+                MusicManager.Volume = MusicManager.Volume + 0.5f * (float)(EngineManager.FrameTime);
                 if (MusicManager.Volume > 1) MusicManager.Volume = 1;
             }
             if (Input.Keyboard.DownPressed)
             {
-                MusicManager.Volume = MusicManager.Volume - 0.5f * (float)(EngineManager.ElapsedTimeThisFrameInSeconds);
+                MusicManager.Volume = MusicManager.Volume - 0.5f * (float)(EngineManager.FrameTime);
                 if (MusicManager.Volume < 0) MusicManager.Volume = 0;
             }
             if (Input.Keyboard.SpaceJustPressed)

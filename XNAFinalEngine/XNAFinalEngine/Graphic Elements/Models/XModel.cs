@@ -93,7 +93,11 @@ namespace XNAFinalEngine.GraphicElements
                 throw new Exception("Failed to load model: File " + ModelFilename + " does not exists!");
             } // if (File.Exists)
 
-            XnaModel = EngineManager.Content.Load<XnaModel>(fullFilename);
+            if (EngineManager.UsesSystemContent)
+                XnaModel = EngineManager.SystemContent.Load<XnaModel>(fullFilename);
+            else
+                XnaModel = EngineManager.CurrentContent.Load<XnaModel>(fullFilename);
+            
             
             // Get matrices for each mesh part
             transforms = new Matrix[XnaModel.Bones.Count];

@@ -34,12 +34,13 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XNAFinalEngine.GraphicElements
 {
     /// <summary>
-    /// Draws primitives (points, lines, and triangles) in world space and/or screen space. 
+    /// Draws primitives (points, lines, triangles and curves) in world space and/or screen space. 
     /// 
     /// To render a primitive:
     /// Begin(PrimitiveType): It only supports list (strips and fan not supported).
@@ -133,6 +134,7 @@ namespace XNAFinalEngine.GraphicElements
         /// and to prepare the graphics card to render those primitives.
         /// It only supports list (strips and fan not supported).
         /// </summary>
+        /// <param name="_primitiveType">Only support triangle list and line list</param>
         public static void Begin(PrimitiveType _primitiveType)
         {
             if (hasBegun)
@@ -142,8 +144,7 @@ namespace XNAFinalEngine.GraphicElements
 
             // These three types reuse vertices, so we can't flush properly without more complex logic.
             // Since that's a bit too complicated for this sample, we'll simply disallow them.
-            if (primitiveType == PrimitiveType.LineStrip ||
-                primitiveType == PrimitiveType.TriangleStrip)
+            if (primitiveType == PrimitiveType.LineStrip || primitiveType == PrimitiveType.TriangleStrip)
             {
                 throw new NotSupportedException("The specified primitiveType is not supported by PrimitiveBatch.");
             }
@@ -152,8 +153,6 @@ namespace XNAFinalEngine.GraphicElements
 
             // how many verts will each of these primitives require?
             numVertsPerPrimitive = NumVertsPerPrimitive(primitiveType);
-                        
-            basicEffect.CurrentTechnique.Passes[0].Apply();
 
             // Seteo la matriz de mundo. Va a ser la misma para todos los casos. Por supuesto que el programa puede modificarla despues del begin.
             basicEffect.World = Matrix.Identity;
@@ -181,7 +180,7 @@ namespace XNAFinalEngine.GraphicElements
             }
 
             // Trabajamos con coordenadas de pantalla
-            basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, EngineManager.Device.Viewport.Width, EngineManager.Device.Viewport.Height, 0, 0, 1);
+            basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, EngineManager.Width, EngineManager.Height, 0, 0, 1);
             basicEffect.View       = Matrix.Identity;
 
             // are we starting a new primitive? if so, and there will not be enough room for a whole primitive, flush.
@@ -272,7 +271,9 @@ namespace XNAFinalEngine.GraphicElements
 
             // how many primitives will we draw?
             int primitiveCount = positionInBuffer / numVertsPerPrimitive;
-            
+
+            basicEffect.CurrentTechnique.Passes[0].Apply();
+
             // submit the draw call to the graphics card
             EngineManager.Device.DrawUserPrimitives<VertexPositionColor>(primitiveType, vertices, 0, primitiveCount);
 
@@ -516,6 +517,37 @@ namespace XNAFinalEngine.GraphicElements
                 }
             End();
         } // DrawBoundingSphere
+
+        #endregion
+
+        #region Draw curve
+
+        /// <summary>
+        /// Draws a curve.
+        /// </summary>
+        public static void DrawCurve(Curve3D curve, Color color, int step = 50)
+        {
+            DrawCurve(curve, color, Matrix.Identity, step);
+        } // DrawCurve
+
+        /// <summary>
+        /// Draws a curve.
+        /// </summary>
+        public static void DrawCurve(Curve3D curve, Color color, Matrix worldMatrix, int step = 50)
+        {               
+            Begin(PrimitiveType.LineList);
+
+                basicEffect.World = worldMatrix;
+                AddVertex(curve.GetPoint(0), color);
+                for (float i = curve.CurveTotalTime / step; i < curve.CurveTotalTime; i = i + (curve.CurveTotalTime / step))
+                {
+                    AddVertex(curve.GetPoint(i), color);
+                    AddVertex(curve.GetPoint(i), color);
+                }
+                AddVertex(curve.GetPoint(curve.CurveTotalTime), color);
+
+            End();
+        } // DrawCurve
 
         #endregion
 

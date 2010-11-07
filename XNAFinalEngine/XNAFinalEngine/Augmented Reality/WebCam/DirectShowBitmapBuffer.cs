@@ -57,10 +57,10 @@ namespace XNAFinalEngine.AugmentedReality
                 _height = _bitmapImage.PixelHeight;
                 return null;
             }), null);
-
+            
             //Retrieve and store our WIC handle to the bitmap
             SetWICHandle();
-
+            
             //Set the buffer pointer
             SetBufferInfo();
         } // DirectShowBitmapBuffer
@@ -95,9 +95,6 @@ namespace XNAFinalEngine.AugmentedReality
 
             //Get the methods of all the static methods in the class
             MethodInfo[] info = wicBitmapNativeMethodsClass.GetMethods(BindingFlags.Static | BindingFlags.NonPublic);
-            
-            //This method looks good
-            MethodInfo lockmethod = info[0];
 
             //The rectangle of the buffer we are
             //going to request
@@ -105,21 +102,34 @@ namespace XNAFinalEngine.AugmentedReality
 
             rect.Width = _width;
             rect.Height = _height;
-
+            
             //Populate the arguments to pass to the function
             object[] args = new object[] { _wicImageHandle, rect, 2, _wicImageHandle };
 
-            //Execute our static Lock() method
-            hr = (int)lockmethod.Invoke(null, args);
+            try
+            {
+                //This method looks good
+                MethodInfo lockmethod = info[0];
+
+                //Execute our static Lock() method
+                hr = (int)lockmethod.Invoke(null, args);
+            }
+            catch
+            { // The code isn't very good. In some case the correct method is in the second field.
+                MethodInfo lockmethod = info[1];
+
+                //Execute our static Lock() method
+                hr = (int)lockmethod.Invoke(null, args);
+            }
 
             //argument[3] is our "out" pointer to the lock handle
             //it is set by our last method invoke call
             _wicImageLock = args[3];
-
+            
             //Get the internal nested class that holds some of the
             //other native functions for WIC
             Type wicLockMethodsClass = Type.GetType("MS.Win32.PresentationCore.UnsafeNativeMethods+WICBitmapLock, PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
-
+            
             //Get all the native methods into our array
             MethodInfo[] lockMethods = wicLockMethodsClass.GetMethods(BindingFlags.Static | BindingFlags.NonPublic);
 

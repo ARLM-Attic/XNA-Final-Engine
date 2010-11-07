@@ -50,12 +50,12 @@ namespace XNAFinalEngine.GraphicElements
         #region Variables
 
         /// <summary>
-        /// Textura que almacena el Z-Buffer y las normales
+        /// Z-Buffer and scene-normal map.
         /// </summary>
         private RenderToTexture normalDepthMapTexture;
 
         /// <summary>
-        /// Textura que almacena el Z-Buffer de alta precision.
+        /// Single Z-Buffer texture with 32 bits single channel precision.
         /// </summary>
         private RenderToTexture highPrecisionDepthMapTexture;
 
@@ -64,18 +64,19 @@ namespace XNAFinalEngine.GraphicElements
         #region Properties
 
         /// <summary>
-        /// Textura que almacena el Z-Buffer en la ultima componente. Y las normales en las 3 primeras.
-        /// Si el formato elegido es de alta precision el Z-Buffer es nulo.
+        /// Z-Buffer and scene-normal map.
+        /// First three components are normals and the last is the z-buffer.
+        /// If high precision is enable the last component doesn't have the z-buffer.
         /// </summary>
         public RenderToTexture NormalDepthMapTexture { get { return normalDepthMapTexture; } }
 
         /// <summary>
-        /// Textura que almacena el Z-Buffer en la primer componente. Usando alta presicion.
+        /// Single Z-Buffer texture with 32 bits single channel precision.
         /// </summary>
         public RenderToTexture HighPrecisionDepthMapTexture { get { return highPrecisionDepthMapTexture; } }
 
         /// <summary>
-        /// Does this texture use some high percision format? Better than 8 bit color?
+        /// Does this texture use the 32 bits single channel high percision format?
         /// </summary>
         public bool UsesHighPrecisionFormat { get; private set; }
 
@@ -174,11 +175,11 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedFarPlane = null;
         /// <summary>
-        /// Set Far Plane (value between 1 and 100000)
+        /// Set Far Plane (greater or equal to 1)
         /// </summary>
         private void SetFarPlane(float _farPlane)
         {
-            if (lastUsedFarPlane != _farPlane && _farPlane >= 1.0f && _farPlane <= 100000.0f)
+            if (lastUsedFarPlane != _farPlane && _farPlane >= 1.0f)
             {
                 lastUsedFarPlane = _farPlane;
                 epFarPlane.SetValue(_farPlane);
@@ -208,11 +209,11 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedNearPlane = null;
         /// <summary>
-        /// Set Near Plane (value between 1 and 100000)
+        /// Set Near Plane (greater or equal to 1)
         /// </summary>
         private void SetNearPlane(float _nearPlane)
         {
-            if (lastUsedNearPlane != _nearPlane && _nearPlane >= 1.0f && _nearPlane <= 100000.0f)
+            if (lastUsedNearPlane != _nearPlane && _nearPlane >= 1.0f)
             {
                 lastUsedNearPlane = _nearPlane;
                 epNearPlane.SetValue(_nearPlane);
@@ -243,7 +244,7 @@ namespace XNAFinalEngine.GraphicElements
                 highPrecisionDepthMapTexture = new RenderToTexture(_rendeTargetSize, true);
             }
            
-            GetParameters();
+            GetParametersHandles();
             FarPlane = ApplicationLogic.Camera.FarPlane;
             NearPlane = ApplicationLogic.Camera.NearPlane;
             LoadUITestElements();
@@ -251,12 +252,12 @@ namespace XNAFinalEngine.GraphicElements
 
 		#endregion
 
-		#region Get parameters
+		#region Get parameters handles
 
 		/// <summary>
         /// Get the handles of the parameters from the shader.
 		/// </summary>
-		protected void GetParameters()
+		protected void GetParametersHandles()
 		{	
             try
 			{
@@ -268,9 +269,9 @@ namespace XNAFinalEngine.GraphicElements
                 epFarPlane = Effect.Parameters["FarPlane"];
                 epNearPlane = Effect.Parameters["NearPlane"];
             }
-            catch (Exception ex)
+            catch
             {
-                throw new Exception("Get the handles from the depth and normal shader failed. " + ex.ToString());
+                throw new Exception("Get the handles from the depth and normal shader failed.");
             }
 		} // GetParameters
 
@@ -295,7 +296,7 @@ namespace XNAFinalEngine.GraphicElements
 
         #endregion
 
-        #region GenerateDepthMap
+        #region Generate Depth Map
 
         /// <summary>
         /// Render the object without taking care of the illumination information.
@@ -346,7 +347,7 @@ namespace XNAFinalEngine.GraphicElements
                 throw new Exception("Unable to render the depth normal effect " + e.Message);
             }
             
-            // Resolve the render target to get the texture (required for Xbox)
+            // Resolve the render target to get the texture
             resultTexture.DisableRenderTarget();
         } // BaseRender
 
@@ -365,7 +366,7 @@ namespace XNAFinalEngine.GraphicElements
                 Effect.CurrentTechnique = Effect.Techniques["DepthAndNormals"];
             }
             BaseRender(renderObjects, normalDepthMapTexture);
-            // Si el calculo del Z-Buffer es de alta precison se necesita calcularlo en una textura especial.
+            
             if (UsesHighPrecisionFormat)
             {
                 Effect.CurrentTechnique = Effect.Techniques["HighPresicionDepth"];

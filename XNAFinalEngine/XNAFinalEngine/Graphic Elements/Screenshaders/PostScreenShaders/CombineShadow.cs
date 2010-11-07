@@ -50,47 +50,66 @@ namespace XNAFinalEngine.GraphicElements
 		/// <summary>
 		/// Effect handles for window size and scene map.
 		/// </summary>
-        private EffectParameter epWindowSize,
+        private EffectParameter epResolution,
                                 epShadowMap,
 			                    epSceneMap;
         
         #endregion
 
+        #region Resolution
+
+        /// <summary>
+        /// Last used resolution
+        /// </summary>
+        private static Vector2? lastUsedResolution = null;
+        /// <summary>
+        /// Set resolution.
+        /// </summary>
+        private void SetResolution(Vector2 _resolution)
+        {
+            if (lastUsedResolution != _resolution)
+            {
+                lastUsedResolution = _resolution;
+                epResolution.SetValue(_resolution);
+            }
+        } // SetResolution
+
+        #endregion
+
         #region Constructor
 
         /// <summary>
-        /// Combine the frame buffer with a shadow texture (shadow or SSAO)
+        /// Combine the frame buffer with a shadow texture (shadow map or SSAO)
 		/// </summary>
         public CombineShadows()
 		{
             Effect = LoadShader("PostCombineShadows");
             Effect.CurrentTechnique = Effect.Techniques["ModelShader30"];
                         
-            GetParameters();
+            GetParametersHandles();
             
-            epWindowSize.SetValue(new Vector2(EngineCore.EngineManager.Width, EngineCore.EngineManager.Height));
         } // CombineShadows
 
 		#endregion
 
-		#region Get parameters
+		#region Get parameters handles
 		
         /// <summary>
         /// Get the handles of the parameters from the shader.
 		/// </summary>
-		protected void GetParameters()
+		protected void GetParametersHandles()
 		{
             try
             {
-                epWindowSize = Effect.Parameters["windowSize"];
+                epResolution = Effect.Parameters["windowSize"];
 			    epSceneMap   = Effect.Parameters["sceneMap"];
                 epShadowMap  = Effect.Parameters["shadowMap"];
             }
-            catch (Exception ex)
+            catch
             {
-                throw new Exception("Get the handles from the blur shader failed. " + ex.ToString());
+                throw new Exception("Get the handles from the blur shader failed.");
             }
-		} // GetParameters
+		} // GetParametersHandles
 
 		#endregion
 
@@ -101,14 +120,13 @@ namespace XNAFinalEngine.GraphicElements
 		/// </summary>
         public void GenerateCombineShadows(RenderToTexture shadowMapTexture)
 		{
-
 			// Only apply the effect if the texture is valid
             if (shadowMapTexture == null || shadowMapTexture.XnaTexture == null)
                 return;
             
-            // SetAtributes
-            if (epShadowMap != null)
-                epShadowMap.SetValue(shadowMapTexture.XnaTexture);
+            // Set parameters
+            epShadowMap.SetValue(shadowMapTexture.XnaTexture);
+            SetResolution(new Vector2(EngineCore.EngineManager.Width, EngineCore.EngineManager.Height));
             try
             {
                 Effect.CurrentTechnique.Passes[0].Apply();

@@ -44,7 +44,7 @@ namespace XNAFinalEngine.GraphicElements
 	/// <summary>
 	/// Shadow map shader.
 	/// </summary>
-    public class ShadowMapShader : ScreenShader
+    public class ShadowMap : ScreenShader
 	{
 
 		#region Variables
@@ -414,11 +414,11 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         /// <param name="_lightRendeTargetSize">The size of the render target used to calculted light depth buffer</param>
         /// <param name="_ShadowrendeTargetSize">The final render target size</param>
-        public ShadowMapShader(RenderToTexture.SizeType _lightRendeTargetSize = RenderToTexture.SizeType.Custom512x512,
+        public ShadowMap(RenderToTexture.SizeType _lightRendeTargetSize = RenderToTexture.SizeType.Custom512x512,
                                RenderToTexture.SizeType _ShadowrendeTargetSize = RenderToTexture.SizeType.HalfScreen)
 		{
             Effect = LoadShader("PostShadowMap");
-            GetParameters();
+            GetParametersHandles();
 			
 			// Creates the render target textures
             lightDepthBufferTexture = new RenderToTexture(RenderToTexture.SizeType.Custom512x512, true);
@@ -459,12 +459,12 @@ namespace XNAFinalEngine.GraphicElements
         
         #endregion
 
-		#region Get parameters
+		#region Get parameters handles
 
 		/// <summary>
         /// Get the handles of the parameters from the shader.
 		/// </summary>
-		protected void GetParameters()
+		protected void GetParametersHandles()
 		{
             try
             {
@@ -484,15 +484,15 @@ namespace XNAFinalEngine.GraphicElements
                 epShadowMapTexelSize =           Effect.Parameters["shadowMapTexelSize"];
                 epShadowDistanceFadeoutTexture = Effect.Parameters["shadowDistanceFadeoutTexture"];
             }
-            catch (Exception ex)
+            catch
             {
-                throw new Exception("Get the handles from the shadow map shader failed. " + ex.ToString());
+                throw new Exception("Get the handles from the shadow map shader failed.");
             }
-		} // GetParameters
+		} // GetParametersHandles
 
 		#endregion
 
-        #region SetAtributes
+        #region Set parameters
 
         /// <summary>
         /// Set to the shader the specific atributes of this effect.

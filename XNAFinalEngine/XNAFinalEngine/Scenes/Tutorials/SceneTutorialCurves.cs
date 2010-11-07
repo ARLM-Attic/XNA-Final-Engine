@@ -40,37 +40,43 @@ using XNAFinalEngine.Helpers;
 using XNAFinalEngine.UI;
 using XNAFinalEngine.Sounds;
 using XNAFinalEngine.Input;
+using XNAFinalEngine.Particles;
 #endregion
 
 namespace XNAFinalEngine.Scenes
 {
+
     /// <summary>
-    /// Music tutorial.
-    /// This tutorial plays the music files compiled in the music directory.
+    /// Curve tutorial.
     /// </summary>
-    public class SceneTutorial3DSound : Scene
+    public class SceneTutorialCurves : Scene
     {
 
         #region Variables
 
-        #region Objects
-
-        GraphicObject gEmitter;
-
-        #endregion
+        private Curve3D circle, curve;
 
         #endregion
 
         #region Load
 
         /// <summary>
-        /// Load the scene
+        /// Load the scene.
         /// </summary>
         public override void Load()
         {
-            ApplicationLogic.Camera = new FixedCamera(new Vector3(0, 0, 0), new Vector3(0, 0, 10));
-            gEmitter = new GraphicObject(new Box(2), new Blinn());
-            gEmitter.TranslateAbs(0, 0, 10);
+            ApplicationLogic.Camera = new XSICamera(Vector3.Zero, 20);
+            EngineManager.ShowFPS = true;
+            // Create curve
+            curve = new Curve3D();
+                curve.AddPoint(new Vector3( 0,  1, 0), 0);
+                curve.AddPoint(new Vector3( 1,  0, 0), 1);
+                curve.AddPoint(new Vector3( 0, -1, 0), 2);
+                curve.AddPoint(new Vector3(-1,  0, 0), 3);
+            curve.Close();
+            curve.BuildTangents();
+            // Create circle
+            circle = Curve3D.Circle(1, 20);
         } // Load
 
         #endregion
@@ -82,7 +88,6 @@ namespace XNAFinalEngine.Scenes
         /// </summary>
         public override void Update()
         {
-
         } // Update
 
         #endregion
@@ -93,9 +98,19 @@ namespace XNAFinalEngine.Scenes
         /// Render.
         /// </summary>
         public override void Render()
-        {
-            gEmitter.Render();
-            UIMousePointer.RenderMousePointer();
+        {   
+            // Manual draw
+            Primitives.Begin(PrimitiveType.LineList);
+                Primitives.AddVertex(curve.GetPoint(0), Color.White);
+                for (float i = curve.CurveTotalTime / 30; i < curve.CurveTotalTime; i = i + (curve.CurveTotalTime / 30))
+                {   
+                    Primitives.AddVertex(curve.GetPoint(i), Color.White);
+                    Primitives.AddVertex(curve.GetPoint(i), Color.White);
+                }
+                Primitives.AddVertex(curve.GetPoint(curve.CurveTotalTime), Color.White);
+            Primitives.End();
+            // Automatic draw
+            Primitives.DrawCurve(circle, Color.Red, 50);
         } // Render
 
         #endregion
@@ -112,5 +127,5 @@ namespace XNAFinalEngine.Scenes
 
         #endregion
 
-    } // SceneTutorial3DSound
+    } // SceneTutorialCurves
 } // XNAFinalEngine.Scenes

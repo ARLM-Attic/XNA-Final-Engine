@@ -61,7 +61,7 @@ namespace XNAFinalEngine.GraphicElements
         {
             if (spriteFont == null)
             {
-                spriteFont = EngineManager.Content.Load<SpriteFont>(Directories.FontsDirectory + "\\" + "Arial12");
+                spriteFont = EngineManager.SystemContent.Load<SpriteFont>(Directories.FontsDirectory + "\\" + "Arial12");
             }
         } // LoadResources
 

@@ -49,7 +49,7 @@ namespace XNAFinalEngine.GraphicElements
     /// Este algoritmo fue sacado de un proyecto demostrativo de NVIDIA.
     /// El algoritmo esta pensando para DirectX 10 y fue pasado para DirectX 9. El problema fue el uso de las sentencias for
     /// en conjunto con un contador variable, dependiente de una variable global. Esto trae problemas al momento de compilar.
-    /// Opte por fijar los paremtros con valores fijos, estos son facilmente cambiables en el codigo fuente del shader.
+    /// Opte por fijar los parametros con valores fijos, estos son facilmente cambiables en el codigo fuente del shader.
     /// </summary>
     public class SSAOHorizonBased : ScreenShader
     {
@@ -74,6 +74,8 @@ namespace XNAFinalEngine.GraphicElements
                                 epDepthNormalTexture,
                                 epHighPresicionDepthTexture,
                                 // Parameters
+                                epResolution,
+                                epInverseResolution,
                                 epNumberSteps,
                                 epNumberDirections,
                                 epContrast,
@@ -84,6 +86,46 @@ namespace XNAFinalEngine.GraphicElements
                                 epRadius;
 
 		#endregion
+
+        #region Resolution
+
+        /// <summary>
+        /// Last used resolution
+        /// </summary>
+        private static Vector2? lastUsedResolution = null;
+        /// <summary>
+        /// Set resolution.
+        /// </summary>
+        private void SetResolution(Vector2 _resolution)
+        {
+            if (lastUsedResolution != _resolution)
+            {
+                lastUsedResolution = _resolution;
+                epResolution.SetValue(_resolution);
+            }
+        } // SetResolution
+
+        #endregion
+
+        #region Inverse Resolution
+
+        /// <summary>
+        /// Last used inverse resolution
+        /// </summary>
+        private static Vector2? lastUsedInverseResolution = null;
+        /// <summary>
+        /// Set inverse resolution.
+        /// </summary>
+        private void SetInverseResolution(Vector2 _inverseResolution)
+        {
+            if (lastUsedInverseResolution != _inverseResolution)
+            {
+                lastUsedInverseResolution = _inverseResolution;
+                epInverseResolution.SetValue(_inverseResolution);
+            }
+        } // SetInverseResolution
+
+        #endregion
 
         #region Number Steps
 
@@ -106,7 +148,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedNumberSteps = null;
         /// <summary>
-        /// Set Number of Steps (valor mayor a cero)
+        /// Set Number of Steps (greater or equal to 0)
         /// </summary>
         private void SetNumberSteps(float _numberSteps)
         {
@@ -140,7 +182,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedNumberDirections = null;
         /// <summary>
-        /// Set Number of Directions (valor mayor a cero)
+        /// Set Number of Directions (greater or equal to 0)
         /// </summary>
         private void SetNumberDirections(float _numberDirections)
         {
@@ -174,7 +216,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedContrast = null;
         /// <summary>
-        /// Contrast (valor mayor igual a cero y menos igual a 2)
+        /// Contrast (value between 0 and 3)
         /// </summary>
         private void SetContrast(float _contrast)
         {
@@ -208,7 +250,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedLineAttenuation = null;
         /// <summary>
-        /// Set Line Attenuation (valor mayor igual a cero y menos igual a 2)
+        /// Set Line Attenuation (value between 0 and 2)
         /// </summary>
         private void SetLineAttenuation(float _lineAttenuation)
         {
@@ -242,7 +284,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedAspectRatio = null;
         /// <summary>
-        /// Set Aspect Ratio (valor mayor igual a 1 y menos igual a 3)
+        /// Set Aspect Ratio (value between 1 and 3)
         /// </summary>
         private void SetAspectRatio(float _aspectRatio)
         {
@@ -280,7 +322,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedRadius = null;
         /// <summary>
-        /// Set Radius (valor mayor igual a cero y menos igual a 2)
+        /// Set Radius (value between 0 and 2)
         /// </summary>
         private void SetRadius(float _radius)
         {
@@ -314,7 +356,7 @@ namespace XNAFinalEngine.GraphicElements
         /// </summary>
         private static float? lastUsedAngleBias = null;
         /// <summary>
-        /// Set Angle Bias (valor mayor a cero y menos igual a 60)
+        /// Set Angle Bias (value between 0.1 and 60)
         /// </summary>
         private void SetAngleBias(float _angleBias)
         {
@@ -343,32 +385,31 @@ namespace XNAFinalEngine.GraphicElements
             if (SSAOTexture == null)
                 SSAOTexture = new RenderToTexture(_rendeTargetSize, false, false);
 
-            GetParameters();
+            GetParametersHandles();
 
             // Set some parameters automatically
             Texture randomNormalTexture = new Texture("RANDOMNORMAL");
             Effect.Parameters["randomTexture"].SetValue(randomNormalTexture.XnaTexture);
-            AspectRatio = EngineManager.AspectRatio;
-            Effect.Parameters["g_Resolution"].SetValue(new Vector2(EngineManager.Width, EngineManager.Height));
-            Effect.Parameters["g_InvResolution"].SetValue(new Vector2(1/(float)EngineManager.Width, 1/(float)EngineManager.Height));
 
             LoadUITestElements();
         } // SSAOHorizonBased
 
 		#endregion
 
-		#region Get parameters
+		#region Get parameters handles
 
 		/// <summary>
         /// Get the handles of the parameters from the shader.
 		/// </summary>
-		protected void GetParameters()
+		protected void GetParametersHandles()
 		{
             try
             {
                 epDepthNormalTexture = Effect.Parameters["depthNormalTexture"];
                 epHighPresicionDepthTexture = Effect.Parameters["highPresicionDepthTexture"];
 
+                epResolution = Effect.Parameters["g_Resolution"];
+                epInverseResolution = Effect.Parameters["g_InvResolution"];
                 epNumberSteps = Effect.Parameters["g_NumSteps"];
                 epNumberDirections = Effect.Parameters["g_NumDir"];
                 epContrast = Effect.Parameters["g_Contrast"];
@@ -378,21 +419,24 @@ namespace XNAFinalEngine.GraphicElements
                 epRadius = Effect.Parameters["g_R"];
                 epAngleBias = Effect.Parameters["g_AngleBias"];
             }
-            catch (Exception ex)
+            catch
             {
-                throw new Exception("Get the handles from the SSAO Horizon Based shader failed. " + ex.ToString());
+                throw new Exception("Get the handles from the SSAO Horizon Based shader failed.");
             }
-		} // GetParameters
+		} // GetParametersHandles
 
 		#endregion
 
-        #region Set Attributes
+        #region Set Parameters
         
         /// <summary>
         /// Set to the shader the specific atributes of this effect.
         /// </summary>
-        public void SetAttributes()
+        public void SetParameters()
         {
+            AspectRatio = EngineManager.AspectRatio;
+            SetResolution(new Vector2(EngineManager.Width, EngineManager.Height));
+            SetInverseResolution(new Vector2(1 / (float)EngineManager.Width, 1 / (float)EngineManager.Height));
             SetNumberSteps(NumberSteps);
             SetNumberDirections(NumberDirections);
             SetContrast(Contrast);
@@ -400,11 +444,11 @@ namespace XNAFinalEngine.GraphicElements
             SetAspectRatio(AspectRatio);
             SetRadius(Radius);
             SetAngleBias(AngleBias);
-        } // SetAttributes
+        } // SetParameters
 
         #endregion
 
-        #region GenerateSSAO
+        #region Generate SSAO
         
         /// <summary>
         /// Generate SSAO texture
@@ -415,7 +459,7 @@ namespace XNAFinalEngine.GraphicElements
             epDepthNormalTexture.SetValue(_normalTexture);
             epHighPresicionDepthTexture.SetValue(_depthTexture);
             EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
-            SetAttributes();
+            SetParameters();
 
             // Start rendering onto the shadow map
             SSAOTexture.EnableRenderTarget();

@@ -79,7 +79,12 @@ namespace XNAFinalEngine
         /// </summary>
         public static void CreateScene()
         {
-            scene = new SceneTutorialVideo();
+            //scene = new SceneTutorialMusic();
+            //scene = new SceneTutorial3DSound01();
+            //scene = new SceneTutorial3DSound02();
+            //scene = new SceneTutorialCurves();
+            //scene = new SceneTutorialVideo();
+            scene = new SceneTutorialParticles();
             scene.Load();
         } // CreateScene
 

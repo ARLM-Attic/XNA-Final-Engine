@@ -100,25 +100,16 @@
     <Reference Include="mscorlib">
       <Private>False</Private>
     </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="ProjectMercury">
-      <HintPath>References\ProjectMercury.dll</HintPath>
+    <Reference Include="ParticleSettings">
+      <HintPath>References\ParticleSettings.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml">
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System.Core">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System.Xml.Linq">
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System.Net">
       <Private>False</Private>
     </Reference>
     <Reference Include="Tao.FreeGlut">
@@ -176,6 +167,8 @@
     <Compile Include="Graphic Elements\Models\PrimitiveModel.cs" />
     <Compile Include="Graphic Elements\Models\XModel.cs" />
     <Compile Include="Graphic Elements\Object.cs" />
+    <Compile Include="Graphic Elements\Particles\ParticleEmitterCurve.cs" />
+    <Compile Include="Graphic Elements\Particles\ParticleEmitterSimple.cs" />
     <Compile Include="Graphic Elements\Primitives\Primitives.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -194,6 +187,7 @@
     <Compile Include="Graphic Elements\Textures\Texture.cs" />
     <Compile Include="Graphic Elements\Video\Video.cs" />
     <Compile Include="Helpers\Chronometer.cs" />
+    <Compile Include="Helpers\Curve.cs" />
     <Compile Include="Helpers\Directories.cs" />
     <Compile Include="Helpers\Picker.cs" />
     <Compile Include="Helpers\StringHelper.cs" />
@@ -203,12 +197,18 @@
     <Compile Include="Input\Mouse.cs" />
     <Compile Include="Input\Wiimote.cs" />
     <Compile Include="Input\XInputGamePad.cs" />
+    <Compile Include="Graphic Elements\Particles\ParticleEmitter.cs" />
+    <Compile Include="Graphic Elements\Particles\ParticleSystem.cs" />
+    <Compile Include="Graphic Elements\Particles\ParticleVertex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Scenes\Lamborghini LP640\SceneLamborghiniLP640.cs" />
+    <Compile Include="Scenes\Tutorials\SceneTutorialCurves.cs" />
+    <Compile Include="Scenes\Tutorials\SceneTutorialAugmentedReality.cs" />
     <Compile Include="Scenes\Scene.cs" />
     <Compile Include="Scenes\SceneEmpty.cs" />
-    <Compile Include="Scenes\Tutorials\SceneTutorial3DSound.cs" />
+    <Compile Include="Scenes\Tutorials\SceneTutorialParticles.cs" />
+    <Compile Include="Scenes\Tutorials\SceneTutorial3DSound02.cs" />
+    <Compile Include="Scenes\Tutorials\SceneTutorial3DSound01.cs" />
     <Compile Include="Scenes\Tutorials\SceneTutorialMusic.cs" />
     <Compile Include="Scenes\Tutorials\SceneTutorialVideo.cs" />
     <Compile Include="Settings\Settings.cs" />

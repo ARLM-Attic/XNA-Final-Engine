@@ -96,11 +96,11 @@ technique ConstantWithoutTexture
 		VertexShader = compile vs_3_0 VSConstantWithoutTexture();
 		ZEnable = true;
 		ZWriteEnable = true;
-#ifdef FX_COMPOSER
-        CullMode = None;   // For FX Composer
-        AlphaBlendEnable = true;
+		AlphaBlendEnable = true;
 		SrcBlend = SRCALPHA;
 		DestBlend = INVSRCALPHA;
+#ifdef FX_COMPOSER
+        CullMode = None;   // For FX Composer
 #else
         CullMode = CCW;    // For The Engine	
 #endif	
@@ -115,11 +115,11 @@ technique ConstantWithTexture
 		VertexShader = compile vs_3_0 VSConstantWithTexture();
 		ZEnable = true;
 		ZWriteEnable = true;
-#ifdef FX_COMPOSER
-        CullMode = None;   // For FX Composer
-        AlphaBlendEnable = true;
+		AlphaBlendEnable = true;
 		SrcBlend = SRCALPHA;
 		DestBlend = INVSRCALPHA;
+#ifdef FX_COMPOSER
+        CullMode = None;   // For FX Composer
 #else
         CullMode = CCW;    // For The Engine	
 #endif	

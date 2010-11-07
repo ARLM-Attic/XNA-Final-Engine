@@ -61,7 +61,7 @@ namespace XNAFinalEngine.Settings {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool VSync {
             get {
                 return ((bool)(this["VSync"]));
@@ -104,6 +104,30 @@ namespace XNAFinalEngine.Settings {
             }
             set {
                 this["ChangeWindowSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int FramePerSeconds {
+            get {
+                return ((int)(this["FramePerSeconds"]));
+            }
+            set {
+                this["FramePerSeconds"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("XNA FINAL ENGINE")]
+        public string WindowName {
+            get {
+                return ((string)(this["WindowName"]));
+            }
+            set {
+                this["WindowName"] = value;
             }
         }
     }
