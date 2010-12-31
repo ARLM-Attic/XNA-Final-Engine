@@ -31,11 +31,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.Input
@@ -44,8 +39,7 @@ namespace XNAFinalEngine.Input
 	/// <summary>
     /// XInput Gamepad.
     /// Allows to work up to four different gamepad.
-    /// XInput, an API controllers introduced with the launch of the Xbox 360,
-    /// giving Xbox 360 controllers full functionality under Windows XP SP1 and up.
+    /// XInput, an API controllers introduced with the launch of the Xbox 360.
     /// XInput has the advantage over DirectInput of significantly easier programmability.
     /// XInput is compatible with DirectX 9 and up.
     /// http://en.wikipedia.org/wiki/DirectInput
@@ -63,7 +57,7 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// The id number of the gamepad.
         /// </summary>
-        private PlayerIndex playerIndex;
+        private readonly PlayerIndex playerIndex;
 
 		#endregion
 
@@ -484,7 +478,7 @@ namespace XNAFinalEngine.Input
         private XInputGamePad(PlayerIndex _playerIndex)
         {
             playerIndex = _playerIndex;
-            gamePadState = Microsoft.Xna.Framework.Input.GamePad.GetState(playerIndex);
+            gamePadState = GamePad.GetState(playerIndex);
         } // XInputGamePad
 
         #endregion
@@ -497,7 +491,7 @@ namespace XNAFinalEngine.Input
         /// </summary>
         public void SetVibration(float leftMotor, float rightMotor)
         {
-            Microsoft.Xna.Framework.Input.GamePad.SetVibration(playerIndex, leftMotor, rightMotor);
+            GamePad.SetVibration(playerIndex, leftMotor, rightMotor);
         } // SetVibration
 
         #endregion
@@ -510,7 +504,7 @@ namespace XNAFinalEngine.Input
 		public void Update()
 		{
 			gamePadStateLastFrame = gamePadState;
-			gamePadState = Microsoft.Xna.Framework.Input.GamePad.GetState(playerIndex);
+			gamePadState = GamePad.GetState(playerIndex);
 		} // Update
 		#endregion
 
@@ -521,10 +515,10 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// The four possible gamepads.
         /// </summary>
-        private static XInputGamePad xInputGamePadPlayerOne   = new XInputGamePad(PlayerIndex.One),
-                                     xInputGamePadPlayerTwo   = new XInputGamePad(PlayerIndex.Two),
-                                     xInputGamePadPlayerThree = new XInputGamePad(PlayerIndex.Three),
-                                     xInputGamePadPlayerFour  = new XInputGamePad(PlayerIndex.Four);
+        private readonly static XInputGamePad xInputGamePadPlayerOne   = new XInputGamePad(PlayerIndex.One),
+                                              xInputGamePadPlayerTwo   = new XInputGamePad(PlayerIndex.Two),
+                                              xInputGamePadPlayerThree = new XInputGamePad(PlayerIndex.Three),
+                                              xInputGamePadPlayerFour  = new XInputGamePad(PlayerIndex.Four);
 
 
         #endregion

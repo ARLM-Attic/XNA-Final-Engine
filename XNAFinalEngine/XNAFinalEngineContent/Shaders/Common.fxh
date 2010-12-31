@@ -172,6 +172,16 @@ float3 SurfaceColor : SPECULAR <
 	string UIWidget = "Color";
 > = {1.0f, 1.0f, 1.0f};
 
+float3 SurfaceSpecular : SPECULAR <
+	string UIName = "Surface Specular Color";
+	string UIWidget = "Color";
+> = {1.0f, 1.0f, 1.0f};
+
+float3 SurfaceAmbient : SPECULAR <
+	string UIName = "Surface Ambient Color";
+	string UIWidget = "Color";
+> = {0.1f, 0.1f, 0.1f};
+
 float UScale
 <
     string UIWidget = "slider";

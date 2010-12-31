@@ -10,13 +10,11 @@
 
 #region Using directives
 using System;
-using System.Text;
 using System.Collections;
 using System.Collections.Specialized;
-using System.Windows.Forms;
 using System.Globalization;
-using System.Diagnostics;
-using System.Collections.Generic;
+using System.Text;
+using System.Windows.Forms;
 #endregion
 
 namespace XNAFinalEngine.Helpers
@@ -78,8 +76,7 @@ namespace XNAFinalEngine.Helpers
 					"Unable to execute method without valid anyMatch array.");
 
 			foreach (string match in anyMatch)
-				if (String.Compare(s1, match, true,
-					CultureInfo.CurrentCulture) == 0)
+				if (String.Compare(s1, match, true, CultureInfo.CurrentCulture) == 0)
 					return true;
 			return false;
 		} // Compare(s1, anyMatch)
@@ -97,8 +94,7 @@ namespace XNAFinalEngine.Helpers
 					"Unable to execute method without valid list.");
 
 			foreach (string listEntry in list)
-				if (String.Compare(name, listEntry, ignoreCase,
-					CultureInfo.CurrentCulture) == 0)
+				if (String.Compare(name, listEntry, ignoreCase, CultureInfo.CurrentCulture) == 0)
 					return true;
 			return false;
 		} // IsInList(name, list, ignoreCase)
@@ -116,8 +112,7 @@ namespace XNAFinalEngine.Helpers
 					"Unable to execute method without valid list.");
 
 			foreach (string listEntry in list)
-				if (String.Compare(name, listEntry, ignoreCase,
-					CultureInfo.CurrentCulture) == 0)
+				if (String.Compare(name, listEntry, ignoreCase, CultureInfo.CurrentCulture) == 0)
 					return true;
 			return false;
 		} // IsInList(name, list, ignoreCase)
@@ -175,11 +170,11 @@ namespace XNAFinalEngine.Helpers
 			// Fix 2004-10-08: new length can be 0 for killing first word
 			if (text == lastWord)
 				return "";
-			else if (lastWord.Length == 0 || text.Length == 0 ||
+			if (lastWord.Length == 0 || text.Length == 0 ||
 				text.Length - lastWord.Length - 1 <= 0)
 				return text;
-			else
-				return text.Substring(0, text.Length - lastWord.Length - 1);
+			
+            return text.Substring(0, text.Length - lastWord.Length - 1);
 		} // RemoveLastWord(text)
 
 		/// <summary>
@@ -440,15 +435,11 @@ namespace XNAFinalEngine.Helpers
 		/// <param name="time">Time</param>
 		/// <param name="daylightSaving">Daylight saving</param>
 		/// <returns>String</returns>
-		public static string WriteInternetTime(
-			DateTime time,
-			bool daylightSaving)
+		public static string WriteInternetTime(DateTime time, bool daylightSaving)
 		{
-			return "@" + ((float)((int)(time.ToUniversalTime().AddHours(
-				daylightSaving ? 1 : 0).TimeOfDay.
-				TotalSeconds * 100000 / (24 * 60 * 60))) / 100.0f).ToString(
-				NumberFormatInfo.InvariantInfo);
-		} // WriteInternetTime(time, daylightSaving)
+			return "@" + ((float)((int)(time.ToUniversalTime().AddHours(daylightSaving ? 1 : 0).TimeOfDay.TotalSeconds * 100000 / (24 * 60 * 60))) / 100.0f).ToString(NumberFormatInfo.InvariantInfo);
+		} // WriteInternetTime
+
 		#endregion
 
         #region Convert methods
@@ -460,20 +451,25 @@ namespace XNAFinalEngine.Helpers
         static public int[] ConvertStringToIntArray(string s)
         {
             // Invalid?
-            if (s == null || s.Length == 0)
+            if (String.IsNullOrEmpty(s))
                 return null;
 
             string[] splitted = s.Split(new char[] { ' ' });
             int[] ret = new int[splitted.Length];
             for (int i = 0; i < ret.Length; i++)
+            {
                 if (String.IsNullOrEmpty(splitted[i]) == false)
                 {
                     try
                     {
                         ret[i] = Convert.ToInt32(splitted[i]);
                     } // try
-                    catch { } // ignore
-                } // for if (String.IsNullOrEmpty)
+                    catch
+                    {
+                        // Ignore Exception.
+                    }
+                }
+            }
             return ret;
         } // ConvertStringToIntArray(str)
 
@@ -854,13 +850,11 @@ namespace XNAFinalEngine.Helpers
 				return originalText;
 
 			if (cutMode == CutMode.Begin)
-				return originalText.Substring(
-					originalText.Length - maxLength, maxLength);
-			else if (cutMode == CutMode.End)
+				return originalText.Substring(originalText.Length - maxLength, maxLength);
+			if (cutMode == CutMode.End)
 				return originalText.Substring(0, maxLength);
-			else // logic: if ( cutMode == CutModes.BothEnds )
-				return originalText.Substring(
-					(originalText.Length - maxLength) / 2, maxLength);
+			
+			return originalText.Substring((originalText.Length - maxLength) / 2, maxLength);
 		} // MaxStringLength(originalText, maxLength, cutMode)
 
 		/// <summary>
@@ -999,7 +993,7 @@ namespace XNAFinalEngine.Helpers
 			for (int pos = startPos; pos < functionName.Length; pos++)
 			{
 				// Quit if its not an uppercase letter
-				if (StringHelper.IsUppercaseLetter(functionName[pos]) == false)
+				if (IsUppercaseLetter(functionName[pos]) == false)
 					break;
 				// Else just add letter
 				abbreviation.Append(functionName[pos]);
@@ -1049,8 +1043,7 @@ namespace XNAFinalEngine.Helpers
 		/// </summary>
 		public static string SplitFunctionNameToWordString(string functionName)
 		{
-			if (functionName == null ||
-				functionName.Length == 0)
+			if (String.IsNullOrEmpty(functionName))
 				return "";
 
 			string ret = "";
@@ -1060,18 +1053,18 @@ namespace XNAFinalEngine.Helpers
 				char letter = functionName[pos];
 				// First letter is always big!
 				if (pos == 0 ||
-					pos == 1 && StringHelper.IsUppercaseLetter(functionName[1]) &&
-					StringHelper.IsUppercaseLetter(functionName[0]) ||
-					pos == 2 && StringHelper.IsUppercaseLetter(functionName[2]) &&
-					StringHelper.IsUppercaseLetter(functionName[1]) &&
-					StringHelper.IsUppercaseLetter(functionName[0]))
-					ret += StringHelper.ToUpper(letter);
+					pos == 1 && IsUppercaseLetter(functionName[1]) &&
+					IsUppercaseLetter(functionName[0]) ||
+					pos == 2 && IsUppercaseLetter(functionName[2]) &&
+					IsUppercaseLetter(functionName[1]) &&
+					IsUppercaseLetter(functionName[0]))
+					ret += ToUpper(letter);
 					// Found uppercase letter?
-				else if (StringHelper.IsUppercaseLetter(letter) &&
+				else if (IsUppercaseLetter(letter) &&
 					//also support numbers and other symbols not lower/upper letter:
 					//StringHelper.IsLowercaseLetter(letter) == false &&
 					// But don't allow space or any punctuation (. , : ; ' " ! ?)
-					StringHelper.IsSpaceOrPunctuation(letter) == false &&
+					IsSpaceOrPunctuation(letter) == false &&
 					ret.EndsWith(" ") == false)
 				{
 					// Could be new word, but we have to check if its an abbreviation
@@ -1087,7 +1080,7 @@ namespace XNAFinalEngine.Helpers
 					} // if (abbreviationLength)
 						// Else just add new word (in lower letter)
 					else
-						ret += " " + StringHelper.ToLower(letter);
+						ret += " " + ToLower(letter);
 				} // else if
 				else
 					// Just add letter

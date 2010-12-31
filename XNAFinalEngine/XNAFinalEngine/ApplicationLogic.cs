@@ -29,10 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using XNAFinalEngine.GraphicElements;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Scenes;
 #endregion
 
@@ -84,7 +82,11 @@ namespace XNAFinalEngine
             //scene = new SceneTutorial3DSound02();
             //scene = new SceneTutorialCurves();
             //scene = new SceneTutorialVideo();
-            scene = new SceneTutorialParticles();
+            //scene = new SceneTutorialParticles();
+            //scene = new SceneTutorialTexturePicker();
+            scene = new SceneTutorialNewUI();
+            //scene = new SceneDeferredLighting();
+            //scene = new SceneEmpty();
             scene.Load();
         } // CreateScene
 

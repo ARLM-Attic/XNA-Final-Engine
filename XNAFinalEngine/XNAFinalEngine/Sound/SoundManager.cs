@@ -29,11 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 #endregion
 
@@ -152,7 +149,7 @@ namespace XNAFinalEngine.Sounds
             SoundEffect.DopplerScale = MasterDopplerScale;
             SoundEffect.MasterVolume = MasterSoundVolume;
             // Remove sound instances that are over.
-            sounds = (from SoundInstance soundInstance in sounds where !soundInstance.IsOver select soundInstance).ToList<SoundInstance>();
+            sounds = (from SoundInstance soundInstance in sounds where !soundInstance.IsOver select soundInstance).ToList();
             // Update sounds.
             foreach (SoundInstance soundInstance in sounds)
             {

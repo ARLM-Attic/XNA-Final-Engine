@@ -30,15 +30,12 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.Collections.Generic;
 using System.IO;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Media;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
-using XNAFinalEngine.GraphicElements;
+
 #endregion
 
 namespace XNAFinalEngine.Sounds
@@ -73,27 +70,27 @@ namespace XNAFinalEngine.Sounds
         /// <summary>
         /// Current song filename.
         /// </summary>
-        private static string currentSongFilename = null;
+        private static string currentSongFilename;
 
         /// <summary>
         /// Current song.
         /// </summary>
-        private static Song currentSong = null;
+        private static Song currentSong;
 
         /// <summary>
         /// Current music file index from the musicFiles array.
         /// </summary>
-        private static int currentMusicFileIndex = 0;
+        private static int currentMusicFileIndex;
 
         /// <summary>
         /// Last music file index from the musicFiles array, it's needed by the random player.
         /// </summary>
-        private static int lastPlayedMusicFileIndex = 0;
+        private static int lastPlayedMusicFileIndex;
 
         /// <summary>
         /// Music content manager.
         /// </summary>
-        private static ContentManager musicContentManager = null;
+        private static ContentManager musicContentManager;
 
         /// <summary>
         /// Random generation for shuffle.
@@ -322,7 +319,7 @@ namespace XNAFinalEngine.Sounds
                 if (IsPlaying)
                 {
                     MediaPlayer.Volume = Volume;
-                    if (MediaPlayer.State == MediaState.Stopped && IsPlaying == true)
+                    if (MediaPlayer.State == MediaState.Stopped && IsPlaying)
                     {
                         // The song is over; it's time to load the next.
                         Next();

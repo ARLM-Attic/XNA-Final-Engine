@@ -4,7 +4,7 @@ using System;
 using System.Text;
 using System.Threading;
 using System.Runtime.InteropServices;
-using XNAFinalEngine.GraphicElements;
+using XNAFinalEngine.Graphics;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -79,7 +79,7 @@ namespace XNAFinalEngine.Scenes
         /// <summary>
         /// Texture used to render the webCam frame into screen.
         /// </summary>
-        private GraphicElements.Texture webCamTexture;
+        private Graphics.Texture webCamTexture;
 
         #endregion
 
@@ -99,7 +99,7 @@ namespace XNAFinalEngine.Scenes
 
             box = new GraphicObject(new Box(2), new CarPaint());
 
-            plane = new GraphicObject(new GraphicElements.Plane(10, 10), new Constant(Color.Red));
+            plane = new GraphicObject(new Graphics.Plane(10, 10), new Constant(Color.Red));
 
             cShadowObjects = new ContainerObject();
             cShadowObjects.AddObject(box);
@@ -114,7 +114,7 @@ namespace XNAFinalEngine.Scenes
 
             AmbientLight.LightColor = new Color(150, 150, 150);
 
-            directionalLight = new GraphicElements.DirectionalLight(new Vector3(-0.1f, -1.0f, 1.1f), new Color(100, 120, 130));
+            directionalLight = new Graphics.DirectionalLight(new Vector3(-0.1f, -1.0f, 1.1f), new Color(100, 120, 130));
             pointLight1 = new PointLight(new Vector3(15 * scale, 12 * scale, -30 * scale), new Color(200, 100, 100));
             pointLight2 = new PointLight(new Vector3(-30 * scale, 50 * scale, 1 * scale), new Color(0, 250, 0));
             pointLight3 = new PointLight(new Vector3(-20 * scale, 3.1f * scale, -20 * scale), new Color(0, 0, 250));
@@ -129,7 +129,7 @@ namespace XNAFinalEngine.Scenes
 
             #region Post Screen Shaders
 
-            preDepthNormal = new PreDepthNormal(true) { FarPlane = 50 * scale };
+            preDepthNormal = new PreDepthNormal() { FarPlane = 50 * scale };
 
             shadowMap = new ShadowMap(RenderToTexture.SizeType.Custom512x512);
             shadowMap.AssociatedLight = directionalLight;
@@ -154,7 +154,7 @@ namespace XNAFinalEngine.Scenes
             
             #region Augmented Reality
 
-            webCamTexture = new GraphicElements.Texture();
+            webCamTexture = new Graphics.Texture();
 
             // ARToolkit Plus
             //webCam = new DirectShowWebCam(800, 600, 4, 30);
@@ -228,7 +228,7 @@ namespace XNAFinalEngine.Scenes
             if (esssao)
             {
                 preDepthNormal.GenerateDepthNormalMap(cShadowObjects);
-                ssaoHB.GenerateSSAO(preDepthNormal.HighPrecisionDepthMapTexture.XnaTexture, preDepthNormal.NormalDepthMapTexture.XnaTexture);
+                ssaoHB.GenerateSSAO(preDepthNormal.DepthMapTexture.XnaTexture, preDepthNormal.NormalMapTexture.XnaTexture);
                 blurSSAO.GenerateBlur(ssaoHB.SSAOTexture);
             }
 
@@ -236,7 +236,7 @@ namespace XNAFinalEngine.Scenes
 
             EngineManager.ClearTargetAndDepthBuffer(Color.Blue);
 
-            webCamTexture.XnaTexture = webCam.XNATexture;
+            webCamTexture.XnaTexture = webCam.XnaTexture;
             webCamTexture.RenderOnFullScreen();
             SpriteManager.DrawSprites();
             box.Render();
@@ -257,7 +257,7 @@ namespace XNAFinalEngine.Scenes
             }
             //ssaoHB.Test();
             //shadowMap.Test();
-            UIMousePointer.RenderMousePointer();
+            MousePointer.RenderMousePointer();
 
             #endregion
 
@@ -275,10 +275,6 @@ namespace XNAFinalEngine.Scenes
             if (artag != null)
             {
                 artag.Dispose();
-            }
-            if (artoolkitplus != null)
-            {
-                artoolkitplus.Dispose();
             }
             if (webCam != null)
             {

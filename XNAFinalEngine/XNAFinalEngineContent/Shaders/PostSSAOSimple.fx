@@ -184,7 +184,7 @@ float4 PixelShaderFunction(VS_OUTPUT IN) : COLOR0
 	float3 normal = tex2D(depthNormalSampler, IN.TexCoord).rgb;
 	float finalColor = 0.0f;
 	
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < 12; i++)
 	{
 		float3 ray = reflect(samples[i].xyz,randNormal) * sampleRadius;
 		
@@ -206,7 +206,7 @@ float4 PixelShaderFunction(VS_OUTPUT IN) : COLOR0
 		}
 		else
 		{		
-			float occlusion = distanceScale* max(sampleDepth - depth, 0.0f);
+			float occlusion = distanceScale * max(sampleDepth - depth, 0.0f);
 			finalColor += 1.0f / (1.0f + occlusion * occlusion * 0.1);
 		}
 	}

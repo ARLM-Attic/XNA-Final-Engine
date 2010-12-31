@@ -1,15 +1,15 @@
 /***********************************************************************************************************************************************
-Copyright (c) 2008-2010, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
-                         Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
+Copyright (c) 2008-2010, Laboratorio de Investigaci?n y Desarrollo en Visualizaci?n y Computaci?n Gr?fica - 
+                         Departamento de Ciencias e Ingenier?a de la Computaci?n - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
-•	Redistributions of source code must retain the above copyright, this list of conditions and the following disclaimer.
+?	Redistributions of source code must retain the above copyright, this list of conditions and the following disclaimer.
 
-•	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
+?	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
     in the documentation and/or other materials provided with the distribution.
 
-•	Neither the name of the Universidad Nacional del Sur nor the names of its contributors may be used to endorse or promote products derived
+?	Neither the name of the Universidad Nacional del Sur nor the names of its contributors may be used to endorse or promote products derived
     from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
@@ -19,7 +19,7 @@ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR B
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
+Author: Schneider, Jos? Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
 #include <Common.fxh> // Common illumination code.
@@ -184,7 +184,7 @@ half4 PSBlinn(uniform bool textured, vertexOutput IN) : COLOR
 	{
 		result = SurfaceColor * (diffContrib + AmbientLightColor) + specContrib;    
 	}
-    return float4(result.rgb, AlphaBlending);
+	return float4(result.rgb, AlphaBlending);
 } // PSBlinn
 
 half4 PSBlinnOnlyDirectional(uniform bool textured, vertexOutputOnlyDirectional IN) : COLOR
@@ -195,7 +195,7 @@ half4 PSBlinnOnlyDirectional(uniform bool textured, vertexOutputOnlyDirectional 
     float3 specContrib; // = float3(0,0,0);
     // Directional Light //
     float3 L 	   = normalize(-DirectionalLightDir);
-    float3 H       = normalize(V + L);
+    float3 H       = normalize(L);
     float HdN      = dot(H, N);
     float LdN  	   = dot(L, N);
     float4 litVec  = lit(LdN, HdN, SpecExponent);
@@ -211,7 +211,8 @@ half4 PSBlinnOnlyDirectional(uniform bool textured, vertexOutputOnlyDirectional 
 	else
 	{
 		result = SurfaceColor * (diffContrib + AmbientLightColor) + specContrib;
-	}
+	}	
+	return float4(specContrib, 1);
     return float4(result.xyz, AlphaBlending);
 } // PSBlinnOnlyDirectional
 

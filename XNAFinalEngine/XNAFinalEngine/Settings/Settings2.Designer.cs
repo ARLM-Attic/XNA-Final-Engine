@@ -73,7 +73,7 @@ namespace XNAFinalEngine.Settings {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int MultiSampleQuality {
             get {
                 return ((int)(this["MultiSampleQuality"]));

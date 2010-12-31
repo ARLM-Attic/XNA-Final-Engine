@@ -1,0 +1,5 @@
+D:\Desarrollo3D\Proyectos Visual\XNAFinalEngine\XNAFinalEngine\XNAFinalEngineContent\References\SkinImporter\SkinImporter\bin\Release\SkinImporter.dll
+D:\Desarrollo3D\Proyectos Visual\XNAFinalEngine\XNAFinalEngine\XNAFinalEngineContent\References\SkinImporter\SkinImporter\bin\Release\SkinImporter.pdb
+D:\Desarrollo3D\Proyectos Visual\XNAFinalEngine\XNAFinalEngine\XNAFinalEngineContent\References\SkinImporter\SkinImporter\obj\Release\ResolveAssemblyReference.cache
+D:\Desarrollo3D\Proyectos Visual\XNAFinalEngine\XNAFinalEngine\XNAFinalEngineContent\References\SkinImporter\SkinImporter\obj\Release\SkinImporter.dll
+D:\Desarrollo3D\Proyectos Visual\XNAFinalEngine\XNAFinalEngine\XNAFinalEngineContent\References\SkinImporter\SkinImporter\obj\Release\SkinImporter.pdb

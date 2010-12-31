@@ -34,7 +34,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
-using XNAFinalEngine.GraphicElements;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.UI;
@@ -116,7 +116,7 @@ namespace XNAFinalEngine.Scenes
             else
             {   
                 FontBattlefield18.RenderCentered("the video is over", EngineManager.Height / 2, Color.White);
-                UIMousePointer.RenderMousePointer();
+                MousePointer.RenderMousePointer();
             }
         } // Render
 

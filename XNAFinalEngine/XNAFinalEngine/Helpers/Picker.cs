@@ -32,9 +32,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.GraphicElements;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Input;
 #endregion
 
@@ -45,6 +44,7 @@ namespace XNAFinalEngine.Helpers
     /// A picker allows selecting an object from the screen.
     /// It utilizes a texture method, this method produces better results that its alternative, the bounding volume method.
     /// One disadvantage is the limit in the amount of objects to track, the other its the time that consumes the texture memory access.
+    /// Possible addition: render in a viewport of only one pixel. The difficult part is to do this viewport. Maybe it isn’t a good option.
     /// </summary>
     public class Picker
     {
@@ -54,29 +54,24 @@ namespace XNAFinalEngine.Helpers
         /// <summary>
         /// The objects that can be selected.
         /// </summary>
-        protected List<XNAFinalEngine.GraphicElements.Object> objects = null;
+        private readonly List<Graphics.Object> objects;
 
         /// <summary>
         /// The material used to render the objects in the picker texture.
         /// </summary>
-        protected Constant constantMaterial = null;
+        private readonly Constant constantMaterial;
 
         /// <summary>
         /// It’s the texture where the scene is render.
         /// </summary>
-        public static RenderToTexture pickerMapTexture = null;
+        private readonly RenderToTexture pickerMapTexture;
 
         #region For Manual Picking
 
         /// <summary>
-        /// Store the camera view matrix because if the camera doesn't move the picker doesn't need to calculate all the process from the start.
-        /// </summary>
-        private static Matrix oldViewMatrix = Matrix.Identity;
-
-        /// <summary>
         /// Store the texture in an array (if it search a region, not a pixel).
         /// </summary>
-        private static Color[] colorArray = null;
+        private static Color[] colorArray;
 
         #endregion
 
@@ -91,11 +86,10 @@ namespace XNAFinalEngine.Helpers
         /// </summary>
         public Picker()
         {            
-            objects = new List<XNAFinalEngine.GraphicElements.Object>();
+            objects = new List<Graphics.Object>();
             constantMaterial = new Constant();
-            if (pickerMapTexture == null)
-                // No antialiasing because the colors can change.
-                pickerMapTexture = new RenderToTexture(RenderToTexture.SizeType.FullScreen, false);
+            // No antialiasing because the colors can change.
+            pickerMapTexture = new RenderToTexture(RenderToTexture.SizeType.FullScreen);
         } // Picker
 
         #endregion
@@ -105,7 +99,7 @@ namespace XNAFinalEngine.Helpers
         /// <summary>
         /// Adds the object from the list of objects that can be selected.
         /// </summary>
-        public void AddObject(XNAFinalEngine.GraphicElements.Object obj)
+        public void AddObject(Graphics.Object obj)
         {
             objects.Add(obj);
         } // AddObject
@@ -113,7 +107,7 @@ namespace XNAFinalEngine.Helpers
         /// <summary>
         /// Removes the object from the list of objects that can be selected.
         /// </summary>
-        public void RemoveObject(XNAFinalEngine.GraphicElements.Object obj)
+        public void RemoveObject(Graphics.Object obj)
         {
             objects.Remove(obj);
         } // RemoveObject
@@ -126,7 +120,7 @@ namespace XNAFinalEngine.Helpers
         /// Pick the object that is on the mouse pointer.
         /// If no object was found the result is a null pointer.
         /// </summary>
-        public XNAFinalEngine.GraphicElements.Object Pick()
+        public Graphics.Object Pick()
         {
             return Pick(Mouse.Position.X, Mouse.Position.Y);
         } // Pick
@@ -135,7 +129,7 @@ namespace XNAFinalEngine.Helpers
         /// Pick the object that is on the X Y coordinates.
         /// If no object was found the result is a null pointer.
         /// </summary>
-        public XNAFinalEngine.GraphicElements.Object Pick(int x, int y)
+        public Graphics.Object Pick(int x, int y)
         {
             byte r = 0, g = 0, b = 0;
             Color colorMaterial = new Color(0,0,0);
@@ -152,7 +146,7 @@ namespace XNAFinalEngine.Helpers
                 pickerMapTexture.Clear(Color.Black);
                 
                 // Render every object, one at a time
-                foreach (XNAFinalEngine.GraphicElements.Object obj in objects)
+                foreach (Graphics.Object obj in objects)
                 {
                     // Select the next color
                     if (colorMaterial.R < 255)
@@ -171,8 +165,7 @@ namespace XNAFinalEngine.Helpers
                             g = 0;
                             if (b == 255)
                                 throw new Exception("Color out of range.");
-                            else
-                                b++;
+                            b++;
                         }
                     }
                     colorMaterial = new Color(r, g, b);
@@ -190,7 +183,7 @@ namespace XNAFinalEngine.Helpers
                 #region Get the pixel from the texture
                 
                 Color[] color = new Color[1];
-                pickerMapTexture.XnaTexture.GetData<Color>(0, new Rectangle(x, y, 1, 1), color, 0, 1);
+                pickerMapTexture.XnaTexture.GetData(0, new Rectangle(x, y, 1, 1), color, 0, 1);
                 Color pixel = color[0];
 
                 #endregion
@@ -198,20 +191,16 @@ namespace XNAFinalEngine.Helpers
                 #region Search the object
 
                 r = 0; g = 0; b = 0;
-                foreach (XNAFinalEngine.GraphicElements.Object obj in objects)
+                foreach (Graphics.Object obj in objects)
                 {
                     // Select the next color
                     if (colorMaterial.R < 255)
-                    {
                         r++;
-                    }
                     else
                     {
                         r = 0;
                         if (colorMaterial.G < 255)
-                        {
                             g++;
-                        }
                         else
                         {
                             g = 0;
@@ -219,9 +208,7 @@ namespace XNAFinalEngine.Helpers
                         }
                     }
                     if (pixel == new Color(r,g,b))
-                    {
                         return obj;
-                    }
                 }
 
                 #endregion
@@ -229,7 +216,7 @@ namespace XNAFinalEngine.Helpers
             } // try
             catch (Exception ex)
             {
-                throw new Exception("The picker failed: " + ex.ToString());
+                throw new Exception("The picker failed: " + ex);
             } // catch
             return null;
         } // Pick
@@ -244,15 +231,13 @@ namespace XNAFinalEngine.Helpers
         /// </summary>
         private void PickWithBoundingSpheres(int x, int y)
         {   
-
-            Vector3 nearsource = new Vector3(x, y, 0f);
-            Vector3 farsource = new Vector3(x, y, 1f);
-
             Matrix world = Matrix.Identity;
-            Vector3 nearPoint = EngineManager.Device.Viewport.Unproject(nearsource, ApplicationLogic.Camera.ProjectionMatrix, ApplicationLogic.Camera.ViewMatrix, world);
-            Vector3 farPoint = EngineManager.Device.Viewport.Unproject(farsource, ApplicationLogic.Camera.ProjectionMatrix, ApplicationLogic.Camera.ViewMatrix, world);
+            Vector3 nearsource = new Vector3(x, y, 0f),
+                    farsource = new Vector3(x, y, 1f),
+                    nearPoint = EngineManager.Device.Viewport.Unproject(nearsource, ApplicationLogic.Camera.ProjectionMatrix, ApplicationLogic.Camera.ViewMatrix, world),
+                    farPoint = EngineManager.Device.Viewport.Unproject(farsource, ApplicationLogic.Camera.ProjectionMatrix, ApplicationLogic.Camera.ViewMatrix, world),
+                    direction = farPoint - nearPoint;
 
-            Vector3 direction = farPoint - nearPoint;
             direction.Normalize();
             
             Ray pickRay = new Ray(nearPoint, direction);
@@ -263,20 +248,20 @@ namespace XNAFinalEngine.Helpers
 
         #endregion
 
-        #region Manual Pick TODO!!!
+        #region Manual Pick
 
         /// <summary>
-        /// Starts a session pick. 
-        /// This allow us to search in a region of the things that we render in this session.
+        /// Manualy render the picker texture.
+        /// This allow us to search a color in a specified region that we render in the next step.
         /// With this we can pick mostly lines (that aren't graphic objects).
         /// The black color is reserved.
         /// </summary>
-        public static void BeginManualPick()
+        public void BeginManualRenderPickerTexture()
         {   
             try
             {
                 if (colorArray == null)
-                    colorArray = new Color[EngineManager.Width * EngineManager.Height];
+                    colorArray = new Color[pickerMapTexture.Width * pickerMapTexture.Height];
 
                 // Start rendering onto the picker map
                 pickerMapTexture.EnableRenderTarget();
@@ -287,64 +272,51 @@ namespace XNAFinalEngine.Helpers
             } // try
             catch (Exception ex)
             {
-                throw new Exception("The picker failed: " + ex.ToString());
+                throw new Exception("The picker failed: " + ex);
             } // catch
-        } // BeginManualPick
+        } // BeginManualRenderPickerTexture
 
         /// <summary>
-        /// Finaliza la secion de pick. Debemos especificar el tamaño de la region en la que se buscara.
-        /// Este proceso esta optimizado para trabajar con manipuladores. Si se desea un trabajo mas general hay
-        /// que modificar (simplificar) este metodo.
+        /// End manual render of the picker texture.
         /// </summary>
-        public static Color[] EndManualPicking(int regionSize)
+        public void EndManualRenderPickerTexture()
+        {
+            // Comeback to the frame buffer.
+            pickerMapTexture.DisableRenderTarget();
+        } // EndManualRenderPickerTexture
+
+        /// <summary>
+        /// Returns a color set from the current picker texture that was created manually.
+        /// This method is prepared to work with gizmos.
+        /// </summary>
+        public Color[] ManualPickFromCurrentPickerTexture(int regionSize)
         {   
             Color[] colorArrayResult = new Color[regionSize * regionSize];
             try
             {
-                // Activate the frame buffer again.
-                pickerMapTexture.DisableRenderTarget();
-
-                // The botton and right bounds don't matter.
-                //if (EngineManager.Width - Mouse.Position.X > 5 && EngineManager.Height - Mouse.Position.Y > 5)
+                // If the region is off the screen
+                if (Mouse.Position.X + regionSize > pickerMapTexture.Width)
                 {
-                    // Chequamos si el rectangulo no se pasa de la pantalla
-                    if (Mouse.Position.X + regionSize > EngineManager.Width)
-                    {
-                        regionSize = EngineManager.Width - Mouse.Position.X;
-                    }
-                    if (Mouse.Position.Y + regionSize > EngineManager.Height)
-                    {
-                        if (EngineManager.Height - Mouse.Position.Y < regionSize)
-                            regionSize = EngineManager.Height - Mouse.Position.Y;
-                    }
-                    // Si la camara no se ha movido no retornamos la informacion de la textura (getdata es una operacion muy costosa)
-                    if (oldViewMatrix != ApplicationLogic.Camera.ViewMatrix)
-                    {
-                        pickerMapTexture.XnaTexture.GetData<Color>(colorArray);
-                        oldViewMatrix = ApplicationLogic.Camera.ViewMatrix;
-                    }
-                    for (int i = 0; i < regionSize; i++)
-                        for (int j = 0; j < regionSize; j++)
-                        {
-                            colorArrayResult[i * regionSize + j] = colorArray[(Mouse.Position.X + i) + (Mouse.Position.Y + j) * EngineManager.Width];
-                        }
+                    regionSize = pickerMapTexture.Width - Mouse.Position.X;
                 }
+                if (Mouse.Position.Y + regionSize > pickerMapTexture.Height)
+                {
+                    if (pickerMapTexture.Height - Mouse.Position.Y < regionSize)
+                        regionSize = pickerMapTexture.Height - Mouse.Position.Y;
+                }
+                pickerMapTexture.XnaTexture.GetData<Color>(colorArray);
+                for (int i = 0; i < regionSize; i++)
+                    for (int j = 0; j < regionSize; j++)
+                    {
+                        colorArrayResult[i*regionSize + j] = colorArray[(Mouse.Position.X + i) + (Mouse.Position.Y + j)*EngineManager.Width];
+                    }
                 return colorArrayResult;
             } // try
             catch (Exception ex)
             {
-                throw new Exception("The picker failed: " + ex.ToString());
+                throw new Exception("The picker failed: " + ex);
             } // catch
-        } // EndManualPicking
-
-        /// <summary>
-        /// Optimiza la captura del picker manual. Solo vale si la escena esta estatica.
-        /// Si hay movimiento de camara el picker se recalculara elevando el costo del proceso.
-        /// </summary>
-        public static void OptimizeForStaticScene()
-        {
-            oldViewMatrix = Matrix.Identity;
-        } // OptimizeForStaticScene
+        } // ManualPickFromCurrentPickerTexture
 
         #endregion
 

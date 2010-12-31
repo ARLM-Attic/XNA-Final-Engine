@@ -30,7 +30,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.Diagnostics;
 using System.Windows.Forms;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
@@ -63,12 +62,12 @@ namespace XNAFinalEngine
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                /// User code for initial tasks.
+                // User code for initial tasks.
                 {
                     // Handle otherwise unhandled exceptions that occur in Windows Forms threads.
                     Application.ThreadException += UnhandledExceptions;
                 }
-                /// End of user code
+                // End of user code
                 StartEngine();
             } // try
             // If some dll will not found
@@ -85,7 +84,7 @@ namespace XNAFinalEngine
             // If another exception occurs...
             catch (Exception ex)
             {
-                MessageBox.Show("There was a critical error.\n\nDetails: " + ex.Message.ToString(),
+                MessageBox.Show("There was a critical error.\n\nDetails: " + ex.Message,
                                 "XNA Final Engine", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         } // Main
@@ -100,7 +99,7 @@ namespace XNAFinalEngine
         /// </summary>
         private static void UnhandledExceptions(object sender, ThreadExceptionEventArgs e)
         {
-            MessageBox.Show("There was a critical error.\n\nDetails: " + e.Exception.Message.ToString(),
+            MessageBox.Show("There was a critical error.\n\nDetails: " + e.Exception.Message,
                             "Final Engine", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         } // UnhandledExceptions
 

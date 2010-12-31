@@ -48,7 +48,7 @@ namespace XNAFinalEngine.Helpers
         /// <summary>
         /// The current active chronometers in use by the aplication.
         /// </summary>
-        private static List<Chronometer> chronometers = new List<Chronometer>();
+        private static readonly List<Chronometer> Chronometers = new List<Chronometer>();
 
         #endregion
 
@@ -74,7 +74,7 @@ namespace XNAFinalEngine.Helpers
         public Chronometer()
         {
             ElapsedTime = 0;
-            chronometers.Add(this);
+            Chronometers.Add(this);
         } // Chronometer
 
         #endregion
@@ -133,7 +133,7 @@ namespace XNAFinalEngine.Helpers
         /// </summary>
         public void Dispose()
         {
-            chronometers.Remove(this);
+            Chronometers.Remove(this);
         } // Dispose
 
         #endregion
@@ -145,7 +145,7 @@ namespace XNAFinalEngine.Helpers
         /// </summary>
         public static void PauseAllChronometers()
         {
-            foreach (Chronometer chronometer in chronometers)
+            foreach (Chronometer chronometer in Chronometers)
             {
                  chronometer.Pause();
             }
@@ -156,7 +156,7 @@ namespace XNAFinalEngine.Helpers
         /// </summary>
         public static void StartAllChronometers()
         {
-            foreach (Chronometer chronometer in chronometers)
+            foreach (Chronometer chronometer in Chronometers)
             {
                 chronometer.Start();
             }
@@ -167,7 +167,7 @@ namespace XNAFinalEngine.Helpers
         /// </summary>
         public static void UpdateAllChronometers()
         {
-            foreach (Chronometer chronometer in chronometers)
+            foreach (Chronometer chronometer in Chronometers)
             {
                 chronometer.Update();
             }

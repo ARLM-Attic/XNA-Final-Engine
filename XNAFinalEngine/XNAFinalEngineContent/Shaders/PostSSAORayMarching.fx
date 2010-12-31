@@ -174,7 +174,7 @@ float4 PixelShaderFunction(VS_OUTPUT IN) : COLOR0
 {	
 	//float z = tex2D(depthNormalSampler, IN.texUV).a; 
     float z = tex2D(highPresicionDepthSampler, IN.texUV).r;
-    float3 P = float3(z*IN.tex.xy, z);
+    float3 P = float3(z * IN.tex.xy, z);
 	
 	// Account for far plane
     //if(P.z < 0.05)
@@ -182,7 +182,7 @@ float4 PixelShaderFunction(VS_OUTPUT IN) : COLOR0
 
     // Get the basis per pixel
 	float3 N = normalize(tex2D(depthNormalSampler, IN.texUV).rgb);
-    float3 Tan   = float3(1,0,0);
+    float3 Tan   = float3(1, 0, 0);
     float3 BiTan = normalize(cross(N, Tan));
     Tan          = cross(BiTan, N);
 

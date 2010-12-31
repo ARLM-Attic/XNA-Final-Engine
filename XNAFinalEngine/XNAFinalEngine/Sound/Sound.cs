@@ -30,13 +30,12 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
-using XNAFinalEngine.GraphicElements;
 #endregion
 
 namespace XNAFinalEngine.Sounds
@@ -53,12 +52,7 @@ namespace XNAFinalEngine.Sounds
         /// <summary>
         /// XNA Sound Effect.
         /// </summary>
-        private SoundEffect soundEffect;
-
-        /// <summary>
-        /// The name of the sound file.
-        /// </summary>
-        private String soundFilename = "";
+        private readonly SoundEffect soundEffect;
 
         #endregion
 
@@ -69,7 +63,6 @@ namespace XNAFinalEngine.Sounds
         /// </summary>
         public Sound(string _soundFilename)
         {
-            soundFilename = _soundFilename;
             string fullFilename = Directories.SoundsDirectory + "\\" + _soundFilename;
             if (File.Exists(fullFilename + ".xnb") == false)
             {
@@ -105,7 +98,7 @@ namespace XNAFinalEngine.Sounds
         /// <summary>
         /// Play a new instance of this sound.
         /// </summary>
-        public SoundInstance Play(XNAFinalEngine.GraphicElements.Object _listenerObject, XNAFinalEngine.GraphicElements.Object _emitterObject,
+        public SoundInstance Play(Graphics.Object _listenerObject, Graphics.Object _emitterObject,
                                   float _volume = 1.0f, float _dopplerScale = 1.0f)
         {
             SoundInstance soundInstance = new SoundInstance(soundEffect, _listenerObject, _emitterObject, _volume, _dopplerScale);
@@ -116,7 +109,7 @@ namespace XNAFinalEngine.Sounds
         /// <summary>
         /// Play a new instance of this sound.
         /// </summary>
-        public SoundInstance Play(Camera _listenerObject, XNAFinalEngine.GraphicElements.Object _emitterObject,
+        public SoundInstance Play(Camera _listenerObject, Graphics.Object _emitterObject,
                                   float _volume = 1.0f, float _dopplerScale = 1.0f)
         {
             SoundInstance soundInstance = new SoundInstance(soundEffect, _listenerObject, _emitterObject, _volume, _dopplerScale);
@@ -139,42 +132,42 @@ namespace XNAFinalEngine.Sounds
         /// <summary>
         /// Sound Effect Instance.
         /// </summary>
-        private SoundEffectInstance soundEffectInstance;
+        private readonly SoundEffectInstance soundEffectInstance;
 
         /// <summary>
         /// Audio emitter, it’s needed by the positional sound.
         /// </summary>
-        private AudioEmitter emitter = new AudioEmitter();
+        private readonly AudioEmitter emitter = new AudioEmitter();
 
         /// <summary>
         /// Emitter last position.
         /// </summary>
-        private Vector3 emitterLastPosition;
+        private readonly Vector3 emitterLastPosition;
 
         /// <summary>
         /// Audio Listener, it’s needed by the positional sound.
         /// </summary>
-        private AudioListener listener = new AudioListener();
+        private readonly AudioListener listener = new AudioListener();
 
         /// <summary>
         /// Listener last position.
         /// </summary>
-        private Vector3 listenerLastPosition;
+        private readonly Vector3 listenerLastPosition;
 
         /// <summary>
         /// The graphic object that will be the sound listener.
         /// </summary>
-        private XNAFinalEngine.GraphicElements.Object listenerObject = null;
+        private readonly Graphics.Object listenerObject;
 
         /// <summary>
         /// The camera that will be the sound listener.
         /// </summary>
-        private Camera listenerCamera = null;
+        private readonly Camera listenerCamera;
 
         /// <summary>
         /// The graphic object that will be the sound emitter.
         /// </summary>
-        private XNAFinalEngine.GraphicElements.Object emitterObject = null;
+        private readonly Graphics.Object emitterObject;
 
         #endregion
 
@@ -193,7 +186,6 @@ namespace XNAFinalEngine.Sounds
         /// Note that this value modifies only the calculated Doppler between this object and a AudioListener.
         /// The calculated Doppler is a product of the relationship between AudioEmitter.Velocity and AudioListener.Velocity.
         /// If the calculation yields a result of no Doppler effect, this value has no effect.
-        /// </summary>
         /// </summary>
         public float DopplerScale { get; set; }
                 
@@ -221,7 +213,7 @@ namespace XNAFinalEngine.Sounds
         /// The listener is a graphic object.
         /// </summary>
         public SoundInstance(SoundEffect soundEffect,
-                             XNAFinalEngine.GraphicElements.Object _listenerObject, XNAFinalEngine.GraphicElements.Object _emitterObject,
+                             Graphics.Object _listenerObject, Graphics.Object _emitterObject,
                              float _volume = 1.0f, float _dopplerScale = 1.0f)
         {
             soundEffectInstance = soundEffect.CreateInstance();
@@ -240,7 +232,7 @@ namespace XNAFinalEngine.Sounds
         /// The listener is a camera.
         /// </summary>
         public SoundInstance(SoundEffect soundEffect,
-                             Camera _listenerObject, XNAFinalEngine.GraphicElements.Object _emitterObject,
+                             Camera _listenerObject, Graphics.Object _emitterObject,
                              float _volume = 1.0f, float _dopplerScale = 1.0f)
         {
             soundEffectInstance = soundEffect.CreateInstance();

@@ -30,13 +30,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using Statements
 using System;
-using System.Collections.Generic;
 using System.IO;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
-using XNAFinalEngine.Input;
-using XNAFinalEngine.GraphicElements;
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -54,7 +50,7 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// Screenshot file name. Directory\ + screenshotFileName + "-" + number + extention.
         /// </summary>
-        private const string screenshotFileName = "Screenshot";
+        private const string ScreenshotFileName = "Screenshot";
 
         #endregion
 
@@ -99,9 +95,9 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// Screenshot name builder.
         /// </summary>
-        private string ScreenshotNameBuilder(int num)
+        private static string ScreenshotNameBuilder(int num)
         {
-            return Directories.ScreenshotsDirectory + "\\" + screenshotFileName + "-" + num.ToString("0000") + ".png";
+            return Directories.ScreenshotsDirectory + "\\" + ScreenshotFileName + "-" + num.ToString("0000") + ".png";
         } // ScreenshotNameBuilder
 
         #endregion
@@ -111,12 +107,12 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// Get current screenshot num
         /// </summary>
-        private int CurrentScreenshotNumber()
+        private static int CurrentScreenshotNumber()
         {
             // We must search for last screenshot we can found in list using own fast filesearch
             int i = 0, j = 0, k = 0, l = -1;
             // First check if at least 1 screenshot exist
-            if (File.Exists(ScreenshotNameBuilder(1)) == true)
+            if (File.Exists(ScreenshotNameBuilder(1)))
             {
                 // First scan for screenshot num/1000
                 for (i = 1; i < 10; i++)
@@ -189,7 +185,7 @@ namespace XNAFinalEngine.EngineCore
             catch (Exception ex)
             {
                 NeedToMakeScreenshot = false;
-                throw new Exception("Failed to save screenshot: " + ex.ToString());
+                throw new Exception("Failed to save screenshot: " + ex);
             }
         } // BeginScreenshot
 
@@ -201,16 +197,16 @@ namespace XNAFinalEngine.EngineCore
             try
             {
                 screenshotNumber++;
-                FileStream stream = new System.IO.FileStream(ScreenshotNameBuilder(screenshotNumber), System.IO.FileMode.OpenOrCreate);
+                var stream = new FileStream(ScreenshotNameBuilder(screenshotNumber), FileMode.OpenOrCreate);
                 screenshotTexture.DisableRenderTarget();
-                // Don't want a purple screen, we need to show the screenshot frame on screen.
+                // Don't want a one frame purple screen, we need to show the screenshot frame on screen.
                 screenshotTexture.RenderOnFullScreen();
                 SpriteManager.DrawSprites();
                 screenshotTexture.XnaTexture.SaveAsPng(stream, EngineManager.Width, EngineManager.Height);
             } // try
             catch (Exception ex)
             {
-                throw new Exception("Failed to save screenshot: " + ex.ToString());
+                throw new Exception("Failed to save screenshot: " + ex);
             }
             finally
             {

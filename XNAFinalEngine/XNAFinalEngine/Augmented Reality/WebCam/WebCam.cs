@@ -37,7 +37,7 @@ namespace XNAFinalEngine.AugmentedReality
         /// <summary>
         /// Texture with the last webcam frame.
         /// </summary>
-        protected Texture2D webCamTexture = null;
+        protected Texture2D webCamTexture;
 
         #endregion        
         
@@ -94,7 +94,7 @@ namespace XNAFinalEngine.AugmentedReality
         /// <summary>
         /// Texture with the last webcam frame.
         /// </summary>
-        public virtual Texture2D XNATexture
+        public virtual Texture2D XnaTexture
         {
             get 
             {

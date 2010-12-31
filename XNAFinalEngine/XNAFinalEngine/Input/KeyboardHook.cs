@@ -49,9 +49,7 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// Keyboard API constants
         /// </summary>
-        private const int WH_KEYBOARD_LL = 13;
-        private const int WM_KEYUP       = 0x0101;
-        private const int WM_SYSKEYUP    = 0x0105;
+        private const int KeyboardHookId = 13;
 
         #endregion
 
@@ -60,20 +58,17 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// Variables used in the call to SetWindowsHookEx
         /// </summary>
-        private HookHandlerDelegate proc;
-        private IntPtr hookID = IntPtr.Zero;
-        internal delegate IntPtr HookHandlerDelegate(int nCode, IntPtr wParam, ref KBDLLHOOKSTRUCT lParam);
+        private readonly HookHandlerDelegate proc;
+        private readonly IntPtr hookId = IntPtr.Zero;
+        internal delegate IntPtr HookHandlerDelegate(int nCode, IntPtr wParam, ref KeyboadHookStruct lParam);
         
         /// <summary>
         /// Structure returned by the hook whenever a key is pressed
         /// </summary>
-        internal struct KBDLLHOOKSTRUCT
+        internal struct KeyboadHookStruct
         {
-            public int vkCode;
-            int scanCode;
-            public int flags;
-            int time;
-            int dwExtraInfo;
+            public int VkCode;
+            public int Flags;
         }
 
         #endregion
@@ -90,7 +85,7 @@ namespace XNAFinalEngine.Input
             using (Process curProcess = Process.GetCurrentProcess())
             using (ProcessModule curModule = curProcess.MainModule)
             {
-                hookID = NativeMethods.SetWindowsHookEx(WH_KEYBOARD_LL, proc, NativeMethods.GetModuleHandle(curModule.ModuleName), 0);
+                hookId = NativeMethods.SetWindowsHookEx(KeyboardHookId, proc, NativeMethods.GetModuleHandle(curModule.ModuleName), 0);
             }
         } // KeyboardHook
 
@@ -101,26 +96,25 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// Processes the key event captured by the hook.
         /// </summary>
-        private IntPtr HookCallback(int nCode, IntPtr wParam, ref KBDLLHOOKSTRUCT lParam)
+        private IntPtr HookCallback(int nCode, IntPtr wParam, ref KeyboadHookStruct lParam)
         {
             // If the key is disable or has a special function
-            if (lParam.vkCode == 91 || lParam.vkCode == 92 ||  // Win
-                (lParam.flags == 32 && lParam.vkCode == 13) ||  // Alt-Enter
-                lParam.vkCode == 44) // Print Screen
+            if (lParam.VkCode == 91 || lParam.VkCode == 92 ||  // Win
+                (lParam.Flags == 32 && lParam.VkCode == 13) ||  // Alt-Enter
+                lParam.VkCode == 44) // Print Screen
             {
-                if (lParam.flags == 32 && lParam.vkCode == 13)
+                if (lParam.Flags == 32 && lParam.VkCode == 13)
                 {
                     EngineCore.EngineManager.ToggleFullscreen();
                 }
-                if (lParam.vkCode == 44)
+                if (lParam.VkCode == 44)
                 {
                     EngineCore.EngineManager.ScreenshotCapturer.MakeScreenshot();
                 }
-                return (System.IntPtr)1;
+                return (IntPtr)1;
             }
             // if the key is allowed
-            else
-                return NativeMethods.CallNextHookEx(hookID, nCode, wParam, ref lParam);
+            return NativeMethods.CallNextHookEx(hookId, nCode, wParam, ref lParam);
         } // HookCallback
 
         #endregion
@@ -132,14 +126,14 @@ namespace XNAFinalEngine.Input
         /// </summary>
         public void Dispose()
         {
-            NativeMethods.UnhookWindowsHookEx(hookID);
+            NativeMethods.UnhookWindowsHookEx(hookId);
         } // Dispose
 
         #endregion
 
         #region Native methods
 
-        [ComVisibleAttribute(false), System.Security.SuppressUnmanagedCodeSecurity()]
+        [ComVisibleAttribute(false), System.Security.SuppressUnmanagedCodeSecurity]
         internal class NativeMethods
         {
             [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -154,7 +148,7 @@ namespace XNAFinalEngine.Input
             public static extern bool UnhookWindowsHookEx(IntPtr hhk);
 
             [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-            public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, ref KBDLLHOOKSTRUCT lParam);
+            public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, ref KeyboadHookStruct lParam);
 
             [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
             public static extern short GetKeyState(int keyCode);

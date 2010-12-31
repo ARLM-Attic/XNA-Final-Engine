@@ -28,12 +28,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
-#region Using directives
-using System;
-using System.Collections.Generic;
-using System.Text;
-#endregion
-
 namespace XNAFinalEngine.Scenes
 {
 

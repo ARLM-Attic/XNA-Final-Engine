@@ -7,7 +7,6 @@ using Tao.OpenGl;
 using Tao.FreeGlut;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Helpers;
-using XNAFinalEngine;
 #endregion
 
 namespace XNAFinalEngine.AugmentedReality
@@ -18,7 +17,7 @@ namespace XNAFinalEngine.AugmentedReality
     /// It also unnecessary needs OpenGL.
     /// If the application has administrator privileges, the system year changes automatically to 2007 and will be restore when the application exits.
     /// </summary>
-    public class ARTag
+    public class ARTag : Disposable
     {
 
         #region Constants
@@ -28,6 +27,11 @@ namespace XNAFinalEngine.AugmentedReality
         /// This file can be edited or extended.
         /// </summary>
         const string MarkerArrayFilename = "ARTagMarkers.cf";
+
+        /// <summary>
+        /// The webcam's capture is in color or in gray scale? 1 color, 0 gray scale.
+        /// </summary>
+        private const char RGBGreybar = (char)1;
 
         #endregion
 
@@ -55,7 +59,7 @@ namespace XNAFinalEngine.AugmentedReality
             /// <summary>
             /// Was founded by the tracker?
             /// </summary>
-            public bool isFound = false;
+            public bool isFound;
         }
 
         #endregion
@@ -65,18 +69,13 @@ namespace XNAFinalEngine.AugmentedReality
         /// <summary>
         /// Auxiliary matrix.
         /// </summary>
-        private float[] modelViewMatrix = new float[16];
+        private readonly float[] modelViewMatrix = new float[16];
 
         /// <summary>
         /// The webCam used by ARTag.
         /// </summary>
-        private WebCam webCam = null;
+        private readonly WebCam webCam;
             
-        /// <summary>
-        /// The webcam's capture is in color or in gray scale? 1 color, 0 gray scale.
-        /// </summary>
-        private char rgb_greybar = (char)1;
-
         /// <summary>
         /// Webcam raw information pointer.
         /// </summary>
@@ -207,9 +206,10 @@ namespace XNAFinalEngine.AugmentedReality
         /// </summary>
         public MarkerArray AddArtagMarkerArray(string name)
         {
-            MarkerArray markerArray = new MarkerArray();
-            markerArray.name = name;
-            markerArray.id = artag_associate_array_wrapped(name);
+            MarkerArray markerArray = new MarkerArray
+            {
+                name = name, id = artag_associate_array_wrapped(name)
+            };
             if (markerArray.id == -1)
             {
                 throw new Exception("ARTag: Error associating the array");
@@ -246,7 +246,7 @@ namespace XNAFinalEngine.AugmentedReality
         /// <summary>
         /// Dispose
         /// </summary>
-        public void Dispose()
+        protected override void DisposeUnmanagedResources()
         {
             // close the window and start the loop
             Glut.glutDestroyWindow(1);
@@ -272,7 +272,7 @@ namespace XNAFinalEngine.AugmentedReality
                 webcamRawInformationPointer = webCam.FrameUnmanaged;
 
                 //artag_find_objects() it searches the image for markers, and finds those that belong to defined objects
-                artag_find_objects_wrapped(webcamRawInformationPointer, rgb_greybar);
+                artag_find_objects_wrapped(webcamRawInformationPointer, RGBGreybar);
             }
             catch (AccessViolationException)
             {
@@ -329,36 +329,36 @@ namespace XNAFinalEngine.AugmentedReality
         //example: base_artag_object_id=artag_associate_array("base0");
         //int artag_associate_array(char* frame_name);  //returns artag_object_id
         [DllImport("ARTagWrapper.dll", EntryPoint = "artag_associate_array_wrapped")]
-        public static extern int artag_associate_array_wrapped(string frame_name);
+        public static extern int artag_associate_array_wrapped(string frameName);
 
         // ARTag Wrapper: artag_associate_marker
         [DllImport("ARTagWrapper.dll", EntryPoint = "artag_associate_marker_wrapped")]
-        public static extern int artag_associate_marker_wrapped(int artag_id);
+        public static extern int artag_associate_marker_wrapped(int artagId);
 
         // ARTag Wrapper: artag_find_objects
         [DllImport("ARTagWrapper.dll", EntryPoint = "artag_find_objects_wrapped")]
         //public static extern void artag_find_objects_wrapped([In,Out] ref IntPtr rgb_cam_image, char rgb_greybar);
-        public static extern int artag_find_objects_wrapped([In, Out] IntPtr rgb_cam_image, char rgb_greybar);
+        public static extern int artag_find_objects_wrapped([In, Out] IntPtr rgbCamImage, char rgbGreybar);
 
         // ARTag Wrapper: artag_is_object_found
         // artag_is_object_found(artag_object_num) returns 1 if object was found from most
         // recent artag_find_objects() call, returns 0 if object was not found 
         // char artag_is_object_found(int artag_object_num);
         [DllImport("ARTagWrapper.dll", EntryPoint = "artag_is_object_found_wrapped")]
-        public static extern char artag_is_object_found_wrapped(int artag_object_num);
+        public static extern char artag_is_object_found_wrapped(int artagObjectNum);
 
         // ARTag Wrapper: artag_get_object_opengl_matrix
         [DllImport("ARTagWrapper.dll", EntryPoint = "artag_set_object_opengl_matrix_wrapped")]
-        public static extern void artag_set_object_opengl_matrix_wrapped(int object_num, char mirror_on);
+        public static extern void artag_set_object_opengl_matrix_wrapped(int objectNum, char mirrorOn);
 
         // ARTag Wrapper: artag_set_camera_params_wrapped
         [DllImport("ARTagWrapper.dll", EntryPoint = "artag_set_camera_params_wrapped")]
-        public static extern void artag_set_camera_params_wrapped(double camera_fx, double camera_fy, double camera_cx, double camera_cy);
+        public static extern void artag_set_camera_params_wrapped(double cameraFx, double cameraFy, double cameraCx, double cameraCy);
 
         // ARTag Wrapper: artag_create_marker
         //artag_create_marker() will fill an unsigned char array with 100*scale*scale bytes
         [DllImport("ARTagWrapper.dll", EntryPoint = "artag_create_marker_wrapped")]
-        public static extern int artag_create_marker_wrapped(int artag_id, int scale, [In][Out] ref IntPtr image);
+        public static extern int artag_create_marker_wrapped(int artagId, int scale, [In][Out] ref IntPtr image);
 
         // ARTag Wrapper: 
         //void artag_set_output_image_mode(void);     //turn on output debug image writing 
@@ -375,26 +375,26 @@ namespace XNAFinalEngine.AugmentedReality
         // ARTag Wrapper: write_pgm
         //void write_pgm(char *file_name, char *comment, unsigned char *image,int width,int height)
         [DllImport("ARTagWrapper.dll", EntryPoint = "write_pgm_wrapped")]
-        public static extern void write_pgm_wrapped(string file_name, string comment, [In] IntPtr image, int width, int height);
+        public static extern void write_pgm_wrapped(string fileName, string comment, [In] IntPtr image, int width, int height);
 
         // ARTag Wrapper: write_ppm
         //void write_ppm_wrapped(char *file_name, char *comment, unsigned char *image,int width,int height)
         [DllImport("ARTagWrapper.dll", EntryPoint = "write_ppm_wrapped")]
-        public static extern void write_ppm_wrapped(string file_name, string comment, [In] IntPtr image, int width, int height);
+        public static extern void write_ppm_wrapped(string fileName, string comment, [In] IntPtr image, int width, int height);
 
         // ARTag Wrapper: read_ppm_wrapped
         //unsigned char* read_ppm_wrapped(char *file_name, int *width, int *height)
         [DllImport("ARTagWrapper.dll", EntryPoint = "read_ppm_wrapped")]
-        public static extern IntPtr read_ppm_wrapped(string file_name, ref int width, ref int height);
+        public static extern IntPtr read_ppm_wrapped(string fileName, ref int width, ref int height);
 
         #endregion ARTag Function Import
 
         #region Change Year
         
-        [System.Runtime.InteropServices.DllImport("kernel32 ", SetLastError = true)]
+        [DllImport("kernel32 ", SetLastError = true)]
         private static extern bool GetSystemTime(out SystemTime systemTime);
 
-        [System.Runtime.InteropServices.DllImport("kernel32 ", SetLastError = true)]
+        [DllImport("kernel32 ", SetLastError = true)]
         private static extern bool SetSystemTime(ref SystemTime systemTime);
         
         /// <summary>
@@ -437,7 +437,7 @@ namespace XNAFinalEngine.AugmentedReality
         /// <summary>
         /// Converts the matrix from WPF to XNA
         /// </summary>
-        private Matrix ConvertMatrix(float[] _matrix)
+        private static Matrix ConvertMatrix(float[] _matrix)
         {
             Matrix matrix = Matrix.Identity;
             matrix.M11 = _matrix[0];//(float)matrix3D.M11;

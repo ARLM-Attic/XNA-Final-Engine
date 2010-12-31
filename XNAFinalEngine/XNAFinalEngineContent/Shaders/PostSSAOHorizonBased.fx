@@ -157,7 +157,7 @@ float3 uv_to_eye(float2 uv, float eye_z)
 float3 fetch_eye_pos(float2 uv)
 {
 	float z = 1 - tex2Dlod(highPresicionDepthSampler, float4(uv.x, uv.y, 0, 1)).r; // Single channel zbuffer texture
-    //float z = 1 - tex2D(depthNormalSampler, float4(uv.x, uv.y, 0, 1)).a; // rgb zbuffer texture
+    //float z = 1 - tex2D(depthNormalSampler, float4(uv.x, uv.y, 0, 1)).a; // rgba zbuffer texture
     return uv_to_eye(uv, z);
 }
 
@@ -290,14 +290,16 @@ float4 PixelShaderFunction(uniform bool useNormal, VS_OUTPUT IN) : COLOR0
     // Nearest neighbor pixels on the tangent plane
     float3 Pr, Pl, Pt, Pb;
     float4 tangentPlane;
-    if (useNormal) {
+    if (useNormal)
+	{
         float3 N = normalize(tex2D(depthNormalSampler, IN.texUV).rgb);
         tangentPlane = float4(N, dot(P, N));
         Pr = tangent_eye_pos(IN.texUV + float2(g_InvResolution.x, 0), tangentPlane);
         Pl = tangent_eye_pos(IN.texUV + float2(-g_InvResolution.x, 0), tangentPlane);
         Pt = tangent_eye_pos(IN.texUV + float2(0, g_InvResolution.y), tangentPlane);
         Pb = tangent_eye_pos(IN.texUV + float2(0, -g_InvResolution.y), tangentPlane);
-    } else {
+    } else
+	{
         Pr = fetch_eye_pos(IN.texUV + float2(g_InvResolution.x, 0));
         Pl = fetch_eye_pos(IN.texUV + float2(-g_InvResolution.x, 0));
         Pt = fetch_eye_pos(IN.texUV + float2(0, g_InvResolution.y));
@@ -326,7 +328,7 @@ float4 PixelShaderFunction(uniform bool useNormal, VS_OUTPUT IN) : COLOR0
 	ao *= 2.0;
 	
 	float contrast = g_Contrast / (1.0f - sin(g_AngleBias));
-    return 1.0 - ao / g_NumDir * g_Contrast;
+    return float4(1.0 - ao / g_NumDir * g_Contrast, 1.0 - ao / g_NumDir * g_Contrast, 1.0 - ao / g_NumDir * g_Contrast ,1);
 }
 
 //////////////////////////////////////////////

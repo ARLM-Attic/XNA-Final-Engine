@@ -4,10 +4,7 @@ using System;
 using System.Windows;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime;
-using System.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Media;
 #endregion
 
 namespace XNAFinalEngine.AugmentedReality

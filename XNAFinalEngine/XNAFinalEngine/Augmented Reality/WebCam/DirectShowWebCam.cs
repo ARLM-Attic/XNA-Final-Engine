@@ -8,7 +8,6 @@ using Microsoft.Xna.Framework.Graphics;
 using DirectShowLib;
 using Color = Microsoft.Xna.Framework.Color;
 using System.Threading;
-using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.AugmentedReality
@@ -34,7 +33,6 @@ namespace XNAFinalEngine.AugmentedReality
         /// </summary>
         private class AuxiliaryClass : System.Windows.Threading.DispatcherObject
         {
-            public AuxiliaryClass() { }
         } // AuxiliaryClass
 
         #endregion
@@ -44,23 +42,24 @@ namespace XNAFinalEngine.AugmentedReality
         /// <summary>
         /// Variables relacionadas con la captura a "bajo" nivel.
         /// </summary>
-        DirectShowBitmapBuffer buf = null;
+        readonly DirectShowBitmapBuffer buf;
 
         /// <summary>
         /// Putting Panel in HwndHost didnt help with frame rate loss
         /// </summary>
-        System.Windows.Forms.Panel panel;
+        readonly System.Windows.Forms.Panel panel;
         
         /// <summary>
         /// Dummy object to control the monitor synchronization.
         /// </summary>
-        object syncObject = new object();
+        readonly object syncObject = new object();
         
         /// <summary>
         /// Byte per pixel variables. An incorrect value can produce an excepction.
         /// </summary>
-        PixelFormat mediaBitmapSourcePixelFormat;
-        Guid sampleGrabberSubType;
+        readonly PixelFormat mediaBitmapSourcePixelFormat;
+
+        readonly Guid sampleGrabberSubType;
                 
         /// <summary>
         /// Pointer to the capture structure. Unmanaged data.
@@ -70,18 +69,18 @@ namespace XNAFinalEngine.AugmentedReality
         /// <summary>
         /// Estructuras managed. WebCamInformationAux se utiliza para invertir la informacion obtenida.
         /// </summary>
-        private byte[] webCamInformation;
-        private byte[] webCamInformationMirror;
+        private readonly byte[] webCamInformation;
+        private readonly byte[] webCamInformationMirror;
 
         /// <summary>
         /// Objeto base que se encarga del manejo a bajo nivel de la camara.
         /// </summary>
-        DirectShowCapture cameraCapture;
+        readonly DirectShowCapture cameraCapture;
 
         /// <summary>
         /// Clase auxiliar para tener un dispacher asociado a este objeto.
         /// </summary>
-        AuxiliaryClass dispacher;
+        readonly AuxiliaryClass dispacher;
 
         #endregion
 
@@ -100,7 +99,7 @@ namespace XNAFinalEngine.AugmentedReality
         /// <summary>
         /// Texture with the last webcam frame.
         /// </summary>
-        public override Texture2D XNATexture { get { return webCamTexture; } }
+        public override Texture2D XnaTexture { get { return webCamTexture; } }
 
         #endregion
 
@@ -135,7 +134,7 @@ namespace XNAFinalEngine.AugmentedReality
                 default: throw new Exception("Bytes per pixel not suported");
             }
 
-            DsDevice[] vidCapDev = DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice);
+            DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice);
             //These are 'dummy' pixels
             byte[] pixels = new byte[width * height * bytesPerPixel];
             //Create a new bitmap source
@@ -151,7 +150,7 @@ namespace XNAFinalEngine.AugmentedReality
             cameraCapture = new DirectShowCapture(deviceNumber, width, height, bitsPerPixel, fps, panel, sampleGrabberSubType);
             dispacher = new AuxiliaryClass();
             cameraCapture.Dispatcher = dispacher.Dispatcher;
-            cameraCapture.SampleEvent += new DirectShowCapture.SampleDelegate(SampleEvent);
+            cameraCapture.SampleEvent += SampleEvent;
 
             // Creo las texturas que almacenaran la captura de la webCam
             webCamTexture = new Texture2D(EngineCore.EngineManager.Device, width, height, false, SurfaceFormat.Color);
@@ -176,17 +175,17 @@ namespace XNAFinalEngine.AugmentedReality
         /// Sincroniza que el buffer de lectura del cuadro no se utilice mientras se esta leyendo.
         /// No tendria que pasar nunca, pero si en caso pasara...
         /// </summary>
-        private void SampleEvent(IntPtr pBuffer, int BufferLen)
+        private void SampleEvent(IntPtr pBuffer, int bufferLen)
         {
             if (buf != null && cameraCapture != null)
             {
                 try
                 {
-                    if (Monitor.TryEnter(syncObject) == true)
+                    if (Monitor.TryEnter(syncObject))
                     {
                         try
                         {
-                            DirectShowBitmapBuffer.CopyMemory(buf.BufferPointer, pBuffer, BufferLen);
+                            DirectShowBitmapBuffer.CopyMemory(buf.BufferPointer, pBuffer, bufferLen);
                         }
                         finally
                         {
@@ -248,12 +247,12 @@ namespace XNAFinalEngine.AugmentedReality
             Color[] colorData = new Color[width * height];
             for (int i = 0; i < colorData.Length; i++)
             {
-                colorData[i] = new Microsoft.Xna.Framework.Color(webCamInformation[BytesPerPixel * i + 2],
+                colorData[i] = new Color(webCamInformation[BytesPerPixel * i + 2],
                                                                           webCamInformation[BytesPerPixel * i + 1],
                                                                           webCamInformation[BytesPerPixel * i]);
             }
             //EngineManager.Device.Textures[0] = null; // Bug de XNA
-            webCamTexture.SetData<Microsoft.Xna.Framework.Color>(colorData);
+            webCamTexture.SetData(colorData);
         } // TransformToXNATexture
 
         #endregion

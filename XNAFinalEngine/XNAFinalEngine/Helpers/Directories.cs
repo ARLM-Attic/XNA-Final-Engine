@@ -75,6 +75,16 @@ namespace XNAFinalEngine.Helpers
         /// Particles directory
         /// </summary>
         public static string ParticlesDirectory { get { return GameDataDirectory + "Particles"; } }
+
+        /// <summary>
+        /// Skin directory
+        /// </summary>
+        public static string SkinDirectory { get { return GameDataDirectory + "Skin"; } }
+
+        /// <summary>
+        /// UI Layout directory
+        /// </summary>
+        public static string UILayoutDirectory { get { return GameDataDirectory + "UILayout"; } }
         		
 		#endregion
 

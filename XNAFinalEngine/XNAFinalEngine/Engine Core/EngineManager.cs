@@ -29,20 +29,18 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Storage;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Threading;
-using System.Windows.Forms;
-using XNAFinalEngine.GraphicElements;
-using XNAFinalEngine.Setting;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
-using XNAFinalEngine.Sounds;
 using XNAFinalEngine.Input;
+using XNAFinalEngine.Sounds;
+using XNAFinalEngine.UI;
+using EventArgs = System.EventArgs;
+using Size = System.Drawing.Size;
+
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -54,21 +52,11 @@ namespace XNAFinalEngine.EngineCore
     /// All the device creation parameters can only be assigned at the beginning of the execution through the settings file.
     /// There are other functions: clear the frame buffer, toggle fullscreen, and the exit command.
     /// </summary>
-    public class EngineManager : Microsoft.Xna.Framework.Game
+    public class EngineManager : Game
     {
 
         #region Variables
         
-        /// <summary>
-        /// Multi Sample Quality. 0X 2X 4X 8X or 16X. This don't match the XNA's term called multiSampleQuality.
-        /// </summary>
-        private static int multiSampleQuality;
-
-        /// <summary>
-        /// The window that supports the engine.
-        /// </summary>
-        private static GameWindow window;
-
         /// <summary>
         /// Uses system content?
         /// </summary>
@@ -84,24 +72,19 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// Total time of the application (in ms).
         /// </summary>
-        private static double totalTimeMs = 0;
-
-        /// <summary>
-        /// Total time of the application in the previous frame (in ms).
-        /// </summary>
-        private static double lastFrameTotalTimeMs = 0;
+        private static double totalTimeMs;
 
         /// <summary>
         /// Helper for calculating frames per second.
         /// </summary>
-        private static double startTimeThisSecond = 0;
+        private static double startTimeThisSecond;
 
         /// <summary>
         /// For more accurate frames per second calculations, just count for one second, then fpsLastSecond is updated.
         /// Start with 1 to help some tests avoid the devide through zero problem.
         /// </summary>
-        private static int frameCountThisSecond = 0,
-                           totalFrameCount = 0,
+        private static int frameCountThisSecond,
+                           totalFrameCount,
                            fpsLastSecond = 1;
 
         #endregion
@@ -111,15 +94,20 @@ namespace XNAFinalEngine.EngineCore
         #region Properties
 
         /// <summary>
+        /// Multi Sample Quality. 0X 2X 4X 8X or 16X. This don't match the XNA's term called multiSampleQuality.
+        /// </summary>
+        private static int MultiSampleCount { get; set; }
+
+        /// <summary>
         /// Screenshot Capturer (Print Screen).
         /// </summary>
         public static ScreenshotCapturer ScreenshotCapturer { get; private set; }
 
         /// <summary>
-        /// Exit the application? Exit takes action in the beggining of the update.
+        /// Engine manager reference.
         /// </summary>
-        public static new bool Exit { get; set; } // Override base.Exit(); // I don't want that the application exit when the engine wants, first it needs to finish the frame.
-
+        public static EngineManager EngineManagerReference { get; private set; }
+                
         /// <summary>
         /// Window resolution width.
         /// </summary>        
@@ -171,9 +159,9 @@ namespace XNAFinalEngine.EngineCore
         public static int MultiSampleQuality { get { return Device.PresentationParameters.MultiSampleCount; } }
 
         /// <summary>
-        /// Is application currently active?
+        /// Is application currently active? If not the input will not be updated.
         /// </summary>
-        public static bool IsApplicationActive { get; private set; }
+        public static bool IsApplicationActive { get; set; }
 
         /// <summary>
         /// XNA Game Time.
@@ -184,6 +172,16 @@ namespace XNAFinalEngine.EngineCore
         /// Show frames per second in the top corner of the screen.
         /// </summary>
         public static bool ShowFPS { get; set; }
+
+        /// <summary>
+        /// Game Window.
+        /// </summary>
+        public static GameWindow GameWindow { get; set; }
+
+        /// <summary>
+        /// Window title.
+        /// </summary>
+        public static String Title { get { return GameWindow.Title; } set { GameWindow.Title = value; } }
 
         #region Frames per second
 
@@ -233,19 +231,21 @@ namespace XNAFinalEngine.EngineCore
         /// if it's fullscreen or windowed, if we can change windows size,
         /// and if it has v-sync and multisampling (O if not, 2, 4, 8 and 16 are the quality).
         /// </summary>
-        public EngineManager(string _title, Size _resolution, float _aspectRatio, bool _fullscreen, bool _changeWindowSize, bool _vsync, int framePerSeconds, int _multiSampleQuality)
-        {            
+        public EngineManager(string title, Size resolution, float aspectRatio, bool fullscreen, bool changeWindowSize, bool vsync, int framePerSeconds, int multiSampleQuality)
+        {
+            EngineManagerReference = this;
             // Set window title
-            Window.Title = _title;
-            Window.AllowUserResizing = _changeWindowSize;
-            window = Window;
+            Window.Title = title;
+            Window.AllowUserResizing = changeWindowSize;
+            GameWindow = Window;
+            IsMouseVisible = true;
 
             // Set graphics
             GraphicsManager = new GraphicsDeviceManager(this);
                         
             // Set resolution
-            Width = _resolution.Width;
-            Height = _resolution.Height;
+            Width = resolution.Width;
+            Height = resolution.Height;
             // Use current desktop resolution if autodetect is selected.
             if (Width <= 0 || Height <= 0)
             {
@@ -256,35 +256,36 @@ namespace XNAFinalEngine.EngineCore
             GraphicsManager.PreferredBackBufferHeight = Height;
 
             // Aspect Ratio
-            if (_aspectRatio == 0)
+            if (aspectRatio == 0)
                 AspectRatio = (float)Width / (float)Height;
             else
-                AspectRatio = _aspectRatio;
+                AspectRatio = aspectRatio;
             
             // If fullscreen
-            GraphicsManager.IsFullScreen = _fullscreen;
+            GraphicsManager.IsFullScreen = fullscreen;
 
             // Multisampling
-            multiSampleQuality = _multiSampleQuality;
-            GraphicsManager.PreferMultiSampling = _multiSampleQuality != 0; // Activate the antialiasing if multisamplequality is different than zero.
+            MultiSampleCount = multiSampleQuality;
+            GraphicsManager.PreferMultiSampling = multiSampleQuality != 0; // Activate the antialiasing if multisamplequality is different than zero.
 
             // VSync
-            GraphicsManager.SynchronizeWithVerticalRetrace = _vsync;
+            GraphicsManager.SynchronizeWithVerticalRetrace = vsync;
 
             // Frame per seconds
             if (framePerSeconds == 0)
             {
                 // Se actualiza ni bien puede. No a intervalos definidos de tiempo.
-                this.IsFixedTimeStep = false;
+                IsFixedTimeStep = false;
             }
             else
             {
-                this.IsFixedTimeStep = true;
-                this.TargetElapsedTime = TimeSpan.FromSeconds(1.0f / framePerSeconds);
+                IsFixedTimeStep = true;
+                TargetElapsedTime = TimeSpan.FromSeconds(1.0f / framePerSeconds);
             }
 
             // System content manager
-            SystemContent = base.Content;
+            SystemContent = Content;
+            CurrentContent = Content;
 
             // Services
             Services = base.Services;
@@ -313,11 +314,11 @@ namespace XNAFinalEngine.EngineCore
             // Set device
             Device = GraphicsManager.GraphicsDevice;
 
-            Device.PresentationParameters.MultiSampleCount = multiSampleQuality;
+            Device.PresentationParameters.MultiSampleCount = MultiSampleCount;
             
-            GraphicsManager.PreparingDeviceSettings += new EventHandler<PreparingDeviceSettingsEventArgs>(graphics_PreparingDeviceSettings);
-            GraphicsManager.DeviceReset += new EventHandler<EventArgs>(graphics_DeviceReset);
-            Window.ClientSizeChanged += new EventHandler<EventArgs>(Window_ClientSizeChanged);
+            GraphicsManager.PreparingDeviceSettings += Graphics_PreparingDeviceSettings;
+            GraphicsManager.DeviceReset += Graphics_DeviceReset;
+            Window.ClientSizeChanged += Window_ClientSizeChanged;
 
             Device.Reset(GraphicsDevice.PresentationParameters);
 
@@ -335,7 +336,7 @@ namespace XNAFinalEngine.EngineCore
         /// If this happen the render targets wouldn’t work correctly.
         /// Important: we can’t do this in graphics_DeviceReset.
         /// </summary>
-        private void graphics_PreparingDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
+        private static void Graphics_PreparingDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
         {
             Device.PresentationParameters.MultiSampleCount = Settings.Settings.Default.MultiSampleQuality;
         } // graphics_PreparingDeviceSettings
@@ -343,7 +344,7 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// Graphics device reset. This method is also call in the beginning of the execution. 
         /// </summary>
-        private void graphics_DeviceReset(object sender, EventArgs e)
+        private static void Graphics_DeviceReset(object sender, EventArgs e)
         {
             Device = GraphicsManager.GraphicsDevice;
             // Restore render to the frame buffer.
@@ -356,14 +357,19 @@ namespace XNAFinalEngine.EngineCore
         /// Window client size changed.
         /// If this happens the master aspect ratio is always width / height.
         /// </summary>
-        private void Window_ClientSizeChanged(object sender, EventArgs e)
+        private static void Window_ClientSizeChanged(object sender, EventArgs e)
         {
-            // Update width and height
-            Width = Device.Viewport.Width;
-            Height = Device.Viewport.Height;
-            AspectRatio = (float)Width / (float)Height;
-            // Camera.BuildProjectionMatrix(); // TODO // Necesitamso listas de camaras y una variable relacion de aspecto con 0 representando la relacion de aspecto del sistema.
-        } // Window_ClientSizeChanged
+            if (Width != Device.Viewport.Width) // I don't want that this method is called when a device reset occurs.
+            {
+                // Update width, height and aspect ratio
+                Width = Device.Viewport.Width;
+                Height = Device.Viewport.Height;
+                AspectRatio = (float)Width / (float)Height;
+                // Recreate some render targets that have a size relative to the window size.
+                RenderToTexture.RecreateRenderTargets();
+                //Camera.BuildProjectionMatrix(); // TODO Necesitamso listas de camaras y una variable relacion de aspecto con 0 representando la relacion de aspecto del sistema.
+            }
+    } // Window_ClientSizeChanged
      
         #endregion
 
@@ -375,6 +381,8 @@ namespace XNAFinalEngine.EngineCore
         protected override void LoadContent()
         {
             base.LoadContent();
+
+            UIManager.InitUIManager();
 
             // Disable certain keys like win, alt-tab, etc.
             InputManager.EnableKeyboardHook();
@@ -399,9 +407,9 @@ namespace XNAFinalEngine.EngineCore
         public static void ToggleFullscreen()
         {   
             GraphicsManager.IsFullScreen = !GraphicsManager.IsFullScreen;
-            window.BeginScreenDeviceChange(GraphicsManager.IsFullScreen);
+            GameWindow.BeginScreenDeviceChange(GraphicsManager.IsFullScreen);
             Device.Reset();
-            window.EndScreenDeviceChange(window.ScreenDeviceName);
+            GameWindow.EndScreenDeviceChange(GameWindow.ScreenDeviceName);
         } // ToggleFullscreen
 
         #endregion
@@ -433,57 +441,52 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// Update
         /// </summary>
-        protected override void Update(GameTime _gameTime)
+        protected override void Update(GameTime gameTime)
         {
-            if (Exit)
+            
+            #region Time
+
+            GameTime = gameTime;
+
+            frameTimeInMs = GameTime.ElapsedGameTime.TotalMilliseconds;
+            totalTimeMs = GameTime.TotalGameTime.TotalMilliseconds;
+
+            // Make sure elapsedTimeThisFrameInMs is never 0
+            if (frameTimeInMs <= 0)
+                frameTimeInMs = 1;
+
+            // Increase frame counter for FramesPerSecond
+            frameCountThisSecond++;
+            totalFrameCount++;
+
+            // One second elapsed?
+            if (totalTimeMs - startTimeThisSecond > 1000)
             {
-                base.Exit();
+                // Calc fps
+                fpsLastSecond = (int)(frameCountThisSecond * 1000.0f / (totalTimeMs - startTimeThisSecond));
+                // Reset startSecondTick and repaintCountSecond
+                startTimeThisSecond = totalTimeMs;
+                frameCountThisSecond = 0;
             }
-            else
-            {
 
-                #region Time
+            #endregion
+            
+            InputManager.Update();
 
-                GameTime = _gameTime;
+            UIManager.Update();
 
-                lastFrameTotalTimeMs = totalTimeMs;
-                frameTimeInMs = GameTime.ElapsedGameTime.TotalMilliseconds;
-                totalTimeMs = GameTime.TotalGameTime.TotalMilliseconds;
+            Animation.UpdateAnimations();
 
-                // Make sure elapsedTimeThisFrameInMs is never 0
-                if (frameTimeInMs <= 0)
-                    frameTimeInMs = 1;
+            Chronometer.UpdateAllChronometers();
 
-                // Increase frame counter for FramesPerSecond
-                frameCountThisSecond++;
-                totalFrameCount++;
+            SoundManager.UpdateSound();
 
-                // One second elapsed?
-                if (totalTimeMs - startTimeThisSecond > 1000)
-                {
-                    // Calc fps
-                    fpsLastSecond = (int)(frameCountThisSecond * 1000.0f / (totalTimeMs - startTimeThisSecond));
-                    // Reset startSecondTick and repaintCountSecond
-                    startTimeThisSecond = totalTimeMs;
-                    frameCountThisSecond = 0;
-                }
+            MusicManager.Update();
 
-                #endregion
+            // Application update //
+            ApplicationLogic.Update();
 
-                InputManager.Update();
-
-                Animation.UpdateAnimations();
-
-                Chronometer.UpdateAllChronometers();
-
-                SoundManager.UpdateSound();
-
-                MusicManager.Update();
-
-                // Application update //
-                ApplicationLogic.Update();
-            }
-            base.Update(_gameTime);
+            base.Update(gameTime);
         } // Update
 
         #endregion
@@ -495,27 +498,44 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>        
         protected override void Draw(GameTime gameTime)
         {
+            // Prerender the UI.
+            if (UIManager.Controls.Count > 0)
+                UIManager.BeginDraw();
+            // If a screenshot need to be captured
             if (ScreenshotCapturer.NeedToMakeScreenshot)
                 ScreenshotCapturer.BeginScreenshot();
             // Clear frame buffer and depth buffer
-            Device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, new Microsoft.Xna.Framework.Color(10, 10, 10), 1.0f, 0);
+            Device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, new Color(10, 10, 10), 1.0f, 0);
             // Handle custom user render code
             ApplicationLogic.Render();
             // Show frame per seconds if is wanted.
             if (ShowFPS)
             {
-                FontArial14.Render("FPS  " + EngineManager.Fps.ToString(),
-                                                new Vector2(EngineManager.Width - 130, 10),
-                                                Microsoft.Xna.Framework.Color.Yellow, true, Microsoft.Xna.Framework.Color.Black);
+                FontArial14.Render("FPS  " + Fps, new Vector2(Width - 130, 10), Color.Yellow, true, Color.Black);
             }
             // Render the sprites
             SpriteManager.DrawSprites();
-
+            // Render the UI
+            if (UIManager.Controls.Count > 0)
+                UIManager.EndDraw();
+            // If a screenshot need to be captured
             if (ScreenshotCapturer.NeedToMakeScreenshot)
                 ScreenshotCapturer.EndScreenshot();
 
             base.Draw(gameTime);
         } // Draw
+
+        #endregion
+
+        #region Exit
+
+        /// <summary>
+        /// Exit application.
+        /// </summary>
+        public static void ExitApplication()
+        {
+            EngineManagerReference.Exit();
+        } // ExitApplication
 
         #endregion
 
@@ -541,15 +561,15 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static void ClearDepthBuffer()
         {
-            Device.Clear(ClearOptions.DepthBuffer, Microsoft.Xna.Framework.Color.Black, 1.0f, 0);
+            Device.Clear(ClearOptions.DepthBuffer, Color.Black, 1.0f, 0);
         }
 
         /// <summary>
         /// Clear the frame buffer (or render target) and depth buffer.
         /// </summary>
-        public static void ClearTargetAndDepthBuffer(Microsoft.Xna.Framework.Color color)
+        public static void ClearTargetAndDepthBuffer(Color color)
         {
-            EngineManager.Device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, color, 1.0f, 0);
+            Device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, color, 1.0f, 0);
         }
 
         #endregion

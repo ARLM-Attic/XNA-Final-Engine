@@ -1,0 +1,4 @@
+﻿
+// Camera.BuildProjectionMatrix(); // Necesitamos listas de camaras y una variable relacion de aspecto con 0 representando la relacion de aspecto del sistema.
+
+Pensar si agregar un contenedor que seria basicamente una lista. Sus hijos no sabran nada de el.

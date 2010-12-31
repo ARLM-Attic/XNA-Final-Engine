@@ -9,7 +9,7 @@
 		</contributor>
 		<created>2009-04-14T14:51:46Z</created>
 		<keywords>FXComposer, NVIDIA</keywords>
-		<modified>2010-10-12T04:44:05Z</modified>
+		<modified>2010-12-24T04:02:56Z</modified>
 		<subject/>
 		<title/>
 		<unit/>
@@ -19,7 +19,7 @@
 		<visual_scene id="DefaultScene" name="DefaultScene">
 			<node id="Node1" name="Node1" layer="">
 				<matrix sid="">1 0 0 0 0 1 0 0 0 0 1 -1.11406 0 0 0 1</matrix>
-				<matrix sid="FXComposer2DiffMatrix">0.051961 0.0498995 -0.997402 0 0.303504 0.95072 0.0633744 0 0.951413 -0.306007 0.034256 0 0 0 0 1</matrix>
+				<matrix sid="FXComposer2DiffMatrix">0.0519611 0.0498994 -0.997402 0 0.303504 0.95072 0.0633744 0 0.951413 -0.306007 0.034256 0 0 0 0 1</matrix>
 				<instance_geometry url="#Teapot" sid="GeometryInstance1" name="Teapot">
 					<bind_material>
 						<technique_common>
@@ -34,7 +34,7 @@
 				<instance_geometry url="#Sphere" sid="GeometryInstance2" name="Sphere">
 					<bind_material>
 						<technique_common>
-							<instance_material symbol="SphereMaterial" target="#Material1"/>
+							<instance_material symbol="SphereMaterial" target="#Material"/>
 						</technique_common>
 					</bind_material>
 				</instance_geometry>
@@ -52,7 +52,7 @@
 			</node>
 			<node id="Node6" name="Node6" layer="">
 				<matrix sid="">1 0 0 -3.41726 0 1 0 2.28855 0 0 1 0 0 0 0 1</matrix>
-				<matrix sid="FXComposer2DiffMatrix">1 0 0 -3.26839e-006 0 1 0 -13.154 0 0 1 0 0 0 0 1</matrix>
+				<matrix sid="FXComposer2DiffMatrix">1 0 0 -3.8147e-006 0 1 0 -13.154 0 0 1 0 0 0 0 1</matrix>
 				<instance_light url="#PointLight" sid="Light2" name="PointLight"/>
 			</node>
 			<node id="Node7" name="Node7" layer="">
@@ -73,20 +73,13 @@
 				<instance_geometry url="#Plane2" sid="GeometryInstance4" name="Plane2">
 					<bind_material>
 						<technique_common>
-							<instance_material symbol="PlaneMaterial" target="#DefaultMaterial"/>
+							<instance_material symbol="PlaneMaterial" target="#Material17"/>
 						</technique_common>
 					</bind_material>
 				</instance_geometry>
 			</node>
-			<evaluate_scene name="Evaluate PostSSAOHorizonBased_Material">
-				<render camera_node="">
-					<instance_effect url="#Material11"/>
-				</render>
-			</evaluate_scene>
 			<extra type="evaluatescene_enables">
-				<technique profile="NVIDIA_FXCOMPOSER">
-					<true/>
-				</technique>
+				<technique profile="NVIDIA_FXCOMPOSER"/>
 			</extra>
 		</visual_scene>
 	</library_visual_scenes>
@@ -187,11 +180,6 @@
 					<constant/>
 				</technique>
 			</profile_COMMON>
-			<extra type="import">
-				<technique profile="NVIDIA_FXCOMPOSER">
-					<import url="PostConvineShadows.fx" compiler_options="" profile="fx"/>
-				</technique>
-			</extra>
 		</effect>
 		<effect id="Effect6" name="PostGlow">
 			<profile_COMMON>
@@ -199,11 +187,6 @@
 					<constant/>
 				</technique>
 			</profile_COMMON>
-			<extra type="import">
-				<technique profile="NVIDIA_FXCOMPOSER">
-					<import url="PostGlow.fx" compiler_options="" profile="fx"/>
-				</technique>
-			</extra>
 		</effect>
 		<effect id="Effect8" name="PreSkybox">
 			<profile_COMMON>
@@ -489,6 +472,12 @@
 				<setparam ref="SurfaceColor">
 					<float3>0 0 0</float3>
 				</setparam>
+				<setparam ref="SurfaceSpecular">
+					<float3>1 1 1</float3>
+				</setparam>
+				<setparam ref="SurfaceAmbient">
+					<float3>0.1 0.1 0.1</float3>
+				</setparam>
 				<setparam ref="UScale">
 					<float>1</float>
 				</setparam>
@@ -535,19 +524,19 @@
 					<float3>0.144737 0.144737 0.144737</float3>
 				</setparam>
 				<setparam ref="PointLightPos">
-					<float3>0 0 0</float3>
+					<float3>2 2 2</float3>
 				</setparam>
 				<setparam ref="PointLightColor">
 					<float3>1 0.539808 0.69493</float3>
 				</setparam>
 				<setparam ref="PointLightPos2">
-					<float3>0 0 0</float3>
+					<float3>2 2 2</float3>
 				</setparam>
 				<setparam ref="PointLightColor2">
 					<float3>0.306446 1 0.595519</float3>
 				</setparam>
 				<setparam ref="PointLightPos3">
-					<float3>0 0 0</float3>
+					<float3>2 2 2</float3>
 				</setparam>
 				<setparam ref="PointLightColor3">
 					<float3>0 0 0</float3>
@@ -565,10 +554,10 @@
 					<float3>0 1 0</float3>
 				</setparam>
 				<setparam ref="SpotLightPos">
-					<float3>-1.68406 4.3796 3.80643</float3>
+					<float3>-2 0 0</float3>
 				</setparam>
 				<setparam ref="SpotLightDir">
-					<float3>0.358396 -0.932051 -0.0532297</float3>
+					<float3>0.996546 -0 0.0830455</float3>
 				</setparam>
 				<setparam ref="SpotLightCone">
 					<float>60</float>
@@ -584,6 +573,12 @@
 				</setparam>
 				<setparam ref="SurfaceColor">
 					<float3>0.5 0.5 0.53</float3>
+				</setparam>
+				<setparam ref="SurfaceSpecular">
+					<float3>1 1 1</float3>
+				</setparam>
+				<setparam ref="SurfaceAmbient">
+					<float3>0.1 0.1 0.1</float3>
 				</setparam>
 				<setparam ref="UScale">
 					<float>1</float>
@@ -706,6 +701,12 @@
 				<setparam ref="SurfaceColor">
 					<float3>0.5 0.5 0.53</float3>
 				</setparam>
+				<setparam ref="SurfaceSpecular">
+					<float3>1 1 1</float3>
+				</setparam>
+				<setparam ref="SurfaceAmbient">
+					<float3>0.1 0.1 0.1</float3>
+				</setparam>
 				<setparam ref="UScale">
 					<float>1</float>
 				</setparam>
@@ -723,9 +724,6 @@
 					<float>0.8</float>
 				</setparam>
 			</instance_effect>
-		</material>
-		<material id="Material3" name="Common_Material">
-			<instance_effect url="#Effect3"/>
 		</material>
 		<material id="Material4" name="PostBlur_Material">
 			<instance_effect url="#Effect4">
@@ -786,123 +784,7 @@
 			</instance_effect>
 		</material>
 		<material id="Material5" name="PostConvineShadows_Material">
-			<instance_effect url="#Effect5">
-				<technique_hint platform="PC-D3D" ref="ModelShader30"/>
-				<setparam ref="Script">
-					<float>0.8</float>
-				</setparam>
-				<setparam ref="windowSize">
-					<float2>312 269</float2>
-				</setparam>
-				<setparam ref="shadowMap">
-					<surface type="2D">
-						<init_as_null/>
-						<format>A8R8G8B8</format>
-						<size>0 0 1</size>
-					</surface>
-				</setparam>
-			</instance_effect>
-		</material>
-		<material id="Material6" name="PostGlow_Material">
-			<instance_effect url="#Effect6">
-				<technique_hint platform="PC-D3D" ref="ModelShader30"/>
-				<setparam ref="Script">
-					<float>0.8</float>
-				</setparam>
-				<setparam ref="DownsampleMultiplicator">
-					<float>0.25</float>
-				</setparam>
-				<setparam ref="ClearColor">
-					<float4>0 0 0 1</float4>
-				</setparam>
-				<setparam ref="ClearDepth">
-					<float>1</float>
-				</setparam>
-				<setparam ref="GlowIntensity">
-					<float>0.1</float>
-				</setparam>
-				<setparam ref="HighlightThreshold">
-					<float>0.98</float>
-				</setparam>
-				<setparam ref="HighlightIntensity">
-					<float>0.4</float>
-				</setparam>
-				<setparam ref="radialBlurScaleFactor">
-					<float>-0.004</float>
-				</setparam>
-				<setparam ref="BlurWidth">
-					<float>8</float>
-				</setparam>
-				<setparam ref="windowSize">
-					<float2>963 618</float2>
-				</setparam>
-				<setparam ref="downsampleScale">
-					<float>0.25</float>
-				</setparam>
-				<setparam ref="sceneMap">
-					<surface type="2D">
-						<init_as_target/>
-						<format>A8R8G8B8</format>
-						<viewport_ratio>1 1</viewport_ratio>
-					</surface>
-				</setparam>
-				<setparam ref="radialSceneMap">
-					<surface type="2D">
-						<init_as_target/>
-						<format>A8R8G8B8</format>
-						<viewport_ratio>1 1</viewport_ratio>
-					</surface>
-				</setparam>
-				<setparam ref="downsampleMap">
-					<surface type="2D">
-						<init_as_target/>
-						<format>A8R8G8B8</format>
-						<viewport_ratio>0.25 0.25</viewport_ratio>
-					</surface>
-				</setparam>
-				<setparam ref="blurMap1">
-					<surface type="2D">
-						<init_as_target/>
-						<format>A8R8G8B8</format>
-						<viewport_ratio>0.25 0.25</viewport_ratio>
-					</surface>
-				</setparam>
-				<setparam ref="blurMap2">
-					<surface type="2D">
-						<init_as_target/>
-						<format>A8R8G8B8</format>
-						<viewport_ratio>0.25 0.25</viewport_ratio>
-					</surface>
-				</setparam>
-				<setparam ref="screenBorderFadeoutMap">
-					<surface type="2D">
-						<init_from>ScreenBorderFadeout</init_from>
-						<format>R8G8B8A8</format>
-						<size>128 128 1</size>
-					</surface>
-				</setparam>
-				<setparam ref="weights7[0]">
-					<float>0.05</float>
-				</setparam>
-				<setparam ref="weights7[1]">
-					<float>0.1</float>
-				</setparam>
-				<setparam ref="weights7[2]">
-					<float>0.2</float>
-				</setparam>
-				<setparam ref="weights7[3]">
-					<float>0.3</float>
-				</setparam>
-				<setparam ref="weights7[4]">
-					<float>0.2</float>
-				</setparam>
-				<setparam ref="weights7[5]">
-					<float>0.1</float>
-				</setparam>
-				<setparam ref="weights7[6]">
-					<float>0.05</float>
-				</setparam>
-			</instance_effect>
+			<instance_effect url="#Effect5"/>
 		</material>
 		<material id="Material8" name="PreSkybox_Material">
 			<instance_effect url="#Effect8">
@@ -925,9 +807,6 @@
 				<setparam ref="AlphaBlending">
 					<float>1</float>
 				</setparam>
-				<setparam ref="AspectRatio">
-					<float>1.3</float>
-				</setparam>
 				<setparam ref="CubeMapTexture">
 					<surface type="CUBE">
 						<init_from>default_reflection</init_from>
@@ -947,7 +826,7 @@
 					<float4x4>1 0 0 0 0 1 0 0 -0 -0 1 -0 0 0 4.74525 1</float4x4>
 				</setparam>
 				<setparam ref="worldViewProj">
-					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.74461 0 0 -1 4.74525</float4x4>
+					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.7446 0 0 -1 4.74525</float4x4>
 				</setparam>
 				<setparam ref="FarPlane">
 					<float>30</float>
@@ -987,6 +866,9 @@
 				<setparam ref="cornerFustrum">
 					<float3>0 0 0</float3>
 				</setparam>
+				<setparam ref="g_InvResolution">
+					<float2>0.00097 0.0013</float2>
+				</setparam>
 				<setparam ref="randomTexture">
 					<surface type="2D">
 						<init_from>RANDOMNORMAL</init_from>
@@ -1015,7 +897,7 @@
 					<float4x4>1 0 0 0 0 1 0 0 -0 -0 1 -0 0 0 4.74525 1</float4x4>
 				</setparam>
 				<setparam ref="worldViewProj">
-					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.74461 0 0 -1 4.74525</float4x4>
+					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.7446 0 0 -1 4.74525</float4x4>
 				</setparam>
 				<setparam ref="FarPlane">
 					<float>99.9</float>
@@ -1140,7 +1022,7 @@
 					<float4x4>1 0 0 0 0 1 0 0 -0 -0 1 -0 0 0 4.74525 1</float4x4>
 				</setparam>
 				<setparam ref="worldViewProj">
-					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.74461 0 0 -1 4.74525</float4x4>
+					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.7446 0 0 -1 4.74525</float4x4>
 				</setparam>
 				<setparam ref="FarPlane">
 					<float>100</float>
@@ -1220,7 +1102,7 @@
 					<float>0.8</float>
 				</setparam>
 				<setparam ref="worldViewProj">
-					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.74461 0 0 -1 4.74525</float4x4>
+					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.7446 0 0 -1 4.74525</float4x4>
 				</setparam>
 				<setparam ref="shadowTexTransform">
 					<float4x4>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</float4x4>
@@ -1298,9 +1180,6 @@
 				</setparam>
 			</instance_effect>
 		</material>
-		<material id="Material13" name="CommonDepthNormals_Material">
-			<instance_effect url="#Effect14"/>
-		</material>
 		<material id="Material14" name="PreDepthNormal_Material">
 			<instance_effect url="#Effect15">
 				<technique_hint platform="PC-D3D" ref="DepthAndNormals"/>
@@ -1311,7 +1190,7 @@
 					<float4x4>1 0 0 0 0 1 0 0 -0 -0 1 -0 0 0 4.74525 1</float4x4>
 				</setparam>
 				<setparam ref="worldViewProj">
-					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.74461 0 0 -1 4.74525</float4x4>
+					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.7446 0 0 -1 4.74525</float4x4>
 				</setparam>
 				<setparam ref="FarPlane">
 					<float>100</float>
@@ -1338,9 +1217,6 @@
 				</setparam>
 			</instance_effect>
 		</material>
-		<material id="Material7" name="CloudBillboard_Material">
-			<instance_effect url="#Effect16"/>
-		</material>
 		<material id="Material16" name="ParallaxMapping_Material">
 			<instance_effect url="#Effect18">
 				<technique_hint platform="PC-D3D" ref="ParallaxMapping"/>
@@ -1348,7 +1224,7 @@
 					<float4x4>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</float4x4>
 				</setparam>
 				<setparam ref="WorldViewProj">
-					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.74461 0 0 -1 4.74525</float4x4>
+					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.7446 0 0 -1 4.74525</float4x4>
 				</setparam>
 				<setparam ref="World">
 					<float4x4>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</float4x4>
@@ -1357,7 +1233,7 @@
 					<float4x4>1 0 -0 0 0 1 -0 0 0 0 1 4.74525 0 0 -0 1</float4x4>
 				</setparam>
 				<setparam ref="ViewProj">
-					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.74461 0 0 -1 4.74525</float4x4>
+					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.7446 0 0 -1 4.74525</float4x4>
 				</setparam>
 				<setparam ref="AmbientLightColor">
 					<float3>0.2 0.2 0.2</float3>
@@ -1413,6 +1289,12 @@
 				<setparam ref="SurfaceColor">
 					<float3>1 1 1</float3>
 				</setparam>
+				<setparam ref="SurfaceSpecular">
+					<float3>1 1 1</float3>
+				</setparam>
+				<setparam ref="SurfaceAmbient">
+					<float3>0.1 0.1 0.1</float3>
+				</setparam>
 				<setparam ref="UScale">
 					<float>1</float>
 				</setparam>
@@ -1460,7 +1342,7 @@
 					<float4x4>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</float4x4>
 				</setparam>
 				<setparam ref="WorldViewProj">
-					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.74461 0 0 -1 4.74525</float4x4>
+					<float4x4>2.74748 0 0 0 0 2.74748 0 0 0 0 -1.00006 4.7446 0 0 -1 4.74525</float4x4>
 				</setparam>
 				<setparam ref="ViewI">
 					<float4x4>1 0 -0 0 0 1 -0 0 0 0 1 4.74525 0 0 -0 1</float4x4>
@@ -1551,19 +1433,19 @@
 					<float3>0.2 0.2 0.2</float3>
 				</setparam>
 				<setparam ref="PointLightPos">
-					<float3>0 0 0</float3>
+					<float3>2 2 2</float3>
 				</setparam>
 				<setparam ref="PointLightColor">
 					<float3>0 0 0</float3>
 				</setparam>
 				<setparam ref="PointLightPos2">
-					<float3>0 0 0</float3>
+					<float3>2 2 2</float3>
 				</setparam>
 				<setparam ref="PointLightColor2">
 					<float3>0 0 0</float3>
 				</setparam>
 				<setparam ref="PointLightPos3">
-					<float3>0 0 0</float3>
+					<float3>2 2 2</float3>
 				</setparam>
 				<setparam ref="PointLightColor3">
 					<float3>0 0 0</float3>
@@ -1581,10 +1463,10 @@
 					<float3>0 0 0</float3>
 				</setparam>
 				<setparam ref="SpotLightPos">
-					<float3>-1.68406 4.3796 3.80643</float3>
+					<float3>-2 0 0</float3>
 				</setparam>
 				<setparam ref="SpotLightDir">
-					<float3>0.372734 -0.36915 -0.851351</float3>
+					<float3>0.996546 -0 0.0830455</float3>
 				</setparam>
 				<setparam ref="SpotLightCone">
 					<float>60</float>
@@ -1600,6 +1482,12 @@
 				</setparam>
 				<setparam ref="SurfaceColor">
 					<float3>1 1 1</float3>
+				</setparam>
+				<setparam ref="SurfaceSpecular">
+					<float3>1 1 1</float3>
+				</setparam>
+				<setparam ref="SurfaceAmbient">
+					<float3>0.1 0.1 0.1</float3>
 				</setparam>
 				<setparam ref="UScale">
 					<float>1</float>
@@ -1623,42 +1511,6 @@
 						<format>R8G8B8A8</format>
 						<size>1024 512 1</size>
 					</surface>
-				</setparam>
-			</instance_effect>
-		</material>
-		<material id="DefaultMaterial" name="DefaultMaterial">
-			<instance_effect url="#Effect13">
-				<technique_hint platform="PC-D3D" ref="CommonProfile"/>
-				<technique_hint platform="PC-D3D10" ref="CommonProfile"/>
-				<setparam ref="EmissionColor">
-					<float4>0 0 0 1</float4>
-				</setparam>
-				<setparam ref="AmbientColor">
-					<float4>0 0 0 1</float4>
-				</setparam>
-				<setparam ref="DiffuseColor">
-					<float4>1 1 1 1</float4>
-				</setparam>
-				<setparam ref="EnvironmentColor">
-					<float4>1 1 1 1</float4>
-				</setparam>
-				<setparam ref="Reflectivity">
-					<float>0.5</float>
-				</setparam>
-				<setparam ref="SpecularColor">
-					<float4>1 1 1 1</float4>
-				</setparam>
-				<setparam ref="SpecularShininess">
-					<float>10</float>
-				</setparam>
-				<setparam ref="TransparentColor">
-					<float4>0 0 0 1</float4>
-				</setparam>
-				<setparam ref="Transparency">
-					<float>1</float>
-				</setparam>
-				<setparam ref="Index_Of_Refraction">
-					<float>1</float>
 				</setparam>
 			</instance_effect>
 		</material>

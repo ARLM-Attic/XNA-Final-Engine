@@ -1,7 +1,7 @@
 /***********************************************************************************************************************************************
 
 Based in the ocean.fx shader of NVIDIA
-Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
+Modified by: Schneider, Jos? Ignacio (jis@cs.uns.edu.ar)
 
 ************************************************************************************************************************************************/
 
@@ -12,7 +12,7 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 /////////////////////////////////////////////*/
 
-#define FX_COMPOSER
+//#define FX_COMPOSER
 
 //////////////////////////////////////////////
 ///////////////// Script /////////////////////
@@ -41,7 +41,7 @@ float4x4 ViewI         : ViewInverse           <string UIWidget="None";>;
 
 texture NormalTexture  <
     string ResourceName = "waves2.dds";
-    string UIName =  "Normal Map";
+    string UIName =  "OceanWavesNormal";
     string ResourceType = "2D";
 >;
 
@@ -283,10 +283,10 @@ OceanVertOut OceanVS(AppData IN)
     float2 BumpSpeed = float2(BumpSpeedX,BumpSpeedY);
     OUT.UV = IN.UV.xy*TextureScale;
     float cycle = fmod(Timer, 100.0);
-    OUT.bumpUV0.xy = IN.UV.xy*TextureScale + cycle*BumpSpeed;
-    OUT.bumpUV1.xy = IN.UV.xy*TextureScale*2.0 + cycle*BumpSpeed*4.0;
-    OUT.bumpUV2.xy = IN.UV.xy*TextureScale*4.0 + cycle*BumpSpeed*8.0;
-
+    OUT.bumpUV0.xy = IN.UV.xy * TextureScale + cycle * BumpSpeed;
+    OUT.bumpUV1.xy = IN.UV.xy * TextureScale * 2.0 + cycle * BumpSpeed * 4.0;
+    OUT.bumpUV2.xy = IN.UV.xy * TextureScale * 4.0 + cycle * BumpSpeed * 8.0;
+	
     // compute the 3x3 tranform from tangent space to object space
     float3x3 objToTangentSpace;
     // first rows are the tangent and binormal scaled by the bump scale
@@ -297,9 +297,8 @@ OceanVertOut OceanVS(AppData IN)
     OUT.T2WXf1.xyz = mul(objToTangentSpace,World[0].xyz);
     OUT.T2WXf2.xyz = mul(objToTangentSpace,World[1].xyz);
     OUT.T2WXf3.xyz = mul(objToTangentSpace,World[2].xyz);
-
     // compute the eye vector (going from shaded point to eye) in cube space
-    float3 Pw = mul(Po,World).xyz;
+	float3 Pw = mul(Po,World).xyz;
     OUT.WorldView = ViewI[3].xyz - Pw; // view inv. transpose contains eye position in world space in last row
     return OUT;
 }
@@ -339,7 +338,8 @@ float4 OceanPS(OceanVertOut IN) : COLOR
 
     float3 waterColor = KWater * lerp(DeepColor, ShallowColor, facing);
     float3 result = waterColor + (fres * reflection.rgb * ReflTint);
-    return float4(result.rgb,1.0);
+
+    return float4(result.rgb, 1.0);
 }
 
 //////////////////////////////////////////////
@@ -362,6 +362,6 @@ technique Ocean <
 #else
         CullMode = CCW;    // For The Engine	
 #endif
-        PixelShader = compile ps_3_0 OceanPS();
+        PixelShader = compile ps_2_0 OceanPS();
     }
 }

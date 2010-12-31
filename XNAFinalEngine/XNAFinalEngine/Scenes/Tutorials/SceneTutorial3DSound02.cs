@@ -34,7 +34,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
-using XNAFinalEngine.GraphicElements;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.UI;
@@ -80,7 +80,7 @@ namespace XNAFinalEngine.Scenes
             ApplicationLogic.Camera = new FixedCamera(new Vector3(0, 0, -10), Vector3.Zero);
             //ApplicationLogic.Camera = new XSICamera(Vector3.Zero);
 
-            gRotateObject = new GraphicObject(new GraphicElements.Plane(2, 2), new Constant("Tutorials\\Dog"));
+            gRotateObject = new GraphicObject(new Graphics.Plane(2, 2), new Constant("Tutorials\\Dog"));
 
             soundNoice = new Sound("Tutorials\\Dog");
             // Indicate to the sound manager the scene scale, master volume and master doppler scale.

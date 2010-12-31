@@ -29,7 +29,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 //////////////////////////////////////////////
 
 float4x4 worldView      : WorldView			        <string UIWidget="None";>;
-float4x4 worldViewIT    : WorldViewInverseTranspose <string UIWidget="None";>;
+float4x4 worldIT		: WorldInverseTranspose		<string UIWidget="None";>;
 float4x4 worldViewProj  : WorldViewProjection       <string UIWidget="None";>;
 
 //////////////////////////////////////////////
@@ -58,7 +58,7 @@ texture depthNormalTexture : RENDERCOLORTARGET
 < 
     float2 ViewportRatio = { 1, 1 };
     int MIPLEVELS = 1;
-	string Format="R8G8B8A8";
+	string Format="R10G10B10A2";
 >;
 
 sampler2D depthNormalSampler = sampler_state
@@ -68,6 +68,7 @@ sampler2D depthNormalSampler = sampler_state
 	ADDRESSV = CLAMP;
 	MAGFILTER = POINT;
 	MINFILTER = POINT;
+	MIPFILTER = POINT;
 };
 
 texture highPresicionDepthTexture : RENDERCOLORTARGET
@@ -84,6 +85,7 @@ sampler2D highPresicionDepthSampler = sampler_state
 	ADDRESSV = CLAMP;
 	MAGFILTER = POINT;
 	MINFILTER = POINT;
+	MIPFILTER = POINT;
 };
 
 //////////////////////////////////////////////
@@ -93,14 +95,22 @@ sampler2D highPresicionDepthSampler = sampler_state
 struct DepthNormalVS_INPUT 
 {
    float4 Position: POSITION;
-   float3 Normal : NORMAL;
+   float4 Normal : NORMAL;
 };
 
 struct DepthNormalVS_OUTPUT 
 {
-   float4 Position: POSITION0;
-   float3 Normal : TEXCOORD0;
-   float4 vPositionVS : TEXCOORD1;
+   float4 Position : POSITION0;
+   float3 Normal   : TEXCOORD0;
+   float  Depth    : TEXCOORD1;
+};
+
+struct PixelShader_OUTPUT
+{
+    float4 Depth   : COLOR0;
+    float4 Normals : COLOR1;
+	float4 Normals2 : COLOR2;
+	float4 Normals3 : COLOR3;
 };
 
 //////////////////////////////////////////////
@@ -112,8 +122,8 @@ DepthNormalVS_OUTPUT DepthNormalsVertexShaderFunction(DepthNormalVS_INPUT IN)
    DepthNormalVS_OUTPUT Output;
    
    Output.Position = mul(IN.Position, worldViewProj);
-   Output.vPositionVS = mul(IN.Position, worldView);
-   Output.Normal = mul(IN.Normal, worldViewIT);
+   Output.Depth = mul(IN.Position, worldView).z;
+   Output.Normal = mul(IN.Normal, worldIT);
    
    return Output;
 }
@@ -122,13 +132,19 @@ DepthNormalVS_OUTPUT DepthNormalsVertexShaderFunction(DepthNormalVS_INPUT IN)
 /////////////// Pixel Shader /////////////////
 //////////////////////////////////////////////
 
-float4 DepthNormalsPixelShaderFunction(DepthNormalVS_OUTPUT IN) : COLOR0
+PixelShader_OUTPUT DepthNormalsPixelShaderFunction(DepthNormalVS_OUTPUT IN)
 {
-	float depth = -IN.vPositionVS.z / FarPlane;
-	IN.Normal = normalize(IN.Normal);
-	return float4(IN.Normal.x, IN.Normal.y, IN.Normal.z, 1 - depth);
-}
+	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
+ 
+	output.Depth = float4(1 - (-IN.Depth / FarPlane), 1, 1, 1);
+ 
+//	output.Normals = 0.5f * (float4(IN.Normal.x, IN.Normal.y, IN.Normal.z, 1) + 1.0f); // Change to the [0, 1] range to avoid negative values.		
+ 
+	output.Normals = float4(normalize(IN.Normal.xy) * sqrt(-IN.Normal.z * 0.5 + 0.5), 1, 1); // Spheremap Transform: Crytek method
 
+	return output;
+}
+// For FX Composer //
 float4 OnlyNormalsPixelShaderFunction(DepthNormalVS_OUTPUT IN) : COLOR0
 {
 	IN.Normal = normalize(IN.Normal);
@@ -137,5 +153,5 @@ float4 OnlyNormalsPixelShaderFunction(DepthNormalVS_OUTPUT IN) : COLOR0
 
 float4 HighPresicionDepthPixelShaderFunction(DepthNormalVS_OUTPUT IN) : COLOR0
 {
-	return float4(1 - (-IN.vPositionVS.z / FarPlane), 1, 1, 1);
+	return float4(1 - (-IN.Depth / FarPlane), 1, 1, 1);
 }

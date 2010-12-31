@@ -13,11 +13,8 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.Input
@@ -188,20 +185,20 @@ namespace XNAFinalEngine.Input
 		{
 			// ~_|{}:"<>? !@#$%^&*().
 			int keyNum = (int)key;
-			if ((keyNum >= (int)Keys.A && keyNum <= (int)Keys.Z) ||
+			if ((keyNum >= (int)Keys.A  && keyNum <= (int)Keys.Z)  ||
 				(keyNum >= (int)Keys.D0 && keyNum <= (int)Keys.D9) ||
-				key == Keys.Space || // well, space ^^
-				key == Keys.OemTilde || // `~
-				key == Keys.OemMinus || // -_
-				key == Keys.OemPipe || // \|
-				key == Keys.OemOpenBrackets || // [{
+				key == Keys.Space ||            // space
+				key == Keys.OemTilde ||         // `~
+				key == Keys.OemMinus ||         // -_
+				key == Keys.OemPipe ||          // \|
+				key == Keys.OemOpenBrackets ||  // [{
 				key == Keys.OemCloseBrackets || // ]}
-				key == Keys.OemSemicolon || // ;:
-				key == Keys.OemQuotes || // '"
-				key == Keys.OemComma || // ,<
-				key == Keys.OemPeriod || // .>
-				key == Keys.OemQuestion || // /?
-				key == Keys.OemPlus) // =+
+				key == Keys.OemSemicolon ||     // ;:
+				key == Keys.OemQuotes ||        // '"
+				key == Keys.OemComma ||         // ,<
+				key == Keys.OemPeriod ||        // .>
+				key == Keys.OemQuestion ||      // /?
+				key == Keys.OemPlus)            // =+
 				return false;
 
 			// Else is is a special key
@@ -210,114 +207,64 @@ namespace XNAFinalEngine.Input
 
         #endregion
 
-        #region Key to Char
+        #region Key to String
 
         /// <summary>
-		/// Key to char helper conversion method.
-		/// Note: If the keys are mapped other than on a default QWERTY
-		/// keyboard, this method will not work properly. Most keyboards
-		/// will return the same for A-Z and 0-9, but the special keys
-		/// might be different. Sorry, no easy way to fix this with XNA ...
-		/// For a game with chat (windows) you should implement the
-		/// windows events for catching keyboard input, which are much better!
+		/// Key to string helper conversion method.
+		/// If the keys are mapped other than on a default QWERTY keyboard or non English distribution, this method will not work properly.
+		/// Most keyboards will return the same for A-Z and 0-9, but the special keys might be different.
+		/// For a game with chat (windows) you should implement the windows events for catching keyboard input, which are much better!
 		/// </summary>
-		public static char KeyToChar(Keys key, bool shiftPressed)
-		{
-			// If key will not be found, just return space
-			char ret = ' ';
-			int keyNum = (int)key;
-			if (keyNum >= (int)Keys.A && keyNum <= (int)Keys.Z)
-			{
-				if (shiftPressed)
-					ret = key.ToString()[0];
-				else
-					ret = key.ToString().ToLower()[0];
-			} // if (keyNum)
-			else if (keyNum >= (int)Keys.D0 && keyNum <= (int)Keys.D9 &&
-				shiftPressed == false)
-			{
-				ret = (char)((int)'0' + (keyNum - Keys.D0));
-			} // else if
-			else if (key == Keys.D1 && shiftPressed)
-				ret = '!';
-			else if (key == Keys.D2 && shiftPressed)
-				ret = '@';
-			else if (key == Keys.D3 && shiftPressed)
-				ret = '#';
-			else if (key == Keys.D4 && shiftPressed)
-				ret = '$';
-			else if (key == Keys.D5 && shiftPressed)
-				ret = '%';
-			else if (key == Keys.D6 && shiftPressed)
-				ret = '^';
-			else if (key == Keys.D7 && shiftPressed)
-				ret = '&';
-			else if (key == Keys.D8 && shiftPressed)
-				ret = '*';
-			else if (key == Keys.D9 && shiftPressed)
-				ret = '(';
-			else if (key == Keys.D0 && shiftPressed)
-				ret = ')';
-			else if (key == Keys.OemTilde)
-				ret = shiftPressed ? '~' : '`';
-			else if (key == Keys.OemMinus)
-				ret = shiftPressed ? '_' : '-';
-			else if (key == Keys.OemPipe)
-				ret = shiftPressed ? '|' : '\\';
-			else if (key == Keys.OemOpenBrackets)
-				ret = shiftPressed ? '{' : '[';
-			else if (key == Keys.OemCloseBrackets)
-				ret = shiftPressed ? '}' : ']';
-			else if (key == Keys.OemSemicolon)
-				ret = shiftPressed ? ':' : ';';
-			else if (key == Keys.OemQuotes)
-				ret = shiftPressed ? '"' : '\'';
-			else if (key == Keys.OemComma)
-				ret = shiftPressed ? '<' : '.';
-			else if (key == Keys.OemPeriod)
-				ret = shiftPressed ? '>' : ',';
-			else if (key == Keys.OemQuestion)
-				ret = shiftPressed ? '?' : '/';
-			else if (key == Keys.OemPlus)
-				ret = shiftPressed ? '+' : '=';
+        public static string KeyToString(Keys key, bool shift, bool caps)
+        {
+            bool uppercase = (caps && !shift) || (!caps && shift);
 
-			// Return result
-			return ret;
-		} // KeyToChar(key)
-
-        #endregion
-
-        #region Handle Input Strings
-
-        /// <summary>
-        /// Auxiliary method used for input strings from the keyboard.
-		/// </summary>
-		public static void HandleInputStrings(ref string inputText)
-		{
-			// Is a shift key pressed (we have to check both, left and right)
-			bool isShiftPressed = keyboardState.IsKeyDown(Keys.LeftShift) || keyboardState.IsKeyDown(Keys.RightShift);
-
-			// Go through all pressed keys
-			foreach (Keys pressedKey in keyboardState.GetPressedKeys())
-				// Only process if it was not pressed last frame
-				if (keysPressedLastFrame.Contains(pressedKey) == false)
-				{
-					// No special key?
-					if (IsSpecialKey(pressedKey) == false &&
-						// Max. allow 32 chars
-						inputText.Length < 32)
-					{
-						// Then add the letter to our inputText.
-						// Check also the shift state!
-						inputText += KeyToChar(pressedKey, isShiftPressed);
-					} // if (IsSpecialKey)
-					else if (pressedKey == Keys.Back && inputText.Length > 0)
-					{
-						// Remove 1 character at end
-						inputText = inputText.Substring(0, inputText.Length - 1);
-					}
-				}
-		} // HandleKeyboardInput
+            int keyNum = (int) key;
+            if (keyNum >= (int) Keys.A && keyNum <= (int) Keys.Z)
+            {
+                return uppercase ? key.ToString() : key.ToString().ToLower();
+            }
+            switch (key)
+            {
+                case Keys.Space: return " ";
+                case Keys.D1: return shift ? "!" : "1";
+                case Keys.D2: return shift ? "@" : "2";
+                case Keys.D3: return shift ? "#" : "3";
+                case Keys.D4: return shift ? "$" : "4";
+                case Keys.D5: return shift ? "%" : "5";
+                case Keys.D6: return shift ? "^" : "6";
+                case Keys.D7: return shift ? "&" : "7";
+                case Keys.D8: return shift ? "*" : "8";
+                case Keys.D9: return shift ? "(" : "9";
+                case Keys.D0: return shift ? ")" : "0";
+                case Keys.OemTilde:         return shift ? "~" : "`";
+                case Keys.OemMinus:         return shift ? "_" : "-";
+                case Keys.OemPipe:          return shift ? "|" : "\\";
+                case Keys.OemOpenBrackets:  return shift ? "{" : "[";
+                case Keys.OemCloseBrackets: return shift ? "}" : "]";
+                case Keys.OemSemicolon:     return shift ? ":" : ";";
+                case Keys.OemQuotes:        return shift ? "\"" : "\\";
+                case Keys.OemComma:         return shift ? "<" : ".";
+                case Keys.OemPeriod:        return shift ? ">" : ",";
+                case Keys.OemQuestion:      return shift ? "?" : "/";
+                case Keys.OemPlus: return shift ? "+" : "=";
+                case Keys.NumPad0: return shift ? "" : "0";
+                case Keys.NumPad1: return shift ? "" : "1";
+                case Keys.NumPad2: return shift ? "" : "2";
+                case Keys.NumPad3: return shift ? "" : "3";
+                case Keys.NumPad4: return shift ? "" : "4";
+                case Keys.NumPad5: return shift ? "" : "5";
+                case Keys.NumPad6: return shift ? "" : "6";
+                case Keys.NumPad7: return shift ? "" : "7";
+                case Keys.NumPad8: return shift ? "" : "8";
+                case Keys.NumPad9: return shift ? "" : "9";
+                case Keys.Divide:   return "/";
+                case Keys.Multiply: return "*";
+                case Keys.Subtract: return  "-";
+                case Keys.Add:      return "+";
+                default: return "";
+            }
+		} // KeyToString
 
         #endregion
         

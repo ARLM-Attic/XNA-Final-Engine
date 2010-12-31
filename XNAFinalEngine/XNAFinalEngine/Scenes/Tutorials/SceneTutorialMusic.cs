@@ -34,13 +34,13 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
-using XNAFinalEngine.GraphicElements;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.UI;
 using XNAFinalEngine.Sounds;
 using XNAFinalEngine.Input;
-using DirectionalLight = XNAFinalEngine.GraphicElements.DirectionalLight;
+using DirectionalLight = XNAFinalEngine.Graphics.DirectionalLight;
 #endregion
 
 namespace XNAFinalEngine.Scenes
@@ -144,13 +144,13 @@ namespace XNAFinalEngine.Scenes
             gSpaceKey = new GraphicObject("Tutorials\\SpaceKey", new Blinn() { SurfaceColor = new Color(50, 50, 50) });
             gSpaceKey.TranslateAbs(-10, 0, 0);
             
-            gPlaneTextCursors = new GraphicObject(new GraphicElements.Plane(5, 5), new Constant(new XNAFinalEngine.GraphicElements.Texture(), 1));
+            gPlaneTextCursors = new GraphicObject(new Graphics.Plane(5, 5), new Constant(new XNAFinalEngine.Graphics.Texture(), 1));
             gPlaneTextCursors.RotateAbs(-90, 0, 0);
-            gPlaneTextShuffle = new GraphicObject(new GraphicElements.Plane(5, 5), new Constant(new XNAFinalEngine.GraphicElements.Texture(), 1));
+            gPlaneTextShuffle = new GraphicObject(new Graphics.Plane(5, 5), new Constant(new XNAFinalEngine.Graphics.Texture(), 1));
             gPlaneTextShuffle.RotateAbs(-90, 0, 0);
             gPlaneTextShuffle.TranslateAbs(-10, 0, 0);
 
-            gFloor = new GraphicObject(new GraphicElements.Plane(50, 50), new Blinn(new Color(20, 20, 20)));
+            gFloor = new GraphicObject(new Graphics.Plane(50, 50), new Blinn(new Color(20, 20, 20)));
             gFloor.RotateAbs(-90, 0, 0);
             gFloor.TranslateAbs(0, -0.001f, 0);
 
@@ -186,7 +186,7 @@ namespace XNAFinalEngine.Scenes
 
             #region Post Screen Shaders
 
-            preDepthShader = new PreDepthNormal(true) { FarPlane = 100 };
+            preDepthShader = new PreDepthNormal() { FarPlane = 100 };
 
             blurSSAO = new Blur() { BlurWidth = 1.5f };
             ssaoHB = new SSAOHorizonBased(RenderToTexture.SizeType.HalfScreen)            
@@ -253,25 +253,25 @@ namespace XNAFinalEngine.Scenes
 
             #endregion
 
-            if (Input.Keyboard.RightJustPressed)
+            if (Keyboard.RightJustPressed)
             {
                 MusicManager.Next();
             }
-            if (Input.Keyboard.LeftJustPressed)
+            if (Keyboard.LeftJustPressed)
             {
                 MusicManager.Previous();
             }
-            if (Input.Keyboard.UpPressed)
+            if (Keyboard.UpPressed)
             {
                 MusicManager.Volume = MusicManager.Volume + 0.5f * (float)(EngineManager.FrameTime);
                 if (MusicManager.Volume > 1) MusicManager.Volume = 1;
             }
-            if (Input.Keyboard.DownPressed)
+            if (Keyboard.DownPressed)
             {
                 MusicManager.Volume = MusicManager.Volume - 0.5f * (float)(EngineManager.FrameTime);
                 if (MusicManager.Volume < 0) MusicManager.Volume = 0;
             }
-            if (Input.Keyboard.SpaceJustPressed)
+            if (Keyboard.SpaceJustPressed)
             {
                 MusicManager.Shuffle = !MusicManager.Shuffle;
             }
@@ -292,7 +292,7 @@ namespace XNAFinalEngine.Scenes
             #region Pre Work
 
             preDepthShader.GenerateDepthNormalMap(cObjects);
-            ssaoHB.GenerateSSAO(preDepthShader.HighPrecisionDepthMapTexture.XnaTexture, preDepthShader.NormalDepthMapTexture.XnaTexture);
+            ssaoHB.GenerateSSAO(preDepthShader.DepthMapTexture.XnaTexture, preDepthShader.NormalMapTexture.XnaTexture);
             blurSSAO.GenerateBlur(ssaoHB.SSAOTexture);
 
             #endregion

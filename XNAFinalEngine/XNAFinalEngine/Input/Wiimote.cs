@@ -33,12 +33,9 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Content;
-using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.GraphicElements;
-using XNAFinalEngine.Helpers;
 using WiimoteLib;
+using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XNAFinalEngine.Input
@@ -57,12 +54,12 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// The object of the class wiimoteLib that allow us to connect with the physical Wiimote.
         /// </summary>
-        private WiimoteLib.Wiimote wiimote = null;
+        private WiimoteLib.Wiimote wiimote;
 
         /// <summary>
         /// The id number of the wiimote.
         /// </summary>
-        private int playerIndex;
+        private readonly int playerIndex;
         
         /// <summary>
         /// Is the wiimote connected?
@@ -72,17 +69,17 @@ namespace XNAFinalEngine.Input
         /// <summary>
 		/// Wiimote state, set every frame in the Update method.
 		/// </summary>
-        private WiimoteLib.WiimoteState wiimoteState, wiimoteStateLastFrame;
+        private WiimoteState wiimoteState, wiimoteStateLastFrame;
 
         /// <summary>
         /// Chronometer used for the vibrations.
         /// </summary>
-        private Chronometer chronometer = new Chronometer();
+        private readonly Chronometer chronometer = new Chronometer();
 
         /// <summary>
         /// Duration of the current vibration.
         /// </summary>
-        private double duration = 0;
+        private double duration;
 
         /// <summary>
         /// Last position of the wiimote pointer.
@@ -448,10 +445,10 @@ namespace XNAFinalEngine.Input
         /// Creates the basic structures, but this constructor doesn’t raise the actual wiimote. 
         /// This works in that way because assumes that the inexistent Wiimotes are up with default values.
         /// </summary>
-        private Wiimote(int _index)
+        private Wiimote(int _playerIndex)
         {
             wiimote = new WiimoteLib.Wiimote();
-            playerIndex = _index;
+            playerIndex = _playerIndex;
             isConnected = false;
             wiimoteState = new WiimoteState();
         } // Wiimote
@@ -498,19 +495,24 @@ namespace XNAFinalEngine.Input
         public void CloneState(ref WiimoteState wiimoteStateDestination, WiimoteState wiimoteStateOrigin)
         {
             // Buttons //
-            wiimoteStateDestination = new WiimoteState();
-            wiimoteStateDestination.ButtonState.A = wiimoteStateOrigin.ButtonState.A;
-            wiimoteStateDestination.ButtonState.B = wiimoteStateOrigin.ButtonState.B;
-            wiimoteStateDestination.ButtonState.One = wiimoteStateOrigin.ButtonState.One;
-            wiimoteStateDestination.ButtonState.Two = wiimoteStateOrigin.ButtonState.Two;
-            wiimoteStateDestination.ButtonState.Minus = wiimoteStateOrigin.ButtonState.Minus;
-            wiimoteStateDestination.ButtonState.Plus = wiimoteStateOrigin.ButtonState.Plus;
-            wiimoteStateDestination.ButtonState.Home = wiimoteStateOrigin.ButtonState.Home;
+            wiimoteStateDestination = new WiimoteState
+            {
+                ButtonState =
+                    {
+                        A     = wiimoteStateOrigin.ButtonState.A,
+                        B     = wiimoteStateOrigin.ButtonState.B,
+                        One   = wiimoteStateOrigin.ButtonState.One,
+                        Two   = wiimoteStateOrigin.ButtonState.Two,
+                        Minus = wiimoteStateOrigin.ButtonState.Minus,
+                        Plus  = wiimoteStateOrigin.ButtonState.Plus,
+                        Home  = wiimoteStateOrigin.ButtonState.Home,
+                        Left  = wiimoteStateOrigin.ButtonState.Left,
+                        Right = wiimoteStateOrigin.ButtonState.Right,
+                        Up    = wiimoteStateOrigin.ButtonState.Up,
+                        Down  = wiimoteStateOrigin.ButtonState.Down
+                    }
+            };
             // DPad //
-            wiimoteStateDestination.ButtonState.Left = wiimoteStateOrigin.ButtonState.Left;
-            wiimoteStateDestination.ButtonState.Right = wiimoteStateOrigin.ButtonState.Right;
-            wiimoteStateDestination.ButtonState.Up = wiimoteStateOrigin.ButtonState.Up;
-            wiimoteStateDestination.ButtonState.Down = wiimoteStateOrigin.ButtonState.Down;
             // Accelerometers //
             wiimoteStateDestination.AccelState.Values.X = wiimoteStateOrigin.AccelState.Values.X;
             wiimoteStateDestination.AccelState.Values.Y = wiimoteStateOrigin.AccelState.Values.Y;
@@ -601,7 +603,7 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// Function to calculate straight-line distance between two points:
         /// </summary>
-        private float Distance(PointF a, PointF b)
+        private static float Distance(PointF a, PointF b)
         {
             return (float)(Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2)));
         } // Distance
@@ -612,7 +614,7 @@ namespace XNAFinalEngine.Input
         /// </summary>
         public Microsoft.Xna.Framework.Point CalculateSensorsMiddlePointScreenCoordinates()
         {   
-            WiimoteLib.PointF wiimoteCursorPosition = CalculateSensorsMiddlePoint();
+            PointF wiimoteCursorPosition = CalculateSensorsMiddlePoint();
             return new Microsoft.Xna.Framework.Point((int)(wiimoteCursorPosition.X * (float)(EngineManager.Width)), (int)(wiimoteCursorPosition.Y * (float)(EngineManager.Height)));
         }
 
@@ -741,15 +743,15 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// The four possible Wiimotes.
         /// </summary>
-        private static Wiimote wiimotePlayerOne   = new Wiimote(1),
-                               wiimotePlayerTwo   = new Wiimote(2),
-                               wiimotePlayerThree = new Wiimote(3),
-                               wiimotePlayerFour  = new Wiimote(4);
+        private readonly static Wiimote wiimotePlayerOne   = new Wiimote(1),
+                                        wiimotePlayerTwo   = new Wiimote(2),
+                                        wiimotePlayerThree = new Wiimote(3),
+                                        wiimotePlayerFour  = new Wiimote(4);
 
         /// <summary>
         /// Texture used to represent the four IR lights in the engine.
         /// </summary>
-        private static XNAFinalEngine.GraphicElements.Texture wiimoteSensorsTexture = null;
+        private static Graphics.Texture wiimoteSensorsTexture;
 
         #endregion
 
@@ -824,7 +826,7 @@ namespace XNAFinalEngine.Input
                 // All problems with connections need to be address outside the application.
             }
             // Creates the texture
-            wiimoteSensorsTexture = new XNAFinalEngine.GraphicElements.Texture("WiimoteSensors");
+            wiimoteSensorsTexture = new XNAFinalEngine.Graphics.Texture("WiimoteSensors");
         } // Wiimote
 
         #endregion

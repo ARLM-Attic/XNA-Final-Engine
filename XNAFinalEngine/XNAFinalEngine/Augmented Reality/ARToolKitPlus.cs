@@ -15,14 +15,23 @@ namespace XNAFinalEngine.AugmentedReality
     /// Se implemento la detección de un solo arreglo de marcadores. No hay flexibilidad en este apartado.
     /// </summary>
     public class ARToolKitPlus
-    { 
+    {
+
+        #region Constant
+
+        /// <summary>
+        /// Pixel Format
+        /// </summary>
+        private const ArManWrap.PIXEL_FORMAT arPixelFormat = ArManWrap.PIXEL_FORMAT.PIXEL_FORMAT_ABGR; //.PIXEL_FORMAT_RGB;
+
+        #endregion
 
         #region Variables
 
         /// <summary>
         /// Tracker
         /// </summary>
-        private IntPtr tracker;
+        private readonly IntPtr tracker;
 
         /// <summary>
         /// View Matrix (calculada usando realidad aumentada)
@@ -37,12 +46,7 @@ namespace XNAFinalEngine.AugmentedReality
         /// <summary>
         /// WebCam
         /// </summary>
-        private WebCam webCam = null;
-
-        /// <summary>
-        /// Pixel Format
-        /// </summary>
-        private ArManWrap.PIXEL_FORMAT arPixelFormat = ArManWrap.PIXEL_FORMAT.PIXEL_FORMAT_ABGR; //.PIXEL_FORMAT_RGB;
+        private readonly WebCam webCam;
 
         #endregion
 
@@ -80,9 +84,9 @@ namespace XNAFinalEngine.AugmentedReality
             string desc = Marshal.PtrToStringAnsi(ipDesc);
             int pixelFormat = ArManWrap.ARTKPSetPixelFormat(tracker, (int)arPixelFormat); //MOD
 
-            string cameraCalibrationPath = "Augmented Reality/no_distortion.cal";
+            const string cameraCalibrationPath = "Augmented Reality/no_distortion.cal";
 
-            string multiPath = "Augmented Reality/markerboard_480-499.cfg";
+            const string multiPath = "Augmented Reality/markerboard_480-499.cfg";
 
             int retVal = ArManWrap.ARTKPInitMulti(tracker, cameraCalibrationPath, multiPath, 1.0f, 2000.0f);
             if (retVal != 0)
@@ -90,8 +94,8 @@ namespace XNAFinalEngine.AugmentedReality
                 throw new Exception("ARToolKitPlus: Tracker not initialized.");
             }
 
-            bool use_id_bch = false;
-            if (use_id_bch == true)
+            const bool use_id_bch = false;
+            if (use_id_bch)
             {
                 ArManWrap.ARTKPSetMarkerMode(tracker, (int)ArManWrap.MARKER_MODE.MARKER_ID_BCH);
                 ArManWrap.ARTKPSetBorderWidth(tracker, 0.250f);
@@ -111,18 +115,7 @@ namespace XNAFinalEngine.AugmentedReality
         } // Tracker
 
         #endregion
-
-        #region Dispose
-
-        /// <summary>
-        /// Dispose
-        /// </summary>
-        public void Dispose()
-        {
-        } // Dispose
-
-        #endregion
-
+        
         #region Tracking
 
         /// <summary>
