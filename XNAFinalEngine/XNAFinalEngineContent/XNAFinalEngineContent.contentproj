@@ -57,11 +57,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Fonts\Battlefield18.spritefont">
-      <Name>Battlefield18</Name>
-      <Importer>FontDescriptionImporter</Importer>
-      <Processor>FontDescriptionProcessor</Processor>
-    </None>
     <Compile Include="Fonts\Arial12.spritefont">
       <Name>Arial12</Name>
       <Importer>FontDescriptionImporter</Importer>
@@ -95,20 +90,11 @@
       <Processor>ModelProcessor</Processor>
       <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
-    <Compile Include="Models\dude.fbx">
-      <Name>dude</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>SkinnedModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\AnimatedCube.fbx">
-      <Name>AnimatedCube</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>AnimationProcessor</Processor>
-    </Compile>
     <Compile Include="Shaders\PostProcessing\MLAA.fx">
       <Name>MLAA</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Textures\Shaders\SparkleNoiseMap.dds">
       <Name>SparkleNoiseMap</Name>
@@ -146,91 +132,109 @@
       <Name>Blur</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\Filters\Dilate.fx">
       <Name>Dilate</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\GBuffer\CombineDepth.fx">
       <Name>CombineDepth</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\GBuffer\DownsampleDepth.fx">
       <Name>DownsampleDepth</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\GBuffer\GBuffer.fx">
       <Name>GBuffer</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\LightPrePass\AmbientLight.fx">
       <Name>AmbientLight</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\LightPrePass\DirectionalLight.fx">
       <Name>DirectionalLight</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\LightPrePass\PointLight.fx">
       <Name>PointLight</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\Materials\BlinnPhong.fx">
       <Name>BlinnPhong</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\Materials\CarPaint.fx">
       <Name>CarPaint</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\Materials\Constant.fx">
       <Name>Constant</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\Materials\ForwardBlinnPhong.fx">
       <Name>ForwardBlinnPhong</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\Materials\Ocean.fx">
       <Name>Ocean</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\Materials\Terrain.fx">
       <Name>Terrain</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\Particles\Particle.fx">
       <Name>Particle</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\PostProcessing\Bloom.fx">
       <Name>Bloom</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\PostProcessing\PostProcessing.fx">
       <Name>PostProcessing</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\Sky\Skybox.fx">
       <Name>Skybox</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-AirTakesEngine.fbx">
       <Name>Murcielago-AirTakesEngine</Name>
@@ -439,36 +443,29 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Textures\CubeMaps\Showroom.dds">
-      <Name>Showroom</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-    <Compile Include="Textures\CubeMaps\FactoryCatwalkRGBM.dds">
-      <Name>FactoryCatwalkRGBM</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
     <Compile Include="Shaders\GlobalIllumination\SSAOHorizonBased.fx">
       <Name>SSAOHorizonBased</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\GlobalIllumination\SSAORayMarching.fx">
       <Name>SSAORayMarching</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\Shadows\CascadedShadowMap.fx">
       <Name>CascadedShadowMap</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
     <Compile Include="Shaders\Shadows\ShadowMap.fx">
       <Name>ShadowMap</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -895,6 +892,7 @@
     <Folder Include="Music\" />
     <Folder Include="Shaders\Helpers\" />
     <Folder Include="Sounds\" />
+    <Folder Include="Textures\CubeMaps\" />
     <Folder Include="Textures\LookupTables\" />
     <Folder Include="Videos\" />
   </ItemGroup>
