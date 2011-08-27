@@ -1,5 +1,0 @@
-D:\Desarrollo3D\Proyectos Visual\XNAFinalEngine\XNAFinalEngine\XNAFinalEngineContent\References\SkinImporter\SkinImporter\obj\Debug\ResolveAssemblyReference.cache
-D:\Desarrollo3D\Proyectos Visual\XNAFinalEngine\XNAFinalEngine\XNAFinalEngineContent\References\SkinImporter\SkinImporter\bin\Debug\SkinImporter.dll
-D:\Desarrollo3D\Proyectos Visual\XNAFinalEngine\XNAFinalEngine\XNAFinalEngineContent\References\SkinImporter\SkinImporter\bin\Debug\SkinImporter.pdb
-D:\Desarrollo3D\Proyectos Visual\XNAFinalEngine\XNAFinalEngine\XNAFinalEngineContent\References\SkinImporter\SkinImporter\obj\Debug\SkinImporter.dll
-D:\Desarrollo3D\Proyectos Visual\XNAFinalEngine\XNAFinalEngine\XNAFinalEngineContent\References\SkinImporter\SkinImporter\obj\Debug\SkinImporter.pdb
