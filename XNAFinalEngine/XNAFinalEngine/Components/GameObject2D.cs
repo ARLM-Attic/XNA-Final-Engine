@@ -91,7 +91,7 @@ namespace XnaFinalEngine.Components
         /// Adds a component of type TComponentType to the game object.
         /// </summary>
         /// <typeparam name="TComponentType">Component Type</typeparam>
-        public override void AddComponent<TComponentType>()
+        public override Component AddComponent<TComponentType>()
         {
             // Create the component.
             TComponentType component = new TComponentType { Owner = this };
@@ -101,12 +101,17 @@ namespace XnaFinalEngine.Components
             {
                 throw new Exception("Game object exception. Unable to create the transform component. The transform component can’t be replaced or removed.");
             }
-            if (component is Renderer)
+            else if (component is HudElement)
             {
-                Renderer = (Renderer)(Component)component;
+                //Renderer = (Renderer)(Component)component;
+            }
+            else
+            {
+
             }
             // Add it to the component list. The component list allows the development of new components.
-            // TODO!!
+
+            return component;
         } // AddComponent
 
         #endregion

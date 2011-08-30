@@ -31,6 +31,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using Microsoft.Xna.Framework;
+using XnaFinalEngine.Components;
+using XNAFinalEngine.Assets;
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -42,6 +44,12 @@ namespace XNAFinalEngine.EngineCore
     public static class GameLoop
     {
 
+        #region Variables
+
+        private static GameObject2D testText;
+
+        #endregion
+
         #region Load Content
 
         /// <summary>
@@ -49,8 +57,13 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static void LoadContent()
         {
+            testText = new GameObject2D();
+            HudText textComponent = ((HudText)testText.AddComponent<HudText>());
+            textComponent.Font = new Font("Arial12");
+            textComponent.Color = Color.White;
+            testText.Transform.
         } // LoadContent
-
+        
         #endregion
 
         #region Update

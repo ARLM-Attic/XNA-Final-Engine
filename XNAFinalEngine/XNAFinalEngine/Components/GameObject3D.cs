@@ -91,7 +91,7 @@ namespace XnaFinalEngine.Components
         /// Adds a component of type TComponentType to the game object.
         /// </summary>
         /// <typeparam name="TComponentType">Component Type</typeparam>
-        public override void AddComponent<TComponentType>()
+        public override Component AddComponent<TComponentType>()
         {
             // Create the component.
             TComponentType component = new TComponentType { Owner = this };
@@ -107,6 +107,7 @@ namespace XnaFinalEngine.Components
             }
             // Add it to the component list. The component list allows the development of new components.
             // TODO!!
+            return component;
         } // AddComponent
 
         #endregion
