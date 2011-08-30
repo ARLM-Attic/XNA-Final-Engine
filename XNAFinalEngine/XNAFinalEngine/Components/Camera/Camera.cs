@@ -276,7 +276,7 @@ namespace XnaFinalEngine.Components
         /// </summary>
         public void ResetViewMatrix()
         {            
-            cachedWorldMatrix = GameObject.Transform.WorldMatrix;
+            cachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
             useTransformMatrix = true;
         } // ResetViewMatrix
 
@@ -293,5 +293,5 @@ namespace XnaFinalEngine.Components
 
         #endregion
 
-    } // Component
+    } // Camera
 } // XnaFinalEngine.Components

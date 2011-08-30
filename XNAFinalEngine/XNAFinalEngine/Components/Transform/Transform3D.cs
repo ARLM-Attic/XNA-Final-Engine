@@ -11,7 +11,7 @@ namespace XnaFinalEngine.Components
     /// Every entity in a scene has a Transform.
     /// It's used to store and manipulate the position, rotation and scale of the object. 
     /// </summary>
-    public class Transform : Component
+    public class Transform3D : Component
     {
 
         #region Enumerates
@@ -64,7 +64,7 @@ namespace XnaFinalEngine.Components
         /// The parent of this transform component.
         /// In effect this field stores the game object parent.
         /// </summary>
-        private Transform parent;
+        private Transform3D parent;
 
         #endregion
 
@@ -76,9 +76,9 @@ namespace XnaFinalEngine.Components
         /// The parent of this transform component.
         /// In effect this field stores the game object parent.
         /// </summary>
-        internal GameObject Parent
+        internal GameObject3D Parent
         {
-            get { return parent.GameObject; }
+            get { return (GameObject3D)(parent.Owner); }
             set { parent = value.Transform; }
         } // Parent
 
@@ -287,7 +287,7 @@ namespace XnaFinalEngine.Components
         /// <summary>
         /// The movement is applied relative to Transform's local coordinate system.
         /// </summary>
-        public void Translate(Vector3 translation, Transform relativeTo)
+        public void Translate(Vector3 translation, Transform3D relativeTo)
         {
             if (relativeTo == null)
                 throw new Exception("Transform component exception: relativeTo value is null");
@@ -352,5 +352,5 @@ namespace XnaFinalEngine.Components
 
         #endregion
 
-    } // Transform
+    } // Transform3D
 } // XnaFinalEngine.Components

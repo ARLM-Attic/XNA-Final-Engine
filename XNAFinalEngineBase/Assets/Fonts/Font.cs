@@ -30,119 +30,114 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
-using XNAFinalEngine.Helpers;
+using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 #endregion
 
 namespace XNAFinalEngine.Assets
 {
-
-	/// <summary>
-	/// LDR or HDR Cube Maps.
-	/// HDR can be stored in the RGBM format.
-	/// </summary>
-    public class TextureCube : Disposable
+    /// <summary>
+    /// Font.
+    /// </summary>
+    public class Font : Asset
     {
 
         #region Variables
-                
-        /// <summary>
-        /// Texture's file name.
-        /// </summary>
-        protected string filename;
 
         /// <summary>
-        /// XNA Texture.
+        /// XNA Sprite font.
         /// </summary>
-        protected Microsoft.Xna.Framework.Graphics.TextureCube xnaTextureCube;
-
-	    /// <summary>
-        /// The size of this texture resource, in pixels.
-	    /// </summary>
-	    protected int size;
+        protected SpriteFont xnaSpriteFont;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Texture's file name.
+        /// Gets or sets the vertical distance (in pixels) between the base lines of two consecutive lines of text.
+        /// Line spacing includes the blank space between lines as well as the height of the characters.
         /// </summary>
-        public string Filename { get { return filename; } }
+        public int LineSpacing
+        {
+            get { return xnaSpriteFont.LineSpacing; }
+            set { xnaSpriteFont.LineSpacing = value; }
+        } // LineSpacing
 
         /// <summary>
-        /// XNA Texture.
+        /// Gets or sets the spacing of the font characters.
         /// </summary>
-        public virtual Microsoft.Xna.Framework.Graphics.TextureCube XnaTexture
-        { 
-            get { return xnaTextureCube; }
-            set
-            {
-                xnaTextureCube = value; 
-                size = value.Size;
-            }
-        } // XnaTextureCube
+        public float Spacing
+        {
+            get { return xnaSpriteFont.Spacing; }
+            set { xnaSpriteFont.Spacing = value; }
+        } // Spacing
 
         /// <summary>
-        /// The size of this texture resource, in pixels.
+        /// Gets a collection of all the characters that are included in the font.
         /// </summary>
-        public int Size { get { return size; } }
+        public ReadOnlyCollection<char> Characters { get { return xnaSpriteFont.Characters; } }
 
         /// <summary>
-        /// Is it in RGBM format?
+        /// Gets or sets the default character for the font.
         /// </summary>
-        public bool IsRgbm { get; set; }
+        public char? DefaultCharacter
+        {
+            get { return xnaSpriteFont.DefaultCharacter; }
+            set { xnaSpriteFont.DefaultCharacter = value; }
+        } // DefaultCharacter
 
-        /// <summary>
-        /// RGBM Max Range.
-        /// </summary>
-        public float RgbmMaxRange { get; set; }
-    
         #endregion
 
         #region Constructor
 
-	    /// <summary>
-	    /// Create cube map from given filename.
-	    /// </summary>
-	    /// <param name="_filename">Set filename, must be relative and be a valid file in the textures directory.</param>
-	    /// <param name="isRgbm">is in RGBM format?</param>
-        /// <param name="rgbmMaxRange">RGBM Max Range.</param>
-	    public TextureCube(string _filename, bool isRgbm = false, float rgbmMaxRange = 50.0f)
-		{
-            filename = _filename;
-		    IsRgbm = isRgbm;
-	        RgbmMaxRange = rgbmMaxRange;
-            string fullFilename = ContentManager.GameDataDirectory + "Textures\\CubeTextures\\" + filename;
+        /// <summary>
+        /// Load font.
+        /// </summary>
+        /// <param name="filename">The filename must be relative and be a valid file in the font directory.</param>
+        public Font(string filename)
+        {
+            Name = filename;
+            string fullFilename = ContentManager.GameDataDirectory + "Fonts\\" + filename;
             if (File.Exists(fullFilename + ".xnb") == false)
             {
-                throw new Exception("Failed to load cube map: File " + fullFilename + " does not exists!");
+                throw new Exception("Failed to load font: File " + fullFilename + " does not exists!");
             }
             try
             {
-                xnaTextureCube = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Graphics.TextureCube>(fullFilename);
-                size = xnaTextureCube.Size;
+                xnaSpriteFont = ContentManager.CurrentContentManager.XnaContentManager.Load<SpriteFont>(fullFilename);
             }
             catch (Exception e)
             {
-                throw new Exception("Failed to load cube map: " + filename);
+                throw new Exception("Failed to load font: " + filename);
             }
-		} // TextureCube
+        } // Font
 
-		#endregion
+        #endregion
 
-        #region Dispose
+        #region Measure String
 
         /// <summary>
-        /// Dispose managed resources.
+        /// Returns the width and height of a string as a Vector2.
         /// </summary>
-        protected override void DisposeManagedResources()
+        public Vector2 MeasureString(string text)
         {
-            XnaTexture.Dispose();
-        } // DisposeManagedResources
+            return xnaSpriteFont.MeasureString(text);
+        } // MeasureString
 
-	    #endregion
+        /// <summary>
+        /// Returns the width and height of a string as a Vector2.
+        /// http://msdn.microsoft.com/en-us/library/system.text.stringbuilder.aspx
+        /// StringBuilder is good for avoid garbage.
+        /// </summary>
+        public Vector2 MeasureString(StringBuilder text)
+        {
+            return xnaSpriteFont.MeasureString(text);
+        } // MeasureString
 
-    } // TextureCube
-} // XNAFinalEngine.Assets
-
+        #endregion
+        
+    } // Font
+} // XNAFinalEngineBase.Assets

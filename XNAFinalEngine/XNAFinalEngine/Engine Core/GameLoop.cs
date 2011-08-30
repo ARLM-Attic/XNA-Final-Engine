@@ -49,7 +49,6 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static void LoadContent()
         {
-            throw new Exception("Toto");
         } // LoadContent
 
         #endregion

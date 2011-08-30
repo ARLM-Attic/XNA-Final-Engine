@@ -1,4 +1,9 @@
 ﻿
+#region License
+// Authors: Schneider, José Ignacio (Under XNA Final Engine license)
+//          Schefer, Gustavo Martin (Under Microsoft Permisive License)
+#endregion
+
 namespace XnaFinalEngine.Components
 {
 
@@ -11,9 +16,9 @@ namespace XnaFinalEngine.Components
         #region Properties
 
         /// <summary>
-        /// The game object this component is attached to. A component is always attached to a game object. 
+        /// The game object this component is attached to. A component is always attached to one game object.
         /// </summary>
-        public GameObject GameObject { get; internal set; }
+        public GameObject Owner { get; internal set; }
 
         #endregion
 

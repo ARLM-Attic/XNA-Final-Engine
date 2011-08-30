@@ -356,7 +356,7 @@ namespace XNAFinalEngine.Assets
             }
             catch (Exception e)
             {
-                throw new Exception("Render target creation failed: " + e);
+                throw new Exception("Render target creation failed");
             }
         } // Create
 

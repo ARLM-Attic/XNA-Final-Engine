@@ -125,7 +125,7 @@ namespace XNAFinalEngine.Assets
             }
             catch (Exception e)
             {
-                throw new Exception("Failed to load texture: " + filename + "\n" + e);
+                throw new Exception("Failed to load texture: " + filename);
             }
 		} // Texture
 
