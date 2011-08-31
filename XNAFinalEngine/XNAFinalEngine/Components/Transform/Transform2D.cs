@@ -97,7 +97,7 @@ namespace XnaFinalEngine.Components
         #endregion
 
         #region World Space
-
+        /*
         /// <summary>
         /// The position in world space.
         /// </summary>
@@ -164,7 +164,7 @@ namespace XnaFinalEngine.Components
                 // Alternative: WorldMatrix.Decompose(); But this is slower.
             }
         } // Scale
-
+        */
         #endregion
 
         #endregion

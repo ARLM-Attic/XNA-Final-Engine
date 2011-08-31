@@ -61,7 +61,7 @@ namespace XNAFinalEngine.EngineCore
             HudText textComponent = ((HudText)testText.AddComponent<HudText>());
             textComponent.Font = new Font("Arial12");
             textComponent.Color = Color.White;
-            testText.Transform.
+            testText.Transform.LocalPosition = new Vector3(100, 100, 0);
         } // LoadContent
         
         #endregion
@@ -87,6 +87,9 @@ namespace XNAFinalEngine.EngineCore
         internal static void Draw(GameTime gameTime)
         {
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
+            // Draw everything
+            // Draw 2D Hud
+            
         } // Draw
 
         #endregion

@@ -24,6 +24,8 @@ namespace XnaFinalEngine.Components
         /// </summary>
         private static long uniqueIdCounter = long.MinValue;
 
+        private bool enabled = true;
+
         #endregion
 
         #region Properties
@@ -37,6 +39,16 @@ namespace XnaFinalEngine.Components
         /// Identification number. Every game object has a unique ID.
         /// </summary>
         public long ID { get; private set; }
+        
+        /// <summary>
+        /// If an object is disabled their components are not processed. 
+        /// I.e. the game object will not be updated or draw.
+        /// </summary>
+        public bool Enabled
+        {
+            get { return enabled; }
+            set { enabled = value; }
+        } // Enabled
 
         #endregion
 
