@@ -51,17 +51,20 @@ namespace XNAFinalEngine.EngineCore
         #endregion
 
         #region Load Content
-
+        
         /// <summary>
         /// Load Content.
         /// </summary>
         public static void LoadContent()
         {
-            testText = new GameObject2D();
+            // Create the 32 layers.
+            Layer.InitLayers();            
+
+            /*testText = new GameObject2D();
             HudText textComponent = ((HudText)testText.AddComponent<HudText>());
             textComponent.Font = new Font("Arial12");
             textComponent.Color = Color.White;
-            testText.Transform.LocalPosition = new Vector3(100, 100, 0);
+            testText.Transform.LocalPosition = new Vector3(100, 100, 0);*/
         } // LoadContent
         
         #endregion

@@ -4,9 +4,13 @@
 //          Schefer, Gustavo Martin (Under Microsoft Permisive License)
 #endregion
 
+#region Using directives
+using System;
+#endregion
+
 namespace XnaFinalEngine.Components
 {
-
+    
     /// <summary>
     /// Base class for all entities in the scenes.
     /// </summary>
@@ -24,7 +28,16 @@ namespace XnaFinalEngine.Components
         /// </summary>
         private static long uniqueIdCounter = long.MinValue;
 
+        /// <summary>
+        /// If an object is disabled their components are not processed. 
+        /// I.e. the game object will not be updated or draw.
+        /// </summary>
         private bool enabled = true;
+
+        /// <summary>
+        /// Default layer mask = 1 (the default layer).
+        /// </summary>
+        private int layerMask = 1;
 
         #endregion
 
@@ -49,6 +62,61 @@ namespace XnaFinalEngine.Components
             get { return enabled; }
             set { enabled = value; }
         } // Enabled
+        
+        /// <summary>
+        /// The layer the game object is in.
+        /// </summary>
+        public Layer Layer
+        {
+            get { return Layer.GetLayerByMask(layerMask); }
+            set { layerMask = value.Mask; }
+        } // Layer
+
+        #endregion
+
+        #region Events
+
+        #region Layer Changed
+
+        public delegate void LayerEventHandler(object sender, LayerEventHandler e);
+
+        public class LayerEventArgs : EventArgs
+        {
+            private int layerMask;
+
+            public int LayerMask { get { return layerMask; } }
+
+            public LayerEventArgs(int layerMask)  { this.layerMask = layerMask; }
+            
+        } // LayerEventArgs
+
+        /// <summary>
+        /// Raised when the game object's layer changes.
+        /// </summary>
+        public event LayerEventHandler LayerChanged;
+
+        #endregion
+
+        #region Enabled
+
+        public delegate void EnabledEventHandler(object sender, EnabledEventHandler e);
+
+        public class EnabledEventArgs : EventArgs
+        {
+            private bool enabled;
+
+            public bool Enabled { get { return enabled; } }
+
+            public EnabledEventArgs(bool enabled) { this.enabled = enabled; }
+
+        } // EnabledEventArgs
+
+        /// <summary>
+        /// Raised when the game object's is enabled or disabled.
+        /// </summary>
+        public event EnabledEventHandler EnabledChanged;
+
+        #endregion
 
         #endregion
 

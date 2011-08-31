@@ -133,7 +133,7 @@ namespace XNAFinalEngine
                 Device.PresentationParameters.BackBufferHeight != GraphicsDeviceManager.PreferredBackBufferHeight)
             {
                 if (WindowSizeChanged != null)
-                    WindowSizeChanged.Invoke(sender, e);
+                    WindowSizeChanged(sender, e);
             }
         } // OnClientSizeChanged
 
@@ -148,7 +148,7 @@ namespace XNAFinalEngine
         {
             Device = graphicsDeviceManager.GraphicsDevice;
             if (DeviceReset != null)
-                DeviceReset.Invoke(sender, e);
+                DeviceReset(sender, e);
         } // Graphics_DeviceReset
 
         #endregion
