@@ -109,7 +109,11 @@ namespace XNAFinalEngine.Assets
             {
                 xnaSpriteFont = ContentManager.CurrentContentManager.XnaContentManager.Load<SpriteFont>(fullFilename);
             }
-            catch (Exception e)
+            catch (ObjectDisposedException)
+            {
+                throw new Exception("Content Manager: Content manager disposed");
+            }
+            catch (Exception)
             {
                 throw new Exception("Failed to load font: " + filename);
             }

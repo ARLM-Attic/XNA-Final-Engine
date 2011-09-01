@@ -59,16 +59,11 @@ namespace XNAFinalEngine.Assets
         #region Variables
 
         /// <summary>
-        /// Dummy Services to allow the creation of new content managers.
-        /// </summary>
-        private static readonly GameServiceContainer dummyServices = new GameServiceContainer();
-
-        /// <summary>
         /// A reference to the content manager that is always loaded. 
         /// This content manager is used for load certain assets that are persistent like shaders and some other minor assets.
         /// The user can use it as the current content manager but it can’t be unload or dispose.
         /// </summary>
-        private static readonly ContentManager systemContentManager = new ContentManager();
+        private static ContentManager systemContentManager;
 
         /// <summary>
         /// Current content manager.
@@ -84,7 +79,15 @@ namespace XNAFinalEngine.Assets
         /// This content manager is used for load certain assets that are persistent like shaders and some other minor assets.
         /// The user can use it as the current content manager but it can’t be unload or dispose.
         /// </summary>
-        public static ContentManager SystemContentManager { get { return systemContentManager; } }
+        public static ContentManager SystemContentManager
+        {
+            get
+            {
+                if (systemContentManager == null)
+                    systemContentManager = new ContentManager();
+                return systemContentManager;
+            }
+        } // SystemContentManager
         
         /// <summary>
         /// Current content manager. 
@@ -123,7 +126,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public ContentManager()
         {
-            XnaContentManager = new Microsoft.Xna.Framework.Content.ContentManager(dummyServices);
+            XnaContentManager = new Microsoft.Xna.Framework.Content.ContentManager(SystemInformation.Services);
         } // ContentManager
 
         #endregion

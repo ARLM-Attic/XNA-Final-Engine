@@ -4,10 +4,6 @@
 //          Schefer, Gustavo Martin (Under Microsoft Permisive License)
 #endregion
 
-#region Using directives
-using System;
-#endregion
-
 namespace XnaFinalEngine.Components
 {
     
@@ -60,7 +56,11 @@ namespace XnaFinalEngine.Components
         public bool Enabled
         {
             get { return enabled; }
-            set { enabled = value; }
+            set
+            {
+                enabled = value;
+                EnabledChanged(this, enabled);
+            }
         } // Enabled
         
         /// <summary>
@@ -69,26 +69,23 @@ namespace XnaFinalEngine.Components
         public Layer Layer
         {
             get { return Layer.GetLayerByMask(layerMask); }
-            set { layerMask = value.Mask; }
+            set
+            {
+                layerMask = value.Mask;
+                LayerChanged(this, layerMask);
+            }
         } // Layer
 
         #endregion
 
         #region Events
-
+        
         #region Layer Changed
 
-        public delegate void LayerEventHandler(object sender, LayerEventHandler e);
-
-        public class LayerEventArgs : EventArgs
-        {
-            private int layerMask;
-
-            public int LayerMask { get { return layerMask; } }
-
-            public LayerEventArgs(int layerMask)  { this.layerMask = layerMask; }
-            
-        } // LayerEventArgs
+        /// <summary>
+        /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
+        /// </summary>
+        public delegate void LayerEventHandler(object sender, int layerMask);
 
         /// <summary>
         /// Raised when the game object's layer changes.
@@ -99,17 +96,10 @@ namespace XnaFinalEngine.Components
 
         #region Enabled
 
-        public delegate void EnabledEventHandler(object sender, EnabledEventHandler e);
-
-        public class EnabledEventArgs : EventArgs
-        {
-            private bool enabled;
-
-            public bool Enabled { get { return enabled; } }
-
-            public EnabledEventArgs(bool enabled) { this.enabled = enabled; }
-
-        } // EnabledEventArgs
+        /// <summary>
+        /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
+        /// </summary>
+        public delegate void EnabledEventHandler(object sender, bool enabled);
 
         /// <summary>
         /// Raised when the game object's is enabled or disabled.

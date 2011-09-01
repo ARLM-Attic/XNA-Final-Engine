@@ -88,7 +88,7 @@ namespace XNAFinalEngine
             set
             {
                 graphicsDeviceManager = value;
-                graphicsDeviceManager.DeviceReset += Graphics_DeviceReset;
+                graphicsDeviceManager.DeviceReset += OnDeviceReset;
             }
         } // GraphicsDeviceManager
 
@@ -101,9 +101,14 @@ namespace XNAFinalEngine
             set
             {
                 gameWindow = value;
-                gameWindow.ClientSizeChanged += Window_ClientSizeChanged;
+                gameWindow.ClientSizeChanged += OnSizeChanged;
             }
         } // GameWindow
+
+        /// <summary>
+        /// Services.
+        /// </summary>
+        public static GameServiceContainer Services { get; set; }
 
         #endregion
 
@@ -121,12 +126,12 @@ namespace XNAFinalEngine
 
         #endregion
 
-        #region Window_ClientSizeChanged
+        #region  On Size Changed
 
         /// <summary>
         /// Raised when the window size changes.
         /// </summary>
-        private static void Window_ClientSizeChanged(object sender, EventArgs e)
+        private static void OnSizeChanged(object sender, EventArgs e)
         {
             // I don't want that this method is called when a device reset occurs.
             if (Device.PresentationParameters.BackBufferWidth != GraphicsDeviceManager.PreferredBackBufferWidth ||
@@ -139,12 +144,12 @@ namespace XNAFinalEngine
 
         #endregion
 
-        #region Graphics_DeviceReset
+        #region On Device Reset
 
         /// <summary>
         /// Raised when the device is reset.
         /// </summary>
-        private static void Graphics_DeviceReset(object sender, EventArgs e)
+        private static void OnDeviceReset(object sender, EventArgs e)
         {
             Device = graphicsDeviceManager.GraphicsDevice;
             if (DeviceReset != null)

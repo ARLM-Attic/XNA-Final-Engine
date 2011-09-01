@@ -114,8 +114,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Components\GameObject3D.cs" />
-    <Compile Include="Components\HeadsUpDisplay\HudText.cs" />
-    <Compile Include="Components\HeadsUpDisplay\HudElement.cs" />
+    <Compile Include="Components\Rendering\HeadsUpDisplay\HudText.cs" />
+    <Compile Include="Components\Rendering\HeadsUpDisplay\HudElement.cs" />
     <Compile Include="Components\Layer.cs" />
     <Compile Include="Components\Rendering\MeshRenderer.cs" />
     <Compile Include="Components\Rendering\Renderer.cs" />

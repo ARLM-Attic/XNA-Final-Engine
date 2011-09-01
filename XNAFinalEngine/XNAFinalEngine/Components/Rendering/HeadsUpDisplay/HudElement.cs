@@ -38,7 +38,7 @@ namespace XnaFinalEngine.Components
     /// <summary>
     /// 
     /// </summary>
-    public abstract class HudElement : Component
+    public abstract class HudElement : Renderer
     {
 
     } // HudElement

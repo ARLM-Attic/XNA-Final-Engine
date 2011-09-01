@@ -9,6 +9,15 @@ namespace XnaFinalEngine.Components
     public abstract class Renderer : Component
     {
 
+        #region Variables
+
+        /// <summary>
+        /// 
+        /// </summary>
+        protected int cachedLayerMask;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -17,6 +26,22 @@ namespace XnaFinalEngine.Components
         public bool Visible { get; set; }
 
         #endregion
+
+        /// <summary>
+        /// Initialize the component. 
+        /// </summary>
+        internal override void Initialize()
+        {
+            Owner.LayerChanged += OnLayerChanged;
+        } // Initialize
+
+        /// <summary>
+        /// On game object's layer changed.
+        /// </summary>
+        private void OnLayerChanged(object sender, int layerMask)
+        {
+            cachedLayerMask = layerMask;
+        } // OnLayerChanged
 
     } // Renderer
 } // XnaFinalEngine.Components

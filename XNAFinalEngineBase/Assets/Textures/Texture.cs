@@ -123,7 +123,11 @@ namespace XNAFinalEngine.Assets
                 Width = xnaTexture.Width;
                 Height = xnaTexture.Height;
             }
-            catch (Exception e)
+            catch (ObjectDisposedException)
+            {
+                throw new Exception("Content Manager: Content manager disposed");
+            }
+            catch (Exception)
             {
                 throw new Exception("Failed to load texture: " + filename);
             }

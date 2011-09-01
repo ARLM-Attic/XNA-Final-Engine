@@ -169,6 +169,8 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            SystemInformation.Services = Services;
+
         } // EngineManager
 
         #endregion
