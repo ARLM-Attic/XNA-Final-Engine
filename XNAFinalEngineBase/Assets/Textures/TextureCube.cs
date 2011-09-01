@@ -125,7 +125,7 @@ namespace XNAFinalEngine.Assets
             }
             catch (Exception e)
             {
-                throw new Exception("Failed to load cube map: " + filename);
+                throw new Exception("Failed to load cube map: " + filename, e);
             }
 		} // TextureCube
 

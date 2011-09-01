@@ -56,6 +56,7 @@
     <Compile Include="Helpers\Chronometer.cs" />
     <Compile Include="Helpers\Curve3D.cs" />
     <Compile Include="Helpers\Disposable.cs" />
+    <Compile Include="Helpers\Pool.cs" />
     <Compile Include="Helpers\RectangleF.cs" />
     <Compile Include="Helpers\Size.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

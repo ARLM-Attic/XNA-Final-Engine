@@ -59,7 +59,7 @@ namespace XNAFinalEngine.EngineCore
         {
             // Create the 32 layers.
             Layer.InitLayers();
-            // http://www.codeproject.com/KB/cs/WeakEvents.aspx
+            
             testText = new GameObject2D();
             HudText textComponent = ((HudText)testText.AddComponent<HudText>());
             textComponent.Font = new Font("Arial12");
@@ -89,8 +89,10 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>        
         internal static void Draw(GameTime gameTime)
         {
+            // Update frame time
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
-            // Draw everything
+            // Draw auxiliary cameras in forward.
+            // Draw main deferred lighting cameras (one for each viewport)
             // Draw 2D Hud
             
         } // Draw

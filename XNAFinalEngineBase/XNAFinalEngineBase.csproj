@@ -94,6 +94,7 @@
   <ItemGroup>
     <Compile Include="Assets\ContentManager.cs" />
     <Compile Include="Assets\Fonts\Font.cs" />
+    <Compile Include="Helpers\Pool.cs" />
     <Compile Include="SystemInformation.cs" />
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />
