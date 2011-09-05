@@ -1,325 +1,214 @@
 ﻿
 #region License
-// Copyright (c) 2007 Thomas H. Aylesworth
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"), 
-// to deal in the Software without restriction, including without limitation 
-// the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-// and/or sell copies of the Software, and to permit persons to whom the 
-// Software is furnished to do so, subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in 
-// all copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
-// DEALINGS IN THE SOFTWARE.
+/*
+Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+                         Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+•	Redistributions of source code must retain the above copyright, this list of conditions and the following disclaimer.
+
+•	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
+    in the documentation and/or other materials provided with the distribution.
+
+•	Neither the name of the Universidad Nacional del Sur nor the names of its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+*/
 #endregion
 
 #region Using directives
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
 #endregion
 
 namespace XNAFinalEngine.Helpers
 {
     /// <summary>
-    /// Represents a fixed-size pool of available items that can be removed as needed and returned when finished.
-    /// http://swampthingtom.blogspot.com/2007/06/generic-pool-collection-class.html
-    /// 
-    /// "Because the Node type used by my Pool class is a value type, neither the use
-    /// of a Dictionary nor the foreach enumerator create any excess garbage.
-    /// I have verified this using the CLR Profiler, and have used this class in games that
-    /// iterate through thousands of objects per frame without any problems with garbage collection."
+    /// A pool of elements T.
     /// </summary>
-    public class Pool<T> : IEnumerable<T> where T : new()
+    /// <remarks>
+    /// This is a custom structure that pursues two specific objectives.
+    /// The first and more obvious is to reduce garbage collector frequency.
+    /// If almost all reference type fields are allocated beforehand then few news are need it and so the garbage collector will remain idle during execution.
+    /// The second objective is to guarantied memory locality so that the access time could be improved because there will be less cache misses.
+    /// Plenty of information is read every frame and in chunks (tanks to the component model) so this feature could be critical.
+    /// This structure also offers the possibility of modified directly the data stored (to avoid replication) and add and remove elements in O(1).
+    /// Another feature added was the possibility of increment the size of the pool. This operation has O(n) so avoid using it.
+    /// 
+    /// Important: The .NET runtime environment manages where to allocate new reference fields and we can do much about it. 
+    /// However, if we create everything at the beginning when little or no fragmentation exists then it could be possible that the reference data will be together. 
+    /// Of course, this could be change or could be not true even at the beginning.
+    /// </remarks>
+    /// <typeparam name="T">Valid for value or reference type</typeparam>
+    internal class Pool<T> where T : new()
     {
 
-        #region Structs
+        #region Accesor
 
-        /// <summary>
-        /// Represents an entry in a Pool collection.
-        /// </summary>
-        public struct Node
+        public class Accessor
         {
             /// <summary>
-            /// Used internally to track which entry in the Pool is associated with this Node.
+            /// Indicate the index of the element.
+            /// This index could and probably changes its value during runtime, but the system will automatically update this field to the new value.
+            /// Use it to access the pool array.
             /// </summary>
-            internal int NodeIndex;
+            public int index;
 
-            /// <summary>
-            /// Item stored in Pool.
-            /// </summary>
-            public T Item;
-        } // Node
+            internal Accessor() { }
+        } // Accessor
 
         #endregion
 
         #region Variables
 
         /// <summary>
-        /// Fixed Pool of item nodes.
+        /// The list of accessors or key to access the pool elements
         /// </summary>
-        private Node[] pool;
+        private Accessor[] accessors;
 
         /// <summary>
-        /// Array containing the active/available state for each item node 
-        /// in the Pool.
+        /// The elements.
+        /// You can access directly using the accessor's index field.
         /// </summary>
-        private bool[] active;
-        
+        public T[] elements;
+
         /// <summary>
-        /// Queue of available item node indices.
+        /// The number of elements actually contained in the pool.
         /// </summary>
-        private Queue<int> available;
+        private int count;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Gets the number of available items in the Pool.
+        /// Gets the number of elements actually contained in the pool.
         /// </summary>
-        /// <remarks>
-        /// Retrieving this property is an O(1) operation.
-        /// </remarks>
-        public int AvailableCount { get { return available.Count; } }
-        
-        /// <summary>
-        /// Gets the number of active items in the Pool.
-        /// </summary>
-        /// <remarks>
-        /// Retrieving this property is an O(1) operation.
-        /// </remarks>
-        public int ActiveCount { get { return pool.Length - available.Count; } }
+        public int Count { get { return count; } }
 
         /// <summary>
-        /// Gets the total number of items in the Pool.
+        /// Gets or sets the total number of elements the internal data structure can hold without resizing.
         /// </summary>
-        /// <remarks>
-        /// Retrieving this property is an O(1) operation.
-        /// </remarks>
-        public int Capacity { get { return pool.Length; } }
+        public int Capacity
+        {
+            get { return elements.Length; }
+            set 
+            { 
+                if (value < count)
+                    throw new ArgumentOutOfRangeException("value", value, "Pool: new size has to be bigger than active elements.");
+                ResizePool(value);
+            }
+        } // Capacity
 
         #endregion
 
         #region Constructor
 
-        /// <summary>Initializes a new instance of the Pool class.</summary>
-        /// <param name="numItems">Total number of items in the Pool.</param>
-        /// <exception cref="ArgumentException">Number of items is less than 1.</exception>
-        /// <remarks>This constructor is an O(n) operation, where n is capacity.</remarks>
+        /// <summary>
+        /// A pool of elements T.
+        /// </summary>
+        /// <param name="capacity">The total number of elements the internal data structure can hold without resizing.</param>
         public Pool(int capacity)
         {
             if (capacity <= 0)
-            {
-                throw new ArgumentOutOfRangeException("Pool must contain at least one item.");
-            }
-
-            pool = new Node[capacity];
-            active = new bool[capacity];
-            available = new Queue<int>(capacity);
-
+                throw new ArgumentOutOfRangeException("capacity", capacity, "Pool: Argument capacity must be greater than zero.");
+            elements = new T[capacity];
+            accessors = new Accessor[capacity];
             for (int i = 0; i < capacity; i++)
             {
-                pool[i] = new Node();
-                pool[i].NodeIndex = i;
-                pool[i].Item = new T();
-
-                active[i] = false;
-                available.Enqueue(i);
+                // If T is a reference type then the explicit creation is need it.
+                elements[i] = new T();
+                accessors[i] = new Accessor { index = i };
             }
         } // Pool
 
         #endregion
 
-        #region Clear
-
-        /// <summary>Makes all items in the Pool available.</summary>
-        /// <remarks>This method is an O(n) operation, where n is Capacity.</remarks>
-        public void Clear()
-        {
-            available.Clear();
-
-            for (int i = 0; i < pool.Length; i++)
-            {
-                active[i] = false;
-                available.Enqueue(i);
-            }
-        } // Clear
-
-        #endregion
-
-        #region Get
-
-        /// <summary>Removes an available item from the Pool and makes it active.</summary>
-        /// <returns>The node that is removed from the available Pool.</returns>
-        /// <exception cref="InvalidOperationException">There are no available items in the Pool.</exception>
-        /// <remarks>This method is an O(1) operation.</remarks>
-        public Node Get()
-        {
-            int nodeIndex = available.Dequeue();
-            active[nodeIndex] = true;
-            return pool[nodeIndex];
-        } // Get
-
-        #endregion
-
-        #region Return
+        #region Fetch
 
         /// <summary>
-        /// Returns an active item to the available Pool.
+        /// Marks an element for using it and return its corresponded accessor.
         /// </summary>
-        /// <param name="item">The node to return to the available Pool.</param>
-        /// <exception cref="ArgumentException">The node being returned is invalid.</exception>
-        /// <exception cref="InvalidOperationException">
-        /// The node being returned was not active. This probably means the node was previously returned.
-        /// </exception>
-        /// <remarks>
-        /// This method is an O(1) operation.
-        /// </remarks>
-        public void Return(Node item)
+        /// <returns>A key to access the element. The element is not returned because is store using a value type.</returns>
+        public Accessor Fetch()
         {
-            if ((item.NodeIndex < 0) || (item.NodeIndex > pool.Length))
+            count++;
+            if (Capacity > count)
             {
-                throw new ArgumentException("Pool: Invalid item node.");
+                ResizePool(Capacity + 50);
             }
-
-            if (!active[item.NodeIndex])
-            {
-                throw new InvalidOperationException("Pool: Attempt to return an inactive node.");
-            }
-
-            active[item.NodeIndex] = false;
-            available.Enqueue(item.NodeIndex);
-        } // Return
+            return accessors[count - 1];
+        } // Fetch
 
         #endregion
 
-        #region Set Item Value
+        #region Resize Pool
 
         /// <summary>
-        /// Sets the value of the item in the Pool associated with the given node.
+        /// Resize the pool.
         /// </summary>
-        /// <param name="item">The node whose item value is to be set.</param>
-        /// <exception cref="ArgumentException">The node being returned is invalid.</exception>
-        /// <remarks>
-        /// This method is necessary to modify the value of a value type stored in the Pool.
-        /// It copies the value of the node's Item field into the Pool.
-        /// This method is an O(1) operation.
-        /// </remarks>
-        public void SetItemValue(Node item)
+        private void ResizePool(int newCapacity)
         {
-            if ((item.NodeIndex < 0) || (item.NodeIndex > pool.Length))
+            int oldCapacity = Capacity;
+            T[] newElements = new T[newCapacity];
+            Accessor[] newAccessors = new Accessor[newCapacity];
+            // If T is a reference type then the explicit creation is need it.
+            for (int i = 0; i < newCapacity; i++)
             {
-                throw new ArgumentException("Invalid item node.");
-            }
-            pool[item.NodeIndex].Item = item.Item;
-        } /// SetItemValue
-
-        #endregion
-
-        #region Copy To
-
-        /// <summary>
-        /// Copies the active items to an existing one-dimensional Array, starting at the specified array index. 
-        /// </summary>
-        /// <param name="array">The one-dimensional array to which active Pool items will be copied.</param>
-        /// <param name="arrayIndex">The index in array at which copying begins.</param>
-        /// <returns>The number of items copied.</returns>
-        /// <remarks>
-        /// This method is an O(n) operation, where n is the smaller of capacity or the array length.
-        /// </remarks>
-        public int CopyTo(T[] array, int arrayIndex)
-        {
-            int index = arrayIndex;
-
-            foreach (Node item in pool)
-            {
-                if (active[item.NodeIndex])
+                if (i < oldCapacity)
                 {
-                    array[index++] = item.Item;
-
-                    if (index == array.Length)
-                    {
-                        return index - arrayIndex;
-                    }
+                    newElements[i] = elements[i];
+                    newAccessors[i] = accessors[i];
+                }
+                else
+                {
+                    newElements[i] = new T();
+                    newAccessors[i] = new Accessor { index = i };
                 }
             }
-
-            return index - arrayIndex;
-        } // CopyTo
+            elements = newElements;
+            accessors = newAccessors;
+        } // ResizePool
 
         #endregion
 
-        #region Get Enumerator
+        #region Release
 
         /// <summary>
-        /// Gets an enumerator that iterates through the active items in the Pool.
+        /// Set the pool element to available.
         /// </summary>
-        /// <returns>Enumerator for the active items.</returns>
-        /// <remarks>
-        /// This method is an O(n) operation, where n is Capacity divided by ActiveCount. 
-        /// </remarks>
-        public IEnumerator<T> GetEnumerator()
+        /// <param name="accessor">Its accessor</param>
+        public void Release(Accessor accessor)
         {
-            foreach (Node item in pool)
-            {
-                if (active[item.NodeIndex])
-                {
-                    yield return item.Item;
-                }
-            }
-        } // GetEnumerator
+            if (accessor == null)
+                throw new ArgumentNullException("accessor", "Pool: Accessor value cannot be null");
+            // To accomplish our second objective (memory locality) the last available element will be moved to the place where the released element resided.
+            // First swap elements values.
+            T accesorPoolElement = elements[accessor.index]; // If T is a type by reference we can lost its value
+            elements[accessor.index] = elements[count - 1];
+            elements[count - 1] = accesorPoolElement;
+            // The indices have the wrong value. The indices have the wrong value. The last has to index its new place and vice versa.
+            int accesorOldIndex = accessor.index;
+            accessor.index = count - 1;
+            accessors[count - 1].index = accesorOldIndex;
+            // Also the accessor array has to be sorted. If not the fetch method will give a used accessor element.
+            Accessor lastActiveAccessor = accessors[count - 1]; // Accessor is a reference type.
+            accessors[count - 1] = accessor;
+            accessors[accesorOldIndex] = lastActiveAccessor;
 
-        /// <summary>
-        /// Implementation of the IEnumerable interface.
-        /// </summary>        
-        IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
-
-        #endregion
-
-        #region Active Nodes
-
-        /// <summary>Gets an enumerator that iterates through the active nodes in the Pool.</summary>
-        /// <remarks>This method is an O(n) operation, where n is Capacity divided by ActiveCount.</remarks>
-        public IEnumerable<Node> ActiveNodes
-        {
-            get
-            {
-                foreach (Node item in pool)
-                {
-                    if (active[item.NodeIndex])
-                    {
-                        yield return item;
-                    }
-                }
-            }
-        } // ActiveNodes
-
-        #endregion
-
-        #region All Node
-        
-        /// <summary>Gets an enumerator that iterates through all of the nodes in the Pool.</summary>
-        /// <remarks>This method is an O(1) operation.</remarks>
-        public IEnumerable<Node> AllNodes
-        {
-            get
-            {
-                foreach (Node item in pool)
-                {
-                    yield return item;
-                }
-            }
-        } // AllNodes
+            count--;
+        } // Release
 
         #endregion
 
