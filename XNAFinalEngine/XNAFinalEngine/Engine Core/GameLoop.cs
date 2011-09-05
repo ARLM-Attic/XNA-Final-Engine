@@ -30,9 +30,11 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using System.Text;
 using Microsoft.Xna.Framework;
 using XnaFinalEngine.Components;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.Graphics;
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -59,11 +61,13 @@ namespace XNAFinalEngine.EngineCore
         {
             // Create the 32 layers.
             Layer.InitLayers();
+            SpriteManager.Init();
             
             testText = new GameObject2D();
             HudText textComponent = ((HudText)testText.AddComponent<HudText>());
             textComponent.Font = new Font("Arial12");
             textComponent.Color = Color.White;
+            StringBuilder text = new StringBuilder("FPS ");             
             testText.Transform.LocalPosition = new Vector3(100, 100, 0);
         } // LoadContent
         
@@ -93,8 +97,13 @@ namespace XNAFinalEngine.EngineCore
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
             // Draw auxiliary cameras in forward.
             // Draw main deferred lighting cameras (one for each viewport)
-            // Draw 2D Hud
-            
+            // Draw 2D Hud            
+            SpriteManager.Begin();
+                SpriteManager.DrawText(new Font("Arial12"), new StringBuilder("FPS "), new Vector2(100, 100), Color.White);
+            SpriteManager.End();
+            // Por cada componente que se muestra en 2D
+                // Renderizar
+            // Finalizar Sprite Manager
         } // Draw
 
         #endregion

@@ -94,6 +94,7 @@
   <ItemGroup>
     <Compile Include="Assets\ContentManager.cs" />
     <Compile Include="Assets\Fonts\Font.cs" />
+    <Compile Include="Graphics\SpriteManager.cs" />
     <Compile Include="Helpers\Pool.cs" />
     <Compile Include="SystemInformation.cs" />
     <Compile Include="Assets\Textures\RenderTarget.cs" />
@@ -108,9 +109,7 @@
     <Compile Include="Helpers\Size.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Graphics\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

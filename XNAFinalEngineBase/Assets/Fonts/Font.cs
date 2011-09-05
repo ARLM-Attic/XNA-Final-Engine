@@ -44,17 +44,13 @@ namespace XNAFinalEngine.Assets
     /// </summary>
     public class Font : Asset
     {
-
-        #region Variables
+        
+        #region Properties
 
         /// <summary>
         /// XNA Sprite font.
         /// </summary>
-        protected SpriteFont xnaSpriteFont;
-
-        #endregion
-
-        #region Properties
+        public SpriteFont XnaSpriteFont { get; private set; }
 
         /// <summary>
         /// Gets or sets the vertical distance (in pixels) between the base lines of two consecutive lines of text.
@@ -62,8 +58,8 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public int LineSpacing
         {
-            get { return xnaSpriteFont.LineSpacing; }
-            set { xnaSpriteFont.LineSpacing = value; }
+            get { return XnaSpriteFont.LineSpacing; }
+            set { XnaSpriteFont.LineSpacing = value; }
         } // LineSpacing
 
         /// <summary>
@@ -71,22 +67,22 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public float Spacing
         {
-            get { return xnaSpriteFont.Spacing; }
-            set { xnaSpriteFont.Spacing = value; }
+            get { return XnaSpriteFont.Spacing; }
+            set { XnaSpriteFont.Spacing = value; }
         } // Spacing
 
         /// <summary>
         /// Gets a collection of all the characters that are included in the font.
         /// </summary>
-        public ReadOnlyCollection<char> Characters { get { return xnaSpriteFont.Characters; } }
+        public ReadOnlyCollection<char> Characters { get { return XnaSpriteFont.Characters; } }
 
         /// <summary>
         /// Gets or sets the default character for the font.
         /// </summary>
         public char? DefaultCharacter
         {
-            get { return xnaSpriteFont.DefaultCharacter; }
-            set { xnaSpriteFont.DefaultCharacter = value; }
+            get { return XnaSpriteFont.DefaultCharacter; }
+            set { XnaSpriteFont.DefaultCharacter = value; }
         } // DefaultCharacter
 
         #endregion
@@ -107,7 +103,7 @@ namespace XNAFinalEngine.Assets
             }
             try
             {
-                xnaSpriteFont = ContentManager.CurrentContentManager.XnaContentManager.Load<SpriteFont>(fullFilename);
+                XnaSpriteFont = ContentManager.CurrentContentManager.XnaContentManager.Load<SpriteFont>(fullFilename);
             }
             catch (ObjectDisposedException e)
             {
@@ -128,7 +124,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public Vector2 MeasureString(string text)
         {
-            return xnaSpriteFont.MeasureString(text);
+            return XnaSpriteFont.MeasureString(text);
         } // MeasureString
 
         /// <summary>
@@ -138,7 +134,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public Vector2 MeasureString(StringBuilder text)
         {
-            return xnaSpriteFont.MeasureString(text);
+            return XnaSpriteFont.MeasureString(text);
         } // MeasureString
 
         #endregion
