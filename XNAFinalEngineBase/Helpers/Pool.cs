@@ -59,11 +59,13 @@ namespace XNAFinalEngine.Helpers
         public class Accessor
         {
             /// <summary>
-            /// Indicate the index of the element.
+            /// Indicate the index of the element in the pool.
+            /// </summary>
+            /// <remarks>
             /// This index could and probably changes its value during runtime, but the system will automatically update this field to the new value.
             /// Use it to access the pool array.
-            /// </summary>
-            public int index;
+            /// </remarks>
+            public int Index { get; internal set; }
 
             internal Accessor() { }
         } // Accessor
@@ -79,23 +81,20 @@ namespace XNAFinalEngine.Helpers
 
         /// <summary>
         /// The elements.
+        /// </summary>
+        /// <remarks>
         /// You can access directly using the accessor's index field.
-        /// </summary>
+        /// </remarks>
         public T[] elements;
-
-        /// <summary>
-        /// The number of elements actually contained in the pool.
-        /// </summary>
-        private int count;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Gets the number of elements actually contained in the pool.
+        /// Gets the number of active elements in the pool.
         /// </summary>
-        public int Count { get { return count; } }
+        public int Count { get; private set; }
 
         /// <summary>
         /// Gets or sets the total number of elements the internal data structure can hold without resizing.
@@ -105,7 +104,7 @@ namespace XNAFinalEngine.Helpers
             get { return elements.Length; }
             set 
             { 
-                if (value < count)
+                if (value < Count)
                     throw new ArgumentOutOfRangeException("value", value, "Pool: new size has to be bigger than active elements.");
                 ResizePool(value);
             }
@@ -129,7 +128,7 @@ namespace XNAFinalEngine.Helpers
             {
                 // If T is a reference type then the explicit creation is need it.
                 elements[i] = new T();
-                accessors[i] = new Accessor { index = i };
+                accessors[i] = new Accessor { Index = i };
             }
         } // Pool
 
@@ -140,15 +139,15 @@ namespace XNAFinalEngine.Helpers
         /// <summary>
         /// Marks an element for using it and return its corresponded accessor.
         /// </summary>
-        /// <returns>A key to access the element. The element is not returned because is store using a value type.</returns>
+        /// <returns>The key to access the element. The element is not returned because was stored using a value type.</returns>
         public Accessor Fetch()
         {
-            count++;
-            if (Capacity > count)
+            if (Count >= Capacity)
             {
-                ResizePool(Capacity + 50);
+                ResizePool(Capacity + 25);
             }
-            return accessors[count - 1];
+            Count++;
+            return accessors[Count - 1];
         } // Fetch
 
         #endregion
@@ -174,7 +173,7 @@ namespace XNAFinalEngine.Helpers
                 else
                 {
                     newElements[i] = new T();
-                    newAccessors[i] = new Accessor { index = i };
+                    newAccessors[i] = new Accessor { Index = i };
                 }
             }
             elements = newElements;
@@ -195,19 +194,19 @@ namespace XNAFinalEngine.Helpers
                 throw new ArgumentNullException("accessor", "Pool: Accessor value cannot be null");
             // To accomplish our second objective (memory locality) the last available element will be moved to the place where the released element resided.
             // First swap elements values.
-            T accesorPoolElement = elements[accessor.index]; // If T is a type by reference we can lost its value
-            elements[accessor.index] = elements[count - 1];
-            elements[count - 1] = accesorPoolElement;
+            T accesorPoolElement = elements[accessor.Index]; // If T is a type by reference we can lost its value
+            elements[accessor.Index] = elements[Count - 1];
+            elements[Count - 1] = accesorPoolElement;
             // The indices have the wrong value. The indices have the wrong value. The last has to index its new place and vice versa.
-            int accesorOldIndex = accessor.index;
-            accessor.index = count - 1;
-            accessors[count - 1].index = accesorOldIndex;
+            int accesorOldIndex = accessor.Index;
+            accessor.Index = Count - 1;
+            accessors[Count - 1].Index = accesorOldIndex;
             // Also the accessor array has to be sorted. If not the fetch method will give a used accessor element.
-            Accessor lastActiveAccessor = accessors[count - 1]; // Accessor is a reference type.
-            accessors[count - 1] = accessor;
+            Accessor lastActiveAccessor = accessors[Count - 1]; // Accessor is a reference type.
+            accessors[Count - 1] = accessor;
             accessors[accesorOldIndex] = lastActiveAccessor;
 
-            count--;
+            Count--;
         } // Release
 
         #endregion
