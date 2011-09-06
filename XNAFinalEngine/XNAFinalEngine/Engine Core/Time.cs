@@ -78,7 +78,7 @@ namespace XNAFinalEngine.EngineCore
                 frameTime = !paused ? value * TimeScale : 0;
                 
                 // Update smooth frame time.
-                SmoothFrameTime = (previousFrameTime.Sum() + frameTime) / previousFrameTime.Length + 1;
+                SmoothFrameTime = (previousFrameTime[0] + previousFrameTime[1] + frameTime) / previousFrameTime.Length + 1;
                 previousFrameTime[1] = previousFrameTime[0];
                 previousFrameTime[0] = frameTime;
 

@@ -65,7 +65,8 @@ namespace XNAFinalEngine.Graphics
         #region Properties
 
         /// <summary>
-        /// Sampler State for all 2D sprites.
+        /// Sampler State for all 2D sprites. 
+        /// Default value: PointClamp
         /// </summary>
         public static SamplerState SamplerState2D 
         {
@@ -75,6 +76,7 @@ namespace XNAFinalEngine.Graphics
 
         /// <summary>
         /// Sampler State for all 3D sprites.
+        /// Default value: AnisotropicClamp
         /// </summary>
         public static SamplerState SamplerState3D
         {
@@ -104,7 +106,7 @@ namespace XNAFinalEngine.Graphics
         public static void Begin()
         {
             if (spriteBatch == null)
-                throw new Exception("The Sprite Manager not initialized.");
+                throw new Exception("The Sprite Manager is not initialized.");
 
             // In PC BlendState.AlphaBlend is a little more expensive than BlendState.Opaque when alpha = 1.
             // But PC is the powerful platform so no need to choose between the two.
@@ -113,12 +115,21 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Draw
+        #region Draw Text
 
-        public static void DrawText(Font font, StringBuilder text, Vector2 position, Color color)
+        /// <summary>
+        /// Adds a string to a batch of sprites for rendering using the specified font, text, position, color, rotation, origin, scale, effects and layer.
+        /// </summary>
+        /// <param name="font">A font for diplaying text.</param>
+        /// <param name="text">Text string.</param>
+        /// <param name="position">The location (in screen coordinates) to draw the sprite. It also includes the depth. By default, 0 represents the front layer and 1 represents a back layer.</param>
+        /// <param name="color">The color to tint the font.</param>
+        /// <param name="rotation">Specifies the angle (in radians) to rotate the sprite about its center.</param>
+        /// <param name="origin">The sprite origin; the default is (0,0) which represents the upper-left corner.</param>
+        /// <param name="scale">Scale factor.</param>
+        public static void DrawText(Font font, StringBuilder text, Vector3 position, Color color, float rotation, Vector2 origin, float scale)
         {
-            // SpriteBatch.DrawString (SpriteFont, StringBuilder, Vector2, Color, Single, Vector2, Vector2, SpriteEffects, Single)
-            spriteBatch.DrawString(font.XnaSpriteFont, text, position, color, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            spriteBatch.DrawString(font.XnaSpriteFont, text, new Vector2(position.X, position.Y), color, 0, Vector2.Zero, 1, SpriteEffects.None, position.Z);
         } // DrawText
 
         #endregion
@@ -139,14 +150,14 @@ namespace XNAFinalEngine.Graphics
 
         /// <summary>
         /// Draw textures onto fullscreen.
-        /// This is great for quick tests related to render targets.
+        /// This is useful for quick tests related to render targets.
         /// </summary>
-        public static void DrawTextureToFullScreen(XNAFinalEngine.Assets.Texture renderTarget)
+        public static void DrawTextureToFullScreen(Assets.Texture renderTarget)
         {
             if (spriteBatch == null)
-                throw new Exception("The Sprite Manager not initialized.");
+                throw new Exception("The Sprite Manager is not initialized.");
 
-            //  This is not a batch operation, for that reason the immediate mode is selected.
+            // This is not a batch operation, for that reason the immediate mode is selected.
             // Floating point textures only works in point filtering.
             // Besides, we don’t need more than this because the render target will match the screen resolution.
             // Also there is no need for alpha blending.

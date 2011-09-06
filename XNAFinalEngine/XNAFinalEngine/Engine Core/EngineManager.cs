@@ -330,7 +330,7 @@ namespace XNAFinalEngine.EngineCore
         protected override void Draw(GameTime gameTime)
         {
             base.Draw(gameTime);
-            SystemInformation.Device.Clear(ClearOptions.Target, new Color(210, 150, 30), 1.0f, 0);
+            SystemInformation.Device.Clear(ClearOptions.Target, new Color(30, 30, 40), 1.0f, 0);
             if (ShowExceptionsWithGuide) // If we want to show exception in the Guide.
             {
                 if (exception == null) // If no exception was raised.

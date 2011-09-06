@@ -29,7 +29,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
 using System;
+using System.Diagnostics;
 using System.Text;
 using Microsoft.Xna.Framework;
 using XnaFinalEngine.Components;
@@ -49,6 +51,7 @@ namespace XNAFinalEngine.EngineCore
         #region Variables
 
         private static GameObject2D testText;
+        private static Font font;
 
         #endregion
 
@@ -67,8 +70,11 @@ namespace XNAFinalEngine.EngineCore
             HudText textComponent = ((HudText)testText.AddComponent<HudText>());
             textComponent.Font = new Font("Arial12");
             textComponent.Color = Color.White;
-            StringBuilder text = new StringBuilder("FPS ");             
             testText.Transform.LocalPosition = new Vector3(100, 100, 0);
+
+            font = new Font("Arial12");
+
+            GC.Collect();
         } // LoadContent
         
         #endregion
@@ -78,7 +84,6 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// Update
         /// </summary>
-        /// <param name="gameTime"></param>
         internal static void Update(GameTime gameTime)
         {
             Time.GameDeltaTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);            
@@ -87,6 +92,8 @@ namespace XNAFinalEngine.EngineCore
         #endregion
 
         #region Draw
+        
+        static readonly StringBuilder text = new StringBuilder("FPS");
 
         /// <summary>
         /// Draw
@@ -99,11 +106,9 @@ namespace XNAFinalEngine.EngineCore
             // Draw main deferred lighting cameras (one for each viewport)
             // Draw 2D Hud            
             SpriteManager.Begin();
-                SpriteManager.DrawText(new Font("Arial12"), new StringBuilder("FPS "), new Vector2(100, 100), Color.White);
+                SpriteManager.DrawText(font, text, new Vector3(100, 100, 0), Color.White, 0, Vector2.Zero, 1);
             SpriteManager.End();
-            // Por cada componente que se muestra en 2D
-                // Renderizar
-            // Finalizar Sprite Manager
+
         } // Draw
 
         #endregion
