@@ -29,14 +29,16 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
 using System;
-using System.Diagnostics;
+using System.Runtime;
 using System.Text;
 using Microsoft.Xna.Framework;
 using XnaFinalEngine.Components;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
+using XNAFinalEngine.Helpers;
+using XNAFinalEngineBase.Helpers;
+
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -65,16 +67,30 @@ namespace XNAFinalEngine.EngineCore
             // Create the 32 layers.
             Layer.InitLayers();
             SpriteManager.Init();
-            
-            testText = new GameObject2D();
-            HudText textComponent = ((HudText)testText.AddComponent<HudText>());
-            textComponent.Font = new Font("Arial12");
-            textComponent.Color = Color.White;
-            testText.Transform.LocalPosition = new Vector3(100, 100, 0);
 
-            font = new Font("Arial12");
+            for (int i = 0; i < HudText.HudTextPool2D.Capacity; i++)
+            {
+                testText = new GameObject2D();
+                HudText textComponent = ((HudText)testText.AddComponent<HudText>());
+                textComponent.Font = new Font("Arial12");
+                textComponent.Color = Color.White;
+                textComponent.Text.Insert(0, "FPS ");
+                testText.Transform.LocalPosition = new Vector3(100, 100, 0);
+            }
 
-            GC.Collect();
+            #region Garbage Collection
+
+            // All generations will undergo a garbage collection.
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+            // Enables garbage collection that is more conservative in reclaiming objects.
+            // Full Collections occur only if the system is under memory pressure while generation 0 and generation 1 collections might occur more frequently.
+            // This is the least intrusive mode.
+            // If the work is done right, this latency mode is not need really.
+            GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+            TestGarbageCollection.CreateWeakReference();
+
+            #endregion
+
         } // LoadContent
         
         #endregion
@@ -93,22 +109,32 @@ namespace XNAFinalEngine.EngineCore
 
         #region Draw
         
-        static readonly StringBuilder text = new StringBuilder("FPS");
-
         /// <summary>
         /// Draw
         /// </summary>        
         internal static void Draw(GameTime gameTime)
         {
-            // Update frame time
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
+            
+            // Update frame time            
             // Draw auxiliary cameras in forward.
             // Draw main deferred lighting cameras (one for each viewport)
             // Draw 2D Hud            
             SpriteManager.Begin();
-                SpriteManager.DrawText(font, text, new Vector3(100, 100, 0), Color.White, 0, Vector2.Zero, 1);
+            {
+                for (int i = 0; i < HudText.HudTextPool2D.Count; i++)
+                {
+                    HudText.HudTextPool2D.elements[i].Text.Length = 4;
+                    HudText.HudTextPool2D.elements[i].Text.AppendWithoutGarbage(Time.FramesPerSecond);
+                    SpriteManager.DrawText(HudText.HudTextPool2D.elements[i].Font,
+                                           HudText.HudTextPool2D.elements[i].Text,
+                                           new Vector3(100, 100, 0),
+                                           HudText.HudTextPool2D.elements[i].Color,
+                                           0, Vector2.Zero, 1);
+                }
+            }
             SpriteManager.End();
-
+            
         } // Draw
 
         #endregion

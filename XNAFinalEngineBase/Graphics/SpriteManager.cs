@@ -57,7 +57,7 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private static SpriteBatch spriteBatch;
         
-        private static SamplerState samplerState2D = SamplerState.PointClamp;
+        private static SamplerState samplerState2D = SamplerState.LinearClamp;
         private static SamplerState samplerState3D = SamplerState.AnisotropicClamp;
 
         #endregion
@@ -66,8 +66,9 @@ namespace XNAFinalEngine.Graphics
 
         /// <summary>
         /// Sampler State for all 2D sprites. 
-        /// Default value: PointClamp
+        /// Default value: LinearClamp
         /// </summary>
+        /// <remarks>If there is no rotation or scale perform over any HUD 2D element then use point sampling to improve performance.</remarks>
         public static SamplerState SamplerState2D 
         {
             get { return samplerState2D; } 
@@ -129,7 +130,7 @@ namespace XNAFinalEngine.Graphics
         /// <param name="scale">Scale factor.</param>
         public static void DrawText(Font font, StringBuilder text, Vector3 position, Color color, float rotation, Vector2 origin, float scale)
         {
-            spriteBatch.DrawString(font.XnaSpriteFont, text, new Vector2(position.X, position.Y), color, 0, Vector2.Zero, 1, SpriteEffects.None, position.Z);
+            spriteBatch.DrawString(font.XnaSpriteFont, text, new Vector2(position.X, position.Y), color, rotation, Vector2.Zero, scale, SpriteEffects.None, position.Z);
         } // DrawText
 
         #endregion

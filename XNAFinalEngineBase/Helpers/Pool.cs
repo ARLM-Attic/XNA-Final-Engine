@@ -49,9 +49,11 @@ namespace XNAFinalEngine.Helpers
     /// Important: The .NET runtime environment manages where to allocate new reference fields and we can do much about it. 
     /// However, if we create everything at the beginning when little or no fragmentation exists then it could be possible that the reference data will be together. 
     /// Of course, this could be change or could be not true even at the beginning.
+    /// 
+    /// Optimization: some int values could be transformed to short.
     /// </remarks>
     /// <typeparam name="T">Valid for value or reference type</typeparam>
-    internal class Pool<T> where T : new()
+    public class Pool<T> where T : new()
     {
 
         #region Accesor
@@ -123,11 +125,15 @@ namespace XNAFinalEngine.Helpers
             if (capacity <= 0)
                 throw new ArgumentOutOfRangeException("capacity", capacity, "Pool: Argument capacity must be greater than zero.");
             elements = new T[capacity];
-            accessors = new Accessor[capacity];
             for (int i = 0; i < capacity; i++)
             {
                 // If T is a reference type then the explicit creation is need it.
                 elements[i] = new T();
+            }
+            // They are created using another for sentence because we want memory locality.
+            accessors = new Accessor[capacity];
+            for (int i = 0; i < capacity; i++)
+            {
                 accessors[i] = new Accessor { Index = i };
             }
         } // Pool

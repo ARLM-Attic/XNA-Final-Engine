@@ -28,14 +28,42 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
-namespace XnaFinalEngine.Components
-{
+#region Using directives
+using System;
+#endregion
 
+namespace XNAFinalEngine.Helpers
+{
     /// <summary>
-    /// Base class for Hud Elements.
+    /// Simple class to test if garbage collection occurs.
     /// </summary>
-    public abstract class HudElement : Renderer
+    public sealed class TestGarbageCollection
     {
 
-    } // HudElement
-} // XnaFinalEngine.Components
+        #region Destructor
+
+        /// <summary>
+        /// The garbage collector is working.
+        /// </summary>
+        ~TestGarbageCollection()
+        {
+            throw new Exception("Garbage Collection performed.");
+        } // ~TestGarbageCollection
+
+        #endregion
+
+        #region Register
+
+        /// <summary>
+        /// Creates a dummy object and immediately it is dereferenced,
+        /// so when the garbage collector call its destructor we will know that a garbage collection was called.
+        /// </summary>
+        public static void CreateWeakReference()
+        {
+            new TestGarbageCollection();
+        } // CreateWeakReference
+
+        #endregion
+
+    } // TestGarbageCollection
+} // XNAFinalEngine.Helpers

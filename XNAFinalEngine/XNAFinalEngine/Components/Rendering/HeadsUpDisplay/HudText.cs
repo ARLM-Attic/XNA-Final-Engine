@@ -29,26 +29,48 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System;
+using System.Text;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XnaFinalEngine.Components
 {
-
     /// <summary>
-    /// 
+    /// Display text into the HUD.
+    /// This component works with 2D and 3D game objects.
     /// </summary>
     public class HudText : HudElement
     {
 
+        #region Variables
+
+        // The size value is arbitrary.
+        private readonly StringBuilder text = new StringBuilder(20);
+
+        #endregion
+
         #region Properties
 
+        /// <summary>
+        /// The Font to use when rendering the text.
+        /// </summary>
         public Font Font { get; set; }
 
-        public Vector2 Position { get; set; }
-
+        /// <summary>
+        /// Text Color.
+        /// </summary>
         public Color Color { get; set; }
+
+        /// <summary>
+        /// The string to display.
+        /// The reason why the set is not available is because we want to avoid garbage at any cost.
+        /// Also don’t use the “+” operator with this type.
+        /// </summary>
+        /// <remarks>A String Builder type is used to avoid garbage collection.</remarks>
+        public StringBuilder Text { get { return text; } }
         
         #endregion
 
@@ -57,10 +79,57 @@ namespace XnaFinalEngine.Components
         /// <summary>
         /// Initialize the component. 
         /// </summary>
-        internal override void Initialize()
-        {     
-               
+        internal override void Initialize(GameObject owner)
+        {
+            Font = null;
+            Color = Color.White;
+            Text.Clear();
+            base.Initialize(owner);
         } // Initialize
+
+        #endregion
+
+        #region Measure String
+
+        /// <summary>
+        /// Returns the width and height of a string as a Vector2.
+        /// </summary>
+        public Vector2 MeasureString(string text)
+        {
+            if (Font == null)
+            {
+                throw new InvalidOperationException("HudText: There is no Font set.");
+            }
+            return Font.MeasureString(text);
+        } // MeasureString
+
+        /// <summary>
+        /// Returns the width and height of a string as a Vector2.
+        /// http://msdn.microsoft.com/en-us/library/system.text.stringbuilder.aspx
+        /// StringBuilder is good for avoid garbage.
+        /// </summary>
+        public Vector2 MeasureString(StringBuilder text)
+        {
+            if (Font == null)
+            {
+                throw new InvalidOperationException("HudText: There is no Font set.");
+            }
+            return Font.MeasureString(text);
+        } // MeasureString
+
+        #endregion
+
+        #region Pool
+        
+        /// <summary>
+        /// Pool for 2D HUD Text components
+        /// </summary>
+        private static readonly Pool<HudText> hudTextPool2D = new Pool<HudText>(20);
+
+        /// <summary>
+        /// Pool for 2D HUD Text components.
+        /// </summary>
+        internal static Pool<HudText> HudTextPool2D { get { return hudTextPool2D; } }
 
         #endregion
 

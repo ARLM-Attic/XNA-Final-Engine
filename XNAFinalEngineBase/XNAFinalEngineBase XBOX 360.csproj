@@ -60,6 +60,8 @@
     </Compile>
     <Compile Include="Helpers\RectangleF.cs" />
     <Compile Include="Helpers\Size.cs" />
+    <Compile Include="Helpers\StringBuilderExtensions.cs" />
+    <Compile Include="Helpers\TestGarbageCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SystemInformation.cs" />
   </ItemGroup>

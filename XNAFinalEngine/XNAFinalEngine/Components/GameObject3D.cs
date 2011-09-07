@@ -93,7 +93,7 @@ namespace XnaFinalEngine.Components
         /// <typeparam name="TComponentType">Component Type</typeparam>
         public override Component AddComponent<TComponentType>()
         {
-            // Create the component.
+            /*// Create the component.
             TComponentType component = new TComponentType { Owner = this };
 
             // Add it to the corresponded property.
@@ -106,8 +106,8 @@ namespace XnaFinalEngine.Components
                 Renderer = (Renderer)(Component)component;
             }
             // Add it to the component list. The component list allows the development of new components.
-            // TODO!!
-            return component;
+            // TODO!!*/
+            return null;
         } // AddComponent
 
         #endregion

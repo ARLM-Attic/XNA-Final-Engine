@@ -6,6 +6,8 @@
 
 #region Using directives
 using System;
+using System.Collections.Generic;
+using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XnaFinalEngine.Components
@@ -48,11 +50,7 @@ namespace XnaFinalEngine.Components
         } // Parent
 
         #endregion
-
-        #region Events
-
-        #endregion
-
+        
         #region Constructor
 
         /// <summary>
@@ -93,24 +91,21 @@ namespace XnaFinalEngine.Components
         /// <typeparam name="TComponentType">Component Type</typeparam>
         public override Component AddComponent<TComponentType>()
         {
-            // Create the component.
-            TComponentType component = new TComponentType { Owner = this };
-
-            // Add it to the corresponded property.
-            if (component is Transform2D)
+            Component component = null;
+            // Get from a pool or create the component.
+            if (typeof(TComponentType) == typeof(Transform2D))
             {
-                throw new Exception("Game object exception. Unable to create the transform component. The transform component can’t be replaced or removed.");
+                throw new ArgumentException("Game Object exception. Unable to create the transform component. The transform component can’t be replaced or removed.");
             }
-            else if (component is HudElement)
+            if (typeof(TComponentType) == typeof(HudText))
             {
-                //Renderer = (Renderer)(Component)component;
+                // Search for an empty component in the pool.
+                Pool<HudText>.Accessor componentAccesor = HudText.HudTextPool2D.Fetch();
+                // A component is a reference value, so no problem to do this.
+                component = HudText.HudTextPool2D.elements[componentAccesor.Index];
+                // Initialize the component to the default values.
+                component.Initialize(this);
             }
-            else
-            {
-
-            }
-            // Add it to the component list. The component list allows the development of new components.
-
             return component;
         } // AddComponent
 

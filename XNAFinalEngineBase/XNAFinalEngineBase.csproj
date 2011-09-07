@@ -96,6 +96,8 @@
     <Compile Include="Assets\Fonts\Font.cs" />
     <Compile Include="Graphics\SpriteManager.cs" />
     <Compile Include="Helpers\Pool.cs" />
+    <Compile Include="Helpers\StringBuilderExtensions.cs" />
+    <Compile Include="Helpers\TestGarbageCollection.cs" />
     <Compile Include="SystemInformation.cs" />
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />

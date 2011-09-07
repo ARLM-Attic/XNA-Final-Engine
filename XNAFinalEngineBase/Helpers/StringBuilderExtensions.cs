@@ -22,20 +22,42 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
-Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
+Author: Digital Jellyfish Design Ltd (http://forums.create.msdn.com/forums/p/16395/132030.aspx)
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 */
 #endregion
 
-namespace XnaFinalEngine.Components
-{
+#region Using directives
+using System.Text;
+#endregion
 
-    /// <summary>
-    /// Base class for Hud Elements.
-    /// </summary>
-    public abstract class HudElement : Renderer
+namespace XNAFinalEngineBase.Helpers
+{
+    public static class StringBuilderExtensions
     {
 
-    } // HudElement
-} // XnaFinalEngine.Components
+        private static readonly char[] digits = new[] { '9', '8', '7', '6', '5', '4', '3', '2', '1', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+
+        public static StringBuilder AppendWithoutGarbage(this StringBuilder stringBuilder, int number)
+        {
+            if (number < 0)
+            {
+                stringBuilder.Append('-');
+            }
+
+            int index = stringBuilder.Length;
+            do
+            {
+                // StringBuilder.Insert(Int32, Char) calls ToString() internally
+                // http://www.gavpugh.com/2010/04/01/xnac-avoiding-garbage-when-working-with-stringbuilder/
+                stringBuilder.Insert(index, digits, (number % 10) + 9, 1);
+                number /= 10;
+            }
+            while (number != 0);
+
+            return stringBuilder;
+        } // AppendWithoutGarbage
+
+    } // StringBuilderExtensions
+} // XNAFinalEngineBase.Helpers

@@ -16,7 +16,8 @@ namespace XnaFinalEngine.Components
         #region Properties
 
         /// <summary>
-        /// The game object this component is attached to. A component is always attached to one game object.
+        /// The game object this component is attached to.
+        /// A component is always attached to one game object.
         /// </summary>
         public GameObject Owner { get; internal set; }
 
@@ -31,7 +32,6 @@ namespace XnaFinalEngine.Components
         /// </summary>
         internal Component()
         {
-            Initialize();
         } // Component
 
         #endregion
@@ -41,9 +41,9 @@ namespace XnaFinalEngine.Components
         /// <summary>
         /// Initialize the component. 
         /// </summary>
-        internal virtual void Initialize()
+        internal virtual void Initialize(GameObject owner)
         {
-            // Overrite it!!!!
+            Owner = owner;
         } // Initialize
 
         #endregion

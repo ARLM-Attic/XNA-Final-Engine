@@ -252,7 +252,7 @@ namespace XnaFinalEngine.Components
         /// <summary>
         /// Initialize the component. 
         /// </summary>
-        internal override void Initialize()
+        internal override void Initialize(GameObject owner)
         {     
             // Generate the projection matrix.
             ResetProjectionMatrix();            
