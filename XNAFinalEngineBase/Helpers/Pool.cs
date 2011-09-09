@@ -42,7 +42,7 @@ namespace XNAFinalEngine.Helpers
     /// The first and more obvious is to reduce garbage collector frequency.
     /// If almost all reference type fields are allocated beforehand then few news are need it and so the garbage collector will remain idle during execution.
     /// The second objective is to guarantied memory locality so that the access time could be improved because there will be less cache misses.
-    /// Plenty of information is read every frame and in chunks (tanks to the component model) so this feature could be critical.
+    /// Plenty of information is read every frame and in chunks (thanks to the component model) so this feature could be critical.
     /// This structure also offers the possibility of modified directly the data stored (to avoid replication) and add and remove elements in O(1).
     /// Another feature added was the possibility of increment the size of the pool. This operation has O(n) so avoid using it.
     /// 
@@ -77,7 +77,7 @@ namespace XNAFinalEngine.Helpers
         #region Variables
 
         /// <summary>
-        /// The list of accessors or key to access the pool elements
+        /// The list of accessors or keys to access the pool elements
         /// </summary>
         private Accessor[] accessors;
 
@@ -86,8 +86,9 @@ namespace XNAFinalEngine.Helpers
         /// </summary>
         /// <remarks>
         /// You can access directly using the accessor's index field.
+        /// This is intended to avoid the replication of value types and to allow modifications in their values.
         /// </remarks>
-        public T[] elements;
+        public T[] Elements;
 
         #endregion
 
@@ -103,15 +104,21 @@ namespace XNAFinalEngine.Helpers
         /// </summary>
         public int Capacity
         {
-            get { return elements.Length; }
+            get { return Elements.Length; }
             set 
-            { 
+            {
                 if (value < Count)
                     throw new ArgumentOutOfRangeException("value", value, "Pool: new size has to be bigger than active elements.");
                 ResizePool(value);
             }
         } // Capacity
-
+        
+        /// <summary>
+        /// Return the element indexed by the accessor.
+        /// </summary>
+        /// <remarks>Important: the value type is replicated in the stack.</remarks>
+        public T this[Accessor accessor] { get { return Elements[accessor.Index]; } }
+        
         #endregion
 
         #region Constructor
@@ -124,11 +131,11 @@ namespace XNAFinalEngine.Helpers
         {
             if (capacity <= 0)
                 throw new ArgumentOutOfRangeException("capacity", capacity, "Pool: Argument capacity must be greater than zero.");
-            elements = new T[capacity];
+            Elements = new T[capacity];
             for (int i = 0; i < capacity; i++)
             {
                 // If T is a reference type then the explicit creation is need it.
-                elements[i] = new T();
+                Elements[i] = new T();
             }
             // They are created using another for sentence because we want memory locality.
             accessors = new Accessor[capacity];
@@ -173,7 +180,7 @@ namespace XNAFinalEngine.Helpers
             {
                 if (i < oldCapacity)
                 {
-                    newElements[i] = elements[i];
+                    newElements[i] = Elements[i];
                     newAccessors[i] = accessors[i];
                 }
                 else
@@ -182,7 +189,7 @@ namespace XNAFinalEngine.Helpers
                     newAccessors[i] = new Accessor { Index = i };
                 }
             }
-            elements = newElements;
+            Elements = newElements;
             accessors = newAccessors;
         } // ResizePool
 
@@ -200,9 +207,9 @@ namespace XNAFinalEngine.Helpers
                 throw new ArgumentNullException("accessor", "Pool: Accessor value cannot be null");
             // To accomplish our second objective (memory locality) the last available element will be moved to the place where the released element resided.
             // First swap elements values.
-            T accesorPoolElement = elements[accessor.Index]; // If T is a type by reference we can lost its value
-            elements[accessor.Index] = elements[Count - 1];
-            elements[Count - 1] = accesorPoolElement;
+            T accesorPoolElement = Elements[accessor.Index]; // If T is a type by reference we can lost its value
+            Elements[accessor.Index] = Elements[Count - 1];
+            Elements[Count - 1] = accesorPoolElement;
             // The indices have the wrong value. The indices have the wrong value. The last has to index its new place and vice versa.
             int accesorOldIndex = accessor.Index;
             accessor.Index = Count - 1;

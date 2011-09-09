@@ -41,7 +41,7 @@ namespace XNAFinalEngine.Assets
 	/// LDR or HDR Cube Maps.
 	/// HDR can be stored in the RGBM format.
 	/// </summary>
-    public class TextureCube : Disposable
+    public class TextureCube : Disposable  //TODO
     {
 
         #region Variables

@@ -62,7 +62,9 @@
     <XnaCompressContent>true</XnaCompressContent>
     <LangVersion>default</LangVersion>
   </PropertyGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\Camera\Camera.cs" />
     <Compile Include="Components\Component.cs" />

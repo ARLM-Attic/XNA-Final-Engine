@@ -124,12 +124,12 @@ namespace XNAFinalEngine.EngineCore
             {
                 for (int i = 0; i < HudText.HudTextPool2D.Count; i++)
                 {
-                    HudText.HudTextPool2D.elements[i].Text.Length = 4;
-                    HudText.HudTextPool2D.elements[i].Text.AppendWithoutGarbage(Time.FramesPerSecond);
-                    SpriteManager.DrawText(HudText.HudTextPool2D.elements[i].Font,
-                                           HudText.HudTextPool2D.elements[i].Text,
+                    HudText.HudTextPool2D.Elements[i].Text.Length = 4;
+                    HudText.HudTextPool2D.Elements[i].Text.AppendWithoutGarbage(Time.FramesPerSecond);
+                    SpriteManager.DrawText(HudText.HudTextPool2D.Elements[i].Font,
+                                           HudText.HudTextPool2D.Elements[i].Text,
                                            new Vector3(100, 100, 0),
-                                           HudText.HudTextPool2D.elements[i].Color,
+                                           HudText.HudTextPool2D.Elements[i].Color,
                                            0, Vector2.Zero, 1);
                 }
             }

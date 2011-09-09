@@ -102,7 +102,7 @@ namespace XnaFinalEngine.Components
                 // Search for an empty component in the pool.
                 Pool<HudText>.Accessor componentAccesor = HudText.HudTextPool2D.Fetch();
                 // A component is a reference value, so no problem to do this.
-                component = HudText.HudTextPool2D.elements[componentAccesor.Index];
+                component = HudText.HudTextPool2D[componentAccesor];
                 // Initialize the component to the default values.
                 component.Initialize(this);
             }
