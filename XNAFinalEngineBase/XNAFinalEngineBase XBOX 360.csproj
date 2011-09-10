@@ -60,6 +60,7 @@
     <Compile Include="Helpers\Pool.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Helpers\PoolWithoutAccessor.cs" />
     <Compile Include="Helpers\RectangleF.cs" />
     <Compile Include="Helpers\Size.cs" />
     <Compile Include="Helpers\StringBuilderExtensions.cs" />

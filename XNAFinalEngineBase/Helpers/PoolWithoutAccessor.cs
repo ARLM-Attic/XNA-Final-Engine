@@ -35,7 +35,7 @@ using System;
 namespace XNAFinalEngine.Helpers
 {
     /// <summary>
-    /// A pool of elements T.
+    /// A pool of elements of reference type T.
     /// </summary>
     /// <remarks>
     /// This is a custom structure that pursues two specific objectives.
@@ -55,33 +55,10 @@ namespace XNAFinalEngine.Helpers
     /// Optimization: some int values could be transformed to short.
     /// </remarks>
     /// <typeparam name="T">Valid for value or reference type</typeparam>
-    public class Pool<T> where T : new()
+    public class PoolWithoutAccessor<T> where T : new()
     {
-
-        #region Accesor
-
-        public class Accessor
-        {
-            /// <summary>
-            /// Indicate the index of the element in the pool.
-            /// </summary>
-            /// <remarks>
-            /// This index could and probably changes its value during runtime, but the system will automatically update this field to the new value.
-            /// Use it to access the pool array.
-            /// </remarks>
-            public int Index { get; internal set; }
-
-            internal Accessor() { }
-        } // Accessor
-
-        #endregion
-
+        
         #region Variables
-
-        /// <summary>
-        /// The list of accessors or keys to access the pool elements
-        /// </summary>
-        private Accessor[] accessors;
 
         /// <summary>
         /// The elements.
@@ -115,12 +92,6 @@ namespace XNAFinalEngine.Helpers
             }
         } // Capacity
         
-        /// <summary>
-        /// Return the element indexed by the accessor.
-        /// </summary>
-        /// <remarks>Important: the value type is replicated in the stack.</remarks>
-        public T this[Accessor accessor] { get { return Elements[accessor.Index]; } }
-        
         #endregion
 
         #region Constructor
@@ -129,7 +100,7 @@ namespace XNAFinalEngine.Helpers
         /// A pool of elements T.
         /// </summary>
         /// <param name="capacity">The total number of elements the internal data structure can hold without resizing.</param>
-        public Pool(int capacity)
+        public PoolWithoutAccessor(int capacity)
         {
             if (capacity <= 0)
                 throw new ArgumentOutOfRangeException("capacity", capacity, "Pool: Argument capacity must be greater than zero.");
@@ -138,12 +109,6 @@ namespace XNAFinalEngine.Helpers
             {
                 // If T is a reference type then the explicit creation is need it.
                 Elements[i] = new T();
-            }
-            // They are created using another for sentence because we want memory locality.
-            accessors = new Accessor[capacity];
-            for (int i = 0; i < capacity; i++)
-            {
-                accessors[i] = new Accessor { Index = i };
             }
         } // Pool
 
@@ -155,14 +120,14 @@ namespace XNAFinalEngine.Helpers
         /// Marks an element for using it and return its corresponded accessor.
         /// </summary>
         /// <returns>The key to access the element. The element is not returned because was stored using a value type.</returns>
-        public Accessor Fetch()
+        public T Fetch()
         {
             if (Count >= Capacity)
             {
                 ResizePool(Capacity + 25);
             }
             Count++;
-            return accessors[Count - 1];
+            return Elements[Count - 1];
         } // Fetch
 
         #endregion
@@ -189,19 +154,6 @@ namespace XNAFinalEngine.Helpers
                 }
             }
             Elements = newElements;
-            Accessor[] newAccessors = new Accessor[newCapacity];
-            for (int i = 0; i < newCapacity; i++)
-            {
-                if (i < oldCapacity)
-                {
-                    newAccessors[i] = accessors[i];
-                }
-                else
-                {
-                    newAccessors[i] = new Accessor { Index = i };
-                }
-            }
-            accessors = newAccessors;
         } // ResizePool
 
         #endregion
@@ -211,24 +163,17 @@ namespace XNAFinalEngine.Helpers
         /// <summary>
         /// Set the pool element to available.
         /// </summary>
-        /// <param name="accessor">Its accessor</param>
-        public void Release(Accessor accessor)
+        /// <remarks>This is a potentially an O(n) operation.</remarks>
+        public void Release(T element)
         {
-            if (accessor == null)
-                throw new ArgumentNullException("accessor", "Pool: Accessor value cannot be null");
+            if (element == null)
+                throw new ArgumentNullException("element", "Pool: Element value cannot be null");
             // To accomplish our second objective (memory locality) the last available element will be moved to the place where the released element resided.
-            // First swap elements values.
-            T accesorPoolElement = Elements[accessor.Index]; // If T is a type by reference we can lost its value
-            Elements[accessor.Index] = Elements[Count - 1];
-            Elements[Count - 1] = accesorPoolElement;
-            // The indices have the wrong value. The indices have the wrong value. The last has to index its new place and vice versa.
-            int accesorOldIndex = accessor.Index;
-            accessor.Index = Count - 1;
-            accessors[Count - 1].Index = accesorOldIndex;
-            // Also the accessor array has to be sorted. If not the fetch method will give a used accessor element.
-            Accessor lastActiveAccessor = accessors[Count - 1]; // Accessor is a reference type.
-            accessors[Count - 1] = accessor;
-            accessors[accesorOldIndex] = lastActiveAccessor;
+            int i = 0;
+            while (i < Count || Elements[i].Equals(element)) { i++; }
+            T temp = Elements[i];
+            Elements[i] = Elements[Count];
+            Elements[Count] = temp;
 
             Count--;
         } // Release

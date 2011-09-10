@@ -53,7 +53,6 @@ namespace XNAFinalEngine.EngineCore
         #region Variables
 
         private static GameObject2D testText;
-        private static Font font;
 
         #endregion
 
@@ -68,13 +67,13 @@ namespace XNAFinalEngine.EngineCore
             Layer.InitLayers();
             SpriteManager.Init();
 
-            for (int i = 0; i < HudText.HudTextPool2D.Capacity; i++)
+            //for (int i = 0; i < HudText.HudTextPool2D.Capacity; i++)
             {
                 testText = new GameObject2D();
-                HudText textComponent = ((HudText)testText.AddComponent<HudText>());
-                textComponent.Font = new Font("Arial12");
-                textComponent.Color = Color.White;
-                textComponent.Text.Insert(0, "FPS ");
+                testText.AddComponent<HudText>();
+                testText.HudText.Font = new Font("Arial12");
+                testText.HudText.Color = Color.White;
+                testText.HudText.Text.Insert(0, "FPS ");
                 testText.Transform.LocalPosition = new Vector3(100, 100, 0);
             }
 
@@ -87,7 +86,7 @@ namespace XNAFinalEngine.EngineCore
             // This is the least intrusive mode.
             // If the work is done right, this latency mode is not need really.
             GCSettings.LatencyMode = GCLatencyMode.LowLatency;
-            TestGarbageCollection.CreateWeakReference();
+            //TestGarbageCollection.CreateWeakReference();
 
             #endregion
 

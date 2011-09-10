@@ -26,6 +26,12 @@ namespace XnaFinalEngine.Components
         /// </summary>
         private static int nameNumber = 1;
 
+        #region Accessors
+
+        private Pool<HudText>.Accessor hudTextAccessor;
+
+        #endregion
+
         #endregion
 
         #region Properties
@@ -36,9 +42,14 @@ namespace XnaFinalEngine.Components
         public Transform2D Transform { get; private set; }
         
         /// <summary>
-        /// Associated renderer component.
+        /// Associated Renderer component.
         /// </summary>
         public Renderer Renderer { get; private set; }
+
+        /// <summary>
+        /// Associated Hud Text component.
+        /// </summary>
+        public HudText HudText { get; private set; }
         
         /// <summary>
         /// The parent of this game object.
@@ -91,22 +102,26 @@ namespace XnaFinalEngine.Components
         /// <typeparam name="TComponentType">Component Type</typeparam>
         public override Component AddComponent<TComponentType>()
         {
-            Component component = null;
             // Get from a pool or create the component.
             if (typeof(TComponentType) == typeof(Transform2D))
             {
-                throw new ArgumentException("Game Object exception. Unable to create the transform component. The transform component can’t be replaced or removed.");
+                throw new ArgumentException("Game Object exception. Unable to create the 2D transform component. The transform component can’t be replaced or removed.");
+            }
+            if (typeof(TComponentType) == typeof(Transform3D))
+            {
+                throw new ArgumentException("Game Object exception. Unable to create the 3D transform component. A 2D Game Object does not work in 3D.");
             }
             if (typeof(TComponentType) == typeof(HudText))
             {
                 // Search for an empty component in the pool.
-                Pool<HudText>.Accessor componentAccesor = HudText.HudTextPool2D.Fetch();
+                hudTextAccessor = HudText.HudTextPool2D.Fetch();
                 // A component is a reference value, so no problem to do this.
-                component = HudText.HudTextPool2D[componentAccesor];
+                HudText = HudText.HudTextPool2D[hudTextAccessor];
                 // Initialize the component to the default values.
-                component.Initialize(this);
+                HudText.Initialize(this);
+                return HudText;
             }
-            return component;
+            return null;
         } // AddComponent
 
         #endregion
