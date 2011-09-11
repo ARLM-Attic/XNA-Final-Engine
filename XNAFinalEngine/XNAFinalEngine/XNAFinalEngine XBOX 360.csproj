@@ -76,6 +76,7 @@
     <Compile Include="Components\Rendering\HeadsUpDisplay\HudText.cs" />
     <Compile Include="Components\Rendering\MeshRenderer.cs" />
     <Compile Include="Components\Rendering\Renderer.cs" />
+    <Compile Include="Components\Transform\Transform.cs" />
     <Compile Include="Components\Transform\Transform2D.cs" />
     <Compile Include="Components\Transform\Transform3D.cs" />
     <Compile Include="Engine Core\GameLoop.cs" />

@@ -6,7 +6,6 @@
 
 #region Using directives
 using System;
-using System.Collections.Generic;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -90,6 +89,7 @@ namespace XnaFinalEngine.Components
         {
             // Create a transform component. Every game object has one.
             Transform = new Transform2D { Owner = this };
+
         } // Initialize
 
         #endregion

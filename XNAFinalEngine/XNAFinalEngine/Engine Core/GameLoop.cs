@@ -75,6 +75,7 @@ namespace XNAFinalEngine.EngineCore
                 testText.HudText.Color = Color.White;
                 testText.HudText.Text.Insert(0, "FPS ");
                 testText.Transform.LocalPosition = new Vector3(100, 100, 0);
+                testText.Transform.LocalRotation = 180f;
             }
 
             #region Garbage Collection
@@ -121,15 +122,29 @@ namespace XNAFinalEngine.EngineCore
             // Draw 2D Hud            
             SpriteManager.Begin();
             {
+                HudText currentHudText;
+                Vector3 scale, position;
+                Quaternion rotation;
+
                 for (int i = 0; i < HudText.HudTextPool2D.Count; i++)
                 {
-                    HudText.HudTextPool2D.Elements[i].Text.Length = 4;
-                    HudText.HudTextPool2D.Elements[i].Text.AppendWithoutGarbage(Time.FramesPerSecond);
-                    SpriteManager.DrawText(HudText.HudTextPool2D.Elements[i].Font,
-                                           HudText.HudTextPool2D.Elements[i].Text,
-                                           new Vector3(100, 100, 0),
-                                           HudText.HudTextPool2D.Elements[i].Color,
-                                           0, Vector2.Zero, 1);
+                    currentHudText = HudText.HudTextPool2D.Elements[i];
+                    // Decompose in position, rotation and scale.
+                    currentHudText.CachedWorldMatrix.Decompose(out scale, out rotation, out position);
+                    // Quaternion to rotation angle.
+                    Vector2 direction = Vector2.Transform(Vector2.UnitX, rotation);
+                    float rotationZ = (float)Math.Atan2(direction.Y, direction.X);
+                    
+                    if (currentHudText.Visible)
+                    {
+                        currentHudText.Text.Length = 4;
+                        currentHudText.Text.AppendWithoutGarbage(Time.FramesPerSecond);
+                        SpriteManager.DrawText(currentHudText.Font,
+                                               currentHudText.Text,
+                                               position,
+                                               currentHudText.Color,
+                                               rotationZ, Vector2.Zero, scale.X);
+                    }
                 }
             }
             SpriteManager.End();

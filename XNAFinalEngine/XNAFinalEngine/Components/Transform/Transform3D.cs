@@ -1,4 +1,33 @@
 ﻿
+#region License
+/*
+Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+                         Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+•	Redistributions of source code must retain the above copyright, this list of conditions and the following disclaimer.
+
+•	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
+    in the documentation and/or other materials provided with the distribution.
+
+•	Neither the name of the Universidad Nacional del Sur nor the names of its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+*/
+#endregion
+
 #region Using directives
 using Microsoft.Xna.Framework;
 using System;
@@ -7,43 +36,34 @@ using System;
 namespace XnaFinalEngine.Components
 {
 
+    #region Enumerates
+
+    /// <summary>
+    /// The coordinate space in which to operate.
+    /// </summary>
+    public enum Space
+    {
+        /// <summary>
+        /// Applies transformation relative to the local coordinate system
+        /// </summary>
+        Local,
+        /// <summary>
+        /// Applies transformation relative to the world coordinate system
+        /// </summary>
+        World
+    } // Space
+
+    #endregion
+
     /// <summary>
     /// Every entity in a scene has a Transform.
-    /// It's used to store and manipulate the position, rotation and scale of the object. 
+    /// It's used to store and manipulate the position, rotation and scale of the object.
+    /// This tranform works in world space.
     /// </summary>
-    public class Transform3D : Component
+    public class Transform3D : Transform
     {
 
-        #region Enumerates
-
-        /// <summary>
-        /// The coordinate space in which to operate.
-        /// </summary>
-        public enum Space
-        {
-            /// <summary>
-            /// Applies transformation relative to the local coordinate system
-            /// </summary>
-            Local,
-            /// <summary>
-            /// Applies transformation relative to the world coordinate system
-            /// </summary>
-            World
-        } // Space
-
-        #endregion
-        
         #region Variables
-
-        /// <summary>
-        /// Local matrix.
-        /// </summary>
-        private Matrix localMatrix = Matrix.Identity;
-
-        /// <summary>
-        /// World matrix.
-        /// </summary>
-        private Matrix worldMatrix = Matrix.Identity;
 
         /// <summary>
         /// The position in local space.
@@ -51,14 +71,14 @@ namespace XnaFinalEngine.Components
         private Vector3 localPosition;
 
         /// <summary>
-        /// The rotation in local space.
+        /// The rotation in local space and in degrees unit. 
         /// </summary>
-        private Quaternion localRotation;
+        private Quaternion localRotation = Quaternion.Identity;
 
         /// <summary>
         /// The scale in local space.
         /// </summary>
-        private Vector3 localScale;
+        private Vector3 localScale = new Vector3(1, 1, 1);
 
         /// <summary>
         /// The parent of this transform component.
@@ -78,7 +98,12 @@ namespace XnaFinalEngine.Components
         /// </summary>
         internal GameObject3D Parent
         {
-            get { return (GameObject3D)(parent.Owner); }
+            get
+            {
+                if (parent != null)
+                    return (GameObject3D)(parent.Owner);
+                return null;
+            }
             set { parent = value.Transform; }
         } // Parent
 
@@ -89,7 +114,7 @@ namespace XnaFinalEngine.Components
         /// <summary>
         /// Local Matrix.
         /// </summary>
-        public Matrix LocalMatrix
+        public override Matrix LocalMatrix
         {
             get { return localMatrix; }
             set
@@ -104,7 +129,7 @@ namespace XnaFinalEngine.Components
         /// World matrix. 
         /// This method actually changes the local matrix but the game object hierarchy is taken into consideration.
         /// </summary>
-        public Matrix WorldMatrix
+        public override Matrix WorldMatrix
         {
             get { return worldMatrix; }
             set { LocalMatrix = value * Matrix.Invert(parent.WorldMatrix); }
@@ -328,7 +353,7 @@ namespace XnaFinalEngine.Components
         private void UpdateLocalMatrix()
         {
             // Don't use the property LocalMatrix to avoid an unnecessary decompose.
-            localMatrix = Matrix.CreateScale(localScale) * Matrix.CreateFromQuaternion(localRotation);
+            localMatrix = Matrix.CreateScale(localScale) * Matrix.CreateFromQuaternion(localRotation); // TODO pasar a radians.
             localMatrix.Translation = localPosition; // * Matrix.CreateTranslation(localPosition);
             UpdateWorldMatrix();
         } // UpdateLocalMatrix
@@ -346,7 +371,7 @@ namespace XnaFinalEngine.Components
                 worldMatrix = localMatrix;
             
             // Raise event
-            // TODO!!!
+            RaiseWorldMatrixChanged();
 
         } // UpdateWorldMatrix
 

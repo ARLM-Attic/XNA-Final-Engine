@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.Xna.Framework;
+
 namespace XnaFinalEngine.Components
 {
 
@@ -9,21 +11,22 @@ namespace XnaFinalEngine.Components
     public abstract class Renderer : Component
     {
 
-        #region Variables
-
-        /// <summary>
-        /// 
-        /// </summary>
-        protected int cachedLayerMask;
-
-        #endregion
-
         #region Properties
 
         /// <summary>
         /// Makes the game object visible or not.
         /// </summary>
         public bool Visible { get; set; }
+
+        /// <summary>
+        /// Chaded transform's world matrix value.
+        /// </summary>
+        internal Matrix CachedWorldMatrix { get; set; }
+
+        /// <summary>
+        /// Chaded game object's layer mask value.
+        /// </summary>
+        internal int CachedLayerMask { get; set; }
 
         #endregion
 
@@ -35,7 +38,21 @@ namespace XnaFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
+            Visible = true;
+            // Set Layer
+            CachedLayerMask = Owner.Layer.Mask;
             Owner.LayerChanged += OnLayerChanged;
+            // Set World Matrix
+            if (Owner is GameObject2D)
+            {
+                CachedWorldMatrix = ((GameObject2D) Owner).Transform.WorldMatrix;
+                ((GameObject2D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
+            }
+            else
+            {
+                CachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
+                ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
+            }
         } // Initialize
 
         #endregion
@@ -47,8 +64,20 @@ namespace XnaFinalEngine.Components
         /// </summary>
         private void OnLayerChanged(object sender, int layerMask)
         {
-            cachedLayerMask = layerMask;
+            CachedLayerMask = layerMask;
         } // OnLayerChanged
+
+        #endregion
+
+        #region On Layer Changed
+
+        /// <summary>
+        /// On transform's world matrix changed.
+        /// </summary>
+        private void OnWorldMatrixChanged(Matrix worldMatrix)
+        {
+            CachedWorldMatrix = worldMatrix;
+        } // OnWorldMatrixChanged
 
         #endregion
 
