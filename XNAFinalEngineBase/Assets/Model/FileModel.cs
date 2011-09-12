@@ -50,7 +50,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Transform matrices for each mesh part, we only have to get them once if the model is not animated.
         /// </summary>
-        public Matrix[] transforms; // TODO!!!
+        public Matrix[] transforms;
         
         #endregion
 
@@ -65,7 +65,8 @@ namespace XNAFinalEngine.Assets
 
         /// <summary>
         /// Get the vertices' positions of the model.
-        /// </summary>        
+        /// </summary>   
+        /// <remarks>This is a slow operation that generates garbage. We could store the vertices here, but there is no need to do this… for now.</remarks>
         public override Vector3[] Vectices
         {
             get
@@ -74,7 +75,7 @@ namespace XNAFinalEngine.Assets
 
                 int vertexCount = 0;
 
-                foreach (ModelMesh mesh in XnaModel.Meshes)
+                foreach (ModelMesh mesh in XnaModel.Meshes) // Foreach is faster and does not produce garbage.
                 {
                     foreach (ModelMeshPart part in mesh.MeshParts)
                     {
@@ -150,6 +151,10 @@ namespace XNAFinalEngine.Assets
                 // Get matrices for each mesh part
                 transforms = new Matrix[XnaModel.Bones.Count];
                 XnaModel.CopyAbsoluteBoneTransformsTo(transforms);
+                // Calcuate bounding volumes
+                Vector3[] vectices = Vectices;
+                boundingSphere = BoundingSphere.CreateFromPoints(vectices);
+                boundingBox = BoundingBox.CreateFromPoints(vectices);
             }
             catch (ObjectDisposedException)
             {
@@ -157,7 +162,7 @@ namespace XNAFinalEngine.Assets
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Failed to load texture: " + filename, e);
+                throw new InvalidOperationException("Failed to load model: " + filename, e);
             }
         } // FileModel
 

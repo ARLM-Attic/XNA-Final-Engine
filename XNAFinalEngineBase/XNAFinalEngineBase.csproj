@@ -96,6 +96,7 @@
     <Compile Include="Assets\Fonts\Font.cs" />
     <Compile Include="Assets\Model\FileModel.cs" />
     <Compile Include="Assets\Model\Model.cs" />
+    <Compile Include="Assets\Model\PrimitiveModel.cs" />
     <Compile Include="Graphics\SpriteManager.cs" />
     <Compile Include="Helpers\PoolWithoutAccessor.cs" />
     <Compile Include="Helpers\Pool.cs" />

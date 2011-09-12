@@ -74,11 +74,12 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Get the vertices' positions of the model.
         /// </summary>        
+        /// <remarks>This is a slow operation that generates garbage. We could store the vertices here, but there is no need to do this… for now.</remarks>
         public override Vector3[] Vectices
         {
             get
             {
-                Vector3[] verticesPosition = new Vector3[vertexBuffer.VertexCount];               
+                Vector3[] verticesPosition = new Vector3[vertexBuffer.VertexCount];
 
                 VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[vertexBuffer.VertexCount];
                 vertexBuffer.GetData(vertices);
@@ -192,9 +193,9 @@ namespace XNAFinalEngine.Assets
                     }  
                 }  
             }
-            vertexBuffer = new VertexBuffer(EngineManager.Device, typeof(VertexPositionNormalTexture), numberVertices, BufferUsage.None);
+            vertexBuffer = new VertexBuffer(SystemInformation.Device, typeof(VertexPositionNormalTexture), numberVertices, BufferUsage.None);
             vertexBuffer.SetData(vertices, 0, vertices.Length);
-            indexBuffer = new IndexBuffer(EngineManager.Device, typeof(int), numberIndices, BufferUsage.None);
+            indexBuffer = new IndexBuffer(SystemInformation.Device, typeof(int), numberIndices, BufferUsage.None);
             indexBuffer.SetData(indices, 0, indices.Length);
         } // Sphere
 
@@ -305,10 +306,10 @@ namespace XNAFinalEngine.Assets
             {
                 indices[i] = i;
             }
-            
-            vertexBuffer = new VertexBuffer(EngineManager.Device, typeof(VertexPositionNormalTexture), numberVertices, BufferUsage.None);
+
+            vertexBuffer = new VertexBuffer(SystemInformation.Device, typeof(VertexPositionNormalTexture), numberVertices, BufferUsage.None);
             vertexBuffer.SetData(vertices, 0, vertices.Length);
-            indexBuffer = new IndexBuffer(EngineManager.Device, typeof(int), numberIndices, BufferUsage.None);
+            indexBuffer = new IndexBuffer(SystemInformation.Device, typeof(int), numberIndices, BufferUsage.None);
             indexBuffer.SetData(indices, 0, indices.Length);
         } // Box
 
@@ -413,10 +414,10 @@ namespace XNAFinalEngine.Assets
             indices[3] = 1;
             indices[4] = 3;
             indices[5] = 2;
-                        
-            vertexBuffer = new VertexBuffer(EngineManager.Device, typeof(VertexPositionNormalTexture), numberVertices, BufferUsage.None);
+
+            vertexBuffer = new VertexBuffer(SystemInformation.Device, typeof(VertexPositionNormalTexture), numberVertices, BufferUsage.None);
             vertexBuffer.SetData(vertices, 0, vertices.Length);
-            indexBuffer = new IndexBuffer(EngineManager.Device, typeof(int), numberIndices, BufferUsage.None);
+            indexBuffer = new IndexBuffer(SystemInformation.Device, typeof(int), numberIndices, BufferUsage.None);
             indexBuffer.SetData(indices, 0, indices.Length);
         } // CreatePlane
 
@@ -536,9 +537,9 @@ namespace XNAFinalEngine.Assets
                 sliceAngle += sliceStep;
             }
 
-            vertexBuffer = new VertexBuffer(EngineManager.Device, typeof(VertexPositionNormalTexture), numberVertices, BufferUsage.None);
+            vertexBuffer = new VertexBuffer(SystemInformation.Device, typeof(VertexPositionNormalTexture), numberVertices, BufferUsage.None);
             vertexBuffer.SetData(vertices, 0, vertices.Length);
-            indexBuffer = new IndexBuffer(EngineManager.Device, typeof(int), numberIndices, BufferUsage.None);
+            indexBuffer = new IndexBuffer(SystemInformation.Device, typeof(int), numberIndices, BufferUsage.None);
             indexBuffer.SetData(indices, 0, indices.Length);
         } // Cylinder
 
@@ -620,9 +621,9 @@ namespace XNAFinalEngine.Assets
                 sliceAngle += sliceStep;
             }
 
-            vertexBuffer = new VertexBuffer(EngineManager.Device, typeof(VertexPositionNormalTexture), numberVertices, BufferUsage.None);
+            vertexBuffer = new VertexBuffer(SystemInformation.Device, typeof(VertexPositionNormalTexture), numberVertices, BufferUsage.None);
             vertexBuffer.SetData(vertices, 0, vertices.Length);
-            indexBuffer = new IndexBuffer(EngineManager.Device, typeof(int), numberIndices, BufferUsage.None);
+            indexBuffer = new IndexBuffer(SystemInformation.Device, typeof(int), numberIndices, BufferUsage.None);
             indexBuffer.SetData(indices, 0, indices.Length);
         } // Cone
 

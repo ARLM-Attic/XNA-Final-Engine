@@ -51,6 +51,7 @@
     <Compile Include="Assets\Fonts\Font.cs" />
     <Compile Include="Assets\Model\FileModel.cs" />
     <Compile Include="Assets\Model\Model.cs" />
+    <Compile Include="Assets\Model\PrimitiveModel.cs" />
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />
     <Compile Include="Assets\Textures\TextureCube.cs" />

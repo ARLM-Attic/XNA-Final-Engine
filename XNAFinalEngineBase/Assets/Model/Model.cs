@@ -49,13 +49,13 @@ namespace XNAFinalEngine.Assets
         /// The bounding sphere of the model.
         /// In the old versions I used nullable types but the bounding volumes are critical (performance wise) when frustum culling is enabled.
         /// </summary>
-        private BoundingSphere boundingSphere;
+        protected BoundingSphere boundingSphere;
 
         /// <summary>
         /// The bounding box of the model.
         /// In the old versions I used nullable types but the bounding volumes are critical (performance wise) when frustum culling is enabled.
         /// </summary>
-        private BoundingBox boundingBox;
+        protected BoundingBox boundingBox;
                 
         #endregion
 
@@ -76,32 +76,12 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Bounding sphere in local space.
         /// </summary>
-        public BoundingSphere BoundingSphere
-        {
-            get
-            {
-                if (boundingSphere.Radius == 0)
-                {
-                    boundingSphere = XNABoundingSphere.CreateFromPoints(Vectices);
-                }
-                return boundingSphere;
-            }
-        } // BoundingSphere
+        public BoundingSphere BoundingSphere { get { return boundingSphere; } }
 
         /// <summary>
         /// Axis aligned bounding box in local space.
         /// </summary>
-        public BoundingBox BoundingBox
-        {
-            get
-            {
-                if (boundingBox.Max == Vector3.Zero && boundingBox.Min == Vector3.Zero)
-                {
-                    boundingBox = XNABoundingBox.CreateFromPoints(Vectices);
-                }
-                return boundingBox;
-            }
-        } // BoundingBox
+        public BoundingBox BoundingBox { get { return boundingBox; } }
 
         #endregion
 

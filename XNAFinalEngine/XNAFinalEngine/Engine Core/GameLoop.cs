@@ -122,12 +122,10 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>        
         internal static void Draw(GameTime gameTime)
         {
+            // Update frame time
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
             
-            // Update frame time            
-            // Draw auxiliary cameras in forward.
-            // Draw main deferred lighting cameras (one for each viewport)
-            // Draw 2D Hud            
+            // Draw 2D Heads Up Display
             SpriteManager.Begin();
             {
                 HudText currentHudText;
@@ -149,10 +147,12 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
             SpriteManager.End();
-
+            
+            model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
+            
             #region Foreach vs. for test
             
-            int vertexCount = 0;
+            //int vertexCount = 0;
             /*
             for (int i = 0; i < 10000; i++)
             {
