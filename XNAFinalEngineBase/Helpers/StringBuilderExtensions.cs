@@ -32,7 +32,7 @@ Author: Digital Jellyfish Design Ltd (http://forums.create.msdn.com/forums/p/163
 using System.Text;
 #endregion
 
-namespace XNAFinalEngineBase.Helpers
+namespace XNAFinalEngine.Helpers
 {
     public static class StringBuilderExtensions
     {

@@ -31,14 +31,12 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.Runtime;
-using System.Text;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using XnaFinalEngine.Components;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
-using XNAFinalEngineBase.Helpers;
-
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -54,6 +52,8 @@ namespace XNAFinalEngine.EngineCore
 
         private static GameObject2D testText;
 
+        private static FileModel model;
+        
         #endregion
 
         #region Load Content
@@ -67,7 +67,7 @@ namespace XNAFinalEngine.EngineCore
             Layer.InitLayers();
             SpriteManager.Init();
 
-            //for (int i = 0; i < HudText.HudTextPool2D.Capacity; i++)
+            for (int i = 0; i < HudText.HudTextPool2D.Capacity; i++)
             {
                 testText = new GameObject2D();
                 testText.AddComponent<HudText>();
@@ -75,18 +75,26 @@ namespace XNAFinalEngine.EngineCore
                 testText.HudText.Color = Color.White;
                 testText.HudText.Text.Insert(0, "FPS ");
                 testText.Transform.LocalPosition = new Vector3(100, 100, 0);
-                testText.Transform.LocalRotation = 180f;
+                testText.Transform.LocalRotation = 0f;
             }
 
+            model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
+            
             #region Garbage Collection
 
             // All generations will undergo a garbage collection.
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+            #if (!XBOX)
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+            #else
+                GC.Collect();
+            #endif
             // Enables garbage collection that is more conservative in reclaiming objects.
             // Full Collections occur only if the system is under memory pressure while generation 0 and generation 1 collections might occur more frequently.
             // This is the least intrusive mode.
             // If the work is done right, this latency mode is not need really.
-            GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+            #if (!XBOX)
+                GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+            #endif
             //TestGarbageCollection.CreateWeakReference();
 
             #endregion
@@ -123,32 +131,79 @@ namespace XNAFinalEngine.EngineCore
             SpriteManager.Begin();
             {
                 HudText currentHudText;
-                Vector3 scale, position;
-                Quaternion rotation;
-
                 for (int i = 0; i < HudText.HudTextPool2D.Count; i++)
                 {
                     currentHudText = HudText.HudTextPool2D.Elements[i];
-                    // Decompose in position, rotation and scale.
-                    currentHudText.CachedWorldMatrix.Decompose(out scale, out rotation, out position);
-                    // Quaternion to rotation angle.
-                    Vector2 direction = Vector2.Transform(Vector2.UnitX, rotation);
-                    float rotationZ = (float)Math.Atan2(direction.Y, direction.X);
-                    
                     if (currentHudText.Visible)
                     {
                         currentHudText.Text.Length = 4;
                         currentHudText.Text.AppendWithoutGarbage(Time.FramesPerSecond);
                         SpriteManager.DrawText(currentHudText.Font,
                                                currentHudText.Text,
-                                               position,
+                                               currentHudText.CachedPosition,
                                                currentHudText.Color,
-                                               rotationZ, Vector2.Zero, scale.X);
+                                               currentHudText.CachedRotation,
+                                               Vector2.Zero,
+                                               currentHudText.CachedScale);
                     }
                 }
             }
             SpriteManager.End();
+
+            #region Foreach vs. for test
             
+            int vertexCount = 0;
+            /*
+            for (int i = 0; i < 10000; i++)
+            {
+                foreach (ModelMesh mesh in model.XnaModel.Meshes)
+                {
+                    foreach (ModelMeshPart part in mesh.MeshParts)
+                    {
+                        vertexCount += part.NumVertices;
+                    }
+                }
+            }/*
+            for (int i = 0; i < 100000; i++)
+            {
+                for (int j = 0; j < model.XnaModel.Meshes.Count; j++)
+                {
+                    ModelMesh mesh = model.XnaModel.Meshes[j];
+                    for (int k = 0; k < mesh.MeshParts.Count; k++)
+                    {
+                        ModelMeshPart part = mesh.MeshParts[k];
+                        vertexCount += part.NumVertices;
+                    }
+                }
+            }*/
+            /*
+            for (int i = 0; i < 100000; i++)
+            {
+                for (int j = 0; j < model.XnaModel.Meshes.Count; j++)
+                {
+                    for (int k = 0; k < model.XnaModel.Meshes[j].MeshParts.Count; k++)
+                    {
+                        vertexCount += model.XnaModel.Meshes[j].MeshParts[k].NumVertices;
+                    }
+                }
+            }*/
+            /*
+            int count = model.XnaModel.Meshes.Count;
+            for (int i = 0; i < 10000; i++)
+            {
+                for (int j = 0; j < count; j++)
+                {
+                    ModelMesh mesh = model.XnaModel.Meshes[j];
+                    int countparts = mesh.MeshParts.Count;
+                    for (int k = 0; k < countparts; k++)
+                    {
+                        vertexCount += mesh.MeshParts[k].NumVertices;
+                    }
+                }
+            }*/
+
+            #endregion
+
         } // Draw
 
         #endregion

@@ -31,7 +31,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.IO;
-using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XNAFinalEngine.Assets
@@ -41,16 +40,11 @@ namespace XNAFinalEngine.Assets
 	/// LDR or HDR Cube Maps.
 	/// HDR can be stored in the RGBM format.
 	/// </summary>
-    public class TextureCube : Disposable  //TODO
+    public class TextureCube : Asset
     {
 
         #region Variables
                 
-        /// <summary>
-        /// Texture's file name.
-        /// </summary>
-        protected string filename;
-
         /// <summary>
         /// XNA Texture.
         /// </summary>
@@ -64,11 +58,6 @@ namespace XNAFinalEngine.Assets
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Texture's file name.
-        /// </summary>
-        public string Filename { get { return filename; } }
 
         /// <summary>
         /// XNA Texture.
@@ -105,27 +94,31 @@ namespace XNAFinalEngine.Assets
 	    /// <summary>
 	    /// Create cube map from given filename.
 	    /// </summary>
-	    /// <param name="_filename">Set filename, must be relative and be a valid file in the textures directory.</param>
+	    /// <param name="filename">Set filename, must be relative and be a valid file in the textures directory.</param>
 	    /// <param name="isRgbm">is in RGBM format?</param>
         /// <param name="rgbmMaxRange">RGBM Max Range.</param>
-	    public TextureCube(string _filename, bool isRgbm = false, float rgbmMaxRange = 50.0f)
+	    public TextureCube(string filename, bool isRgbm = false, float rgbmMaxRange = 50.0f)
 		{
-            filename = _filename;
+            Name = filename;
 		    IsRgbm = isRgbm;
 	        RgbmMaxRange = rgbmMaxRange;
             string fullFilename = ContentManager.GameDataDirectory + "Textures\\CubeTextures\\" + filename;
             if (File.Exists(fullFilename + ".xnb") == false)
             {
-                throw new Exception("Failed to load cube map: File " + fullFilename + " does not exists!");
+                throw new ArgumentException("Failed to load cube map: File " + fullFilename + " does not exists!");
             }
             try
             {
                 xnaTextureCube = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Graphics.TextureCube>(fullFilename);
                 size = xnaTextureCube.Size;
             }
+            catch (ObjectDisposedException)
+            {
+                throw new InvalidOperationException("Content Manager: Content manager disposed");
+            }
             catch (Exception e)
             {
-                throw new Exception("Failed to load cube map: " + filename, e);
+                throw new InvalidOperationException("Failed to load cube map: " + filename, e);
             }
 		} // TextureCube
 

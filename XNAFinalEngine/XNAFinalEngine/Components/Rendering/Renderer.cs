@@ -69,12 +69,12 @@ namespace XnaFinalEngine.Components
 
         #endregion
 
-        #region On Layer Changed
+        #region On World Matrix Changed
 
         /// <summary>
         /// On transform's world matrix changed.
         /// </summary>
-        private void OnWorldMatrixChanged(Matrix worldMatrix)
+        protected virtual void OnWorldMatrixChanged(Matrix worldMatrix)
         {
             CachedWorldMatrix = worldMatrix;
         } // OnWorldMatrixChanged

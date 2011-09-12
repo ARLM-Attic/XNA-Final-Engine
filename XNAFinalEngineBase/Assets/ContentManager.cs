@@ -30,7 +30,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using Microsoft.Xna.Framework;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -140,7 +139,7 @@ namespace XNAFinalEngine.Assets
         {
             if (systemContentManager == this)
             {
-                throw new Exception("Content Manager: System Content Manager can not be disposed.");
+                throw new InvalidOperationException("Content Manager: System Content Manager can not be disposed.");
             }
             XnaContentManager.Dispose();
         } // DisposeManagedResources
@@ -156,7 +155,7 @@ namespace XNAFinalEngine.Assets
         {
             if (systemContentManager == this)
             {
-                throw new Exception("Content Manager: System Content Manager can not be unloaded.");
+                throw new InvalidOperationException("Content Manager: System Content Manager can not be unloaded.");
             }
             XnaContentManager.Unload();
         } // Unload

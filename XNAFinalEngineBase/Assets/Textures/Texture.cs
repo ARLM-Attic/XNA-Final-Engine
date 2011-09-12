@@ -115,7 +115,7 @@ namespace XNAFinalEngine.Assets
             string fullFilename = ContentManager.GameDataDirectory + "Textures\\" + filename;
             if (File.Exists(fullFilename + ".xnb") == false)
             {
-                throw new Exception("Failed to load texture: File " + fullFilename + " does not exists!");
+                throw new ArgumentException("Failed to load texture: File " + fullFilename + " does not exists!", "filename");
             }
             try
             {
@@ -125,11 +125,11 @@ namespace XNAFinalEngine.Assets
             }
             catch (ObjectDisposedException)
             {
-                throw new Exception("Content Manager: Content manager disposed");
+                throw new InvalidOperationException("Content Manager: Content manager disposed");
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new Exception("Failed to load texture: " + filename);
+                throw new InvalidOperationException("Failed to load texture: " + filename, e);
             }
 		} // Texture
 

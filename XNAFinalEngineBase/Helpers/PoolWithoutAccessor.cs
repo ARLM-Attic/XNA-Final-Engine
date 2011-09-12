@@ -87,7 +87,7 @@ namespace XNAFinalEngine.Helpers
             set 
             {
                 if (value < Count)
-                    throw new ArgumentOutOfRangeException("value", value, "Pool: new size has to be bigger than active elements.");
+                    throw new ArgumentOutOfRangeException("value", "Pool: new size has to be bigger than active elements.");
                 ResizePool(value);
             }
         } // Capacity
@@ -103,7 +103,7 @@ namespace XNAFinalEngine.Helpers
         public PoolWithoutAccessor(int capacity)
         {
             if (capacity <= 0)
-                throw new ArgumentOutOfRangeException("capacity", capacity, "Pool: Argument capacity must be greater than zero.");
+                throw new ArgumentOutOfRangeException("capacity", "Pool: Argument capacity must be greater than zero.");
             Elements = new T[capacity];
             for (int i = 0; i < capacity; i++)
             {

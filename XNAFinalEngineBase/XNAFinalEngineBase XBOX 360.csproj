@@ -49,6 +49,8 @@
     <Compile Include="Assets\Asset.cs" />
     <Compile Include="Assets\ContentManager.cs" />
     <Compile Include="Assets\Fonts\Font.cs" />
+    <Compile Include="Assets\Model\FileModel.cs" />
+    <Compile Include="Assets\Model\Model.cs" />
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />
     <Compile Include="Assets\Textures\TextureCube.cs" />

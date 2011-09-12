@@ -81,10 +81,15 @@ namespace XnaFinalEngine.Components
         /// </summary>
         internal override void Initialize(GameObject owner)
         {
+            base.Initialize(owner);
             Font = null;
             Color = Color.White;
-            Text.Clear();
-            base.Initialize(owner);
+            #if (XBOX)
+                if (Text.Length > 0)
+                    Text.Remove(0, Text.Length - 1); // Clear is not supported in XBOX.
+            #else
+                Text.Clear();
+            #endif
         } // Initialize
 
         #endregion

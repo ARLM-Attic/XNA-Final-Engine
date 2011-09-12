@@ -94,6 +94,8 @@
   <ItemGroup>
     <Compile Include="Assets\ContentManager.cs" />
     <Compile Include="Assets\Fonts\Font.cs" />
+    <Compile Include="Assets\Model\FileModel.cs" />
+    <Compile Include="Assets\Model\Model.cs" />
     <Compile Include="Graphics\SpriteManager.cs" />
     <Compile Include="Helpers\PoolWithoutAccessor.cs" />
     <Compile Include="Helpers\Pool.cs" />

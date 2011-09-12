@@ -166,7 +166,7 @@ namespace XNAFinalEngine.Assets
             {
                 if (alreadyResolved)
                     return renderTarget;
-                throw new Exception("Unable to return render target: render target not resolved.");
+                throw new InvalidOperationException("Unable to return render target: render target not resolved.");
             }
         } // XnaTexture
 
@@ -356,7 +356,7 @@ namespace XNAFinalEngine.Assets
             }
             catch (Exception e)
             {
-                throw new Exception("Render target creation failed", e);
+                throw new InvalidOperationException("Render target creation failed", e);
             }
         } // Create
 
@@ -431,7 +431,7 @@ namespace XNAFinalEngine.Assets
                     height = 1024;
                     break;
                 default:
-                    throw new Exception("Render Target error. Size type doesn't exist (probably a bug).");
+                    throw new ArgumentException("Render Target error. Size type doesn't exist (probably a bug).");
             }
             return new Size(width, height);
         } // CalculateSize
@@ -460,7 +460,7 @@ namespace XNAFinalEngine.Assets
                 case AntialiasingType.SixtySamples:
                     return 16;
                 default:
-                    throw new Exception("Render Target error. Antialiasing type doesn't exist (probably a bug).");
+                    throw new ArgumentException("Render Target error. Antialiasing type doesn't exist (probably a bug).");
             }
         } // CalculateMultiSampleQuality
 
@@ -474,7 +474,7 @@ namespace XNAFinalEngine.Assets
         public void EnableRenderTarget()
         {
             if (currentRenderTarget[0] != null)
-                throw new Exception("Render Target: unable to set render target. Another render target is still set. If you want to set multiple render targets use the static method called EnableRenderTargets.");
+                throw new InvalidOperationException("Render Target: unable to set render target. Another render target is still set. If you want to set multiple render targets use the static method called EnableRenderTargets.");
             SystemInformation.Device.SetRenderTarget(renderTarget);
             currentRenderTarget[0] = this;
             alreadyResolved = false;
@@ -486,7 +486,7 @@ namespace XNAFinalEngine.Assets
         public static void EnableRenderTarget(RenderTarget renderTarget)
         {
             if (currentRenderTarget[0] != null)
-                throw new Exception("Render Target: unable to set render target. Another render target is still set.");
+                throw new InvalidOperationException("Render Target: unable to set render target. Another render target is still set.");
             SystemInformation.Device.SetRenderTarget(renderTarget.renderTarget);
             currentRenderTarget[0] = renderTarget;
             renderTarget.alreadyResolved = false;
@@ -498,7 +498,7 @@ namespace XNAFinalEngine.Assets
         public static void EnableRenderTargets(RenderTarget renderTarget1, RenderTarget renderTarget2)
         {
             if (currentRenderTarget[0] != null)
-                throw new Exception("Render Target: unable to set render target. Another render target is still set.");
+                throw new InvalidOperationException("Render Target: unable to set render target. Another render target is still set.");
             SystemInformation.Device.SetRenderTargets(renderTarget1.renderTarget, renderTarget2.renderTarget);
             currentRenderTarget[0] = renderTarget1;
             renderTarget1.alreadyResolved = false;
@@ -512,7 +512,7 @@ namespace XNAFinalEngine.Assets
         public static void EnableRenderTargets(RenderTarget renderTarget1, RenderTarget renderTarget2, RenderTarget renderTarget3)
         {            
             if (currentRenderTarget[0] != null)
-                throw new Exception("Render Target: unable to set render target. Another render target is still set.");
+                throw new InvalidOperationException("Render Target: unable to set render target. Another render target is still set.");
             SystemInformation.Device.SetRenderTargets(renderTarget1.renderTarget, renderTarget2.renderTarget, renderTarget3.renderTarget);
             currentRenderTarget[0] = renderTarget1;
             renderTarget1.alreadyResolved = false;
@@ -528,7 +528,7 @@ namespace XNAFinalEngine.Assets
         public static void EnableRenderTargets(RenderTarget renderTarget1, RenderTarget renderTarget2, RenderTarget renderTarget3, RenderTarget renderTarget4)
         {            
             if (currentRenderTarget[0] != null)
-                throw new Exception("Render Target: unable to set render target. Another render target is still set.");
+                throw new InvalidOperationException("Render Target: unable to set render target. Another render target is still set.");
             SystemInformation.Device.SetRenderTargets(renderTarget1.renderTarget, renderTarget2.renderTarget, renderTarget3.renderTarget, renderTarget4.renderTarget);
             currentRenderTarget[0] = renderTarget1;
             renderTarget1.alreadyResolved = false;
@@ -551,7 +551,7 @@ namespace XNAFinalEngine.Assets
         public void Clear(Color clearColor)
         {            
             if (currentRenderTarget[0] != this)
-                throw new Exception("Render Target: You can't clear a render target without first setting it");
+                throw new InvalidOperationException("Render Target: You can't clear a render target without first setting it");
             if (depthFormat == DepthFormat.None)
                 SystemInformation.Device.Clear(clearColor);
             else
@@ -565,7 +565,7 @@ namespace XNAFinalEngine.Assets
         public static void ClearCurrentRenderTargets(Color clearColor)
         {            
             if (currentRenderTarget[0] == null)
-                throw new Exception("Render Target: You can't clear a render target without first setting it");
+                throw new InvalidOperationException("Render Target: You can't clear a render target without first setting it");
             currentRenderTarget[0].Clear(clearColor);
         } // Clear
 
@@ -582,10 +582,10 @@ namespace XNAFinalEngine.Assets
             // Make sure this render target is currently set!
             if (currentRenderTarget[0] != this)
             {
-                throw new Exception("Render Target: Cannot call disable to a render target without first setting it.");
+                throw new InvalidOperationException("Render Target: Cannot call disable to a render target without first setting it.");
             }
             if (currentRenderTarget[1] != null)
-                throw new Exception("Render Target: There are multiple render targets enabled. Use RenderTarget.BackToBackBuffer instead.");
+                throw new InvalidOperationException("Render Target: There are multiple render targets enabled. Use RenderTarget.BackToBackBuffer instead.");
             
             alreadyResolved = true;
 
