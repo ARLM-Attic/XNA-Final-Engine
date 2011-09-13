@@ -45,16 +45,12 @@ namespace XNAFinalEngine.Assets
 
         #region Variables
 
-        /// <summary>
-        /// The bounding sphere of the model.
-        /// In the old versions I used nullable types but the bounding volumes are critical (performance wise) when frustum culling is enabled.
-        /// </summary>
+        /// <summary>The bounding sphere of the model in local space.</summary>
+        /// <remarks>In the old versions I used nullable types but the bounding volumes are critical (performance wise) when frustum culling is enabled.</remarks>
         protected BoundingSphere boundingSphere;
 
-        /// <summary>
-        /// The bounding box of the model.
-        /// In the old versions I used nullable types but the bounding volumes are critical (performance wise) when frustum culling is enabled.
-        /// </summary>
+        /// <summary>The bounding box of the model in local space.</summary>
+        /// <remarks>In the old versions I used nullable types but the bounding volumes are critical (performance wise) when frustum culling is enabled.</remarks>
         protected BoundingBox boundingBox;
                 
         #endregion
@@ -85,70 +81,5 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
-        #region Bounding Volumens
-        /*
-        /// <summary>
-        /// Creates a bounding sphere from this object.
-        /// This code only calculates the bounding sphere the first time, then transforms this sphere with the world matrix.
-        /// </summary>
-        public virtual XNABoundingSphere BoundingSphereOptimized(Matrix worldMatrix, Vector3 scale)
-        {
-            float maxScale;
-
-            if (!boundingSphere.HasValue)
-            {
-                boundingSphere = XNABoundingSphere.CreateFromPoints(Vertices(Matrix.Identity));
-            }
-            // This allows us to support non uniform scaling.
-            if (scale.X >= scale.Y && scale.X >= scale.Z)
-            {
-                maxScale = scale.X;
-            }
-            else
-            {
-                if (scale.Y >= scale.Z)
-                    maxScale = scale.Y;
-                else
-                    maxScale = scale.Z;
-            }
-            Vector3 center = Vector3.Transform(boundingSphere.Value.Center, worldMatrix); // Don't use this: boundingSphere.Value.Center + position;
-            float radius = boundingSphere.Value.Radius * maxScale;
-            return new XNABoundingSphere(center, radius);
-        } // BoundingSphereOptimized
-
-        /// <summary>
-        /// Creates a bounding box from this object.
-        /// This code only calculates the bounding box the first time, then transforms this box with the world matrix.
-        /// </summary>
-        public virtual XNABoundingBox BoundingBoxOptimized(Matrix worldMatrix)
-        {
-            if (!boundingBox.HasValue)
-            {
-                boundingBox = XNABoundingBox.CreateFromPoints(Vertices(Matrix.Identity));
-            }
-            return new XNABoundingBox(Vector3.Transform(boundingBox.Value.Min, worldMatrix), Vector3.Transform(boundingBox.Value.Max, worldMatrix));
-        } // BoundingBoxOptimized
-
-        /// <summary>
-        /// Creates a bounding sphere from this object.
-        /// </summary>
-        public virtual XNABoundingSphere BoundingSphere(Matrix worldMatrix)
-        {
-            return XNABoundingSphere.CreateFromPoints(Vertices(worldMatrix));
-        } // BoundingSphere
-
-        /// <summary>
-        /// Creates a axis-oriented bounding box from this object.
-        /// No podemos obtimizar mucho el codigo dado que las bounding box se asumen orientadas con los ejes de coordenadas.
-        /// Podriamos hacer una optimizacion por escalado y transformacion, pero no por rotacion. En ese caso conviene usar bounding spheres.
-        /// La optimizacion se hace un nivel mas arriba.
-        /// </summary>
-        public virtual XNABoundingBox BoundingBox(Matrix worldMatrix)
-        {
-            return XNABoundingBox.CreateFromPoints(Vertices(worldMatrix));
-        } // BoundingBox
-        */
-        #endregion
-                
     } // Model
 } // XNAFinalEngine.Assets

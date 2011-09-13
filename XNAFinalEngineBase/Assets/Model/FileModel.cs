@@ -45,15 +45,6 @@ namespace XNAFinalEngine.Assets
     public class FileModel : Model
     {
 
-        #region Variables
-
-        /// <summary>
-        /// Transform matrices for each mesh part, we only have to get them once if the model is not animated.
-        /// </summary>
-        public Matrix[] transforms;
-        
-        #endregion
-
         #region Properties
 
         /// <summary>
@@ -66,7 +57,11 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Get the vertices' positions of the model.
         /// </summary>   
-        /// <remarks>This is a slow operation that generates garbage. We could store the vertices here, but there is no need to do this… for now.</remarks>
+        /// <remarks>
+        /// This is a slow operation that generates garbage. 
+        /// We could store the vertices, but there is no need to do this… for now.
+        /// So why waste precious memory space? And why fragment the data? if I only use this method in the loading.
+        /// </remarks>
         public override Vector3[] Vectices
         {
             get
@@ -148,9 +143,6 @@ namespace XNAFinalEngine.Assets
             try
             {
                 XnaModel = ContentManager.CurrentContentManager.XnaContentManager.Load<XnaModel>(fullFilename);
-                // Get matrices for each mesh part
-                transforms = new Matrix[XnaModel.Bones.Count];
-                XnaModel.CopyAbsoluteBoneTransformsTo(transforms);
                 // Calcuate bounding volumes
                 Vector3[] vectices = Vectices;
                 boundingSphere = BoundingSphere.CreateFromPoints(vectices);
@@ -166,29 +158,6 @@ namespace XNAFinalEngine.Assets
             }
         } // FileModel
 
-        #endregion
-
-        #region Render
-        /*
-        /// <summary>
-        /// Render the model.
-        /// </summary>
-        internal override void Render()
-        {
-            // Go through all meshes in the model
-            foreach (ModelMesh mesh in XnaModel.Meshes)
-			{
-                foreach (ModelMeshPart part in mesh.MeshParts)
-                {
-                    // Set vertex buffer and index buffer
-                    EngineManager.Device.SetVertexBuffer(part.VertexBuffer);
-                    EngineManager.Device.Indices = part.IndexBuffer;
-                    // And render all primitives
-                    EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, part.VertexOffset, 0, part.NumVertices, part.StartIndex, part.PrimitiveCount);
-                }
-            }
-        } // Render
-        */
         #endregion
 
     } // FileModel

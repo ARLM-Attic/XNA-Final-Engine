@@ -95,20 +95,6 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
-        #region Render
-        /*
-        /// <summary>
-        /// Render the model.
-        /// </summary>
-        internal override void Render()
-        {
-            EngineManager.Device.Indices = indexBuffer;
-            EngineManager.Device.SetVertexBuffer(vertexBuffer);
-            EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, numberVertices, 0, numberIndices / 3);
-        } // Render*/
-        
-        #endregion
-
         #region Dispose
 
         /// <summary>
@@ -148,8 +134,8 @@ namespace XNAFinalEngine.Assets
             int[] indices = new int[numberIndices];
             VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[numberVertices];
                
-            float stackAngle = MathHelper.Pi / (float)stacks;  
-            float sliceAngle = (float)(Math.PI * 2.0) / (float)slices;  
+            float stackAngle = MathHelper.Pi / stacks;  
+            float sliceAngle = (float)(Math.PI * 2.0) / slices;  
              
             // Generate the group of Stacks for the sphere  
             int wVertexIndex = 0;  
@@ -159,14 +145,14 @@ namespace XNAFinalEngine.Assets
             for (int stack = 0; stack < (stacks+1); stack++)  
             {  
  
-                float r = (float)Math.Sin((float)stack * stackAngle);  
-                float y = (float)Math.Cos((float)stack * stackAngle);  
+                float r = (float)Math.Sin(stack * stackAngle);  
+                float y = (float)Math.Cos(stack * stackAngle);  
  
                 // Generate the group of segments for the current Stack  
                 for (int slice = 0; slice < (slices+1); slice++)  
                 {  
-                    float x = r * (float)Math.Sin((float)slice * sliceAngle);  
-                    float z = r * (float)Math.Cos((float)slice * sliceAngle);  
+                    float x = r * (float)Math.Sin(slice * sliceAngle);  
+                    float z = r * (float)Math.Cos(slice * sliceAngle);  
                     vertices[vertexCount].Position = new Vector3(x * radius, y * radius, z * radius);
  
                     vertices[vertexCount].Normal = Vector3.Normalize(new Vector3(x, y, z));  

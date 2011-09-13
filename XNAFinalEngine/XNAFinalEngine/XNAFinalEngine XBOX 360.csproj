@@ -63,9 +63,6 @@
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Components\Camera\Camera.cs" />
     <Compile Include="Components\Component.cs" />
     <Compile Include="Components\GameObject.cs" />
