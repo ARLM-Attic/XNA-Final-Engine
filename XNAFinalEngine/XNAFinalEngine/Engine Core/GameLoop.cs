@@ -37,6 +37,7 @@ using XnaFinalEngine.Components;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
+using Gearset;
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -47,6 +48,11 @@ namespace XNAFinalEngine.EngineCore
     /// </summary>
     public static class GameLoop
     {
+        public static class Debug
+        {
+            public static GearConsole GS { get; set; }
+        }
+
 
         #region Variables
 

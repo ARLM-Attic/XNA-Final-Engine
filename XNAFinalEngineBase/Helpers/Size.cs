@@ -28,14 +28,58 @@ Authors: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
+#region Using directives
+using System;
+#endregion
+
 namespace XNAFinalEngine.Helpers
 {
+
+    #region Enumerates
+
+    /// <summary>
+    /// Relative size to screen and shadow sizes.
+    /// </summary>
+    [Flags]
+    public enum SizeType
+    {
+        /// <summary>
+        /// Full screen size.
+        /// </summary>
+        FullScreen,
+        /// <summary>
+        /// Half the full screen size, e.g. 800x600 becomes 400x300
+        /// </summary>
+        HalfScreen,
+        /// <summary>
+        /// Quarter of the full screen size, e.g. 800x600 becomes 200x150
+        /// </summary>
+        QuarterScreen,
+        /// <summary>
+        /// 256 x 256 pixels. Good for shadows.
+        /// </summary>
+        Square256X256,
+        /// <summary>
+        /// 512 x 512 pixels. Good for shadows.
+        /// </summary>
+        Square512X512,
+        /// <summary>
+        /// 1024 x 1024 pixels. Good for shadows.
+        /// </summary>
+        Square1024X1024,
+        /// <summary>
+        /// 2048 x 2048 pixels. Good for shadows.
+        /// </summary>
+        Square2048X2048,
+    } // SizeType
+
+    #endregion
 
     /// <summary>
     /// Stores an ordered pair of integers, which specify a Height and Width.
     /// </summary>
     public struct Size
-    {
+    {        
 
         #region Variables
 
@@ -92,6 +136,53 @@ namespace XNAFinalEngine.Helpers
             return width.GetHashCode() ^ height.GetHashCode();
         } // GetHashCode
         
+        #endregion
+
+        #region Calculate Size
+
+        /// <summary>
+        /// Calculate size from size type.
+        /// </summary>
+        private static Size CalculateSize(SizeType sizeType)
+        {
+            int width;
+            int height;
+            switch (sizeType)
+            {
+                case SizeType.FullScreen:
+                    width = SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth;
+                    height = SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight;
+                    break;
+                case SizeType.HalfScreen:
+                    width = SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth / 2;
+                    height = SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight / 2;
+                    break;
+                case SizeType.QuarterScreen:
+                    width = SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth / 4;
+                    height = SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight / 4;
+                    break;
+                case SizeType.Square256X256:
+                    width = 256;
+                    height = 256;
+                    break;
+                case SizeType.Square512X512:
+                    width = 512;
+                    height = 512;
+                    break;
+                case SizeType.Square1024X1024:
+                    width = 1024;
+                    height = 1024;
+                    break;
+                case SizeType.Square2048X2048:
+                    width = 1024;
+                    height = 1024;
+                    break;
+                default:
+                    throw new ArgumentException("Size type does not exist (probably a bug).");
+            }
+            return new Size(width, height);
+        } // CalculateSize
+
         #endregion
 
     } // Size 

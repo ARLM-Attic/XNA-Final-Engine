@@ -41,7 +41,7 @@ using XNAFinalEngine.Settings;
     using System.Threading;
     using System.Windows.Forms;
     using System.Windows.Forms.VisualStyles;
-    using MessageBoxIcon = System.Windows.Forms.MessageBoxIcon;
+    using MessageBoxIcon = System.Windows.Forms.MessageBoxIcon;    
 #endif
 #endregion
 
@@ -176,7 +176,7 @@ namespace XNAFinalEngine.EngineCore
         #endregion
 
         #region Initialize XNA device
-        
+
         /// <summary>
         /// Initialize.
         /// </summary>

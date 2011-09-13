@@ -47,37 +47,6 @@ namespace XNAFinalEngine.Assets
         #region Enumerates
 
         /// <summary>
-        /// Posible size types for creating a RenderTarget texture.
-        /// </summary>
-        public enum SizeType
-        {
-            /// <summary>
-            /// Uses the full screen size.
-            /// </summary>
-            FullScreen,
-            /// <summary>
-            /// Uses half the full screen size, e.g. 800x600 becomes 400x300
-            /// </summary>
-            HalfScreen,
-            /// <summary>
-            /// Uses a quarter of the full screen size, e.g. 800x600 becomes 200x150
-            /// </summary>
-            QuarterScreen,
-            /// <summary>
-            /// 256 x 256 pixels. Good for shadows.
-            /// </summary>
-            Square256X256,
-            /// <summary>
-            /// 512 x 512 pixels. Good for shadows.
-            /// </summary>
-            Square512X512,
-            /// <summary>
-            /// 1024 x 1024 pixels. Good for shadows.
-            /// </summary>
-            Square1024X1024,
-        } // SizeType
-
-        /// <summary>
         /// Antialiasing Type.
         /// </summary>
         public enum AntialiasingType
@@ -109,7 +78,7 @@ namespace XNAFinalEngine.Assets
         } // AntialiasingType
 
         #endregion
-
+        
         #region Variables
 
         /// <summary>
@@ -395,49 +364,6 @@ namespace XNAFinalEngine.Assets
 
         #endregion
         
-        #region Calculate Size
-
-        /// <summary>
-        /// Calculate size from size type.
-        /// </summary>
-        private static Size CalculateSize(SizeType sizeType)
-        {
-            int width;
-            int height;
-            switch (sizeType)
-            {
-                case SizeType.FullScreen:
-                    width = SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth;
-                    height = SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight;
-                    break;
-                case SizeType.HalfScreen:
-                    width = SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth / 2;
-                    height = SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight / 2;
-                    break;
-                case SizeType.QuarterScreen:
-                    width = SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth / 4;
-                    height = SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight / 4;
-                    break;
-                case SizeType.Square256X256:
-                    width = 256;
-                    height = 256;
-                    break;
-                case SizeType.Square512X512:
-                    width = 512;
-                    height = 512;
-                    break;
-                case SizeType.Square1024X1024:
-                    width = 1024;
-                    height = 1024;
-                    break;
-                default:
-                    throw new ArgumentException("Render Target error. Size type doesn't exist (probably a bug).");
-            }
-            return new Size(width, height);
-        } // CalculateSize
-
-        #endregion
-
         #region Calculate MultiSample Quality
 
         /// <summary>
