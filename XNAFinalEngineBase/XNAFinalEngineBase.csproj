@@ -98,7 +98,6 @@
     <Compile Include="Assets\Models\Model.cs" />
     <Compile Include="Assets\Models\PrimitiveModel.cs" />
     <Compile Include="Assets\Shaders\Shader.cs" />
-    <Compile Include="Graphics\GBuffer\Copy of GBuffer.cs" />
     <Compile Include="Graphics\GBuffer\GBuffer.cs" />
     <Compile Include="Graphics\SpriteManager.cs" />
     <Compile Include="Helpers\PoolWithoutAccessor.cs" />

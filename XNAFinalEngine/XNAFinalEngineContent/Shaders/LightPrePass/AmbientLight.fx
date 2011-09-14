@@ -22,13 +22,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
-#include <..\GBuffer\GBuffer.fx>
+#include <..\GBuffer\GBufferReader.fx>
 #include <..\Helpers\GammaLinearSpace.fxh>
 #include <..\Helpers\SphericalHarmonics.fxh>
 
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
 //////////////////////////////////////////////
+
+float2 halfPixel;
 
 float4x4 viewI;
 

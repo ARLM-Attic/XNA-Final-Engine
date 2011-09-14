@@ -223,7 +223,7 @@ namespace XNAFinalEngine.EngineCore
         private static void Graphics_DeviceReset(object sender, EventArgs e)
         {
             // Restore render to the frame buffer.
-            RenderTarget.BackToBackBuffer();
+            RenderTarget.DisableCurrentRenderTargets();
             SystemInformation.DeviceLostInThisFrame = true;
             #if (!XBOX)
                 Application.EnableVisualStyles();

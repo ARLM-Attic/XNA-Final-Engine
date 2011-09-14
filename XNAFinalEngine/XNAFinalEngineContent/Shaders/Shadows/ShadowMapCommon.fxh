@@ -5,11 +5,15 @@
 
 ******************************************************************************/
 
-#include <..\GBuffer\GBuffer.fx>
+#include <..\GBuffer\GBufferReader.fx>
 
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
 //////////////////////////////////////////////
+
+float4x4 worldViewProj;
+
+float2 halfPixel;
 
 float3 frustumCorners[4];
 

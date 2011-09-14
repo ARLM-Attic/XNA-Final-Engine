@@ -54,9 +54,6 @@
     <Compile Include="Assets\Textures\Texture.cs" />
     <Compile Include="Assets\Textures\TextureCube.cs" />
     <Compile Include="Graphics\DeferredLightingManager.cs" />
-    <Compile Include="Graphics\GBuffer\CombineDepth.cs" />
-    <Compile Include="Graphics\GBuffer\Copy of GBuffer.cs" />
-    <Compile Include="Graphics\GBuffer\DepthDownsampler.cs" />
     <Compile Include="Graphics\GBuffer\GBuffer.cs" />
     <Compile Include="Graphics\SpriteManager.cs" />
     <Compile Include="Helpers\ArrayHelper.cs" />

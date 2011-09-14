@@ -47,6 +47,41 @@ namespace XNAFinalEngine.Assets
         #region Enumerates
 
         /// <summary>
+        /// Relative size to screen and shadow sizes.
+        /// </summary>
+        public enum SizeType
+        {
+            /// <summary>
+            /// Full screen size.
+            /// </summary>
+            FullScreen,
+            /// <summary>
+            /// Half the full screen size, e.g. 800x600 becomes 400x300
+            /// </summary>
+            HalfScreen,
+            /// <summary>
+            /// Quarter of the full screen size, e.g. 800x600 becomes 200x150
+            /// </summary>
+            QuarterScreen,
+            /// <summary>
+            /// 256 x 256 pixels. Good for shadows.
+            /// </summary>
+            Square256X256,
+            /// <summary>
+            /// 512 x 512 pixels. Good for shadows.
+            /// </summary>
+            Square512X512,
+            /// <summary>
+            /// 1024 x 1024 pixels. Good for shadows.
+            /// </summary>
+            Square1024X1024,
+            /// <summary>
+            /// 2048 x 2048 pixels. Good for shadows.
+            /// </summary>
+            Square2048X2048,
+        } // SizeType
+
+        /// <summary>
         /// Antialiasing Type.
         /// </summary>
         public enum AntialiasingType
@@ -208,52 +243,6 @@ namespace XNAFinalEngine.Assets
         } // RenderTarget
 
         /// <summary>
-        /// Creates a render target for render to textures. Use size type constructor for screen relative sizes.
-        /// </summary>
-        /// <param name="size">Render target size</param>
-        /// <param name="_highPrecisionSingleChannelFormat">Uses a rgba 8 bit format or a 32 bit single channel format</param>
-        /// <param name="_hasDepthBuffer">Has depth buffer?</param>
-        /// <param name="antialiasingType">Multi sampling type: System value or no antialiasing.</param>
-        public RenderTarget(Size size, bool _highPrecisionSingleChannelFormat = false, bool _hasDepthBuffer = true, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
-        {
-            Name = "Render Target " + nameNumber++;
-            Width = size.Width;
-            Height = size.Height;
-
-            surfaceFormat = _highPrecisionSingleChannelFormat ? SurfaceFormat.Single : SurfaceFormat.Color;
-            depthFormat = _hasDepthBuffer ? DepthFormat.Depth24 : DepthFormat.None;
-            Antialiasing = antialiasingType;
-
-            Create();
-
-            renderTargetList.Add(this);
-        } // RenderTarget
-
-        /// <summary>
-        /// Creates a render target for render to textures.
-        /// </summary>
-        /// <param name="_sizeType">Render target size</param>
-        /// <param name="_highPrecisionSingleChannelFormat">Uses a rgba 8 bit per channel format or a 32 bit single channel format</param>
-        /// <param name="_hasDepthBuffer">has depth buffer?</param>
-        /// <param name="antialiasingType">Multi sampling type: System value or no antialiasing.</param>
-        public RenderTarget(SizeType _sizeType, bool _highPrecisionSingleChannelFormat = false, bool _hasDepthBuffer = true, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
-        {
-            Name = "Render Target " + nameNumber++;
-            sizeType = _sizeType;
-            Size size = CalculateSize(_sizeType);
-            Width = size.Width;
-            Height = size.Height;
-
-            surfaceFormat = _highPrecisionSingleChannelFormat ? SurfaceFormat.Single : SurfaceFormat.Color;
-            depthFormat = _hasDepthBuffer ? DepthFormat.Depth24 : DepthFormat.None;
-            Antialiasing = antialiasingType;
-
-            Create();
-
-            renderTargetList.Add(this);
-        } // RenderTarget
-
-        /// <summary>
         /// Creates a render target for render to textures.
         /// </summary>
         /// <param name="_sizeType">Render target size</param>
@@ -361,6 +350,53 @@ namespace XNAFinalEngine.Assets
                 Create();
             }
         } // OnWindowSizeChanged
+
+        #endregion
+
+        #region Calculate Size
+
+        /// <summary>
+        /// Calculate size from size type.
+        /// </summary>
+        private static Size CalculateSize(SizeType sizeType)
+        {
+            int width;
+            int height;
+            switch (sizeType)
+            {
+                case SizeType.FullScreen:
+                    width = SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth;
+                    height = SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight;
+                    break;
+                case SizeType.HalfScreen:
+                    width = SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth / 2;
+                    height = SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight / 2;
+                    break;
+                case SizeType.QuarterScreen:
+                    width = SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth / 4;
+                    height = SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight / 4;
+                    break;
+                case SizeType.Square256X256:
+                    width = 256;
+                    height = 256;
+                    break;
+                case SizeType.Square512X512:
+                    width = 512;
+                    height = 512;
+                    break;
+                case SizeType.Square1024X1024:
+                    width = 1024;
+                    height = 1024;
+                    break;
+                case SizeType.Square2048X2048:
+                    width = 1024;
+                    height = 1024;
+                    break;
+                default:
+                    throw new ArgumentException("Size type does not exist (probably a bug).");
+            }
+            return new Size(width, height);
+        } // CalculateSize
 
         #endregion
         
@@ -518,14 +554,10 @@ namespace XNAFinalEngine.Assets
             SystemInformation.Device.SetRenderTarget(null);
         } // DisableRenderTarget
 
-        #endregion
-
-        #region Back To Back Buffer (static)
-
         /// <summary>
         /// Back to back buffer (frame buffer).
         /// </summary>
-        public static void BackToBackBuffer()
+        public static void DisableCurrentRenderTargets()
         {
             for (int i = 0; i < 4; i++)
             {
@@ -534,7 +566,7 @@ namespace XNAFinalEngine.Assets
                 currentRenderTarget[i] = null;
             }
             SystemInformation.Device.SetRenderTarget(null);
-        } // BackToBackBuffer
+        } // DisableCurrentRenderTargets
 
         #endregion
                 

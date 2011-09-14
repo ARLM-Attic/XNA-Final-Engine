@@ -6,7 +6,7 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 ************************************************************************************************************************************************/
 
-#include <..\GBuffer\GBuffer.fx>
+#include <..\GBuffer\GBufferReader.fx>
 #include <..\Helpers\GammaLinearSpace.fxh>
 #include <..\Helpers\Discard.fxh>
 
@@ -21,6 +21,10 @@ float4x4 ProjI;
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
 //////////////////////////////////////////////
+
+float farPlane;
+
+float2 halfPixel;
 
 float fadeDistance;
 

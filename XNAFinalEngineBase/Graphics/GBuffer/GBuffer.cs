@@ -30,8 +30,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.Collections.Generic;
-using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Helpers;
@@ -285,20 +283,6 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Depth Texture
-
-        private static Texture lastUsedDepthTexture;
-        private static void SetDepthTexture(Texture depthTexture)
-        {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedDepthTexture != depthTexture)
-            {
-                lastUsedDepthTexture = depthTexture;
-                epDepthTexture.SetValue(depthTexture.XnaTexture);
-            }
-        } // SetDepthTexture
-
-        #endregion
-
         #region UvRectangle
 
         private static RectangleF? lastUsedUvRectangle;
@@ -381,19 +365,41 @@ namespace XNAFinalEngine.Graphics
         /// The depth texture has a texture with a 32 bits single channel precision, and the normal has a half vector 2 format (r16f g16f). 
         /// The normals are store with spherical coordinates and the depth is store using the equation: -DepthVS / FarPlane.
         /// </summary>
-        private GBuffer() : base("GBuffer\\GBuffer")
+        public GBuffer(RenderTarget.SizeType size) : base("GBuffer\\GBuffer")
         {
             // Multisampling on normal and depth maps makes no physical sense!!
             // 32 bits single channel precision
-            DepthTexture = new RenderTarget(RenderTarget.SizeType.FullScreen, true);
+            DepthTexture = new RenderTarget(size, SurfaceFormat.Single);
             // Half vector 2 format (r16f g16f). Be careful, in some GPUs this surface format is changed to the RGBA1010102 format.
             // The XBOX 360 supports it though (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
-            NormalTexture = new RenderTarget(RenderTarget.SizeType.FullScreen, SurfaceFormat.HalfVector2, false);
+            NormalTexture = new RenderTarget(size, SurfaceFormat.HalfVector2, false);
             // R: Motion vector X
             // G: Motion vector Y
             // B: Specular Power.
             // A: Unused... yet.
-            MotionVectorsSpecularPowerTexture = new RenderTarget(RenderTarget.SizeType.FullScreen, SurfaceFormat.Color, false);                        
+            MotionVectorsSpecularPowerTexture = new RenderTarget(size, SurfaceFormat.Color, false);                        
+        } // GBuffer
+
+        /// <summary>
+        /// This shader generates a depth and normal map.
+        /// It also generates a special buffer with motion vectors for motion blur and the specular power of the material.
+        /// It stores the result in two textures, the normals (normalMapTexture) and the depth (depthMapTexture).
+        /// The depth texture has a texture with a 32 bits single channel precision, and the normal has a half vector 2 format (r16f g16f). 
+        /// The normals are store with spherical coordinates and the depth is store using the equation: -DepthVS / FarPlane.
+        /// </summary>
+        public GBuffer(Size size) : base("GBuffer\\GBuffer")
+        {
+            // Multisampling on normal and depth maps makes no physical sense!!
+            // 32 bits single channel precision
+            DepthTexture = new RenderTarget(size, SurfaceFormat.Single);
+            // Half vector 2 format (r16f g16f). Be careful, in some GPUs this surface format is changed to the RGBA1010102 format.
+            // The XBOX 360 supports it though (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
+            NormalTexture = new RenderTarget(size, SurfaceFormat.HalfVector2, false);
+            // R: Motion vector X
+            // G: Motion vector Y
+            // B: Specular Power.
+            // A: Unused... yet.
+            MotionVectorsSpecularPowerTexture = new RenderTarget(size, SurfaceFormat.Color, false);
         } // GBuffer
 
         #endregion
@@ -448,7 +454,7 @@ namespace XNAFinalEngine.Graphics
         #endregion
 
         #region Generate G Buffer
-        
+        /*
         /// <summary>
         /// Render the object without taking care of the illumination information.
         /// </summary>
@@ -528,7 +534,7 @@ namespace XNAFinalEngine.Graphics
                 }
             }
         } // RenderObjects
-
+        *//*
         /// <summary>
         /// It generates the depth map, normal map and motion vector/specular power map of the objects given.
         /// </summary>
@@ -561,6 +567,64 @@ namespace XNAFinalEngine.Graphics
                 throw new Exception("Unable to render the G Buffer" + e.Message);
             }
         } // GenerateGBuffer
+        */
+        #endregion
+
+        #region Begin
+
+        /// <summary>
+        /// Begins the G-Buffer render.
+        /// </summary>
+        public void Begin()
+        {
+            try
+            {
+                SystemInformation.Device.BlendState        = BlendState.Opaque;
+                SystemInformation.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
+                SystemInformation.Device.DepthStencilState = DepthStencilState.Default;
+                //SystemInformation.Device.SamplerStates[]
+                // With multiple render targets the GBuffer performance can be vastly improved.
+                RenderTarget.EnableRenderTargets(DepthTexture, NormalTexture, MotionVectorsSpecularPowerTexture);
+                RenderTarget.ClearCurrentRenderTargets(Color.White);
+            } // try
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("GBuffer: Unable to begin the rendering.", e);
+            }
+        } // Begin
+
+        #endregion
+
+        #region End
+
+        /// <summary>
+        /// Resolve render targets.
+        /// </summary>
+        public void End()
+        {
+            try
+            {
+                RenderTarget.DisableCurrentRenderTargets();
+            } // try
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("GBuffer: Unable to begin the rendering.", e);
+            }
+        } // Begin
+
+        #endregion
+
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            DepthTexture.Dispose();
+            NormalTexture.Dispose();
+            MotionVectorsSpecularPowerTexture.Dispose();
+        } // DisposeManagedResources
 
         #endregion
 

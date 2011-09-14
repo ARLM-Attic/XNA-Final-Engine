@@ -38,7 +38,7 @@ float4x4 worldViewProj;
 
 float2 halfPixel;
 
-float farPlane = 100.0f;
+float farPlane;
 
 float specularPower;
 
@@ -85,42 +85,6 @@ texture displacementTexture;
 sampler2D displacementSampler = sampler_state
 {
 	Texture = <displacementTexture>;
-    ADDRESSU = CLAMP;
-	ADDRESSV = CLAMP;
-	MAGFILTER = POINT;
-	MINFILTER = POINT;
-	MIPFILTER = NONE;
-};
-
-texture normalTexture : RENDERCOLORTARGET;
-
-sampler2D normalSampler = sampler_state
-{
-	Texture = <normalTexture>;
-    ADDRESSU = CLAMP;
-	ADDRESSV = CLAMP;
-	MAGFILTER = POINT;
-	MINFILTER = POINT;
-	MIPFILTER = NONE;
-};
-
-texture depthTexture : RENDERCOLORTARGET;
-
-sampler2D depthSampler = sampler_state
-{
-	Texture = <depthTexture>;
-    ADDRESSU = CLAMP;
-	ADDRESSV = CLAMP;
-	MAGFILTER = POINT;
-	MINFILTER = POINT;
-	MIPFILTER = NONE;
-};
-
-texture motionVectorSpecularPowerTexture : RENDERCOLORTARGET;
-
-sampler2D motionVectorSpecularPowerSampler = sampler_state
-{
-	Texture = <motionVectorSpecularPowerTexture>;
     ADDRESSU = CLAMP;
 	ADDRESSV = CLAMP;
 	MAGFILTER = POINT;
@@ -195,51 +159,14 @@ struct PixelShader_OUTPUT
 };
 
 //////////////////////////////////////////////
-/////////////// Sample Normal ////////////////
-//////////////////////////////////////////////
-
-float3 SampleNormal(float2 uv, sampler2D textureSampler)
-{
-	float2 normalInformation = tex2D(textureSampler, uv).xy;
-	float3 N;
-	
-	// Spheremap Transform (not working)
-	/*N.z = dot(normalInformation, normalInformation) * 2 - 1; // lenght2 = dot(v, v)
-	N.xy = normalize(normalInformation) * sqrt(1 - N.z * N.z);	*/	
-
-	// Spherical Coordinates
-	N.xy = -normalInformation * normalInformation + normalInformation;
-	N.z = -1;
-	float f = dot(N, float3(1, 1, 0.25));
-	float m = sqrt(f);
-	N.xy = (normalInformation * 8 - 4) * m;
-	N.z = -(1 - 8 * f);
-	
-	// Basic form
-	//float3 N = tex2D(normalSampler2, uv).xyz * 2 - 1;
-	
-	return N; // Already normalized
-} // SampleNormal
-
-float3 SampleNormal(float2 uv)
-{
-	return SampleNormal(uv, normalSampler);
-} // SampleNormal
-
-//////////////////////////////////////////////
-////////////// Specular Power ////////////////
+/////////////// Specular Power ///////////////
 //////////////////////////////////////////////
 
 /// Compress to the (0,1) range with high precision for low values. Guerilla method.
 float CompressSpecularPower(float specularPower)
 {
 	return log2(specularPower) / 10.5;
-}
-
-float DecompressSpecularPower(float compressedSpecularPower)
-{
-	return pow(2, compressedSpecularPower * 10.5);
-}
+} // CompressSpecularPower
 
 //////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////

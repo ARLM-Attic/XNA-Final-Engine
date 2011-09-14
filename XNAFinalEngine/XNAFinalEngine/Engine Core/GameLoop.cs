@@ -37,7 +37,6 @@ using XnaFinalEngine.Components;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
-using Gearset;
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -48,11 +47,6 @@ namespace XNAFinalEngine.EngineCore
     /// </summary>
     public static class GameLoop
     {
-        public static class Debug
-        {
-            public static GearConsole GS { get; set; }
-        }
-
 
         #region Variables
 
@@ -153,11 +147,11 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
             SpriteManager.End();
-            
-            model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
-            
+
+            //model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
+
             #region Foreach vs. for test
-            
+
             //int vertexCount = 0;
             /*
             for (int i = 0; i < 10000; i++)
