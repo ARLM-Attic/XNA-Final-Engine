@@ -28,68 +28,65 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 //////////////// Matrices ////////////////////
 //////////////////////////////////////////////
 
-float4x4 worldView;
-float3x3 worldViewIT;
-float4x4 worldViewProj;
+float4x4 worldViewProj : register(c0); // Projection uses all 4x4 matrix values.
+float4x3 worldView     : register(c4); // We could use a float4x3 matrix because the last column is trivial.
+float3x3 worldViewIT   : register(c7); // No translation information so float3x3 is enough.
 
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
 //////////////////////////////////////////////
 
-float2 halfPixel;
+float  farPlane;
 
-float farPlane;
+// Specular Power
 
-float specularPower;
-
-bool specularTextured;
+float specularPower;    // Specular power value.
+bool  specularTextured; // Indicates if a texture or the value will be used to store the object's specular power.
 
 // Terrain //
 
-float2 uvRectangleMin, uvRectangleSide; // UV Rectangle.
+float2 uvRectangleMin, uvRectangleSide;    // UV Rectangle.
+bool   farTerrain;                         // Is this grid a far terrain grid? A far terrain grid uses the big color texture.
+float  farTerrainBeginDistance, flatRange; // Related to flatting out far surfaces.
 
-bool farTerrain; // Is this grid a far terrain grid? A far terrain grid uses the big color texture.
-
-float farTerrainBeginDistance, flatRange; // Related to flatting out far surfaces.
+// Optimization: if the game is in its final steps of development and performance is still an issue then you can pack the shaders attributes.
+// Unfortunately the packoffset keyword is only available in shader model 4/5, so this has to be done manually and that will hurt readability.
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture objectNormalTexture : RENDERCOLORTARGET;
-
-sampler2D objectNormalSampler = sampler_state
+texture objectNormalTexture : register(t0);
+sampler2D objectNormalSampler : register(s0) = sampler_state
 {
 	Texture = <objectNormalTexture>;
-    ADDRESSU = WRAP;
+    /*ADDRESSU = WRAP;
 	ADDRESSV = WRAP;
 	MAGFILTER = ANISOTROPIC; //LINEAR;
 	MINFILTER = ANISOTROPIC; //LINEAR;
-	MIPFILTER = LINEAR;
+	MIPFILTER = LINEAR;*/
 };
 
-texture specularTexture : RENDERCOLORTARGET;
-
-sampler2D specularSampler = sampler_state
+texture objectSpecularTexture : register(t1);
+sampler2D objectSpecularSampler : register(s1) = sampler_state
 {
-	Texture = <specularTexture>;
-    ADDRESSU = WRAP;
+	Texture = <objectSpecularTexture>;
+    /*ADDRESSU = WRAP;
 	ADDRESSV = WRAP;
 	MAGFILTER = LINEAR;
 	MINFILTER = LINEAR;
-	MIPFILTER = LINEAR;
+	MIPFILTER = LINEAR;*/
 };
 
-texture displacementTexture;
-
-sampler2D displacementSampler = sampler_state
+texture displacementTexture : register(t2);
+sampler2D displacementSampler : register(s2) = sampler_state
 {
 	Texture = <displacementTexture>;
-    ADDRESSU = CLAMP;
+    /*ADDRESSU = CLAMP;
 	ADDRESSV = CLAMP;
 	MAGFILTER = POINT;
 	MINFILTER = POINT;
-	MIPFILTER = NONE;
+	MIPFILTER = NONE;*/
 };
 
 //////////////////////////////////////////////
@@ -318,7 +315,7 @@ PixelShader_OUTPUT GBufferWithSpecularTexturePS(GBufferWithTextureVS_OUTPUT inpu
 	//output.normal = float4(normalize(input.normal.xy) * sqrt(input.normal.z * 0.5 + 0.5), 1, 1); // Spheremap Transform: Crytek method. 
 	//output.normal = 0.5f * (float4(input.normal.xyz, 1) + 1.0f); // Change to the [0, 1] range to avoid negative values.
 
-	output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(specularSampler, input.uv).a);	
+	output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(objectSpecularSampler, input.uv).a);	
 
 	return output;
 } // GBufferWithSpecularTexturePS
@@ -339,7 +336,7 @@ PixelShader_OUTPUT GBufferWithNormalMapPS(GBufferWithTangentVS_OUTPUT input)
 	output.normal  = float4(output.normal.xy / p * 0.5 + 0.5, 1, 1);
 
 	if (specularTextured)
-		output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(specularSampler, input.uv).a);
+		output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(objectSpecularSampler, input.uv).a);
 	else
 		output.motionVectorSpecularPower.b = CompressSpecularPower(specularPower);
 
@@ -362,7 +359,7 @@ PixelShader_OUTPUT GBufferWithParallaxPS(GBufferWithParallaxVS_OUTPUT input)
 	output.normal  = float4(output.normal.xy / p * 0.5 + 0.5, 1, 1);
 	
 	if (specularTextured)
-		output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(specularSampler, input.uv).a);
+		output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(objectSpecularSampler, input.uv).a);
 	else
 		output.motionVectorSpecularPower.b = CompressSpecularPower(specularPower);
 
@@ -384,7 +381,7 @@ PixelShader_OUTPUT GBufferTerrainPS(GBufferWithTextureVS_OUTPUT input)
 	float p = sqrt(g + f);
 	output.normal  = float4(input.normal.xy / p * 0.5 + 0.5, 1, 1);
 
-	output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(specularSampler, input.uv).a);	
+	output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(objectSpecularSampler, input.uv).a);	
 
 	return output;
 } // GBufferWithSpecularTexturePS

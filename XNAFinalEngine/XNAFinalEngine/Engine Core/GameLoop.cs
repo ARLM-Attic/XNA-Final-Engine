@@ -53,6 +53,8 @@ namespace XNAFinalEngine.EngineCore
         private static GameObject2D testText;
 
         private static FileModel model;
+
+        private static GBuffer gbuffer;
         
         #endregion
 
@@ -67,23 +69,24 @@ namespace XNAFinalEngine.EngineCore
             Layer.InitLayers();
             SpriteManager.Init();
 
-            for (int i = 0; i < HudText.HudTextPool2D.Capacity; i++)
+            //for (int i = 0; i < HudText.HudTextPool2D.Capacity; i++)
             {
                 testText = new GameObject2D();
                 testText.AddComponent<HudText>();
                 testText.HudText.Font = new Font("Arial12");
-                testText.HudText.Color = Color.White;
+                testText.HudText.Color = Color.Black;
                 testText.HudText.Text.Insert(0, "FPS ");
                 testText.Transform.LocalPosition = new Vector3(100, 100, 0);
                 testText.Transform.LocalRotation = 0f;
             }
 
             model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
+            gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
             
             #region Garbage Collection
 
             // All generations will undergo a garbage collection.
-            #if (!XBOX)
+            #if (WINDOWS)
                 GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             #else
                 GC.Collect();
@@ -92,7 +95,7 @@ namespace XNAFinalEngine.EngineCore
             // Full Collections occur only if the system is under memory pressure while generation 0 and generation 1 collections might occur more frequently.
             // This is the least intrusive mode.
             // If the work is done right, this latency mode is not need really.
-            #if (!XBOX)
+            #if (WINDOWS)
                 GCSettings.LatencyMode = GCLatencyMode.LowLatency;
             #endif
             //TestGarbageCollection.CreateWeakReference();
@@ -124,6 +127,11 @@ namespace XNAFinalEngine.EngineCore
         {
             // Update frame time
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
+
+            gbuffer.Begin(Matrix.Identity, Matrix.Identity, 100);
+                //model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
+            gbuffer.End();
+            SpriteManager.DrawTextureToFullScreen(gbuffer.DepthTexture);
             
             // Draw 2D Heads Up Display
             SpriteManager.Begin();
@@ -147,8 +155,6 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
             SpriteManager.End();
-
-            //model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
 
             #region Foreach vs. for test
 

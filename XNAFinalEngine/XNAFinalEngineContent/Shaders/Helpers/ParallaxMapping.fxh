@@ -92,8 +92,7 @@ float2 CalculateParallaxUV(float2 uv, float2 parallaxOffsetTS, float3 viewVS, fl
 		// height field profile and the view ray is found and then compute line segment
 		// intersection for the view ray and the line segment formed by the two endpoints.
 		// This intersection is the displacement offset from the original texture coordinate.
-		// See the above paper for more details about the process and derivation.
-		//
+		// See the above paper for more details about the process and derivation.		
 
 		float fCurrHeight = 0.0;
 		float fStepSize   = 1.0 / (float) nNumSteps;

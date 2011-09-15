@@ -69,6 +69,11 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         public RenderTarget MotionVectorsSpecularPowerTexture { get; private set; }
 
+        /// <summary>
+        /// Current view and projection matrix. Used to set the shader parameters.
+        /// </summary>
+        private Matrix viewMatrix, projectionMatrix;
+
         #endregion
 
         #region Shader Parameters
@@ -76,16 +81,14 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Effect handles
         /// </summary>
-        private static EffectParameter epHalfPixel,
-                                       epFarPlane,
+        private static EffectParameter epFarPlane,
                                        epWorldViewProj,
                                        epWorldView,
                                        epWorldViewIT,
                                        epObjectNormalTexture,
                                        epSpecularPower,
                                        epSpecularTextured,
-                                       epSpecularTexture,
-                                       epDepthTexture,
+                                       epObjectSpecularTexture,
                                        // Parallax
                                        epObjectNormalTextureSize,
                                        epLODThreshold,
@@ -100,20 +103,7 @@ namespace XNAFinalEngine.Graphics
                                        epDisplacementTexture,
                                        epFarTerrain;
 
-        #region Half Pixel
-
-        private static Vector2? lastUsedHalfPixel;
-        private static void SetHalfPixel(Vector2 _halfPixel)
-        {
-            if (lastUsedHalfPixel != _halfPixel)
-            {
-                lastUsedHalfPixel = _halfPixel;
-                epHalfPixel.SetValue(_halfPixel);
-            }
-        } // SetHalfPixel
-
-        #endregion
-
+        
         #region Transpose Inverse World View Matrix
 
         private static Matrix? lastUsedTransposeInverseWorldViewMatrix;
@@ -277,7 +267,7 @@ namespace XNAFinalEngine.Graphics
             if (lastUsedSpecularTexture != specularTexture)
             {
                 lastUsedSpecularTexture = specularTexture;
-                epSpecularTexture.SetValue(specularTexture.XnaTexture);
+                epObjectSpecularTexture.SetValue(specularTexture.XnaTexture);
             }
         } // SetSpecularTexture
 
@@ -423,13 +413,11 @@ namespace XNAFinalEngine.Graphics
                     epWorldView               = Effect.Parameters["worldView"];
                     epWorldViewIT             = Effect.Parameters["worldViewIT"];
                     // Others //
-                    epHalfPixel               = Effect.Parameters["halfPixel"];
                     epFarPlane                = Effect.Parameters["farPlane"];
                     epObjectNormalTexture     = Effect.Parameters["objectNormalTexture"];
                     epSpecularPower           = Effect.Parameters["specularPower"];
-                    epSpecularTexture         = Effect.Parameters["specularTexture"];
+                    epObjectSpecularTexture   = Effect.Parameters["objectSpecularTexture"];
                     epSpecularTextured        = Effect.Parameters["specularTextured"];
-                    epDepthTexture            = Effect.Parameters["depthTexture"];
                     // Parallax //
                     epObjectNormalTextureSize = Effect.Parameters["objectNormalTextureSize"];
                     epLODThreshold            = Effect.Parameters["LODThreshold"];
@@ -571,18 +559,27 @@ namespace XNAFinalEngine.Graphics
         #endregion
 
         #region Begin
-
+        
         /// <summary>
         /// Begins the G-Buffer render.
         /// </summary>
-        public void Begin()
+        public void Begin(Matrix viewMatrix, Matrix projectionMatrix, float farPlane)
         {
             try
             {
+                // Set Render States.
                 SystemInformation.Device.BlendState        = BlendState.Opaque;
                 SystemInformation.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
                 SystemInformation.Device.DepthStencilState = DepthStencilState.Default;
-                //SystemInformation.Device.SamplerStates[]
+                SystemInformation.Device.SamplerStates[0]  = SamplerState.AnisotropicWrap; // objectNormalTexture
+                SystemInformation.Device.SamplerStates[1]  = SamplerState.LinearWrap;      // objectSpecularTexture
+                SystemInformation.Device.SamplerStates[2]  = SamplerState.PointClamp;      // displacementTexture
+
+                // Set common parameters.
+                this.viewMatrix = viewMatrix;
+                this.projectionMatrix = projectionMatrix;
+                SetFarPlane(farPlane);
+
                 // With multiple render targets the GBuffer performance can be vastly improved.
                 RenderTarget.EnableRenderTargets(DepthTexture, NormalTexture, MotionVectorsSpecularPowerTexture);
                 RenderTarget.ClearCurrentRenderTargets(Color.White);

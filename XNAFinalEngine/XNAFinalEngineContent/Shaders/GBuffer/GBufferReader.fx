@@ -26,8 +26,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture depthTexture : register(t0);
-
+texture depthTexture   : register(t0);
 sampler2D depthSampler : register(s0) = sampler_state
 {
 	Texture = <depthTexture>;
@@ -38,8 +37,7 @@ sampler2D depthSampler : register(s0) = sampler_state
 	MIPFILTER = NONE;*/
 };
 
-texture normalTexture : register(t1);
-
+texture normalTexture   : register(t1);
 sampler2D normalSampler : register(s1) = sampler_state
 {
 	Texture = <normalTexture>;
@@ -50,8 +48,7 @@ sampler2D normalSampler : register(s1) = sampler_state
 	MIPFILTER = NONE;*/
 };
 
-texture motionVectorSpecularPowerTexture : register(t2);
-
+texture motionVectorSpecularPowerTexture   : register(t2);
 sampler2D motionVectorSpecularPowerSampler : register(s2) = sampler_state
 {
 	Texture = <motionVectorSpecularPowerTexture>;
