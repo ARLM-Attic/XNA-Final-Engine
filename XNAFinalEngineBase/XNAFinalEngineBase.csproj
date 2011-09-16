@@ -94,16 +94,26 @@
   <ItemGroup>
     <Compile Include="Assets\ContentManager.cs" />
     <Compile Include="Assets\Fonts\Font.cs" />
+    <Compile Include="Assets\Materials\BlinnPhong.cs" />
+    <Compile Include="Assets\Materials\Constant.cs" />
+    <Compile Include="Assets\Materials\Material.cs" />
     <Compile Include="Assets\Models\FileModel.cs" />
     <Compile Include="Assets\Models\Model.cs" />
     <Compile Include="Assets\Models\PrimitiveModel.cs" />
     <Compile Include="Assets\Shaders\Shader.cs" />
+    <Compile Include="Graphics\Cameras\Camera.cs" />
+    <Compile Include="Graphics\Cameras\EditorCamera.cs" />
     <Compile Include="Graphics\GBuffer\GBuffer.cs" />
     <Compile Include="Graphics\SpriteManager.cs" />
     <Compile Include="Helpers\PoolWithoutAccessor.cs" />
     <Compile Include="Helpers\Pool.cs" />
     <Compile Include="Helpers\StringBuilderExtensions.cs" />
     <Compile Include="Helpers\TestGarbageCollection.cs" />
+    <Compile Include="Input\InputManager.cs" />
+    <Compile Include="Input\Keyboard.cs" />
+    <Compile Include="Input\KeyboardHook.cs" />
+    <Compile Include="Input\Mouse.cs" />
+    <Compile Include="Input\XInputGamePad.cs" />
     <Compile Include="SystemInformation.cs" />
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />

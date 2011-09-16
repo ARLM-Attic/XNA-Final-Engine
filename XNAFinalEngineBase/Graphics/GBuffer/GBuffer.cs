@@ -521,40 +521,7 @@ namespace XNAFinalEngine.Graphics
                     RenderObjects(containerObject);
                 }
             }
-        } // RenderObjects
-        *//*
-        /// <summary>
-        /// It generates the depth map, normal map and motion vector/specular power map of the objects given.
-        /// </summary>
-        public static void GenerateGBuffer(List<Object> objectsToRender)
-        {
-            if (Effect == null)
-            {
-                LoadShader();
-            }
-            try
-            {
-                EngineManager.Device.BlendState = BlendState.Opaque;
-                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-
-                // With multiple render targets the performance can be improved.
-                RenderTarget.EnableRenderTargets(DepthTexture, NormalTexture, MotionVectorsSpecularPowerTexture);
-                EngineManager.ClearTargetAndDepthBuffer(Color.White);
-
-                foreach (var objectToRender in objectsToRender)
-                {
-                    RenderObjects(objectToRender);
-                }
-            
-                RenderTarget.DisableThreeRenderTargets();
-            
-                EngineManager.SetDefaultRenderStates();
-            } // try
-            catch (Exception e)
-            {
-                throw new Exception("Unable to render the G Buffer" + e.Message);
-            }
-        } // GenerateGBuffer
+        } // RenderObjects        
         */
         #endregion
 
@@ -592,6 +559,28 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
+        #region Render Model
+
+        public void RenderModel(Matrix worldMatrix, Microsoft.Xna.Framework.Graphics.Model model)
+        {
+            try
+            {
+                Effect.CurrentTechnique = Effect.Techniques["GBufferWithoutTexture"];
+                // Set parameters
+                SetTransposeInverseWorldViewMatrix(Matrix.Transpose(Matrix.Invert(worldMatrix * viewMatrix)));
+                SetWorldViewMatrix(worldMatrix * viewMatrix);
+                SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
+
+                RenderModel(model);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("GBuffer: Unable to render model.", e);
+            }
+        } // RenderModel
+
+        #endregion
+
         #region End
 
         /// <summary>
@@ -605,7 +594,7 @@ namespace XNAFinalEngine.Graphics
             } // try
             catch (Exception e)
             {
-                throw new InvalidOperationException("GBuffer: Unable to begin the rendering.", e);
+                throw new InvalidOperationException("GBuffer: Unable to end the rendering.", e);
             }
         } // Begin
 

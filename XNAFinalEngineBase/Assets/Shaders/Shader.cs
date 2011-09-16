@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.IO;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 #endregion
 
@@ -46,6 +47,15 @@ namespace XNAFinalEngine.Assets
     /// </remarks>    
     public abstract class Shader : Asset
     {
+
+        #region Variables
+
+        /// <summary>
+        /// Vertex buffer for the screen plane.
+        /// </summary>
+        private static VertexBuffer vertexBufferScreenPlane;
+
+        #endregion
 
         #region Properties
 
@@ -109,6 +119,58 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("The parameter's handles from the " + Name + " shader could not be retrieved.");
             }
         } // GetParametersHandles
+
+        #endregion
+
+        #region Render Model
+
+        /// <summary>
+        /// Render a model using this shader.
+        /// </summary>
+        public void RenderModel(Microsoft.Xna.Framework.Graphics.Model model)
+        {
+            Effect.CurrentTechnique.Passes[0].Apply();
+            // Go through all meshes in the model
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    // Set vertex buffer and index buffer
+                    SystemInformation.Device.SetVertexBuffer(part.VertexBuffer);
+                    SystemInformation.Device.Indices = part.IndexBuffer;
+                    // And render all primitives
+                    SystemInformation.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, part.VertexOffset, 0, part.NumVertices, part.StartIndex, part.PrimitiveCount);
+                }
+            }
+        } // RenderModel
+
+        #endregion
+
+        #region Render Screen Plane
+
+        /// <summary>
+        /// Render a screen plane using this shader.
+        /// A screen plane is useful for most screen space shaders.
+        /// </summary>
+        public void RenderScreenPlane()
+        {
+            Effect.CurrentTechnique.Passes[0].Apply();
+            if (vertexBufferScreenPlane == null)
+            {
+                VertexPositionTexture[] vertices = new[]
+                {
+                    new VertexPositionTexture(new Vector3(-1.0f, -1.0f, 0f), new Vector2(0, 1)),
+                    new VertexPositionTexture(new Vector3(-1.0f, 1.0f, 0f),  new Vector2(0, 0)),
+                    new VertexPositionTexture(new Vector3(1.0f, -1.0f, 0f),  new Vector2(1, 1)),
+                    new VertexPositionTexture(new Vector3(1.0f, 1.0f, 0f),   new Vector2(1, 0)),
+                };
+                vertexBufferScreenPlane = new VertexBuffer(SystemInformation.Device, typeof(VertexPositionTexture), vertices.Length, BufferUsage.WriteOnly);
+                vertexBufferScreenPlane.SetData(vertices);
+            }
+
+            SystemInformation.Device.SetVertexBuffer(vertexBufferScreenPlane);
+            SystemInformation.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
+        } // RenderScreenPlane
 
         #endregion
 

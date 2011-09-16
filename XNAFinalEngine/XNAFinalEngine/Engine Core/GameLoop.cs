@@ -52,9 +52,13 @@ namespace XNAFinalEngine.EngineCore
 
         private static GameObject2D testText;
 
+        private static GameObject3D lamboBody;
+
         private static FileModel model;
 
         private static GBuffer gbuffer;
+
+        private static EditorCamera camera;
         
         #endregion
 
@@ -80,8 +84,15 @@ namespace XNAFinalEngine.EngineCore
                 testText.Transform.LocalRotation = 0f;
             }
 
+            lamboBody = new GameObject3D();
+            ((ModelFilter)lamboBody.AddComponent<ModelFilter>()).Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
+
+
+
             model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
             gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
+
+            camera = new EditorCamera(new Vector3(0, 0, 0), 20, 0, 0);
             
             #region Garbage Collection
 
@@ -113,7 +124,10 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         internal static void Update(GameTime gameTime)
         {
-            Time.GameDeltaTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);            
+            Time.GameDeltaTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);           
+ 
+            Input.InputManager.Update();
+            camera.Update();
         } // Update
 
         #endregion
@@ -128,10 +142,10 @@ namespace XNAFinalEngine.EngineCore
             // Update frame time
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
 
-            gbuffer.Begin(Matrix.Identity, Matrix.Identity, 100);
-                //model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
+            gbuffer.Begin(camera.ViewMatrix, camera.ProjectionMatrix, 100);
+                gbuffer.RenderModel(Matrix.Identity, model.XnaModel);
             gbuffer.End();
-            SpriteManager.DrawTextureToFullScreen(gbuffer.DepthTexture);
+            SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
             
             // Draw 2D Heads Up Display
             SpriteManager.Begin();
