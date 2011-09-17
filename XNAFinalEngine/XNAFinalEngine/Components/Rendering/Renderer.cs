@@ -57,6 +57,27 @@ namespace XnaFinalEngine.Components
 
         #endregion
 
+        #region Disable
+
+        /// <summary>
+        /// Disable the component. 
+        /// </summary>
+        internal override void Disable()
+        {
+            base.Disable();
+            Owner.LayerChanged -= OnLayerChanged;
+            if (Owner is GameObject2D)
+            {
+                ((GameObject2D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
+            }
+            else
+            {
+                ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
+            }
+        } // Disable
+
+        #endregion
+
         #region On Layer Changed
 
         /// <summary>

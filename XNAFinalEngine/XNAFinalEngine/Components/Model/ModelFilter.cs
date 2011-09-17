@@ -29,7 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using XNAFinalEngine.Assets;
+using XNAFinalEngine.Helpers;
+using Model = XNAFinalEngine.Assets.Model;
 #endregion
 
 namespace XnaFinalEngine.Components
@@ -39,15 +40,70 @@ namespace XnaFinalEngine.Components
     /// Base class for renderers.
     /// A renderer is what makes an object appear on the screen.
     /// </summary>
-    public abstract class ModelFilter : Component
+    public class ModelFilter : Component
     {
+
+        #region Variables
+
+        // Model
+        private Model model;
+
+        #endregion
 
         #region Properties
 
         /// <summary>
         /// Model.
         /// </summary>
-        public Model Model { get; set; }
+        public Model Model
+        {
+            get { return model;}
+            set
+            {
+                model = value;
+                if (ModelChanged != null)
+                    ModelChanged(this, model);
+            }
+        } // Model
+
+        #endregion
+
+        #region Disable
+
+        /// <summary>
+        /// Disable the component. 
+        /// </summary>
+        internal override void Disable()
+        {
+            base.Disable();
+            ModelChanged = null;
+        } // Disable
+
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
+        /// </summary>
+        public delegate void ModelEventHandler(object sender, Model model);
+
+        /// <summary>
+        /// Raised when the model filter's model changes.
+        /// </summary>
+        public event ModelEventHandler ModelChanged;
+
+        #endregion
+
+        #region Pool
+        
+        // Pool for this type of components.
+        private static readonly Pool<ModelFilter> modelFilterPool = new Pool<ModelFilter>(20);
+
+        /// <summary>
+        /// Pool for this type of components.
+        /// </summary>
+        internal static Pool<ModelFilter> ModelFilterPool { get { return modelFilterPool; } }
 
         #endregion
 

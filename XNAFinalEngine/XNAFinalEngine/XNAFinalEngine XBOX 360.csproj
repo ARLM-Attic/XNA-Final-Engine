@@ -72,7 +72,7 @@
     <Compile Include="Components\Model\ModelFilter.cs" />
     <Compile Include="Components\Rendering\HeadsUpDisplay\HudElement.cs" />
     <Compile Include="Components\Rendering\HeadsUpDisplay\HudText.cs" />
-    <Compile Include="Components\Rendering\MeshRenderer.cs" />
+    <Compile Include="Components\Rendering\ModelRenderer.cs" />
     <Compile Include="Components\Rendering\Renderer.cs" />
     <Compile Include="Components\Transform\Transform.cs" />
     <Compile Include="Components\Transform\Transform2D.cs" />

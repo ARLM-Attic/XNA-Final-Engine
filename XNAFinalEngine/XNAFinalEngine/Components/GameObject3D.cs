@@ -6,6 +6,7 @@
 
 #region Using directives
 using System;
+using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XnaFinalEngine.Components
@@ -24,6 +25,13 @@ namespace XnaFinalEngine.Components
         /// </summary>
         private static int nameNumber = 1;
 
+        #region Accessors
+
+        private Pool<ModelFilter>.Accessor modelFilterAccessor;
+        private Pool<ModelRenderer>.Accessor modelRendererAccessor;
+
+        #endregion
+
         #endregion
 
         #region Properties
@@ -34,9 +42,14 @@ namespace XnaFinalEngine.Components
         public Transform3D Transform { get; private set; }
         
         /// <summary>
-        /// Associated renderer component.
+        /// Associated model renderer component.
         /// </summary>
-        public Renderer Renderer { get; private set; }
+        public ModelRenderer ModelRenderer { get; private set; }
+
+        /// <summary>
+        /// Associated model filter component.
+        /// </summary>
+        public ModelFilter ModelFilter { get; private set; }
         
         /// <summary>
         /// The parent of this game object.
@@ -93,21 +106,65 @@ namespace XnaFinalEngine.Components
         /// <typeparam name="TComponentType">Component Type</typeparam>
         public override Component AddComponent<TComponentType>()
         {
-            /*// Create the component.
-            TComponentType component = new TComponentType { Owner = this };
-
-            // Add it to the corresponded property.
-            if (component is Transform3D)
+            // Get from a pool or create the component.
+            if (typeof(TComponentType) == typeof(Transform3D))
             {
-                throw new Exception("Game object exception. Unable to create the transform component. The transform component can’t be replaced or removed.");
+                throw new ArgumentException("Game Object 3D: Unable to create the 3D transform component. The transform component can’t be replaced or removed.");
             }
-            if (component is Renderer)
+            if (typeof(TComponentType) == typeof(Transform2D))
             {
-                Renderer = (Renderer)(Component)component;
+                throw new ArgumentException("Game Object 3D: Unable to create the 2D transform component. A 3D Game Object does not work in 2D.");
             }
-            // Add it to the component list. The component list allows the development of new components.
-            // TODO!!*/
+            if (typeof(TComponentType) == typeof(ModelFilter))
+            {
+                // Search for an empty component in the pool.
+                modelFilterAccessor = ModelFilter.ModelFilterPool.Fetch();
+                // A component is a reference value, so no problem to do this.
+                ModelFilter = ModelFilter.ModelFilterPool[modelFilterAccessor];
+                // Initialize the component to the default values.
+                ModelFilter.Initialize(this);
+                return ModelFilter;
+            }
             return null;
+        } // AddComponent
+
+        #endregion
+
+        #region Remove Component
+
+        /// <summary>
+        /// Removes a component to the game object. 
+        /// </summary>
+        /// <remarks>
+        /// A component is not really destroyed. It returns to the component pool.
+        /// </remarks>
+        /// <typeparam name="TComponentType">Component Type</typeparam>
+        public override void RemoveComponent<TComponentType>()
+        {
+            // Get from a pool or create the component.
+            if (typeof(TComponentType) == typeof(Transform3D))
+            {
+                throw new ArgumentException("Game Object 3D: Unable to remove the 3D transform component. The transform component can’t be replaced or removed.");
+            }
+            if (typeof(TComponentType) == typeof(Transform2D))
+            {
+                throw new ArgumentException("Game Object 3D: Unable to remove the 2D transform component. A 3D Game Object does not work in 2D.");
+            }
+            if (typeof(TComponentType) == typeof(ModelFilter))
+            {
+                if (modelFilterAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the model filter component. There is not one.");
+                }
+                if (ModelRenderer != null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the model filter component. There are still components that use it.");
+                }
+                ModelFilter.Disable();
+                ModelFilter.ModelFilterPool.Release(modelFilterAccessor);
+                ModelFilter = null;
+                modelFilterAccessor = null;
+            }
         } // AddComponent
 
         #endregion

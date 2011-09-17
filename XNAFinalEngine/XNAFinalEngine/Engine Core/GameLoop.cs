@@ -37,6 +37,8 @@ using XnaFinalEngine.Components;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
+using Model = XNAFinalEngine.Assets.Model;
+
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -53,8 +55,6 @@ namespace XNAFinalEngine.EngineCore
         private static GameObject2D testText;
 
         private static GameObject3D lamboBody;
-
-        private static FileModel model;
 
         private static GBuffer gbuffer;
 
@@ -85,11 +85,9 @@ namespace XNAFinalEngine.EngineCore
             }
 
             lamboBody = new GameObject3D();
-            ((ModelFilter)lamboBody.AddComponent<ModelFilter>()).Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
-
-
-
-            model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
+            lamboBody.AddComponent<ModelFilter>();
+            lamboBody.ModelFilter.Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
+            
             gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
 
             camera = new EditorCamera(new Vector3(0, 0, 0), 20, 0, 0);
@@ -143,7 +141,10 @@ namespace XNAFinalEngine.EngineCore
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
 
             gbuffer.Begin(camera.ViewMatrix, camera.ProjectionMatrix, 100);
-                gbuffer.RenderModel(Matrix.Identity, model.XnaModel);
+                for (int i = 0; i < ModelFilter.ModelFilterPool.Count; i++)
+                {
+                    gbuffer.RenderModel(Matrix.Identity, ((FileModel)ModelFilter.ModelFilterPool.Elements[i].Model).XnaModel);
+                }
             gbuffer.End();
             SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
             

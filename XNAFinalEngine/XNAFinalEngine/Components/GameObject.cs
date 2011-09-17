@@ -137,5 +137,18 @@ namespace XnaFinalEngine.Components
 
         #endregion
 
+        #region Remove Component
+
+        /// <summary>
+        /// Removes a component to the game object.
+        /// </summary>
+        /// <typeparam name="TComponentType">Component Type</typeparam>
+        public virtual void RemoveComponent<TComponentType>() where TComponentType : Component
+        {
+            // Overrite it!!!
+        } // AddComponent
+
+        #endregion
+
     } // GameObject
 } // XnaFinalEngine.Components

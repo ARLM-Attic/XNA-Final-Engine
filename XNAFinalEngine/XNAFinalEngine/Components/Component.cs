@@ -48,5 +48,18 @@ namespace XnaFinalEngine.Components
 
         #endregion
 
+        #region Disable
+
+        /// <summary>
+        /// Disable the component.
+        /// Is important to remove event associations and any other reference.
+        /// </summary>
+        internal virtual void Disable()
+        {
+            Owner = null;
+        } // Disable
+
+        #endregion
+
     } // Component
 } // XnaFinalEngine.Components
