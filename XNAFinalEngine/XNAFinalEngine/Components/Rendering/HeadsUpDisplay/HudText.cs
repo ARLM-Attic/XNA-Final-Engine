@@ -36,7 +36,7 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
 #endregion
 
-namespace XnaFinalEngine.Components
+namespace XNAFinalEngine.Components
 {
     /// <summary>
     /// Display text into the HUD.
@@ -139,4 +139,4 @@ namespace XnaFinalEngine.Components
         #endregion
 
     } // HudText
-} // XnaFinalEngine.Components
+} // XNAFinalEngine.Components

@@ -32,7 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using Microsoft.Xna.Framework;
 #endregion
 
-namespace XnaFinalEngine.Components
+namespace XNAFinalEngine.Components
 {
 
     /// <summary>
@@ -108,4 +108,4 @@ namespace XnaFinalEngine.Components
         #endregion
 
     } // Transform
-} // XnaFinalEngine.Components
+} // XNAFinalEngine.Components

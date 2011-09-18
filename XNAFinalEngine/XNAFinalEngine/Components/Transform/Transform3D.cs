@@ -33,7 +33,7 @@ using Microsoft.Xna.Framework;
 using System;
 #endregion
 
-namespace XnaFinalEngine.Components
+namespace XNAFinalEngine.Components
 {
 
     #region Enumerates
@@ -378,4 +378,4 @@ namespace XnaFinalEngine.Components
         #endregion
 
     } // Transform3D
-} // XnaFinalEngine.Components
+} // XNAFinalEngine.Components

@@ -29,10 +29,12 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.Helpers;
 #endregion
 
-namespace XnaFinalEngine.Components
+namespace XNAFinalEngine.Components
 {
 
     /// <summary>
@@ -43,85 +45,40 @@ namespace XnaFinalEngine.Components
     {
 
         #region Variables
-        
-        /// <summary>
-        /// Chaded model filter's model value.
-        /// </summary>
-        private Model cachedModel;
+
+        /// <summary>The bounding sphere of the model in world space.</summary>
+        /// <remarks>In the old versions I used nullable types but the bounding volumes are critical (performance wise) when frustum culling is enabled.</remarks>
+        protected BoundingSphere boundingSphere;
+
+        /// <summary>The bounding box of the model in world space.</summary>
+        /// <remarks>In the old versions I used nullable types but the bounding volumes are critical (performance wise) when frustum culling is enabled.</remarks>
+        protected BoundingBox boundingBox;
 
         #endregion
 
         #region Properties
-        /*
-        #region Bounding Volumes
 
-        /// <summary>
-        /// The bounding Sphere of the model.
-        /// The bounding volume is re calculated when the position of the object changes.
-        /// A performance drop will be felt if the vertex count is big.
-        /// </summary>
-        public override BoundingSphere BoundingSphere
-        {
-            get
-            {                
-                if (!matrixWhenBoundingSphereWasCalculated.HasValue || matrixWhenBoundingSphereWasCalculated.Value != worlMatrix)
-                {
-                    matrixWhenBoundingSphereWasCalculated = worlMatrix;
-                    boundingSphere = model.BoundingSphere(worlMatrix);
-                }
-                return boundingSphere;
-            }
-        } // BoundingSphere
-
+        public Material Material { get; set; }
+        
         /// <summary>
         /// The bounding Sphere of the model.
         /// This bounding volume isn’t recalculated, only is translated and scaled accordly to its world matrix.
-        /// The result isn’t perfect but is good enough and is far superior in performance.
         /// </summary>
-        public override BoundingSphere BoundingSphereOptimized
-        {
-            get
-            {
-                return model.BoundingSphereOptimized(WorldMatrix, WorldScale);
-            }
-        } // BoundingSphereOptimized
-
+        public BoundingSphere BoundingSphere { get { return boundingSphere; } }
+        
         /// <summary>
         /// The bounding Box of the model. Aligned to the X, Y, Z planes.
-        /// The bounding volume is re calculated when the position of the object changes.
-        /// A performance drop will be felt if the vertex count is big. 
-        /// If a bounding box is still needed and the object is in motion then use a dummy object with few polygons than enclose the object.
-        /// A bounding box calculation over a simple object is not so costly.
+        /// The axis aligned bounding box is only calculated once with the vertex information.
+        /// That means that a rotated axis aligned bounding box could probably enclose very rough the model. 
+        /// In that case use bounding spheres or recalculates the bounding box manually, but remember: this operation is extremely costly for real time use.
         /// </summary>
-        public override BoundingBox BoundingBox
-        {
-            get
-            {
-                Matrix worlMatrix = WorldMatrix;
-                if (!matrixWhenBoundingBoxWasCalculated.HasValue || matrixWhenBoundingBoxWasCalculated.Value != worlMatrix)
-                {
-                    matrixWhenBoundingBoxWasCalculated = worlMatrix;
-                    boundingBox = model.BoundingBox(worlMatrix);
-                }
-                return boundingBox;
-            }
-        } // BoundingBox
+        public BoundingBox BoundingBox { get { return boundingBox; } }
 
         /// <summary>
-        /// The bounding Box of the model. Aligned to the X, Y, Z planes.
-        /// This bounding box is not recalculated, it’s only transformed.
-        /// Of course a big marge of error could exist if the object is rotated and its bounding box is far from a cube.
+        /// Chaded model filter's model value.
         /// </summary>
-        public override BoundingBox BoundingBoxOptimized
-        {
-            get
-            {
-                return model.BoundingBoxOptimized(WorldMatrix);
-            }
-        } // BoundingBoxOptimized
-
-        #endregion
-        */
+        internal Model CachedModel { get; set; }
+        
         #endregion
 
         #region Initialize
@@ -136,22 +93,38 @@ namespace XnaFinalEngine.Components
             if (((GameObject3D) Owner).ModelFilter == null)
             {
                 ((GameObject3D) Owner).AddComponent<ModelFilter>();
-                ((GameObject3D) Owner).ModelFilter.ModelChanged += OnModelChanged;
             }
+            ((GameObject3D)Owner).ModelFilter.ModelChanged += OnModelChanged;
+            Material = null;
+            CalculateBoundingVolumes();
         } // Initialize
 
         #endregion
 
-        #region Disable
+        #region Uninitialize
 
         /// <summary>
-        /// Disable the component. 
+        /// Uninitialize the component.
+        /// Is important to remove event associations and any other reference.
         /// </summary>
-        internal override void Disable()
+        internal override void Uninitialize()
         {
-            base.Disable();
+            base.Uninitialize();
             ((GameObject3D)Owner).ModelFilter.ModelChanged -= OnModelChanged;
-        } // Disable
+        } // Uninitialize
+
+        #endregion
+
+        #region On World Matrix Changed
+
+        /// <summary>
+        /// On transform's world matrix changed.
+        /// </summary>
+        protected override void OnWorldMatrixChanged(Matrix worldMatrix)
+        {
+            base.OnWorldMatrixChanged(worldMatrix);
+            CalculateBoundingVolumes();
+        } // OnWorldMatrixChanged
 
         #endregion
 
@@ -162,10 +135,63 @@ namespace XnaFinalEngine.Components
         /// </summary>
         private void OnModelChanged(object sender, Model model)
         {
-            cachedModel = model;
+            CachedModel = model;
+            CalculateBoundingVolumes();
         } // OnLayerChanged
 
         #endregion
 
-    } // MeshRenderer
-} // XnaFinalEngine.Components
+        #region Calculate Bounding Volumes
+
+        /// <summary>
+        /// Calculate the game object bounding volumes using the transformation information and the model's bounding volumes.
+        /// </summary>
+        private void CalculateBoundingVolumes()
+        {
+            if (((GameObject3D)Owner).ModelFilter.Model == null)
+            {
+                // If no model asset is present then the bounding volumes will be empty.
+                boundingSphere = new BoundingSphere();
+                boundingBox = new BoundingBox();
+            }
+            else
+            {
+                // Bounding Sphere
+                BoundingSphere modelBoundingSphere = ((GameObject3D) Owner).ModelFilter.Model.BoundingSphere;
+                float maxScale;
+                Vector3 scale = ((GameObject3D) Owner).Transform.Scale;
+                // This allows us to support non uniform scaling.
+                if (scale.X >= scale.Y && scale.X >= scale.Z)
+                {
+                    maxScale = scale.X;
+                }
+                else
+                {
+                    maxScale = scale.Y >= scale.Z ? scale.Y : scale.Z;
+                }
+                Vector3 center = Vector3.Transform(modelBoundingSphere.Center, cachedWorldMatrix); // Don't use this: boundingSphere.Value.Center + position;
+                float radius = modelBoundingSphere.Radius * maxScale;
+                boundingSphere = new BoundingSphere(center, radius);
+
+                // Bounding Box
+                BoundingBox modelBoudingBox = ((GameObject3D) Owner).ModelFilter.Model.BoundingBox;
+                boundingBox = new BoundingBox(Vector3.Transform(modelBoudingBox.Min, cachedWorldMatrix), Vector3.Transform(modelBoudingBox.Max, cachedWorldMatrix));
+            }
+        } // CalculateBoundingVolumes
+
+        #endregion
+
+        #region Pool
+
+        // Pool for this type of components.
+        private static readonly Pool<ModelRenderer> modelRendererPool = new Pool<ModelRenderer>(20);
+
+        /// <summary>
+        /// Pool for this type of components.
+        /// </summary>
+        internal static Pool<ModelRenderer> ModelRendererPool { get { return modelRendererPool; } }
+
+        #endregion
+
+    } // ModelRenderer
+} // XNAFinalEngine.Components

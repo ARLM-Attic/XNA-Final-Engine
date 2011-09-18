@@ -30,60 +30,66 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
-using System;
 #endregion
 
 namespace XNAFinalEngine.Components
 {
 
     /// <summary>
-    /// Base class for Hud Elements.
+    /// Point Light.
     /// </summary>
-    public abstract class HudElement : Renderer
+    public class SpotLight : Light
     {
+
+        #region Variables
+
+        internal Vector3 cachedPosition;
+        internal Vector3 cachedDirection;
+
+        // // The range of the light.
+        private float range = 1;
+
+        // The spot light cone (in degrees)
+        private float apertureCone = 60;
+
+        #endregion
 
         #region Properties
 
         /// <summary>
-        /// Chaded transform2D's world matrix value.
+        /// The spot light cone (in degrees)
         /// </summary>
-        internal Vector3 CachedPosition;
-
-        /// <summary>
-        /// Chaded transform2D's rotation value.
-        /// </summary>
-        internal float CachedRotation { get; set; }
-
-        /// <summary>
-        /// Chaded transform2D's scale value.
-        /// </summary>
-        internal float CachedScale { get; set; }
-
-        #endregion
-
-        #region On World Matrix Changed
-
-        /// <summary>
-        /// On transform's world matrix changed.
-        /// </summary>
-        protected override void OnWorldMatrixChanged(Matrix worldMatrix)
+        public float ApertureCone
         {
-            cachedWorldMatrix = worldMatrix;
-            // We could pass directly the calculated values. In this case there are calculated using the world matrix.
-            if (Owner is GameObject2D)
-            {
-                // Decompose in position, rotation and scale.
-                Quaternion quaternion;
-                Vector3 scale;
-                cachedWorldMatrix.Decompose(out scale, out quaternion, out CachedPosition);
-                CachedScale = scale.X;
-                // Quaternion to rotation angle.
-                Vector2 direction = Vector2.Transform(Vector2.UnitX, quaternion);
-                CachedRotation = (float)Math.Atan2(direction.Y, direction.X);
-            }
-        } // OnWorldMatrixChanged
+            get { return apertureCone; }
+            set { apertureCone = value; }
+        } // ApertureCone
+
+        /// <summary>
+        /// The range of the light.
+        /// </summary>
+        public float Range
+        {
+            get { return range; }
+            set { range = value; }
+        } // Range
 
         #endregion
 
-    } // HudElement
+        #region Initialize
+
+        /// <summary>
+        /// Initialize the component. 
+        /// </summary>
+        internal override void Initialize(GameObject owner)
+        {
+            base.Initialize(owner);
+            // Values
+            range = 1;
+            apertureCone = 60;
+        } // Initialize
+
+        #endregion
+        
+    } // PointLight
 } // XNAFinalEngine.Components

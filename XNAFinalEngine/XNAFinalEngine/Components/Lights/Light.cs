@@ -36,18 +36,21 @@ namespace XNAFinalEngine.Components
 {
 
     /// <summary>
-    /// Base class for renderers.
-    /// A renderer is what makes an object appear on the screen.
+    /// Base class for lights.
     /// </summary>
-    public abstract class Renderer : Component
+    public abstract class Light : Component
     {
 
         #region Variables
 
-        /// <summary>
-        /// Chaded transform's world matrix value.
-        /// </summary>
-        internal Matrix cachedWorldMatrix;
+        // Light diffuse color.
+        private Color diffuseColor;
+
+        //Light specular color.
+        private Color specularColor;
+        
+        // The Intensity of a light is multiplied with the Light color.
+        private float intensity;
 
         /// <summary>
         /// Chaded game object's layer mask value.
@@ -59,9 +62,31 @@ namespace XNAFinalEngine.Components
         #region Properties
 
         /// <summary>
-        /// Makes the game object visible or not.
+        /// Light diffuse color.
         /// </summary>
-        public bool Visible { get; set; }
+        public Color DiffuseColor
+        {
+            get { return diffuseColor; }
+            set { diffuseColor = value; }
+        } // DiffuseColor
+
+        /// <summary>
+        /// Light specular color.
+        /// </summary>
+        public Color SpecularColor
+        {
+            get { return specularColor; }
+            set { specularColor = value; }
+        } // DiffuseColor
+
+        /// <summary>
+        /// The Intensity of a light is multiplied with the Light color.
+        /// </summary>
+        public float Intensity
+        {
+            get { return intensity; } 
+            set { intensity = value; }
+        } // Intensity
 
         #endregion
 
@@ -73,21 +98,15 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
-            Visible = true;
-            // Set Layer
+            // Values
+            intensity = 1;
+            diffuseColor = Color.White;
+            specularColor = Color.White;
+            // Layer
             cachedLayerMask = Owner.Layer.Mask;
             Owner.LayerChanged += OnLayerChanged;
-            // Set World Matrix
-            if (Owner is GameObject2D)
-            {
-                cachedWorldMatrix = ((GameObject2D) Owner).Transform.WorldMatrix;
-                ((GameObject2D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
-            }
-            else
-            {
-                cachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
-                ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
-            }
+            // Transformation
+            ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
         } // Initialize
 
         #endregion
@@ -102,15 +121,20 @@ namespace XNAFinalEngine.Components
         {
             base.Uninitialize();
             Owner.LayerChanged -= OnLayerChanged;
-            if (Owner is GameObject2D)
-            {
-                ((GameObject2D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
-            }
-            else
-            {
-                ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
-            }
+            ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
         } // Uninitialize
+
+        #endregion
+
+        #region On World Matrix Changed
+
+        /// <summary>
+        /// On transform's world matrix changed.
+        /// </summary>
+        protected virtual void OnWorldMatrixChanged(Matrix worldMatrix)
+        {
+            
+        } // OnWorldMatrixChanged
 
         #endregion
 
@@ -125,18 +149,6 @@ namespace XNAFinalEngine.Components
         } // OnLayerChanged
 
         #endregion
-
-        #region On World Matrix Changed
-
-        /// <summary>
-        /// On transform's world matrix changed.
-        /// </summary>
-        protected virtual void OnWorldMatrixChanged(Matrix worldMatrix)
-        {
-            cachedWorldMatrix = worldMatrix;
-        } // OnWorldMatrixChanged
-
-        #endregion
-
-    } // Renderer
+        
+    } // Light
 } // XNAFinalEngine.Components

@@ -33,7 +33,7 @@ using XNAFinalEngine.Helpers;
 using Model = XNAFinalEngine.Assets.Model;
 #endregion
 
-namespace XnaFinalEngine.Components
+namespace XNAFinalEngine.Components
 {
 
     /// <summary>
@@ -68,16 +68,31 @@ namespace XnaFinalEngine.Components
 
         #endregion
 
-        #region Disable
+        #region Initialize
 
         /// <summary>
-        /// Disable the component. 
+        /// Initialize the component. 
         /// </summary>
-        internal override void Disable()
+        internal override void Initialize(GameObject owner)
         {
-            base.Disable();
+            base.Initialize(owner);
+            // Values
+            model = null;
+        } // Initialize
+
+        #endregion
+
+        #region Uninitialize
+
+        /// <summary>
+        /// Uninitialize the component.
+        /// Is important to remove event associations and any other reference.
+        /// </summary>
+        internal override void Uninitialize()
+        {
+            base.Uninitialize();
             ModelChanged = null;
-        } // Disable
+        } // Uninitialize
 
         #endregion
 
@@ -108,4 +123,4 @@ namespace XnaFinalEngine.Components
         #endregion
 
     } // ModelFilter
-} // XnaFinalEngine.Components
+} // XNAFinalEngine.Components

@@ -32,13 +32,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Runtime;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using XnaFinalEngine.Components;
+using XNAFinalEngine.Components;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
-using Model = XNAFinalEngine.Assets.Model;
-
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -72,21 +69,20 @@ namespace XNAFinalEngine.EngineCore
             // Create the 32 layers.
             Layer.InitLayers();
             SpriteManager.Init();
-
-            //for (int i = 0; i < HudText.HudTextPool2D.Capacity; i++)
-            {
-                testText = new GameObject2D();
-                testText.AddComponent<HudText>();
-                testText.HudText.Font = new Font("Arial12");
-                testText.HudText.Color = Color.Black;
-                testText.HudText.Text.Insert(0, "FPS ");
-                testText.Transform.LocalPosition = new Vector3(100, 100, 0);
-                testText.Transform.LocalRotation = 0f;
-            }
+            
+            testText = new GameObject2D();
+            testText.AddComponent<HudText>();
+            testText.HudText.Font = new Font("Arial12");
+            testText.HudText.Color = Color.Black;
+            testText.HudText.Text.Insert(0, "FPS ");
+            testText.Transform.LocalPosition = new Vector3(100, 100, 0);
+            testText.Transform.LocalRotation = 0f;
+            
 
             lamboBody = new GameObject3D();
-            lamboBody.AddComponent<ModelFilter>();
+            lamboBody.AddComponent<ModelRenderer>();
             lamboBody.ModelFilter.Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
+            lamboBody.ModelRenderer.Material = new Constant { DiffuseColor = Color.Turquoise };
             
             gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
 
@@ -141,9 +137,14 @@ namespace XNAFinalEngine.EngineCore
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
 
             gbuffer.Begin(camera.ViewMatrix, camera.ProjectionMatrix, 100);
-                for (int i = 0; i < ModelFilter.ModelFilterPool.Count; i++)
+                ModelRenderer currentModelRenderer; 
+                for (int i = 0; i < ModelRenderer.ModelRendererPool.Count; i++)
                 {
-                    gbuffer.RenderModel(Matrix.Identity, ((FileModel)ModelFilter.ModelFilterPool.Elements[i].Model).XnaModel);
+                    currentModelRenderer = ModelRenderer.ModelRendererPool.Elements[i];
+                    if (currentModelRenderer.CachedModel != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                    {
+                        gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel);
+                    }
                 }
             gbuffer.End();
             SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
@@ -170,6 +171,23 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
             SpriteManager.End();
+
+            #region XBOX Matrix test
+            /*
+            Matrix toto = Matrix.Identity;
+            Matrix pepe = Matrix.Identity;
+            for (int i = 0; i < 10000; i++)
+            {                
+                Matrix.Multiply(ref toto, ref pepe, out pepe);
+            }/*
+            Matrix toto = Matrix.Identity;
+            Matrix pepe = Matrix.Identity;
+            for (int i = 0; i < 10000; i++)
+            {
+                pepe = Matrix.Multiply(toto, pepe);
+            }*/
+
+            #endregion
 
             #region Foreach vs. for test
 

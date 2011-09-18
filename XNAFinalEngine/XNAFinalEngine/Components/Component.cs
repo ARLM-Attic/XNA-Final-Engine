@@ -4,7 +4,7 @@
 //          Schefer, Gustavo Martin (Under Microsoft Permisive License)
 #endregion
 
-namespace XnaFinalEngine.Components
+namespace XNAFinalEngine.Components
 {
 
     /// <summary>
@@ -48,18 +48,18 @@ namespace XnaFinalEngine.Components
 
         #endregion
 
-        #region Disable
+        #region Uninitialize
 
         /// <summary>
-        /// Disable the component.
+        /// Uninitialize the component.
         /// Is important to remove event associations and any other reference.
         /// </summary>
-        internal virtual void Disable()
+        internal virtual void Uninitialize()
         {
             Owner = null;
-        } // Disable
+        } // Uninitialize
 
         #endregion
 
     } // Component
-} // XnaFinalEngine.Components
+} // XNAFinalEngine.Components

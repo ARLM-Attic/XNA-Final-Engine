@@ -561,7 +561,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Render Model
 
-        public void RenderModel(Matrix worldMatrix, Microsoft.Xna.Framework.Graphics.Model model)
+        public void RenderModel(Matrix worldMatrix, Assets.Model model)
         {
             try
             {
@@ -571,7 +571,7 @@ namespace XNAFinalEngine.Graphics
                 SetWorldViewMatrix(worldMatrix * viewMatrix);
                 SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
 
-                RenderModel(model);
+                RenderModel(((FileModel)model).XnaModel);
             }
             catch (Exception e)
             {

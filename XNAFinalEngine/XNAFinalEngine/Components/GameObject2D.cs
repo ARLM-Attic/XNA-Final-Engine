@@ -9,7 +9,7 @@ using System;
 using XNAFinalEngine.Helpers;
 #endregion
 
-namespace XnaFinalEngine.Components
+namespace XNAFinalEngine.Components
 {
 
     /// <summary>
@@ -127,4 +127,4 @@ namespace XnaFinalEngine.Components
         #endregion
 
     } // GameObject2D
-} // XnaFinalEngine.Components
+} // XNAFinalEngine.Components

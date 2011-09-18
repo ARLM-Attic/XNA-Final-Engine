@@ -36,7 +36,7 @@ using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 #endregion
 
-namespace XnaFinalEngine.Components
+namespace XNAFinalEngine.Components
 {
 
     /// <summary>
@@ -294,4 +294,4 @@ namespace XnaFinalEngine.Components
         #endregion
 
     } // Camera
-} // XnaFinalEngine.Components
+} // XNAFinalEngine.Components

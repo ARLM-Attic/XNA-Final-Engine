@@ -114,6 +114,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Components\GameObject3D.cs" />
+    <Compile Include="Components\Lights\SpotLight.cs" />
+    <Compile Include="Components\Lights\DirectionalLight.cs" />
+    <Compile Include="Components\Lights\PointLight.cs" />
+    <Compile Include="Components\Lights\Light.cs" />
     <Compile Include="Components\Model\ModelFilter.cs" />
     <Compile Include="Components\Rendering\HeadsUpDisplay\HudText.cs" />
     <Compile Include="Components\Rendering\HeadsUpDisplay\HudElement.cs" />

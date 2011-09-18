@@ -4,7 +4,7 @@
 //          Schefer, Gustavo Martin (Under Microsoft Permisive License)
 #endregion
 
-namespace XnaFinalEngine.Components
+namespace XNAFinalEngine.Components
 {
     
     /// <summary>
@@ -151,4 +151,4 @@ namespace XnaFinalEngine.Components
         #endregion
 
     } // GameObject
-} // XnaFinalEngine.Components
+} // XNAFinalEngine.Components

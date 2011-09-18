@@ -9,7 +9,7 @@ using System;
 using XNAFinalEngine.Helpers;
 #endregion
 
-namespace XnaFinalEngine.Components
+namespace XNAFinalEngine.Components
 {
 
     /// <summary>
@@ -117,6 +117,10 @@ namespace XnaFinalEngine.Components
             }
             if (typeof(TComponentType) == typeof(ModelFilter))
             {
+                if (modelFilterAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the 2D model filter component. There is one already.");
+                }
                 // Search for an empty component in the pool.
                 modelFilterAccessor = ModelFilter.ModelFilterPool.Fetch();
                 // A component is a reference value, so no problem to do this.
@@ -125,7 +129,21 @@ namespace XnaFinalEngine.Components
                 ModelFilter.Initialize(this);
                 return ModelFilter;
             }
-            return null;
+            if (typeof(TComponentType) == typeof(ModelRenderer))
+            {
+                if (modelRendererAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the 2D model renderer component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                modelRendererAccessor = ModelRenderer.ModelRendererPool.Fetch();
+                // A component is a reference value, so no problem to do this.
+                ModelRenderer = ModelRenderer.ModelRendererPool[modelRendererAccessor];
+                // Initialize the component to the default values.
+                ModelRenderer.Initialize(this);
+                return ModelRenderer;
+            }
+            throw new ArgumentException("Game Object 3D: Unknown component type.");
         } // AddComponent
 
         #endregion
@@ -136,7 +154,7 @@ namespace XnaFinalEngine.Components
         /// Removes a component to the game object. 
         /// </summary>
         /// <remarks>
-        /// A component is not really destroyed. It returns to the component pool.
+        /// A component is not really destroyed, is recycled, it returns to the component pool.
         /// </remarks>
         /// <typeparam name="TComponentType">Component Type</typeparam>
         public override void RemoveComponent<TComponentType>()
@@ -160,14 +178,25 @@ namespace XnaFinalEngine.Components
                 {
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the model filter component. There are still components that use it.");
                 }
-                ModelFilter.Disable();
+                ModelFilter.Uninitialize();
                 ModelFilter.ModelFilterPool.Release(modelFilterAccessor);
                 ModelFilter = null;
                 modelFilterAccessor = null;
             }
-        } // AddComponent
+            if (typeof(TComponentType) == typeof(ModelRenderer))
+            {
+                if (modelRendererAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the model renderer component. There is not one.");
+                }
+                ModelRenderer.Uninitialize();
+                ModelRenderer.ModelRendererPool.Release(modelRendererAccessor);
+                ModelRenderer = null;
+                modelRendererAccessor = null;
+            }
+        } // RemoveComponent
 
         #endregion
 
     } // GameObject3D
-} // XnaFinalEngine.Components
+} // XNAFinalEngine.Components

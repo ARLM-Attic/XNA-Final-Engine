@@ -36,32 +36,29 @@ namespace XNAFinalEngine.Components
 {
 
     /// <summary>
-    /// Base class for renderers.
-    /// A renderer is what makes an object appear on the screen.
+    /// Point Light.
     /// </summary>
-    public abstract class Renderer : Component
+    public class PointLight : Light
     {
 
         #region Variables
 
-        /// <summary>
-        /// Chaded transform's world matrix value.
-        /// </summary>
-        internal Matrix cachedWorldMatrix;
+        internal Vector3 cachedPosition;
 
-        /// <summary>
-        /// Chaded game object's layer mask value.
-        /// </summary>
-        internal int cachedLayerMask;
+        private float range;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Makes the game object visible or not.
+        /// The range of the light.
         /// </summary>
-        public bool Visible { get; set; }
+        public float Range
+        {
+            get { return range; }
+            set { range = value; }
+        } // Range
 
         #endregion
 
@@ -73,70 +70,11 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
-            Visible = true;
-            // Set Layer
-            cachedLayerMask = Owner.Layer.Mask;
-            Owner.LayerChanged += OnLayerChanged;
-            // Set World Matrix
-            if (Owner is GameObject2D)
-            {
-                cachedWorldMatrix = ((GameObject2D) Owner).Transform.WorldMatrix;
-                ((GameObject2D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
-            }
-            else
-            {
-                cachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
-                ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
-            }
+            // Values
+            range = 1;
         } // Initialize
 
         #endregion
 
-        #region Uninitialize
-
-        /// <summary>
-        /// Uninitialize the component.
-        /// Is important to remove event associations and any other reference.
-        /// </summary>
-        internal override void Uninitialize()
-        {
-            base.Uninitialize();
-            Owner.LayerChanged -= OnLayerChanged;
-            if (Owner is GameObject2D)
-            {
-                ((GameObject2D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
-            }
-            else
-            {
-                ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
-            }
-        } // Uninitialize
-
-        #endregion
-
-        #region On Layer Changed
-
-        /// <summary>
-        /// On game object's layer changed.
-        /// </summary>
-        private void OnLayerChanged(object sender, int layerMask)
-        {
-            cachedLayerMask = layerMask;
-        } // OnLayerChanged
-
-        #endregion
-
-        #region On World Matrix Changed
-
-        /// <summary>
-        /// On transform's world matrix changed.
-        /// </summary>
-        protected virtual void OnWorldMatrixChanged(Matrix worldMatrix)
-        {
-            cachedWorldMatrix = worldMatrix;
-        } // OnWorldMatrixChanged
-
-        #endregion
-
-    } // Renderer
+    } // PointLight
 } // XNAFinalEngine.Components

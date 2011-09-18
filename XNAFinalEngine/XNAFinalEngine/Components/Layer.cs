@@ -3,7 +3,7 @@
 using System;
 #endregion
 
-namespace XnaFinalEngine.Components
+namespace XNAFinalEngine.Components
 {
     /// <summary>
     /// Layers can be used for selective rendering from cameras
@@ -126,4 +126,4 @@ namespace XnaFinalEngine.Components
         #endregion
 
     } // Layer
-} // XnaFinalEngine.Components
+} // XNAFinalEngine.Components
