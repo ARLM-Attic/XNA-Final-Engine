@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <XnaContent>
-  <Asset Type="XNAFinalEngine.Particles.ParticleSettings">
+  <Asset Type="XNAFinalEngineContentPipelineExtensionRuntime.Particles.ParticleSettings">
     <BlendState>Additive</BlendState>
     <TextureName>Fire</TextureName>
     <MaxParticles>400</MaxParticles>

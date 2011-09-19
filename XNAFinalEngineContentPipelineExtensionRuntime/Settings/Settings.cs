@@ -28,7 +28,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
-namespace XNAFinalEngine.Settings
+namespace XNAFinalEngineContentPipelineExtensionRuntime.Settings
 {
     /// <summary>
     /// Settings class describes all the tweakable options used to control the engine.
@@ -98,4 +98,4 @@ namespace XNAFinalEngine.Settings
         public bool IsMouseVisible = true;
 
     } // MainSettings
-} // XNAFinalEngine.Settings
+} // XNAFinalEngineContentPipelineExtensionRuntime.Settings

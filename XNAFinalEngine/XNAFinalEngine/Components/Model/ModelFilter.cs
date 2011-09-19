@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using XNAFinalEngine.Helpers;
 using Model = XNAFinalEngine.Assets.Model;
+using XNAFinalEngine.Assets;
 #endregion
 
 namespace XNAFinalEngine.Components
@@ -63,6 +64,10 @@ namespace XNAFinalEngine.Components
                 model = value;
                 if (ModelChanged != null)
                     ModelChanged(this, model);
+                if (model is FileModel && ((FileModel)model).XnaModel.Tag != null) // If it's a XNA model and if it has animations. 
+                {
+                    // Agrego un component de animacion TODO
+                }
             }
         } // Model
 

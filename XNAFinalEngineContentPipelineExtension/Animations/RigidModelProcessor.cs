@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
-using XNAFinalEngine.Animations;
+using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 #endregion
 
 namespace XNAFinalEngineContentPipelineExtension.Animations
@@ -22,15 +22,15 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
     /// <summary>
     /// Custom processor extends the builtin framework ModelProcessor class, adding animation support.
     /// </summary>
-    [ContentProcessor(DisplayName = "Animated Model - XNA Final Engine")]
-    public class AnimatedModelProcessor : ModelProcessor
+    [ContentProcessor(DisplayName = "Model with Rigid Animation - XNA Final Engine")]
+    public class RigidModelProcessor : ModelProcessor
     {
 
         #region Process
 
         /// <summary> 
         /// The main Process method converts an intermediate format content pipeline
-        /// NodeContent tree to a ModelConte nt object with embedded animation data.
+        /// NodeContent tree to a ModelContent object with embedded animation data.
         /// </summary>
         public override ModelContent Process(NodeContent input, ContentProcessorContext context)
         { 
@@ -57,7 +57,7 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
             ProcessAnimations(input, model, animationClips, rootClips);
                         
             // Store the data for the model
-            model.Tag = new ModelAnimationData(animationClips, rootClips, null, null, boneHierarchy);
+            model.Tag = new AnimationData(animationClips, rootClips, null, null, boneHierarchy);
 
             return model;
         } // Process
@@ -283,5 +283,5 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
 
         #endregion
 
-    } // AnimatedModelProcessor
+    } // RigidModelProcessor
 } // XNAFinalEngineContentPipelineExtension.Animations

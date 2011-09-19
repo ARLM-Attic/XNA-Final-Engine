@@ -15,7 +15,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 #endregion
 
-namespace XNAFinalEngine.Particles
+namespace XNAFinalEngineContentPipelineExtensionRuntime.Particles
 {
     /// <summary>
     /// Settings class describes all the tweakable options used
@@ -130,4 +130,4 @@ namespace XNAFinalEngine.Particles
         } // BlendStateSerializationHelper
 
     } // ParticleSettings
-} // XNAFinalEngine.Particles
+} // XNAFinalEngineContentPipelineExtensionRuntime.Particles

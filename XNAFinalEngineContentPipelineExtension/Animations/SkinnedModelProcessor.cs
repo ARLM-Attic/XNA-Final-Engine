@@ -11,7 +11,7 @@
 #region Using directives
 using System;
 using System.Collections.Generic;
-using XNAFinalEngine.Animations;
+using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
@@ -23,7 +23,7 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
     /// <summary>
     /// Custom processor extends the builtin framework ModelProcessor class, adding animation support.
     /// </summary>
-    [ContentProcessor(DisplayName = "Skinned Model - XNA Final Engine")]
+    [ContentProcessor(DisplayName = "Model with Skinning Animation - XNA Final Engine")]
     public class SkinnedModelProcessor : ModelProcessor
     {
         // Maximum number of bone matrices we can render in a single pass.
@@ -78,13 +78,13 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
             // Convert each animation in the root of the object            
             foreach (KeyValuePair<string, AnimationContent> animation in input.Animations)
             {
-                AnimationClip processed = AnimatedModelProcessor.ProcessRootAnimation(animation.Value, model.Bones[0].Name);
+                AnimationClip processed = RigidModelProcessor.ProcessRootAnimation(animation.Value, model.Bones[0].Name);
 
                 rootClips.Add(animation.Key, processed);
             }            
  
             // Store our custom animation data in the Tag property of the model.
-            model.Tag = new ModelAnimationData(animationClips, null, bindPose, inverseBindPose, skeletonHierarchy);
+            model.Tag = new AnimationData(animationClips, rootClips, bindPose, inverseBindPose, skeletonHierarchy);
 
             return model;
         } // Process

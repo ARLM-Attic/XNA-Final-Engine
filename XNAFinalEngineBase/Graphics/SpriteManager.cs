@@ -163,7 +163,7 @@ namespace XNAFinalEngine.Graphics
             // Besides, we don’t need more than this because the render target will match the screen resolution.
             // Also there is no need for alpha blending.
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
-
+            
             spriteBatch.Draw(renderTarget.XnaTexture, 
                              new Rectangle(0, 0, 
                                            SystemInformation.Device.PresentationParameters.BackBufferWidth,

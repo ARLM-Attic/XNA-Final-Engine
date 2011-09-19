@@ -89,12 +89,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animations\AnimationClip.cs" />
-    <Compile Include="Animations\AnimationPlayerBase.cs" />
-    <Compile Include="Animations\ModelAnimationData.cs" />
+    <Compile Include="Animations\AnimationData.cs" />
     <Compile Include="Animations\Keyframe.cs" />
-    <Compile Include="Animations\RigidAnimationPlayer.cs" />
-    <Compile Include="Animations\RootAnimationPlayer.cs" />
-    <Compile Include="Animations\SkinnedAnimationPlayer.cs" />
     <Compile Include="Particles\ParticleSettings.cs">
       <SubType>Code</SubType>
     </Compile>

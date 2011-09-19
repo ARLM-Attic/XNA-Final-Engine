@@ -49,8 +49,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Animations\AnimatedModelProcessor.cs" />
-    <Compile Include="Animations\AnimationProcessor.cs" />
+    <Compile Include="Animations\RigidAnimationProcessor.cs" />
+    <Compile Include="Animations\RigidModelProcessor.cs" />
+    <Compile Include="Animations\SkinnedAnimationProcessor.cs" />
     <Compile Include="Animations\SkinnedModelProcessor.cs" />
     <Compile Include="XDocumentWriter.cs" />
     <Compile Include="UserInterface\CursorImporter.cs" />

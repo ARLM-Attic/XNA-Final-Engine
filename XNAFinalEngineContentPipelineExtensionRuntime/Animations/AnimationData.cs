@@ -9,19 +9,18 @@
 #endregion
 
 #region Using directives
-using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 #endregion
 
-namespace XNAFinalEngine.Animations
+namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
 {
     /// <summary>
     /// Combines all the data needed to render and animate a skinned object.
     /// This is typically stored in the Tag property of the Model being animated.
     /// </summary>
-    public class ModelAnimationData
+    public class AnimationData
     {
 
         #region Properties
@@ -68,11 +67,11 @@ namespace XNAFinalEngine.Animations
         /// <summary>
         /// Constructs a new skinning data object.
         /// </summary>
-        public ModelAnimationData(Dictionary<string, AnimationClip> modelAnimationClips,
-                         Dictionary<string, AnimationClip> rootAnimationClips,
-                         List<Matrix> bindPose,
-                         List<Matrix> inverseBindPose,
-                         List<int> skeletonHierarchy)
+        public AnimationData(Dictionary<string, AnimationClip> modelAnimationClips,
+                             Dictionary<string, AnimationClip> rootAnimationClips,
+                             List<Matrix> bindPose,
+                             List<Matrix> inverseBindPose,
+                             List<int> skeletonHierarchy)
         {
             ModelAnimationClips = modelAnimationClips;
             RootAnimationClips = rootAnimationClips;
@@ -84,9 +83,9 @@ namespace XNAFinalEngine.Animations
         /// <summary>
         /// Private constructor for use by the XNB deserializer.
         /// </summary>
-        private ModelAnimationData() { }
+        private AnimationData() { }
 
         #endregion
 
-    } // ModelAnimationData
-} // XNAFinalEngine.Animations
+    } // AnimationData
+} // XNAFinalEngineContentPipelineExtensionRuntime.Animations

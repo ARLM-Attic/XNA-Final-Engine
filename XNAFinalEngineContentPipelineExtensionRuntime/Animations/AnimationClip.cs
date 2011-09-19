@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 #endregion
 
-namespace XNAFinalEngine.Animations
+namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
 {
     /// <summary>
     /// A animation clip is the runtime equivalent of the Microsoft.Xna.Framework.Content.Pipeline.Graphics.AnimationContent type.
@@ -51,4 +51,4 @@ namespace XNAFinalEngine.Animations
         private AnimationClip() { }
 
     } // AnimationClip
-} // XNAFinalEngine.Animations
+} // XNAFinalEngineContentPipelineExtensionRuntime.Animations

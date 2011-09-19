@@ -36,7 +36,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.Settings;
+using XNAFinalEngineContentPipelineExtensionRuntime.Settings;
 #if (!XBOX)
     using System.Threading;
     using System.Windows.Forms;

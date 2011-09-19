@@ -14,7 +14,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 #endregion
 
-namespace XNAFinalEngine.Animations
+namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
 {
     /// <summary>
     /// Describes the position of a single bone at a single point in time.
@@ -59,4 +59,4 @@ namespace XNAFinalEngine.Animations
         #endregion
 
     } // Keyframe
-} // XNAFinalEngine.Animations
+} // XNAFinalEngineContentPipelineExtensionRuntime.Animations

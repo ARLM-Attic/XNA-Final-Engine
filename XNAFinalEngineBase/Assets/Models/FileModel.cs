@@ -132,7 +132,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Load a .x or fbx file.
         /// </summary>
-        public FileModel(String filename)
+        public FileModel(string filename)
         {
             Name = filename;
             string fullFilename = ContentManager.GameDataDirectory + "Models\\" + filename;

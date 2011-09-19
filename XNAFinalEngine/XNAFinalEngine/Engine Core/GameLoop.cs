@@ -51,7 +51,7 @@ namespace XNAFinalEngine.EngineCore
 
         private static GameObject2D testText;
 
-        private static GameObject3D lamboBody;
+        private static GameObject3D lamboBody, dude;
 
         private static GBuffer gbuffer;
 
@@ -83,6 +83,13 @@ namespace XNAFinalEngine.EngineCore
             lamboBody.AddComponent<ModelRenderer>();
             lamboBody.ModelFilter.Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
             lamboBody.ModelRenderer.Material = new Constant { DiffuseColor = Color.Turquoise };
+
+            Animation animation = new Animation("DudeWalk");
+
+            /*dude = new GameObject3D();
+            dude.AddComponent<ModelFilter>();
+            dude.ModelFilter.Model = new FileModel("DudeWalk");*/
+
             
             gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
 
@@ -135,7 +142,7 @@ namespace XNAFinalEngine.EngineCore
         {
             // Update frame time
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
-
+            
             gbuffer.Begin(camera.ViewMatrix, camera.ProjectionMatrix, 100);
                 ModelRenderer currentModelRenderer; 
                 for (int i = 0; i < ModelRenderer.ModelRendererPool.Count; i++)
@@ -147,6 +154,7 @@ namespace XNAFinalEngine.EngineCore
                     }
                 }
             gbuffer.End();
+            
             SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
             
             // Draw 2D Heads Up Display
@@ -171,7 +179,7 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
             SpriteManager.End();
-
+            
             #region XBOX Matrix test
             /*
             Matrix toto = Matrix.Identity;

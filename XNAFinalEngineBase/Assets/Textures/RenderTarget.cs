@@ -44,6 +44,20 @@ namespace XNAFinalEngine.Assets
     public class RenderTarget : Texture
     {
 
+        #region Structs
+
+        /// <summary>
+        /// This structure is used to set multiple render targets without generating garbage in the process.
+        /// Using directly something like this GraphicsDevice.SetRenderTargets(diffuseRt, normalRt, depthRt) will generate garbage.
+        /// </summary>
+        public struct RenderTargetBinding
+        {
+            internal Microsoft.Xna.Framework.Graphics.RenderTargetBinding[] InternalBinding;
+            internal RenderTarget[] renderTargets;
+        } // RenderTargetBinding
+
+        #endregion
+
         #region Enumerates
 
         /// <summary>
@@ -443,65 +457,24 @@ namespace XNAFinalEngine.Assets
         } // EnableRenderTarget
 
         /// <summary>
-        /// Set render target for render.
+        /// Enable multiple render targets.
         /// </summary>
-        public static void EnableRenderTarget(RenderTarget renderTarget)
+        /// <param name="renderTargetBinding">
+        /// This structure is used to set multiple render targets without generating garbage in the process.
+        /// You can create it using the BindRenderTargets method.
+        /// </param>
+        public static void EnableRenderTargets(RenderTargetBinding renderTargetBinding)
         {
             if (currentRenderTarget[0] != null)
                 throw new InvalidOperationException("Render Target: unable to set render target. Another render target is still set.");
-            SystemInformation.Device.SetRenderTarget(renderTarget.renderTarget);
-            currentRenderTarget[0] = renderTarget;
-            renderTarget.alreadyResolved = false;
-        } // EnableRenderTarget
-
-        /// <summary>
-        /// Set two render targets at once.
-        /// </summary>
-        public static void EnableRenderTargets(RenderTarget renderTarget1, RenderTarget renderTarget2)
-        {
-            if (currentRenderTarget[0] != null)
-                throw new InvalidOperationException("Render Target: unable to set render target. Another render target is still set.");
-            SystemInformation.Device.SetRenderTargets(renderTarget1.renderTarget, renderTarget2.renderTarget);
-            currentRenderTarget[0] = renderTarget1;
-            renderTarget1.alreadyResolved = false;
-            currentRenderTarget[1] = renderTarget2;
-            renderTarget2.alreadyResolved = false;
+            for (int i = 0; i < renderTargetBinding.renderTargets.Length; i++)
+            {
+                currentRenderTarget[i] = renderTargetBinding.renderTargets[i];
+                renderTargetBinding.renderTargets[i].alreadyResolved = false;
+            }
+            SystemInformation.Device.SetRenderTargets(renderTargetBinding.InternalBinding);
         } // EnableRenderTargets
-
-        /// <summary>
-        /// Set three render targets at once.
-        /// </summary>
-        public static void EnableRenderTargets(RenderTarget renderTarget1, RenderTarget renderTarget2, RenderTarget renderTarget3)
-        {            
-            if (currentRenderTarget[0] != null)
-                throw new InvalidOperationException("Render Target: unable to set render target. Another render target is still set.");
-            SystemInformation.Device.SetRenderTargets(renderTarget1.renderTarget, renderTarget2.renderTarget, renderTarget3.renderTarget);
-            currentRenderTarget[0] = renderTarget1;
-            renderTarget1.alreadyResolved = false;
-            currentRenderTarget[1] = renderTarget2;
-            renderTarget2.alreadyResolved = false;
-            currentRenderTarget[2] = renderTarget3;
-            renderTarget3.alreadyResolved = false;
-        } // EnableRenderTargets
-
-        /// <summary>
-        /// Set four render targets at once.
-        /// </summary>
-        public static void EnableRenderTargets(RenderTarget renderTarget1, RenderTarget renderTarget2, RenderTarget renderTarget3, RenderTarget renderTarget4)
-        {            
-            if (currentRenderTarget[0] != null)
-                throw new InvalidOperationException("Render Target: unable to set render target. Another render target is still set.");
-            SystemInformation.Device.SetRenderTargets(renderTarget1.renderTarget, renderTarget2.renderTarget, renderTarget3.renderTarget, renderTarget4.renderTarget);
-            currentRenderTarget[0] = renderTarget1;
-            renderTarget1.alreadyResolved = false;
-            currentRenderTarget[1] = renderTarget2;
-            renderTarget2.alreadyResolved = false;
-            currentRenderTarget[2] = renderTarget3;
-            renderTarget3.alreadyResolved = false;
-            currentRenderTarget[3] = renderTarget4;
-            renderTarget4.alreadyResolved = false;
-        } // EnableRenderTargets
-
+        
         #endregion
 
         #region Clear
@@ -569,6 +542,64 @@ namespace XNAFinalEngine.Assets
         } // DisableCurrentRenderTargets
 
         #endregion
-                
+
+        #region Binding
+
+        /// <summary>
+        /// Bind render targets so that they could be set together without generate garbage in the process.
+        /// </summary>
+        public static RenderTargetBinding BindRenderTargets(RenderTarget renderTarget1, RenderTarget renderTarget2)
+        {
+            RenderTargetBinding renderTargetsBinding = new RenderTargetBinding
+            {
+                InternalBinding = new[]
+                {
+                    new Microsoft.Xna.Framework.Graphics.RenderTargetBinding( renderTarget1.renderTarget),
+                    new Microsoft.Xna.Framework.Graphics.RenderTargetBinding( renderTarget2.renderTarget),
+                },
+                renderTargets = new[] { renderTarget1, renderTarget2 }
+            };
+            return renderTargetsBinding;
+        } // BindRenderTargets
+
+        /// <summary>
+        /// Bind render targets so that they could be set together without generate garbage in the process.
+        /// </summary>
+        public static RenderTargetBinding BindRenderTargets(RenderTarget renderTarget1, RenderTarget renderTarget2, RenderTarget renderTarget3)
+        {
+            RenderTargetBinding renderTargetsBinding = new RenderTargetBinding
+            {
+                InternalBinding = new[] 
+                {
+                    new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget1.renderTarget),
+                    new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget2.renderTarget),
+                    new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget3.renderTarget),
+                },
+                renderTargets = new[] {renderTarget1, renderTarget2, renderTarget3}
+            };
+            return renderTargetsBinding;
+        } // BindRenderTargets
+
+        /// <summary>
+        /// Bind render targets so that they could be set together without generate garbage in the process.
+        /// </summary>
+        public static RenderTargetBinding BindRenderTargets(RenderTarget renderTarget1, RenderTarget renderTarget2, RenderTarget renderTarget3, RenderTarget renderTarget4)
+        {
+            RenderTargetBinding renderTargetsBinding = new RenderTargetBinding
+            {
+                InternalBinding = new[]
+                {
+                    new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget1.renderTarget),
+                    new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget2.renderTarget),
+                    new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget3.renderTarget),
+                    new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget4.renderTarget),
+                },
+                renderTargets = new[] { renderTarget1, renderTarget2, renderTarget3, renderTarget4 }
+            };
+            return renderTargetsBinding;
+        } // BindRenderTargets
+
+        #endregion
+
     } // RenderTarget
 } // XNAFinalEngine.Assets

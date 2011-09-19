@@ -69,6 +69,9 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         public RenderTarget MotionVectorsSpecularPowerTexture { get; private set; }
 
+        // This structure is used to set multiple render targets without generating garbage in the process.
+        private RenderTarget.RenderTargetBinding renderTargetBinding;
+
         /// <summary>
         /// Current view and projection matrix. Used to set the shader parameters.
         /// </summary>
@@ -367,7 +370,9 @@ namespace XNAFinalEngine.Graphics
             // G: Motion vector Y
             // B: Specular Power.
             // A: Unused... yet.
-            MotionVectorsSpecularPowerTexture = new RenderTarget(size, SurfaceFormat.Color, false);                        
+            MotionVectorsSpecularPowerTexture = new RenderTarget(size, SurfaceFormat.Color, false);
+
+            renderTargetBinding = RenderTarget.BindRenderTargets(DepthTexture, NormalTexture, MotionVectorsSpecularPowerTexture);
         } // GBuffer
 
         /// <summary>
@@ -390,6 +395,9 @@ namespace XNAFinalEngine.Graphics
             // B: Specular Power.
             // A: Unused... yet.
             MotionVectorsSpecularPowerTexture = new RenderTarget(size, SurfaceFormat.Color, false);
+
+            renderTargetBinding = RenderTarget.BindRenderTargets(DepthTexture, NormalTexture, MotionVectorsSpecularPowerTexture);
+
         } // GBuffer
 
         #endregion
@@ -548,7 +556,7 @@ namespace XNAFinalEngine.Graphics
                 SetFarPlane(farPlane);
 
                 // With multiple render targets the GBuffer performance can be vastly improved.
-                RenderTarget.EnableRenderTargets(DepthTexture, NormalTexture, MotionVectorsSpecularPowerTexture);
+                RenderTarget.EnableRenderTargets(renderTargetBinding);
                 RenderTarget.ClearCurrentRenderTargets(Color.White);
             } // try
             catch (Exception e)

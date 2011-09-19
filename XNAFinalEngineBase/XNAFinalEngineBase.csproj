@@ -92,6 +92,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Animations\Animation.cs" />
     <Compile Include="Assets\ContentManager.cs" />
     <Compile Include="Assets\Fonts\Font.cs" />
     <Compile Include="Assets\Materials\BlinnPhong.cs" />
@@ -101,9 +102,13 @@
     <Compile Include="Assets\Models\Model.cs" />
     <Compile Include="Assets\Models\PrimitiveModel.cs" />
     <Compile Include="Assets\Shaders\Shader.cs" />
+    <Compile Include="Graphics\Animation\AnimationPlayer.cs" />
     <Compile Include="Graphics\Cameras\Camera.cs" />
     <Compile Include="Graphics\Cameras\EditorCamera.cs" />
     <Compile Include="Graphics\GBuffer\GBuffer.cs" />
+    <Compile Include="Graphics\Animation\RigidAnimationPlayer.cs" />
+    <Compile Include="Graphics\Animation\RootAnimationPlayer.cs" />
+    <Compile Include="Graphics\Animation\SkinnedAnimationPlayer.cs" />
     <Compile Include="Graphics\SpriteManager.cs" />
     <Compile Include="Helpers\PoolWithoutAccessor.cs" />
     <Compile Include="Helpers\Pool.cs" />
@@ -126,6 +131,12 @@
     <Compile Include="Helpers\RectangleF.cs" />
     <Compile Include="Helpers\Size.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XNAFinalEngineContentPipelineExtensionRuntime\XNAFinalEngineContentPipelineExtensionRuntime.csproj">
+      <Project>{E3A98759-8C7F-4660-8D70-1B89C1F04235}</Project>
+      <Name>XNAFinalEngineContentPipelineExtensionRuntime</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />

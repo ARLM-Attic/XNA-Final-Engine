@@ -43,6 +43,7 @@
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Assets\Animations\Animation.cs" />
     <Compile Include="Assets\Asset.cs" />
     <Compile Include="Assets\ContentManager.cs" />
     <Compile Include="Assets\Fonts\Font.cs" />
@@ -56,6 +57,10 @@
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />
     <Compile Include="Assets\Textures\TextureCube.cs" />
+    <Compile Include="Graphics\Animation\AnimationPlayer.cs" />
+    <Compile Include="Graphics\Animation\RigidAnimationPlayer.cs" />
+    <Compile Include="Graphics\Animation\RootAnimationPlayer.cs" />
+    <Compile Include="Graphics\Animation\SkinnedAnimationPlayer.cs" />
     <Compile Include="Graphics\Cameras\Camera.cs" />
     <Compile Include="Graphics\Cameras\EditorCamera.cs" />
     <Compile Include="Graphics\GBuffer\GBuffer.cs" />
