@@ -84,7 +84,7 @@ namespace XNAFinalEngine.EngineCore
             lamboBody.ModelFilter.Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
             lamboBody.ModelRenderer.Material = new Constant { DiffuseColor = Color.Turquoise };
 
-            Animation animation = new Animation("DudeWalk");
+            Assets.Animation animation = new Assets.Animation("DudeWalk");
 
             /*dude = new GameObject3D();
             dude.AddComponent<ModelFilter>();

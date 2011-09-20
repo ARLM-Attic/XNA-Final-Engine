@@ -108,6 +108,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\Animation\Animation.cs" />
+    <Compile Include="Components\Animation\RootAnimation.cs" />
     <Compile Include="Components\Component.cs" />
     <Compile Include="Components\Camera\Camera.cs" />
     <Compile Include="Components\GameObject2D.cs">

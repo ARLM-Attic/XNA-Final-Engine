@@ -39,12 +39,12 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
 {
     /// <summary>
     /// Custom processor that extract a skinned and root animation from fbx files.
+    /// The hierarchy won't be exported to avoid over complexity.
+    /// Of course with this we can implement a system that shares the hierarchy (like Assassins Cred’s animation system).
     /// </summary>
     [ContentProcessor(DisplayName = "Skinned Animation - XNA Final Engine")]
     public class SkinnedAnimationProcessor : ContentProcessor<NodeContent, AnimationData>
     {
-
-        #region Process
 
         /// <summary>
         /// The main Process method converts an intermediate format content pipeline NodeContent tree to an animation data format.
@@ -53,10 +53,8 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
         {
             SkinnedModelProcessor skinnedModelProcessor = new SkinnedModelProcessor();
             ModelContent model = skinnedModelProcessor.Process(input, context);
-            return ((AnimationData)model.Tag);
+            return new AnimationData(((AnimationData)model.Tag).ModelAnimationClips, ((AnimationData)model.Tag).RootAnimationClips, null, null, null);
         } // Process
-
-        #endregion
 
     } // SkinnedAnimationProcessor
 } // XNAFinalEngineContentPipelineExtension.Animations

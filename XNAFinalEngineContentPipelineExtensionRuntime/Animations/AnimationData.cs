@@ -27,23 +27,19 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
 
         /// <summary>
         /// Gets a collection of animation clips that operate on the root of the object.
-        /// These are stored by name in a dictionary, so there could for instance be 
-        /// clips for "Walk", "Run", "JumpReallyHigh", etc.
+        /// These are stored by name in a dictionary, so there could for instance be clips for "Walk", "Run", "JumpReallyHigh", etc.
         /// </summary>
         [ContentSerializer]
         public Dictionary<string, AnimationClip> RootAnimationClips { get; private set; }
 
         /// <summary>
-        /// Gets a collection of model animation clips. These are stored by name in a
-        /// dictionary, so there could for instance be clips for "Walk", "Run",
-        /// "JumpReallyHigh", etc.
+        /// Gets a collection of model animation clips. These are stored by name in a dictionary, so there could for instance be clips for "Walk", "Run", "JumpReallyHigh", etc.
         /// </summary>
         [ContentSerializer]
         public Dictionary<string, AnimationClip> ModelAnimationClips { get; private set; }
 
         /// <summary>
-        /// Bindpose matrices for each bone in the skeleton,
-        /// relative to the parent bone.
+        /// Bindpose matrices for each bone in the skeleton, relative to the parent bone.
         /// </summary>
         [ContentSerializer]
         public List<Matrix> BindPose { get; private set; }

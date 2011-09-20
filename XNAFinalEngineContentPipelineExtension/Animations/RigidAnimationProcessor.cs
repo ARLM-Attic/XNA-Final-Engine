@@ -38,13 +38,13 @@ using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 namespace XNAFinalEngineContentPipelineExtension.Animations
 {
     /// <summary>
-    /// Custom processor that extract a skinned and root animation from fbx files.
+    /// Custom processor that extract a rigid and root animation from fbx files.
+    /// The hierarchy won't be exported to avoid over complexity.
+    /// Of course with this we can implement a system that shares the hierarchy (like Assassins Cred’s animation system).
     /// </summary>
     [ContentProcessor(DisplayName = "Rigid Animation - XNA Final Engine")]
     public class RigidAnimationProcessor : ContentProcessor<NodeContent, AnimationData>
     {
-
-        #region Process
 
         /// <summary>
         /// The main Process method converts an intermediate format content pipeline NodeContent tree to an animation data format.
@@ -53,10 +53,8 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
         {
             RigidModelProcessor rigidModelProcessor = new RigidModelProcessor();
             ModelContent model = rigidModelProcessor.Process(input, context);
-            return ((AnimationData)model.Tag);
+            return new AnimationData(((AnimationData)model.Tag).ModelAnimationClips, ((AnimationData)model.Tag).RootAnimationClips, null, null, null);
         } // Process
-
-        #endregion
 
     } // RigidAnimationProcessor
 } // XNAFinalEngineContentPipelineExtension.Animations

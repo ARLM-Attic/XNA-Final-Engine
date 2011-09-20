@@ -43,18 +43,12 @@ namespace XNAFinalEngine.Assets
     public class Animation : Asset
     {
 
-        #region Variables
-
-        private AnimationData animationData;
-                
-        #endregion
-
         #region Properties
 
         /// <summary>
         /// Animation Data.
         /// </summary>
-        public AnimationData AnimationData { get { return animationData; } }
+        public AnimationData AnimationData { get; private set; }
 
         #endregion
 
@@ -73,7 +67,7 @@ namespace XNAFinalEngine.Assets
             }
             try
             {
-                animationData = ContentManager.CurrentContentManager.XnaContentManager.Load<AnimationData>(fullFilename);
+                AnimationData = ContentManager.CurrentContentManager.XnaContentManager.Load<AnimationData>(fullFilename);
             }
             catch (ObjectDisposedException)
             {

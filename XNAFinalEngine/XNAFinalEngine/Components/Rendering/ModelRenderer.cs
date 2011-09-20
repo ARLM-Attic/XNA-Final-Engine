@@ -54,6 +54,9 @@ namespace XNAFinalEngine.Components
         /// <remarks>In the old versions I used nullable types but the bounding volumes are critical (performance wise) when frustum culling is enabled.</remarks>
         protected BoundingBox boundingBox;
 
+        // Bone transforms for rigid and animated skinning models.
+        Matrix[] cachedBoneTransforms = null;
+
         #endregion
 
         #region Properties
