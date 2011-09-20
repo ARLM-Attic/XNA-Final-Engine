@@ -29,6 +29,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System.Collections.Generic;
+using XNAFinalEngineContentPipelineExtension.Models;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
@@ -38,22 +41,37 @@ using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 namespace XNAFinalEngineContentPipelineExtension.Animations
 {
     /// <summary>
-    /// Custom processor that extract a rigid and root animation from fbx files.
+    /// Custom processor that extract a rigid animation from fbx files.
     /// The hierarchy won't be exported to avoid over complexity.
     /// Of course with this we can implement a system that shares the hierarchy (like Assassins Cred’s animation system).
     /// </summary>
-    [ContentProcessor(DisplayName = "Rigid Animation - XNA Final Engine")]
-    public class RigidAnimationProcessor : ContentProcessor<NodeContent, AnimationData>
+    [ContentProcessor(DisplayName = "Animation Rigid - XNA Final Engine")]
+    public class RigidAnimationProcessor : ContentProcessor<NodeContent, ModelAnimationClip>
     {
+
+        /// <summary>The animation name to be retrieved.</summary>
+        /// <remarks>If the name is null or empty the first animation will be processed.</remarks>
+        public string AnimationName { get; set; }
 
         /// <summary>
         /// The main Process method converts an intermediate format content pipeline NodeContent tree to an animation data format.
         /// </summary>
-        public override AnimationData Process(NodeContent input, ContentProcessorContext context)
+        public override ModelAnimationClip Process(NodeContent input, ContentProcessorContext context)
         {
             RigidModelProcessor rigidModelProcessor = new RigidModelProcessor();
             ModelContent model = rigidModelProcessor.Process(input, context);
-            return new AnimationData(((AnimationData)model.Tag).ModelAnimationClips, ((AnimationData)model.Tag).RootAnimationClips, null, null, null);
+
+            if (string.IsNullOrEmpty(AnimationName)) // If no name was set then take the first animation
+            {
+                foreach (var animation in ((ModelAnimationData)model.Tag).ModelAnimationClips)
+                {
+                    return animation.Value;
+                }
+                throw new InvalidContentException("There is no rigid animation present in this model.");
+            }
+            if (((ModelAnimationData)model.Tag).ModelAnimationClips.ContainsKey(AnimationName))
+                return ((ModelAnimationData)model.Tag).ModelAnimationClips[AnimationName];
+            throw new InvalidContentException("There is no rigid animation present with this name.");
         } // Process
 
     } // RigidAnimationProcessor

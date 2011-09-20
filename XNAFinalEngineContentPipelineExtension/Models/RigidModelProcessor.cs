@@ -17,13 +17,13 @@ using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 #endregion
 
-namespace XNAFinalEngineContentPipelineExtension.Animations
+namespace XNAFinalEngineContentPipelineExtension.Models
 {
     /// <summary>
     /// Custom processor extends the builtin framework ModelProcessor class, adding animation support.
     /// </summary>
-    [ContentProcessor(DisplayName = "Model with Rigid Animation - XNA Final Engine")]
-    public class RigidModelProcessor : ModelProcessor
+    [ContentProcessor(DisplayName = "Model - XNA Final Engine")]
+    public class RigidModelProcessor : IgnoreTexturesModelProcessor
     {
 
         #region Process
@@ -48,16 +48,24 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
             }
             
             // Animation clips inside the object (mesh)
-            Dictionary<string, AnimationClip> animationClips = new Dictionary<string, AnimationClip>();
+            Dictionary<string, ModelAnimationClip> modelAnimationClips = new Dictionary<string, ModelAnimationClip>();
             
             // Animation clips at the root of the object
-            Dictionary<string, AnimationClip> rootClips = new Dictionary<string, AnimationClip>();
+            Dictionary<string, RootAnimationClip> rootAnimationClips = new Dictionary<string, RootAnimationClip>();
 
             // Process the animations
-            ProcessAnimations(input, model, animationClips, rootClips);
-                        
-            // Store the data for the model
-            model.Tag = new AnimationData(animationClips, rootClips, null, null, boneHierarchy);
+            ProcessAnimations(input, model, modelAnimationClips, rootAnimationClips);
+
+            // If no animation information...
+            if (modelAnimationClips.Count == 0 && rootAnimationClips.Count == 0 && model.Bones.Count == 1)
+            {
+                model.Tag = null;
+            }
+            else
+            {
+                // Store the animation data for the model.
+                model.Tag = new ModelAnimationData(modelAnimationClips, rootAnimationClips, null, null, boneHierarchy);
+            }
 
             return model;
         } // Process
@@ -69,9 +77,9 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
         /// <summary>
         /// Converts an intermediate format content pipeline AnimationContentDictionary object to our runtime AnimationClip format.
         /// </summary>
-        static void ProcessAnimations(NodeContent input, ModelContent model, 
-                                      Dictionary<string, AnimationClip> animationClips,
-                                      Dictionary<string, AnimationClip> rootClips)
+        static void ProcessAnimations(NodeContent input, ModelContent model,
+                                      Dictionary<string, ModelAnimationClip> modelAnimationClips,
+                                      Dictionary<string, RootAnimationClip> rootAnimationClips)
         {            
             // Build up a table mapping bone names to indices.
             Dictionary<string, int> boneMap = new Dictionary<string, int>();
@@ -86,9 +94,9 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
             // Convert each animation in the root of the object            
             foreach (KeyValuePair<string, AnimationContent> animation in input.Animations)
             {
-                AnimationClip processed = ProcessRootAnimation(animation.Value, model.Bones[0].Name);
+                RootAnimationClip processed = ProcessRootAnimation(animation.Value, model.Bones[0].Name);
 
-                rootClips.Add(animation.Key, processed);
+                rootAnimationClips.Add(animation.Key, processed);
             }
 
             // Get the unique names of the animations on the mesh children
@@ -98,9 +106,9 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
             // Now create those animations
             foreach (string key in animationNames)
             {
-                AnimationClip processed = ProcessRigidAnimation(key, boneMap, input, model);
+                ModelAnimationClip processed = ProcessRigidAnimation(key, boneMap, input, model);
                 
-                animationClips.Add(key, processed);
+                modelAnimationClips.Add(key, processed);
             }
         } // ProcessAnimations
 
@@ -127,9 +135,9 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
         /// Converts an intermediate format content pipeline AnimationContent
         /// object to our runtime AnimationClip format.
         /// </summary>
-        internal static AnimationClip ProcessRootAnimation(AnimationContent animation, string name)
+        internal static RootAnimationClip ProcessRootAnimation(AnimationContent animation, string name)
         {
-            List<Keyframe> keyframes = new List<Keyframe>();
+            List<RootKeyframe> keyframes = new List<RootKeyframe>();
 
             // The root animation is controlling the root of the bones
             AnimationChannel channel = animation.Channels[name];
@@ -137,7 +145,7 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
             // Add the transformations on the root of the model
             foreach (AnimationKeyframe keyframe in channel)
             {
-                keyframes.Add(new Keyframe(0, keyframe.Time, keyframe.Transform));
+                keyframes.Add(new RootKeyframe(keyframe.Time, keyframe.Transform));
             }            
 
             // Sort the merged keyframes by time.
@@ -149,7 +157,7 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
             if (animation.Duration <= TimeSpan.Zero)
                 throw new InvalidContentException("Animation has a zero duration.");
 
-            return new AnimationClip(animation.Duration, keyframes);
+            return new RootAnimationClip(animation.Duration, keyframes);
         } // ProcessRootAnimation
 
         #endregion
@@ -159,9 +167,9 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
         /// <summary>
         /// Converts an intermediate format content pipeline AnimationContent object to our runtime AnimationClip format.
         /// </summary>
-        static AnimationClip ProcessRigidAnimation(string animationName, Dictionary<string, int> boneMap, NodeContent input, ModelContent model)
+        static ModelAnimationClip ProcessRigidAnimation(string animationName, Dictionary<string, int> boneMap, NodeContent input, ModelContent model)
         {
-            List<Keyframe> keyframes = new List<Keyframe>();
+            List<ModelKeyframe> keyframes = new List<ModelKeyframe>();
             TimeSpan duration = TimeSpan.Zero;
 
             AddTransformationNodes(animationName, boneMap, input, keyframes, ref duration);
@@ -175,10 +183,10 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
             if (duration <= TimeSpan.Zero)
                 throw new InvalidContentException("Animation has a zero duration.");
 
-            return new AnimationClip(duration, keyframes);
+            return new ModelAnimationClip(duration, keyframes);
         } // ProcessRigidAnimation
 
-        static void AddTransformationNodes(string animationName, Dictionary<string, int> boneMap, NodeContent input, List<Keyframe> keyframes, ref TimeSpan duration)
+        static void AddTransformationNodes(string animationName, Dictionary<string, int> boneMap, NodeContent input, List<ModelKeyframe> keyframes, ref TimeSpan duration)
         {
             // Add the transformation on each of the meshes
             foreach (NodeContent childNode in input.Children)
@@ -201,7 +209,7 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
 
                     foreach (AnimationKeyframe keyframe in childChannel)
                     {
-                        keyframes.Add(new Keyframe(boneIndex, keyframe.Time, keyframe.Transform));
+                        keyframes.Add(new ModelKeyframe(boneIndex, keyframe.Time, keyframe.Transform));
                     }
                 }
 
@@ -256,32 +264,5 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
 
         #endregion
 
-        #region Flatten Transforms
-
-        /// <summary>
-        /// Bakes unwanted transforms into the model geometry, so everything ends up in the same coordinate system.
-        /// </summary>
-        /*static void FlattenTransforms(NodeContent node, BoneContent skeleton)
-        {
-            foreach (NodeContent child in node.Children)
-            {
-                // Don't process the skeleton, because that is special.
-                if (child == skeleton)
-                    continue;
-
-                // Bake the local transform into the actual geometry.
-                MeshHelper.TransformScene(child, child.Transform);
-
-                // Having baked it, we can now set the local
-                // coordinate system back to identity.
-                child.Transform = Matrix.Identity;
-
-                // Recurse.
-                FlattenTransforms(child, skeleton);
-            }
-        }*/
-
-        #endregion
-
     } // RigidModelProcessor
-} // XNAFinalEngineContentPipelineExtension.Animations
+} // XNAFinalEngineContentPipelineExtension.Models

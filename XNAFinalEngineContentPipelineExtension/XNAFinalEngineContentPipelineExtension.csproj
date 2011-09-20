@@ -49,10 +49,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Animations\RootAnimationProcessor.cs" />
     <Compile Include="Animations\RigidAnimationProcessor.cs" />
-    <Compile Include="Animations\RigidModelProcessor.cs" />
+    <Compile Include="Models\RigidModelProcessor.cs" />
     <Compile Include="Animations\SkinnedAnimationProcessor.cs" />
-    <Compile Include="Animations\SkinnedModelProcessor.cs" />
+    <Compile Include="Models\SkinnedModelProcessor.cs" />
+    <Compile Include="Models\ModelProcessor.cs" />
     <Compile Include="XDocumentWriter.cs" />
     <Compile Include="UserInterface\CursorImporter.cs" />
     <Compile Include="UserInterface\LayoutImporter.cs" />

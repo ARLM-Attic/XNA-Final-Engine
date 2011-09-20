@@ -20,7 +20,7 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
     /// A animation clip is the runtime equivalent of the Microsoft.Xna.Framework.Content.Pipeline.Graphics.AnimationContent type.
     /// It holds all the keyframes needed to describe a single model animation.
     /// </summary>
-    public class AnimationClip
+    public class ModelAnimationClip
     {
 
         /// <summary>
@@ -34,12 +34,12 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         /// sorted by time.
         /// </summary>
         [ContentSerializer]
-        public List<Keyframe> Keyframes { get; private set; }
+        public List<ModelKeyframe> Keyframes { get; private set; }
 
         /// <summary>
         /// Constructs a new model animation clip object.
         /// </summary>
-        public AnimationClip(TimeSpan duration, List<Keyframe> keyframes)
+        public ModelAnimationClip(TimeSpan duration, List<ModelKeyframe> keyframes)
         {
             Duration = duration;
             Keyframes = keyframes;
@@ -48,7 +48,7 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         /// <summary>
         /// Private constructor for use by the XNB deserializer.
         /// </summary>
-        private AnimationClip() { }
+        private ModelAnimationClip() { }
 
-    } // AnimationClip
+    } // ModelAnimationClip
 } // XNAFinalEngineContentPipelineExtensionRuntime.Animations

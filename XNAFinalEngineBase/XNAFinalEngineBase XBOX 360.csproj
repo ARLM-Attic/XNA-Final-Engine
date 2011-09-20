@@ -43,7 +43,8 @@
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Assets\Animations\Animation.cs" />
+    <Compile Include="Assets\Animations\ModelAnimation.cs" />
+    <Compile Include="Assets\Animations\RootAnimation.cs" />
     <Compile Include="Assets\Asset.cs" />
     <Compile Include="Assets\ContentManager.cs" />
     <Compile Include="Assets\Fonts\Font.cs" />

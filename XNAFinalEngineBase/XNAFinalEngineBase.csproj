@@ -92,7 +92,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Animations\Animation.cs" />
+    <Compile Include="Assets\Animations\RootAnimation.cs" />
+    <Compile Include="Assets\Animations\ModelAnimation.cs" />
     <Compile Include="Assets\ContentManager.cs" />
     <Compile Include="Assets\Fonts\Font.cs" />
     <Compile Include="Assets\Materials\BlinnPhong.cs" />

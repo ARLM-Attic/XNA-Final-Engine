@@ -40,34 +40,34 @@ namespace XNAFinalEngine.Assets
     /// <summary>
     /// Animation.
     /// </summary>
-    public class Animation : Asset
+    public class ModelAnimation : Asset
     {
 
         #region Properties
 
         /// <summary>
-        /// Animation Data.
+        /// Model Animation Data.
         /// </summary>
-        public AnimationData AnimationData { get; private set; }
+        public ModelAnimationClip AnimationData { get; private set; }
 
         #endregion
 
         #region Constructor
 
         /// <summary>
-        /// Load animation data from a .x or fbx file.
+        /// Load model animation data (rigid or skinned) from a .x or fbx file.
         /// </summary>
-        public Animation(string filename)
+        public ModelAnimation(string filename)
         {
             Name = filename;
-            string fullFilename = ContentManager.GameDataDirectory + "Models\\" + filename;
+            string fullFilename = ContentManager.GameDataDirectory + "Animations\\" + filename;
             if (File.Exists(fullFilename + ".xnb") == false)
             {
                 throw new ArgumentException("Failed to load animation data: File " + fullFilename + " does not exists!", "filename");
             }
             try
             {
-                AnimationData = ContentManager.CurrentContentManager.XnaContentManager.Load<AnimationData>(fullFilename);
+                AnimationData = ContentManager.CurrentContentManager.XnaContentManager.Load<ModelAnimationClip>(fullFilename);
             }
             catch (ObjectDisposedException)
             {
@@ -77,9 +77,9 @@ namespace XNAFinalEngine.Assets
             {
                 throw new InvalidOperationException("Failed to load animation data: " + filename, e);
             }
-        } // Animation
+        } // ModelAnimation
 
         #endregion
 
-    } // Animation
+    } // ModelAnimation
 } // XNAFinalEngine.Assets

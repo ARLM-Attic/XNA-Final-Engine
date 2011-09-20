@@ -29,7 +29,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
+using System.Collections.Generic;
 using XNAFinalEngineContentPipelineExtension.Models;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 using Microsoft.Xna.Framework.Content.Pipeline;
@@ -40,12 +40,10 @@ using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 namespace XNAFinalEngineContentPipelineExtension.Animations
 {
     /// <summary>
-    /// Custom processor that extract a skinned animation from fbx files.
-    /// The hierarchy won't be exported to avoid over complexity.
-    /// Of course with this we can implement a system that shares the hierarchy (like Assassins Cred’s animation system).
+    /// Custom processor that extract a root animation from fbx files.
     /// </summary>
-    [ContentProcessor(DisplayName = "Animation Skinning - XNA Final Engine")]
-    public class SkinnedAnimationProcessor : ContentProcessor<NodeContent, ModelAnimationClip>
+    [ContentProcessor(DisplayName = "Animation Root - XNA Final Engine")]
+    public class RootAnimationProcessor : ContentProcessor<NodeContent, RootAnimationClip>
     {
 
         /// <summary>The animation name to be retrieved.</summary>
@@ -55,23 +53,30 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
         /// <summary>
         /// The main Process method converts an intermediate format content pipeline NodeContent tree to an animation data format.
         /// </summary>
-        public override ModelAnimationClip Process(NodeContent input, ContentProcessorContext context)
+        public override RootAnimationClip Process(NodeContent input, ContentProcessorContext context)
         {
-            SkinnedModelProcessor skinnedModelProcessor = new SkinnedModelProcessor();
-            ModelContent model = skinnedModelProcessor.Process(input, context);
+            IgnoreTexturesModelProcessor modelProcessor = new IgnoreTexturesModelProcessor();
+            ModelContent model = modelProcessor.Process(input, context);
+
+            Dictionary<string, RootAnimationClip> rootClips = new Dictionary<string, RootAnimationClip>();
+            foreach (KeyValuePair<string, AnimationContent> animation in input.Animations)
+            {
+                RootAnimationClip processed = RigidModelProcessor.ProcessRootAnimation(animation.Value, model.Bones[0].Name);
+                rootClips.Add(animation.Key, processed);
+            }
 
             if (string.IsNullOrEmpty(AnimationName)) // If no name was set then take the first animation
             {
-                foreach (var animation in ((ModelAnimationData)model.Tag).ModelAnimationClips)
+                foreach (var animation in rootClips)
                 {
                     return animation.Value;
                 }
-                throw new InvalidContentException("There is no skinning animation present in this model.");
+                throw new InvalidContentException("There is no root animation present in this model.");
             }
-            if (((ModelAnimationData)model.Tag).ModelAnimationClips.ContainsKey(AnimationName))
-                return ((ModelAnimationData)model.Tag).ModelAnimationClips[AnimationName];
-            throw new InvalidContentException("There is no skinning animation present with this name.");
+            if (rootClips.ContainsKey(AnimationName))
+                return rootClips[AnimationName];
+            throw new InvalidContentException("There is no root animation present with this name.");
         } // Process
 
-    } // SkinnedAnimationProcessor
+    } // RootAnimationProcessor
 } // XNAFinalEngineContentPipelineExtension.Animations

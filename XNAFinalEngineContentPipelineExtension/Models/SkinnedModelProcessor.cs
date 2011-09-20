@@ -18,14 +18,15 @@ using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 #endregion
 
-namespace XNAFinalEngineContentPipelineExtension.Animations
+namespace XNAFinalEngineContentPipelineExtension.Models
 {
     /// <summary>
     /// Custom processor extends the builtin framework ModelProcessor class, adding animation support.
     /// </summary>
-    [ContentProcessor(DisplayName = "Model with Skinning Animation - XNA Final Engine")]
-    public class SkinnedModelProcessor : ModelProcessor
+    [ContentProcessor(DisplayName = "Model Skinned - XNA Final Engine")]
+    public class SkinnedModelProcessor : IgnoreTexturesModelProcessor
     {
+
         // Maximum number of bone matrices we can render in a single pass.
         const int MaxBones = 59;
 
@@ -68,9 +69,9 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
             }
 
             // Convert animation data to our runtime format.
-            Dictionary<string, AnimationClip> animationClips = ProcessAnimations(skeleton.Animations, bones);
+            Dictionary<string, ModelAnimationClip> animationClips = ProcessAnimations(skeleton.Animations, bones);
 
-            Dictionary<string, AnimationClip> rootClips = new Dictionary<string, AnimationClip>();
+            Dictionary<string, RootAnimationClip> rootClips = new Dictionary<string, RootAnimationClip>();
             
             // Chain to the base ModelProcessor class so it can convert the model data.
             ModelContent model = base.Process(input, context);
@@ -78,13 +79,13 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
             // Convert each animation in the root of the object            
             foreach (KeyValuePair<string, AnimationContent> animation in input.Animations)
             {
-                AnimationClip processed = RigidModelProcessor.ProcessRootAnimation(animation.Value, model.Bones[0].Name);
+                RootAnimationClip processed = RigidModelProcessor.ProcessRootAnimation(animation.Value, model.Bones[0].Name);
 
                 rootClips.Add(animation.Key, processed);
             }            
  
             // Store our custom animation data in the Tag property of the model.
-            model.Tag = new AnimationData(animationClips, rootClips, bindPose, inverseBindPose, skeletonHierarchy);
+            model.Tag = new ModelAnimationData(animationClips, rootClips, bindPose, inverseBindPose, skeletonHierarchy);
 
             return model;
         } // Process
@@ -114,7 +115,7 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
         /// Converts an intermediate format content pipeline AnimationContentDictionary
         /// object to our runtime AnimationClip format.
         /// </summary>
-        static Dictionary<string, AnimationClip> ProcessAnimations(AnimationContentDictionary animations, IList<BoneContent> bones)
+        static Dictionary<string, ModelAnimationClip> ProcessAnimations(AnimationContentDictionary animations, IList<BoneContent> bones)
         {
             // Build up a table mapping bone names to indices.
             Dictionary<string, int> boneMap = new Dictionary<string, int>();
@@ -128,12 +129,12 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
             }
 
             // Convert each animation in turn.
-            Dictionary<string, AnimationClip> animationClips;
-            animationClips = new Dictionary<string, AnimationClip>();
+            Dictionary<string, ModelAnimationClip> animationClips;
+            animationClips = new Dictionary<string, ModelAnimationClip>();
 
             foreach (KeyValuePair<string, AnimationContent> animation in animations)
             {
-                AnimationClip processed = ProcessAnimation(animation.Value, boneMap);
+                ModelAnimationClip processed = ProcessAnimation(animation.Value, boneMap);
                 
                 animationClips.Add(animation.Key, processed);
             }
@@ -153,9 +154,9 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
         /// <summary>
         /// Converts an intermediate format content pipeline AnimationContent object to our runtime AnimationClip format.
         /// </summary>
-        static AnimationClip ProcessAnimation(AnimationContent animation, Dictionary<string, int> boneMap)
+        static ModelAnimationClip ProcessAnimation(AnimationContent animation, Dictionary<string, int> boneMap)
         {
-            List<Keyframe> keyframes = new List<Keyframe>();
+            List<ModelKeyframe> keyframes = new List<ModelKeyframe>();
 
             // For each input animation channel.
             foreach (KeyValuePair<string, AnimationChannel> channel in
@@ -172,7 +173,7 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
                 // Convert the keyframe data.
                 foreach (AnimationKeyframe keyframe in channel.Value)
                 {
-                    keyframes.Add(new Keyframe(boneIndex, keyframe.Time, keyframe.Transform));
+                    keyframes.Add(new ModelKeyframe(boneIndex, keyframe.Time, keyframe.Transform));
                 }
             }
 
@@ -185,7 +186,7 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
             if (animation.Duration <= TimeSpan.Zero)
                 throw new InvalidContentException("Animation has a zero duration.");
 
-            return new AnimationClip(animation.Duration, keyframes);
+            return new ModelAnimationClip(animation.Duration, keyframes);
         } // ProcessAnimation
 
         #endregion
@@ -288,4 +289,4 @@ namespace XNAFinalEngineContentPipelineExtension.Animations
         #endregion
 
     } // SkinnedModelProcessor
-} // XNAFinalEngineContentPipelineExtension.Animations
+} // XNAFinalEngineContentPipelineExtension.Models

@@ -43,9 +43,12 @@
   </PropertyGroup>
   <ItemGroup />
   <ItemGroup>
-    <Compile Include="Animations\AnimationClip.cs" />
-    <Compile Include="Animations\AnimationData.cs" />
     <Compile Include="Animations\Keyframe.cs" />
+    <Compile Include="Animations\ModelAnimationData.cs" />
+    <Compile Include="Animations\Model\ModelAnimationClip.cs" />
+    <Compile Include="Animations\Model\ModelKeyframe.cs" />
+    <Compile Include="Animations\Root\RootAnimationClip.cs" />
+    <Compile Include="Animations\Root\RootKeyframe.cs" />
     <Compile Include="Particles\ParticleSettings.cs">
       <SubType>Code</SubType>
     </Compile>

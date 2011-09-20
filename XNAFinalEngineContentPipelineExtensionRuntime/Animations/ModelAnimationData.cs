@@ -17,10 +17,10 @@ using Microsoft.Xna.Framework.Content;
 namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
 {
     /// <summary>
-    /// Combines all the data needed to render and animate a skinned object.
+    /// Combines all the data needed to render and animate a skinned or rigid object.
     /// This is typically stored in the Tag property of the Model being animated.
     /// </summary>
-    public class AnimationData
+    public class ModelAnimationData
     {
 
         #region Properties
@@ -30,13 +30,13 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         /// These are stored by name in a dictionary, so there could for instance be clips for "Walk", "Run", "JumpReallyHigh", etc.
         /// </summary>
         [ContentSerializer]
-        public Dictionary<string, AnimationClip> RootAnimationClips { get; private set; }
+        public Dictionary<string, RootAnimationClip> RootAnimationClips { get; private set; }
 
         /// <summary>
         /// Gets a collection of model animation clips. These are stored by name in a dictionary, so there could for instance be clips for "Walk", "Run", "JumpReallyHigh", etc.
         /// </summary>
         [ContentSerializer]
-        public Dictionary<string, AnimationClip> ModelAnimationClips { get; private set; }
+        public Dictionary<string, ModelAnimationClip> ModelAnimationClips { get; private set; }
 
         /// <summary>
         /// Bindpose matrices for each bone in the skeleton, relative to the parent bone.
@@ -63,11 +63,11 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         /// <summary>
         /// Constructs a new skinning data object.
         /// </summary>
-        public AnimationData(Dictionary<string, AnimationClip> modelAnimationClips,
-                             Dictionary<string, AnimationClip> rootAnimationClips,
-                             List<Matrix> bindPose,
-                             List<Matrix> inverseBindPose,
-                             List<int> skeletonHierarchy)
+        public ModelAnimationData(Dictionary<string, ModelAnimationClip> modelAnimationClips,
+                                  Dictionary<string, RootAnimationClip> rootAnimationClips,
+                                  List<Matrix> bindPose,
+                                  List<Matrix> inverseBindPose,
+                                  List<int> skeletonHierarchy)
         {
             ModelAnimationClips = modelAnimationClips;
             RootAnimationClips = rootAnimationClips;
@@ -79,9 +79,9 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         /// <summary>
         /// Private constructor for use by the XNB deserializer.
         /// </summary>
-        private AnimationData() { }
+        private ModelAnimationData() { }
 
         #endregion
 
-    } // AnimationData
+    } // ModelAnimationData
 } // XNAFinalEngineContentPipelineExtensionRuntime.Animations

@@ -29,49 +29,57 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
-using XNAFinalEngineContentPipelineExtension.Models;
+using System;
+using System.IO;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
-using Microsoft.Xna.Framework.Content.Pipeline;
-using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
-using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 #endregion
 
-namespace XNAFinalEngineContentPipelineExtension.Animations
+namespace XNAFinalEngine.Assets
 {
+
     /// <summary>
-    /// Custom processor that extract a skinned animation from fbx files.
-    /// The hierarchy won't be exported to avoid over complexity.
-    /// Of course with this we can implement a system that shares the hierarchy (like Assassins Cred’s animation system).
+    /// Animation.
     /// </summary>
-    [ContentProcessor(DisplayName = "Animation Skinning - XNA Final Engine")]
-    public class SkinnedAnimationProcessor : ContentProcessor<NodeContent, ModelAnimationClip>
+    public class RootAnimation : Asset
     {
 
-        /// <summary>The animation name to be retrieved.</summary>
-        /// <remarks>If the name is null or empty the first animation will be processed.</remarks>
-        public string AnimationName { get; set; }
+        #region Properties
 
         /// <summary>
-        /// The main Process method converts an intermediate format content pipeline NodeContent tree to an animation data format.
+        /// Root Animation Data.
         /// </summary>
-        public override ModelAnimationClip Process(NodeContent input, ContentProcessorContext context)
+        public RootAnimationClip AnimationData { get; private set; }
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Load root animation data from a .x or fbx file.
+        /// </summary>
+        public RootAnimation(string filename)
         {
-            SkinnedModelProcessor skinnedModelProcessor = new SkinnedModelProcessor();
-            ModelContent model = skinnedModelProcessor.Process(input, context);
-
-            if (string.IsNullOrEmpty(AnimationName)) // If no name was set then take the first animation
+            Name = filename;
+            string fullFilename = ContentManager.GameDataDirectory + "Animations\\" + filename;
+            if (File.Exists(fullFilename + ".xnb") == false)
             {
-                foreach (var animation in ((ModelAnimationData)model.Tag).ModelAnimationClips)
-                {
-                    return animation.Value;
-                }
-                throw new InvalidContentException("There is no skinning animation present in this model.");
+                throw new ArgumentException("Failed to load animation data: File " + fullFilename + " does not exists!", "filename");
             }
-            if (((ModelAnimationData)model.Tag).ModelAnimationClips.ContainsKey(AnimationName))
-                return ((ModelAnimationData)model.Tag).ModelAnimationClips[AnimationName];
-            throw new InvalidContentException("There is no skinning animation present with this name.");
-        } // Process
+            try
+            {
+                AnimationData = ContentManager.CurrentContentManager.XnaContentManager.Load<RootAnimationClip>(fullFilename);
+            }
+            catch (ObjectDisposedException)
+            {
+                throw new InvalidOperationException("Content Manager: Content manager disposed");
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Failed to load animation data: " + filename, e);
+            }
+        } // RootAnimation
 
-    } // SkinnedAnimationProcessor
-} // XNAFinalEngineContentPipelineExtension.Animations
+        #endregion
+
+    } // RootAnimation
+} // XNAFinalEngine.Assets
