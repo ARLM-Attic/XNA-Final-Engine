@@ -58,7 +58,7 @@
     <Compile Include="Animations\AnimatedCube.fbx">
       <Name>AnimatedCube</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>RigidAnimationProcessor</Processor>
+      <Processor>RootAnimationProcessor</Processor>
     </Compile>
     <Compile Include="Animations\dude.fbx">
       <Name>dude</Name>

@@ -132,7 +132,13 @@ namespace XNAFinalEngine.Components
         public override Matrix WorldMatrix
         {
             get { return worldMatrix; }
-            set { LocalMatrix = value * Matrix.Invert(parent.WorldMatrix); }
+            set
+            {
+                if (parent == null)
+                    LocalMatrix = value;
+                else
+                    LocalMatrix = value * Matrix.Invert(parent.WorldMatrix);
+            }
         } // WorldMatrix
 
         #endregion
@@ -198,7 +204,7 @@ namespace XNAFinalEngine.Components
                 if (Parent != null)
                     localPosition = Vector3.Transform(value, Matrix.Invert(parent.WorldMatrix));
                 else
-                    localPosition = value;
+                    LocalPosition = value;
             }
         } // Position
 
@@ -234,7 +240,7 @@ namespace XNAFinalEngine.Components
                 if (Parent != null)
                     localRotation = Quaternion.CreateFromRotationMatrix(Matrix.CreateFromQuaternion(value) * Matrix.Invert(parent.WorldMatrix));
                 else
-                    localRotation = value;
+                    LocalRotation = value;
             }
         } // Rotation
 

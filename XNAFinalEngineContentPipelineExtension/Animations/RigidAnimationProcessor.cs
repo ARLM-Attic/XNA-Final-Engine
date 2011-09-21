@@ -29,8 +29,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
-using System.Collections.Generic;
 using XNAFinalEngineContentPipelineExtension.Models;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 using Microsoft.Xna.Framework.Content.Pipeline;
@@ -40,6 +38,7 @@ using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 
 namespace XNAFinalEngineContentPipelineExtension.Animations
 {
+
     /// <summary>
     /// Custom processor that extract a rigid animation from fbx files.
     /// The hierarchy won't be exported to avoid over complexity.

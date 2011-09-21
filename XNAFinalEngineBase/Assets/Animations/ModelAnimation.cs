@@ -48,7 +48,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Model Animation Data.
         /// </summary>
-        public ModelAnimationClip AnimationData { get; private set; }
+        public ModelAnimationClip AnimationClip { get; private set; }
 
         #endregion
 
@@ -67,7 +67,7 @@ namespace XNAFinalEngine.Assets
             }
             try
             {
-                AnimationData = ContentManager.CurrentContentManager.XnaContentManager.Load<ModelAnimationClip>(fullFilename);
+                AnimationClip = ContentManager.CurrentContentManager.XnaContentManager.Load<ModelAnimationClip>(fullFilename);
             }
             catch (ObjectDisposedException)
             {

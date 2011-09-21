@@ -173,7 +173,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
                 // Convert the keyframe data.
                 foreach (AnimationKeyframe keyframe in channel.Value)
                 {
-                    keyframes.Add(new ModelKeyframe(boneIndex, keyframe.Time, keyframe.Transform));
+                    keyframes.Add(new ModelKeyframe(boneIndex, (float)(keyframe.Time.TotalSeconds), keyframe.Transform));
                 }
             }
 
@@ -186,7 +186,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             if (animation.Duration <= TimeSpan.Zero)
                 throw new InvalidContentException("Animation has a zero duration.");
 
-            return new ModelAnimationClip(animation.Duration, keyframes);
+            return new ModelAnimationClip((float)(animation.Duration.TotalSeconds), keyframes);
         } // ProcessAnimation
 
         #endregion

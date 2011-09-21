@@ -30,8 +30,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 
-using System;
-using System.Collections.Generic;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 #endregion
 

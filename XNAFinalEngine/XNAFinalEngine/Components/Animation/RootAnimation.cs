@@ -29,9 +29,11 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Helpers;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 #endregion
 
@@ -39,17 +41,183 @@ namespace XNAFinalEngine.Components
 {
 
     /// <summary>
-    /// The animation component is used to play back animations.
+    /// The root animation component is used to play back root animations.
+    /// This kind of animations affects the game object's transform.
     /// </summary>
-    public class RootAnimation : Animation
+    public class RootAnimation : Component
     {
 
         #region Variables
 
+        // Associated animations.
+        private readonly Dictionary<string, RootAnimationClip> rootAnimations = new Dictionary<string, RootAnimationClip>(0);
+
+        #region Current Animation
+
+        // Clip currently being played
+        RootAnimationClip currentClip;
+        // The animations are absolute, we need the initial world matrix to make them relative.
+        private Matrix initialWorldMatrix;
+        // Current timeindex and keyframe in the clip
+        float currentTimeValue;
+        int currentKeyFrameIndex;
+        private RootKeyframe currentKeyFrame;
+        // Speed of playback
+        float playbackRate = 1.0f;
+        // The amount of time for which the animation will play.
+        // TimeSpan.MaxValue will loop forever. TimeSpan.Zero will play once. 
+        float duration = float.MaxValue;
+        // Amount of time elapsed while playing
+        float elapsedPlaybackTime = 0;
+        // Whether or not playback is paused
+        bool paused;
+
+        #endregion
+
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Gets/set the current play position.
+        /// </summary>
+        public float CurrentTimeValue
+        {
+            get { return currentTimeValue; }
+            set
+            {
+                float time = value;
+
+                // If the position moved backwards, reset the keyframe index.
+                if (time < currentTimeValue)
+                {
+                    currentKeyFrameIndex = 0;
+                    currentKeyFrame = currentClip.Keyframes[0];
+                }
+
+                currentTimeValue = time;
+
+                // Read keyframe matrices.
+                IList<RootKeyframe> keyframes = currentClip.Keyframes;
+                while (currentKeyFrameIndex < keyframes.Count)
+                {
+                    RootKeyframe keyframe = keyframes[currentKeyFrameIndex];
+                    // Stop when we've read up to the current time position.
+                    if (keyframe.Time > currentTimeValue)
+                        break;
+                    // Use this keyframe
+                    currentKeyFrame = keyframe;
+                    currentKeyFrameIndex++;
+                }
+            }
+        } // CurrentTimeValue
         
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// Invoked when playback has completed.
+        /// </summary>
+        public event EventHandler Completed;
+
+        #endregion
+
+        #region Play
+
+        /// <summary>
+        /// Starts decoding the specified animation clip.
+        /// </summary>        
+        public void Play(string name)
+        {
+            Play(name, 1.0f, float.MaxValue);
+        } // Play
+
+        /// <summary>
+        /// Starts playing a clip
+        /// </summary>
+        /// <param name="name">Animation name</param>
+        /// <param name="playbackRate">Speed to playback</param>
+        /// <param name="duration">Length of time to play in seconds (max is looping, 0 is once)</param>
+        public void Play(string name, float playbackRate, float duration)
+        {
+            if (!rootAnimations.ContainsKey(name))
+                throw new ArgumentException("Root Animation Component: the animation name does not exist.");
+
+            // Store the clip and reset playing data            
+            currentClip = rootAnimations[name];
+            currentKeyFrameIndex = 0;
+            currentKeyFrame = currentClip.Keyframes[0];
+            CurrentTimeValue = 0;
+            elapsedPlaybackTime = 0;
+            paused = false;
+
+            // Store the data about how we want to playback
+            this.playbackRate = playbackRate;
+            this.duration = duration;
+
+            initialWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
+        } // Play
+
+        #endregion
+
+        #region Pause Resume
+
+        /// <summary>
+        /// Will pause the playback of the current clip
+        /// </summary>
+        public void Pause()
+        {
+            paused = true;
+        } // PauseClip
+
+        /// <summary>
+        /// Will resume playback of the current clip
+        /// </summary>
+        public void Resume()
+        {
+            paused = false;
+        } // ResumeClip
+
+        #endregion
+
+        #region Update
+
+        /// <summary>
+        /// Called during the update loop to move the animation forward
+        /// </summary>        
+        public virtual void Update()
+        {
+            if (currentClip == null)
+                return;
+            if (paused)
+                return;
+
+            // Adjust for the rate
+            float time = Time.GameDeltaTime * playbackRate;
+            
+            elapsedPlaybackTime += time;
+
+            // See if we should terminate
+            if (elapsedPlaybackTime > duration && duration != 0 || elapsedPlaybackTime > currentClip.Duration && duration == 0)
+            {
+                if (Completed != null)
+                    Completed(this, EventArgs.Empty);
+                currentClip = null;
+                return;
+            }
+
+            // Update the animation position.
+            time += currentTimeValue;
+            // If we reached the end, loop back to the start.
+            while (time >= currentClip.Duration)
+                time -= currentClip.Duration;
+            CurrentTimeValue = time;
+
+            // Update World Matrix.
+            ((GameObject3D)Owner).Transform.WorldMatrix = currentKeyFrame.Transform * initialWorldMatrix;// * ((GameObject3D)Owner).Transform.WorldMatrix;
+        } // Update
+
         #endregion
       
         #region Initialize
@@ -74,6 +242,46 @@ namespace XNAFinalEngine.Components
         {
             base.Uninitialize();
         } // Uninitialize
+
+        #endregion
+
+        #region Contains Animation Clip
+
+        /// <summary>
+        /// Determines if the component contains a specific root animation.
+        /// </summary>
+        /// <remarks>Checks both, the name and the clip.</remarks>
+        public bool ContainsAnimationClip(Assets.RootAnimation rootAnimation)
+        {
+            return rootAnimations.ContainsValue(rootAnimation.AnimationClip) || rootAnimations.ContainsKey(rootAnimation.Name);
+        } // ContainsAnimationClip
+
+        #endregion
+
+        #region Add Animation Clip
+
+        /// <summary>
+        /// Adds an animation clip to the component.
+        /// </summary>
+        public void AddAnimationClip(Assets.RootAnimation rootAnimation)
+        {
+            if (!ContainsAnimationClip(rootAnimation))
+                rootAnimations.Add(rootAnimation.Name, rootAnimation.AnimationClip);
+            else
+                throw new ArgumentException("Root Animation Component: The root animation " + rootAnimation.Name + " is already assigned.");
+        } // AddAnimationClip
+
+        #endregion
+
+        #region Pool
+
+        // Pool for this type of components.
+        private static readonly Pool<RootAnimation> rootAnimationPool = new Pool<RootAnimation>(20);
+
+        /// <summary>
+        /// Pool for this type of components.
+        /// </summary>
+        internal static Pool<RootAnimation> RootAnimationPool { get { return rootAnimationPool; } }
 
         #endregion
 

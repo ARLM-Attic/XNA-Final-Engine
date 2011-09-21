@@ -36,6 +36,8 @@ using XNAFinalEngine.Components;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
+using RootAnimation = XNAFinalEngine.Components.RootAnimation;
+
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -69,6 +71,8 @@ namespace XNAFinalEngine.EngineCore
             // Create the 32 layers.
             Layer.InitLayers();
             SpriteManager.Init();
+
+            gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
             
             testText = new GameObject2D();
             testText.AddComponent<HudText>();
@@ -77,23 +81,25 @@ namespace XNAFinalEngine.EngineCore
             testText.HudText.Text.Insert(0, "FPS ");
             testText.Transform.LocalPosition = new Vector3(100, 100, 0);
             testText.Transform.LocalRotation = 0f;
-            
+
+            Assets.RootAnimation animation = new Assets.RootAnimation("AnimatedCube");
 
             lamboBody = new GameObject3D();
             lamboBody.AddComponent<ModelRenderer>();
             lamboBody.ModelFilter.Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
             lamboBody.ModelRenderer.Material = new Constant { DiffuseColor = Color.Turquoise };
-
-            ModelAnimation animation = new ModelAnimation("dude");
+            lamboBody.AddComponent<RootAnimation>();
+            lamboBody.RootAnimation.AddAnimationClip(animation);
 
             /*dude = new GameObject3D();
             dude.AddComponent<ModelFilter>();
             dude.ModelFilter.Model = new FileModel("DudeWalk");*/
 
+            lamboBody.RootAnimation.Play("AnimatedCube");
             
-            gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
 
-            camera = new EditorCamera(new Vector3(0, 0, 0), 20, 0, 0);
+            camera = new EditorCamera(new Vector3(0, 0, 0), 100, 0, 0);
+            camera.FarPlane = 20000;
             
             #region Garbage Collection
 
@@ -129,6 +135,14 @@ namespace XNAFinalEngine.EngineCore
  
             Input.InputManager.Update();
             camera.Update();
+
+            for (int i = 0; i < RootAnimation.RootAnimationPool.Count; i++)
+            {
+                RootAnimation.RootAnimationPool.Elements[i].Update();
+            }
+
+            lamboBody.Transform.Translate(new Vector3(0.001f, 0, 0), Space.World);
+
         } // Update
 
         #endregion

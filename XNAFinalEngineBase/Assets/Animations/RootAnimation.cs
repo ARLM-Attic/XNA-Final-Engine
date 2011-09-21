@@ -38,7 +38,8 @@ namespace XNAFinalEngine.Assets
 {
 
     /// <summary>
-    /// Animation.
+    /// Root Animation.
+    /// Animations that works at the transform level.
     /// </summary>
     public class RootAnimation : Asset
     {
@@ -48,11 +49,11 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Root Animation Data.
         /// </summary>
-        public RootAnimationClip AnimationData { get; private set; }
+        public RootAnimationClip AnimationClip { get; private set; }
 
         #endregion
 
-        #region Constructor
+        #region Constructors
 
         /// <summary>
         /// Load root animation data from a .x or fbx file.
@@ -67,7 +68,7 @@ namespace XNAFinalEngine.Assets
             }
             try
             {
-                AnimationData = ContentManager.CurrentContentManager.XnaContentManager.Load<RootAnimationClip>(fullFilename);
+                AnimationClip = ContentManager.CurrentContentManager.XnaContentManager.Load<RootAnimationClip>(fullFilename);
             }
             catch (ObjectDisposedException)
             {

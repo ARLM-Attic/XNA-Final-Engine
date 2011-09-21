@@ -108,7 +108,6 @@
     <Compile Include="Graphics\Cameras\EditorCamera.cs" />
     <Compile Include="Graphics\GBuffer\GBuffer.cs" />
     <Compile Include="Graphics\Animation\RigidAnimationPlayer.cs" />
-    <Compile Include="Graphics\Animation\RootAnimationPlayer.cs" />
     <Compile Include="Graphics\Animation\SkinnedAnimationPlayer.cs" />
     <Compile Include="Graphics\SpriteManager.cs" />
     <Compile Include="Helpers\PoolWithoutAccessor.cs" />

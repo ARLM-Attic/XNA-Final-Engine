@@ -8,10 +8,6 @@ Authors: Schneider, José Ignacio (jis@cs.uns.edu.ar) under XNA Final Engine lice
 */
 #endregion
 
-#region Using directives
-using System.Linq;
-#endregion
-
 namespace XNAFinalEngine.EngineCore
 {
 

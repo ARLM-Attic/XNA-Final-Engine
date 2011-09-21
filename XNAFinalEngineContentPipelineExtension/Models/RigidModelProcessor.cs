@@ -56,7 +56,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             // Process the animations
             ProcessAnimations(input, model, modelAnimationClips, rootAnimationClips);
 
-            // If no animation information...
+            // If there is no animation information...
             if (modelAnimationClips.Count == 0 && rootAnimationClips.Count == 0 && model.Bones.Count == 1)
             {
                 model.Tag = null;
@@ -145,7 +145,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             // Add the transformations on the root of the model
             foreach (AnimationKeyframe keyframe in channel)
             {
-                keyframes.Add(new RootKeyframe(keyframe.Time, keyframe.Transform));
+                keyframes.Add(new RootKeyframe((float)(keyframe.Time.TotalSeconds), keyframe.Transform));
             }            
 
             // Sort the merged keyframes by time.
@@ -157,7 +157,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             if (animation.Duration <= TimeSpan.Zero)
                 throw new InvalidContentException("Animation has a zero duration.");
 
-            return new RootAnimationClip(animation.Duration, keyframes);
+            return new RootAnimationClip((float)(animation.Duration.TotalSeconds), keyframes);
         } // ProcessRootAnimation
 
         #endregion
@@ -183,7 +183,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             if (duration <= TimeSpan.Zero)
                 throw new InvalidContentException("Animation has a zero duration.");
 
-            return new ModelAnimationClip(duration, keyframes);
+            return new ModelAnimationClip((float)(duration.TotalSeconds), keyframes);
         } // ProcessRigidAnimation
 
         static void AddTransformationNodes(string animationName, Dictionary<string, int> boneMap, NodeContent input, List<ModelKeyframe> keyframes, ref TimeSpan duration)
@@ -209,7 +209,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
 
                     foreach (AnimationKeyframe keyframe in childChannel)
                     {
-                        keyframes.Add(new ModelKeyframe(boneIndex, keyframe.Time, keyframe.Transform));
+                        keyframes.Add(new ModelKeyframe(boneIndex, (float)(keyframe.Time.TotalSeconds), keyframe.Transform));
                     }
                 }
 

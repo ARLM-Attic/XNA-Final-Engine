@@ -27,7 +27,7 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         /// Gets the total length of the model animation clip
         /// </summary>
         [ContentSerializer]
-        public TimeSpan Duration { get; private set; }
+        public float Duration { get; private set; }
         
         /// <summary>
         /// Gets a combined list containing all the keyframes for all bones,
@@ -39,7 +39,7 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         /// <summary>
         /// Constructs a new root animation clip object.
         /// </summary>
-        public RootAnimationClip(TimeSpan duration, List<RootKeyframe> keyframes)
+        public RootAnimationClip(float duration, List<RootKeyframe> keyframes)
         {
             Duration = duration;
             Keyframes = keyframes;

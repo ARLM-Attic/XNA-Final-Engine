@@ -29,6 +29,7 @@ namespace XNAFinalEngine.Components
 
         private Pool<ModelFilter>.Accessor modelFilterAccessor;
         private Pool<ModelRenderer>.Accessor modelRendererAccessor;
+        private Pool<RootAnimation>.Accessor rootAnimationAccessor;
 
         #endregion
 
@@ -50,6 +51,11 @@ namespace XNAFinalEngine.Components
         /// Associated model filter component.
         /// </summary>
         public ModelFilter ModelFilter { get; private set; }
+
+        /// <summary>
+        /// Associated root animation component.
+        /// </summary>
+        public RootAnimation RootAnimation { get; private set; }
         
         /// <summary>
         /// The parent of this game object.
@@ -119,7 +125,7 @@ namespace XNAFinalEngine.Components
             {
                 if (modelFilterAccessor != null)
                 {
-                    throw new ArgumentException("Game Object 3D: Unable to create the 2D model filter component. There is one already.");
+                    throw new ArgumentException("Game Object 3D: Unable to create the model filter component. There is one already.");
                 }
                 // Search for an empty component in the pool.
                 modelFilterAccessor = ModelFilter.ModelFilterPool.Fetch();
@@ -133,7 +139,7 @@ namespace XNAFinalEngine.Components
             {
                 if (modelRendererAccessor != null)
                 {
-                    throw new ArgumentException("Game Object 3D: Unable to create the 2D model renderer component. There is one already.");
+                    throw new ArgumentException("Game Object 3D: Unable to create the model renderer component. There is one already.");
                 }
                 // Search for an empty component in the pool.
                 modelRendererAccessor = ModelRenderer.ModelRendererPool.Fetch();
@@ -142,6 +148,20 @@ namespace XNAFinalEngine.Components
                 // Initialize the component to the default values.
                 ModelRenderer.Initialize(this);
                 return ModelRenderer;
+            }
+            if (typeof(TComponentType) == typeof(RootAnimation))
+            {
+                if (rootAnimationAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the animation root component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                rootAnimationAccessor = RootAnimation.RootAnimationPool.Fetch();
+                // A component is a reference value, so no problem to do this.
+                RootAnimation = RootAnimation.RootAnimationPool[rootAnimationAccessor];
+                // Initialize the component to the default values.
+                RootAnimation.Initialize(this);
+                return RootAnimation;
             }
             throw new ArgumentException("Game Object 3D: Unknown component type.");
         } // AddComponent
@@ -191,6 +211,17 @@ namespace XNAFinalEngine.Components
                 }
                 ModelRenderer.Uninitialize();
                 ModelRenderer.ModelRendererPool.Release(modelRendererAccessor);
+                ModelRenderer = null;
+                modelRendererAccessor = null;
+            }
+            if (typeof(TComponentType) == typeof(RootAnimation))
+            {
+                if (rootAnimationAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the root animation component. There is not one.");
+                }
+                RootAnimation.Uninitialize();
+                RootAnimation.RootAnimationPool.Release(rootAnimationAccessor);
                 ModelRenderer = null;
                 modelRendererAccessor = null;
             }

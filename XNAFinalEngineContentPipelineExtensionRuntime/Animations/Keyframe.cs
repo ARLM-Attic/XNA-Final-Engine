@@ -25,7 +25,7 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         /// Gets the time offset from the start of the animation to this keyframe.
         /// </summary>
         [ContentSerializer]
-        public TimeSpan Time { get; protected set; }
+        public float Time { get; protected set; }
 
     } // Keyframe
 } // XNAFinalEngineContentPipelineExtensionRuntime.Animations

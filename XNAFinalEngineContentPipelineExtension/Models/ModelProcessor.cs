@@ -37,8 +37,7 @@ using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 namespace XNAFinalEngineContentPipelineExtension.Models
 {
     /// <summary>
-    /// Custom processor that ignores texture assets. 
-    /// This is not meant for the user.
+    /// Custom processor that ignores texture assets.
     /// </summary>
     public class IgnoreTexturesModelProcessor : ModelProcessor
     {

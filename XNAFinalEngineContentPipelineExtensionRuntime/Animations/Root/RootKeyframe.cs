@@ -33,7 +33,7 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         /// <summary>
         /// Constructs a new ModelKeyframe object.
         /// </summary>
-        public RootKeyframe(TimeSpan time, Matrix transform)
+        public RootKeyframe(float time, Matrix transform)
         {
             Time = time;
             Transform = transform;
