@@ -56,8 +56,8 @@ namespace XNAFinalEngine.Components
 
         // Clip currently being played
         RootAnimationClip currentClip;
-        // The animations are absolute, we need the initial world matrix to make them relative.
-        private Matrix initialWorldMatrix;
+        // The animations are absolute, we need the previous animation's transformation matrix to make them relative.
+        private Matrix previousAnimationTransform;
         // Current timeindex and keyframe in the clip
         float currentTimeValue;
         int currentKeyFrameIndex;
@@ -119,7 +119,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Invoked when playback has completed.
         /// </summary>
-        public event EventHandler Completed;
+        public event EventHandler AnimationCompleted;
 
         #endregion
 
@@ -156,7 +156,7 @@ namespace XNAFinalEngine.Components
             this.playbackRate = playbackRate;
             this.duration = duration;
 
-            initialWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
+            previousAnimationTransform = ((GameObject3D)Owner).Transform.LocalMatrix;
         } // Play
 
         #endregion
@@ -201,8 +201,8 @@ namespace XNAFinalEngine.Components
             // See if we should terminate
             if (elapsedPlaybackTime > duration && duration != 0 || elapsedPlaybackTime > currentClip.Duration && duration == 0)
             {
-                if (Completed != null)
-                    Completed(this, EventArgs.Empty);
+                if (AnimationCompleted != null)
+                    AnimationCompleted(this, EventArgs.Empty);
                 currentClip = null;
                 return;
             }
@@ -214,8 +214,10 @@ namespace XNAFinalEngine.Components
                 time -= currentClip.Duration;
             CurrentTimeValue = time;
 
-            // Update World Matrix.
-            ((GameObject3D)Owner).Transform.WorldMatrix = currentKeyFrame.Transform * initialWorldMatrix;// * ((GameObject3D)Owner).Transform.WorldMatrix;
+            // Update transform Matrix.
+            // The animation information is absolute but we need relative information so that different transformations could be applied to the transform at the same time.
+            ((GameObject3D)Owner).Transform.LocalMatrix = currentKeyFrame.Transform * Matrix.Invert(previousAnimationTransform) * ((GameObject3D)Owner).Transform.LocalMatrix;
+            previousAnimationTransform = currentKeyFrame.Transform;
         } // Update
 
         #endregion
@@ -251,9 +253,9 @@ namespace XNAFinalEngine.Components
         /// Determines if the component contains a specific root animation.
         /// </summary>
         /// <remarks>Checks both, the name and the clip.</remarks>
-        public bool ContainsAnimationClip(Assets.RootAnimation rootAnimation)
+        public bool ContainsAnimationClip(Assets.RootAnimation animation)
         {
-            return rootAnimations.ContainsValue(rootAnimation.AnimationClip) || rootAnimations.ContainsKey(rootAnimation.Name);
+            return rootAnimations.ContainsValue(animation.AnimationClip) || rootAnimations.ContainsKey(animation.Name);
         } // ContainsAnimationClip
 
         #endregion
@@ -263,12 +265,12 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Adds an animation clip to the component.
         /// </summary>
-        public void AddAnimationClip(Assets.RootAnimation rootAnimation)
+        public void AddAnimationClip(Assets.RootAnimation animation)
         {
-            if (!ContainsAnimationClip(rootAnimation))
-                rootAnimations.Add(rootAnimation.Name, rootAnimation.AnimationClip);
+            if (!ContainsAnimationClip(animation))
+                rootAnimations.Add(animation.Name, animation.AnimationClip);
             else
-                throw new ArgumentException("Root Animation Component: The root animation " + rootAnimation.Name + " is already assigned.");
+                throw new ArgumentException("Root Animation Component: The animation " + animation.Name + " is already assigned.");
         } // AddAnimationClip
 
         #endregion

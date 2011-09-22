@@ -98,6 +98,10 @@ namespace XNAFinalEngine.Components
                 ((GameObject3D) Owner).AddComponent<ModelFilter>();
             }
             ((GameObject3D)Owner).ModelFilter.ModelChanged += OnModelChanged;
+            if (((GameObject3D)Owner).ModelFilter.Model != null)
+            {
+                CachedModel = ((GameObject3D)Owner).ModelFilter.Model;
+            }
             Material = null;
             CalculateBoundingVolumes();
         } // Initialize

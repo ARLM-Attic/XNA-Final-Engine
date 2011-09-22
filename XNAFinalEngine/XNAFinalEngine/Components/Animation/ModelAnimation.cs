@@ -29,7 +29,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
+using System;
+using System.Collections.Generic;
+using XNAFinalEngine.Helpers;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 #endregion
 
@@ -37,20 +39,17 @@ namespace XNAFinalEngine.Components
 {
 
     /// <summary>
-    /// The animation component is used to play back animations.
+    /// The model animation component is used to play back model animations (skinned and rigid).
+    /// This kind of animations does not affect the game object's transform.
     /// </summary>
-    public class Animation : Component
+    public class ModelAnimation : Component
     {
 
         #region Variables
 
-        /// <summary>
-        /// Chaded model's animation data.
-        /// </summary>
-        private ModelAnimationData cachedModelAnimationData;
-
-        private Animation[] animations;
-
+        // Associated animations.
+        private readonly Dictionary<string, ModelAnimationClip> modelAnimations = new Dictionary<string, ModelAnimationClip>(0);
+        
         #endregion
         
         #region Initialize
@@ -78,5 +77,45 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
-    } // Animation
+        #region Contains Animation Clip
+
+        /// <summary>
+        /// Determines if the component contains a specific model animation.
+        /// </summary>
+        /// <remarks>Checks both, the name and the clip.</remarks>
+        public bool ContainsAnimationClip(Assets.ModelAnimation animation)
+        {
+            return modelAnimations.ContainsValue(animation.AnimationClip) || modelAnimations.ContainsKey(animation.Name);
+        } // ContainsAnimationClip
+
+        #endregion
+
+        #region Add Animation Clip
+
+        /// <summary>
+        /// Adds an animation clip to the component.
+        /// </summary>
+        public void AddAnimationClip(Assets.ModelAnimation animation)
+        {
+            if (!ContainsAnimationClip(animation))
+                modelAnimations.Add(animation.Name, animation.AnimationClip);
+            else
+                throw new ArgumentException("Model Animation Component: The animation " + animation.Name + " is already assigned.");
+        } // AddAnimationClip
+
+        #endregion
+
+        #region Pool
+
+        // Pool for this type of components.
+        private static readonly Pool<ModelAnimation> modelAnimationPool = new Pool<ModelAnimation>(20);
+
+        /// <summary>
+        /// Pool for this type of components.
+        /// </summary>
+        internal static Pool<ModelAnimation> ModelAnimationPool { get { return modelAnimationPool; } }
+
+        #endregion
+
+    } // ModelAnimation
 } // XNAFinalEngine.Components

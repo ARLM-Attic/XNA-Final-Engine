@@ -84,21 +84,24 @@ namespace XNAFinalEngine.EngineCore
 
             Assets.RootAnimation animation = new Assets.RootAnimation("AnimatedCube");
 
-            lamboBody = new GameObject3D();
+            /*lamboBody = new GameObject3D();
             lamboBody.AddComponent<ModelRenderer>();
             lamboBody.ModelFilter.Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
             lamboBody.ModelRenderer.Material = new Constant { DiffuseColor = Color.Turquoise };
             lamboBody.AddComponent<RootAnimation>();
             lamboBody.RootAnimation.AddAnimationClip(animation);
 
-            /*dude = new GameObject3D();
-            dude.AddComponent<ModelFilter>();
-            dude.ModelFilter.Model = new FileModel("DudeWalk");*/
-
             lamboBody.RootAnimation.Play("AnimatedCube");
-            
+            lamboBody.Transform.Translate(new Vector3(0, -25, 0), Space.Local);
+            */
+            dude = new GameObject3D();
+            dude.AddComponent<ModelFilter>();
+            dude.ModelFilter.Model = new FileModel("DudeWalk");
+            dude.AddComponent<ModelRenderer>();
 
-            camera = new EditorCamera(new Vector3(0, 0, 0), 100, 0, 0);
+
+
+            camera = new EditorCamera(new Vector3(0, 30, 0), 200, 0, 0);
             camera.FarPlane = 20000;
             
             #region Garbage Collection
@@ -141,8 +144,8 @@ namespace XNAFinalEngine.EngineCore
                 RootAnimation.RootAnimationPool.Elements[i].Update();
             }
 
-            lamboBody.Transform.Translate(new Vector3(0.001f, 0, 0), Space.World);
-
+            //lamboBody.Transform.Translate(new Vector3(0.0001f, 0, 0), Space.Local);
+            //lamboBody.Transform.Rotate(new Vector3(0, 0.00001f, 0));
         } // Update
 
         #endregion

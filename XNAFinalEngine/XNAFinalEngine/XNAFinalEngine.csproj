@@ -108,7 +108,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Components\Animation\Animation.cs" />
+    <Compile Include="Components\Animation\ModelAnimation.cs" />
     <Compile Include="Components\Animation\RootAnimation.cs" />
     <Compile Include="Components\Component.cs" />
     <Compile Include="Components\Camera\Camera.cs" />

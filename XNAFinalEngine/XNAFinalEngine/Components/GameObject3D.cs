@@ -30,6 +30,7 @@ namespace XNAFinalEngine.Components
         private Pool<ModelFilter>.Accessor modelFilterAccessor;
         private Pool<ModelRenderer>.Accessor modelRendererAccessor;
         private Pool<RootAnimation>.Accessor rootAnimationAccessor;
+        private Pool<ModelAnimation>.Accessor modelAnimationAccessor;
 
         #endregion
 
@@ -56,6 +57,11 @@ namespace XNAFinalEngine.Components
         /// Associated root animation component.
         /// </summary>
         public RootAnimation RootAnimation { get; private set; }
+
+        /// <summary>
+        /// Associated model animation component.
+        /// </summary>
+        public ModelAnimation ModelAnimation { get; private set; }
         
         /// <summary>
         /// The parent of this game object.
@@ -112,6 +118,9 @@ namespace XNAFinalEngine.Components
         /// <typeparam name="TComponentType">Component Type</typeparam>
         public override Component AddComponent<TComponentType>()
         {
+
+            #region Transform
+
             // Get from a pool or create the component.
             if (typeof(TComponentType) == typeof(Transform3D))
             {
@@ -121,6 +130,11 @@ namespace XNAFinalEngine.Components
             {
                 throw new ArgumentException("Game Object 3D: Unable to create the 2D transform component. A 3D Game Object does not work in 2D.");
             }
+
+            #endregion
+
+            #region Model Filter
+
             if (typeof(TComponentType) == typeof(ModelFilter))
             {
                 if (modelFilterAccessor != null)
@@ -135,6 +149,11 @@ namespace XNAFinalEngine.Components
                 ModelFilter.Initialize(this);
                 return ModelFilter;
             }
+
+            #endregion
+
+            #region Model Renderer
+
             if (typeof(TComponentType) == typeof(ModelRenderer))
             {
                 if (modelRendererAccessor != null)
@@ -149,11 +168,16 @@ namespace XNAFinalEngine.Components
                 ModelRenderer.Initialize(this);
                 return ModelRenderer;
             }
+
+            #endregion
+
+            #region Root Animation
+
             if (typeof(TComponentType) == typeof(RootAnimation))
             {
                 if (rootAnimationAccessor != null)
                 {
-                    throw new ArgumentException("Game Object 3D: Unable to create the animation root component. There is one already.");
+                    throw new ArgumentException("Game Object 3D: Unable to create the root animation component. There is one already.");
                 }
                 // Search for an empty component in the pool.
                 rootAnimationAccessor = RootAnimation.RootAnimationPool.Fetch();
@@ -163,6 +187,28 @@ namespace XNAFinalEngine.Components
                 RootAnimation.Initialize(this);
                 return RootAnimation;
             }
+
+            #endregion
+
+            #region Model Animation
+
+            if (typeof(TComponentType) == typeof(ModelAnimation))
+            {
+                if (modelAnimationAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the model animation component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                modelAnimationAccessor = ModelAnimation.ModelAnimationPool.Fetch();
+                // A component is a reference value, so no problem to do this.
+                ModelAnimation = ModelAnimation.ModelAnimationPool[modelAnimationAccessor];
+                // Initialize the component to the default values.
+                ModelAnimation.Initialize(this);
+                return ModelAnimation;
+            }
+
+            #endregion
+
             throw new ArgumentException("Game Object 3D: Unknown component type.");
         } // AddComponent
 
@@ -179,7 +225,9 @@ namespace XNAFinalEngine.Components
         /// <typeparam name="TComponentType">Component Type</typeparam>
         public override void RemoveComponent<TComponentType>()
         {
-            // Get from a pool or create the component.
+
+            #region Transform
+
             if (typeof(TComponentType) == typeof(Transform3D))
             {
                 throw new ArgumentException("Game Object 3D: Unable to remove the 3D transform component. The transform component can’t be replaced or removed.");
@@ -188,6 +236,11 @@ namespace XNAFinalEngine.Components
             {
                 throw new ArgumentException("Game Object 3D: Unable to remove the 2D transform component. A 3D Game Object does not work in 2D.");
             }
+
+            #endregion
+
+            #region Model Filter
+
             if (typeof(TComponentType) == typeof(ModelFilter))
             {
                 if (modelFilterAccessor == null)
@@ -203,6 +256,11 @@ namespace XNAFinalEngine.Components
                 ModelFilter = null;
                 modelFilterAccessor = null;
             }
+
+            #endregion
+
+            #region Model Renderer
+
             if (typeof(TComponentType) == typeof(ModelRenderer))
             {
                 if (modelRendererAccessor == null)
@@ -214,6 +272,11 @@ namespace XNAFinalEngine.Components
                 ModelRenderer = null;
                 modelRendererAccessor = null;
             }
+
+            #endregion
+
+            #region Animation
+
             if (typeof(TComponentType) == typeof(RootAnimation))
             {
                 if (rootAnimationAccessor == null)
@@ -222,9 +285,23 @@ namespace XNAFinalEngine.Components
                 }
                 RootAnimation.Uninitialize();
                 RootAnimation.RootAnimationPool.Release(rootAnimationAccessor);
-                ModelRenderer = null;
-                modelRendererAccessor = null;
+                RootAnimation = null;
+                rootAnimationAccessor = null;
             }
+            if (typeof(TComponentType) == typeof(ModelAnimation))
+            {
+                if (modelAnimationAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the model animation component. There is not one.");
+                }
+                ModelAnimation.Uninitialize();
+                ModelAnimation.ModelAnimationPool.Release(modelAnimationAccessor);
+                ModelAnimation = null;
+                modelAnimationAccessor = null;
+            }
+
+            #endregion
+
         } // RemoveComponent
 
         #endregion
