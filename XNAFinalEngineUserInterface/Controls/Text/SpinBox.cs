@@ -61,14 +61,9 @@ namespace XNAFinalEngine.UserInterface
             {
                 base.ReadOnly = value;
                 CaretVisible = !value;
-                if (value)
-                {
-                    Cursor = Skin.Cursors["Default"].Resource;
-                }
-                else
-                {
-                    Cursor = Skin.Cursors["Text"].Resource;
-                }
+                #if (WINDOWS)
+                    Cursor = value ? Skin.Cursors["Default"].Resource : Skin.Cursors["Text"].Resource;
+                #endif
             }
         } // ReadOnly
 

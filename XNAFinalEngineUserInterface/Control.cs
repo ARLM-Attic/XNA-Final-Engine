@@ -2107,8 +2107,10 @@ namespace XNAFinalEngine.UserInterface
             hovered = true;
             ToolTipOver();
 
-            if (Cursor != null && UserInterfaceManager.Cursor != Cursor) 
-                UserInterfaceManager.Cursor = Cursor;
+            #if (WINDOWS)
+                if (Cursor != null && UserInterfaceManager.Cursor != Cursor) 
+                    UserInterfaceManager.Cursor = Cursor;
+            #endif
 
             if (!Suspended) 
                 OnMouseOver(e);
@@ -2123,7 +2125,9 @@ namespace XNAFinalEngine.UserInterface
             hovered = false;
             ToolTipOut();
 
-            UserInterfaceManager.Cursor = Skin.Cursors["Default"].Resource;
+            #if (WINDOWS)
+                UserInterfaceManager.Cursor = Skin.Cursors["Default"].Resource;
+            #endif
 
             if (!Suspended)
                 OnMouseOut(e);
@@ -2371,7 +2375,9 @@ namespace XNAFinalEngine.UserInterface
                 if (!IsResizing)
                 {
                     ResizePosition(e);
-                    UserInterfaceManager.Cursor = Cursor = ResizeCursor();
+                    #if (WINDOWS)
+                        UserInterfaceManager.Cursor = Cursor = ResizeCursor();
+                    #endif
                 }
 
                 if (IsResizing)
@@ -2801,4 +2807,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // Control
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

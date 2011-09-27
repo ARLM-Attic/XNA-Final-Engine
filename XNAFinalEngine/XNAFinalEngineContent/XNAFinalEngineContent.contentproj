@@ -784,42 +784,6 @@
       <Name>Vertical</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Cursors\Cursors\Busy.cur">
-      <Name>Busy</Name>
-      <Importer>CursorImporter</Importer>
-    </Compile>
-    <Compile Include="Cursors\Cursors\Cross.cur">
-      <Name>Cross</Name>
-      <Importer>CursorImporter</Importer>
-    </Compile>
-    <Compile Include="Cursors\Cursors\Default.cur">
-      <Name>Default</Name>
-      <Importer>CursorImporter</Importer>
-    </Compile>
-    <Compile Include="Cursors\Cursors\DiagonalLeft.cur">
-      <Name>DiagonalLeft</Name>
-      <Importer>CursorImporter</Importer>
-    </Compile>
-    <Compile Include="Cursors\Cursors\DiagonalRight.cur">
-      <Name>DiagonalRight</Name>
-      <Importer>CursorImporter</Importer>
-    </Compile>
-    <Compile Include="Cursors\Cursors\Horizontal.cur">
-      <Name>Horizontal</Name>
-      <Importer>CursorImporter</Importer>
-    </Compile>
-    <Compile Include="Cursors\Cursors\Move.cur">
-      <Name>Move</Name>
-      <Importer>CursorImporter</Importer>
-    </Compile>
-    <Compile Include="Cursors\Cursors\Text.cur">
-      <Name>Text</Name>
-      <Importer>CursorImporter</Importer>
-    </Compile>
-    <Compile Include="Cursors\Cursors\Vertical.cur">
-      <Name>Vertical</Name>
-      <Importer>CursorImporter</Importer>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="UILayout\Window.layout">
@@ -1199,6 +1163,44 @@
       <Name>Default</Name>
       <Importer>FontDescriptionImporter</Importer>
       <Processor>FontDescriptionProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Cursors\Default\Busy.cur">
+      <Name>Busy</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Default\Cross.cur">
+      <Name>Cross</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Default\Default.cur">
+      <Name>Default</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Default\DiagonalLeft.cur">
+      <Name>DiagonalLeft</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Default\DiagonalRight.cur">
+      <Name>DiagonalRight</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Default\Horizontal.cur">
+      <Name>Horizontal</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Default\Move.cur">
+      <Name>Move</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Default\Text.cur">
+      <Name>Text</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Default\Vertical.cur">
+      <Name>Vertical</Name>
+      <Importer>CursorImporter</Importer>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

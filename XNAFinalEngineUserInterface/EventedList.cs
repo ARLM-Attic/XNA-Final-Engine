@@ -15,6 +15,7 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.Collections.Generic;
+using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -85,7 +86,11 @@ namespace XNAFinalEngine.UserInterface
         public new int RemoveAll(Predicate<T> match)
         {
             int c = Count;
-            int ret = base.RemoveAll(match);
+            #if (WINDOWS)
+                int ret = base.RemoveAll(match);
+            #else
+                int ret = ExtensionMethods.RemoveAll(this, match);
+            #endif
             if (ItemRemoved != null && c != Count) ItemRemoved.Invoke(this, new EventArgs());
             return ret;
         } // RemoveAll
@@ -107,4 +112,5 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // EventedList
-} // XNAFinalEngine.UI
+    
+} // XNAFinalEngine.UserInterface

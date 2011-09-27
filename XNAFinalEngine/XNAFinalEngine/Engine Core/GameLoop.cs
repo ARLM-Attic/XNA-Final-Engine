@@ -37,7 +37,6 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
 using RootAnimation = XNAFinalEngine.Components.RootAnimation;
-
 #endregion
 
 namespace XNAFinalEngine.EngineCore

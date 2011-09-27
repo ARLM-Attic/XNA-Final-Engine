@@ -480,7 +480,9 @@ namespace XNAFinalEngine.UserInterface
             base.InitSkin();
             SkinControlInformation = new SkinControl(Skin.Controls["TextBox"]);
 
-            Cursor = Skin.Cursors["Text"].Resource;
+            #if (WINDOWS)
+                Cursor = Skin.Cursors["Text"].Resource;
+            #endif
 
             font = (SkinControlInformation.Layers["Control"].Text != null) ? SkinControlInformation.Layers["Control"].Text.Font.Resource : null;
         } // InitSkin
@@ -1131,6 +1133,10 @@ namespace XNAFinalEngine.UserInterface
                     selection.End = Position;
                 }
 
+                #region Copy Paste
+
+                // Windows only because it uses the Clipboard class. Of course this could be implemented manually in the XBOX 360 if you want it.
+                #if (WINDOWS)
                 if (e.Control && e.Key == Keys.C && mode != TextBoxMode.Password)
                 {
                     System.Windows.Forms.Clipboard.Clear();
@@ -1155,6 +1161,9 @@ namespace XNAFinalEngine.UserInterface
                         selection.Clear();
                     }
                 }
+                #endif
+
+                #endregion
 
                 if ((!e.Shift && !e.Control) || Text.Length <= 0)
                 {

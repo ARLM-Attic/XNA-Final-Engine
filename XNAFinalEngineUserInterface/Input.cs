@@ -91,24 +91,26 @@ namespace XNAFinalEngine.UserInterface
         #region Constructors
 
         /// <summary>
-        /// Initialice the UI input system.
+        /// Initialice the user interface input system.
         /// </summary>
         public Input()
         {
-            foreach (string keyName in Enum.GetNames(typeof(Keys)))
-            {
-                InputKey key = new InputKey { Key = (Keys)Enum.Parse(typeof(Keys), keyName) };
-                keys.Add(key);
-            }
-
-            foreach (string mouseButtonName in Enum.GetNames(typeof(MouseButton)))
-            {
-                InputMouseButton mouseButton = new InputMouseButton
+            #if (WINDOWS)
+                foreach (string keyName in Enum.GetNames(typeof(Keys)))
                 {
-                    Button = (MouseButton)Enum.Parse(typeof(MouseButton), mouseButtonName)
-                };
-                mouseButtons.Add(mouseButton);
-            }
+                    InputKey key = new InputKey { Key = (Keys)Enum.Parse(typeof(Keys), keyName) };
+                    keys.Add(key);
+                }
+
+                foreach (string mouseButtonName in Enum.GetNames(typeof(MouseButton)))
+                {
+                    InputMouseButton mouseButton = new InputMouseButton
+                    {
+                        Button = (MouseButton)Enum.Parse(typeof(MouseButton), mouseButtonName)
+                    };
+                    mouseButtons.Add(mouseButton);
+                }
+            #endif
         } // InputSystem
 
         #endregion
@@ -284,4 +286,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // Input
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

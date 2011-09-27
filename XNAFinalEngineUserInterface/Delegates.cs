@@ -28,4 +28,4 @@ namespace XNAFinalEngine.UserInterface
     public delegate void WindowClosedEventHandler(object sender, WindowClosedEventArgs e);
     public delegate void ConsoleMessageEventHandler(object sender, ConsoleMessageEventArgs e);
 
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

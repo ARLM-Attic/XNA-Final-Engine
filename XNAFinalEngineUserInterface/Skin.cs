@@ -493,7 +493,9 @@ namespace XNAFinalEngine.UserInterface
             Controls = new SkinList<SkinControl>();
             Fonts = new SkinList<SkinFont>();
             Images = new SkinList<SkinImage>();
-            Cursors = new SkinList<SkinCursor>();
+            #if (WINDOWS)
+                Cursors = new SkinList<SkinCursor>();
+            #endif
 
             if (skinContentManager == null)
                 skinContentManager = new ContentManager();
@@ -515,7 +517,9 @@ namespace XNAFinalEngine.UserInterface
                 {
                     LoadImagesDescription();
                     LoadFontsDescription();
-                    LoadCursorsDescription();
+                    #if (WINDOWS)
+                        LoadCursorsDescription();
+                    #endif
                     LoadControlsDescription();
                 }
                 catch (Exception e)
@@ -538,10 +542,12 @@ namespace XNAFinalEngine.UserInterface
                 {
                     skinFont.Resource = new Font(skinFont.Asset);
                 }
-                foreach (SkinCursor skinCursor in Cursors)
-                {
-                    skinCursor.Resource = new Assets.Cursor("name" + skinCursor.Asset);
-                }
+                #if (WINDOWS)
+                    foreach (SkinCursor skinCursor in Cursors)
+                    {
+                        skinCursor.Resource = new Assets.Cursor("name" + skinCursor.Asset);
+                    }
+                #endif
                 foreach (SkinImage skinImage in Images)
                 {
                     skinImage.Texture = new Texture("Skin\\" + skinName + "\\" + skinImage.Asset);
@@ -835,24 +841,26 @@ namespace XNAFinalEngine.UserInterface
 
         #region Load Cursors
 
-        /// <summary>
-        /// Load cursors information.
-        /// </summary>
-        private static void LoadCursorsDescription()
-        {
-            if (skinDescription.XDocument.Element("Skin").Element("Cursors") == null)
-                return;
-
-            foreach (var cursor in skinDescription.XDocument.Element("Skin").Element("Cursors").Elements())
+        #if (WINDOWS)
+            /// <summary>
+            /// Load cursors information.
+            /// </summary>
+            private static void LoadCursorsDescription()
             {
-                SkinCursor skinCursor = new SkinCursor
+                if (skinDescription.XDocument.Element("Skin").Element("Cursors") == null)
+                    return;
+
+                foreach (var cursor in skinDescription.XDocument.Element("Skin").Element("Cursors").Elements())
                 {
-                    Name = ReadAttribute(cursor, "Name", null, true),
-                    Asset = ReadAttribute(cursor, "Asset", null, true)
-                };
-                Cursors.Add(skinCursor);
-            }
-        } // LoadCursors
+                    SkinCursor skinCursor = new SkinCursor
+                    {
+                        Name = ReadAttribute(cursor, "Name", null, true),
+                        Asset = ReadAttribute(cursor, "Asset", null, true)
+                    };
+                    Cursors.Add(skinCursor);
+                }
+            } // LoadCursors
+        #endif
 
         #endregion
 
