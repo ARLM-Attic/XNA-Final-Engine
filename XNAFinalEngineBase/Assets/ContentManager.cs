@@ -151,7 +151,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Disposes all data that was loaded by this ContentManager.
         /// </summary>
-        protected void Unload()
+        public void Unload()
         {
             if (systemContentManager == this)
             {

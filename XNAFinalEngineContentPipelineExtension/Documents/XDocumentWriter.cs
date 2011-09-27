@@ -34,7 +34,7 @@ using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Serialization.Compiler;
 #endregion
 
-namespace XNAFinalEngineContentPipelineExtension
+namespace XNAFinalEngineContentPipelineExtension.Documents
 {
     
     [ContentTypeWriter]

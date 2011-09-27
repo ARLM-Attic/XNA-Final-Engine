@@ -47,6 +47,8 @@
     <Compile Include="Assets\Animations\RootAnimation.cs" />
     <Compile Include="Assets\Asset.cs" />
     <Compile Include="Assets\ContentManager.cs" />
+    <Compile Include="Assets\Cursors\Cursor.cs" />
+    <Compile Include="Assets\Documents\Document.cs" />
     <Compile Include="Assets\Fonts\Font.cs" />
     <Compile Include="Assets\Materials\BlinnPhong.cs" />
     <Compile Include="Assets\Materials\Constant.cs" />
@@ -58,9 +60,6 @@
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />
     <Compile Include="Assets\Textures\TextureCube.cs" />
-    <Compile Include="Graphics\Animation\AnimationPlayer.cs" />
-    <Compile Include="Graphics\Animation\RigidAnimationPlayer.cs" />
-    <Compile Include="Graphics\Animation\SkinnedAnimationPlayer.cs" />
     <Compile Include="Graphics\Cameras\Camera.cs" />
     <Compile Include="Graphics\Cameras\EditorCamera.cs" />
     <Compile Include="Graphics\GBuffer\GBuffer.cs" />
@@ -128,6 +127,15 @@
     <Reference Include="System.Xml.Linq">
       <Private>False</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Graphics\Animation\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XNAFinalEngineContentPipelineExtensionRuntime\XNAFinalEngineContentPipelineExtensionRuntime XBOX 360.csproj">
+      <Project>{5D1093DE-88C6-4A36-9704-4B13C0D7BAB4}</Project>
+      <Name>XNAFinalEngineContentPipelineExtensionRuntime XBOX 360</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />

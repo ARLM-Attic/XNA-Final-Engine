@@ -241,7 +241,7 @@ namespace XNAFinalEngine.Assets
         /// <param name="_surfaceFormat">Surface format</param>
         /// <param name="_hasDepthBuffer">Has depth buffer?</param>
         /// <param name="antialiasingType">Multi sampling type: System value or no antialiasing.</param>
-        public RenderTarget(Size size, SurfaceFormat _surfaceFormat, bool _hasDepthBuffer = true, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
+        public RenderTarget(Size size, SurfaceFormat _surfaceFormat = SurfaceFormat.Color, bool _hasDepthBuffer = true, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
         {
             Name = "Render Target " + nameNumber++;
             Width = size.Width;
@@ -287,7 +287,7 @@ namespace XNAFinalEngine.Assets
         /// <param name="_surfaceFormat">Surface format</param>
         /// <param name="_hasDepthBuffer">Has depth buffer?</param>
         /// <param name="antialiasingType">Multi sampling type: System value or no antialiasing.</param>
-        public RenderTarget(SizeType _sizeType, SurfaceFormat _surfaceFormat, bool _hasDepthBuffer = true, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
+        public RenderTarget(SizeType _sizeType, SurfaceFormat _surfaceFormat = SurfaceFormat.Color, bool _hasDepthBuffer = true, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
         {
             Name = "Render Target " + nameNumber++;
             sizeType = _sizeType;

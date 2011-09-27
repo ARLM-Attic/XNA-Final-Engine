@@ -31,97 +31,45 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.IO;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using XNAFinalEngine.Helpers;
+using System.Xml.Linq;
 #endregion
 
 namespace XNAFinalEngine.Assets
 {
 
 	/// <summary>
-	/// Base class for textures.
-    /// Important: Try to dispose only the textures created without the content manager.
-    /// If you dispose a texture and then you try to load again using the same content managed an exception will be raised.
-    /// In this cases use the Unload method from the Content Manager instead.
+	/// XML Documents.
+    /// http://msdn.microsoft.com/en-us/library/ms745778.aspx 
 	/// </summary>
-    public class Texture : Asset
+    public class Document : Asset
     {
-
-        #region Variables
-
-        /// <summary>
-        /// The count of dummy textures for naming purposes.
-        /// </summary>
-        private static int nameNumber = 1;
-                
-        /// <summary>
-        /// XNA Texture.
-        /// </summary>
-        protected Texture2D xnaTexture;
-
-        #endregion
-
+        
         #region Properties
 
         /// <summary>
-        /// XNA Texture.
+        /// Internal X Document.
         /// </summary>
-        public virtual Texture2D XnaTexture
-        { 
-            get { return xnaTexture; }
-            set
-            {
-                xnaTexture = value; 
-                Width = value.Width;
-                Height = value.Height;
-            }
-        } // XnaTexture
-
-        /// <summary>
-        /// Texture's width.
-        /// </summary>
-        public int Width { get; protected set; }
-
-        /// <summary>
-        /// Texture's height.
-        /// </summary>
-        public int Height { get; protected set; }
-
-        /// <summary>
-        /// Rectangle that starts in 0, 0 and finish in the width and height of the texture. 
-        /// </summary>
-        public Rectangle TextureRectangle { get { return new Rectangle(0, 0, Width, Height); } }
+        public XDocument XDocument { get; private set; }
         
         #endregion
 
         #region Constructor
 
-        /// <summary>
-        /// Dummy texture.
-        /// </summary>
-        public Texture()
-        {
-            Name = "Texture " + nameNumber++;
-        } // Texture
-
 		/// <summary>
-		/// Load texture.
+		/// Load document.
 		/// </summary>
-        /// <param name="filename">The filename must be relative and be a valid file in the textures directory.</param>
-        public Texture(string filename)
+        /// <param name="filename">The filename must be relative to the content directory.</param>
+        public Document(string filename)
 		{
             Name = filename;
-            string fullFilename = ContentManager.GameDataDirectory + "Textures\\" + filename;
+            string fullFilename = ContentManager.GameDataDirectory + filename;
             if (File.Exists(fullFilename + ".xnb") == false)
             {
-                throw new ArgumentException("Failed to load texture: File " + fullFilename + " does not exists!", "filename");
+                throw new ArgumentException("Failed to load document: File " + fullFilename + " does not exists!", "filename");
             }
             try
             {
-                xnaTexture = ContentManager.CurrentContentManager.XnaContentManager.Load<Texture2D>(fullFilename);
-                Width = xnaTexture.Width;
-                Height = xnaTexture.Height;
+                XDocument = ContentManager.CurrentContentManager.XnaContentManager.Load<XDocument>(fullFilename);
             }
             catch (ObjectDisposedException)
             {
@@ -129,24 +77,12 @@ namespace XNAFinalEngine.Assets
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Failed to load texture: " + filename, e);
+                throw new InvalidOperationException("Failed to load document: " + filename, e);
             }
-		} // Texture
+        } // Document
 
 		#endregion
 
-        #region Dispose
-
-        /// <summary>
-        /// Dispose managed resources.
-        /// </summary>
-        protected override void DisposeManagedResources()
-        {
-            XnaTexture.Dispose();
-        } // DisposeManagedResources
-
-	    #endregion
-        
-    } // Texture
+    } // Document
 } // XNAFinalEngine.Assets
 

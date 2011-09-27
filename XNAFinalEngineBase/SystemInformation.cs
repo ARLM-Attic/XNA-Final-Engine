@@ -89,6 +89,8 @@ namespace XNAFinalEngine
             {
                 graphicsDeviceManager = value;
                 graphicsDeviceManager.DeviceReset += OnDeviceReset;
+                ScreenWidth = GraphicsDeviceManager.PreferredBackBufferWidth;
+                ScreenHeight = GraphicsDeviceManager.PreferredBackBufferHeight;
             }
         } // GraphicsDeviceManager
 
@@ -109,6 +111,16 @@ namespace XNAFinalEngine
         /// Services.
         /// </summary>
         public static GameServiceContainer Services { get; set; }
+
+        /// <summary>
+        /// Screen Width.
+        /// </summary>
+        public static int ScreenWidth { get; private set; }
+
+        /// <summary>
+        /// Screen Height.
+        /// </summary>
+        public static int ScreenHeight { get; private set; }
 
         #endregion
 
@@ -139,6 +151,8 @@ namespace XNAFinalEngine
             {
                 if (WindowSizeChanged != null)
                     WindowSizeChanged(sender, e);
+                ScreenWidth = GraphicsDeviceManager.PreferredBackBufferWidth;
+                ScreenHeight = GraphicsDeviceManager.PreferredBackBufferHeight;
             }
         } // OnClientSizeChanged
 

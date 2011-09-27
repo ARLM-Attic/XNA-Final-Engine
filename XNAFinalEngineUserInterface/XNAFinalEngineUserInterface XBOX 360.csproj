@@ -1,21 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectGuid>{5D1093DE-88C6-4A36-9704-4B13C0D7BAB4}</ProjectGuid>
+    <ProjectGuid>{97E24E47-E11E-4AA6-A60D-115373276FE0}</ProjectGuid>
     <ProjectTypeGuids>{6D335F3A-9D43-41b4-9D22-F6F17C4BE596};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">Xbox 360</Platform>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>XNAFinalEngineContentPipelineExtensionRuntime</RootNamespace>
-    <AssemblyName>ContentPipelineExtensionRuntime</AssemblyName>
+    <RootNamespace>XNAFinalEngineUserInterface</RootNamespace>
+    <AssemblyName>XNAFinalEngineUserInterface</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <XnaFrameworkVersion>v4.0</XnaFrameworkVersion>
     <XnaPlatform>Xbox 360</XnaPlatform>
     <XnaProfile>HiDef</XnaProfile>
-    <XnaCrossPlatformGroupID>021136c2-fc2e-4590-b7fe-512c4f653ca8</XnaCrossPlatformGroupID>
+    <XnaCrossPlatformGroupID>e81c42c5-4889-433d-bd73-6c4afc050106</XnaCrossPlatformGroupID>
     <XnaOutputType>Library</XnaOutputType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|Xbox 360' ">
@@ -40,22 +39,73 @@
     <Optimize>true</Optimize>
     <DefineConstants>TRACE;XBOX;XBOX360</DefineConstants>
     <XnaCompressContent>true</XnaCompressContent>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
-  <ItemGroup />
   <ItemGroup>
-    <Compile Include="Animations\Keyframe.cs" />
-    <Compile Include="Animations\ModelAnimationData.cs" />
-    <Compile Include="Animations\Model\ModelAnimationClip.cs" />
-    <Compile Include="Animations\Model\ModelKeyframe.cs" />
-    <Compile Include="Animations\Root\RootAnimationClip.cs" />
-    <Compile Include="Animations\Root\RootKeyframe.cs" />
-    <Compile Include="Documents\XDocumentReaders.cs" />
-    <Compile Include="Particles\ParticleSettings.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <ProjectReference Include="..\XNAFinalEngineBase\XNAFinalEngineBase XBOX 360.csproj">
+      <Project>{08121591-A45F-437D-9516-55393E6BEE57}</Project>
+      <Name>XNAFinalEngineBase XBOX 360</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XNAFinalEngine\XNAFinalEngine\XNAFinalEngine XBOX 360.csproj">
+      <Project>{FF76FE44-1191-4B3C-A751-89CC755042EC}</Project>
+      <Name>XNAFinalEngine XBOX 360</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Control.cs" />
+    <Compile Include="Controls\Auxiliary\Bevel.cs" />
+    <Compile Include="Controls\Auxiliary\ClipBox.cs" />
+    <Compile Include="Controls\Auxiliary\ClipControl.cs" />
+    <Compile Include="Controls\Auxiliary\Container.cs" />
+    <Compile Include="Controls\Auxiliary\Glyph.cs" />
+    <Compile Include="Controls\Auxiliary\ScrollBar.cs" />
+    <Compile Include="Controls\Auxiliary\StatusBar.cs" />
+    <Compile Include="Controls\Auxiliary\ToolTip.cs" />
+    <Compile Include="Controls\Buttons\Button.cs" />
+    <Compile Include="Controls\Buttons\ButtonBase.cs" />
+    <Compile Include="Controls\Buttons\CheckBox.cs" />
+    <Compile Include="Controls\Buttons\RadioButton.cs" />
+    <Compile Include="Controls\ComboBox.cs" />
+    <Compile Include="Controls\Group\GroupBox.cs" />
+    <Compile Include="Controls\Group\GroupPanel.cs" />
+    <Compile Include="Controls\ImageBox.cs" />
+    <Compile Include="Controls\Label.cs" />
+    <Compile Include="Controls\ListBox.cs" />
+    <Compile Include="Controls\Menu\ContextMenu.cs" />
+    <Compile Include="Controls\Menu\MainMenu.cs" />
+    <Compile Include="Controls\Menu\MenuBase.cs" />
+    <Compile Include="Controls\Menu\MenuItem.cs" />
+    <Compile Include="Controls\Panel.cs" />
+    <Compile Include="Controls\ProgressBar.cs" />
+    <Compile Include="Controls\Sidebar.cs" />
+    <Compile Include="Controls\SidebarPanel.cs" />
+    <Compile Include="Controls\Sliders\SliderColor.cs" />
+    <Compile Include="Controls\Sliders\SliderNumeric.cs" />
+    <Compile Include="Controls\Sliders\TrackBar.cs" />
+    <Compile Include="Controls\StackPanel.cs" />
+    <Compile Include="Controls\TabControl.cs" />
+    <Compile Include="Controls\Text\Console.cs" />
+    <Compile Include="Controls\Text\SpinBox.cs" />
+    <Compile Include="Controls\Text\TextBox.cs" />
+    <Compile Include="Controls\ToolBar\ToolBar.cs" />
+    <Compile Include="Controls\ToolBar\ToolBarButton.cs" />
+    <Compile Include="Controls\ToolBar\ToolBarPanel.cs" />
+    <Compile Include="Controls\Windows\ColorPickerDialog.cs" />
+    <Compile Include="Controls\Windows\Dialog.cs" />
+    <Compile Include="Controls\Windows\ExitDialog.cs" />
+    <Compile Include="Controls\Windows\ModalContainer.cs" />
+    <Compile Include="Controls\Windows\Window.cs" />
+    <Compile Include="Delegates.cs" />
+    <Compile Include="EventArgs.cs" />
+    <Compile Include="EventedList.cs" />
+    <Compile Include="Input.cs" />
+    <Compile Include="Layout.cs" />
+    <Compile Include="Manager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\Settings.cs" />
-    <Compile Include="UserInterface\CursorReaders.cs" />
+    <Compile Include="Renderer.cs" />
+    <Compile Include="Skin.cs" />
+    <Compile Include="Types.cs" />
+    <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -95,10 +145,13 @@
     <Reference Include="System.Core">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Net" />
     <Reference Include="System.Xml">
       <Private>False</Private>
     </Reference>
-    <Reference Include="System.Xml.Linq, Version=2.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Xml.Linq">
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />

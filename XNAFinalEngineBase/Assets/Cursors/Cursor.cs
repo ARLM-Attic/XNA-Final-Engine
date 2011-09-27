@@ -29,33 +29,62 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System;
+using System.IO;
 using System.Xml.Linq;
-using Microsoft.Xna.Framework.Content;
 #endregion
 
-namespace XNAFinalEngineContentPipelineExtensionRuntime
+namespace XNAFinalEngine.Assets
 {
 
-    #region Layout Reader
-    
-    /// <summary>
-    /// XDocument Reader.
-    /// </summary>
-    public class XDocumentReader : ContentTypeReader<XDocument>
+#if (WINDOWS)
+
+	/// <summary>
+	/// Cursor
+	/// </summary>
+    public class Cursor : Asset
     {
+        
+        #region Properties
 
-        protected override XDocument Read(ContentReader input, XDocument existingInstance)
-        {
-            if (existingInstance == null)
+        /// <summary>
+        /// Internal X Document.
+        /// </summary>
+        public System.Windows.Forms.Cursor SystemCursor { get; private set; }
+        
+        #endregion
+
+        #region Constructor
+
+		/// <summary>
+		/// Load a cursor.
+		/// </summary>
+        /// <param name="filename">>The filename must be relative and be a valid file in the Cursors directory</param>
+        public Cursor(string filename)
+		{
+            Name = filename;
+            string fullFilename = ContentManager.GameDataDirectory + "Cursors\\" + filename;
+            if (File.Exists(fullFilename + ".xnb") == false)
             {
-                return XDocument.Parse(input.ReadString());
+                throw new ArgumentException("Failed to load cursor: File " + fullFilename + " does not exists!", "filename");
             }
-            return existingInstance;
-        } // Read
+            try
+            {
+                SystemCursor = ContentManager.CurrentContentManager.XnaContentManager.Load<System.Windows.Forms.Cursor>(fullFilename);
+            }
+            catch (ObjectDisposedException)
+            {
+                throw new InvalidOperationException("Content Manager: Content manager disposed");
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Failed to load cursor: " + filename, e);
+            }
+        } // Cursor
 
-    } // XDocumentReader
-    
-    #endregion
+		#endregion
 
-} // XNAFinalEngineContentPipelineExtensionRuntime
+    } // Document
+#endif
+} // XNAFinalEngine.Assets
 

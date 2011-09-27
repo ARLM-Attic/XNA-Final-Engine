@@ -1,21 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectGuid>{E3A98759-8C7F-4660-8D70-1B89C1F04235}</ProjectGuid>
+    <ProjectGuid>{325E066A-2186-4FA6-A8DB-31A578C0CCDA}</ProjectGuid>
     <ProjectTypeGuids>{6D335F3A-9D43-41b4-9D22-F6F17C4BE596};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>XNAFinalEngineContentPipelineExtensionRuntime</RootNamespace>
-    <AssemblyName>ContentPipelineExtensionRuntime</AssemblyName>
+    <RootNamespace>XNAFinalEngineUserInterface</RootNamespace>
+    <AssemblyName>XNAFinalEngineUserInterface</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <XnaFrameworkVersion>v4.0</XnaFrameworkVersion>
     <XnaPlatform>Windows</XnaPlatform>
     <XnaProfile>HiDef</XnaProfile>
-    <XnaCrossPlatformGroupID>021136c2-fc2e-4590-b7fe-512c4f653ca8</XnaCrossPlatformGroupID>
+    <XnaCrossPlatformGroupID>e81c42c5-4889-433d-bd73-6c4afc050106</XnaCrossPlatformGroupID>
     <XnaOutputType>Library</XnaOutputType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -47,7 +46,6 @@
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
       <Private>False</Private>
     </Reference>
-    <Reference Include="Microsoft.Xna.Framework.Content.Pipeline, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Game, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
       <Private>False</Private>
     </Reference>
@@ -78,31 +76,88 @@
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
-    <Reference Include="System.Core">
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml">
       <Private>False</Private>
     </Reference>
-    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Net">
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Animations\Model\ModelKeyframe.cs" />
-    <Compile Include="Animations\Root\RootKeyframe.cs" />
-    <Compile Include="Animations\Model\ModelAnimationClip.cs" />
-    <Compile Include="Animations\ModelAnimationData.cs" />
-    <Compile Include="Animations\Root\RootAnimationClip.cs" />
-    <Compile Include="Animations\Keyframe.cs" />
-    <Compile Include="Particles\ParticleSettings.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Control.cs" />
+    <Compile Include="Controls\Auxiliary\Bevel.cs" />
+    <Compile Include="Controls\Auxiliary\ClipBox.cs" />
+    <Compile Include="Controls\Auxiliary\ClipControl.cs" />
+    <Compile Include="Controls\Auxiliary\Container.cs" />
+    <Compile Include="Controls\Auxiliary\Glyph.cs" />
+    <Compile Include="Controls\Auxiliary\ScrollBar.cs" />
+    <Compile Include="Controls\Auxiliary\StatusBar.cs" />
+    <Compile Include="Controls\Auxiliary\ToolTip.cs" />
+    <Compile Include="Controls\Buttons\Button.cs" />
+    <Compile Include="Controls\Buttons\ButtonBase.cs" />
+    <Compile Include="Controls\Buttons\CheckBox.cs" />
+    <Compile Include="Controls\Buttons\RadioButton.cs" />
+    <Compile Include="Controls\ComboBox.cs" />
+    <Compile Include="Controls\Group\GroupBox.cs" />
+    <Compile Include="Controls\Group\GroupPanel.cs" />
+    <Compile Include="Controls\ImageBox.cs" />
+    <Compile Include="Controls\Label.cs" />
+    <Compile Include="Controls\ListBox.cs" />
+    <Compile Include="Controls\Menu\ContextMenu.cs" />
+    <Compile Include="Controls\Menu\MainMenu.cs" />
+    <Compile Include="Controls\Menu\MenuBase.cs" />
+    <Compile Include="Controls\Menu\MenuItem.cs" />
+    <Compile Include="Controls\Panel.cs" />
+    <Compile Include="Controls\ProgressBar.cs" />
+    <Compile Include="Controls\Sidebar.cs" />
+    <Compile Include="Controls\SidebarPanel.cs" />
+    <Compile Include="Controls\Sliders\SliderColor.cs" />
+    <Compile Include="Controls\Sliders\SliderNumeric.cs" />
+    <Compile Include="Controls\Sliders\TrackBar.cs" />
+    <Compile Include="Controls\StackPanel.cs" />
+    <Compile Include="Controls\TabControl.cs" />
+    <Compile Include="Controls\Text\Console.cs" />
+    <Compile Include="Controls\Text\SpinBox.cs" />
+    <Compile Include="Controls\Text\TextBox.cs" />
+    <Compile Include="Controls\ToolBar\ToolBar.cs" />
+    <Compile Include="Controls\ToolBar\ToolBarButton.cs" />
+    <Compile Include="Controls\ToolBar\ToolBarPanel.cs" />
+    <Compile Include="Controls\Windows\ColorPickerDialog.cs" />
+    <Compile Include="Controls\Windows\Dialog.cs" />
+    <Compile Include="Controls\Windows\ExitDialog.cs" />
+    <Compile Include="Controls\Windows\ModalContainer.cs" />
+    <Compile Include="Controls\Windows\Window.cs" />
+    <Compile Include="Delegates.cs" />
+    <Compile Include="EventArgs.cs" />
+    <Compile Include="EventedList.cs" />
+    <Compile Include="Input.cs" />
+    <Compile Include="Layout.cs" />
+    <Compile Include="Manager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\Settings.cs" />
-    <Compile Include="UserInterface\CursorReaders.cs" />
-    <Compile Include="Documents\XDocumentReaders.cs" />
+    <Compile Include="Renderer.cs" />
+    <Compile Include="Skin.cs" />
+    <Compile Include="Types.cs" />
+    <Compile Include="Utilities.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\XNAFinalEngineBase\XNAFinalEngineBase.csproj">
+      <Project>{E401A7E9-4EA1-4D40-A335-4C9C5218AAC7}</Project>
+      <Name>XNAFinalEngineBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XNAFinalEngine\XNAFinalEngine\XNAFinalEngine.csproj">
+      <Project>{E99F1899-A0DC-425D-8A9C-06D039F155B5}</Project>
+      <Name>XNAFinalEngine</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

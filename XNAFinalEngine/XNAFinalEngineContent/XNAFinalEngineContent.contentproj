@@ -105,16 +105,6 @@
       <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
       <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
-    <Compile Include="Skin\Default\Fonts\Default.spritefont">
-      <Name>Default</Name>
-      <Importer>FontDescriptionImporter</Importer>
-      <Processor>FontDescriptionProcessor</Processor>
-    </Compile>
-    <Compile Include="Skin\Green\Fonts\Default.spritefont">
-      <Name>Default</Name>
-      <Importer>FontDescriptionImporter</Importer>
-      <Processor>FontDescriptionProcessor</Processor>
-    </Compile>
     <Compile Include="Skin\Default\Description.skin">
       <Name>Description</Name>
       <Importer>SkinImporter</Importer>
@@ -758,75 +748,75 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Skin\Default\Cursors\Busy.cur">
+    <Compile Include="Cursors\Green\Busy.cur">
       <Name>Busy</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Default\Cursors\Cross.cur">
+    <Compile Include="Cursors\Green\Cross.cur">
       <Name>Cross</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Default\Cursors\Default.cur">
+    <Compile Include="Cursors\Green\Default.cur">
       <Name>Default</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Default\Cursors\DiagonalLeft.cur">
+    <Compile Include="Cursors\Green\DiagonalLeft.cur">
       <Name>DiagonalLeft</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Default\Cursors\DiagonalRight.cur">
+    <Compile Include="Cursors\Green\DiagonalRight.cur">
       <Name>DiagonalRight</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Default\Cursors\Horizontal.cur">
+    <Compile Include="Cursors\Green\Horizontal.cur">
       <Name>Horizontal</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Default\Cursors\Move.cur">
+    <Compile Include="Cursors\Green\Move.cur">
       <Name>Move</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Default\Cursors\Text.cur">
+    <Compile Include="Cursors\Green\Text.cur">
       <Name>Text</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Default\Cursors\Vertical.cur">
+    <Compile Include="Cursors\Green\Vertical.cur">
       <Name>Vertical</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Green\Cursors\Busy.cur">
+    <Compile Include="Cursors\Cursors\Busy.cur">
       <Name>Busy</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Green\Cursors\Cross.cur">
+    <Compile Include="Cursors\Cursors\Cross.cur">
       <Name>Cross</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Green\Cursors\Default.cur">
+    <Compile Include="Cursors\Cursors\Default.cur">
       <Name>Default</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Green\Cursors\DiagonalLeft.cur">
+    <Compile Include="Cursors\Cursors\DiagonalLeft.cur">
       <Name>DiagonalLeft</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Green\Cursors\DiagonalRight.cur">
+    <Compile Include="Cursors\Cursors\DiagonalRight.cur">
       <Name>DiagonalRight</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Green\Cursors\Horizontal.cur">
+    <Compile Include="Cursors\Cursors\Horizontal.cur">
       <Name>Horizontal</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Green\Cursors\Move.cur">
+    <Compile Include="Cursors\Cursors\Move.cur">
       <Name>Move</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Green\Cursors\Text.cur">
+    <Compile Include="Cursors\Cursors\Text.cur">
       <Name>Text</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
-    <Compile Include="Skin\Green\Cursors\Vertical.cur">
+    <Compile Include="Cursors\Cursors\Vertical.cur">
       <Name>Vertical</Name>
       <Importer>CursorImporter</Importer>
     </Compile>
@@ -1202,6 +1192,13 @@
       <Name>DudeWalk</Name>
       <Importer>FbxImporter</Importer>
       <Processor>SkinnedModelProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Fonts\Default.spritefont">
+      <Name>Default</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
