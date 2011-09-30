@@ -89,7 +89,7 @@ namespace XNAFinalEngine.UserInterface
             #if (WINDOWS)
                 int ret = base.RemoveAll(match);
             #else
-                int ret = ExtensionMethods.RemoveAll(this, match);
+                int ret = ExtensionMethods.RemoveAll(this, match); // The extension method does not work.
             #endif
             if (ItemRemoved != null && c != Count) ItemRemoved.Invoke(this, new EventArgs());
             return ret;

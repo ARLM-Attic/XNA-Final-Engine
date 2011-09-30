@@ -988,5 +988,5 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-    } // Manager
+    } // UserInterfaceManager
 } // // XNAFinalEngine.UserInterface

@@ -1385,18 +1385,6 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region On Device Settings Changed
-
-        protected internal void OnDeviceSettingsChanged(DeviceEventArgs e)
-        {
-            if (!e.Handled)
-            {
-                Invalidate();
-            }
-        } // OnDeviceSettingsChanged
-
-        #endregion
-
         #region Update
 
         /// <summary>
@@ -2596,6 +2584,18 @@ namespace XNAFinalEngine.UserInterface
                 resizeArea = Alignment.None;
             }
         } // ResizePosition
+
+        #endregion
+
+        #region On Device Settings Changed
+
+        protected internal void OnDeviceSettingsChanged(DeviceEventArgs e)
+        {
+            if (!e.Handled)
+            {
+                Invalidate();
+            }
+        } // OnDeviceSettingsChanged
 
         #endregion
 

@@ -46,10 +46,6 @@
       <Project>{08121591-A45F-437D-9516-55393E6BEE57}</Project>
       <Name>XNAFinalEngineBase XBOX 360</Name>
     </ProjectReference>
-    <ProjectReference Include="..\XNAFinalEngine\XNAFinalEngine\XNAFinalEngine XBOX 360.csproj">
-      <Project>{FF76FE44-1191-4B3C-A751-89CC755042EC}</Project>
-      <Name>XNAFinalEngine XBOX 360</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Control.cs" />
