@@ -42,13 +42,29 @@ namespace XNAFinalEngine.Scenes
     public abstract class Scene : Disposable
     {
 
+        #region Properties
+
+        /// <summary>
+        /// Indicates if the scene was load.
+        /// </summary>
+        public bool Loaded { get; protected set; }
+
+        #endregion
+
+        #region Load
+
         /// <summary>
         /// Load the resources.
         /// </summary>
         public virtual void Load()
         {
             // Overrite it!!
+            Loaded = true;            
         } // Load
+
+        #endregion
+
+        #region Update
 
         /// <summary>
         /// Update the scene.
@@ -58,6 +74,10 @@ namespace XNAFinalEngine.Scenes
             // Overrite it!!
         } // Update
 
+        #endregion
+
+        #region Render
+
         /// <summary>
         /// Render the scene.
         /// </summary>
@@ -65,6 +85,8 @@ namespace XNAFinalEngine.Scenes
         {
             // Overrite it!!
         } // Render
-        
+
+        #endregion
+
     } // Scene
 } // XNAFinalEngine.Scenes

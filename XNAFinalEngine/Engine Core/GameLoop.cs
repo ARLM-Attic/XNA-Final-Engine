@@ -37,6 +37,7 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
 using RootAnimation = XNAFinalEngine.Components.RootAnimations;
+using XNAFinalEngine.Scenes;
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -56,12 +57,21 @@ namespace XNAFinalEngine.EngineCore
         
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        /// Current Scene.
+        /// </summary>
+        public static Scene CurrentScene { get; set; }
+
+        #endregion
+
         #region Load Content
-        
+
         /// <summary>
         /// Load Content.
         /// </summary>
-        public static void LoadContent()
+        internal static void LoadContent()
         {
             // Create the 32 layers.
             Layer.InitLayers();
@@ -71,6 +81,11 @@ namespace XNAFinalEngine.EngineCore
             
             camera = new EditorCamera(new Vector3(0, 30, 0), 200, 0, 0);
             camera.FarPlane = 20000;
+
+            if (CurrentScene != null)
+            {
+                CurrentScene.Load();
+            }
             
             #region Garbage Collection
 
@@ -102,7 +117,12 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         internal static void Update(GameTime gameTime)
         {
-            Time.GameDeltaTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);           
+            Time.GameDeltaTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
+
+            if (CurrentScene != null && CurrentScene.Loaded)
+            {
+                CurrentScene.Update();
+            }
  
             Input.InputManager.Update();
             camera.Update();
@@ -161,6 +181,11 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
             SpriteManager.End();
+
+            if (CurrentScene != null && CurrentScene.Loaded)
+            {
+                CurrentScene.Render();
+            }
         } // Draw
 
         #endregion

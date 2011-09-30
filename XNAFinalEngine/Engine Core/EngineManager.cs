@@ -37,11 +37,12 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngineContentPipelineExtensionRuntime.Settings;
+using XNAFinalEngine.Scenes;
 #if (!XBOX)
     using System.Threading;
     using System.Windows.Forms;
     using System.Windows.Forms.VisualStyles;
-    using MessageBoxIcon = System.Windows.Forms.MessageBoxIcon;    
+    using MessageBoxIcon = System.Windows.Forms.MessageBoxIcon;
 #endif
 #endregion
 
@@ -410,8 +411,9 @@ namespace XNAFinalEngine.EngineCore
         /// Start the engine and the aplication's logic.
         /// But first, the initial tasks are performed and the exceptions are managed.
         /// </summary>
-        public static void StarEngine()
+        public static void StarEngine(Scene scene)
         {
+            GameLoop.CurrentScene = scene;
             if (Debugger.IsAttached)
             {
                 // We want to know where the exceptions were raised. So it does not show any system message.

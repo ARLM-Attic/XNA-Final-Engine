@@ -33,15 +33,12 @@ using System;
 using XNAFinalEngine.EngineCore;
 #endregion
 
-namespace XNAFinalEngine
+namespace XNAFinalEngineExamples
 {
 
     /// <summary>
     /// The execution starts here, in the main method.
-    /// Before the XNA core will be up and running there are a set of task that are (or can be) performed, like updates.
-    /// In this place there are also the exceptions managers. 
-    /// If a library or an important file isn’t found or an exception was raised in the program’s execution,
-    /// this exception will be propagated to this class.
+    /// Before the Engine core will be up and running there are a set of task that are (or can be) performed, like network updates.
     /// </summary>
     static class Program
     {
@@ -57,10 +54,11 @@ namespace XNAFinalEngine
         #endif
         private static void Main()
         {
-            EngineManager.StarEngine();
+            // User initial code. Like network updates or some checking.
+            EngineManager.StarEngine(new TestScene());
         } // Main
 
         #endregion
 
     } // Program
-} // XNAFinalEngine
+} // XNAFinalEngineExamples

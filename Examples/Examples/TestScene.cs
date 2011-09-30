@@ -39,10 +39,9 @@ namespace XNAFinalEngineExamples
 {
 
     /// <summary>
-    /// Base class for scenes.
-    /// Here will be the application logic.
+    /// Test scene
     /// </summary>
-    public abstract class TestScene : Scene
+    public class TestScene : Scene
     {
 
         #region Variables
@@ -52,6 +51,8 @@ namespace XNAFinalEngineExamples
         private static GameObject3D lamboBody, dude;
 
         #endregion
+
+        #region Load
 
         /// <summary>
         /// Load the resources.
@@ -66,24 +67,28 @@ namespace XNAFinalEngineExamples
             testText.Transform.LocalPosition = new Vector3(100, 100, 0);
             testText.Transform.LocalRotation = 0f;
 
-            RootAnimation animation = new RootAnimation("AnimatedCube");
+            //RootAnimation animation = new RootAnimation("AnimatedCube");
 
             lamboBody = new GameObject3D();
             lamboBody.AddComponent<ModelRenderer>();
             lamboBody.ModelFilter.Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
             lamboBody.ModelRenderer.Material = new Constant { DiffuseColor = Color.Turquoise };
             lamboBody.AddComponent<RootAnimations>();
-            lamboBody.RootAnimation.AddAnimationClip(animation);
+            //lamboBody.RootAnimation.AddAnimationClip(animation);
 
-            lamboBody.RootAnimation.Play("AnimatedCube");
-            lamboBody.Transform.Translate(new Vector3(0, -25, 0), Space.Local);
-
+            //lamboBody.RootAnimation.Play("AnimatedCube");
+            //lamboBody.Transform.Translate(new Vector3(0, -25, 0), Space.Local);
+            /*
             dude = new GameObject3D();
             dude.AddComponent<ModelFilter>();
             dude.ModelFilter.Model = new FileModel("DudeWalk");
-            dude.AddComponent<ModelRenderer>();
+            dude.AddComponent<ModelRenderer>();*/
             
         } // Load
+
+        #endregion
+
+        #region Update
 
         /// <summary>
         /// Update the scene.
@@ -93,6 +98,10 @@ namespace XNAFinalEngineExamples
             //lamboBody.Transform.Translate(new Vector3(0.0001f, 0, 0), Space.Local);
             //lamboBody.Transform.Rotate(new Vector3(0, 0.00001f, 0));
         } // Update
+
+        #endregion
+
+        #region Render
 
         /// <summary>
         /// Render the scene.
@@ -172,6 +181,8 @@ namespace XNAFinalEngineExamples
             #endregion
 
         } // Render
+
+        #endregion
 
     } // TestScene
 } // XNAFinalEngineExamples

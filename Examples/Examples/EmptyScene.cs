@@ -36,10 +36,9 @@ namespace XNAFinalEngineExamples
 {
 
     /// <summary>
-    /// Base class for scenes.
-    /// Here will be the application logic.
+    /// Empty scene.
     /// </summary>
-    public abstract class EmptyScene : Scene
+    public class EmptyScene : Scene
     {
 
         #region Load
