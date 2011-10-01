@@ -22,9 +22,8 @@ using XNAFinalEngine.Assets;
 namespace XNAFinalEngine.UserInterface
 {
 
-    /// <summary>
-    /// Layout loader.
-    /// Load a complete UI layout from a XML file.
+    /// <summary> 
+    /// Load a complete user interface layout from a XML file.
     /// </summary>
     public static class Layout
     {

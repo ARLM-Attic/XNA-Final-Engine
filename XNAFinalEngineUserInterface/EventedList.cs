@@ -21,6 +21,9 @@ using XNAFinalEngine.Helpers;
 namespace XNAFinalEngine.UserInterface
 {
 
+    /// <summary>
+    /// This list has events when an element is added or removed.
+    /// </summary>
     public class EventedList<T> : List<T>
     {
 
@@ -112,5 +115,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // EventedList
-    
 } // XNAFinalEngine.UserInterface

@@ -39,6 +39,7 @@
     <Optimize>true</Optimize>
     <DefineConstants>TRACE;XBOX;XBOX360</DefineConstants>
     <XnaCompressContent>true</XnaCompressContent>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup />
   <ItemGroup>
@@ -70,7 +71,6 @@
     <Compile Include="Engine Core\Time.cs" />
     <Compile Include="Input\InputManager.cs" />
     <Compile Include="Input\Keyboard.cs" />
-    <Compile Include="Input\KeyboardHook.cs" />
     <Compile Include="Input\Mouse.cs" />
     <Compile Include="Input\XInputGamePad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -20,6 +20,7 @@ namespace XNAFinalEngine.UserInterface
 {
     static class Utilities
     {
+
         /// <summary>
         /// Control type name.
         /// </summary>

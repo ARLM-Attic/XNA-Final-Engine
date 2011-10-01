@@ -20,19 +20,25 @@ using Microsoft.Xna.Framework.Input;
 namespace XNAFinalEngine.UserInterface
 {
 
-    #region EventArgs
+    #region Event
 
+    public delegate void EventHandler(object sender, EventArgs e);
     public class EventArgs : System.EventArgs
     {
-
         public bool Handled;
-
     } //EventArgs
 
     #endregion
 
-    #region KeyEventArgs
+    #region Skin Event
 
+    public delegate void SkinEventHandler(EventArgs e);
+
+    #endregion
+
+    #region Key Event
+
+    public delegate void KeyEventHandler(object sender, KeyEventArgs e);
     public class KeyEventArgs : EventArgs
     {
 
@@ -74,8 +80,9 @@ namespace XNAFinalEngine.UserInterface
 
     #endregion
 
-    #region MouseEventArgs
+    #region Mouse Event
 
+    public delegate void MouseEventHandler(object sender, MouseEventArgs e);
     public class MouseEventArgs : EventArgs
     {
 
@@ -105,8 +112,9 @@ namespace XNAFinalEngine.UserInterface
 
     #endregion
 
-    #region DrawEventArgs
+    #region Draw Event
 
+    public delegate void DrawEventHandler(object sender, DrawEventArgs e);
     public class DrawEventArgs : EventArgs
     {
 
@@ -131,8 +139,9 @@ namespace XNAFinalEngine.UserInterface
 
     #endregion
 
-    #region ResizeEventArgs
+    #region Resize Event
 
+    public delegate void ResizeEventHandler(object sender, ResizeEventArgs e);
     public class ResizeEventArgs : EventArgs
     {
 
@@ -163,8 +172,9 @@ namespace XNAFinalEngine.UserInterface
 
     #endregion
 
-    #region MoveEventArgs
+    #region Move Event
 
+    public delegate void MoveEventHandler(object sender, MoveEventArgs e);
     public class MoveEventArgs : EventArgs
     {
 
@@ -195,8 +205,9 @@ namespace XNAFinalEngine.UserInterface
 
     #endregion
 
-    #region DeviceEventArgs
+    #region Device Event
 
+    public delegate void DeviceEventHandler(DeviceEventArgs e);
     public class DeviceEventArgs : EventArgs
     {
 
@@ -221,30 +232,29 @@ namespace XNAFinalEngine.UserInterface
 
     #endregion
 
-    #region WindowClosingEventArgs
+    #region Window Closing Event
 
+    public delegate void WindowClosingEventHandler(object sender, WindowClosingEventArgs e);
     public class WindowClosingEventArgs : EventArgs
     {
-
         public bool Cancel;
-
     } // WindowClosingEventArgs
 
     #endregion
 
-    #region WindowClosedEventArgs
+    #region Window Closed Event
 
+    public delegate void WindowClosedEventHandler(object sender, WindowClosedEventArgs e);
     public class WindowClosedEventArgs : EventArgs
     {
-
         public bool Dispose;
-
     } // WindowClosedEventArgs
 
     #endregion
 
-    #region ConsoleMessageEventArgs
+    #region Console Message Event
 
+    public delegate void ConsoleMessageEventHandler(object sender, ConsoleMessageEventArgs e);
     public class ConsoleMessageEventArgs : EventArgs
     {
 

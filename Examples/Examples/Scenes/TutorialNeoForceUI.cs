@@ -578,8 +578,9 @@ namespace XNAFinalEngineExamples
         {
             if (sender == btnTasks[0])
             {
-
-                UserInterfaceManager.Cursor = Skin.Cursors["Busy"].Resource;
+                #if (!XBOX)
+                    UserInterfaceManager.Cursor = Skin.Cursors["Busy"].Cursor;
+                #endif
 
                 btnTasks[0].Enabled = false;
                 TaskDialog tmp = new TaskDialog();
@@ -590,8 +591,10 @@ namespace XNAFinalEngineExamples
                 Thread.Sleep(2000); // Sleep to demonstrate animated busy cursor
 
                 tmp.Show();
+                #if (!XBOX)
+                    UserInterfaceManager.Cursor = Skin.Cursors["Default"].Cursor;
+                #endif
 
-                UserInterfaceManager.Cursor = Skin.Cursors["Default"].Resource;
             }
             else if (sender == btnTasks[1])
             {

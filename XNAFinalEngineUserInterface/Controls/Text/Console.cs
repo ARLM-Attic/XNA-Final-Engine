@@ -307,7 +307,7 @@ namespace XNAFinalEngine.UserInterface
 
         private void ClientArea_Draw(object sender, DrawEventArgs e)
         {
-            SpriteFont font = SkinControlInformation.Layers[0].Text.Font.Resource.XnaSpriteFont;
+            SpriteFont font = SkinControlInformation.Layers[0].Text.Font.Font.XnaSpriteFont;
             Rectangle r = new Rectangle(e.Rectangle.Left, e.Rectangle.Top, e.Rectangle.Width, e.Rectangle.Height);
             int pos = 0;
 
@@ -459,7 +459,7 @@ namespace XNAFinalEngine.UserInterface
         {
             if (sbVert != null)
             {
-                int line = SkinControlInformation.Layers[0].Text.Font.Resource.LineSpacing;
+                int line = SkinControlInformation.Layers[0].Text.Font.Font.LineSpacing;
                 int c = GetFilteredBuffer(filter).Count;
                 int p = (int)Math.Ceiling(ClientArea.ClientHeight / (float)line);
 

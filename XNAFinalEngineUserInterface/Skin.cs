@@ -16,12 +16,8 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
-#if (WINDOWS)
-    using System.Windows.Forms;
-#endif
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
-using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -139,24 +135,22 @@ namespace XNAFinalEngine.UserInterface
 
         #region Variables
 
+        /// <summary>
+        /// Name.
+        /// </summary>
         public string Name;
-        public bool Archive;
 
         #endregion
 
         #region Constructors
 
-        public SkinBase()
-        {
-            Archive = false;
-        } // SkinBase
+        public SkinBase() { }
 
         public SkinBase(SkinBase source)
         {
             if (source != null)
             {
                 Name = source.Name;
-                Archive = source.Archive;
             }
         } // SkinBase
 
@@ -241,10 +235,29 @@ namespace XNAFinalEngine.UserInterface
 
         #region Variables
 
+        /// <summary>
+        /// Associated font.
+        /// </summary>
         public SkinFont Font;
+
+        /// <summary>
+        /// Offset from the left.
+        /// </summary>
         public int OffsetX;
+
+        /// <summary>
+        /// Offset from the bottom.
+        /// </summary>
         public int OffsetY;
+
+        /// <summary>
+        /// Text aligment.
+        /// </summary>
         public Alignment Alignment;
+
+        /// <summary>
+        /// Colors when enabled, hovered, pressed, focused, and disabled.
+        /// </summary>
         public SkinStates<Color> Colors;
 
         #endregion
@@ -285,8 +298,15 @@ namespace XNAFinalEngine.UserInterface
 
         #region Variables
 
-        public Font Resource;
-        public string Asset;
+        /// <summary>
+        /// Asset.
+        /// </summary>
+        public Font Font;
+
+        /// <summary>
+        /// Asset filename.
+        /// </summary>
+        public string Filename;
 
         #endregion
 
@@ -296,9 +316,9 @@ namespace XNAFinalEngine.UserInterface
         {
             get
             {
-                if (Resource != null)
+                if (Font != null)
                 {
-                    return (int)Resource.MeasureString("AaYy").Y;
+                    return (int)Font.MeasureString("AaYy").Y;
                 }
                 return 0;
             }
@@ -314,8 +334,8 @@ namespace XNAFinalEngine.UserInterface
         {
             if (source != null)
             {
-                Resource = source.Resource;
-                Asset = source.Asset;
+                Font = source.Font;
+                Filename = source.Filename;
             }
         } // SkinFont
 
@@ -332,8 +352,15 @@ namespace XNAFinalEngine.UserInterface
 
         #region Variables
 
+        /// <summary>
+        /// Asset.
+        /// </summary>
         public Texture Texture;
-        public string Asset;
+
+        /// <summary>
+        /// Asset filename.
+        /// </summary>
+        public string Filename;
 
         #endregion
 
@@ -344,7 +371,7 @@ namespace XNAFinalEngine.UserInterface
         public SkinImage(SkinImage source) : base(source)
         {
             Texture = source.Texture;
-            Asset = source.Asset;
+            Filename = source.Filename;
         } // SkinImage
 
         #endregion
@@ -360,8 +387,15 @@ namespace XNAFinalEngine.UserInterface
         public class SkinCursor : SkinBase
         {
 
-            public Assets.Cursor Resource;
-            public string Asset;
+            /// <summary>
+            /// Asset.
+            /// </summary>
+            public Cursor Cursor;
+
+            /// <summary>
+            /// Asset filename.
+            /// </summary>
+            public string Filename;
             
         } // SkinCursor
 
@@ -402,7 +436,8 @@ namespace XNAFinalEngine.UserInterface
         } // SkinControl
 
         #endregion
-    }
+
+    } // SkinControl
 
     #endregion
 
@@ -413,6 +448,9 @@ namespace XNAFinalEngine.UserInterface
 
         #region Variables
         
+        /// <summary>
+        /// Value.
+        /// </summary>
         public string Value;
         
         #endregion
@@ -488,6 +526,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public static void LoadSkin(string skinName)
         {
+
             #region Unload previous skin
             
             Controls = new SkinList<SkinControl>();
@@ -505,7 +544,7 @@ namespace XNAFinalEngine.UserInterface
 
             #endregion
 
-            #region Load description file
+            #region Load Description File
 
             string fullPath = "Skin" + "\\" + skinName + "\\Description";
             skinDescription = new Document(fullPath);
@@ -540,17 +579,17 @@ namespace XNAFinalEngine.UserInterface
             {
                 foreach (SkinFont skinFont in Fonts)
                 {
-                    skinFont.Resource = new Font(skinFont.Asset);
+                    skinFont.Font = new Font(skinFont.Filename);
                 }
                 #if (WINDOWS)
                     foreach (SkinCursor skinCursor in Cursors)
                     {
-                        skinCursor.Resource = new Assets.Cursor(skinName + "\\" + skinCursor.Asset);
+                        skinCursor.Cursor = new Assets.Cursor(skinName + "\\" + skinCursor.Filename);
                     }
                 #endif
                 foreach (SkinImage skinImage in Images)
                 {
-                    skinImage.Texture = new Texture("Skin\\" + skinName + "\\" + skinImage.Asset);
+                    skinImage.Texture = new Texture("Skin\\" + skinName + "\\" + skinImage.Filename);
                 }
                 foreach (SkinControl skinControl in Controls)
                 {
@@ -831,7 +870,7 @@ namespace XNAFinalEngine.UserInterface
                 SkinFont skinFont = new SkinFont
                 {
                     Name = ReadAttribute(font, "Name", null, true),
-                    Asset = ReadAttribute(font, "Asset", null, true)
+                    Filename = ReadAttribute(font, "Asset", null, true)
                 };
                 Fonts.Add(skinFont);
             }
@@ -855,7 +894,7 @@ namespace XNAFinalEngine.UserInterface
                     SkinCursor skinCursor = new SkinCursor
                     {
                         Name = ReadAttribute(cursor, "Name", null, true),
-                        Asset = ReadAttribute(cursor, "Asset", null, true)
+                        Filename = ReadAttribute(cursor, "Asset", null, true)
                     };
                     Cursors.Add(skinCursor);
                 }
@@ -879,7 +918,7 @@ namespace XNAFinalEngine.UserInterface
                 SkinImage skinImage = new SkinImage
                 {
                     Name = ReadAttribute(image, "Name", null, true),
-                    Asset = ReadAttribute(image, "Asset", null, true)
+                    Filename = ReadAttribute(image, "Asset", null, true)
                 };
                 Images.Add(skinImage);
             }

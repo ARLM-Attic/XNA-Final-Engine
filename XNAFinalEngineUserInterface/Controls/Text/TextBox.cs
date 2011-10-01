@@ -481,10 +481,10 @@ namespace XNAFinalEngine.UserInterface
             SkinControlInformation = new SkinControl(Skin.Controls["TextBox"]);
 
             #if (WINDOWS)
-                Cursor = Skin.Cursors["Text"].Resource;
+                Cursor = Skin.Cursors["Text"].Cursor;
             #endif
 
-            font = (SkinControlInformation.Layers["Control"].Text != null) ? SkinControlInformation.Layers["Control"].Text.Font.Resource : null;
+            font = (SkinControlInformation.Layers["Control"].Text != null) ? SkinControlInformation.Layers["Control"].Text.Font.Font : null;
         } // InitSkin
 
         #endregion
@@ -548,7 +548,7 @@ namespace XNAFinalEngine.UserInterface
             bool drawsel = !selection.IsEmpty;
             string tmpText;
 
-            font = (SkinControlInformation.Layers["Control"].Text != null) ? SkinControlInformation.Layers["Control"].Text.Font.Resource : null;
+            font = (SkinControlInformation.Layers["Control"].Text != null) ? SkinControlInformation.Layers["Control"].Text.Font.Font : null;
 
             if (Text != null && font != null)
             {

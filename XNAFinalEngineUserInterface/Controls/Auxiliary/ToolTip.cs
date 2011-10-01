@@ -37,7 +37,7 @@ namespace XNAFinalEngine.UserInterface
             {
                 if (value && !string.IsNullOrEmpty(Text) && SkinControlInformation != null && SkinControlInformation.Layers[0] != null)
                 {
-                    Vector2 size = SkinControlInformation.Layers[0].Text.Font.Resource.MeasureString(Text);
+                    Vector2 size = SkinControlInformation.Layers[0].Text.Font.Font.MeasureString(Text);
                     Width = (int)size.X + SkinControlInformation.Layers[0].ContentMargins.Horizontal;
                     Height = (int)size.Y + SkinControlInformation.Layers[0].ContentMargins.Vertical;
                     Left = Mouse.GetState().X;

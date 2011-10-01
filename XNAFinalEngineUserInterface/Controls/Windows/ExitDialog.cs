@@ -38,7 +38,7 @@ namespace XNAFinalEngine.UserInterface
         public ExitDialog()
         {
             string msg = "Do you really want to exit?";
-            ClientWidth = (int)Skin.Controls["Label"].Layers[0].Text.Font.Resource.MeasureString(msg).X + 48 + 16 + 16 + 16;
+            ClientWidth = (int)Skin.Controls["Label"].Layers[0].Text.Font.Font.MeasureString(msg).X + 48 + 16 + 16 + 16;
             ClientHeight = 120;
             TopPanel.Visible = false;
             IconVisible = true;

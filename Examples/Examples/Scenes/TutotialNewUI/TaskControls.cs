@@ -322,7 +322,10 @@ namespace XNAFinalEngine.UserInterface.Central
 
         void TaskControls_SkinChanged(object sender, EventArgs e)
         {
-            prgMain.Cursor = Skin.Cursors["Busy"].Resource;
+            #if (!XBOX)
+                prgMain.Cursor = Skin.Cursors["Busy"].Cursor;
+            #endif
+
         }
 
         void ModeChanged(object sender, EventArgs e)

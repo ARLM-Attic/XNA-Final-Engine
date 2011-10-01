@@ -82,6 +82,10 @@
       <Project>{5D1093DE-88C6-4A36-9704-4B13C0D7BAB4}</Project>
       <Name>XNAFinalEngineContentPipelineExtensionRuntime XBOX 360</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\XNAFinalEngineUserInterface\XNAFinalEngineUserInterface XBOX 360.csproj">
+      <Project>{97E24E47-E11E-4AA6-A60D-115373276FE0}</Project>
+      <Name>XNAFinalEngineUserInterface XBOX 360</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\XNAFinalEngine\XNAFinalEngine XBOX 360.csproj">
       <Project>{A5E7E718-C31C-42EA-8981-DF057F030BC7}</Project>
       <Name>XNAFinalEngine XBOX 360</Name>

@@ -105,11 +105,11 @@ namespace XNAFinalEngine.UserInterface
             base.Init();
             
             SkinLayer lc = new SkinLayer(Caption.SkinControlInformation.Layers[0]);
-            lc.Text.Font.Resource = Skin.Fonts[Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["CaptFont"].Value].Resource;
+            lc.Text.Font.Font = Skin.Fonts[Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["CaptFont"].Value].Font;
             lc.Text.Colors.Enabled = Utilities.ParseColor(Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["CaptFontColor"].Value);
 
             SkinLayer ld = new SkinLayer(Description.SkinControlInformation.Layers[0]);
-            ld.Text.Font.Resource = Skin.Fonts[Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["DescFont"].Value].Resource;
+            ld.Text.Font.Font = Skin.Fonts[Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["DescFont"].Value].Font;
             ld.Text.Colors.Enabled = Utilities.ParseColor(Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["DescFontColor"].Value);
 
             TopPanel.Color = Utilities.ParseColor(Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["Color"].Value);

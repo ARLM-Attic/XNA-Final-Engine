@@ -270,7 +270,7 @@ namespace XNAFinalEngine.UserInterface
 
                 Color shadowColor = Color.FromNonPremultiplied(skinLayerShadow.States.Enabled.Color.R, skinLayerShadow.States.Enabled.Color.G, skinLayerShadow.States.Enabled.Color.B, Alpha);
 
-                Renderer.Begin(Renderer.BlendingMode.Transparent);
+                Renderer.Begin();
                     Renderer.DrawLayer(skinLayerShadow,
                                        new Rectangle(Left - skinControlShadow.OriginMargins.Left, Top - skinControlShadow.OriginMargins.Top, Width + skinControlShadow.OriginMargins.Horizontal, Height + skinControlShadow.OriginMargins.Vertical),
                                        shadowColor, 0);
@@ -308,7 +308,7 @@ namespace XNAFinalEngine.UserInterface
             SkinLayer skinLayerFrameBottom = SkinControlInformation.Layers[layerFrameBottom];
             SkinLayer skinLayerIcon        = SkinControlInformation.Layers[layerIcon];
             LayerStates layerStateFrameTop, layerStateFrameLeft, layerStateFrameRight, layerStateFrameButtom;
-            SpriteFont font = skinLayerFrameTop.Text.Font.Resource.XnaSpriteFont;
+            SpriteFont font = skinLayerFrameTop.Text.Font.Font.XnaSpriteFont;
             Color color;
 
             if ((Focused || (UserInterfaceManager.FocusedControl != null && UserInterfaceManager.FocusedControl.Root == Root)) && ControlState != ControlState.Disabled)

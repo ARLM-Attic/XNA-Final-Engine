@@ -50,6 +50,10 @@
       <Project>{5D1093DE-88C6-4A36-9704-4B13C0D7BAB4}</Project>
       <Name>XNAFinalEngineContentPipelineExtensionRuntime XBOX 360</Name>
     </ProjectReference>
+    <ProjectReference Include="..\XNAFinalEngine\XNAFinalEngine XBOX 360.csproj">
+      <Project>{A5E7E718-C31C-42EA-8981-DF057F030BC7}</Project>
+      <Name>XNAFinalEngine XBOX 360</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Control.cs" />
@@ -95,9 +99,8 @@
     <Compile Include="Controls\Windows\ExitDialog.cs" />
     <Compile Include="Controls\Windows\ModalContainer.cs" />
     <Compile Include="Controls\Windows\Window.cs" />
-    <Compile Include="Delegates.cs" />
-    <Compile Include="EventArgs.cs" />
     <Compile Include="EventedList.cs" />
+    <Compile Include="Events.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Layout.cs" />
     <Compile Include="Manager.cs" />

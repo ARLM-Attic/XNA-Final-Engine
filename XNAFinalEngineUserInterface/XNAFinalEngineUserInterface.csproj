@@ -136,8 +136,7 @@
     <Compile Include="Controls\Windows\ExitDialog.cs" />
     <Compile Include="Controls\Windows\ModalContainer.cs" />
     <Compile Include="Controls\Windows\Window.cs" />
-    <Compile Include="Delegates.cs" />
-    <Compile Include="EventArgs.cs" />
+    <Compile Include="Events.cs" />
     <Compile Include="EventedList.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Layout.cs" />

@@ -15,9 +15,6 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.Collections.Generic;
-#if (WINDOWS)
-    using System.Windows.Forms;
-#endif
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
@@ -1502,7 +1499,7 @@ namespace XNAFinalEngine.UserInterface
         {
             if (visible && renderTarget != null)
             {
-                Renderer.Begin(Renderer.BlendingMode.Transparent);
+                Renderer.Begin();
                 Renderer.Draw(renderTarget.XnaTexture, ControlAndMarginsLeftAbsoluteCoordinate, ControlAndMarginsTopAbsoluteCoordinate, new Rectangle(0, 0, ControlAndMarginsWidth, ControlAndMarginsHeight), Color.FromNonPremultiplied(255, 255, 255, Alpha));
                 Renderer.End();
 
@@ -1517,7 +1514,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private void DrawControls(Rectangle rect, bool firstDetach)
         {
-            Renderer.Begin(Renderer.BlendingMode.Transparent);
+            Renderer.Begin();
 
             DrawingRectangle = rect;
             DrawControl(rect);
@@ -1555,7 +1552,7 @@ namespace XNAFinalEngine.UserInterface
                             SystemInformation.Device.ScissorRectangle = rect;
                         }
 
-                        Renderer.Begin(Renderer.BlendingMode.Transparent);
+                        Renderer.Begin();
                         c.DrawingRectangle = rect;
                         c.DrawControl(rect);
 
@@ -1614,7 +1611,7 @@ namespace XNAFinalEngine.UserInterface
 
                 Color c = Skin.Controls["Control.Outline"].Layers[0].States.Enabled.Color;
 
-                Renderer.Begin(Renderer.BlendingMode.Transparent);
+                Renderer.Begin();
                 if ((ResizeEdge & Anchors.Top) == Anchors.Top || !partialOutline) Renderer.Draw(t, r1, c);
                 if ((ResizeEdge & Anchors.Left) == Anchors.Left || !partialOutline) Renderer.Draw(t, r2, c);
                 if ((ResizeEdge & Anchors.Right) == Anchors.Right || !partialOutline) Renderer.Draw(t, r3, c);
@@ -1639,7 +1636,7 @@ namespace XNAFinalEngine.UserInterface
 
                 Color c = Skin.Controls["Control.Outline"].Layers[0].States.Enabled.Color;
 
-                Renderer.Begin(Renderer.BlendingMode.Transparent);
+                Renderer.Begin();
                 Renderer.Draw(t, r1, c);
                 Renderer.Draw(t, r2, c);
                 Renderer.Draw(t, r3, c);
@@ -2114,7 +2111,7 @@ namespace XNAFinalEngine.UserInterface
             ToolTipOut();
 
             #if (WINDOWS)
-                UserInterfaceManager.Cursor = Skin.Cursors["Default"].Resource;
+                UserInterfaceManager.Cursor = Skin.Cursors["Default"].Cursor;
             #endif
 
             if (!Suspended)
@@ -2517,38 +2514,38 @@ namespace XNAFinalEngine.UserInterface
                 {
                     case Alignment.TopCenter:
                         {
-                            return ((resizeEdge & Anchors.Top) == Anchors.Top) ? Skin.Cursors["Vertical"].Resource : Cursor;
+                            return ((resizeEdge & Anchors.Top) == Anchors.Top) ? Skin.Cursors["Vertical"].Cursor : Cursor;
                         }
                     case Alignment.BottomCenter:
                         {
-                            return ((resizeEdge & Anchors.Bottom) == Anchors.Bottom) ? Skin.Cursors["Vertical"].Resource : Cursor;
+                            return ((resizeEdge & Anchors.Bottom) == Anchors.Bottom) ? Skin.Cursors["Vertical"].Cursor : Cursor;
                         }
                     case Alignment.MiddleLeft:
                         {
-                            return ((resizeEdge & Anchors.Left) == Anchors.Left) ? Skin.Cursors["Horizontal"].Resource : Cursor;
+                            return ((resizeEdge & Anchors.Left) == Anchors.Left) ? Skin.Cursors["Horizontal"].Cursor : Cursor;
                         }
                     case Alignment.MiddleRight:
                         {
-                            return ((resizeEdge & Anchors.Right) == Anchors.Right) ? Skin.Cursors["Horizontal"].Resource : Cursor;
+                            return ((resizeEdge & Anchors.Right) == Anchors.Right) ? Skin.Cursors["Horizontal"].Cursor : Cursor;
                         }
                     case Alignment.TopLeft:
                         {
-                            return ((resizeEdge & Anchors.Left) == Anchors.Left && (resizeEdge & Anchors.Top) == Anchors.Top) ? Skin.Cursors["DiagonalLeft"].Resource : Cursor;
+                            return ((resizeEdge & Anchors.Left) == Anchors.Left && (resizeEdge & Anchors.Top) == Anchors.Top) ? Skin.Cursors["DiagonalLeft"].Cursor : Cursor;
                         }
                     case Alignment.BottomRight:
                         {
-                            return ((resizeEdge & Anchors.Bottom) == Anchors.Bottom && (resizeEdge & Anchors.Right) == Anchors.Right) ? Skin.Cursors["DiagonalLeft"].Resource : Cursor;
+                            return ((resizeEdge & Anchors.Bottom) == Anchors.Bottom && (resizeEdge & Anchors.Right) == Anchors.Right) ? Skin.Cursors["DiagonalLeft"].Cursor : Cursor;
                         }
                     case Alignment.TopRight:
                         {
-                            return ((resizeEdge & Anchors.Top) == Anchors.Top && (resizeEdge & Anchors.Right) == Anchors.Right) ? Skin.Cursors["DiagonalRight"].Resource : Cursor;
+                            return ((resizeEdge & Anchors.Top) == Anchors.Top && (resizeEdge & Anchors.Right) == Anchors.Right) ? Skin.Cursors["DiagonalRight"].Cursor : Cursor;
                         }
                     case Alignment.BottomLeft:
                         {
-                            return ((resizeEdge & Anchors.Bottom) == Anchors.Bottom && (resizeEdge & Anchors.Left) == Anchors.Left) ? Skin.Cursors["DiagonalRight"].Resource : Cursor;
+                            return ((resizeEdge & Anchors.Bottom) == Anchors.Bottom && (resizeEdge & Anchors.Left) == Anchors.Left) ? Skin.Cursors["DiagonalRight"].Cursor : Cursor;
                         }
                 }
-                return Skin.Cursors["Default"].Resource;
+                return Skin.Cursors["Default"].Cursor;
             } // ResizeCursor
         #endif
 

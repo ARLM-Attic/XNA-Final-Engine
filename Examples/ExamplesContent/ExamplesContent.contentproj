@@ -79,6 +79,46 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cursors\Default\Busy.cur">
+      <Name>Busy</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Green\Busy.cur">
+      <Name>Busy</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Green\Cross.cur">
+      <Name>Cross</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Green\Default.cur">
+      <Name>Default</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Green\DiagonalLeft.cur">
+      <Name>DiagonalLeft</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Green\DiagonalRight.cur">
+      <Name>DiagonalRight</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Green\Horizontal.cur">
+      <Name>Horizontal</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Green\Move.cur">
+      <Name>Move</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Green\Text.cur">
+      <Name>Text</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
+    <Compile Include="Cursors\Green\Vertical.cur">
+      <Name>Vertical</Name>
+      <Importer>CursorImporter</Importer>
+    </Compile>
     <Compile Include="Fonts\Arial12.spritefont">
       <Name>Arial12</Name>
       <Importer>FontDescriptionImporter</Importer>
@@ -470,9 +510,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Cursors\Default\Busy.cur">
-      <Name>Busy</Name>
-    </Compile>
     <Compile Include="Cursors\Default\Cross.cur">
       <Name>Cross</Name>
     </Compile>
@@ -495,33 +532,6 @@
       <Name>Text</Name>
     </Compile>
     <Compile Include="Cursors\Default\Vertical.cur">
-      <Name>Vertical</Name>
-    </Compile>
-    <Compile Include="Cursors\Green\Busy.cur">
-      <Name>Busy</Name>
-    </Compile>
-    <Compile Include="Cursors\Green\Cross.cur">
-      <Name>Cross</Name>
-    </Compile>
-    <Compile Include="Cursors\Green\Default.cur">
-      <Name>Default</Name>
-    </Compile>
-    <Compile Include="Cursors\Green\DiagonalLeft.cur">
-      <Name>DiagonalLeft</Name>
-    </Compile>
-    <Compile Include="Cursors\Green\DiagonalRight.cur">
-      <Name>DiagonalRight</Name>
-    </Compile>
-    <Compile Include="Cursors\Green\Horizontal.cur">
-      <Name>Horizontal</Name>
-    </Compile>
-    <Compile Include="Cursors\Green\Move.cur">
-      <Name>Move</Name>
-    </Compile>
-    <Compile Include="Cursors\Green\Text.cur">
-      <Name>Text</Name>
-    </Compile>
-    <Compile Include="Cursors\Green\Vertical.cur">
       <Name>Vertical</Name>
     </Compile>
     <Compile Include="Particles\Fire.xml">

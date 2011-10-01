@@ -122,8 +122,10 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual void Update()
         {
-            UpdateMouse();
-            UpdateKeys();
+            #if (WINDOWS)
+                UpdateMouse();
+                UpdateKeys();
+            #endif
         } // Update
 
         #endregion

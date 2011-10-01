@@ -119,7 +119,7 @@ namespace XNAFinalEngine.UserInterface
                         Rectangle r = new Rectangle(left + l1.Text.OffsetX,
                                                     top + l1.Text.OffsetY,
                                                     LineWidth() - vsize, h);
-                        Renderer.DrawString(l1.Text.Font.Resource.XnaSpriteFont, Items[i].Text, r, l1.Text.Colors.Disabled, l1.Text.Alignment);
+                        Renderer.DrawString(l1.Text.Font.Font.XnaSpriteFont, Items[i].Text, r, l1.Text.Colors.Disabled, l1.Text.Alignment);
                         col = l1.Text.Colors.Disabled;
                     }
                 }
@@ -150,7 +150,7 @@ namespace XNAFinalEngine.UserInterface
                         Rectangle r = new Rectangle(left + l1.Text.OffsetX,
                                                     top + l1.Text.OffsetY,
                                                     LineWidth() - vsize, h);
-                        Renderer.DrawString(l2.Text.Font.Resource.XnaSpriteFont, Items[i].Text, r, l2.Text.Colors.Disabled, l2.Text.Alignment);
+                        Renderer.DrawString(l2.Text.Font.Font.XnaSpriteFont, Items[i].Text, r, l2.Text.Colors.Disabled, l2.Text.Alignment);
                         col = l2.Text.Colors.Disabled;
                     }
                 }
@@ -178,7 +178,7 @@ namespace XNAFinalEngine.UserInterface
             if (Items.Count > 0)
             {
                 SkinLayer l = SkinControlInformation.Layers["Control"];
-                h = l.Text.Font.Resource.LineSpacing + 9;
+                h = l.Text.Font.Font.LineSpacing + 9;
             }
             return h;
         } // LineHeight
@@ -191,7 +191,7 @@ namespace XNAFinalEngine.UserInterface
             {
                 foreach (MenuItem t in Items)
                 {
-                    int wx = (int)font.Resource.MeasureString(t.Text).X + 16;
+                    int wx = (int)font.Font.MeasureString(t.Text).X + 16;
                     if (wx > w) w = wx;
                 }
             }

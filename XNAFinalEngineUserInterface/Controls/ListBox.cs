@@ -166,7 +166,7 @@ namespace XNAFinalEngine.UserInterface
             SkinText font = SkinControlInformation.Layers["Control"].Text;
             if (items != null && items.Count > 0)
             {
-                int h = (int)font.Font.Resource.MeasureString(items[0].ToString()).Y;
+                int h = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
                 Height = (h * maxItems) + (SkinControlInformation.Layers["Control"].ContentMargins.Vertical);// - Skin.OriginMargins.Vertical);
             }
             else
@@ -195,7 +195,7 @@ namespace XNAFinalEngine.UserInterface
             {
                 SkinText font = SkinControlInformation.Layers["Control"].Text;
                 SkinLayer sel = SkinControlInformation.Layers["ListBox.Selection"];
-                int h = (int)font.Font.Resource.MeasureString(items[0].ToString()).Y;
+                int h = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
                 int v = (sbVert.Value / 10);
                 int p = (sbVert.PageSize / 10);
                 int d = (int)(((sbVert.Value % 10) / 10f) * h);
@@ -245,7 +245,7 @@ namespace XNAFinalEngine.UserInterface
             if (items != null && items.Count > 0 && (pane.ControlRectangleRelativeToParent.Contains(new Point(x, y))))
             {
                 SkinText font = SkinControlInformation.Layers["Control"].Text;
-                int h = (int)font.Font.Resource.MeasureString(items[0].ToString()).Y;
+                int h = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
                 int i = (int)Math.Floor((sbVert.Value / 10f) + ((float)y / h));
                 if (i >= 0 && i < Items.Count && i >= (int)Math.Floor((float)sbVert.Value / 10f) && i < (int)Math.Ceiling((float)(sbVert.Value + sbVert.PageSize) / 10f)) ItemIndex = i;
                 Focused = true;
@@ -261,7 +261,7 @@ namespace XNAFinalEngine.UserInterface
             if (items != null && items.Count > 0)
             {
                 SkinText font = SkinControlInformation.Layers["Control"].Text;
-                int h = (int)font.Font.Resource.MeasureString(items[0].ToString()).Y;
+                int h = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
 
                 int sizev = Height - SkinControlInformation.Layers["Control"].ContentMargins.Vertical;
                 sbVert.Range = items.Count * 10;

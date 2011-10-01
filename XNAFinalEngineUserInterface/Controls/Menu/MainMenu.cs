@@ -78,7 +78,7 @@ namespace XNAFinalEngine.UserInterface
             {
                 MenuItem mi = Items[i];
 
-                int tw = (int)l1.Text.Font.Resource.MeasureString(mi.Text).X + l1.ContentMargins.Horizontal;
+                int tw = (int)l1.Text.Font.Font.MeasureString(mi.Text).X + l1.ContentMargins.Horizontal;
                 rs[i] = new Rectangle(rect.Left + prev, rect.Top + l1.ContentMargins.Top, tw, Height - l1.ContentMargins.Vertical);
                 prev += tw;
 

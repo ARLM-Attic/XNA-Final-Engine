@@ -81,7 +81,7 @@ namespace XNAFinalEngine.UserInterface
         protected override void DrawControl(Rectangle rect)
         {
             SkinLayer layer = type == GroupBoxType.Normal ? SkinControlInformation.Layers["Control"] : SkinControlInformation.Layers["Flat"];
-            SpriteFont font = layer.Text.Font.Resource.XnaSpriteFont;
+            SpriteFont font = layer.Text.Font.Font.XnaSpriteFont;
             Point offset = new Point(layer.Text.OffsetX, layer.Text.OffsetY);
             Vector2 size = font.MeasureString(Text);
             size.Y = font.LineSpacing;

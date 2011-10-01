@@ -23,19 +23,11 @@ namespace XNAFinalEngine.UserInterface
 
     /// <summary>
     /// User Interface's elements renderer.
+    /// The user interface does not use the XNA Final Engine’s graphic system. Instead it uses its own renderer.
+    /// That’s not a big deal, besides the user interface is not performance sensitive (is used mostly for editors) and works very fast (much faster than the original).
     /// </summary>
     internal static class Renderer
     {
-
-        #region Blending Mode
-
-        public enum BlendingMode
-        {
-            Transparent,
-            Opaque,
-        } // BlendingMode
-
-        #endregion
 
         #region Variables
 
@@ -45,12 +37,9 @@ namespace XNAFinalEngine.UserInterface
         private static SpriteBatch spriteBatch;
 
         /// <summary>
-        /// Device states, used by the sprite batch.
+        /// Rasterize specific state.
         /// </summary>
-        private static BlendState blendState;
         private static RasterizerState rasterizerState;
-        private static DepthStencilState depthStencilState;
-        private static SamplerState samplerState;
 
         #endregion
 
@@ -61,17 +50,9 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         internal static void Init()
         {
-            if (spriteBatch == null)
-            {
-                spriteBatch = new SpriteBatch(SystemInformation.Device);
-                SetDeviceStates();
-            }
-        } // Renderer
-
-        private static void SetDeviceStates()
-        {
-            blendState = BlendState.AlphaBlend;
-
+            spriteBatch = new SpriteBatch(SystemInformation.Device);
+            
+            // The scissor test is very important, so a custom rasterizer state is created.
             rasterizerState = new RasterizerState
             {
                 CullMode = RasterizerState.CullNone.CullMode,
@@ -81,32 +62,30 @@ namespace XNAFinalEngine.UserInterface
                 ScissorTestEnable = true,
                 SlopeScaleDepthBias = RasterizerState.CullNone.SlopeScaleDepthBias,
             };
-
-            samplerState = SamplerState.AnisotropicClamp;
-
-            depthStencilState = DepthStencilState.None;
-
-        } // SetDeviceStates
+        } // Init
 
         #endregion
 
-        #region Begin End
+        #region Begin
 
         /// <summary>
-        /// Begin UI render.
+        /// Begin the user interface rendering.
         /// </summary>
-        /// <param name="mode">Blending mode, transparent or opaque.</param>
-        public static void Begin(BlendingMode mode)
+        public static void Begin()
         {
             spriteBatch.Begin(SpriteSortMode.Immediate,
-                              mode == BlendingMode.Transparent ? blendState : BlendState.Opaque, 
-                              samplerState,
-                              depthStencilState,
+                              BlendState.AlphaBlend,
+                              SamplerState.PointClamp,
+                              DepthStencilState.None,
                               rasterizerState);
         } // Begin
 
+        #endregion
+
+        #region End
+
         /// <summary>
-        /// End UI Render.
+        /// End user interface rendering.
         /// </summary>
         public static void End()
         {
@@ -165,11 +144,6 @@ namespace XNAFinalEngine.UserInterface
             DrawString(font, text, rect, color, alignment, 0, 0, ellipsis);
         } // DrawString
 
-        public static void DrawString(Control control, SkinLayer layer, string text, Rectangle rect)
-        {
-            DrawString(control, layer, text, rect, true, 0, 0, true);
-        } // DrawString
-
         public static void DrawString(Control control, SkinLayer layer, string text, Rectangle rect, bool margins)
         {
             DrawString(control, layer, text, rect, margins, 0, 0, true);
@@ -200,40 +174,44 @@ namespace XNAFinalEngine.UserInterface
                     rect = new Rectangle(rect.Left + m.Left, rect.Top + m.Top, rect.Width - m.Horizontal, rect.Height - m.Vertical);
                 }
 
-                Color col;
+                #region Resolve Text Color
+
+                Color color;
                 if (state == ControlState.Hovered && (layer.States.Hovered.Index != -1))
                 {
-                    col = layer.Text.Colors.Hovered;
+                    color = layer.Text.Colors.Hovered;
                 }
                 else if (state == ControlState.Pressed)
                 {
-                    col = layer.Text.Colors.Pressed;
+                    color = layer.Text.Colors.Pressed;
                 }
                 else if (state == ControlState.Focused || (control.Focused && state == ControlState.Hovered && layer.States.Hovered.Index == -1))
                 {
-                    col = layer.Text.Colors.Focused;
+                    color = layer.Text.Colors.Focused;
                 }
                 else if (state == ControlState.Disabled)
                 {
-                    col = layer.Text.Colors.Disabled;
+                    color = layer.Text.Colors.Disabled;
                 }
                 else
                 {
-                    col = layer.Text.Colors.Enabled;
+                    color = layer.Text.Colors.Enabled;
                 }
+
+                #endregion
 
                 if (!string.IsNullOrEmpty(text))
                 {
                     SkinText font = layer.Text;
-                    if (control.TextColor != Control.UndefinedColor && control.ControlState != ControlState.Disabled) col = control.TextColor;
-                    DrawString(font.Font.Resource.XnaSpriteFont, text, rect, col, font.Alignment, font.OffsetX + ox, font.OffsetY + oy, ellipsis);
+                    if (control.TextColor != Control.UndefinedColor && control.ControlState != ControlState.Disabled) 
+                        color = control.TextColor;
+                    DrawString(font.Font.Font.XnaSpriteFont, text, rect, color, font.Alignment, font.OffsetX + ox, font.OffsetY + oy, ellipsis);
                 }
             }
         } // DrawString
 
         public static void DrawString(SpriteFont font, string text, Rectangle rect, Color color, Alignment alignment, int offsetX, int offsetY, bool ellipsis)
         {
-
             if (ellipsis)
             {
                 const string elli = "...";

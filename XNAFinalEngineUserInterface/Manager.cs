@@ -374,7 +374,7 @@ namespace XNAFinalEngine.UserInterface
             #if (!XBOX)
                 if (Skin.Cursors["Default"] != null)
                 {
-                    Cursor = Skin.Cursors["Default"].Resource;
+                    Cursor = Skin.Cursors["Default"].Cursor;
                 }
             #endif
             
@@ -586,7 +586,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public static void EndDraw()
         {
-            Renderer.Begin(Renderer.BlendingMode.Transparent);
+            Renderer.Begin();
                 Renderer.Draw(renderTarget.XnaTexture, new Rectangle(0, 0, SystemInformation.ScreenWidth, SystemInformation.ScreenHeight), Color.White);
             Renderer.End();
         } // EndDraw
