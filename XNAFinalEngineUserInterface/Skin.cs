@@ -438,7 +438,7 @@ namespace XNAFinalEngine.UserInterface
     /// Manage the skin content (mouse cursors, elements' images, fonts, and skin's parameters)
     /// The main task is to load the skin information and skin resources.
     /// </summary>
-    internal static class Skin
+    public static class Skin
     {
 
         #region Variables
@@ -507,8 +507,8 @@ namespace XNAFinalEngine.UserInterface
 
             #region Load description file
 
-            string fullPath = "Skin" + "\\" + skinName;
-            skinDescription = new Document(skinName);
+            string fullPath = "Skin" + "\\" + skinName + "\\Description";
+            skinDescription = new Document(fullPath);
             
             // Read XML data.
             if (skinDescription.XDocument.Element("Skin") != null)
@@ -545,7 +545,7 @@ namespace XNAFinalEngine.UserInterface
                 #if (WINDOWS)
                     foreach (SkinCursor skinCursor in Cursors)
                     {
-                        skinCursor.Resource = new Assets.Cursor("name" + skinCursor.Asset);
+                        skinCursor.Resource = new Assets.Cursor(skinName + "\\" + skinCursor.Asset);
                     }
                 #endif
                 foreach (SkinImage skinImage in Images)

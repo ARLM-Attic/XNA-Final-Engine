@@ -76,7 +76,7 @@ namespace XNAFinalEngineContentPipelineExtension.UserInterface
 
         public override string GetRuntimeReader(TargetPlatform targetPlatform)
         {
-            return "ContentPipelineExtensionRuntime.UserInterface.CursorReader, XNAFinalEngineContentPipelineExtensionRuntime";
+            return "XNAFinalEngineContentPipelineExtensionRuntime.UserInterface.CursorReader, ContentPipelineExtensionRuntime";
         } // GetRuntimeReader
     } // CursorWriter
 

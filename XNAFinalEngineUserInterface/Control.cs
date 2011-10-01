@@ -625,22 +625,22 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Get and set the control's client margins.
         /// </summary>
-        protected virtual Margins ClientMargins { get; set; }
+        public virtual Margins ClientMargins { get; set; }
         
         /// <summary>
         /// Client Left.
         /// </summary>
-        protected virtual int ClientLeft { get { return ClientMargins.Left; } }
+        public virtual int ClientLeft { get { return ClientMargins.Left; } }
 
         /// <summary>
         /// Client Top..
         /// </summary>
-        protected virtual int ClientTop { get { return ClientMargins.Top; } }
+        public virtual int ClientTop { get { return ClientMargins.Top; } }
 
         /// <summary>
         /// Client Width.
         /// </summary>
-        internal virtual int ClientWidth
+        public virtual int ClientWidth
         {
             get { return ControlAndMarginsWidth - ClientMargins.Left - ClientMargins.Right; }
             set { Width = value + ClientMargins.Horizontal - skinControl.OriginMargins.Horizontal; }
@@ -649,7 +649,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Client Height.
         /// </summary>
-        internal virtual int ClientHeight
+        public virtual int ClientHeight
         {
             get { return ControlAndMarginsHeight - ClientMargins.Top - ClientMargins.Bottom; }
             set { Height = value + ClientMargins.Vertical - skinControl.OriginMargins.Vertical; }
@@ -1157,7 +1157,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Gets or sets the parent for the control.
         /// </summary>
-        internal virtual Control Parent
+        public virtual Control Parent
         {
             get
             {
@@ -1178,7 +1178,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Gets or sets the root for the control.
         /// </summary>
-        internal virtual Control Root
+        public virtual Control Root
         {
             get
             {

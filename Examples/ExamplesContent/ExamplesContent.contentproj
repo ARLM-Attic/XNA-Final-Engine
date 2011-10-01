@@ -102,7 +102,7 @@
     <Compile Include="Models\DudeWalk.fbx">
       <Name>DudeWalk</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>SkinnedModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-AirTakesEngine.fbx">
       <Name>Murcielago-AirTakesEngine</Name>
@@ -367,9 +367,11 @@
     </Compile>
     <Compile Include="Skin\Default\Description.skin">
       <Name>Description</Name>
+      <Importer>SkinImporter</Importer>
     </Compile>
     <Compile Include="Skin\Green\Description.skin">
       <Name>Description</Name>
+      <Importer>SkinImporter</Importer>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\BrakeDisc-Diffuse.dds">
       <Name>BrakeDisc-Diffuse</Name>
@@ -1239,8 +1241,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UILayout\Window.layout">
+    <Compile Include="Layout\Window.layout">
       <Name>Window</Name>
+      <Importer>LayoutImporter</Importer>
     </Compile>
   </ItemGroup>
   <ItemGroup>

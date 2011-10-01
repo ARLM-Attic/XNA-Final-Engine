@@ -523,7 +523,7 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("Render Target: There are multiple render targets enabled. Use RenderTarget.BackToBackBuffer instead.");
             
             alreadyResolved = true;
-
+            currentRenderTarget[0] = null;
             SystemInformation.Device.SetRenderTarget(null);
         } // DisableRenderTarget
 

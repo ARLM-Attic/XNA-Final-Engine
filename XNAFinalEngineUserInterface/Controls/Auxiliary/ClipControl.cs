@@ -28,7 +28,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Get and set the control's client margins.
         /// </summary>
-        protected override Margins ClientMargins
+        public override Margins ClientMargins
         {
             get { return base.ClientMargins; }
             set

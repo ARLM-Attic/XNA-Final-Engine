@@ -116,10 +116,7 @@ namespace XNAFinalEngine.EngineCore
             
             IsMouseVisible = mainSettings.IsMouseVisible;
 
-            // First we set GraphicsDeviceManager and latter GameWindow.
-            // The order is important because we want that the System Information DeviceReset event was called before the System Information Size Changed event. Confused?
-            SystemInformation.GraphicsDeviceManager = new GraphicsDeviceManager(this);
-            SystemInformation.GameWindow = Window;
+            GraphicsDeviceManager graphicsDeviceManager = new GraphicsDeviceManager(this);
 
             #region Resolution
 
@@ -132,8 +129,8 @@ namespace XNAFinalEngine.EngineCore
                 width = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
                 height = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             }
-            SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth = width;
-            SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight = height;
+            graphicsDeviceManager.PreferredBackBufferWidth = width;
+            graphicsDeviceManager.PreferredBackBufferHeight = height;
 
             #endregion
 
@@ -141,16 +138,16 @@ namespace XNAFinalEngine.EngineCore
             Screen.AspectRatio = mainSettings.AspectRatio;
             
             // Fullscreen
-            SystemInformation.GraphicsDeviceManager.IsFullScreen = mainSettings.Fullscreen;
+            graphicsDeviceManager.IsFullScreen = mainSettings.Fullscreen;
 
             // Multisampling
             Screen.MultiSampleQuality = mainSettings.MultiSampleQuality;
             //SystemInformation.GraphicsDeviceManager.PreferMultiSampling = mainSettings.MultiSampleQuality != 0; // Activate the antialiasing if multisamplequality is different than zero.
             // We will always use the back buffer for 2D operations, so no need to waste space and time in multisampling.
-            SystemInformation.GraphicsDeviceManager.PreferMultiSampling = false;
+            graphicsDeviceManager.PreferMultiSampling = false;
 
             // VSync
-            SystemInformation.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = mainSettings.VSync;
+            graphicsDeviceManager.SynchronizeWithVerticalRetrace = mainSettings.VSync;
 
             #region Update Frequency
 
@@ -170,6 +167,10 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            // First we set GraphicsDeviceManager and latter GameWindow.
+            // The order is important because we want that the System Information DeviceReset event was called before the System Information Size Changed event. Confused?
+            SystemInformation.GraphicsDeviceManager = graphicsDeviceManager;
+            SystemInformation.GameWindow = Window;
             SystemInformation.Services = Services;
 
         } // EngineManager

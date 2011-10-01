@@ -153,6 +153,10 @@
       <Project>{E401A7E9-4EA1-4D40-A335-4C9C5218AAC7}</Project>
       <Name>XNAFinalEngineBase</Name>
     </ProjectReference>
+    <ProjectReference Include="..\XNAFinalEngineContentPipelineExtensionRuntime\XNAFinalEngineContentPipelineExtensionRuntime.csproj">
+      <Project>{E3A98759-8C7F-4660-8D70-1B89C1F04235}</Project>
+      <Name>XNAFinalEngineContentPipelineExtensionRuntime</Name>
+    </ProjectReference>
     <ProjectReference Include="..\XNAFinalEngine\XNAFinalEngine.csproj">
       <Project>{5AE97C4B-A27B-4C92-9D18-078227F41DE3}</Project>
       <Name>XNAFinalEngine</Name>

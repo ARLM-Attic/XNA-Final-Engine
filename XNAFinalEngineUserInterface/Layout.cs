@@ -66,6 +66,7 @@ namespace XNAFinalEngine.UserInterface
             finally
             {
                 temporalContent.Dispose();
+                ContentManager.CurrentContentManager = null;
             }
 
             return mainContainer;

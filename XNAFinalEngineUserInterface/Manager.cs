@@ -572,13 +572,13 @@ namespace XNAFinalEngine.UserInterface
 
                 renderTarget.EnableRenderTarget();
                 SystemInformation.Device.Clear(Color.Transparent);
-
                 foreach (Control control in list)
                 {
                     control.Render();
                 }
+                renderTarget.DisableRenderTarget();
             }
-            renderTarget.DisableRenderTarget();
+            
         } // BeginDraw
 
         /// <summary>

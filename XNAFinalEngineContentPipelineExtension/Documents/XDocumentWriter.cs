@@ -53,7 +53,7 @@ namespace XNAFinalEngineContentPipelineExtension.Documents
 
         public override string GetRuntimeReader(TargetPlatform targetPlatform)
         {
-            return "ContentPipelineExtensionRuntime.XDocumentReader, XNAFinalEngineContentPipelineExtensionRuntime";
+            return "XNAFinalEngineContentPipelineExtensionRuntime.Documents.XDocumentReader, ContentPipelineExtensionRuntime";
         } // GetRuntimeReader
 
     } // XDocumentWriter
