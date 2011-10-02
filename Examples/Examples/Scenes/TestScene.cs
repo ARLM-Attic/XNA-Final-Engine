@@ -45,28 +45,19 @@ namespace XNAFinalEngineExamples
     {
 
         #region Variables
-
-        private static GameObject2D testText;
-
+        
         private static GameObject3D lamboBody, dude;
 
         #endregion
 
         #region Load
-
+        
         /// <summary>
         /// Load the resources.
         /// </summary>
+        /// <remarks>Remember to call the base implementation of this method at the end.</remarks>
         public override void Load()
         {
-            testText = new GameObject2D();
-            testText.AddComponent<HudText>();
-            testText.HudText.Font = new Font("Arial12");
-            testText.HudText.Color = Color.Black;
-            testText.HudText.Text.Insert(0, "FPS ");
-            testText.Transform.LocalPosition = new Vector3(100, 100, 0);
-            testText.Transform.LocalRotation = 0f;
-
             //RootAnimation animation = new RootAnimation("AnimatedCube");
 
             lamboBody = new GameObject3D();
@@ -83,30 +74,36 @@ namespace XNAFinalEngineExamples
             dude.AddComponent<ModelFilter>();
             dude.ModelFilter.Model = new FileModel("DudeWalk");
             dude.AddComponent<ModelRenderer>();*/
-            
+
+            base.Load();
         } // Load
 
         #endregion
 
-        #region Update
+        #region Update Tasks
 
         /// <summary>
-        /// Update the scene.
+        /// Tasks executed during the update.
+        /// This is the place to put the application logic.
         /// </summary>
-        public override void Update()
+        public override void UpdateTasks()
         {
             //lamboBody.Transform.Translate(new Vector3(0.0001f, 0, 0), Space.Local);
             //lamboBody.Transform.Rotate(new Vector3(0, 0.00001f, 0));
-        } // Update
+        } // UpdateTasks
 
         #endregion
 
-        #region Render
+        #region Render Tasks
 
         /// <summary>
-        /// Render the scene.
+        /// Tasks before the engine render.
+        /// Some tasks are more related to the frame rendering than the update,
+        /// or maybe the update frequency is too high to waste time in this kind of tasks,
+        /// for that reason the pre render task exists.
+        /// For example, is more correct to update the HUD information here because is related with the rendering.
         /// </summary>
-        public override void Render()
+        public override void PreRenderTasks()
         {
 
             #region XBOX Matrix test
@@ -180,7 +177,7 @@ namespace XNAFinalEngineExamples
 
             #endregion
 
-        } // Render
+        } // PreRenderTasks
 
         #endregion
 

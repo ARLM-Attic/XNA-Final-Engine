@@ -64,8 +64,7 @@ namespace XNAFinalEngine.UserInterface
         /// Main render target, when the UI will be render.
         /// </summary>
         private static RenderTarget renderTarget;
-        private static ControlsList controls;
-        private static ControlsList orderList;
+
         private static Control focusedControl;
         private static ModalContainer modalWindow;
         private static ControlStates states;
@@ -88,6 +87,7 @@ namespace XNAFinalEngine.UserInterface
                     window.Cursor = value.SystemCursor;
                 }
             } // Cursor
+
         #endif  
 
         /// <summary>
@@ -98,7 +98,9 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Returns list of controls added to the manager.
         /// </summary>
-        public static ControlsList Controls { get { return controls; } }
+        public static ControlsList RootControls { get; private set; }
+
+        internal static ControlsList OrderList { get; private set; }
 
         /// <summary>
         /// Gets or sets the time that passes before the ToolTip appears.
@@ -200,9 +202,7 @@ namespace XNAFinalEngine.UserInterface
                 }
             }
         } // FocusedControl
-
-        internal static ControlsList OrderList { get { return orderList; } }
-
+        
         #endregion
 
         #region Events
@@ -210,7 +210,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Occurs when the GraphicsDevice settings are changed.
         /// </summary>
-        public static event DeviceEventHandler DeviceSettingsChanged;
+        internal static event DeviceEventHandler DeviceSettingsChanged;
 
         /// <summary>
         /// Occurs when the skin is about to change.
@@ -229,58 +229,83 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region Init User Interface Manager
+        #region Initialize
 
         /// <summary>
         /// Initializes the User Interface Manager.
         /// </summary>
-        public static void InitUserInterfaceManager()
+        public static void Initialize()
         {
-            // Set some public parameters.
-            TextureResizeIncrement = 32;
-            ToolTipDelay = 500;
-            AutoUnfocus = true;
-            ToolTipsEnabled = true;
+            try
+            {
+                // Set some public parameters.
+                TextureResizeIncrement = 32;
+                ToolTipDelay = 500;
+                AutoUnfocus = true;
+                ToolTipsEnabled = true;
             
-            #if (WINDOWS)
-                MenuDelay = System.Windows.Forms.SystemInformation.MenuShowDelay;
-                DoubleClickTime = System.Windows.Forms.SystemInformation.DoubleClickTime;
-                window = (Form)System.Windows.Forms.Control.FromHandle(SystemInformation.GameWindow.Handle);
-                window.FormClosing += FormClosing;
-            #endif
+                #if (WINDOWS)
+                    MenuDelay = System.Windows.Forms.SystemInformation.MenuShowDelay;
+                    DoubleClickTime = System.Windows.Forms.SystemInformation.DoubleClickTime;
+                    window = (Form)System.Windows.Forms.Control.FromHandle(SystemInformation.GameWindow.Handle);
+                    window.FormClosing += FormClosing;
+                #endif
 
-            controls  = new ControlsList();
-            orderList = new ControlsList();
+                RootControls  = new ControlsList();
+                OrderList = new ControlsList();
 
-            SystemInformation.GraphicsDeviceManager.PreparingDeviceSettings += PrepareGraphicsDevice;
+                SystemInformation.GraphicsDeviceManager.PreparingDeviceSettings += OnPrepareGraphicsDevice;
 
-            states.Buttons = new Control[32];
-            states.Click = -1;
-            states.Over = null;
+                states.Buttons = new Control[32];
+                states.Click = -1;
+                states.Over = null;
 
-            InputSystem = new Input();
+                InputSystem = new Input();
 
-            InputSystem.MouseDown  += MouseDownProcess;
-            InputSystem.MouseUp    += MouseUpProcess;
-            InputSystem.MousePress += MousePressProcess;
-            InputSystem.MouseMove  += MouseMoveProcess;
+                InputSystem.MouseDown  += MouseDownProcess;
+                InputSystem.MouseUp    += MouseUpProcess;
+                InputSystem.MousePress += MousePressProcess;
+                InputSystem.MouseMove  += MouseMoveProcess;
 
-            InputSystem.KeyDown    += KeyDownProcess;
-            InputSystem.KeyUp      += KeyUpProcess;
-            InputSystem.KeyPress   += KeyPressProcess;
+                InputSystem.KeyDown    += KeyDownProcess;
+                InputSystem.KeyUp      += KeyUpProcess;
+                InputSystem.KeyPress   += KeyPressProcess;
 
-            renderTarget = new RenderTarget(RenderTarget.SizeType.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
+                renderTarget = new RenderTarget(RenderTarget.SizeType.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
+            }
+            catch (Exception e)
+            {
 
+                throw new InvalidOperationException("User Interface Manager: Error occurred during initialization. Was the engine started?", e);
+            }
+
+            // Init User Interface Renderer.
             Renderer.Init();
-
+            
+            // Set Default skin.
             SetSkin("Default");
-        } // Manager
+
+        } // Initialize
+
+        #endregion
+
+        #region On Prepare Graphics Device
+
+        /// <summary>
+        /// If the device is recreated then the controls have to be invalidated so that they redraw.
+        /// </summary>
+        private static void OnPrepareGraphicsDevice(object sender, PreparingDeviceSettingsEventArgs e)
+        {
+            if (DeviceSettingsChanged != null)
+                DeviceSettingsChanged.Invoke(new DeviceEventArgs(e));
+        } // OnPrepareGraphicsDevice
 
         #endregion
 
         #region Form Closing
 
         #if (WINDOWS)
+
             /// <summary>
             /// If the form is closing
             /// </summary>
@@ -297,79 +322,47 @@ namespace XNAFinalEngine.UserInterface
                 }
                 e.Cancel = ret;
             } // FormClosing
+
         #endif
 
         #endregion
 
-        #region Dispose
+        #region Dispose Controls
 
         /// <summary>
-        /// Dispose controls.
+        /// Dispose all controls added to the manager and its child controls.
         /// </summary>
         public static void DisposeControls()
         {
-            // Recursively disposing all controls added to the manager and its child controls.
-            if (controls != null)
+            try
             {
-                int c = controls.Count;
-                for (int i = 0; i < c; i++)
+                for (int i = 0; i < RootControls.Count; i++)
                 {
-                    if (controls.Count > 0) 
-                        controls[0].Dispose();
+                    RootControls[i].Dispose();
                 }
+                RootControls.Clear();
+                OrderList.Clear();
+                FocusedControl = null;
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("User Interface Manager: Unable to dispose controls. Was the User Interface Manager started?", e);
             }
         } // DisposeControls
 
         #endregion
-
-        #region Prepare Graphics Device
-
-        /// <summary>
-        /// Method used as an event handler for the GraphicsDeviceManager.PreparingDeviceSettings event.
-        /// </summary>
-        private static void PrepareGraphicsDevice(object sender, PreparingDeviceSettingsEventArgs e)
-        {
-            foreach (Control control in Controls)
-            {
-                SetMaxSize(control, SystemInformation.ScreenWidth, SystemInformation.ScreenHeight);
-            }
-
-            if (DeviceSettingsChanged != null) 
-                DeviceSettingsChanged.Invoke(new DeviceEventArgs(e));
-        } // PrepareGraphicsDevice
-
-        private static void SetMaxSize(Control c, int w, int h)
-        {
-            if (c.Width > w)
-            {
-                w -= (c.SkinControlInformation != null) ? c.SkinControlInformation.OriginMargins.Horizontal : 0;
-                c.Width = w;
-            }
-            if (c.Height > h)
-            {
-                h -= (c.SkinControlInformation != null) ? c.SkinControlInformation.OriginMargins.Vertical : 0;
-                c.Height = h;
-            }
-
-            foreach (Control cx in c.ChildrenControls)
-            {
-                SetMaxSize(cx, w, h);
-            }
-        } // SetMaxSize
-
-        #endregion
-
-        #region Skin
+        
+        #region Set Skin
 
         /// <summary>
         /// Sets a new skin.
         /// </summary>
-        public static void SetSkin(string skinFilename)
+        public static void SetSkin(string skinName)
         {
             if (SkinChanging != null) 
                 SkinChanging.Invoke(new EventArgs());
             
-            Skin.LoadSkin(skinFilename);
+            Skin.LoadSkin(skinName);
 
             #if (!XBOX)
                 if (Skin.Cursors["Default"] != null)
@@ -378,7 +371,7 @@ namespace XNAFinalEngine.UserInterface
                 }
             #endif
             
-            // Initializing skins for every control created, even not visible or not added to the manager or another parent.
+            // Initializing skins for every control created, even not visible or not added to the manager or another control.
             foreach (Control control in Control.ControlList)
             {
                 control.InitSkin();
@@ -386,8 +379,8 @@ namespace XNAFinalEngine.UserInterface
             
             if (SkinChanged != null) 
                 SkinChanged.Invoke(new EventArgs());
-            
-            //  Initializing all controls created, even not visible or not added to the manager or another parent.
+
+            //  Initializing all controls created, even not visible or not added to the manager or another control.
             foreach (Control control in Control.ControlList)
             {
                 control.Init();
@@ -407,26 +400,26 @@ namespace XNAFinalEngine.UserInterface
         {
             if (control != null && !control.StayOnBack)
             {
-                ControlsList cs = (control.Parent == null) ? controls : control.Parent.ChildrenControls;
-                if (cs.Contains(control))
+                // We search for the control's brothers.
+                ControlsList brotherControls = (control.Parent == null) ? RootControls : control.Parent.ChildrenControls;
+                if (brotherControls.Contains(control)) // The only case in which is false is when the control was not added to anything.
                 {
-                    cs.Remove(control);
+                    brotherControls.Remove(control);
                     if (!control.StayOnTop)
                     {
-                        int pos = cs.Count;
-                        for (int i = cs.Count - 1; i >= 0; i--)
+                        // We try to insert the control the higher that we can in the sorted list
+                        int newControlPosition = brotherControls.Count;
+                        for (int i = brotherControls.Count - 1; i >= 0; i--)
                         {
-                            if (!cs[i].StayOnTop)
-                            {
+                            if (!brotherControls[i].StayOnTop) // If there is a control that has to be in top then we won't go any further.
                                 break;
-                            }
-                            pos = i;
+                            newControlPosition = i;
                         }
-                        cs.Insert(pos, control);
+                        brotherControls.Insert(newControlPosition, control);
                     }
                     else
                     {
-                        cs.Add(control);
+                        brotherControls.Add(control);
                     }
                 }
             }
@@ -440,26 +433,24 @@ namespace XNAFinalEngine.UserInterface
         {
             if (control != null && !control.StayOnTop)
             {
-                ControlsList cs = (control.Parent == null) ? controls : control.Parent.ChildrenControls as ControlsList;
-                if (cs.Contains(control))
+                ControlsList brotherControls = (control.Parent == null) ? RootControls : control.Parent.ChildrenControls;
+                if (brotherControls.Contains(control))
                 {
-                    cs.Remove(control);
+                    brotherControls.Remove(control);
                     if (!control.StayOnBack)
                     {
-                        int pos = 0;
-                        for (int i = 0; i < cs.Count; i++)
+                        int newControlPosition = 0;
+                        for (int i = 0; i < brotherControls.Count; i++)
                         {
-                            if (!cs[i].StayOnBack)
-                            {
+                            if (!brotherControls[i].StayOnBack)
                                 break;
-                            }
-                            pos = i;
+                            newControlPosition = i;
                         }
-                        cs.Insert(pos, control);
+                        brotherControls.Insert(newControlPosition, control);
                     }
                     else
                     {
-                        cs.Insert(0, control);
+                        brotherControls.Insert(0, control);
                     }
                 }
             }
@@ -481,28 +472,33 @@ namespace XNAFinalEngine.UserInterface
 
                 InputSystem.Update();
 
-                ControlsList controlList = new ControlsList(controls);
-                foreach (Control c in controlList)
+                // In the control's update the Root Control list could be modified so we need to create an auxiliary list.
+                ControlsList controlList = new ControlsList(RootControls);
+                foreach (Control control in controlList)
                 {
-                    c.Update();
+                    control.Update();
                 }
                 OrderList.Clear();
-                SortLevel(controls);
+                SortLevel(RootControls);
             }
             catch (Exception exception)
             {
-                throw new Exception("User Interface update failed.\n\n" + exception);
+                throw new InvalidOperationException("User Interface Manager: Update failed.", exception);
             }
         } // Update
 
+        /// <summary>
+        /// Sort the control and their children.
+        /// </summary>
+        /// <param name="controlList"></param>
         private static void SortLevel(ControlsList controlList)
         {
             if (controlList != null)
             {
-                foreach (Control c in controlList.Where(c => c.Visible))
+                foreach (Control control in controlList.Where(control => control.Visible))
                 {
-                    OrderList.Add(c);
-                    SortLevel(c.ChildrenControls as ControlsList);
+                    OrderList.Add(control);
+                    SortLevel(control.ChildrenControls);
                 }
             }
         } // SortLevel
@@ -512,18 +508,18 @@ namespace XNAFinalEngine.UserInterface
         #region Add or Remove
 
         /// <summary>
-        /// Adds a component or a control to the manager.
+        /// Adds a control to the manager.
         /// </summary>
         /// <param name="control">The control being added.</param>
         public static void Add(Control control)
         {
             if (control != null)
             {
-                if (!controls.Contains(control))
+                if (!RootControls.Contains(control))
                 {
                     if (control.Parent != null) 
                         control.Parent.Remove(control);
-                    controls.Add(control);
+                    RootControls.Add(control);
                     control.Parent = null;
                     if (focusedControl == null) 
                         control.Focused = true;
@@ -547,7 +543,7 @@ namespace XNAFinalEngine.UserInterface
                 DeviceSettingsChanged -= control.OnDeviceSettingsChanged;
                 if (control.Focused) 
                     control.Focused = false;
-                controls.Remove(control);
+                RootControls.Remove(control);
             }
         } // Remove
 
@@ -556,40 +552,40 @@ namespace XNAFinalEngine.UserInterface
         #region Draw
 
         /// <summary>
-        /// Renders all controls added to the manager.
+        /// Renders all controls added to the manager to a render target.
         /// </summary>
-        public static void BeginDraw()
+        public static void DrawToTexture()
         {
-            if ((controls != null))
+            if ((RootControls != null))
             {
-                ControlsList list = new ControlsList();
-                list.AddRange(controls);
-
-                foreach (Control control in list)
+                // Render each control in its own render target.
+                foreach (Control control in RootControls)
                 {
-                    control.PreDrawControl();
+                    control.PreDrawControlOntoOwnTexture();
                 }
-
+                // Draw user interface texture.
                 renderTarget.EnableRenderTarget();
-                SystemInformation.Device.Clear(Color.Transparent);
-                foreach (Control control in list)
-                {
-                    control.Render();
-                }
+                    SystemInformation.Device.Clear(Color.Transparent);
+                    foreach (Control control in RootControls)
+                    {
+                        control.DrawControlOntoMainTexture();
+                    }
                 renderTarget.DisableRenderTarget();
             }
-            
-        } // BeginDraw
+        } // DrawToTexture
 
         /// <summary>
-        /// Draws texture resolved from RenderTarget to specified rectangle.
+        /// Draws User Interface's render target to screen.
         /// </summary>
-        public static void EndDraw()
+        public static void DrawTextureToScreen()
         {
-            Renderer.Begin();
-                Renderer.Draw(renderTarget.XnaTexture, new Rectangle(0, 0, SystemInformation.ScreenWidth, SystemInformation.ScreenHeight), Color.White);
-            Renderer.End();
-        } // EndDraw
+            if ((RootControls != null))
+            {
+                Renderer.Begin();
+                    Renderer.Draw(renderTarget.XnaTexture, new Rectangle(0, 0, SystemInformation.ScreenWidth, SystemInformation.ScreenHeight), Color.White);
+                Renderer.End();
+            }
+        } // DrawTextureToScreen
 
         #endregion
         
@@ -802,7 +798,7 @@ namespace XNAFinalEngine.UserInterface
 
             if (AutoUnfocus && focusedControl != null && focusedControl.Root != modalWindow)
             {
-                bool hit = Controls.Any(cx => cx.ControlRectangle.Contains(e.Position));
+                bool hit = RootControls.Any(cx => cx.ControlRectangle.Contains(e.Position));
 
                 if (!hit)
                 {

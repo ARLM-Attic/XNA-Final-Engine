@@ -56,35 +56,49 @@ namespace XNAFinalEngine.Scenes
         /// <summary>
         /// Load the resources.
         /// </summary>
+        /// <remarks>Remember to call the base implementation of this method at the end.</remarks>
         public virtual void Load()
         {
-            // Overrite it!!
             Loaded = true;            
         } // Load
 
         #endregion
 
-        #region Update
+        #region Update Tasks
 
         /// <summary>
-        /// Update the scene.
+        /// Tasks executed during the update.
+        /// This is the place to put the application logic.
         /// </summary>
-        public virtual void Update()
+        public virtual void UpdateTasks()
         {
             // Overrite it!!
-        } // Update
+        } // UpdateTasks
 
         #endregion
 
-        #region Render
-
+        #region Render Tasks
+        
         /// <summary>
-        /// Render the scene.
+        /// Tasks before the engine render.
+        /// Some tasks are more related to the frame rendering than the update,
+        /// or maybe the update frequency is too high to waste time in this kind of tasks,
+        /// for that reason the pre render task exists.
+        /// For example, is more correct to update the HUD information here because is related with the rendering.
         /// </summary>
-        public virtual void Render()
+        public virtual void PreRenderTasks()
         {
             // Overrite it!!
-        } // Render
+        } // PreRenderTasks
+
+        /// <summary>
+        /// Tasks after the engine render.
+        /// Probably you won’t need to place any task here.
+        /// </summary>
+        public virtual void PostRenderTasks()
+        {
+            // Overrite it!!
+        } // PostRenderTasks
 
         #endregion
 

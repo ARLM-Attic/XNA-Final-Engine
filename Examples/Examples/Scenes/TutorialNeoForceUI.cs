@@ -102,22 +102,16 @@ namespace XNAFinalEngineExamples
         #region Load
 
         /// <summary>
-        /// Load the scene
+        /// Load the resources.
         /// </summary>
+        /// <remarks>Remember to call the base implementation of this method at the end.</remarks>
         public override void Load()
         {
-            UserInterfaceManager.InitUserInterfaceManager();
-            // Load the nested scene.
-            //scene = new SceneTutorialNested();
-            //scene.Load();
-
-            #region Neo Force Code
+            UserInterfaceManager.Initialize();
 
             //UserInterfaceManager.WindowClosing += Manager_WindowClosing;
             
             InitControls();
-
-            #endregion
 
             //EngineManager.ShowFramesPerSecond = true;
 
@@ -126,31 +120,41 @@ namespace XNAFinalEngineExamples
 
         #endregion
 
-        #region Update
+        #region Update Tasks
 
         /// <summary>
-        /// Update.
+        /// Tasks executed during the update.
+        /// This is the place to put the application logic.
         /// </summary>
-        public override void Update()
+        public override void UpdateTasks()
         {
             UserInterfaceManager.Update();
-            //scene.Update();
-        } // Update
+        } // UpdateTasks
 
         #endregion
 
-        #region Render
+        #region Render Tasks
 
         /// <summary>
-        /// Render.
+        /// Tasks before the engine render.
+        /// Some tasks are more related to the frame rendering than the update,
+        /// or maybe the update frequency is too high to waste time in this kind of tasks,
+        /// for that reason the pre render task exists.
+        /// For example, is more correct to update the HUD information here because is related with the rendering.
         /// </summary>
-        public override void Render()
+        public override void PreRenderTasks()
         {
-            //scene.Render();
-            UserInterfaceManager.BeginDraw();
-            SystemInformation.Device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, new Color(10, 10, 10), 1.0f, 0);
-            UserInterfaceManager.EndDraw();
+            UserInterfaceManager.DrawToTexture();
         } // Render
+
+        /// <summary>
+        /// Tasks after the engine render.
+        /// Probably you won’t need to place any task here.
+        /// </summary>
+        public override void PostRenderTasks()
+        {
+            UserInterfaceManager.DrawTextureToScreen();
+        } // PostRenderTasks
 
         #endregion
 
@@ -504,7 +508,7 @@ namespace XNAFinalEngineExamples
         void btnClose_Click(object sender, EventArgs e)
         {
             ControlsList list = new ControlsList();
-            list.AddRange(UserInterfaceManager.Controls);
+            list.AddRange(UserInterfaceManager.RootControls);
 
             for (int i = 0; i < list.Count; i++)
             {

@@ -54,6 +54,11 @@ namespace XNAFinalEngine.EngineCore
         private static GBuffer gbuffer;
 
         private static EditorCamera camera;
+
+        /// <summary>
+        /// This game object will show the frames per second onto screen.
+        /// </summary>
+        private static GameObject2D fpsText;
         
         #endregion
 
@@ -77,6 +82,18 @@ namespace XNAFinalEngine.EngineCore
             Layer.InitLayers();
             SpriteManager.Init();
 
+            #region FPS
+
+            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            fpsText = new GameObject2D();
+            fpsText.AddComponent<HudText>();
+            fpsText.HudText.Font = new Font("Arial12");
+            fpsText.HudText.Color = Color.Yellow;
+            fpsText.HudText.Text.Insert(0, "FPS ");
+            fpsText.Transform.LocalRotation = 0f;
+
+            #endregion
+
             gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
             
             camera = new EditorCamera(new Vector3(0, 30, 0), 200, 0, 0);
@@ -86,7 +103,7 @@ namespace XNAFinalEngine.EngineCore
             {
                 CurrentScene.Load();
             }
-            
+
             #region Garbage Collection
 
             // All generations will undergo a garbage collection.
@@ -119,10 +136,16 @@ namespace XNAFinalEngine.EngineCore
         {
             Time.GameDeltaTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
 
+            #region Scene Update Tasks
+
             if (CurrentScene != null && CurrentScene.Loaded)
             {
-                CurrentScene.Update();
+                CurrentScene.UpdateTasks();
             }
+
+            #endregion
+
+            fpsText.Transform.LocalPosition = new Vector3(Screen.Width - 100, 20, 0);
  
             Input.InputManager.Update();
             camera.Update();
@@ -144,7 +167,17 @@ namespace XNAFinalEngine.EngineCore
         {
             // Update frame time
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
-            
+
+            #region Scene Pre Render Tasks
+
+            if (CurrentScene != null && CurrentScene.Loaded)
+            {
+                CurrentScene.PreRenderTasks();
+            }
+
+            #endregion
+
+            /*
             gbuffer.Begin(camera.ViewMatrix, camera.ProjectionMatrix, 100);
                 ModelRenderer currentModelRenderer; 
                 for (int i = 0; i < ModelRenderer.ModelRendererPool.Count; i++)
@@ -158,7 +191,7 @@ namespace XNAFinalEngine.EngineCore
             gbuffer.End();
             
             SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
-            
+            */
             // Draw 2D Heads Up Display
             SpriteManager.Begin();
             {
@@ -182,10 +215,15 @@ namespace XNAFinalEngine.EngineCore
             }
             SpriteManager.End();
 
+            #region Scene Post Render Tasks
+
             if (CurrentScene != null && CurrentScene.Loaded)
             {
-                CurrentScene.Render();
+                CurrentScene.PostRenderTasks();
             }
+
+            #endregion
+
         } // Draw
 
         #endregion

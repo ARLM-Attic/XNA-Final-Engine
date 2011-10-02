@@ -379,16 +379,16 @@ namespace XNAFinalEngine.Assets
             switch (sizeType)
             {
                 case SizeType.FullScreen:
-                    width = SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth;
-                    height = SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight;
+                    width = SystemInformation.Device.PresentationParameters.BackBufferWidth;
+                    height = SystemInformation.Device.PresentationParameters.BackBufferHeight;
                     break;
                 case SizeType.HalfScreen:
-                    width = SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth / 2;
-                    height = SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight / 2;
+                    width = SystemInformation.Device.PresentationParameters.BackBufferWidth / 2;
+                    height = SystemInformation.Device.PresentationParameters.BackBufferHeight / 2;
                     break;
                 case SizeType.QuarterScreen:
-                    width = SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth / 4;
-                    height = SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight / 4;
+                    width = SystemInformation.Device.PresentationParameters.BackBufferWidth / 4;
+                    height = SystemInformation.Device.PresentationParameters.BackBufferHeight / 4;
                     break;
                 case SizeType.Square256X256:
                     width = 256;

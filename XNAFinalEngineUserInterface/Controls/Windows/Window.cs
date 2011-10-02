@@ -258,7 +258,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Render the control to the main render target.
         /// </summary>
-        internal override void Render()
+        internal override void DrawControlOntoMainTexture()
         {
 
             #region Shadow
@@ -279,7 +279,7 @@ namespace XNAFinalEngine.UserInterface
 
             #endregion
 
-            base.Render();
+            base.DrawControlOntoMainTexture();
         } // Render
 
         /// <summary>

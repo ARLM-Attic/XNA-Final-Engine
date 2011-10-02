@@ -75,7 +75,7 @@ namespace XNAFinalEngine.UserInterface
         {
             spriteBatch.Begin(SpriteSortMode.Immediate,
                               BlendState.AlphaBlend,
-                              SamplerState.PointClamp,
+                              SamplerState.LinearClamp,
                               DepthStencilState.None,
                               rasterizerState);
         } // Begin

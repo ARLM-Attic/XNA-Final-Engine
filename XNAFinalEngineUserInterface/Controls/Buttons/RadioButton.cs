@@ -86,7 +86,7 @@ namespace XNAFinalEngine.UserInterface
                 }
                 else // If the parent is the manager.
                 {
-                    foreach (Control control in UserInterfaceManager.Controls)
+                    foreach (Control control in UserInterfaceManager.RootControls)
                     {
                         if (control is RadioButton)
                         {

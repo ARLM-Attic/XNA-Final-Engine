@@ -146,13 +146,14 @@ namespace XNAFinalEngine
         private static void OnSizeChanged(object sender, EventArgs e)
         {
             // I don't want that this method is called when a device reset occurs.
+            // The device has the new value and the graphic device manager the old one.
             if (Device.PresentationParameters.BackBufferWidth != GraphicsDeviceManager.PreferredBackBufferWidth ||
                 Device.PresentationParameters.BackBufferHeight != GraphicsDeviceManager.PreferredBackBufferHeight)
             {
+                ScreenWidth = Device.PresentationParameters.BackBufferWidth;
+                ScreenHeight = Device.PresentationParameters.BackBufferHeight;
                 if (WindowSizeChanged != null)
                     WindowSizeChanged(sender, e);
-                ScreenWidth = GraphicsDeviceManager.PreferredBackBufferWidth;
-                ScreenHeight = GraphicsDeviceManager.PreferredBackBufferHeight;
             }
         } // OnClientSizeChanged
 

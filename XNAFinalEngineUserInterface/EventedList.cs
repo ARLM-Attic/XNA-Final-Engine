@@ -22,7 +22,7 @@ namespace XNAFinalEngine.UserInterface
 {
 
     /// <summary>
-    /// This list has events when an element is added or removed.
+    /// This list raise events when an element is added or removed.
     /// </summary>
     public class EventedList<T> : List<T>
     {

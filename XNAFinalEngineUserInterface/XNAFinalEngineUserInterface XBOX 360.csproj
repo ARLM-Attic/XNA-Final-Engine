@@ -100,14 +100,14 @@
     <Compile Include="Controls\Windows\ModalContainer.cs" />
     <Compile Include="Controls\Windows\Window.cs" />
     <Compile Include="EventedList.cs" />
-    <Compile Include="Events.cs" />
+    <Compile Include="EventsArgsAndHandles.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="Layout.cs" />
-    <Compile Include="Manager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderer.cs" />
     <Compile Include="Skin.cs" />
     <Compile Include="Types.cs" />
+    <Compile Include="UserInterfaceManager.cs" />
     <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup />

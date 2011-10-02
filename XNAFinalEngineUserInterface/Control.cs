@@ -254,7 +254,7 @@ namespace XNAFinalEngine.UserInterface
         #region Properties
 
         /// <summary>
-        /// List of all controls.
+        /// List of all controls, even if they are not added to the manager or another control.
         /// </summary>
         public static ControlsList ControlList { get { return controlList; } }
 
@@ -857,7 +857,8 @@ namespace XNAFinalEngine.UserInterface
             get { return stayOnTop; }
             set
             {
-                if (value && stayOnBack) stayOnBack = false;
+                if (value && stayOnBack) 
+                    stayOnBack = false;
                 stayOnTop = value;
             }
         } // StayOnTop
@@ -1394,9 +1395,9 @@ namespace XNAFinalEngine.UserInterface
             if (childrenControls != null)
             {
                 ControlsList childrenControlsAuxList = new ControlsList(childrenControls);
-                foreach (Control c in childrenControlsAuxList)
+                foreach (Control control in childrenControlsAuxList)
                 {
-                    c.Update();
+                    control.Update();
                 }
             }
         } // Update
@@ -1451,7 +1452,7 @@ namespace XNAFinalEngine.UserInterface
         /// Prepare render target and draw this control and its children in the control's render target.
         /// Later the control will be rendered into screen using this render target.
         /// </summary>
-        internal virtual void PreDrawControl()
+        internal virtual void PreDrawControlOntoOwnTexture()
         {
             if (visible && invalidated)
             {
@@ -1490,24 +1491,27 @@ namespace XNAFinalEngine.UserInterface
                     invalidated = false;
                 }
             }
-        } // PreDrawControl
+        } // PreDrawControlOntoOwnTexture
 
         /// <summary>
         /// Render the control in the main render target.
         /// </summary>
-        internal virtual void Render()
+        internal virtual void DrawControlOntoMainTexture()
         {
             if (visible && renderTarget != null)
             {
                 Renderer.Begin();
-                Renderer.Draw(renderTarget.XnaTexture, ControlAndMarginsLeftAbsoluteCoordinate, ControlAndMarginsTopAbsoluteCoordinate, new Rectangle(0, 0, ControlAndMarginsWidth, ControlAndMarginsHeight), Color.FromNonPremultiplied(255, 255, 255, Alpha));
+                    Renderer.Draw(renderTarget.XnaTexture,
+                                  ControlAndMarginsLeftAbsoluteCoordinate, ControlAndMarginsTopAbsoluteCoordinate,
+                                  new Rectangle(0, 0, ControlAndMarginsWidth, ControlAndMarginsHeight),
+                                  Color.FromNonPremultiplied(255, 255, 255, Alpha));
                 Renderer.End();
 
                 DrawDetached(this);
 
                 DrawOutline(false);
             }
-        } // Render
+        } // DrawControlOntoMainTexture
 
         /// <summary>
         /// Draw control and its children.
