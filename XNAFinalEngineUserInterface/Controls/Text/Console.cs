@@ -297,7 +297,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls["Console"]);
+            SkinInformation = new SkinControl(Skin.Controls["Console"]);
             PositionControls();
         } // InitSkin
 
@@ -307,7 +307,7 @@ namespace XNAFinalEngine.UserInterface
 
         private void ClientArea_Draw(object sender, DrawEventArgs e)
         {
-            SpriteFont font = SkinControlInformation.Layers[0].Text.Font.Font.XnaSpriteFont;
+            SpriteFont font = SkinInformation.Layers[0].Text.Font.Font.XnaSpriteFont;
             Rectangle r = new Rectangle(e.Rectangle.Left, e.Rectangle.Top, e.Rectangle.Width, e.Rectangle.Height);
             int pos = 0;
 
@@ -370,12 +370,12 @@ namespace XNAFinalEngine.UserInterface
 
                 if (textBoxVisible)
                 {
-                    ClientMargins = new Margins(SkinControlInformation.ClientMargins.Left, SkinControlInformation.ClientMargins.Top + 4, sbVert.Width + 6, textMain.Height + 4);
+                    ClientMargins = new Margins(SkinInformation.ClientMargins.Left, SkinInformation.ClientMargins.Top + 4, sbVert.Width + 6, textMain.Height + 4);
                     sbVert.Height = Height - textMain.Height - 5;
                 }
                 else
                 {
-                    ClientMargins = new Margins(SkinControlInformation.ClientMargins.Left, SkinControlInformation.ClientMargins.Top + 4, sbVert.Width + 6, 2);
+                    ClientMargins = new Margins(SkinInformation.ClientMargins.Left, SkinInformation.ClientMargins.Top + 4, sbVert.Width + 6, 2);
                     sbVert.Height = Height - 4;
                 }
                 Invalidate();
@@ -459,7 +459,7 @@ namespace XNAFinalEngine.UserInterface
         {
             if (sbVert != null)
             {
-                int line = SkinControlInformation.Layers[0].Text.Font.Font.LineSpacing;
+                int line = SkinInformation.Layers[0].Text.Font.Font.LineSpacing;
                 int c = GetFilteredBuffer(filter).Count;
                 int p = (int)Math.Ceiling(ClientArea.ClientHeight / (float)line);
 
@@ -501,4 +501,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // Console
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

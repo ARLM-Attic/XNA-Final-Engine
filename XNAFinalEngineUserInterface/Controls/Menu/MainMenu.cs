@@ -55,7 +55,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls["MainMenu"]);
+            SkinInformation = new SkinControl(Skin.Controls["MainMenu"]);
         } // InitSkin
 
         #endregion
@@ -67,8 +67,8 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected override void DrawControl(Rectangle rect)
         {
-            SkinLayer l1 = SkinControlInformation.Layers["Control"];
-            SkinLayer l2 = SkinControlInformation.Layers["Selection"];
+            SkinLayer l1 = SkinInformation.Layers["Control"];
+            SkinLayer l2 = SkinInformation.Layers["Selection"];
             rs = new Rectangle[Items.Count];
 
             Renderer.DrawLayer(this, l1, rect, ControlState.Enabled);
@@ -295,4 +295,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // MainMenu
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

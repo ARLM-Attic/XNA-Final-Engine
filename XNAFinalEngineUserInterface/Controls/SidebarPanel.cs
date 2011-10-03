@@ -27,4 +27,4 @@ namespace XNAFinalEngine.UserInterface
         } // SideBarPanel
 
     } // SideBarPanel
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

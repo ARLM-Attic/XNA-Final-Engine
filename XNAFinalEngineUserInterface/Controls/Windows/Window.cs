@@ -180,7 +180,7 @@ namespace XNAFinalEngine.UserInterface
 
             buttonClose = new Button
             {
-                SkinControlInformation = new SkinControl(Skin.Controls[skinButton]),
+                SkinInformation = new SkinControl(Skin.Controls[skinButton]),
                 Detached = true,
                 CanFocus = false,
                 Text = null,
@@ -207,26 +207,26 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void Init()
         {
             base.Init();
-            SkinLayer skinLayer = buttonClose.SkinControlInformation.Layers[layerButton];
-            buttonClose.Width  = skinLayer.Width  - buttonClose.SkinControlInformation.OriginMargins.Horizontal;
-            buttonClose.Height = skinLayer.Height - buttonClose.SkinControlInformation.OriginMargins.Vertical;
-            buttonClose.Left   = ControlAndMarginsWidth - SkinControlInformation.OriginMargins.Right - buttonClose.Width + skinLayer.OffsetX;
-            buttonClose.Top    = SkinControlInformation.OriginMargins.Top + skinLayer.OffsetY;
+            SkinLayer skinLayer = buttonClose.SkinInformation.Layers[layerButton];
+            buttonClose.Width  = skinLayer.Width  - buttonClose.SkinInformation.OriginMargins.Horizontal;
+            buttonClose.Height = skinLayer.Height - buttonClose.SkinInformation.OriginMargins.Vertical;
+            buttonClose.Left   = ControlAndMarginsWidth - SkinInformation.OriginMargins.Right - buttonClose.Width + skinLayer.OffsetX;
+            buttonClose.Top    = SkinInformation.OriginMargins.Top + skinLayer.OffsetY;
             buttonClose.Anchor = Anchors.Top | Anchors.Right;
         } // Init
 
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls[skinWindow]);
+            SkinInformation = new SkinControl(Skin.Controls[skinWindow]);
             AdjustMargins();
 
-            CheckLayer(SkinControlInformation, layerWindow);
-            CheckLayer(SkinControlInformation, layerCaption);
-            CheckLayer(SkinControlInformation, layerFrameTop);
-            CheckLayer(SkinControlInformation, layerFrameLeft);
-            CheckLayer(SkinControlInformation, layerFrameRight);
-            CheckLayer(SkinControlInformation, layerFrameBottom);
+            CheckLayer(SkinInformation, layerWindow);
+            CheckLayer(SkinInformation, layerCaption);
+            CheckLayer(SkinInformation, layerFrameTop);
+            CheckLayer(SkinInformation, layerFrameLeft);
+            CheckLayer(SkinInformation, layerFrameRight);
+            CheckLayer(SkinInformation, layerFrameBottom);
             CheckLayer(Skin.Controls[skinButton], layerButton);
             CheckLayer(Skin.Controls[skinShadow], layerShadow);
         } // InitSkin
@@ -240,7 +240,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private void ButtonClose_SkinChanged(object sender, EventArgs e)
         {
-            buttonClose.SkinControlInformation = new SkinControl(Skin.Controls[skinButton]);
+            buttonClose.SkinInformation = new SkinControl(Skin.Controls[skinButton]);
         } // ButtonClose_SkinChanged
 
         /// <summary>
@@ -287,8 +287,8 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private Rectangle GetIconRectangle()
         {
-            SkinLayer skinLayerCaption = SkinControlInformation.Layers[layerCaption];
-            SkinLayer skinLayerIcon    = SkinControlInformation.Layers[layerIcon];
+            SkinLayer skinLayerCaption = SkinInformation.Layers[layerCaption];
+            SkinLayer skinLayerIcon    = SkinInformation.Layers[layerIcon];
 
             int iconHeight = skinLayerCaption.Height - skinLayerCaption.ContentMargins.Vertical;
             return new Rectangle(DrawingRectangle.Left + skinLayerCaption.ContentMargins.Left + skinLayerIcon.OffsetX,
@@ -302,11 +302,11 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected override void DrawControl(Rectangle rect)
         {
-            SkinLayer skinLayerFrameTop    = captionVisible ? SkinControlInformation.Layers[layerCaption] : SkinControlInformation.Layers[layerFrameTop];
-            SkinLayer skinLayerFrameLeft   = SkinControlInformation.Layers[layerFrameLeft];
-            SkinLayer skinLayerFrameRight  = SkinControlInformation.Layers[layerFrameRight];
-            SkinLayer skinLayerFrameBottom = SkinControlInformation.Layers[layerFrameBottom];
-            SkinLayer skinLayerIcon        = SkinControlInformation.Layers[layerIcon];
+            SkinLayer skinLayerFrameTop    = captionVisible ? SkinInformation.Layers[layerCaption] : SkinInformation.Layers[layerFrameTop];
+            SkinLayer skinLayerFrameLeft   = SkinInformation.Layers[layerFrameLeft];
+            SkinLayer skinLayerFrameRight  = SkinInformation.Layers[layerFrameRight];
+            SkinLayer skinLayerFrameBottom = SkinInformation.Layers[layerFrameBottom];
+            SkinLayer skinLayerIcon        = SkinInformation.Layers[layerIcon];
             LayerStates layerStateFrameTop, layerStateFrameLeft, layerStateFrameRight, layerStateFrameButtom;
             SpriteFont font = skinLayerFrameTop.Text.Font.Font.XnaSpriteFont;
             Color color;
@@ -336,7 +336,7 @@ namespace XNAFinalEngine.UserInterface
                 color = skinLayerFrameTop.Text.Colors.Enabled;
             }
             // Render Background plane
-            Renderer.DrawLayer(SkinControlInformation.Layers[layerWindow], rect, SkinControlInformation.Layers[layerWindow].States.Enabled.Color, SkinControlInformation.Layers[layerWindow].States.Enabled.Index);
+            Renderer.DrawLayer(SkinInformation.Layers[layerWindow], rect, SkinInformation.Layers[layerWindow].States.Enabled.Color, SkinInformation.Layers[layerWindow].States.Enabled.Index);
             // Render border
             if (borderVisible)
             {
@@ -359,7 +359,7 @@ namespace XNAFinalEngine.UserInterface
                 int closesize = 0;
                 if (buttonClose.Visible)
                 {
-                    closesize = buttonClose.Width - (buttonClose.SkinControlInformation.Layers[layerButton].OffsetX);
+                    closesize = buttonClose.Width - (buttonClose.SkinInformation.Layers[layerButton].OffsetX);
                 }
 
                 Rectangle r = new Rectangle(rect.Left + skinLayerFrameTop.ContentMargins.Left + icosize,
@@ -434,13 +434,13 @@ namespace XNAFinalEngine.UserInterface
 
             if (captionVisible && borderVisible)
             {
-                ClientMargins = new Margins(SkinControlInformation.ClientMargins.Left,  SkinControlInformation.Layers[layerCaption].Height, 
-                                            SkinControlInformation.ClientMargins.Right, SkinControlInformation.ClientMargins.Bottom);
+                ClientMargins = new Margins(SkinInformation.ClientMargins.Left,  SkinInformation.Layers[layerCaption].Height, 
+                                            SkinInformation.ClientMargins.Right, SkinInformation.ClientMargins.Bottom);
             }
             else if (!captionVisible && borderVisible)
             {
-                ClientMargins = new Margins(SkinControlInformation.ClientMargins.Left,  SkinControlInformation.ClientMargins.Top,
-                                            SkinControlInformation.ClientMargins.Right, SkinControlInformation.ClientMargins.Bottom);
+                ClientMargins = new Margins(SkinInformation.ClientMargins.Left,  SkinInformation.ClientMargins.Top,
+                                            SkinInformation.ClientMargins.Right, SkinInformation.ClientMargins.Bottom);
             }
             else if (!borderVisible)
             {
@@ -465,7 +465,7 @@ namespace XNAFinalEngine.UserInterface
         {
             if (captionVisible && borderVisible)
             {
-                MovableArea = new Rectangle(SkinControlInformation.OriginMargins.Left, SkinControlInformation.OriginMargins.Top, Width, SkinControlInformation.Layers[layerCaption].Height - SkinControlInformation.OriginMargins.Top);
+                MovableArea = new Rectangle(SkinInformation.OriginMargins.Left, SkinInformation.OriginMargins.Top, Width, SkinInformation.Layers[layerCaption].Height - SkinInformation.OriginMargins.Top);
             }
             else if (!captionVisible)
             {
@@ -476,4 +476,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // Window
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

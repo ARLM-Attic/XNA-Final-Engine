@@ -61,7 +61,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls["RadioButton"]);
+            SkinInformation = new SkinControl(Skin.Controls["RadioButton"]);
         } // InitSkin
 
         #endregion
@@ -101,4 +101,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // RadioButton
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

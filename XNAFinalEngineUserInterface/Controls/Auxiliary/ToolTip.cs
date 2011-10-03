@@ -35,11 +35,11 @@ namespace XNAFinalEngine.UserInterface
         {
             set
             {
-                if (value && !string.IsNullOrEmpty(Text) && SkinControlInformation != null && SkinControlInformation.Layers[0] != null)
+                if (value && !string.IsNullOrEmpty(Text) && SkinInformation != null && SkinInformation.Layers[0] != null)
                 {
-                    Vector2 size = SkinControlInformation.Layers[0].Text.Font.Font.MeasureString(Text);
-                    Width = (int)size.X + SkinControlInformation.Layers[0].ContentMargins.Horizontal;
-                    Height = (int)size.Y + SkinControlInformation.Layers[0].ContentMargins.Vertical;
+                    Vector2 size = SkinInformation.Layers[0].Text.Font.Font.MeasureString(Text);
+                    Width = (int)size.X + SkinInformation.Layers[0].ContentMargins.Horizontal;
+                    Height = (int)size.Y + SkinInformation.Layers[0].ContentMargins.Vertical;
                     Left = Mouse.GetState().X;
                     Top = Mouse.GetState().Y + 24;
                     base.Visible = true;
@@ -72,7 +72,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = Skin.Controls["ToolTip"];
+            SkinInformation = Skin.Controls["ToolTip"];
         } // InitSkin
 
         #endregion
@@ -84,11 +84,11 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected override void DrawControl(Rectangle rect)
         {
-            Renderer.DrawLayer(this, SkinControlInformation.Layers[0], rect);
-            Renderer.DrawString(this, SkinControlInformation.Layers[0], Text, rect, true);
+            Renderer.DrawLayer(this, SkinInformation.Layers[0], rect);
+            Renderer.DrawString(this, SkinInformation.Layers[0], Text, rect, true);
         } // DrawControl
 
         #endregion
 
     } // ToolTip
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

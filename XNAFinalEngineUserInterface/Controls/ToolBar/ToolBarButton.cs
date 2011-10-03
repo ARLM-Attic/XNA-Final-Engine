@@ -39,10 +39,10 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls["ToolBarButton"]);
+            SkinInformation = new SkinControl(Skin.Controls["ToolBarButton"]);
         } // InitSkin
 
         #endregion
 
     } // ToolBarButton
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

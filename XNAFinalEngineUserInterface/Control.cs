@@ -61,7 +61,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// List of all controls.
         /// </summary>
-        private static ControlsList controlList = new ControlsList();
+        private static readonly ControlsList controlList = new ControlsList();
 
         /// <summary>
         /// List of all child controls.
@@ -536,9 +536,9 @@ namespace XNAFinalEngine.UserInterface
             {
                 if (parent == null)
                     return left + HorizontalScrollingAmount;
-                if (parent.SkinControlInformation == null)
+                if (parent.SkinInformation == null)
                     return parent.ControlLeftAbsoluteCoordinate + left + HorizontalScrollingAmount;
-                return parent.ControlLeftAbsoluteCoordinate + left - parent.SkinControlInformation.OriginMargins.Left + HorizontalScrollingAmount;
+                return parent.ControlLeftAbsoluteCoordinate + left - parent.SkinInformation.OriginMargins.Left + HorizontalScrollingAmount;
             }
         } // ControlLeftAbsoluteCoordinate
 
@@ -551,9 +551,9 @@ namespace XNAFinalEngine.UserInterface
             {
                 if (parent == null)
                     return top + VerticalScrollingAmount;
-                if (parent.SkinControlInformation == null)
+                if (parent.SkinInformation == null)
                     return parent.ControlTopAbsoluteCoordinate + top + VerticalScrollingAmount;
-                return parent.ControlTopAbsoluteCoordinate + top - parent.SkinControlInformation.OriginMargins.Top + VerticalScrollingAmount;
+                return parent.ControlTopAbsoluteCoordinate + top - parent.SkinInformation.OriginMargins.Top + VerticalScrollingAmount;
             }
         } // ControlTopAbsoluteCoordinate
 
@@ -1012,7 +1012,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Gets or sets the skin parameters used for rendering the control.
         /// </summary>
-        internal virtual SkinControl SkinControlInformation
+        internal virtual SkinControl SkinInformation
         {
             get { return skinControl; }
             set
@@ -1120,17 +1120,16 @@ namespace XNAFinalEngine.UserInterface
             }
             set
             {
-                if (Root != null && Root != this && !Root.Enabled && value) return;
-
+                if (Root != null && Root != this && !Root.Enabled && value) 
+                    return;
                 enabled = value;
                 Invalidate();
-
                 foreach (Control c in childrenControls)
                 {
                     c.Enabled = value;
                 }
-
-                if (!Suspended) OnEnabledChanged(new EventArgs());
+                if (!Suspended)
+                    OnEnabledChanged(new EventArgs());
             }
         } // Enabled
 
@@ -1147,8 +1146,8 @@ namespace XNAFinalEngine.UserInterface
             {
                 visible = value;
                 Invalidate();
-
-                if (!Suspended) OnVisibleChanged(new EventArgs());
+                if (!Suspended)
+                    OnVisibleChanged(new EventArgs());
             }
         } // Visible
 
@@ -1157,10 +1156,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual Control Parent
         {
-            get
-            {
-                return parent;
-            }
+            get { return parent; }
             set
             {
                 if (parent != value)
@@ -1178,21 +1174,16 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual Control Root
         {
-            get
-            {
-                return root;
-            }
+            get { return root; }
             private set
             {
                 if (root != value)
                 {
                     root = value;
-
                     foreach (Control c in childrenControls)
                     {
                         c.Root = root;
                     }
-
                     if (!Suspended) OnRootChanged(new EventArgs());
                 }
             }
@@ -1204,6 +1195,7 @@ namespace XNAFinalEngine.UserInterface
 
         #region Events
 
+        // Mouse //
         public event EventHandler Click;
         public event EventHandler DoubleClick;
         public event MouseEventHandler MouseDown;
@@ -1212,33 +1204,40 @@ namespace XNAFinalEngine.UserInterface
         public event MouseEventHandler MouseMove;
         public event MouseEventHandler MouseOver;
         public event MouseEventHandler MouseOut;
+        // Keyboard //
         public event KeyEventHandler KeyDown;
         public event KeyEventHandler KeyPress;
         public event KeyEventHandler KeyUp;
+        // Move //
         public event MoveEventHandler Move;
         public event MoveEventHandler ValidateMove;
-        public event ResizeEventHandler Resize;
-        public event ResizeEventHandler ValidateResize;
-        public event DrawEventHandler Draw;
         public event EventHandler MoveBegin;
         public event EventHandler MoveEnd;
+        // Resize //
+        public event ResizeEventHandler Resize;
+        public event ResizeEventHandler ValidateResize;
         public event EventHandler ResizeBegin;
         public event EventHandler ResizeEnd;
+        // Draw //
+        public event DrawEventHandler Draw;
+        // Focus //
+        public event EventHandler FocusLost;
+        public event EventHandler FocusGained;
+        // Properties changed //
         public event EventHandler ColorChanged;
         public event EventHandler TextColorChanged;
         public event EventHandler BackColorChanged;
         public event EventHandler TextChanged;
         public event EventHandler AnchorChanged;
-        public event EventHandler SkinChanging;
-        public event EventHandler SkinChanged;
-        public event EventHandler ParentChanged;
-        public event EventHandler RootChanged;
         public event EventHandler VisibleChanged;
         public event EventHandler EnabledChanged;
         public event EventHandler AlphaChanged;
-        public event EventHandler FocusLost;
-        public event EventHandler FocusGained;
-        public event DrawEventHandler DrawTexture;
+        // Skin//
+        public event EventHandler SkinChanging;
+        public event EventHandler SkinChanged;
+        // Parent and root
+        public event EventHandler ParentChanged;
+        public event EventHandler RootChanged;
 
         #endregion
 
@@ -1273,11 +1272,11 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Check that the skin layer exist.
         /// </summary>
-        protected void CheckLayer(SkinControl skin, string layer)
+        protected void CheckLayer(SkinControl skinControl, string layer)
         {
-            if (!(skin != null && skin.Layers != null && skin.Layers.Count > 0 && skin.Layers[layer] != null))
+            if (!(skinControl != null && skinControl.Layers != null && skinControl.Layers.Count > 0 && skinControl.Layers[layer] != null))
             {
-                throw new Exception("Unable to read skin layer \"" + layer + "\" for control \"" + Utilities.ControlTypeName(this) + "\".");
+                throw new InvalidOperationException("User Interface: Unable to read skin layer \"" + layer + "\" for control \"" + Utilities.ControlTypeName(this) + "\".");
             }
         } // CheckLayer
 
@@ -1300,13 +1299,13 @@ namespace XNAFinalEngine.UserInterface
             {
                 SkinControl _skinControl = Skin.Controls[Utilities.ControlTypeName(this)];
                 if (_skinControl != null)
-                    SkinControlInformation = new SkinControl(_skinControl);
+                    SkinInformation = new SkinControl(_skinControl);
                 else
-                    SkinControlInformation = new SkinControl(Skin.Controls["Control"]);
+                    SkinInformation = new SkinControl(Skin.Controls["Control"]);
             }
             else
             {
-                throw new Exception("Control skin cannot be initialized. No skin loaded.");
+                throw new InvalidOperationException("User Interface: Control's skin cannot be initialized. No skin loaded.");
             }
         } // InitSkin
 
@@ -1456,8 +1455,6 @@ namespace XNAFinalEngine.UserInterface
         {
             if (visible && invalidated)
             {
-                OnDrawTexture(new DrawEventArgs(new Rectangle(0, 0, ControlAndMarginsWidth, ControlAndMarginsHeight)));
-
                 if (renderTarget == null || renderTarget.Width < ControlAndMarginsWidth || renderTarget.Height < ControlAndMarginsHeight)
                 {
                     if (renderTarget != null)
@@ -2588,7 +2585,7 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region On Device Settings Changed
+        #region Handlers
 
         protected internal void OnDeviceSettingsChanged(DeviceEventArgs e)
         {
@@ -2597,10 +2594,6 @@ namespace XNAFinalEngine.UserInterface
                 Invalidate();
             }
         } // OnDeviceSettingsChanged
-
-        #endregion
-
-        #region Handlers
 
         protected virtual void OnMouseUp(MouseEventArgs e)
         {
@@ -2703,12 +2696,7 @@ namespace XNAFinalEngine.UserInterface
         {
             if (Draw != null) Draw.Invoke(this, e);
         } // OnDraw
-
-        protected void OnDrawTexture(DrawEventArgs e)
-        {
-            if (DrawTexture != null) DrawTexture.Invoke(this, e);
-        } // OnDrawTexture
-
+        
         protected virtual void OnColorChanged(EventArgs e)
         {
             if (ColorChanged != null) ColorChanged.Invoke(this, e);

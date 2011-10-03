@@ -147,14 +147,14 @@ namespace XNAFinalEngine.UserInterface
 
         private void DrawPart(Rectangle rect, BevelBorder pos, BevelStyle style, bool all)
         {
-            SkinLayer layer = SkinControlInformation.Layers["Control"];
+            SkinLayer layer = SkinInformation.Layers["Control"];
             Color c1 = Utilities.ParseColor(layer.Attributes["LightColor"].Value);
             Color c2 = Utilities.ParseColor(layer.Attributes["DarkColor"].Value);
             Color c3 = Utilities.ParseColor(layer.Attributes["FlatColor"].Value);
 
             if (Color != UndefinedColor) c3 = Color;
 
-            Texture texture = SkinControlInformation.Layers["Control"].Image.Texture;
+            Texture texture = SkinInformation.Layers["Control"].Image.Texture;
 
             int x1 = 0; int y1 = 0; int w1 = 0; int h1 = 0;
             int x2 = 0; int y2 = 0; int w2 = 0; int h2 = 0;
@@ -285,4 +285,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // Bevel
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

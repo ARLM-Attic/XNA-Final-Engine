@@ -146,7 +146,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls["Panel"]);
+            SkinInformation = new SkinControl(Skin.Controls["Panel"]);
         } // InitSkin
 
         #endregion
@@ -177,7 +177,7 @@ namespace XNAFinalEngine.UserInterface
                 if (bevelBorder == BevelBorder.Bottom || bevelBorder == BevelBorder.All)
                     b = s;
             }
-            ClientMargins = new Margins(SkinControlInformation.ClientMargins.Left + l, SkinControlInformation.ClientMargins.Top + t, SkinControlInformation.ClientMargins.Right + r, SkinControlInformation.ClientMargins.Bottom + b);
+            ClientMargins = new Margins(SkinInformation.ClientMargins.Left + l, SkinInformation.ClientMargins.Top + t, SkinInformation.ClientMargins.Right + r, SkinInformation.ClientMargins.Bottom + b);
 
             base.AdjustMargins();
         } // AdjustMargins
@@ -253,4 +253,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // Panel
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

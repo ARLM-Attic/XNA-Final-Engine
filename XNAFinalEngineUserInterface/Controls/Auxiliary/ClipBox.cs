@@ -34,4 +34,4 @@ namespace XNAFinalEngine.UserInterface
         } // ClipBox
 
     } // ClipBox
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

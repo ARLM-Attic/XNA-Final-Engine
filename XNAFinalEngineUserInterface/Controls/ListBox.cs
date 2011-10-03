@@ -123,18 +123,18 @@ namespace XNAFinalEngine.UserInterface
                 PageSize = 1,
                 StepSize = 10
             };
-            sbVert.Left = Left + Width - sbVert.Width - SkinControlInformation.Layers["Control"].ContentMargins.Right;
-            sbVert.Top = Top + SkinControlInformation.Layers["Control"].ContentMargins.Top;
-            sbVert.Height = Height - SkinControlInformation.Layers["Control"].ContentMargins.Vertical;
+            sbVert.Left = Left + Width - sbVert.Width - SkinInformation.Layers["Control"].ContentMargins.Right;
+            sbVert.Top = Top + SkinInformation.Layers["Control"].ContentMargins.Top;
+            sbVert.Height = Height - SkinInformation.Layers["Control"].ContentMargins.Vertical;
             sbVert.Anchor = Anchors.Top | Anchors.Right | Anchors.Bottom;
             
             pane = new ClipBox
             {
                 Parent = this,
-                Top = SkinControlInformation.Layers["Control"].ContentMargins.Top,
-                Left = SkinControlInformation.Layers["Control"].ContentMargins.Left,
-                Width = Width - sbVert.Width - SkinControlInformation.Layers["Control"].ContentMargins.Horizontal - 1,
-                Height = Height - SkinControlInformation.Layers["Control"].ContentMargins.Vertical,
+                Top = SkinInformation.Layers["Control"].ContentMargins.Top,
+                Left = SkinInformation.Layers["Control"].ContentMargins.Left,
+                Width = Width - sbVert.Width - SkinInformation.Layers["Control"].ContentMargins.Horizontal - 1,
+                Height = Height - SkinInformation.Layers["Control"].ContentMargins.Vertical,
                 Anchor = Anchors.All,
                 Passive = true,
                 CanFocus = false
@@ -155,19 +155,19 @@ namespace XNAFinalEngine.UserInterface
             if (maxItems < 3)
             {
                 sbVert.Visible = false;
-                pane.Width = Width - SkinControlInformation.Layers["Control"].ContentMargins.Horizontal - 1;
+                pane.Width = Width - SkinInformation.Layers["Control"].ContentMargins.Horizontal - 1;
             }
             else
             {
-                pane.Width = Width - sbVert.Width - SkinControlInformation.Layers["Control"].ContentMargins.Horizontal - 1;
+                pane.Width = Width - sbVert.Width - SkinInformation.Layers["Control"].ContentMargins.Horizontal - 1;
                 sbVert.Visible = true;
             }
 
-            SkinText font = SkinControlInformation.Layers["Control"].Text;
+            SkinText font = SkinInformation.Layers["Control"].Text;
             if (items != null && items.Count > 0)
             {
                 int h = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
-                Height = (h * maxItems) + (SkinControlInformation.Layers["Control"].ContentMargins.Vertical);// - Skin.OriginMargins.Vertical);
+                Height = (h * maxItems) + (SkinInformation.Layers["Control"].ContentMargins.Vertical);// - Skin.OriginMargins.Vertical);
             }
             else
             {
@@ -193,8 +193,8 @@ namespace XNAFinalEngine.UserInterface
         {
             if (items != null && items.Count > 0)
             {
-                SkinText font = SkinControlInformation.Layers["Control"].Text;
-                SkinLayer sel = SkinControlInformation.Layers["ListBox.Selection"];
+                SkinText font = SkinInformation.Layers["Control"].Text;
+                SkinLayer sel = SkinInformation.Layers["ListBox.Selection"];
                 int h = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
                 int v = (sbVert.Value / 10);
                 int p = (sbVert.PageSize / 10);
@@ -206,7 +206,7 @@ namespace XNAFinalEngine.UserInterface
                 {
                     if (i < c)
                     {
-                        Renderer.DrawString(this, SkinControlInformation.Layers["Control"], items[i].ToString(), new Rectangle(e.Rectangle.Left, e.Rectangle.Top - d + ((i - v) * h), e.Rectangle.Width, h), false);
+                        Renderer.DrawString(this, SkinInformation.Layers["Control"], items[i].ToString(), new Rectangle(e.Rectangle.Left, e.Rectangle.Top - d + ((i - v) * h), e.Rectangle.Width, h), false);
                     }
                 }
                 if (s >= 0 && s < c && (Focused || !hideSelection))
@@ -244,7 +244,7 @@ namespace XNAFinalEngine.UserInterface
         {
             if (items != null && items.Count > 0 && (pane.ControlRectangleRelativeToParent.Contains(new Point(x, y))))
             {
-                SkinText font = SkinControlInformation.Layers["Control"].Text;
+                SkinText font = SkinInformation.Layers["Control"].Text;
                 int h = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
                 int i = (int)Math.Floor((sbVert.Value / 10f) + ((float)y / h));
                 if (i >= 0 && i < Items.Count && i >= (int)Math.Floor((float)sbVert.Value / 10f) && i < (int)Math.Ceiling((float)(sbVert.Value + sbVert.PageSize) / 10f)) ItemIndex = i;
@@ -260,10 +260,10 @@ namespace XNAFinalEngine.UserInterface
         {
             if (items != null && items.Count > 0)
             {
-                SkinText font = SkinControlInformation.Layers["Control"].Text;
+                SkinText font = SkinInformation.Layers["Control"].Text;
                 int h = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
 
-                int sizev = Height - SkinControlInformation.Layers["Control"].ContentMargins.Vertical;
+                int sizev = Height - SkinInformation.Layers["Control"].ContentMargins.Vertical;
                 sbVert.Range = items.Count * 10;
                 sbVert.PageSize = (int)Math.Floor((float)sizev * 10 / h);
                 Invalidate();
@@ -382,4 +382,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // ListBox
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

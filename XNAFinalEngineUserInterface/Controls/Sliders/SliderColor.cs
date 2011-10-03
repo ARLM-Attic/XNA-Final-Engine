@@ -400,4 +400,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // SliderColor
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

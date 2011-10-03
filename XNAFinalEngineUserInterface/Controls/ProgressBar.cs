@@ -182,15 +182,15 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected override void DrawControl(Rectangle rect)
         {
-            CheckLayer(SkinControlInformation, "Control");
-            CheckLayer(SkinControlInformation, "Scale");
+            CheckLayer(SkinInformation, "Control");
+            CheckLayer(SkinInformation, "Scale");
 
             base.DrawControl(rect);
 
             if (Value > 0 || mode == ProgressBarMode.Infinite)
             {
-                SkinLayer p = SkinControlInformation.Layers["Control"];
-                SkinLayer l = SkinControlInformation.Layers["Scale"];
+                SkinLayer p = SkinInformation.Layers["Control"];
+                SkinLayer l = SkinInformation.Layers["Scale"];
                 Rectangle r = new Rectangle(rect.Left + p.ContentMargins.Left,
                                             rect.Top + p.ContentMargins.Top,
                                             rect.Width - p.ContentMargins.Vertical,
@@ -267,4 +267,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // ProgressBar
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

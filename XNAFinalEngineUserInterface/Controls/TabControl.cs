@@ -141,8 +141,8 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected override void DrawControl(Rectangle rect)
         {
-            SkinLayer l1 = SkinControlInformation.Layers["Control"];
-            SkinLayer l2 = SkinControlInformation.Layers["Header"];
+            SkinLayer l1 = SkinInformation.Layers["Control"];
+            SkinLayer l2 = SkinInformation.Layers["Header"];
             Color col = Color != UndefinedColor ? Color : Color.White;
 
             Rectangle r1 = new Rectangle(rect.Left, rect.Top + l1.OffsetY, rect.Width, rect.Height - l1.OffsetY);
@@ -298,4 +298,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // TabControl
-} //  XNAFinalEngine.UI
+} //  XNAFinalEngine.UserInterface

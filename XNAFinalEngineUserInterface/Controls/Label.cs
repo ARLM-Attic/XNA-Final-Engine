@@ -83,11 +83,11 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected override void DrawControl(Rectangle rect)
         {
-            SkinLayer skinLayer = SkinControlInformation.Layers[0];
+            SkinLayer skinLayer = SkinInformation.Layers[0];
             Renderer.DrawString(this, skinLayer, Text, rect, true, 0, 0, ellipsis);
         } // DrawControl
 
         #endregion
 
     } // Label
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

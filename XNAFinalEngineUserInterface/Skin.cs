@@ -613,6 +613,9 @@ namespace XNAFinalEngine.UserInterface
             }
 
             #endregion
+            
+            // We don't want that other code mess with the skin's content manager.
+            ContentManager.CurrentContentManager = null;
 
         } // LoadSkin
 

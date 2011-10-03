@@ -607,7 +607,7 @@ namespace XNAFinalEngineExamples
                 tmp.Closing += WindowClosing;
                 tmp.Closed += WindowClosed;
                 UserInterfaceManager.Add(tmp);
-                //tmp.ShowModal();
+                tmp.ShowModal();
             }
             else if (sender == btnTasks[2])
             {

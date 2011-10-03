@@ -21,8 +21,8 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls["SideBar"]);
+            SkinInformation = new SkinControl(Skin.Controls["SideBar"]);
         } // InitSkin
 
     } // SideBar
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

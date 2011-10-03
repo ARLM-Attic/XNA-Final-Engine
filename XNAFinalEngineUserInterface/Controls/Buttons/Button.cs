@@ -138,7 +138,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls["Button"]);
+            SkinInformation = new SkinControl(Skin.Controls["Button"]);
         } // InitSkin
 
         #endregion
@@ -152,7 +152,7 @@ namespace XNAFinalEngine.UserInterface
         {
             if (mode == ButtonMode.PushButton && pushed)
             {
-                SkinLayer l = SkinControlInformation.Layers["Control"];
+                SkinLayer l = SkinInformation.Layers["Control"];
                 Renderer.DrawLayer(l, rect, l.States.Pressed.Color, l.States.Pressed.Index);
                 if (l.States.Pressed.Overlay)
                 {
@@ -164,7 +164,7 @@ namespace XNAFinalEngine.UserInterface
                 base.DrawControl(rect);
             }
 
-            SkinLayer layer = SkinControlInformation.Layers["Control"];
+            SkinLayer layer = SkinInformation.Layers["Control"];
             int ox = 0; int oy = 0;
 
             if (ControlState == ControlState.Pressed)
@@ -227,4 +227,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // Button
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

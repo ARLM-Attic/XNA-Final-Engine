@@ -82,4 +82,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // StackPanel
-} //  XNAFinalEngine.UI
+} //  XNAFinalEngine.UserInterface

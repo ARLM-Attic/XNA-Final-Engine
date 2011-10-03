@@ -603,7 +603,7 @@ namespace XNAFinalEngine.UserInterface
                                              parent.Width,
                                              parent.Height);
 
-                Margins margins = root.SkinControlInformation.ClientMargins;
+                Margins margins = root.SkinInformation.ClientMargins;
                 Rectangle rr = new Rectangle(root.ControlLeftAbsoluteCoordinate + margins.Left,
                                              root.ControlTopAbsoluteCoordinate + margins.Top,
                                              root.ControlAndMarginsWidth - margins.Horizontal,
@@ -697,8 +697,8 @@ namespace XNAFinalEngine.UserInterface
 
         private static void ProcessArrows(Control control, KeyEventArgs kbe)
         {
-            Control c = control;
-            if (c.Parent != null && c.Parent.ChildrenControls != null)
+            //Control control = control;
+            if (control.Parent != null && control.Parent.ChildrenControls != null)
             {
                 int index = -1;
 
@@ -706,15 +706,15 @@ namespace XNAFinalEngine.UserInterface
                 {
                     int miny = int.MaxValue;
                     int minx = int.MinValue;
-                    for (int i = 0; i < ((ControlsList)c.Parent.ChildrenControls).Count; i++)
+                    for (int i = 0; i < ((ControlsList)control.Parent.ChildrenControls).Count; i++)
                     {
-                        Control cx = (c.Parent.ChildrenControls as ControlsList)[i];
-                        if (cx == c || !cx.Visible || !cx.Enabled || cx.Passive || !cx.CanFocus) continue;
+                        Control cx = (control.Parent.ChildrenControls as ControlsList)[i];
+                        if (cx == control || !cx.Visible || !cx.Enabled || cx.Passive || !cx.CanFocus) continue;
 
-                        int cay = c.Top + (c.Height / 2);
+                        int cay = control.Top + (control.Height / 2);
                         int cby = cx.Top + (cx.Height / 2);
 
-                        if (Math.Abs(cay - cby) <= miny && (cx.Left + cx.Width) >= minx && (cx.Left + cx.Width) <= c.Left)
+                        if (Math.Abs(cay - cby) <= miny && (cx.Left + cx.Width) >= minx && (cx.Left + cx.Width) <= control.Left)
                         {
                             miny = Math.Abs(cay - cby);
                             minx = cx.Left + cx.Width;
@@ -726,15 +726,15 @@ namespace XNAFinalEngine.UserInterface
                 {
                     int miny = int.MaxValue;
                     int minx = int.MaxValue;
-                    for (int i = 0; i < ((ControlsList)c.Parent.ChildrenControls).Count; i++)
+                    for (int i = 0; i < ((ControlsList)control.Parent.ChildrenControls).Count; i++)
                     {
-                        Control cx = ((ControlsList)c.Parent.ChildrenControls)[i];
-                        if (cx == c || !cx.Visible || !cx.Enabled || cx.Passive || !cx.CanFocus) continue;
+                        Control cx = ((ControlsList)control.Parent.ChildrenControls)[i];
+                        if (cx == control || !cx.Visible || !cx.Enabled || cx.Passive || !cx.CanFocus) continue;
 
-                        int cay = c.Top + (c.Height / 2);
+                        int cay = control.Top + (control.Height / 2);
                         int cby = cx.Top + (cx.Height / 2);
 
-                        if (Math.Abs(cay - cby) <= miny && cx.Left <= minx && cx.Left >= (c.Left + c.Width))
+                        if (Math.Abs(cay - cby) <= miny && cx.Left <= minx && cx.Left >= (control.Left + control.Width))
                         {
                             miny = Math.Abs(cay - cby);
                             minx = cx.Left;
@@ -746,15 +746,15 @@ namespace XNAFinalEngine.UserInterface
                 {
                     int miny = int.MinValue;
                     int minx = int.MaxValue;
-                    for (int i = 0; i < (c.Parent.ChildrenControls).Count; i++)
+                    for (int i = 0; i < (control.Parent.ChildrenControls).Count; i++)
                     {
-                        Control cx = (c.Parent.ChildrenControls)[i];
-                        if (cx == c || !cx.Visible || !cx.Enabled || cx.Passive || !cx.CanFocus) continue;
+                        Control cx = (control.Parent.ChildrenControls)[i];
+                        if (cx == control || !cx.Visible || !cx.Enabled || cx.Passive || !cx.CanFocus) continue;
 
-                        int cax = c.Left + (c.Width / 2);
+                        int cax = control.Left + (control.Width / 2);
                         int cbx = cx.Left + (cx.Width / 2);
 
-                        if (Math.Abs(cax - cbx) <= minx && (cx.Top + cx.Height) >= miny && (cx.Top + cx.Height) <= c.Top)
+                        if (Math.Abs(cax - cbx) <= minx && (cx.Top + cx.Height) >= miny && (cx.Top + cx.Height) <= control.Top)
                         {
                             minx = Math.Abs(cax - cbx);
                             miny = cx.Top + cx.Height;
@@ -766,15 +766,15 @@ namespace XNAFinalEngine.UserInterface
                 {
                     int miny = int.MaxValue;
                     int minx = int.MaxValue;
-                    for (int i = 0; i < (c.Parent.ChildrenControls).Count; i++)
+                    for (int i = 0; i < (control.Parent.ChildrenControls).Count; i++)
                     {
-                        Control cx = (c.Parent.ChildrenControls)[i];
-                        if (cx == c || !cx.Visible || !cx.Enabled || cx.Passive || !cx.CanFocus) continue;
+                        Control cx = (control.Parent.ChildrenControls)[i];
+                        if (cx == control || !cx.Visible || !cx.Enabled || cx.Passive || !cx.CanFocus) continue;
 
-                        int cax = c.Left + (c.Width / 2);
+                        int cax = control.Left + (control.Width / 2);
                         int cbx = cx.Left + (cx.Width / 2);
 
-                        if (Math.Abs(cax - cbx) <= minx && cx.Top <= miny && cx.Top >= (c.Top + c.Height))
+                        if (Math.Abs(cax - cbx) <= minx && cx.Top <= miny && cx.Top >= (control.Top + control.Height))
                         {
                             minx = Math.Abs(cax - cbx);
                             miny = cx.Top;
@@ -785,7 +785,7 @@ namespace XNAFinalEngine.UserInterface
 
                 if (index != -1)
                 {
-                    ((ControlsList)c.Parent.ChildrenControls)[index].Focused = true;
+                    control.Parent.ChildrenControls[index].Focused = true;
                     kbe.Handled = true;
                 }
             }
@@ -793,8 +793,8 @@ namespace XNAFinalEngine.UserInterface
 
         private static void MouseDownProcess(object sender, MouseEventArgs e)
         {
-            ControlsList c = new ControlsList();
-            c.AddRange(OrderList);
+            ControlsList controlList = new ControlsList();
+            controlList.AddRange(OrderList);
 
             if (AutoUnfocus && focusedControl != null && focusedControl.Root != modalWindow)
             {
@@ -810,12 +810,12 @@ namespace XNAFinalEngine.UserInterface
                 if (!hit) focusedControl.Focused = false;
             }
 
-            for (int i = c.Count - 1; i >= 0; i--)
+            for (int i = controlList.Count - 1; i >= 0; i--)
             {
-                if (CheckState(c[i]) && CheckPosition(c[i], e.Position))
+                if (CheckState(controlList[i]) && CheckPosition(controlList[i], e.Position))
                 {
-                    states.Buttons[(int)e.Button] = c[i];
-                    c[i].SendMessage(Message.MouseDown, e);
+                    states.Buttons[(int)e.Button] = controlList[i];
+                    controlList[i].SendMessage(Message.MouseDown, e);
 
                     if (states.Click == -1)
                     {
@@ -825,7 +825,7 @@ namespace XNAFinalEngine.UserInterface
                         {
                             FocusedControl.Invalidate();
                         }
-                        c[i].Focused = true;
+                        controlList[i].Focused = true;
                     }
                     return;
                 }
@@ -843,15 +843,15 @@ namespace XNAFinalEngine.UserInterface
 
         private static void MouseUpProcess(object sender, MouseEventArgs e)
         {
-            Control c = states.Buttons[(int)e.Button];
-            if (c != null)
+            Control control = states.Buttons[(int)e.Button];
+            if (control != null)
             {
-                if (CheckPosition(c, e.Position) && CheckOrder(c, e.Position) && states.Click == (int)e.Button && CheckButtons((int)e.Button))
+                if (CheckPosition(control, e.Position) && CheckOrder(control, e.Position) && states.Click == (int)e.Button && CheckButtons((int)e.Button))
                 {
-                    c.SendMessage(Message.Click, e);
+                    control.SendMessage(Message.Click, e);
                 }
                 states.Click = -1;
-                c.SendMessage(Message.MouseUp, e);
+                control.SendMessage(Message.MouseUp, e);
                 states.Buttons[(int)e.Button] = null;
                 MouseMoveProcess(sender, e);
             }
@@ -859,124 +859,125 @@ namespace XNAFinalEngine.UserInterface
 
         private static void MousePressProcess(object sender, MouseEventArgs e)
         {
-            Control c = states.Buttons[(int)e.Button];
-            if (c != null)
+            Control control = states.Buttons[(int)e.Button];
+            if (control != null)
             {
-                if (CheckPosition(c, e.Position))
+                if (CheckPosition(control, e.Position))
                 {
-                    c.SendMessage(Message.MousePress, e);
+                    control.SendMessage(Message.MousePress, e);
                 }
             }
         } // MousePressProcess
 
         private static void MouseMoveProcess(object sender, MouseEventArgs e)
         {
-            ControlsList c = new ControlsList();
-            c.AddRange(OrderList);
+            ControlsList controlList = new ControlsList();
+            controlList.AddRange(OrderList);
 
-            for (int i = c.Count - 1; i >= 0; i--)
+            for (int i = controlList.Count - 1; i >= 0; i--)
             {
-                bool chpos = CheckPosition(c[i], e.Position);
-                bool chsta = CheckState(c[i]);
+                bool chpos = CheckPosition(controlList[i], e.Position);
+                bool chsta = CheckState(controlList[i]);
 
-                if (chsta && ((chpos && states.Over == c[i]) || (states.Buttons[(int)e.Button] == c[i])))
+                if (chsta && ((chpos && states.Over == controlList[i]) || (states.Buttons[(int)e.Button] == controlList[i])))
                 {
-                    c[i].SendMessage(Message.MouseMove, e);
+                    controlList[i].SendMessage(Message.MouseMove, e);
                     break;
                 }
             }
 
-            for (int i = c.Count - 1; i >= 0; i--)
+            for (int i = controlList.Count - 1; i >= 0; i--)
             {
-                bool chpos = CheckPosition(c[i], e.Position);
-                bool chsta = CheckState(c[i]) || (!string.IsNullOrEmpty(c[i].ToolTip.Text) && c[i].Visible);
+                bool chpos = CheckPosition(controlList[i], e.Position);
+                bool chsta = CheckState(controlList[i]) || (!string.IsNullOrEmpty(controlList[i].ToolTip.Text) && controlList[i].Visible);
 
-                if (chsta && !chpos && states.Over == c[i] && states.Buttons[(int)e.Button] == null)
+                if (chsta && !chpos && states.Over == controlList[i] && states.Buttons[(int)e.Button] == null)
                 {
                     states.Over = null;
-                    c[i].SendMessage(Message.MouseOut, e);
+                    controlList[i].SendMessage(Message.MouseOut, e);
                     break;
                 }
             }
 
-            for (int i = c.Count - 1; i >= 0; i--)
+            for (int i = controlList.Count - 1; i >= 0; i--)
             {
-                bool chpos = CheckPosition(c[i], e.Position);
-                bool chsta = CheckState(c[i]) || (!string.IsNullOrEmpty(c[i].ToolTip.Text) && c[i].Visible);
+                bool chpos = CheckPosition(controlList[i], e.Position);
+                bool chsta = CheckState(controlList[i]) || (!string.IsNullOrEmpty(controlList[i].ToolTip.Text) && controlList[i].Visible);
 
-                if (chsta && chpos && states.Over != c[i] && states.Buttons[(int)e.Button] == null)
+                if (chsta && chpos && states.Over != controlList[i] && states.Buttons[(int)e.Button] == null)
                 {
                     if (states.Over != null)
                     {
                         states.Over.SendMessage(Message.MouseOut, e);
                     }
-                    states.Over = c[i];
-                    c[i].SendMessage(Message.MouseOver, e);
+                    states.Over = controlList[i];
+                    controlList[i].SendMessage(Message.MouseOver, e);
                     break;
                 }
-                if (states.Over == c[i]) break;
+                if (states.Over == controlList[i])
+                    break;
             }
         } // MouseMoveProcess
 
         private static void KeyDownProcess(object sender, KeyEventArgs e)
         {
-            Control c = FocusedControl;
+            Control focusedControl = FocusedControl;
 
-            if (c != null && CheckState(c))
+            if (focusedControl != null && CheckState(focusedControl))
             {
                 if (states.Click == -1)
                 {
                     states.Click = (int)MouseButton.None;
                 }
-                states.Buttons[(int)MouseButton.None] = c;
-                c.SendMessage(Message.KeyDown, e);
+                states.Buttons[(int)MouseButton.None] = focusedControl;
+                focusedControl.SendMessage(Message.KeyDown, e);
 
                 if (e.Key == Microsoft.Xna.Framework.Input.Keys.Enter)
                 {
-                    c.SendMessage(Message.Click, new MouseEventArgs(new MouseState(), MouseButton.None, Point.Zero));
+                    focusedControl.SendMessage(Message.Click, new MouseEventArgs(new MouseState(), MouseButton.None, Point.Zero));
                 }
             }
         } // KeyDownProcess
 
         private static void KeyUpProcess(object sender, KeyEventArgs e)
         {
-            Control c = states.Buttons[(int)MouseButton.None];
+            Control control = states.Buttons[(int)MouseButton.None];
 
-            if (c != null)
+            if (control != null)
             {
                 if (e.Key == Microsoft.Xna.Framework.Input.Keys.Space)
                 {
-                    c.SendMessage(Message.Click, new MouseEventArgs(new MouseState(), MouseButton.None, Point.Zero));
+                    control.SendMessage(Message.Click, new MouseEventArgs(new MouseState(), MouseButton.None, Point.Zero));
                 }
                 states.Click = -1;
                 states.Buttons[(int)MouseButton.None] = null;
-                c.SendMessage(Message.KeyUp, e);
+                control.SendMessage(Message.KeyUp, e);
             }
         } // KeyUpProcess
 
         private static void KeyPressProcess(object sender, KeyEventArgs e)
         {
-            Control c = states.Buttons[(int)MouseButton.None];
-            if (c != null)
+            Control control = states.Buttons[(int)MouseButton.None];
+            if (control != null)
             {
-                c.SendMessage(Message.KeyPress, e);
+                control.SendMessage(Message.KeyPress, e);
 
                 if ((e.Key == Microsoft.Xna.Framework.Input.Keys.Right ||
                      e.Key == Microsoft.Xna.Framework.Input.Keys.Left ||
                      e.Key == Microsoft.Xna.Framework.Input.Keys.Up ||
                      e.Key == Microsoft.Xna.Framework.Input.Keys.Down) && !e.Handled && CheckButtons((int)MouseButton.None))
                 {
-                    ProcessArrows(c, e);
+                    ProcessArrows(control, e);
                     KeyDownProcess(sender, e);
                 }
                 else if (e.Key == Microsoft.Xna.Framework.Input.Keys.Tab && !e.Shift && !e.Handled && CheckButtons((int)MouseButton.None))
                 {
-                    TabNextControl(c);
+                    TabNextControl(control);
                     KeyDownProcess(sender, e);
                 }
                 else if (e.Key == Microsoft.Xna.Framework.Input.Keys.Tab && e.Shift && !e.Handled && CheckButtons((int)MouseButton.None))
                 {
-                    TabPrevControl(c);
+                    TabPrevControl(control);
                     KeyDownProcess(sender, e);
                 }
             }

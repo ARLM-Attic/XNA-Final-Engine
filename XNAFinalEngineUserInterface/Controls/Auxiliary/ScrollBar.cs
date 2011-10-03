@@ -211,35 +211,35 @@ namespace XNAFinalEngine.UserInterface
         {
             base.Init();
 
-            SkinControl sc = new SkinControl(buttonPlus.SkinControlInformation);
-            sc.Layers["Control"] = new SkinLayer(SkinControlInformation.Layers[skinButton]);
+            SkinControl sc = new SkinControl(buttonPlus.SkinInformation);
+            sc.Layers["Control"] = new SkinLayer(SkinInformation.Layers[skinButton]);
             sc.Layers[skinButton].Name = "Control";
-            buttonPlus.SkinControlInformation = buttonMinus.SkinControlInformation = sc;
+            buttonPlus.SkinInformation = buttonMinus.SkinInformation = sc;
 
-            SkinControl ss = new SkinControl(buttonSlider.SkinControlInformation);
-            ss.Layers["Control"] = new SkinLayer(SkinControlInformation.Layers[skinSlider]);
+            SkinControl ss = new SkinControl(buttonSlider.SkinInformation);
+            ss.Layers["Control"] = new SkinLayer(SkinInformation.Layers[skinSlider]);
             ss.Layers[skinSlider].Name = "Control";
-            buttonSlider.SkinControlInformation = ss;
+            buttonSlider.SkinInformation = ss;
 
-            buttonMinus.Glyph = new Glyph(SkinControlInformation.Layers[skinMinus].Image.Texture)
+            buttonMinus.Glyph = new Glyph(SkinInformation.Layers[skinMinus].Image.Texture)
             {
                 SizeMode = SizeMode.Centered,
                 Color = Skin.Controls["Button"].Layers["Control"].Text.Colors.Enabled
             };
 
-            buttonPlus.Glyph = new Glyph(SkinControlInformation.Layers[skinPlus].Image.Texture)
+            buttonPlus.Glyph = new Glyph(SkinInformation.Layers[skinPlus].Image.Texture)
             {
                 SizeMode = SizeMode.Centered,
                 Color = Skin.Controls["Button"].Layers["Control"].Text.Colors.Enabled
             };
 
-            buttonSlider.Glyph = new Glyph(SkinControlInformation.Layers[skinGlyph].Image.Texture) { SizeMode = SizeMode.Centered };
+            buttonSlider.Glyph = new Glyph(SkinInformation.Layers[skinGlyph].Image.Texture) { SizeMode = SizeMode.Centered };
         } // Init
 
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls["ScrollBar"]);
+            SkinInformation = new SkinControl(Skin.Controls["ScrollBar"]);
         } // InitSkin
 
         #endregion
@@ -253,7 +253,7 @@ namespace XNAFinalEngine.UserInterface
         {
             RecalculateParameters();
 
-            SkinLayer bg = SkinControlInformation.Layers[skinRail];
+            SkinLayer bg = SkinInformation.Layers[skinRail];
             Renderer.DrawLayer(bg, rect, Color.White, bg.States.Enabled.Index);
         } // DrawControl
 
@@ -300,7 +300,7 @@ namespace XNAFinalEngine.UserInterface
                     buttonPlus.Top = 0;
 
                     buttonSlider.Movable = true;
-                    int size = buttonMinus.Width + SkinControlInformation.Layers[skinSlider].OffsetX;
+                    int size = buttonMinus.Width + SkinInformation.Layers[skinSlider].OffsetX;
 
                     buttonSlider.MinimumWidth = Height;
                     int w = (Width - 2 * size);
@@ -324,7 +324,7 @@ namespace XNAFinalEngine.UserInterface
                     buttonPlus.Top = Height - Width;
 
                     buttonSlider.Movable = true;
-                    int size = buttonMinus.Height + SkinControlInformation.Layers[skinSlider].OffsetY;
+                    int size = buttonMinus.Height + SkinInformation.Layers[skinSlider].OffsetY;
 
                     buttonSlider.MinimumHeight = Width;
                     int h = (Height - 2 * size);
@@ -348,14 +348,14 @@ namespace XNAFinalEngine.UserInterface
         {
             if (orientation == Orientation.Horizontal)
             {
-                int size = buttonMinus.Width + SkinControlInformation.Layers[skinSlider].OffsetX;
+                int size = buttonMinus.Width + SkinInformation.Layers[skinSlider].OffsetX;
                 buttonSlider.SetPosition(e.Left, 0);
                 if (buttonSlider.Left < size) buttonSlider.SetPosition(size, 0);
                 if (buttonSlider.Left + buttonSlider.Width + size > Width) buttonSlider.SetPosition(Width - size - buttonSlider.Width, 0);
             }
             else
             {
-                int size = buttonMinus.Height + SkinControlInformation.Layers[skinSlider].OffsetY;
+                int size = buttonMinus.Height + SkinInformation.Layers[skinSlider].OffsetY;
                 buttonSlider.SetPosition(0, e.Top);
                 if (buttonSlider.Top < size) buttonSlider.SetPosition(0, size);
                 if (buttonSlider.Top + buttonSlider.Height + size > Height) buttonSlider.SetPosition(0, Height - size - buttonSlider.Height);
@@ -363,14 +363,14 @@ namespace XNAFinalEngine.UserInterface
 
             if (orientation == Orientation.Horizontal)
             {
-                int size = buttonMinus.Width + SkinControlInformation.Layers[skinSlider].OffsetX;
+                int size = buttonMinus.Width + SkinInformation.Layers[skinSlider].OffsetX;
                 int w = (Width - 2 * size) - buttonSlider.Width;
                 float px = (float)(Range - PageSize) / (float)w;
                 Value = (int)(Math.Ceiling((buttonSlider.Left - size) * px));
             }
             else
             {
-                int size = buttonMinus.Height + SkinControlInformation.Layers[skinSlider].OffsetY;
+                int size = buttonMinus.Height + SkinInformation.Layers[skinSlider].OffsetY;
                 int h = (Height - 2 * size) - buttonSlider.Height;
                 float px = (float)(Range - PageSize) / (float)h;
                 Value = (int)(Math.Ceiling((buttonSlider.Top - size) * px));
@@ -462,4 +462,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // ScrollBar
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

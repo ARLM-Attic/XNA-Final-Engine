@@ -61,8 +61,8 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public GroupBox()
         {
-            CheckLayer(SkinControlInformation, "Control");
-            CheckLayer(SkinControlInformation, "Flat");
+            CheckLayer(SkinInformation, "Control");
+            CheckLayer(SkinInformation, "Flat");
 
             CanFocus = false;
             Passive = true;
@@ -80,7 +80,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected override void DrawControl(Rectangle rect)
         {
-            SkinLayer layer = type == GroupBoxType.Normal ? SkinControlInformation.Layers["Control"] : SkinControlInformation.Layers["Flat"];
+            SkinLayer layer = type == GroupBoxType.Normal ? SkinInformation.Layers["Control"] : SkinInformation.Layers["Flat"];
             SpriteFont font = layer.Text.Font.Font.XnaSpriteFont;
             Point offset = new Point(layer.Text.OffsetX, layer.Text.OffsetY);
             Vector2 size = font.MeasureString(Text);
@@ -100,4 +100,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // GroupBox
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

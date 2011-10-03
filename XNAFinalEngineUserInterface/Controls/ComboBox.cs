@@ -161,7 +161,7 @@ namespace XNAFinalEngine.UserInterface
 
             buttonDown = new Button
             {
-                SkinControlInformation = new SkinControl(Skin.Controls["ComboBox.Button"]),
+                SkinInformation = new SkinControl(Skin.Controls["ComboBox.Button"]),
                 CanFocus = false
             };
             buttonDown.Click += ButtonDownClick;
@@ -205,7 +205,7 @@ namespace XNAFinalEngine.UserInterface
             listCombo.FocusLost += ListComboFocusLost;
             UserInterfaceManager.InputSystem.MouseDown += InputMouseDown;
 
-            listCombo.SkinControlInformation = new SkinControl(Skin.Controls["ComboBox.ListBox"]);
+            listCombo.SkinInformation = new SkinControl(Skin.Controls["ComboBox.ListBox"]);
             buttonDown.Glyph = new Glyph(Skin.Images["Shared.ArrowDown"].Texture)
             {
                 Color =
@@ -218,7 +218,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls["ComboBox"]);
+            SkinInformation = new SkinControl(Skin.Controls["ComboBox"]);
             AdjustMargins();
             ReadOnly = ReadOnly; // To init the right cursor
         } // InitSkin
@@ -236,7 +236,7 @@ namespace XNAFinalEngine.UserInterface
 
             if (ReadOnly && (Focused || listCombo.Focused) && drawSelection)
             {
-                SkinLayer lr = SkinControlInformation.Layers[0];
+                SkinLayer lr = SkinInformation.Layers[0];
                 Rectangle rc = new Rectangle(rect.Left + lr.ContentMargins.Left,
                                              rect.Top + lr.ContentMargins.Top,
                                              Width - lr.ContentMargins.Horizontal - buttonDown.Width,
@@ -256,8 +256,8 @@ namespace XNAFinalEngine.UserInterface
             if (buttonDown != null)
             {
                 buttonDown.Width = 16;
-                buttonDown.Height = Height - SkinControlInformation.Layers[0].ContentMargins.Vertical;
-                buttonDown.Top = SkinControlInformation.Layers[0].ContentMargins.Top;
+                buttonDown.Height = Height - SkinInformation.Layers[0].ContentMargins.Vertical;
+                buttonDown.Top = SkinInformation.Layers[0].ContentMargins.Top;
                 buttonDown.Left = Width - buttonDown.Width - 2;
             }
         } // OnResize
@@ -396,4 +396,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // ComboBox
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

@@ -68,7 +68,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public CheckBox()
         {
-            CheckLayer(SkinControlInformation, "Control");
+            CheckLayer(SkinInformation, "Control");
 
             Width = 64;
             Height = 16;
@@ -81,7 +81,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls["CheckBox"]);
+            SkinInformation = new SkinControl(Skin.Controls["CheckBox"]);
         } // InitSkin
 
         #endregion
@@ -93,11 +93,11 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected override void DrawControl(Rectangle rect)
         {
-            SkinLayer layer = SkinControlInformation.Layers["Checked"];
+            SkinLayer layer = SkinInformation.Layers["Checked"];
 
             if (!isChecked)
             {
-                layer = SkinControlInformation.Layers["Control"];
+                layer = SkinInformation.Layers["Control"];
             }
 
             rect.Width = layer.Width;
@@ -135,4 +135,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // CheckBox
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

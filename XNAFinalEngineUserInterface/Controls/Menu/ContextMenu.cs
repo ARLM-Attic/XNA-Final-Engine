@@ -73,7 +73,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls["ContextMenu"]);
+            SkinInformation = new SkinControl(Skin.Controls["ContextMenu"]);
         } // InitSkin
 
         #endregion
@@ -87,8 +87,8 @@ namespace XNAFinalEngine.UserInterface
         {
             base.DrawControl(rect);
 
-            SkinLayer l1 = SkinControlInformation.Layers["Control"];
-            SkinLayer l2 = SkinControlInformation.Layers["Selection"];
+            SkinLayer l1 = SkinInformation.Layers["Control"];
+            SkinLayer l2 = SkinInformation.Layers["Selection"];
 
             int vsize = LineHeight();
             Color col;
@@ -129,7 +129,7 @@ namespace XNAFinalEngine.UserInterface
                     {
                         Rectangle rs = new Rectangle(rect.Left + l1.ContentMargins.Left,
                                                      top,
-                                                     Width - (l1.ContentMargins.Horizontal - SkinControlInformation.OriginMargins.Horizontal),
+                                                     Width - (l1.ContentMargins.Horizontal - SkinInformation.OriginMargins.Horizontal),
                                                      h);
                         Renderer.DrawLayer(this, l2, rs);
 
@@ -143,7 +143,7 @@ namespace XNAFinalEngine.UserInterface
                     {
                         Rectangle rs = new Rectangle(rect.Left + l1.ContentMargins.Left,
                                                      top,
-                                                     Width - (l1.ContentMargins.Horizontal - SkinControlInformation.OriginMargins.Horizontal),
+                                                     Width - (l1.ContentMargins.Horizontal - SkinInformation.OriginMargins.Horizontal),
                                                      vsize);
                         Renderer.DrawLayer(l2, rs, l2.States.Disabled.Color, l2.States.Disabled.Index);
 
@@ -177,7 +177,7 @@ namespace XNAFinalEngine.UserInterface
             int h = 0;
             if (Items.Count > 0)
             {
-                SkinLayer l = SkinControlInformation.Layers["Control"];
+                SkinLayer l = SkinInformation.Layers["Control"];
                 h = l.Text.Font.Font.LineSpacing + 9;
             }
             return h;
@@ -186,7 +186,7 @@ namespace XNAFinalEngine.UserInterface
         private int LineWidth()
         {
             int w = 0;
-            SkinFont font = SkinControlInformation.Layers["Control"].Text.Font;
+            SkinFont font = SkinInformation.Layers["Control"].Text.Font;
             if (Items.Count > 0)
             {
                 foreach (MenuItem t in Items)
@@ -208,11 +208,11 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private void AutoSize()
         {
-            SkinText font = SkinControlInformation.Layers["Control"].Text;
+            SkinText font = SkinInformation.Layers["Control"].Text;
             if (Items != null && Items.Count > 0)
             {
-                Height = (LineHeight() * Items.Count) + (SkinControlInformation.Layers["Control"].ContentMargins.Vertical - SkinControlInformation.OriginMargins.Vertical);
-                Width = LineWidth() + (SkinControlInformation.Layers["Control"].ContentMargins.Horizontal - SkinControlInformation.OriginMargins.Horizontal) + font.OffsetX;
+                Height = (LineHeight() * Items.Count) + (SkinInformation.Layers["Control"].ContentMargins.Vertical - SkinInformation.OriginMargins.Vertical);
+                Width = LineWidth() + (SkinInformation.Layers["Control"].ContentMargins.Horizontal - SkinInformation.OriginMargins.Horizontal) + font.OffsetX;
             }
             else
             {
@@ -230,7 +230,7 @@ namespace XNAFinalEngine.UserInterface
             if (Items != null && Items.Count > 0)
             {
                 int h = LineHeight();
-                y -= SkinControlInformation.Layers["Control"].ContentMargins.Top;
+                y -= SkinInformation.Layers["Control"].ContentMargins.Top;
                 int i = (int)((float)y / h);
                 if (i < Items.Count)
                 {
@@ -323,7 +323,7 @@ namespace XNAFinalEngine.UserInterface
                             ChildMenu.Items.AddRange(Items[ItemIndex].ChildrenItems);
                             (ChildMenu as ContextMenu).AutoSize();
                         }
-                        int y = ControlTopAbsoluteCoordinate + SkinControlInformation.Layers["Control"].ContentMargins.Top + (ItemIndex * LineHeight());
+                        int y = ControlTopAbsoluteCoordinate + SkinInformation.Layers["Control"].ContentMargins.Top + (ItemIndex * LineHeight());
                         ((ContextMenu)ChildMenu).Show(sender, ControlLeftAbsoluteCoordinate + Width - 1, y);
                         if (ex.Button == MouseButton.None) (ChildMenu as ContextMenu).ItemIndex = 0;
                     }
@@ -512,4 +512,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // ContextMenu
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

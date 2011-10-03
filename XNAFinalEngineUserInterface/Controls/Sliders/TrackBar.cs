@@ -270,7 +270,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void Init()
         {
             base.Init();
-            buttonSlider.SkinControlInformation = new SkinControl(Skin.Controls["TrackBar.Button"]);
+            buttonSlider.SkinInformation = new SkinControl(Skin.Controls["TrackBar.Button"]);
             buttonSlider.Move += ButtonSlider_Move;
             buttonSlider.KeyPress += ButtonSlider_KeyPress;
         } // Init
@@ -278,7 +278,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls["TrackBar"]);
+            SkinInformation = new SkinControl(Skin.Controls["TrackBar"]);
         } // InitSkin
 
         #endregion
@@ -292,8 +292,8 @@ namespace XNAFinalEngine.UserInterface
         {
             RecalculateParameters();
             
-            SkinLayer p = SkinControlInformation.Layers["Control"];
-            SkinLayer l = SkinControlInformation.Layers["ScaleOrange"];
+            SkinLayer p = SkinInformation.Layers["Control"];
+            SkinLayer l = SkinInformation.Layers["ScaleOrange"];
 
             const float ratio = 0.66f;
             int h = (int)(ratio * rect.Height);
@@ -315,9 +315,9 @@ namespace XNAFinalEngine.UserInterface
             {
                 switch (scaleColor)
                 {
-                    case ScaleColor.Red     : Renderer.DrawLayer(this, SkinControlInformation.Layers["ScaleRed"], r1); break;
-                    case ScaleColor.Green   : Renderer.DrawLayer(this, SkinControlInformation.Layers["ScaleGreen"], r1); break;
-                    case ScaleColor.Blue    : Renderer.DrawLayer(this, SkinControlInformation.Layers["ScaleBlue"], r1); break;
+                    case ScaleColor.Red     : Renderer.DrawLayer(this, SkinInformation.Layers["ScaleRed"], r1); break;
+                    case ScaleColor.Green   : Renderer.DrawLayer(this, SkinInformation.Layers["ScaleGreen"], r1); break;
+                    case ScaleColor.Blue    : Renderer.DrawLayer(this, SkinInformation.Layers["ScaleBlue"], r1); break;
                     case ScaleColor.Default : Renderer.DrawLayer(this, l, r1); break;
                 }
             }
@@ -349,7 +349,7 @@ namespace XNAFinalEngine.UserInterface
 
         private void ButtonSlider_Move(object sender, MoveEventArgs e)
         {
-            SkinLayer p = SkinControlInformation.Layers["Control"];
+            SkinLayer p = SkinInformation.Layers["Control"];
             int size = buttonSlider.Width;
             int w = Width - p.ContentMargins.Horizontal - size;
             int pos = e.Left;
@@ -397,7 +397,7 @@ namespace XNAFinalEngine.UserInterface
                     buttonSlider.Glyph = null;
                 }
 
-                SkinLayer p = SkinControlInformation.Layers["Control"];
+                SkinLayer p = SkinInformation.Layers["Control"];
                 buttonSlider.Width = (int)(Height * 0.8);
                 buttonSlider.Height = Height;
                 int size = buttonSlider.Width;
@@ -461,4 +461,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // TrackBar
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

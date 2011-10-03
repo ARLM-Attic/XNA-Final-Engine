@@ -48,7 +48,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected override void DrawControl(Rectangle rect)
         {
-            SkinLayer layer = SkinControlInformation.Layers["Control"];
+            SkinLayer layer = SkinInformation.Layers["Control"];
             SpriteFont font = (layer.Text != null && layer.Text.Font != null) ? layer.Text.Font.Font.XnaSpriteFont : null;
             Point offset = new Point(layer.Text.OffsetX, layer.Text.OffsetY);
 
@@ -56,11 +56,11 @@ namespace XNAFinalEngine.UserInterface
 
             if (font != null && !string.IsNullOrEmpty(Text))
             {
-                Renderer.DrawString(this, layer, Text, new Rectangle(rect.Left, rect.Top + layer.ContentMargins.Top, rect.Width, SkinControlInformation.ClientMargins.Top - layer.ContentMargins.Horizontal), false, offset.X, offset.Y, false);
+                Renderer.DrawString(this, layer, Text, new Rectangle(rect.Left, rect.Top + layer.ContentMargins.Top, rect.Width, SkinInformation.ClientMargins.Top - layer.ContentMargins.Horizontal), false, offset.X, offset.Y, false);
             }
         } // DrawControl
 
         #endregion
 
     } // GroupPanel
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

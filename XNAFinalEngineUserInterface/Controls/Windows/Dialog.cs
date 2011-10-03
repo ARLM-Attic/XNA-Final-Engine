@@ -104,11 +104,11 @@ namespace XNAFinalEngine.UserInterface
         {
             base.Init();
             
-            SkinLayer lc = new SkinLayer(Caption.SkinControlInformation.Layers[0]);
+            SkinLayer lc = new SkinLayer(Caption.SkinInformation.Layers[0]);
             lc.Text.Font.Font = Skin.Fonts[Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["CaptFont"].Value].Font;
             lc.Text.Colors.Enabled = Utilities.ParseColor(Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["CaptFontColor"].Value);
 
-            SkinLayer ld = new SkinLayer(Description.SkinControlInformation.Layers[0]);
+            SkinLayer ld = new SkinLayer(Description.SkinInformation.Layers[0]);
             ld.Text.Font.Font = Skin.Fonts[Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["DescFont"].Value].Font;
             ld.Text.Colors.Enabled = Utilities.ParseColor(Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["DescFontColor"].Value);
 
@@ -116,12 +116,12 @@ namespace XNAFinalEngine.UserInterface
             TopPanel.BevelMargin = int.Parse(Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["BevelMargin"].Value);
             TopPanel.BevelStyle = ParseBevelStyle(Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["BevelStyle"].Value);
 
-            Caption.SkinControlInformation = new SkinControl(Caption.SkinControlInformation);
-            Caption.SkinControlInformation.Layers[0] = lc;
+            Caption.SkinInformation = new SkinControl(Caption.SkinInformation);
+            Caption.SkinInformation.Layers[0] = lc;
             Caption.Height = Skin.Fonts[Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["CaptFont"].Value].Height;
 
-            Description.SkinControlInformation = new SkinControl(Description.SkinControlInformation);
-            Description.SkinControlInformation.Layers[0] = ld;
+            Description.SkinInformation = new SkinControl(Description.SkinInformation);
+            Description.SkinInformation.Layers[0] = ld;
             Description.Height = Skin.Fonts[Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["DescFont"].Value].Height;
             Description.Top = Caption.Top + Caption.Height + 4;
             Description.Height = Description.Parent.ClientHeight - Description.Top - 8;
@@ -139,4 +139,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // Dialog
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

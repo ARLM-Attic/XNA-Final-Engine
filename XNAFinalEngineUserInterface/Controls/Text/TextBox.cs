@@ -437,7 +437,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public TextBox()
         {
-            CheckLayer(SkinControlInformation, "Cursor");
+            CheckLayer(SkinInformation, "Cursor");
 
             SetDefaultSize(128, 20);
             Lines.Add("");
@@ -478,13 +478,13 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls["TextBox"]);
+            SkinInformation = new SkinControl(Skin.Controls["TextBox"]);
 
             #if (WINDOWS)
                 Cursor = Skin.Cursors["Text"].Cursor;
             #endif
 
-            font = (SkinControlInformation.Layers["Control"].Text != null) ? SkinControlInformation.Layers["Control"].Text.Font.Font : null;
+            font = (SkinInformation.Layers["Control"].Text != null) ? SkinInformation.Layers["Control"].Text.Font.Font : null;
         } // InitSkin
 
         #endregion
@@ -541,14 +541,14 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private void ClientAreaDraw(object sender, DrawEventArgs e)
         {
-            Color col = SkinControlInformation.Layers["Control"].Text.Colors.Enabled;
-            SkinLayer cursor = SkinControlInformation.Layers["Cursor"];
+            Color col = SkinInformation.Layers["Control"].Text.Colors.Enabled;
+            SkinLayer cursor = SkinInformation.Layers["Cursor"];
             Alignment al = mode == TextBoxMode.Multiline ? Alignment.TopLeft : Alignment.MiddleLeft;
             Rectangle r = e.Rectangle;
             bool drawsel = !selection.IsEmpty;
             string tmpText;
 
-            font = (SkinControlInformation.Layers["Control"].Text != null) ? SkinControlInformation.Layers["Control"].Text.Font.Font : null;
+            font = (SkinInformation.Layers["Control"].Text != null) ? SkinInformation.Layers["Control"].Text.Font.Font : null;
 
             if (Text != null && font != null)
             {
@@ -1252,21 +1252,21 @@ namespace XNAFinalEngine.UserInterface
             if (horizontalScrollBar != null && !horizontalScrollBar.Visible)
             {
                 verticalScrollBar.Height = Height - 4;
-                ClientMargins = new Margins(ClientMargins.Left, ClientMargins.Top, ClientMargins.Right, SkinControlInformation.ClientMargins.Bottom);
+                ClientMargins = new Margins(ClientMargins.Left, ClientMargins.Top, ClientMargins.Right, SkinInformation.ClientMargins.Bottom);
             }
             else
             {
-                ClientMargins = new Margins(ClientMargins.Left, ClientMargins.Top, ClientMargins.Right, 18 + SkinControlInformation.ClientMargins.Bottom);
+                ClientMargins = new Margins(ClientMargins.Left, ClientMargins.Top, ClientMargins.Right, 18 + SkinInformation.ClientMargins.Bottom);
             }
 
             if (verticalScrollBar != null && !verticalScrollBar.Visible)
             {
                 horizontalScrollBar.Width = Width - 4;
-                ClientMargins = new Margins(ClientMargins.Left, ClientMargins.Top, SkinControlInformation.ClientMargins.Right, ClientMargins.Bottom);
+                ClientMargins = new Margins(ClientMargins.Left, ClientMargins.Top, SkinInformation.ClientMargins.Right, ClientMargins.Bottom);
             }
             else
             {
-                ClientMargins = new Margins(ClientMargins.Left, ClientMargins.Top, 18 + SkinControlInformation.ClientMargins.Right, ClientMargins.Bottom);
+                ClientMargins = new Margins(ClientMargins.Left, ClientMargins.Top, 18 + SkinInformation.ClientMargins.Right, ClientMargins.Bottom);
             }
             base.AdjustMargins();
         } // AdjustMargins
@@ -1360,4 +1360,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // TextBox
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

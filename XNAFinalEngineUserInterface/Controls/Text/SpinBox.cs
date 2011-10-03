@@ -149,10 +149,10 @@ namespace XNAFinalEngine.UserInterface
         {
             base.Init();
 
-            SkinControl sc = new SkinControl(btnUp.SkinControlInformation);
-            sc.Layers["Control"] = new SkinLayer(SkinControlInformation.Layers["Button"]);
+            SkinControl sc = new SkinControl(btnUp.SkinInformation);
+            sc.Layers["Control"] = new SkinLayer(SkinInformation.Layers["Button"]);
             sc.Layers["Button"].Name = "Control";
-            btnUp.SkinControlInformation = btnDown.SkinControlInformation = sc;
+            btnUp.SkinInformation = btnDown.SkinInformation = sc;
 
             btnUp.Glyph = new Glyph(Skin.Images["Shared.ArrowUp"].Texture)
             {
@@ -170,7 +170,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinControlInformation = new SkinControl(Skin.Controls["SpinBox"]);
+            SkinInformation = new SkinControl(Skin.Controls["SpinBox"]);
         } // InitSkin
 
         #endregion
@@ -186,7 +186,7 @@ namespace XNAFinalEngine.UserInterface
 
             if (ReadOnly && Focused)
             {
-                SkinLayer lr = SkinControlInformation.Layers[0];
+                SkinLayer lr = SkinInformation.Layers[0];
                 Rectangle rc = new Rectangle(rect.Left + lr.ContentMargins.Left,
                                              rect.Top + lr.ContentMargins.Top,
                                              Width - lr.ContentMargins.Horizontal - btnDown.Width - btnUp.Width,
@@ -258,15 +258,15 @@ namespace XNAFinalEngine.UserInterface
             if (btnUp != null)
             {
                 btnUp.Width = 16;
-                btnUp.Height = Height - SkinControlInformation.Layers["Control"].ContentMargins.Vertical;
-                btnUp.Top = SkinControlInformation.Layers["Control"].ContentMargins.Top;
+                btnUp.Height = Height - SkinInformation.Layers["Control"].ContentMargins.Vertical;
+                btnUp.Top = SkinInformation.Layers["Control"].ContentMargins.Top;
                 btnUp.Left = Width - 16 - 2 - 16 - 1;
             }
             if (btnDown != null)
             {
                 btnDown.Width = 16;
-                btnDown.Height = Height - SkinControlInformation.Layers["Control"].ContentMargins.Vertical;
-                btnDown.Top = SkinControlInformation.Layers["Control"].ContentMargins.Top; ;
+                btnDown.Height = Height - SkinInformation.Layers["Control"].ContentMargins.Vertical;
+                btnDown.Top = SkinInformation.Layers["Control"].ContentMargins.Top; ;
                 btnDown.Left = Width - 16 - 2;
             }
         } // OnResize

@@ -200,7 +200,7 @@ namespace XNAFinalEngine.UserInterface
 
         protected override void AdjustMargins()
         {
-            Margins m = SkinControlInformation.ClientMargins;
+            Margins m = SkinInformation.ClientMargins;
 
             if (GetType() != typeof(Container))
             {
@@ -417,4 +417,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // Container
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface

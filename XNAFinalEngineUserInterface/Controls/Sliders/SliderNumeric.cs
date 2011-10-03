@@ -266,4 +266,4 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
     } // SliderNumeric
-} // XNAFinalEngine.UI
+} // XNAFinalEngine.UserInterface
