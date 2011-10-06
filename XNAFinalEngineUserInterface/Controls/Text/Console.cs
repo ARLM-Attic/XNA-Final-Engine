@@ -307,7 +307,7 @@ namespace XNAFinalEngine.UserInterface
 
         private void ClientArea_Draw(object sender, DrawEventArgs e)
         {
-            SpriteFont font = SkinInformation.Layers[0].Text.Font.Font.XnaSpriteFont;
+            SpriteFont font = SkinInformation.Layers[0].Text.Font.Font.Resource;
             Rectangle r = new Rectangle(e.Rectangle.Left, e.Rectangle.Top, e.Rectangle.Width, e.Rectangle.Height);
             int pos = 0;
 

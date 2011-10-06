@@ -64,7 +64,7 @@ namespace XNAFinalEngine.Components
                 model = value;
                 if (ModelChanged != null)
                     ModelChanged(this, model);
-                if (model is FileModel && ((FileModel)model).XnaModel.Tag != null) // If it's a XNA model and if it has animations. 
+                if (model is FileModel && ((FileModel)model).Resource.Tag != null) // If it's a XNA model and if it has animations. 
                 {
                     // Agrego un component de animacion TODO
                 }

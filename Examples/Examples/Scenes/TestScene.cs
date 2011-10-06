@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Scenes;
 #endregion
 
@@ -74,6 +75,8 @@ namespace XNAFinalEngineExamples
             dude.AddComponent<ModelFilter>();
             dude.ModelFilter.Model = new FileModel("DudeWalk");
             dude.AddComponent<ModelRenderer>();*/
+
+            GameLoop.ShowFramesPerSecond = true;
 
             base.Load();
         } // Load

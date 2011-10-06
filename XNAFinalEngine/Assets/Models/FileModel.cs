@@ -50,7 +50,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Underlying xna model object. Loaded with the content system.
         /// </summary>
-        public XnaModel XnaModel { get; private set; }
+        public XnaModel Resource { get; private set; }
 
         #region Vertices
 
@@ -70,7 +70,7 @@ namespace XNAFinalEngine.Assets
 
                 int vertexCount = 0;
 
-                foreach (ModelMesh mesh in XnaModel.Meshes) // Foreach is faster and does not produce garbage.
+                foreach (ModelMesh mesh in Resource.Meshes) // Foreach is faster and does not produce garbage.
                 {
                     foreach (ModelMeshPart part in mesh.MeshParts)
                     {
@@ -86,7 +86,7 @@ namespace XNAFinalEngine.Assets
                 // Indicates where to write in the vertices array.
                 int currentIndex = 0;
 
-                foreach (ModelMesh mesh in XnaModel.Meshes)
+                foreach (ModelMesh mesh in Resource.Meshes)
                 {
                     foreach (ModelMeshPart part in mesh.MeshParts)
                     {
@@ -142,7 +142,7 @@ namespace XNAFinalEngine.Assets
             }
             try
             {
-                XnaModel = ContentManager.CurrentContentManager.XnaContentManager.Load<XnaModel>(fullFilename);
+                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<XnaModel>(fullFilename);
                 // Calcuate bounding volumes
                 Vector3[] vectices = Vectices;
                 boundingSphere = BoundingSphere.CreateFromPoints(vectices);

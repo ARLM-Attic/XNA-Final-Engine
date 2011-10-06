@@ -122,10 +122,6 @@
     <Content Include="Game.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\XNAFinalEngineBase\XNAFinalEngineBase.csproj">
-      <Project>{E401A7E9-4EA1-4D40-A335-4C9C5218AAC7}</Project>
-      <Name>XNAFinalEngineBase</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\XNAFinalEngineContentPipelineExtensionRuntime\XNAFinalEngineContentPipelineExtensionRuntime.csproj">
       <Project>{E3A98759-8C7F-4660-8D70-1B89C1F04235}</Project>
       <Name>XNAFinalEngineContentPipelineExtensionRuntime</Name>

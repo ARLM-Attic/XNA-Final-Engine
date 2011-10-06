@@ -74,10 +74,6 @@
     <Content Include="Game.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\XNAFinalEngineBase\XNAFinalEngineBase XBOX 360.csproj">
-      <Project>{08121591-A45F-437D-9516-55393E6BEE57}</Project>
-      <Name>XNAFinalEngineBase XBOX 360</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\XNAFinalEngineContentPipelineExtensionRuntime\XNAFinalEngineContentPipelineExtensionRuntime XBOX 360.csproj">
       <Project>{5D1093DE-88C6-4A36-9704-4B13C0D7BAB4}</Project>
       <Name>XNAFinalEngineContentPipelineExtensionRuntime XBOX 360</Name>

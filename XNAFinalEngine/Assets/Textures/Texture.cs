@@ -67,7 +67,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// XNA Texture.
         /// </summary>
-        public virtual Texture2D XnaTexture
+        public virtual Texture2D Resource
         { 
             get { return xnaTexture; }
             set
@@ -142,7 +142,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected override void DisposeManagedResources()
         {
-            XnaTexture.Dispose();
+            Resource.Dispose();
         } // DisposeManagedResources
 
 	    #endregion

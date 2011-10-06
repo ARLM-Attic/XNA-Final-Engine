@@ -36,6 +36,7 @@ using XNAFinalEngine.Components;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
+using XNAFinalEngine.Input;
 using RootAnimation = XNAFinalEngine.Components.RootAnimations;
 using XNAFinalEngine.Scenes;
 #endregion
@@ -69,6 +70,11 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static Scene CurrentScene { get; set; }
 
+        /// <summary>
+        /// Show frames per second onto screen.
+        /// </summary>
+        public static bool ShowFramesPerSecond { get; set; }
+
         #endregion
 
         #region Load Content
@@ -80,7 +86,11 @@ namespace XNAFinalEngine.EngineCore
         {
             // Create the 32 layers.
             Layer.InitLayers();
+            // Graphics
             SpriteManager.Init();
+            // Input
+            InputManager.Initialize();
+            InputManager.EnableKeyboardHook();
 
             #region FPS
 
@@ -167,6 +177,8 @@ namespace XNAFinalEngine.EngineCore
         {
             // Update frame time
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
+            // Update frames per second visibility.
+            fpsText.HudText.Visible = ShowFramesPerSecond;
 
             #region Scene Pre Render Tasks
 
@@ -177,7 +189,7 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            /*
+            
             gbuffer.Begin(camera.ViewMatrix, camera.ProjectionMatrix, 100);
                 ModelRenderer currentModelRenderer; 
                 for (int i = 0; i < ModelRenderer.ModelRendererPool.Count; i++)
@@ -191,7 +203,7 @@ namespace XNAFinalEngine.EngineCore
             gbuffer.End();
             
             SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
-            */
+            
             // Draw 2D Heads Up Display
             SpriteManager.Begin();
             {
@@ -232,7 +244,7 @@ namespace XNAFinalEngine.EngineCore
 
         internal static void UnloadContent()
         {
-
+            InputManager.DisableKeyboardHook();
         } // UnloadContent
 
         #endregion

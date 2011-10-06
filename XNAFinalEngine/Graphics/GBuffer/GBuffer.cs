@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Assets;
 using Texture = XNAFinalEngine.Assets.Texture;
@@ -172,7 +173,7 @@ namespace XNAFinalEngine.Graphics
             {
                 lastUsedObjectNormalTextureTexture = objectNormalTexture;
                 epObjectNormalTextureSize.SetValue(new Vector2(objectNormalTexture.Width, objectNormalTexture.Height));
-                epObjectNormalTexture.SetValue(objectNormalTexture.XnaTexture);
+                epObjectNormalTexture.SetValue(objectNormalTexture.Resource);
             }
         } // SetObjectNormalTexture
 
@@ -270,7 +271,7 @@ namespace XNAFinalEngine.Graphics
             if (lastUsedSpecularTexture != specularTexture)
             {
                 lastUsedSpecularTexture = specularTexture;
-                epObjectSpecularTexture.SetValue(specularTexture.XnaTexture);
+                epObjectSpecularTexture.SetValue(specularTexture.Resource);
             }
         } // SetSpecularTexture
 
@@ -327,7 +328,7 @@ namespace XNAFinalEngine.Graphics
             if (lastUsedDisplacementTexture != displacementTexture)
             {
                 lastUsedDisplacementTexture = displacementTexture;
-                epDisplacementTexture.SetValue(displacementTexture.XnaTexture);
+                epDisplacementTexture.SetValue(displacementTexture.Resource);
             }
         } // SetDisplacementTexture
 
@@ -417,28 +418,28 @@ namespace XNAFinalEngine.Graphics
                 try
                 {
                     // Matrices //
-                    epWorldViewProj           = Effect.Parameters["worldViewProj"];
-                    epWorldView               = Effect.Parameters["worldView"];
-                    epWorldViewIT             = Effect.Parameters["worldViewIT"];
+                    epWorldViewProj           = Resource.Parameters["worldViewProj"];
+                    epWorldView               = Resource.Parameters["worldView"];
+                    epWorldViewIT             = Resource.Parameters["worldViewIT"];
                     // Others //
-                    epFarPlane                = Effect.Parameters["farPlane"];
-                    epObjectNormalTexture     = Effect.Parameters["objectNormalTexture"];
-                    epSpecularPower           = Effect.Parameters["specularPower"];
-                    epObjectSpecularTexture   = Effect.Parameters["objectSpecularTexture"];
-                    epSpecularTextured        = Effect.Parameters["specularTextured"];
+                    epFarPlane                = Resource.Parameters["farPlane"];
+                    epObjectNormalTexture     = Resource.Parameters["objectNormalTexture"];
+                    epSpecularPower           = Resource.Parameters["specularPower"];
+                    epObjectSpecularTexture   = Resource.Parameters["objectSpecularTexture"];
+                    epSpecularTextured        = Resource.Parameters["specularTextured"];
                     // Parallax //
-                    epObjectNormalTextureSize = Effect.Parameters["objectNormalTextureSize"];
-                    epLODThreshold            = Effect.Parameters["LODThreshold"];
-                    epMinimumNumberSamples    = Effect.Parameters["minimumNumberSamples"];
-                    epMaximumNumberSamples    = Effect.Parameters["maximumNumberSamples"];
-                    epHeightMapScale          = Effect.Parameters["heightMapScale"];
+                    epObjectNormalTextureSize = Resource.Parameters["objectNormalTextureSize"];
+                    epLODThreshold            = Resource.Parameters["LODThreshold"];
+                    epMinimumNumberSamples    = Resource.Parameters["minimumNumberSamples"];
+                    epMaximumNumberSamples    = Resource.Parameters["maximumNumberSamples"];
+                    epHeightMapScale          = Resource.Parameters["heightMapScale"];
                     // Terrain //
-                    epUvRectangleMin          = Effect.Parameters["uvRectangleMin"];
-                    epUvRectangleSide         = Effect.Parameters["uvRectangleSide"];
-                    epFarTerrainBeginDistance = Effect.Parameters["farTerrainBeginDistance"];
-                    epFlatRange               = Effect.Parameters["flatRange"];
-                    epDisplacementTexture     = Effect.Parameters["displacementTexture"];
-                    epFarTerrain              = Effect.Parameters["farTerrain"];
+                    epUvRectangleMin          = Resource.Parameters["uvRectangleMin"];
+                    epUvRectangleSide         = Resource.Parameters["uvRectangleSide"];
+                    epFarTerrainBeginDistance = Resource.Parameters["farTerrainBeginDistance"];
+                    epFlatRange               = Resource.Parameters["flatRange"];
+                    epDisplacementTexture     = Resource.Parameters["displacementTexture"];
+                    epFarTerrain              = Resource.Parameters["farTerrain"];
                 }
                 catch
                 {
@@ -543,12 +544,12 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 // Set Render States.
-                SystemInformation.Device.BlendState        = BlendState.Opaque;
-                SystemInformation.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
-                SystemInformation.Device.DepthStencilState = DepthStencilState.Default;
-                SystemInformation.Device.SamplerStates[0]  = SamplerState.AnisotropicWrap; // objectNormalTexture
-                SystemInformation.Device.SamplerStates[1]  = SamplerState.LinearWrap;      // objectSpecularTexture
-                SystemInformation.Device.SamplerStates[2]  = SamplerState.PointClamp;      // displacementTexture
+                EngineManager.Device.BlendState        = BlendState.Opaque;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                EngineManager.Device.DepthStencilState = DepthStencilState.Default;
+                EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap; // objectNormalTexture
+                EngineManager.Device.SamplerStates[1] = SamplerState.LinearWrap;      // objectSpecularTexture
+                EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;      // displacementTexture
 
                 // Set common parameters.
                 this.viewMatrix = viewMatrix;
@@ -573,13 +574,13 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                Effect.CurrentTechnique = Effect.Techniques["GBufferWithoutTexture"];
+                Resource.CurrentTechnique = Resource.Techniques["GBufferWithoutTexture"];
                 // Set parameters
                 SetTransposeInverseWorldViewMatrix(Matrix.Transpose(Matrix.Invert(worldMatrix * viewMatrix)));
                 SetWorldViewMatrix(worldMatrix * viewMatrix);
                 SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
 
-                RenderModel(((FileModel)model).XnaModel);
+                RenderModel(((FileModel)model).Resource);
             }
             catch (Exception e)
             {

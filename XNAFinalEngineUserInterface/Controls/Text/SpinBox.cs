@@ -191,7 +191,7 @@ namespace XNAFinalEngine.UserInterface
                                              rect.Top + lr.ContentMargins.Top,
                                              Width - lr.ContentMargins.Horizontal - btnDown.Width - btnUp.Width,
                                              Height - lr.ContentMargins.Vertical);
-                Renderer.Draw(Skin.Images["ListBox.Selection"].Texture.XnaTexture, rc, Color.FromNonPremultiplied(255, 255, 255, 128));
+                Renderer.Draw(Skin.Images["ListBox.Selection"].Texture.Resource, rc, Color.FromNonPremultiplied(255, 255, 255, 128));
             }
         } // DrawControl
 

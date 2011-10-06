@@ -550,7 +550,7 @@ namespace XNAFinalEngine.UserInterface
             skinDescription = new Document(fullPath);
             
             // Read XML data.
-            if (skinDescription.XDocument.Element("Skin") != null)
+            if (skinDescription.Resource.Element("Skin") != null)
             {
                 try
                 {
@@ -628,10 +628,10 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private static void LoadControlsDescription()
         {
-            if (skinDescription.XDocument.Element("Skin").Element("Controls") == null)
+            if (skinDescription.Resource.Element("Skin").Element("Controls") == null)
                 return;
 
-            foreach (XElement control in skinDescription.XDocument.Descendants("Control"))
+            foreach (XElement control in skinDescription.Resource.Descendants("Control"))
             {
                 SkinControl skinControl;
                 // Create skin control
@@ -865,10 +865,10 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private static void LoadFontsDescription()
         {
-            if (skinDescription.XDocument.Element("Skin").Element("Fonts") == null)
+            if (skinDescription.Resource.Element("Skin").Element("Fonts") == null)
                 return;
 
-            foreach (var font in skinDescription.XDocument.Element("Skin").Element("Fonts").Elements())
+            foreach (var font in skinDescription.Resource.Element("Skin").Element("Fonts").Elements())
             {
                 SkinFont skinFont = new SkinFont
                 {
@@ -889,10 +889,10 @@ namespace XNAFinalEngine.UserInterface
             /// </summary>
             private static void LoadCursorsDescription()
             {
-                if (skinDescription.XDocument.Element("Skin").Element("Cursors") == null)
+                if (skinDescription.Resource.Element("Skin").Element("Cursors") == null)
                     return;
 
-                foreach (var cursor in skinDescription.XDocument.Element("Skin").Element("Cursors").Elements())
+                foreach (var cursor in skinDescription.Resource.Element("Skin").Element("Cursors").Elements())
                 {
                     SkinCursor skinCursor = new SkinCursor
                     {
@@ -913,10 +913,10 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private static void LoadImagesDescription()
         {
-            if (skinDescription.XDocument.Element("Skin").Element("Images") == null)
+            if (skinDescription.Resource.Element("Skin").Element("Images") == null)
                 return;
 
-            foreach (var image in skinDescription.XDocument.Element("Skin").Element("Images").Elements())
+            foreach (var image in skinDescription.Resource.Element("Skin").Element("Images").Elements())
             {
                 SkinImage skinImage = new SkinImage
                 {

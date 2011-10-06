@@ -77,6 +77,48 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         private static bool ShowExceptionsWithGuide { get; set; }
 
+        /// <summary>
+        /// XNA graphic device.
+        /// </summary>
+        public static GraphicsDevice Device { get; private set; }
+
+        /// <summary>
+        /// XNA graphics device manager.
+        /// </summary>
+        public static GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
+
+        /// <summary>
+        /// Game Window.
+        /// </summary>
+        public static GameWindow GameWindow { get; private set; }
+
+        /// <summary>
+        /// Services.
+        /// </summary>
+        public static GameServiceContainer GameServices { get; private set; }
+
+        /// <summary>
+        /// XNA 4.0 reconstructs automatically the render targets when a device is lost.
+        /// However the shaders have to re set to the GPU the new render targets to work properly.
+        /// This problem seems to manifest only with floating point formats.
+        /// </summary>
+        public static bool DeviceLostInThisFrame { get; private set; }
+
+        /// <summary>
+        /// Is application currently active (focused)?
+        /// Some operations like input reading could be disabled.
+        /// </summary>
+        public static bool IsApplicationActive { get; private set; }
+
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// Raised when the device is reset.
+        /// </summary>
+        public static event EventHandler DeviceReset;
+
         #endregion
 
         #region Constructor (Initialize XNA window)
@@ -169,9 +211,9 @@ namespace XNAFinalEngine.EngineCore
 
             // First we set GraphicsDeviceManager and latter GameWindow.
             // The order is important because we want that the System Information DeviceReset event was called before the System Information Size Changed event. Confused?
-            SystemInformation.GraphicsDeviceManager = graphicsDeviceManager;
-            SystemInformation.GameWindow = Window;
-            SystemInformation.Services = Services;
+            GraphicsDeviceManager = graphicsDeviceManager;
+            GameWindow = Window;
+            GameServices = Services;
 
         } // EngineManager
 
@@ -185,8 +227,8 @@ namespace XNAFinalEngine.EngineCore
         protected override void Initialize()
         {
             // Intercept events //
-            SystemInformation.GraphicsDeviceManager.PreparingDeviceSettings += Graphics_PreparingDeviceSettings;
-            SystemInformation.GraphicsDeviceManager.DeviceReset += Graphics_DeviceReset;
+            GraphicsDeviceManager.PreparingDeviceSettings += Graphics_PreparingDeviceSettings;
+            GraphicsDeviceManager.DeviceReset += Graphics_DeviceReset;
             Window.ClientSizeChanged += Window_ClientSizeChanged;
 
             // Reset to take new parameters //
@@ -215,8 +257,8 @@ namespace XNAFinalEngine.EngineCore
         private static void Graphics_PreparingDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
         {
             // We will always use the back buffer for 2D operations, so no need to waste space in a depth buffer and multisampling.
-            SystemInformation.Device.PresentationParameters.MultiSampleCount = Screen.MultiSampleQuality;
-            SystemInformation.Device.PresentationParameters.DepthStencilFormat = DepthFormat.None;
+            Device.PresentationParameters.MultiSampleCount = Screen.MultiSampleQuality;
+            Device.PresentationParameters.DepthStencilFormat = DepthFormat.None;
         } // graphics_PreparingDeviceSettings
         
         /// <summary>
@@ -224,13 +266,16 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         private static void Graphics_DeviceReset(object sender, EventArgs e)
         {
+            Device = GraphicsDeviceManager.GraphicsDevice;
             // Restore render to the frame buffer.
             RenderTarget.DisableCurrentRenderTargets();
-            SystemInformation.DeviceLostInThisFrame = true;
+            DeviceLostInThisFrame = true;
             #if (!XBOX)
                 Application.EnableVisualStyles();
                 Application.VisualStyleState = VisualStyleState.ClientAndNonClientAreasEnabled;
             #endif
+            if (DeviceReset != null)
+                DeviceReset(sender, e);
         } // graphics_DeviceReset
 
         /// <summary>
@@ -240,10 +285,11 @@ namespace XNAFinalEngine.EngineCore
         private static void Window_ClientSizeChanged(object sender, EventArgs e)
         {
             // I don't want that this method is called when a device reset occurs.
-            if (SystemInformation.Device.PresentationParameters.BackBufferWidth != SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth ||
-                SystemInformation.Device.PresentationParameters.BackBufferHeight != SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight)
+            // The device has the new value and the graphic device manager the old one.
+            if (Device.PresentationParameters.BackBufferWidth != GraphicsDeviceManager.PreferredBackBufferWidth ||
+                Device.PresentationParameters.BackBufferHeight != GraphicsDeviceManager.PreferredBackBufferHeight)
             {
-                
+                Screen.OnScreenSizeChanged(sender, e);
             }
         } // Window_ClientSizeChanged
      
@@ -257,7 +303,7 @@ namespace XNAFinalEngine.EngineCore
         protected override void OnActivated(object sender, EventArgs args)
         {
             base.OnActivated(sender, args);
-            SystemInformation.IsApplicationActive = true;
+            IsApplicationActive = true;
         } // OnActivated
 
         /// <summary>
@@ -266,7 +312,7 @@ namespace XNAFinalEngine.EngineCore
         protected override void OnDeactivated(object sender, EventArgs args)
         {
             base.OnDeactivated(sender, args);
-            SystemInformation.IsApplicationActive = false;
+            IsApplicationActive = false;
         } // OnDeactivated
 
         #endregion
@@ -332,7 +378,7 @@ namespace XNAFinalEngine.EngineCore
         protected override void Draw(GameTime gameTime)
         {
             base.Draw(gameTime);
-            SystemInformation.Device.Clear(ClearOptions.Target, new Color(30, 30, 40), 1.0f, 0);
+            Device.Clear(ClearOptions.Target, new Color(30, 30, 40), 1.0f, 0);
             if (ShowExceptionsWithGuide) // If we want to show exception in the Guide.
             {
                 if (exception == null) // If no exception was raised.
@@ -360,7 +406,7 @@ namespace XNAFinalEngine.EngineCore
             {
                 GameLoop.Draw(gameTime);
             }
-            SystemInformation.DeviceLostInThisFrame = false; // Always in the method’s bottom. TODO!!! Que pasa si el shader por alguna razon no se ejecuto en esa ejecucion del draw y si en la siguiente. Se necesita algo más robusto.
+            DeviceLostInThisFrame = false; // Always in the method’s bottom. TODO!!! Que pasa si el shader por alguna razon no se ejecuto en esa ejecucion del draw y si en la siguiente. Se necesita algo más robusto.
         } // Draw
 
         /// <summary>

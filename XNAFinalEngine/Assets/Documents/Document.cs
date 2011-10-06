@@ -37,12 +37,11 @@ using System.Xml.Linq;
 namespace XNAFinalEngine.Assets
 {
 
-#if (WINDOWS)
-
 	/// <summary>
-	/// Cursor
+	/// XML Documents.
+    /// http://msdn.microsoft.com/en-us/library/ms745778.aspx 
 	/// </summary>
-    public class Cursor : Asset
+    public class Document : Asset
     {
         
         #region Properties
@@ -50,27 +49,27 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Internal X Document.
         /// </summary>
-        public System.Windows.Forms.Cursor SystemCursor { get; private set; }
+        public XDocument Resource { get; private set; }
         
         #endregion
 
         #region Constructor
 
 		/// <summary>
-		/// Load a cursor.
+		/// Load document.
 		/// </summary>
-        /// <param name="filename">>The filename must be relative and be a valid file in the Cursors directory</param>
-        public Cursor(string filename)
+        /// <param name="filename">The filename must be relative to the content directory.</param>
+        public Document(string filename)
 		{
             Name = filename;
-            string fullFilename = ContentManager.GameDataDirectory + "Cursors\\" + filename;
+            string fullFilename = ContentManager.GameDataDirectory + filename;
             if (File.Exists(fullFilename + ".xnb") == false)
             {
-                throw new ArgumentException("Failed to load cursor: File " + fullFilename + " does not exists!", "filename");
+                throw new ArgumentException("Failed to load document: File " + fullFilename + " does not exists!", "filename");
             }
             try
             {
-                SystemCursor = ContentManager.CurrentContentManager.XnaContentManager.Load<System.Windows.Forms.Cursor>(fullFilename);
+                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<XDocument>(fullFilename);
             }
             catch (ObjectDisposedException)
             {
@@ -78,13 +77,12 @@ namespace XNAFinalEngine.Assets
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Failed to load cursor: " + filename, e);
+                throw new InvalidOperationException("Failed to load document: " + filename, e);
             }
-        } // Cursor
+        } // Document
 
 		#endregion
 
     } // Document
-#endif
 } // XNAFinalEngine.Assets
 

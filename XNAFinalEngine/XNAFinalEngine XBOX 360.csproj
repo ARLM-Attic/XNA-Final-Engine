@@ -43,6 +43,24 @@
   </PropertyGroup>
   <ItemGroup />
   <ItemGroup>
+    <Compile Include="Animations\ModelAnimationPlayer.cs" />
+    <Compile Include="Assets\Animations\ModelAnimation.cs" />
+    <Compile Include="Assets\Animations\RootAnimation.cs" />
+    <Compile Include="Assets\Asset.cs" />
+    <Compile Include="Assets\ContentManager.cs" />
+    <Compile Include="Assets\Cursors\Cursor.cs" />
+    <Compile Include="Assets\Documents\Document.cs" />
+    <Compile Include="Assets\Fonts\Font.cs" />
+    <Compile Include="Assets\Materials\BlinnPhong.cs" />
+    <Compile Include="Assets\Materials\Constant.cs" />
+    <Compile Include="Assets\Materials\Material.cs" />
+    <Compile Include="Assets\Models\FileModel.cs" />
+    <Compile Include="Assets\Models\Model.cs" />
+    <Compile Include="Assets\Models\PrimitiveModel.cs" />
+    <Compile Include="Assets\Shaders\Shader.cs" />
+    <Compile Include="Assets\Textures\RenderTarget.cs" />
+    <Compile Include="Assets\Textures\Texture.cs" />
+    <Compile Include="Assets\Textures\TextureCube.cs" />
     <Compile Include="Cameras\Camera.cs" />
     <Compile Include="Cameras\EditorCamera.cs" />
     <Compile Include="Components\Animation\ModelAnimations.cs" />
@@ -69,18 +87,27 @@
     <Compile Include="Engine Core\GameLoop.cs" />
     <Compile Include="Engine Core\Screen.cs" />
     <Compile Include="Engine Core\Time.cs" />
+    <Compile Include="Graphics\GBuffer\GBuffer.cs" />
+    <Compile Include="Graphics\SpriteManager.cs" />
+    <Compile Include="Helpers\ArrayHelper.cs" />
+    <Compile Include="Helpers\Chronometer.cs" />
+    <Compile Include="Helpers\Curve3D.cs" />
+    <Compile Include="Helpers\Disposable.cs" />
+    <Compile Include="Helpers\ExtensionMethods.cs" />
+    <Compile Include="Helpers\Pool.cs" />
+    <Compile Include="Helpers\PoolWithoutAccessor.cs" />
+    <Compile Include="Helpers\RectangleF.cs" />
+    <Compile Include="Helpers\Size.cs" />
+    <Compile Include="Helpers\TestGarbageCollection.cs" />
     <Compile Include="Input\InputManager.cs" />
     <Compile Include="Input\Keyboard.cs" />
     <Compile Include="Input\Mouse.cs" />
     <Compile Include="Input\XInputGamePad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scenes\Scene.cs" />
+    <Compile Include="SystemInformation.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\XNAFinalEngineBase\XNAFinalEngineBase XBOX 360.csproj">
-      <Project>{08121591-A45F-437D-9516-55393E6BEE57}</Project>
-      <Name>XNAFinalEngineBase XBOX 360</Name>
-    </ProjectReference>
     <ProjectReference Include="..\XNAFinalEngineContentPipelineExtensionRuntime\XNAFinalEngineContentPipelineExtensionRuntime XBOX 360.csproj">
       <Project>{5D1093DE-88C6-4A36-9704-4B13C0D7BAB4}</Project>
       <Name>XNAFinalEngineContentPipelineExtensionRuntime XBOX 360</Name>

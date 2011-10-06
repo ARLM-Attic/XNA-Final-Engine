@@ -43,9 +43,9 @@ namespace XNAFinalEngine.UserInterface
                 Document layoutDocument = new Document("Layout\\" + filename);
                 try
                 {
-                    if (layoutDocument.XDocument.Element("Layout").Element("Controls") != null)
+                    if (layoutDocument.Resource.Element("Layout").Element("Controls") != null)
                     {
-                        foreach (var control in layoutDocument.XDocument.Element("Layout").Element("Controls").Elements())
+                        foreach (var control in layoutDocument.Resource.Element("Layout").Element("Controls").Elements())
                         {
                             string className = control.Attribute("Class").Value;
                             Type type = Type.GetType("XNAFinalEngine.UserInterface." + className);

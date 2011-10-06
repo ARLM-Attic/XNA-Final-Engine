@@ -16,6 +16,7 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -241,7 +242,7 @@ namespace XNAFinalEngine.UserInterface
                                              rect.Top + lr.ContentMargins.Top,
                                              Width - lr.ContentMargins.Horizontal - buttonDown.Width,
                                              Height - lr.ContentMargins.Vertical);
-                Renderer.Draw(Skin.Images["ListBox.Selection"].Texture.XnaTexture, rc, Color.FromNonPremultiplied(255, 255, 255, 128));
+                Renderer.Draw(Skin.Images["ListBox.Selection"].Texture.Resource, rc, Color.FromNonPremultiplied(255, 255, 255, 128));
             }
         } // DrawControl
 
@@ -311,7 +312,7 @@ namespace XNAFinalEngine.UserInterface
                 }
 
                 listCombo.AutoHeight(maxItems);
-                if (listCombo.ControlTopAbsoluteCoordinate + listCombo.Height > SystemInformation.ScreenHeight)
+                if (listCombo.ControlTopAbsoluteCoordinate + listCombo.Height > Screen.Height)
                 {
                     listCombo.Top = listCombo.Top - Height - listCombo.Height - 2;
                 }

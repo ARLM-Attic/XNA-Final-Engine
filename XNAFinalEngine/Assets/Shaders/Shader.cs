@@ -33,6 +33,7 @@ using System;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.Assets
@@ -62,7 +63,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// The shader effect.
         /// </summary>
-        public Effect Effect { get; private set; }
+        public Effect Resource { get; private set; }
 
         #endregion
 
@@ -84,7 +85,7 @@ namespace XNAFinalEngine.Assets
             }
             try
             {
-                Effect = ContentManager.SystemContentManager.XnaContentManager.Load<Effect>(fullFilename);
+                Resource = ContentManager.SystemContentManager.XnaContentManager.Load<Effect>(fullFilename);
             }
             catch (ObjectDisposedException)
             {
@@ -129,17 +130,17 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public void RenderModel(Microsoft.Xna.Framework.Graphics.Model model)
         {
-            Effect.CurrentTechnique.Passes[0].Apply();
+            Resource.CurrentTechnique.Passes[0].Apply();
             // Go through all meshes in the model
             foreach (ModelMesh mesh in model.Meshes)
             {
                 foreach (ModelMeshPart part in mesh.MeshParts)
                 {
                     // Set vertex buffer and index buffer
-                    SystemInformation.Device.SetVertexBuffer(part.VertexBuffer);
-                    SystemInformation.Device.Indices = part.IndexBuffer;
+                    EngineManager.Device.SetVertexBuffer(part.VertexBuffer);
+                    EngineManager.Device.Indices = part.IndexBuffer;
                     // And render all primitives
-                    SystemInformation.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, part.VertexOffset, 0, part.NumVertices, part.StartIndex, part.PrimitiveCount);
+                    EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, part.VertexOffset, 0, part.NumVertices, part.StartIndex, part.PrimitiveCount);
                 }
             }
         } // RenderModel
@@ -154,7 +155,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public void RenderScreenPlane()
         {
-            Effect.CurrentTechnique.Passes[0].Apply();
+            Resource.CurrentTechnique.Passes[0].Apply();
             if (vertexBufferScreenPlane == null)
             {
                 VertexPositionTexture[] vertices = new[]
@@ -164,12 +165,12 @@ namespace XNAFinalEngine.Assets
                     new VertexPositionTexture(new Vector3(1.0f, -1.0f, 0f),  new Vector2(1, 1)),
                     new VertexPositionTexture(new Vector3(1.0f, 1.0f, 0f),   new Vector2(1, 0)),
                 };
-                vertexBufferScreenPlane = new VertexBuffer(SystemInformation.Device, typeof(VertexPositionTexture), vertices.Length, BufferUsage.WriteOnly);
+                vertexBufferScreenPlane = new VertexBuffer(EngineManager.Device, typeof(VertexPositionTexture), vertices.Length, BufferUsage.WriteOnly);
                 vertexBufferScreenPlane.SetData(vertices);
             }
 
-            SystemInformation.Device.SetVertexBuffer(vertexBufferScreenPlane);
-            SystemInformation.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
+            EngineManager.Device.SetVertexBuffer(vertexBufferScreenPlane);
+            EngineManager.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
         } // RenderScreenPlane
 
         #endregion

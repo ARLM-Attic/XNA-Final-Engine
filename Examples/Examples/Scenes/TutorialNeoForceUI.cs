@@ -113,7 +113,7 @@ namespace XNAFinalEngineExamples
             
             InitControls();
 
-            //EngineManager.ShowFramesPerSecond = true;
+            GameLoop.ShowFramesPerSecond = true;
 
             base.Load();
         } // Load

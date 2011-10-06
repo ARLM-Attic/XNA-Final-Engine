@@ -228,14 +228,14 @@ namespace XNAFinalEngine.UserInterface
             {
                 case BevelStyle.Bumped:
                     {
-                        Renderer.Draw(texture.XnaTexture, new Rectangle(x1, y1, w1, h1), c1);
-                        Renderer.Draw(texture.XnaTexture, new Rectangle(x2, y2, w2, h2), c2);
+                        Renderer.Draw(texture.Resource, new Rectangle(x1, y1, w1, h1), c1);
+                        Renderer.Draw(texture.Resource, new Rectangle(x2, y2, w2, h2), c2);
                         break;
                     }
                 case BevelStyle.Etched:
                     {
-                        Renderer.Draw(texture.XnaTexture, new Rectangle(x1, y1, w1, h1), c2);
-                        Renderer.Draw(texture.XnaTexture, new Rectangle(x2, y2, w2, h2), c1);
+                        Renderer.Draw(texture.Resource, new Rectangle(x1, y1, w1, h1), c2);
+                        Renderer.Draw(texture.Resource, new Rectangle(x2, y2, w2, h2), c1);
                         break;
                     }
                 case BevelStyle.Raised:
@@ -244,7 +244,7 @@ namespace XNAFinalEngine.UserInterface
                         if (pos == BevelBorder.Left || pos == BevelBorder.Top) c = c1;
                         else c = c2;
 
-                        Renderer.Draw(texture.XnaTexture, new Rectangle(x1, y1, w1, h1), c);
+                        Renderer.Draw(texture.Resource, new Rectangle(x1, y1, w1, h1), c);
                         break;
                     }
                 case BevelStyle.Lowered:
@@ -253,12 +253,12 @@ namespace XNAFinalEngine.UserInterface
                         if (pos == BevelBorder.Left || pos == BevelBorder.Top) c = c2;
                         else c = c1;
 
-                        Renderer.Draw(texture.XnaTexture, new Rectangle(x1, y1, w1, h1), c);
+                        Renderer.Draw(texture.Resource, new Rectangle(x1, y1, w1, h1), c);
                         break;
                     }
                 default:
                     {
-                        Renderer.Draw(texture.XnaTexture, new Rectangle(x1, y1, w1, h1), c3);
+                        Renderer.Draw(texture.Resource, new Rectangle(x1, y1, w1, h1), c3);
                         break;
                     }
             }

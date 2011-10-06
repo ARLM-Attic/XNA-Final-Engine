@@ -36,16 +36,15 @@ namespace XNAFinalEngine.Input
 
 	/// <summary>
     /// Manager for input devices.
-    /// Its function is automatic and transparent to the application’s developer.
 	/// </summary>
-	public class InputManager
+	internal class InputManager
     {   
 
         #region KeyBoardHook
 
         #if (!XBOX)
             /// <summary>
-            /// Variable for keyboard hook
+            /// Keyboard hook singleton reference.
             /// </summary>
             private static KeyboardHook keyboardHook;
         #endif
@@ -79,9 +78,10 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// Init Input Devices. Only Wiimotes need special operations for initialization.
         /// </summary>
-        public static void InitInputDevices()
+        public static void Initialize()
         {
-        } // InitInputDevices
+            //Wiimote.InitWiimotes();
+        } // Initialize
 
         #endregion
 

@@ -93,6 +93,24 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Animations\ModelAnimationPlayer.cs" />
+    <Compile Include="Assets\Animations\ModelAnimation.cs" />
+    <Compile Include="Assets\Animations\RootAnimation.cs" />
+    <Compile Include="Assets\Asset.cs" />
+    <Compile Include="Assets\ContentManager.cs" />
+    <Compile Include="Assets\Cursors\Cursor.cs" />
+    <Compile Include="Assets\Documents\Document.cs" />
+    <Compile Include="Assets\Fonts\Font.cs" />
+    <Compile Include="Assets\Materials\BlinnPhong.cs" />
+    <Compile Include="Assets\Materials\Constant.cs" />
+    <Compile Include="Assets\Materials\Material.cs" />
+    <Compile Include="Assets\Models\FileModel.cs" />
+    <Compile Include="Assets\Models\Model.cs" />
+    <Compile Include="Assets\Models\PrimitiveModel.cs" />
+    <Compile Include="Assets\Shaders\Shader.cs" />
+    <Compile Include="Assets\Textures\RenderTarget.cs" />
+    <Compile Include="Assets\Textures\Texture.cs" />
+    <Compile Include="Assets\Textures\TextureCube.cs" />
     <Compile Include="Cameras\Camera.cs" />
     <Compile Include="Cameras\EditorCamera.cs" />
     <Compile Include="Components\Animation\ModelAnimations.cs" />
@@ -119,6 +137,18 @@
     <Compile Include="Engine Core\GameLoop.cs" />
     <Compile Include="Engine Core\Screen.cs" />
     <Compile Include="Engine Core\Time.cs" />
+    <Compile Include="Graphics\GBuffer\GBuffer.cs" />
+    <Compile Include="Graphics\SpriteManager.cs" />
+    <Compile Include="Helpers\ArrayHelper.cs" />
+    <Compile Include="Helpers\Chronometer.cs" />
+    <Compile Include="Helpers\Curve3D.cs" />
+    <Compile Include="Helpers\Disposable.cs" />
+    <Compile Include="Helpers\ExtensionMethods.cs" />
+    <Compile Include="Helpers\Pool.cs" />
+    <Compile Include="Helpers\PoolWithoutAccessor.cs" />
+    <Compile Include="Helpers\RectangleF.cs" />
+    <Compile Include="Helpers\Size.cs" />
+    <Compile Include="Helpers\TestGarbageCollection.cs" />
     <Compile Include="Input\InputManager.cs" />
     <Compile Include="Input\Keyboard.cs" />
     <Compile Include="Input\KeyboardHook.cs" />
@@ -126,12 +156,9 @@
     <Compile Include="Input\XInputGamePad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scenes\Scene.cs" />
+    <Compile Include="SystemInformation.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\XNAFinalEngineBase\XNAFinalEngineBase.csproj">
-      <Project>{E401A7E9-4EA1-4D40-A335-4C9C5218AAC7}</Project>
-      <Name>XNAFinalEngineBase</Name>
-    </ProjectReference>
     <ProjectReference Include="..\XNAFinalEngineContentPipelineExtensionRuntime\XNAFinalEngineContentPipelineExtensionRuntime.csproj">
       <Project>{E3A98759-8C7F-4660-8D70-1B89C1F04235}</Project>
       <Name>XNAFinalEngineContentPipelineExtensionRuntime</Name>

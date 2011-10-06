@@ -49,7 +49,7 @@ namespace XNAFinalEngine.UserInterface
         protected override void DrawControl(Rectangle rect)
         {
             SkinLayer layer = SkinInformation.Layers["Control"];
-            SpriteFont font = (layer.Text != null && layer.Text.Font != null) ? layer.Text.Font.Font.XnaSpriteFont : null;
+            SpriteFont font = (layer.Text != null && layer.Text.Font != null) ? layer.Text.Font.Font.Resource : null;
             Point offset = new Point(layer.Text.OffsetX, layer.Text.OffsetY);
 
             Renderer.DrawLayer(this, layer, rect);

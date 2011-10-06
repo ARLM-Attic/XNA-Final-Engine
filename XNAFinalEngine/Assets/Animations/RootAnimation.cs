@@ -38,26 +38,27 @@ namespace XNAFinalEngine.Assets
 {
 
     /// <summary>
-    /// Animation.
+    /// Root Animation.
+    /// Animations that works at the transform level.
     /// </summary>
-    public class ModelAnimation : Asset
+    public class RootAnimation : Asset
     {
 
         #region Properties
 
         /// <summary>
-        /// Model Animation Data.
+        /// Root Animation Data.
         /// </summary>
-        public ModelAnimationClip AnimationClip { get; private set; }
+        public RootAnimationClip Resource { get; private set; }
 
         #endregion
 
-        #region Constructor
+        #region Constructors
 
         /// <summary>
-        /// Load model animation data (rigid or skinned) from a .x or fbx file.
+        /// Load root animation data from a .x or fbx file.
         /// </summary>
-        public ModelAnimation(string filename)
+        public RootAnimation(string filename)
         {
             Name = filename;
             string fullFilename = ContentManager.GameDataDirectory + "Animations\\" + filename;
@@ -67,7 +68,7 @@ namespace XNAFinalEngine.Assets
             }
             try
             {
-                AnimationClip = ContentManager.CurrentContentManager.XnaContentManager.Load<ModelAnimationClip>(fullFilename);
+                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<RootAnimationClip>(fullFilename);
             }
             catch (ObjectDisposedException)
             {
@@ -77,9 +78,9 @@ namespace XNAFinalEngine.Assets
             {
                 throw new InvalidOperationException("Failed to load animation data: " + filename, e);
             }
-        } // ModelAnimation
+        } // RootAnimation
 
         #endregion
 
-    } // ModelAnimation
+    } // RootAnimation
 } // XNAFinalEngine.Assets

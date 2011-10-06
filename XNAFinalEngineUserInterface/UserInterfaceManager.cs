@@ -22,6 +22,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -84,7 +85,7 @@ namespace XNAFinalEngine.UserInterface
                 set
                 {
                     cursor = value;
-                    window.Cursor = value.SystemCursor;
+                    window.Cursor = value.Resource;
                 }
             } // Cursor
 
@@ -247,14 +248,14 @@ namespace XNAFinalEngine.UserInterface
                 #if (WINDOWS)
                     MenuDelay = System.Windows.Forms.SystemInformation.MenuShowDelay;
                     DoubleClickTime = System.Windows.Forms.SystemInformation.DoubleClickTime;
-                    window = (Form)System.Windows.Forms.Control.FromHandle(SystemInformation.GameWindow.Handle);
+                    window = (Form)System.Windows.Forms.Control.FromHandle(EngineManager.GameWindow.Handle);
                     window.FormClosing += FormClosing;
                 #endif
 
                 RootControls  = new ControlsList();
                 OrderList = new ControlsList();
 
-                SystemInformation.GraphicsDeviceManager.PreparingDeviceSettings += OnPrepareGraphicsDevice;
+                EngineManager.GraphicsDeviceManager.PreparingDeviceSettings += OnPrepareGraphicsDevice;
 
                 states.Buttons = new Control[32];
                 states.Click = -1;
@@ -316,7 +317,6 @@ namespace XNAFinalEngine.UserInterface
                 WindowClosingEventArgs ex = new WindowClosingEventArgs();
                 if (WindowClosing != null)
                 {   
-                    SystemInformation.IsApplicationActive = true;
                     WindowClosing.Invoke(null, ex);
                     ret = ex.Cancel;
                 }
@@ -565,7 +565,7 @@ namespace XNAFinalEngine.UserInterface
                 }
                 // Draw user interface texture.
                 renderTarget.EnableRenderTarget();
-                    SystemInformation.Device.Clear(Color.Transparent);
+                    EngineManager.Device.Clear(Color.Transparent);
                     foreach (Control control in RootControls)
                     {
                         control.DrawControlOntoMainTexture();
@@ -582,7 +582,7 @@ namespace XNAFinalEngine.UserInterface
             if ((RootControls != null))
             {
                 Renderer.Begin();
-                    Renderer.Draw(renderTarget.XnaTexture, new Rectangle(0, 0, SystemInformation.ScreenWidth, SystemInformation.ScreenHeight), Color.White);
+                Renderer.Draw(renderTarget.Resource, new Rectangle(0, 0, EngineCore.Screen.Width, EngineCore.Screen.Height), Color.White);
                 Renderer.End();
             }
         } // DrawTextureToScreen

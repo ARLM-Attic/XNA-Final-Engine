@@ -34,6 +34,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.Graphics
@@ -94,7 +95,7 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         public static void Init()
         {            
-            spriteBatch = new SpriteBatch(SystemInformation.Device);
+            spriteBatch = new SpriteBatch(EngineManager.Device);
         } // Init
 
         #endregion
@@ -130,7 +131,7 @@ namespace XNAFinalEngine.Graphics
         /// <param name="scale">Scale factor.</param>
         public static void DrawText(Font font, StringBuilder text, Vector3 position, Color color, float rotation, Vector2 origin, float scale)
         {
-            spriteBatch.DrawString(font.XnaSpriteFont, text, new Vector2(position.X, position.Y), color, rotation, Vector2.Zero, scale, SpriteEffects.None, position.Z);
+            spriteBatch.DrawString(font.Resource, text, new Vector2(position.X, position.Y), color, rotation, Vector2.Zero, scale, SpriteEffects.None, position.Z);
         } // DrawText
 
         #endregion
@@ -164,10 +165,10 @@ namespace XNAFinalEngine.Graphics
             // Also there is no need for alpha blending.
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
             
-            spriteBatch.Draw(renderTarget.XnaTexture, 
+            spriteBatch.Draw(renderTarget.Resource, 
                              new Rectangle(0, 0, 
-                                           SystemInformation.Device.PresentationParameters.BackBufferWidth,
-                                           SystemInformation.Device.PresentationParameters.BackBufferHeight),
+                                           EngineManager.Device.PresentationParameters.BackBufferWidth,
+                                           EngineManager.Device.PresentationParameters.BackBufferHeight),
                              Color.White);
                         
             spriteBatch.End();

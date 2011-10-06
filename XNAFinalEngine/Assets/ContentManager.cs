@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -125,7 +126,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public ContentManager()
         {
-            XnaContentManager = new Microsoft.Xna.Framework.Content.ContentManager(SystemInformation.Services);
+            XnaContentManager = new Microsoft.Xna.Framework.Content.ContentManager(EngineManager.GameServices);
         } // ContentManager
 
         #endregion

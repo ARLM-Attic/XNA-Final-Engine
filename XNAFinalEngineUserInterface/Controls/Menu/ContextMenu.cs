@@ -16,6 +16,8 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.EngineCore;
+
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -104,7 +106,7 @@ namespace XNAFinalEngine.UserInterface
                 if (Items[i].Separated && i > 0)
                 {
                     Rectangle r = new Rectangle(left, rect.Top + l1.ContentMargins.Top + (i * vsize), LineWidth() - vsize + 4, 1);
-                    Renderer.Draw(Skin.Controls["Control"].Layers[0].Image.Texture.XnaTexture, r, l1.Text.Colors.Enabled);
+                    Renderer.Draw(Skin.Controls["Control"].Layers[0].Image.Texture.Resource, r, l1.Text.Colors.Enabled);
                 }
                 if (ItemIndex != i)
                 {
@@ -119,7 +121,7 @@ namespace XNAFinalEngine.UserInterface
                         Rectangle r = new Rectangle(left + l1.Text.OffsetX,
                                                     top + l1.Text.OffsetY,
                                                     LineWidth() - vsize, h);
-                        Renderer.DrawString(l1.Text.Font.Font.XnaSpriteFont, Items[i].Text, r, l1.Text.Colors.Disabled, l1.Text.Alignment);
+                        Renderer.DrawString(l1.Text.Font.Font.Resource, Items[i].Text, r, l1.Text.Colors.Disabled, l1.Text.Alignment);
                         col = l1.Text.Colors.Disabled;
                     }
                 }
@@ -150,7 +152,7 @@ namespace XNAFinalEngine.UserInterface
                         Rectangle r = new Rectangle(left + l1.Text.OffsetX,
                                                     top + l1.Text.OffsetY,
                                                     LineWidth() - vsize, h);
-                        Renderer.DrawString(l2.Text.Font.Font.XnaSpriteFont, Items[i].Text, r, l2.Text.Colors.Disabled, l2.Text.Alignment);
+                        Renderer.DrawString(l2.Text.Font.Font.Resource, Items[i].Text, r, l2.Text.Colors.Disabled, l2.Text.Alignment);
                         col = l2.Text.Colors.Disabled;
                     }
                 }
@@ -163,7 +165,7 @@ namespace XNAFinalEngine.UserInterface
 
                 if (Items[i].ChildrenItems != null && Items[i].ChildrenItems.Count > 0)
                 {
-                    Renderer.Draw(Skin.Images["Shared.ArrowRight"].Texture.XnaTexture, rect.Left + LineWidth() - 4, rect.Top + l1.ContentMargins.Top + (i * vsize) + 8, col);
+                    Renderer.Draw(Skin.Images["Shared.ArrowRight"].Texture.Resource, rect.Left + LineWidth() - 4, rect.Top + l1.ContentMargins.Top + (i * vsize) + 8, col);
                 }
             }
         } // DrawControl
@@ -440,7 +442,7 @@ namespace XNAFinalEngine.UserInterface
                 Top = y;
             }
 
-            if (ControlLeftAbsoluteCoordinate + Width > SystemInformation.ScreenWidth)
+            if (ControlLeftAbsoluteCoordinate + Width > Screen.Width)
             {
                 Left = Left - Width;
                 if (ParentMenu != null && ParentMenu is ContextMenu)
@@ -449,10 +451,10 @@ namespace XNAFinalEngine.UserInterface
                 }
                 else if (ParentMenu != null)
                 {
-                    Left = SystemInformation.ScreenWidth - (Parent != null ? Parent.ControlLeftAbsoluteCoordinate : 0) - Width - 2;
+                    Left = Screen.Width - (Parent != null ? Parent.ControlLeftAbsoluteCoordinate : 0) - Width - 2;
                 }
             }
-            if (ControlTopAbsoluteCoordinate + Height > SystemInformation.ScreenHeight)
+            if (ControlTopAbsoluteCoordinate + Height > Screen.Height)
             {
                 Top = Top - Height;
                 if (ParentMenu != null && ParentMenu is ContextMenu)

@@ -15,6 +15,8 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAFinalEngine.EngineCore;
+
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -308,7 +310,7 @@ namespace XNAFinalEngine.UserInterface
             SkinLayer skinLayerFrameBottom = SkinInformation.Layers[layerFrameBottom];
             SkinLayer skinLayerIcon        = SkinInformation.Layers[layerIcon];
             LayerStates layerStateFrameTop, layerStateFrameLeft, layerStateFrameRight, layerStateFrameButtom;
-            SpriteFont font = skinLayerFrameTop.Text.Font.Font.XnaSpriteFont;
+            SpriteFont font = skinLayerFrameTop.Text.Font.Font.Resource;
             Color color;
 
             if ((Focused || (UserInterfaceManager.FocusedControl != null && UserInterfaceManager.FocusedControl.Root == Root)) && ControlState != ControlState.Disabled)
@@ -347,7 +349,7 @@ namespace XNAFinalEngine.UserInterface
 
                 if (iconVisible && (Icon != null || skinLayerIcon != null) && captionVisible)
                 {
-                    Texture2D i = Icon ?? skinLayerIcon.Image.Texture.XnaTexture;
+                    Texture2D i = Icon ?? skinLayerIcon.Image.Texture.Resource;
                     Renderer.Draw(i, GetIconRectangle(), Color.White);
                 }
 
@@ -381,8 +383,8 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual void CenterWindow()
         {
-            Left = (SystemInformation.ScreenWidth / 2) - (Width / 2);
-            Top = (SystemInformation.ScreenHeight - Height) / 2;
+            Left = (Screen.Width / 2) - (Width / 2);
+            Top = (Screen.Height - Height) / 2;
         } // Center
 
         #endregion

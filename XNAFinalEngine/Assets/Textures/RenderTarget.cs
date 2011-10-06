@@ -33,6 +33,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -178,7 +179,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Return the render target texture. In XNA 4.0 the render target it's a texture.
         /// </summary>
-        public override Texture2D XnaTexture
+        public override Texture2D Resource
         {
             get
             {
@@ -315,7 +316,7 @@ namespace XNAFinalEngine.Assets
         {
             if (sizeType == SizeType.FullScreen || sizeType == SizeType.HalfScreen || sizeType == SizeType.QuarterScreen)
             {
-                SystemInformation.WindowSizeChanged += OnWindowSizeChanged;
+                Screen.ScreenSizeChanged += OnWindowSizeChanged;
             }
             try
             {
@@ -324,7 +325,7 @@ namespace XNAFinalEngine.Assets
                 // I use RenderTargetUsage.PlatformContents to be little more performance friendly with PC.
                 // But I assume that the system works in DiscardContents mode so that an XBOX 360 implementation works.
                 // What I lose, mostly nothing, because I made my own ZBuffer texture and the stencil buffer is deleted no matter what I do.
-                renderTarget = new RenderTarget2D(SystemInformation.Device, Width, Height, false, surfaceFormat, depthFormat, CalculateMultiSampleQuality(Antialiasing), RenderTargetUsage.PlatformContents);
+                renderTarget = new RenderTarget2D(EngineManager.Device, Width, Height, false, surfaceFormat, depthFormat, CalculateMultiSampleQuality(Antialiasing), RenderTargetUsage.PlatformContents);
             }
             catch (Exception e)
             {
@@ -379,16 +380,16 @@ namespace XNAFinalEngine.Assets
             switch (sizeType)
             {
                 case SizeType.FullScreen:
-                    width = SystemInformation.Device.PresentationParameters.BackBufferWidth;
-                    height = SystemInformation.Device.PresentationParameters.BackBufferHeight;
+                    width = Screen.Width;
+                    height = Screen.Height;
                     break;
                 case SizeType.HalfScreen:
-                    width = SystemInformation.Device.PresentationParameters.BackBufferWidth / 2;
-                    height = SystemInformation.Device.PresentationParameters.BackBufferHeight / 2;
+                    width = Screen.Width / 2;
+                    height = Screen.Height / 2;
                     break;
                 case SizeType.QuarterScreen:
-                    width = SystemInformation.Device.PresentationParameters.BackBufferWidth / 4;
-                    height = SystemInformation.Device.PresentationParameters.BackBufferHeight / 4;
+                    width = Screen.Width / 4;
+                    height = Screen.Height / 4;
                     break;
                 case SizeType.Square256X256:
                     width = 256;
@@ -426,7 +427,7 @@ namespace XNAFinalEngine.Assets
                 case AntialiasingType.NoAntialiasing:
                     return 0;
                 case AntialiasingType.System:
-                    return SystemInformation.Device.PresentationParameters.MultiSampleCount;
+                    return Screen.MultiSampleQuality;
                 case AntialiasingType.TwoSamples:
                     return 2;
                 case AntialiasingType.FourSamples:
@@ -451,7 +452,7 @@ namespace XNAFinalEngine.Assets
         {
             if (currentRenderTarget[0] != null)
                 throw new InvalidOperationException("Render Target: unable to set render target. Another render target is still set. If you want to set multiple render targets use the static method called EnableRenderTargets.");
-            SystemInformation.Device.SetRenderTarget(renderTarget);
+            EngineManager.Device.SetRenderTarget(renderTarget);
             currentRenderTarget[0] = this;
             alreadyResolved = false;
         } // EnableRenderTarget
@@ -472,7 +473,7 @@ namespace XNAFinalEngine.Assets
                 currentRenderTarget[i] = renderTargetBinding.renderTargets[i];
                 renderTargetBinding.renderTargets[i].alreadyResolved = false;
             }
-            SystemInformation.Device.SetRenderTargets(renderTargetBinding.InternalBinding);
+            EngineManager.Device.SetRenderTargets(renderTargetBinding.InternalBinding);
         } // EnableRenderTargets
         
         #endregion
@@ -488,9 +489,9 @@ namespace XNAFinalEngine.Assets
             if (currentRenderTarget[0] != this)
                 throw new InvalidOperationException("Render Target: You can't clear a render target without first setting it");
             if (depthFormat == DepthFormat.None)
-                SystemInformation.Device.Clear(clearColor);
+                EngineManager.Device.Clear(clearColor);
             else
-                SystemInformation.Device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, clearColor, 1.0f, 0);
+                EngineManager.Device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, clearColor, 1.0f, 0);
         } // Clear
 
         /// <summary>
@@ -524,7 +525,7 @@ namespace XNAFinalEngine.Assets
             
             alreadyResolved = true;
             currentRenderTarget[0] = null;
-            SystemInformation.Device.SetRenderTarget(null);
+            EngineManager.Device.SetRenderTarget(null);
         } // DisableRenderTarget
 
         /// <summary>
@@ -538,7 +539,7 @@ namespace XNAFinalEngine.Assets
                     currentRenderTarget[i].alreadyResolved = true;
                 currentRenderTarget[i] = null;
             }
-            SystemInformation.Device.SetRenderTarget(null);
+            EngineManager.Device.SetRenderTarget(null);
         } // DisableCurrentRenderTargets
 
         #endregion

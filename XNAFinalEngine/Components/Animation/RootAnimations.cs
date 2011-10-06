@@ -255,7 +255,7 @@ namespace XNAFinalEngine.Components
         /// <remarks>Checks both, the name and the clip.</remarks>
         public bool ContainsAnimationClip(Assets.RootAnimation animation)
         {
-            return rootAnimations.ContainsValue(animation.AnimationClip) || rootAnimations.ContainsKey(animation.Name);
+            return rootAnimations.ContainsValue(animation.Resource) || rootAnimations.ContainsKey(animation.Name);
         } // ContainsAnimationClip
 
         #endregion
@@ -268,7 +268,7 @@ namespace XNAFinalEngine.Components
         public void AddAnimationClip(Assets.RootAnimation animation)
         {
             if (!ContainsAnimationClip(animation))
-                rootAnimations.Add(animation.Name, animation.AnimationClip);
+                rootAnimations.Add(animation.Name, animation.Resource);
             else
                 throw new ArgumentException("Root Animation Component: The animation " + animation.Name + " is already assigned.");
         } // AddAnimationClip

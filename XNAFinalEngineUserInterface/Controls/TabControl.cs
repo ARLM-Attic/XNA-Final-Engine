@@ -159,7 +159,7 @@ namespace XNAFinalEngine.UserInterface
                 Rectangle prev = new Rectangle(rect.Left, rect.Top + l2.OffsetY, 0, l2.Height);
                 for (int i = 0; i < tabPages.Count; i++)
                 {
-                    SpriteFont font = l2.Text.Font.Font.XnaSpriteFont;
+                    SpriteFont font = l2.Text.Font.Font.Resource;
                     Margins margins = l2.ContentMargins;
                     Point offset = new Point(l2.OffsetX, l2.OffsetY);
                     if (i > 0) prev = tabPages[i - 1].HeaderRectangle;
@@ -184,7 +184,7 @@ namespace XNAFinalEngine.UserInterface
                     if (i != selectedIndex)
                     {
                         Renderer.DrawLayer(l2, rx, col, li);
-                        Renderer.DrawString(l2.Text.Font.Font.XnaSpriteFont, tabPages[i].Text, sx, lc, l2.Text.Alignment);
+                        Renderer.DrawString(l2.Text.Font.Font.Resource, tabPages[i].Text, sx, lc, l2.Text.Alignment);
                     }
                 }
 
@@ -192,7 +192,7 @@ namespace XNAFinalEngine.UserInterface
                 Rectangle ri = tabPages[selectedIndex].HeaderRectangle;
                 Rectangle si = new Rectangle(ri.Left + mi.Left, ri.Top + mi.Top, ri.Width - mi.Horizontal, ri.Height - mi.Vertical);
                 Renderer.DrawLayer(l2, ri, col, l2.States.Focused.Index);
-                Renderer.DrawString(l2.Text.Font.Font.XnaSpriteFont, tabPages[selectedIndex].Text, si, l2.Text.Colors.Focused, l2.Text.Alignment, l2.Text.OffsetX, l2.Text.OffsetY, false);
+                Renderer.DrawString(l2.Text.Font.Font.Resource, tabPages[selectedIndex].Text, si, l2.Text.Colors.Focused, l2.Text.Alignment, l2.Text.OffsetX, l2.Text.OffsetY, false);
             }
         } // DrawControl
 

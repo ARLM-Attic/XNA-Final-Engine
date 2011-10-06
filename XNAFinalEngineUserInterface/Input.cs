@@ -263,7 +263,7 @@ namespace XNAFinalEngine.UserInterface
 
         private static void AdjustPosition(ref MouseEventArgs e)
         {
-            Rectangle screen = SystemInformation.GameWindow.ClientBounds;
+            Rectangle screen = EngineManager.GameWindow.ClientBounds;
 
             if (e.Position.X < 0) e.Position.X = 0;
             if (e.Position.Y < 0) e.Position.Y = 0;

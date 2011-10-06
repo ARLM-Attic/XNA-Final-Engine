@@ -12,6 +12,10 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
+#region Using directives
+using XNAFinalEngine.EngineCore;
+#endregion
+
 namespace XNAFinalEngine.UserInterface
 {
 
@@ -44,7 +48,7 @@ namespace XNAFinalEngine.UserInterface
             IconVisible = true;
             Resizable = false;
             StayOnTop = true;
-            Text = SystemInformation.GameWindow.Title;
+            Text = EngineManager.GameWindow.Title;
             CenterWindow();
 
             imageIcon = new ImageBox

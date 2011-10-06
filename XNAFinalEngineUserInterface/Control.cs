@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -479,7 +480,7 @@ namespace XNAFinalEngine.UserInterface
             get
             {
                 int max = maximumWidth;
-                if (max > SystemInformation.ScreenWidth) max = SystemInformation.ScreenWidth;
+                if (max > Screen.Width) max = Screen.Width;
                 return max;
             }
             set
@@ -498,7 +499,7 @@ namespace XNAFinalEngine.UserInterface
             get
             {
                 int max = maximumHeight;
-                if (max > SystemInformation.ScreenHeight) max = SystemInformation.ScreenHeight;
+                if (max > Screen.Height) max = Screen.Height;
                 return max;
             }
             set
@@ -1465,8 +1466,8 @@ namespace XNAFinalEngine.UserInterface
                     int w = ControlAndMarginsWidth  + (UserInterfaceManager.TextureResizeIncrement - (ControlAndMarginsWidth  % UserInterfaceManager.TextureResizeIncrement));
                     int h = ControlAndMarginsHeight + (UserInterfaceManager.TextureResizeIncrement - (ControlAndMarginsHeight % UserInterfaceManager.TextureResizeIncrement));
 
-                    if (h > SystemInformation.ScreenHeight) h = SystemInformation.ScreenHeight;
-                    if (w > SystemInformation.ScreenWidth) w = SystemInformation.ScreenWidth;
+                    if (h > Screen.Height) h = Screen.Height;
+                    if (w > Screen.Width) w = Screen.Width;
                     
                     if (width > 0 && height > 0)
                     {
@@ -1498,7 +1499,7 @@ namespace XNAFinalEngine.UserInterface
             if (visible && renderTarget != null)
             {
                 Renderer.Begin();
-                    Renderer.Draw(renderTarget.XnaTexture,
+                    Renderer.Draw(renderTarget.Resource,
                                   ControlAndMarginsLeftAbsoluteCoordinate, ControlAndMarginsTopAbsoluteCoordinate,
                                   new Rectangle(0, 0, ControlAndMarginsWidth, ControlAndMarginsHeight),
                                   Color.FromNonPremultiplied(255, 255, 255, Alpha));
@@ -1543,14 +1544,14 @@ namespace XNAFinalEngine.UserInterface
                     // We skip detached controls for first level after root (they are rendered separately in Draw() method)
                     if (((c.Root == c.Parent && !c.Detached) || c.Root != c.Parent) && ControlRectangle.Intersects(c.ControlRectangle) && c.visible)
                     {
-                        SystemInformation.Device.ScissorRectangle = ClippingRectangle(c);
+                        EngineManager.Device.ScissorRectangle = ClippingRectangle(c);
 
                         // The position relative to its parent with its width and height.
                         Rectangle rect = new Rectangle(c.ControlAndMarginsLeftAbsoluteCoordinate - root.ControlLeftAbsoluteCoordinate, c.ControlAndMarginsTopAbsoluteCoordinate - root.ControlTopAbsoluteCoordinate, c.ControlAndMarginsWidth, c.ControlAndMarginsHeight);
                         if (c.Root != c.Parent && ((!c.Detached && CheckDetached(c)) || firstDetachedLevel))
                         {
                             rect = new Rectangle(c.ControlAndMarginsLeftAbsoluteCoordinate, c.ControlAndMarginsTopAbsoluteCoordinate, c.ControlAndMarginsWidth, c.ControlAndMarginsHeight);
-                            SystemInformation.Device.ScissorRectangle = rect;
+                            EngineManager.Device.ScissorRectangle = rect;
                         }
 
                         Renderer.Begin();
@@ -1602,7 +1603,7 @@ namespace XNAFinalEngine.UserInterface
                     r = new Rectangle(OutlineRectangle.Left + (parent.ControlLeftAbsoluteCoordinate - root.ControlLeftAbsoluteCoordinate), OutlineRectangle.Top + (parent.ControlTopAbsoluteCoordinate - root.ControlTopAbsoluteCoordinate), OutlineRectangle.Width, OutlineRectangle.Height);
                 }
 
-                Texture2D t = Skin.Controls["Control.Outline"].Layers[0].Image.Texture.XnaTexture;
+                Texture2D t = Skin.Controls["Control.Outline"].Layers[0].Image.Texture.Resource;
 
                 int s = resizerSize;
                 Rectangle r1 = new Rectangle(r.Left + HorizontalScrollingAmount, r.Top + VerticalScrollingAmount, r.Width, s);
@@ -1627,7 +1628,7 @@ namespace XNAFinalEngine.UserInterface
                     r = new Rectangle(r.Left + (parent.ControlLeftAbsoluteCoordinate - root.ControlLeftAbsoluteCoordinate), r.Top + (parent.ControlTopAbsoluteCoordinate - root.ControlTopAbsoluteCoordinate), r.Width, r.Height);
                 }
 
-                Texture2D t = Skin.Controls["Control.Outline"].Layers[0].Image.Texture.XnaTexture;
+                Texture2D t = Skin.Controls["Control.Outline"].Layers[0].Image.Texture.Resource;
 
                 int s = resizerSize;
                 Rectangle r1 = new Rectangle(r.Left + HorizontalScrollingAmount, r.Top + VerticalScrollingAmount, r.Width, s);
@@ -1653,7 +1654,7 @@ namespace XNAFinalEngine.UserInterface
         {
             if (backgroundColor != UndefinedColor && backgroundColor != Color.Transparent)
             {
-                Renderer.Draw(Skin.Images["Control"].Texture.XnaTexture, rect, backgroundColor);
+                Renderer.Draw(Skin.Images["Control"].Texture.Resource, rect, backgroundColor);
             }
             Renderer.DrawLayer(this, skinControl.Layers[0], rect);
         } // DrawControl

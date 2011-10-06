@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.Input
@@ -124,12 +125,12 @@ namespace XNAFinalEngine.Input
 			get
 			{
                 Point aux = new Point(positionX, positionY);
-                if (state.X >= SystemInformation.Device.PresentationParameters.BackBufferWidth)
-                    aux.X = SystemInformation.Device.PresentationParameters.BackBufferWidth - 1;
+                if (state.X >= EngineManager.Device.PresentationParameters.BackBufferWidth)
+                    aux.X = EngineManager.Device.PresentationParameters.BackBufferWidth - 1;
                 if (state.X < 0)
                     aux.X = 0;
-                if (state.Y >= SystemInformation.Device.PresentationParameters.BackBufferHeight)
-                    aux.Y = SystemInformation.Device.PresentationParameters.BackBufferHeight - 1;
+                if (state.Y >= EngineManager.Device.PresentationParameters.BackBufferHeight)
+                    aux.Y = EngineManager.Device.PresentationParameters.BackBufferHeight - 1;
                 if (state.Y < 0)
                     aux.Y = 0;
 				return aux;
@@ -299,19 +300,19 @@ namespace XNAFinalEngine.Input
             }
             else
             {
-                xMovement = state.X - SystemInformation.Device.PresentationParameters.BackBufferWidth / 2;
-                yMovement = state.Y - SystemInformation.Device.PresentationParameters.BackBufferHeight / 2;
+                xMovement = state.X - Screen.Width / 2;
+                yMovement = state.Y - Screen.Height / 2;
                 positionX += xMovement;
                 positionY += yMovement;
-                if (positionX >= SystemInformation.Device.PresentationParameters.BackBufferWidth)
-                    positionX = SystemInformation.Device.PresentationParameters.BackBufferWidth - 1;
+                if (positionX >= Screen.Width)
+                    positionX = Screen.Width - 1;
                 if (positionX < 0)
                     positionX = 0;
-                if (positionY >= SystemInformation.Device.PresentationParameters.BackBufferHeight)
-                    positionY = SystemInformation.Device.PresentationParameters.BackBufferHeight - 1;
+                if (positionY >= Screen.Height)
+                    positionY = Screen.Height - 1;
                 if (positionY < 0)
                     positionY = 0;
-                Microsoft.Xna.Framework.Input.Mouse.SetPosition(SystemInformation.Device.PresentationParameters.BackBufferWidth / 2, SystemInformation.Device.PresentationParameters.BackBufferHeight / 2);
+                Microsoft.Xna.Framework.Input.Mouse.SetPosition(Screen.Width / 2, Screen.Height / 2);
             }
             
             if (LeftButtonPressed == false)

@@ -16,6 +16,7 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -50,7 +51,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         internal static void Init()
         {
-            spriteBatch = new SpriteBatch(SystemInformation.Device);
+            spriteBatch = new SpriteBatch(EngineManager.Device);
             
             // The scissor test is very important, so a custom rasterizer state is created.
             rasterizerState = new RasterizerState
@@ -205,7 +206,7 @@ namespace XNAFinalEngine.UserInterface
                     SkinText font = layer.Text;
                     if (control.TextColor != Control.UndefinedColor && control.ControlState != ControlState.Disabled) 
                         color = control.TextColor;
-                    DrawString(font.Font.Font.XnaSpriteFont, text, rect, color, font.Alignment, font.OffsetX + ox, font.OffsetY + oy, ellipsis);
+                    DrawString(font.Font.Font.Resource, text, rect, color, font.Alignment, font.OffsetX + ox, font.OffsetY + oy, ellipsis);
                 }
             }
         } // DrawString
@@ -301,15 +302,15 @@ namespace XNAFinalEngine.UserInterface
             Size imageSize = new Size(layer.Image.Texture.Width, layer.Image.Texture.Height);
             Size partSize = new Size(layer.Width, layer.Height);
 
-            Draw(layer.Image.Texture.XnaTexture, GetDestinationArea(rect, layer.SizingMargins, Alignment.TopLeft),      GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.TopLeft, index), color);
-            Draw(layer.Image.Texture.XnaTexture, GetDestinationArea(rect, layer.SizingMargins, Alignment.TopCenter), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.TopCenter, index), color);
-            Draw(layer.Image.Texture.XnaTexture, GetDestinationArea(rect, layer.SizingMargins, Alignment.TopRight), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.TopRight, index), color);
-            Draw(layer.Image.Texture.XnaTexture, GetDestinationArea(rect, layer.SizingMargins, Alignment.MiddleLeft), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.MiddleLeft, index), color);
-            Draw(layer.Image.Texture.XnaTexture, GetDestinationArea(rect, layer.SizingMargins, Alignment.MiddleCenter), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.MiddleCenter, index), color);
-            Draw(layer.Image.Texture.XnaTexture, GetDestinationArea(rect, layer.SizingMargins, Alignment.MiddleRight), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.MiddleRight, index), color);
-            Draw(layer.Image.Texture.XnaTexture, GetDestinationArea(rect, layer.SizingMargins, Alignment.BottomLeft), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.BottomLeft, index), color);
-            Draw(layer.Image.Texture.XnaTexture, GetDestinationArea(rect, layer.SizingMargins, Alignment.BottomCenter), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.BottomCenter, index), color);
-            Draw(layer.Image.Texture.XnaTexture, GetDestinationArea(rect, layer.SizingMargins, Alignment.BottomRight), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.BottomRight, index), color);
+            Draw(layer.Image.Texture.Resource, GetDestinationArea(rect, layer.SizingMargins, Alignment.TopLeft),      GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.TopLeft, index), color);
+            Draw(layer.Image.Texture.Resource, GetDestinationArea(rect, layer.SizingMargins, Alignment.TopCenter), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.TopCenter, index), color);
+            Draw(layer.Image.Texture.Resource, GetDestinationArea(rect, layer.SizingMargins, Alignment.TopRight), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.TopRight, index), color);
+            Draw(layer.Image.Texture.Resource, GetDestinationArea(rect, layer.SizingMargins, Alignment.MiddleLeft), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.MiddleLeft, index), color);
+            Draw(layer.Image.Texture.Resource, GetDestinationArea(rect, layer.SizingMargins, Alignment.MiddleCenter), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.MiddleCenter, index), color);
+            Draw(layer.Image.Texture.Resource, GetDestinationArea(rect, layer.SizingMargins, Alignment.MiddleRight), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.MiddleRight, index), color);
+            Draw(layer.Image.Texture.Resource, GetDestinationArea(rect, layer.SizingMargins, Alignment.BottomLeft), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.BottomLeft, index), color);
+            Draw(layer.Image.Texture.Resource, GetDestinationArea(rect, layer.SizingMargins, Alignment.BottomCenter), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.BottomCenter, index), color);
+            Draw(layer.Image.Texture.Resource, GetDestinationArea(rect, layer.SizingMargins, Alignment.BottomRight), GetSourceArea(imageSize, partSize, layer.SizingMargins, Alignment.BottomRight, index), color);
         } // DrawLayer
 
         public static void DrawLayer(Control control, SkinLayer layer, Rectangle rect)
@@ -608,11 +609,11 @@ namespace XNAFinalEngine.UserInterface
 
             if (glyph.SourceRectangle.IsEmpty)
             {
-                Draw(glyph.Texture.XnaTexture, rect, glyph.Color);
+                Draw(glyph.Texture.Resource, rect, glyph.Color);
             }
             else
             {
-                Draw(glyph.Texture.XnaTexture, rect, glyph.SourceRectangle, glyph.Color);
+                Draw(glyph.Texture.Resource, rect, glyph.SourceRectangle, glyph.Color);
             }
         } // DrawGlyph
 

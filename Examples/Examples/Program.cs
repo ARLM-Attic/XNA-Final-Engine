@@ -59,7 +59,8 @@ namespace XNAFinalEngineExamples
             // User initial code. Like network updates or some checking.
 
             // Now the engine will start.
-            EngineManager.StarEngine(new TutorialNeoForceUIScene());
+            EngineManager.StarEngine(new TestScene());
+            //EngineManager.StarEngine(new TutorialNeoForceUIScene());
         } // Main
 
         #endregion

@@ -36,81 +36,40 @@ using System.IO;
 namespace XNAFinalEngine.Assets
 {
 
+#if (WINDOWS)
+
 	/// <summary>
-	/// LDR or HDR Cube Maps.
-	/// HDR can be stored in the RGBM format.
+	/// Cursor
 	/// </summary>
-    public class TextureCube : Asset
+    public class Cursor : Asset
     {
-
-        #region Variables
-                
-        /// <summary>
-        /// XNA Texture.
-        /// </summary>
-        protected Microsoft.Xna.Framework.Graphics.TextureCube xnaTextureCube;
-
-	    /// <summary>
-        /// The size of this texture resource, in pixels.
-	    /// </summary>
-	    protected int size;
-
-        #endregion
-
+        
         #region Properties
 
         /// <summary>
-        /// XNA Texture.
+        /// Internal X Document.
         /// </summary>
-        public virtual Microsoft.Xna.Framework.Graphics.TextureCube XnaTexture
-        { 
-            get { return xnaTextureCube; }
-            set
-            {
-                xnaTextureCube = value; 
-                size = value.Size;
-            }
-        } // XnaTextureCube
-
-        /// <summary>
-        /// The size of this texture resource, in pixels.
-        /// </summary>
-        public int Size { get { return size; } }
-
-        /// <summary>
-        /// Is it in RGBM format?
-        /// </summary>
-        public bool IsRgbm { get; set; }
-
-        /// <summary>
-        /// RGBM Max Range.
-        /// </summary>
-        public float RgbmMaxRange { get; set; }
-    
+        public System.Windows.Forms.Cursor Resource { get; private set; }
+        
         #endregion
 
         #region Constructor
 
-	    /// <summary>
-	    /// Create cube map from given filename.
-	    /// </summary>
-	    /// <param name="filename">Set filename, must be relative and be a valid file in the textures directory.</param>
-	    /// <param name="isRgbm">is in RGBM format?</param>
-        /// <param name="rgbmMaxRange">RGBM Max Range.</param>
-	    public TextureCube(string filename, bool isRgbm = false, float rgbmMaxRange = 50.0f)
+		/// <summary>
+		/// Load a cursor.
+		/// </summary>
+        /// <param name="filename">>The filename must be relative and be a valid file in the Cursors directory</param>
+        public Cursor(string filename)
 		{
             Name = filename;
-		    IsRgbm = isRgbm;
-	        RgbmMaxRange = rgbmMaxRange;
-            string fullFilename = ContentManager.GameDataDirectory + "Textures\\CubeTextures\\" + filename;
+            string fullFilename = ContentManager.GameDataDirectory + "Cursors\\" + filename;
             if (File.Exists(fullFilename + ".xnb") == false)
             {
-                throw new ArgumentException("Failed to load cube map: File " + fullFilename + " does not exists!");
+                throw new ArgumentException("Failed to load cursor: File " + fullFilename + " does not exists!", "filename");
             }
             try
             {
-                xnaTextureCube = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Graphics.TextureCube>(fullFilename);
-                size = xnaTextureCube.Size;
+                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<System.Windows.Forms.Cursor>(fullFilename);
             }
             catch (ObjectDisposedException)
             {
@@ -118,24 +77,13 @@ namespace XNAFinalEngine.Assets
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Failed to load cube map: " + filename, e);
+                throw new InvalidOperationException("Failed to load cursor: " + filename, e);
             }
-		} // TextureCube
+        } // Cursor
 
 		#endregion
 
-        #region Dispose
-
-        /// <summary>
-        /// Dispose managed resources.
-        /// </summary>
-        protected override void DisposeManagedResources()
-        {
-            XnaTexture.Dispose();
-        } // DisposeManagedResources
-
-	    #endregion
-
-    } // TextureCube
+    } // Document
+#endif
 } // XNAFinalEngine.Assets
 

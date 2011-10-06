@@ -29,6 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System;
 using XNAFinalEngine.Helpers;
 using Microsoft.Xna.Framework.Graphics;
 #endregion
@@ -64,8 +66,8 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static string WindowTitle
         {
-            get { return SystemInformation.GameWindow.Title; }
-            set { SystemInformation.GameWindow.Title = value; }
+            get { return EngineManager.GameWindow.Title; }
+            set { EngineManager.GameWindow.Title = value; }
         } // WindowTitle
 
         /// <summary>
@@ -82,11 +84,11 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static bool Fullscreen
         {
-            get { return SystemInformation.GraphicsDeviceManager.IsFullScreen; }
+            get { return EngineManager.GraphicsDeviceManager.IsFullScreen; }
             set
             {
-                SystemInformation.GraphicsDeviceManager.IsFullScreen = value;
-                SystemInformation.GraphicsDeviceManager.ApplyChanges();
+                EngineManager.GraphicsDeviceManager.IsFullScreen = value;
+                EngineManager.GraphicsDeviceManager.ApplyChanges();
             }
         } // Fullscreen
 
@@ -95,22 +97,22 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static bool VSync
         {
-            get { return SystemInformation.GraphicsDeviceManager.SynchronizeWithVerticalRetrace; }
+            get { return EngineManager.GraphicsDeviceManager.SynchronizeWithVerticalRetrace; }
             set
             {
-                SystemInformation.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = value;
-                SystemInformation.GraphicsDeviceManager.ApplyChanges();
+                EngineManager.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = value;
+                EngineManager.GraphicsDeviceManager.ApplyChanges();
             }
         } // Fullscreen
 
         /// <summary>
-        /// Enables the option to resize the application window.
+        /// Enables the option to resize the application window using the mouse.
         /// </summary>
-        public static bool ChangeWindowSize
+        public static bool AllowResizing
         {
-            get { return SystemInformation.GameWindow.AllowUserResizing; }
-            set { SystemInformation.GameWindow.AllowUserResizing = value; }
-        } // ChangeWindowSize
+            get { return EngineManager.GameWindow.AllowUserResizing; }
+            set { EngineManager.GameWindow.AllowUserResizing = value; }
+        } // AllowResizing
 
         /// <summary>
         /// System Multi Sample Quality.
@@ -123,8 +125,8 @@ namespace XNAFinalEngine.EngineCore
             set
             {
                 multiSampleQuality = value;
-                if (SystemInformation.Device != null)
-                    SystemInformation.Device.PresentationParameters.MultiSampleCount = value;
+                if (EngineManager.Device != null)
+                    EngineManager.Device.PresentationParameters.MultiSampleCount = value;
                 //SystemInformation.GraphicsDeviceManager.PreferMultiSampling = multiSampleQuality != 0; // Activate the antialiasing if multisamplequality is different than zero.
                 //SystemInformation.GraphicsDeviceManager.ApplyChanges();
             }
@@ -135,12 +137,12 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// Screen width.
         /// </summary>        
-        public static int Width { get { return SystemInformation.Device.PresentationParameters.BackBufferWidth; } }
+        public static int Width { get { return EngineManager.Device.PresentationParameters.BackBufferWidth; } }
 
         /// <summary>
         /// Screen height.
         /// </summary>        
-        public static int Height { get { return SystemInformation.Device.PresentationParameters.BackBufferHeight; } }
+        public static int Height { get { return EngineManager.Device.PresentationParameters.BackBufferHeight; } }
 
         /// <summary>
         /// Screen resolution.
@@ -153,15 +155,15 @@ namespace XNAFinalEngine.EngineCore
                 // Use current desktop resolution if autodetect is selected.
                 if (value.Width <= 0 || value.Height <= 0)
                 {
-                    SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-                    SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+                    EngineManager.GraphicsDeviceManager.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+                    EngineManager.GraphicsDeviceManager.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
                 }
                 else
                 {
-                    SystemInformation.GraphicsDeviceManager.PreferredBackBufferWidth = value.Width;
-                    SystemInformation.GraphicsDeviceManager.PreferredBackBufferHeight = value.Height;
+                    EngineManager.GraphicsDeviceManager.PreferredBackBufferWidth = value.Width;
+                    EngineManager.GraphicsDeviceManager.PreferredBackBufferHeight = value.Height;
                 }
-                SystemInformation.GraphicsDeviceManager.ApplyChanges();
+                EngineManager.GraphicsDeviceManager.ApplyChanges();
             }
         } // Resolution
 
@@ -191,8 +193,30 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static void ToggleFullscreen()
         {
-            SystemInformation.GraphicsDeviceManager.ToggleFullScreen();
+            EngineManager.GraphicsDeviceManager.ToggleFullScreen();
         } // ToggleFullscreen
+
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// Raised when the window size changes.
+        /// </summary>
+        public static event EventHandler ScreenSizeChanged;
+
+        #endregion
+
+        #region  On Screen Size Changed
+
+        /// <summary>
+        /// Raised when the window size changes.
+        /// </summary>
+        internal static void OnScreenSizeChanged(object sender, EventArgs e)
+        {
+            if (ScreenSizeChanged != null)
+                ScreenSizeChanged(sender, e);
+        } // OnScreenSizeChanged
 
         #endregion
 

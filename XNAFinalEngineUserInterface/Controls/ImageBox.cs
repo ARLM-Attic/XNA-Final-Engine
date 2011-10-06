@@ -150,15 +150,15 @@ namespace XNAFinalEngine.UserInterface
                 {
                     case SizeMode.Normal:
                     case SizeMode.Auto:
-                        Renderer.Draw(texture.XnaTexture, rect.X, rect.Y, sourceRectangle, Color);
+                        Renderer.Draw(texture.Resource, rect.X, rect.Y, sourceRectangle, Color);
                         break;
                     case SizeMode.Stretched:
-                        Renderer.Draw(texture.XnaTexture, rect, sourceRectangle, Color);
+                        Renderer.Draw(texture.Resource, rect, sourceRectangle, Color);
                         break;
                     case SizeMode.Centered:
                         int x = (rect.Width  / 2) - (texture.Width  / 2);
                         int y = (rect.Height / 2) - (texture.Height / 2);
-                        Renderer.Draw(texture.XnaTexture, x, y, sourceRectangle, Color);
+                        Renderer.Draw(texture.Resource, x, y, sourceRectangle, Color);
                         break;
                 }
             }

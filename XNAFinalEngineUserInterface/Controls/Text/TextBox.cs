@@ -626,12 +626,12 @@ namespace XNAFinalEngine.UserInterface
                     {
                         if (mode == TextBoxMode.Multiline)
                         {
-                            Renderer.DrawString(font.XnaSpriteFont, Lines[ii], r.Left - horizontalScrollBar.Value, r.Top + (i * sizey), col);
+                            Renderer.DrawString(font.Resource, Lines[ii], r.Left - horizontalScrollBar.Value, r.Top + (i * sizey), col);
                         }
                         else
                         {
                             Rectangle rx = new Rectangle(r.Left - horizontalScrollBar.Value, r.Top, r.Width, r.Height);
-                            Renderer.DrawString(font.XnaSpriteFont, shownText, rx, col, al, false);
+                            Renderer.DrawString(font.Resource, shownText, rx, col, al, false);
                         }
                     }
                 }
@@ -680,7 +680,7 @@ namespace XNAFinalEngine.UserInterface
                         else r = new Rectangle(rect.Left - horizontalScrollBar.Value, rect.Top + (i - verticalScrollBar.Value) * hgt, (int)font.MeasureString(Lines[i]).X, hgt);
                     }
 
-                    Renderer.Draw(Skin.Images["Control"].Texture.XnaTexture, r, Color.FromNonPremultiplied(160, 160, 160, 128));
+                    Renderer.Draw(Skin.Images["Control"].Texture.Resource, r, Color.FromNonPremultiplied(160, 160, 160, 128));
                 }
             }
         } // DrawSelection
