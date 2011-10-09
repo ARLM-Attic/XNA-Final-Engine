@@ -83,7 +83,7 @@ namespace XNAFinalEngine.Assets
 
 		#endregion
 
-    } // Document
+    } // Cursor
 #endif
 } // XNAFinalEngine.Assets
 

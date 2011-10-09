@@ -9,7 +9,6 @@
 #endregion
 
 #region Using directives
-using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 #endregion

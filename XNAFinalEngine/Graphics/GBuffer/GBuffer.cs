@@ -579,8 +579,8 @@ namespace XNAFinalEngine.Graphics
                 SetTransposeInverseWorldViewMatrix(Matrix.Transpose(Matrix.Invert(worldMatrix * viewMatrix)));
                 SetWorldViewMatrix(worldMatrix * viewMatrix);
                 SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
-
-                RenderModel(((FileModel)model).Resource);
+                Resource.CurrentTechnique.Passes[0].Apply();
+                model.Render();
             }
             catch (Exception e)
             {

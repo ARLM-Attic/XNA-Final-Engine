@@ -9,7 +9,6 @@
 #endregion
 
 #region Using directives
-using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 #endregion
@@ -22,6 +21,11 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
     /// </summary>
     public class ModelAnimationClip
     {
+        
+        /// <summary>
+        /// Maximum number of bone matrices we can render in a single pass.
+        /// </summary>
+        public const int MaxBones = 59;
 
         /// <summary>
         /// Gets the total length of the model animation clip

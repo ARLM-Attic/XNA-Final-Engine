@@ -96,6 +96,20 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
+        #region Render
+
+        /// <summary>
+        /// Render the model.
+        /// </summary>
+        internal override void Render()
+        {
+            EngineManager.Device.Indices = indexBuffer;
+            EngineManager.Device.SetVertexBuffer(vertexBuffer);
+            EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, numberVertices, 0, numberIndices / 3);
+        } // Render
+
+        #endregion
+
         #region Dispose
 
         /// <summary>

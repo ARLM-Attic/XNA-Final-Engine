@@ -15,39 +15,54 @@ using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
-
 #endregion
 
 namespace XNAFinalEngine.Animations
 {
     /// <summary>
-    /// This class serves as a base class for various animation players.
-    /// It contains common functionality to deal with a clip, playing it back at a speed, notifying clients of completion, etc.
+    /// This plays any model animation clip.
     /// </summary>
-    public abstract class ModelAnimationPlayer
+    public class ModelAnimationPlayer
     {
-        
+
+        #region Structs
+
+        /// <summary>
+        /// Position, rotation and scale applied the bone.
+        /// </summary>
+        public struct BoneTransformationData
+        {
+            internal Vector3 position;
+            internal Quaternion rotation;
+            internal float scale;
+        } // BoneTransformationData
+
+        #endregion
+
         #region Variables
 
+        // This is an array of the transforms to each object/bone in the model.
+        public readonly BoneTransformationData[] BoneTransforms = new BoneTransformationData[ModelAnimationClip.MaxBones - 1];
+
         // Clip currently being played.
-        ModelAnimation currentAnimationClip;
+        private ModelAnimation currentAnimationClip;
 
         // Current timeindex and keyframe in the clip.
-        float currentTimeValue;
-        int currentKeyframe;
+        private float currentTimeValue;
+        private int currentKeyframe;
 
         // Speed of playback.
-        float playbackRate = 1.0f;
+        private float playbackRate = 1.0f;
 
         // The amount of time for which the animation will play.
         // MaxValue will loop forever. Zero will play once.
-        float duration = float.MaxValue;
+        private float duration = float.MaxValue;
 
         // Amount of time elapsed while playing.
-        float elapsedPlaybackTime = 0;
+        private float elapsedPlaybackTime = 0;
 
         // Whether or not playback is paused.
-        bool paused;
+        private bool paused;
 
         #endregion
 
@@ -59,7 +74,7 @@ namespace XNAFinalEngine.Animations
         public ModelAnimation Animation { get { return currentAnimationClip; } }
 
         /// <summary>
-        /// Get/Set the current key frame index
+        /// Get/Set the current key frame index.
         /// </summary>
         public int CurrentKeyFrame
         {
@@ -103,7 +118,12 @@ namespace XNAFinalEngine.Animations
                         break;
 
                     // Use this keyframe
-                    SetKeyframe(keyframe);
+                    BoneTransforms[keyframe.Bone] = new BoneTransformationData
+                    {
+                        position = keyframe.Position,
+                        rotation = keyframe.Rotation,
+                        scale = keyframe.Scale
+                    };
 
                     currentKeyframe++;
                 }
@@ -121,15 +141,15 @@ namespace XNAFinalEngine.Animations
 
         #endregion
 
-        #region Start Clip
+        #region Play
 
         /// <summary>
         /// Starts decoding the specified animation clip.
         /// </summary>        
-        public void StartClip(ModelAnimation clip)
+        public void Play(ModelAnimation clip)
         {
-            StartClip(clip, 1.0f, float.MaxValue);
-        } // StartClip
+            Play(clip, 1.0f, float.MaxValue);
+        } // Play
 
         /// <summary>
         /// Starts playing a clip
@@ -137,7 +157,7 @@ namespace XNAFinalEngine.Animations
         /// <param name="clip">Animation clip to play</param>
         /// <param name="playbackRate">Speed to playback</param>
         /// <param name="duration">Length of time to play (max is looping, 0 is once)</param>
-        public void StartClip(ModelAnimation clip, float playbackRate, float duration)
+        public void Play(ModelAnimation clip, float playbackRate, float duration)
         {
             if (clip == null)
                 throw new ArgumentNullException("Clip required");
@@ -155,12 +175,23 @@ namespace XNAFinalEngine.Animations
 
             // Call the virtual to allow initialization of the clip
             InitClip();
-        } // StartClip
+        } // Play
 
         /// <summary>
-        /// Virtual method allowing subclasses to do any initialization of data when the clip is initialized.
+        /// Initializes the animation clip
         /// </summary>
-        protected virtual void InitClip() { }
+        private void InitClip()
+        {
+            for (int i = 0; i < BoneTransforms.Length; i++)
+            {
+                BoneTransforms[i] = new BoneTransformationData
+                {
+                    position = Vector3.Zero,
+                    rotation = Quaternion.Identity,
+                    scale = 1
+                };
+            }
+        } // InitClip
 
         #endregion
 
@@ -184,28 +215,12 @@ namespace XNAFinalEngine.Animations
 
         #endregion
 
-        #region Set Key Frame
-
-        /// <summary>
-        /// Virtual method allowing subclasses to set any data associated with a particular keyframe.
-        /// </summary>
-        /// <param name="keyframe">Keyframe being set</param>
-        protected virtual void SetKeyframe(Keyframe keyframe) { }
-
-        #endregion
-
         #region Update
-
-        /// <summary>
-        /// Virtual method allowing subclasses to perform data needed after the animation 
-        /// has been updated for a new time index.
-        /// </summary>
-        protected virtual void OnUpdate() { }
 
         /// <summary>
         /// Called during the update loop to move the animation forward
         /// </summary>        
-        public virtual void Update(GameTime gameTime)
+        public virtual void Update()
         {
             if (currentAnimationClip == null)
                 return;
@@ -235,11 +250,9 @@ namespace XNAFinalEngine.Animations
                 time -= currentAnimationClip.Duration;
 
             CurrentTimeValue = time;
-
-            OnUpdate();
         } // Update
 
         #endregion
-        
-    } // AnimationPlayer
+
+    } // ModelAnimationPlayer
 } // XNAFinalEngine.Animations

@@ -32,11 +32,14 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Runtime;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using XNAFinalEngine.Animations;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Input;
+using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 using RootAnimation = XNAFinalEngine.Components.RootAnimations;
 using XNAFinalEngine.Scenes;
 #endregion
@@ -53,8 +56,14 @@ namespace XNAFinalEngine.EngineCore
         #region Variables
 
         private static GBuffer gbuffer;
-
         private static EditorCamera camera;
+        private static ModelAnimation testAnimation;
+        private static ModelAnimationPlayer animationPlayer;
+        private static FileModel dude;
+        private static SkinnedEffect effect;
+        private static Matrix[] boneTransforms = new Matrix[58];
+        private static Matrix[] worldTransforms = new Matrix[58];
+        private static Matrix[] skinTransforms = new Matrix[58];
 
         /// <summary>
         /// This game object will show the frames per second onto screen.
@@ -108,6 +117,14 @@ namespace XNAFinalEngine.EngineCore
             
             camera = new EditorCamera(new Vector3(0, 30, 0), 200, 0, 0);
             camera.FarPlane = 20000;
+
+            testAnimation = new ModelAnimation("dude");
+            animationPlayer = new ModelAnimationPlayer();
+
+            dude = new FileModel("DudeWalk");
+            effect = new SkinnedEffect(EngineManager.Device);
+
+            animationPlayer.Play(testAnimation);
 
             if (CurrentScene != null)
             {
@@ -189,7 +206,68 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            #region Model Animation Processing
+
+            // Update every active animation.
+            // The output is a skeletal/rigid pose in local space for each active clip.
+            // The pose might contain information for every joint in the skeleton (a full-body pose),
+            // for only a subset of joints (partial pose), or it might be a difference pose for use in additive blending.
+            // TODO!!! foreach animation in poolanimationsplayers { Update }
+            animationPlayer.Update();
+
+            // Sometimes the final pose is a composition of a number of animation clips. In this stage the animations are blended.
+            // The blending includes: lerp, additive blending and cross fading blending. 
+            // TODO!! foeach modelAnimationComponent blend active animations according to a blend tree or something similar.
+
+            // The global pose (world space) is generated.
+            // However, if no post processing exist (IK, ragdolls, etc.) this stage could be merge with
+            // the inverse bind pose multiplication stage in the mesh draw code. And for now the engine will do this.
+
+            #endregion
+
+            #region Graphics
+
+            for (int bone = 0; bone < worldTransforms.Length; bone++)
+            {
+                boneTransforms[bone] = Matrix.CreateScale(animationPlayer.BoneTransforms[bone].scale) *
+                                       Matrix.CreateFromQuaternion(animationPlayer.BoneTransforms[bone].rotation) *
+                                       Matrix.CreateTranslation(animationPlayer.BoneTransforms[bone].position);
+            }
+            // Root bone.
+            worldTransforms[0] = boneTransforms[0] * Matrix.Identity;
+            // Child bones.
+            for (int bone = 1; bone < worldTransforms.Length; bone++)
+            {
+                int parentBone = ((ModelAnimationData)dude.Resource.Tag).SkeletonHierarchy[bone];
+                worldTransforms[bone] = boneTransforms[bone] * worldTransforms[parentBone];
+            }
+            for (int bone = 0; bone < skinTransforms.Length; bone++)
+            {
+                skinTransforms[bone] = ((ModelAnimationData)dude.Resource.Tag).InverseBindPose[bone] * worldTransforms[bone];
+            }
             
+            effect.View = camera.ViewMatrix;
+            effect.Projection = camera.ProjectionMatrix;
+            effect.EnableDefaultLighting();
+            effect.DiffuseColor = new Vector3(255, 255, 255);
+            effect.SpecularColor = new Vector3(0.25f);
+            effect.SpecularPower = 1;
+            effect.SetBoneTransforms(skinTransforms);
+            effect.CurrentTechnique.Passes[0].Apply();
+            
+            foreach (ModelMesh mesh in dude.Resource.Meshes)
+            {
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    // Set vertex buffer and index buffer
+                    EngineManager.Device.SetVertexBuffer(part.VertexBuffer);
+                    EngineManager.Device.Indices = part.IndexBuffer;
+                    // And render all primitives
+                    EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, part.VertexOffset, 0, part.NumVertices, part.StartIndex, part.PrimitiveCount);
+                }
+            }
+            
+            /*
             gbuffer.Begin(camera.ViewMatrix, camera.ProjectionMatrix, 100);
                 ModelRenderer currentModelRenderer; 
                 for (int i = 0; i < ModelRenderer.ModelRendererPool.Count; i++)
@@ -203,7 +281,12 @@ namespace XNAFinalEngine.EngineCore
             gbuffer.End();
             
             SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
-            
+            */
+
+            #endregion
+
+            #region Heads Up Display
+
             // Draw 2D Heads Up Display
             SpriteManager.Begin();
             {
@@ -226,6 +309,8 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
             SpriteManager.End();
+
+            #endregion
 
             #region Scene Post Render Tasks
 

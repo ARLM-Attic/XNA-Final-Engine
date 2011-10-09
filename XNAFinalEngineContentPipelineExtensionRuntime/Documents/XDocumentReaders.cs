@@ -36,8 +36,6 @@ using Microsoft.Xna.Framework.Content;
 namespace XNAFinalEngineContentPipelineExtensionRuntime.Documents
 {
 
-    #region Document Reader
-    
     /// <summary>
     /// XDocument Reader.
     /// </summary>
@@ -54,8 +52,5 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Documents
         } // Read
 
     } // XDocumentReader
-    
-    #endregion
-
 } // XNAFinalEngineContentPipelineExtensionRuntime
 

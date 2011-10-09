@@ -41,8 +41,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 namespace XNAFinalEngineContentPipelineExtensionRuntime.UserInterface
 {
 
-    #region Cursor Reader
-
     #if (!XBOX)
 
     /// <summary>
@@ -82,8 +80,6 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.UserInterface
     } // CursorReader
 
     #endif
-
-    #endregion
 
 } // XNAFinalEngineContentPipelineExtensionRuntime.UserInterface
 

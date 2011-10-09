@@ -81,5 +81,14 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
+        #region Render
+
+        /// <summary>
+        /// Render the model.
+        /// </summary>
+        internal abstract void Render();
+
+        #endregion
+
     } // Model
 } // XNAFinalEngine.Assets

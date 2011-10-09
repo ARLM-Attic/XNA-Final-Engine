@@ -1257,7 +1257,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Animations\" />
     <Folder Include="Music\" />
     <Folder Include="Shaders\GlobalIllumination\" />
     <Folder Include="Shaders\Helpers\" />
@@ -1272,6 +1271,13 @@
       <Project>{D17667E3-C4A6-477E-8F3E-C6A4A9A95DE0}</Project>
       <Name>XNAFinalEngineContentPipelineExtension</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Animations\dude.fbx">
+      <Name>dude</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>SkinnedAnimationProcessor</Processor>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 

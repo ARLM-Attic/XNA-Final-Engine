@@ -33,6 +33,7 @@ using System;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAFinalEngine.EngineCore;
 using XnaModel = Microsoft.Xna.Framework.Graphics.Model;
 #endregion
 
@@ -60,7 +61,7 @@ namespace XNAFinalEngine.Assets
         /// <remarks>
         /// This is a slow operation that generates garbage. 
         /// We could store the vertices, but there is no need to do this… for now.
-        /// So why waste precious memory space? And why fragment the data? if I only use this method in the loading.
+        /// So why waste precious memory space? And why fragment the data if I only use this method in the loading?
         /// </remarks>
         public override Vector3[] Vectices
         {
@@ -146,7 +147,7 @@ namespace XNAFinalEngine.Assets
                 // Calcuate bounding volumes
                 Vector3[] vectices = Vectices;
                 boundingSphere = BoundingSphere.CreateFromPoints(vectices);
-                boundingBox = BoundingBox.CreateFromPoints(vectices);
+                boundingBox    = BoundingBox.CreateFromPoints(vectices);
             }
             catch (ObjectDisposedException)
             {
@@ -157,6 +158,29 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("Failed to load model: " + filename, e);
             }
         } // FileModel
+
+        #endregion
+
+        #region Render
+
+        /// <summary>
+        /// Render the model.
+        /// </summary>
+        internal override void Render()
+        {
+            // Go through all meshes in the model
+            foreach (ModelMesh mesh in Resource.Meshes) // foreach is faster than for because no range checking is performed.
+            {
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    // Set vertex buffer and index buffer
+                    EngineManager.Device.SetVertexBuffer(part.VertexBuffer);
+                    EngineManager.Device.Indices = part.IndexBuffer;
+                    // And render all primitives
+                    EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, part.VertexOffset, 0, part.NumVertices, part.StartIndex, part.PrimitiveCount);
+                }
+            }
+        } // Render
 
         #endregion
 

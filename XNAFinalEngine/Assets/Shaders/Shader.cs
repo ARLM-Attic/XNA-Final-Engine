@@ -123,30 +123,6 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
-        #region Render Model
-
-        /// <summary>
-        /// Render a model using this shader.
-        /// </summary>
-        public void RenderModel(Microsoft.Xna.Framework.Graphics.Model model)
-        {
-            Resource.CurrentTechnique.Passes[0].Apply();
-            // Go through all meshes in the model
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (ModelMeshPart part in mesh.MeshParts)
-                {
-                    // Set vertex buffer and index buffer
-                    EngineManager.Device.SetVertexBuffer(part.VertexBuffer);
-                    EngineManager.Device.Indices = part.IndexBuffer;
-                    // And render all primitives
-                    EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, part.VertexOffset, 0, part.NumVertices, part.StartIndex, part.PrimitiveCount);
-                }
-            }
-        } // RenderModel
-
-        #endregion
-
         #region Render Screen Plane
 
         /// <summary>

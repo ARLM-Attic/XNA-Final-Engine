@@ -9,7 +9,6 @@
 #endregion
 
 #region Using directives
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 #endregion
@@ -45,14 +44,11 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         /// <summary>
         /// Gets the scale transform for this keyframe.
         /// </summary>
+        /// <remarks>
+        /// The scale could use the Vector3 type for non-uniform scaling or even ignore the scale values altogether. It depends of the game necessities.
+        /// </remarks>
         [ContentSerializer]
         public float Scale { get; private set; }
-
-        /*/// <summary>
-        /// Gets the bone transform for this keyframe.
-        /// </summary>
-        [ContentSerializer]
-        public Matrix Transform { get; private set; }*/
 
         #endregion
 
@@ -65,7 +61,6 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         {
             Bone = bone;
             Time = time;
-            //Transform = transform;
             // Decompose Matrix into separete values. 
             // This reduces memory consumption and improves performance because there will be less cache misses
             // and animation blending works better with the quaternions than matrices.

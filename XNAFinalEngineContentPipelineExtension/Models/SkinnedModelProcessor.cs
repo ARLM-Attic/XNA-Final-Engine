@@ -27,9 +27,6 @@ namespace XNAFinalEngineContentPipelineExtension.Models
     public class SkinnedModelProcessor : IgnoreTexturesModelProcessor
     {
 
-        // Maximum number of bone matrices we can render in a single pass.
-        const int MaxBones = 59;
-
         #region Process
 
         /// <summary>
@@ -52,9 +49,9 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             // Read the bind pose and skeleton hierarchy data.
             IList<BoneContent> bones = MeshHelper.FlattenSkeleton(skeleton);
 
-            if (bones.Count > MaxBones)  
+            if (bones.Count > ModelAnimationClip.MaxBones)
             {
-                throw new InvalidContentException(string.Format("Skeleton has {0} bones, but the maximum supported is {1}.", bones.Count, MaxBones));
+                throw new InvalidContentException(string.Format("Skeleton has {0} bones, but the maximum supported is {1}.", bones.Count, ModelAnimationClip.MaxBones));
             }
 
             List<Matrix> bindPose        = new List<Matrix>();

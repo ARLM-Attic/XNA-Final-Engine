@@ -54,11 +54,6 @@ namespace XNAFinalEngineExamples
 
         #region Variables
 
-        /// <summary>
-        /// A scene loaded by this scene.
-        /// </summary>
-        private Scene scene;
-
         #region Neo Force Variables
 
         private bool exit;
