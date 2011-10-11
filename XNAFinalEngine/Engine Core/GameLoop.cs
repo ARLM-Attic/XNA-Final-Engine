@@ -245,7 +245,7 @@ namespace XNAFinalEngine.EngineCore
             {
                 skinTransforms[bone] = ((ModelAnimationData)dude.Resource.Tag).InverseBindPose[bone] * worldTransforms[bone];
             }
-            
+            /*
             effect.View = camera.ViewMatrix;
             effect.Projection = camera.ProjectionMatrix;
             effect.EnableDefaultLighting();
@@ -259,17 +259,16 @@ namespace XNAFinalEngine.EngineCore
             {
                 foreach (ModelMeshPart part in mesh.MeshParts)
                 {
-                    // Set vertex buffer and index buffer
                     EngineManager.Device.SetVertexBuffer(part.VertexBuffer);
                     EngineManager.Device.Indices = part.IndexBuffer;
-                    // And render all primitives
                     EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, part.VertexOffset, 0, part.NumVertices, part.StartIndex, part.PrimitiveCount);
                 }
             }
+            */
             
-            /*
             gbuffer.Begin(camera.ViewMatrix, camera.ProjectionMatrix, 100);
-                ModelRenderer currentModelRenderer; 
+                gbuffer.RenderModel(Matrix.Identity, dude, skinTransforms);
+                /*ModelRenderer currentModelRenderer; 
                 for (int i = 0; i < ModelRenderer.ModelRendererPool.Count; i++)
                 {
                     currentModelRenderer = ModelRenderer.ModelRendererPool.Elements[i];
@@ -277,11 +276,11 @@ namespace XNAFinalEngine.EngineCore
                     {
                         gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel);
                     }
-                }
+                }*/
             gbuffer.End();
             
             SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
-            */
+            
 
             #endregion
 

@@ -22,91 +22,24 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
-#include <..\Helpers\ParallaxMapping.fxh>
-
-//////////////////////////////////////////////
-//////////////// Matrices ////////////////////
-//////////////////////////////////////////////
-
-float4x4 worldViewProj : register(c0); // Projection uses all 4x4 matrix values.
-float4x3 worldView     : register(c4); // We could use a float4x3 matrix because the last column is trivial.
-float3x3 worldViewIT   : register(c7); // No translation information so float3x3 is enough.
-
-//////////////////////////////////////////////
-/////////////// Parameters ///////////////////
-//////////////////////////////////////////////
-
-float  farPlane;
-
-// Specular Power
-
-float specularPower;    // Specular power value.
-bool  specularTextured; // Indicates if a texture or the value will be used to store the object's specular power.
-
-// Terrain //
-
-float2 uvRectangleMin, uvRectangleSide;    // UV Rectangle.
-bool   farTerrain;                         // Is this grid a far terrain grid? A far terrain grid uses the big color texture.
-float  farTerrainBeginDistance, flatRange; // Related to flatting out far surfaces.
-
-// Optimization: if the game is in its final steps of development and performance is still an issue then you can pack the shaders attributes.
-// Unfortunately the packoffset keyword is only available in shader model 4/5, so this has to be done manually and that will hurt readability.
-
-//////////////////////////////////////////////
-///////////////// Textures ///////////////////
-//////////////////////////////////////////////
-
-texture objectNormalTexture : register(t0);
-sampler2D objectNormalSampler : register(s0) = sampler_state
-{
-	Texture = <objectNormalTexture>;
-    /*ADDRESSU = WRAP;
-	ADDRESSV = WRAP;
-	MAGFILTER = ANISOTROPIC; //LINEAR;
-	MINFILTER = ANISOTROPIC; //LINEAR;
-	MIPFILTER = LINEAR;*/
-};
-
-texture objectSpecularTexture : register(t1);
-sampler2D objectSpecularSampler : register(s1) = sampler_state
-{
-	Texture = <objectSpecularTexture>;
-    /*ADDRESSU = WRAP;
-	ADDRESSV = WRAP;
-	MAGFILTER = LINEAR;
-	MINFILTER = LINEAR;
-	MIPFILTER = LINEAR;*/
-};
-
-texture displacementTexture : register(t2);
-sampler2D displacementSampler : register(s2) = sampler_state
-{
-	Texture = <displacementTexture>;
-    /*ADDRESSU = CLAMP;
-	ADDRESSV = CLAMP;
-	MAGFILTER = POINT;
-	MINFILTER = POINT;
-	MIPFILTER = NONE;*/
-};
-
 //////////////////////////////////////////////
 ////////////// Data Structs //////////////////
 //////////////////////////////////////////////
 
-struct GBufferWithoutTextureVS_INPUT 
+struct WithoutTextureVS_INPUT 
 {
    float4 position : POSITION;
    float3 normal   : NORMAL;   
 };
 
-struct GBufferWithTextureVS_INPUT
+struct WithTextureVS_INPUT
 {
    float4 position : POSITION;
    float3 normal   : NORMAL;
    float2 uv       : TEXCOORD0;
 };
 
-struct GBufferWithTangentVS_INPUT
+struct WithTangentVS_INPUT
 {
    float4 position : POSITION;
    float3 normal   : NORMAL;
@@ -115,14 +48,14 @@ struct GBufferWithTangentVS_INPUT
    float2 uv       : TEXCOORD0;
 };
 
-struct GBufferWithoutTextureVS_OUTPUT 
+struct WithoutTextureVS_OUTPUT 
 {
    float4 position : POSITION0;
    float3 normal   : TEXCOORD0;
    float  depth    : TEXCOORD1;   
 };
 
-struct GBufferWithTextureVS_OUTPUT 
+struct WithTextureVS_OUTPUT 
 {
    float4 position         : POSITION0;
    float3 normal           : TEXCOORD0;
@@ -130,7 +63,7 @@ struct GBufferWithTextureVS_OUTPUT
    float2 uv			   : TEXCOORD2;
 };
 
-struct GBufferWithTangentVS_OUTPUT 
+struct WithTangentVS_OUTPUT 
 {
    float4 position         : POSITION0;
    float  depth            : TEXCOORD0;
@@ -138,7 +71,7 @@ struct GBufferWithTangentVS_OUTPUT
    float3x3 tangentToView  : TEXCOORD2;
 };
 
-struct GBufferWithParallaxVS_OUTPUT 
+struct WithParallaxVS_OUTPUT 
 {
    float4 position         : POSITION0;
    float  depth            : TEXCOORD0;
@@ -148,243 +81,14 @@ struct GBufferWithParallaxVS_OUTPUT
    float3x3 tangentToView  : TEXCOORD4;
 };
 
-struct PixelShader_OUTPUT
-{
-    float4 depth  : COLOR0;
-    float4 normal : COLOR1;
-	float4 motionVectorSpecularPower : COLOR2;
-};
-
 //////////////////////////////////////////////
-/////////////// Specular Power ///////////////
-//////////////////////////////////////////////
+///////// Vertex and Pixel Shaders //////////
+/////////////////////////////////////////////
 
-/// Compress to the (0,1) range with high precision for low values. Guerilla method.
-float CompressSpecularPower(float specularPower)
-{
-	return log2(specularPower) / 10.5;
-} // CompressSpecularPower
-
-//////////////////////////////////////////////
-////////////// Vertex Shader /////////////////
-//////////////////////////////////////////////
-
-GBufferWithoutTextureVS_OUTPUT GBufferWithoutTextureVS(GBufferWithoutTextureVS_INPUT input)
-{
-	GBufferWithoutTextureVS_OUTPUT output;
-   
-	output.position = mul(input.position, worldViewProj);
-	output.depth    = -mul(input.position, worldView).z / farPlane;
-	// The normals are in view space.
-	output.normal   = mul(input.normal, worldViewIT);
-
-	return output;
-} // GBufferWithoutTextureVS
-
-GBufferWithTextureVS_OUTPUT GBufferWithSpecularTextureVS(GBufferWithTextureVS_INPUT input)
-{
-	GBufferWithTextureVS_OUTPUT output;
-
-	output.position = mul(input.position, worldViewProj);
-	output.depth    = -mul(input.position, worldView).z / farPlane;	
-	// The normals are in view space.
-	output.normal   = mul(input.normal, worldViewIT);
-	output.uv = input.uv;
-
-	return output;
-} // GBufferWithTextureVS
-
-GBufferWithTangentVS_OUTPUT GBufferWithNormalMapVS(GBufferWithTangentVS_INPUT input)
-{
-	GBufferWithTangentVS_OUTPUT output;
-   
-	output.position = mul(input.position, worldViewProj);
-	output.depth    = -mul(input.position, worldView).z / farPlane;
-   
-	// Generate the tanget space to view space matrix
-	output.tangentToView[0] = mul(input.tangent,  worldViewIT);
-	output.tangentToView[1] = mul(input.binormal, worldViewIT); // binormal = cross(input.tangent, input.normal)
-	output.tangentToView[2] = mul(input.normal,   worldViewIT);
-
-	output.uv = input.uv;
-
-	return output;
-} // GBufferWithTangentVS
-
-GBufferWithParallaxVS_OUTPUT GBufferWithParallaxVS(GBufferWithTangentVS_INPUT input)
-{
-	GBufferWithParallaxVS_OUTPUT output;
-   
-	output.position = mul(input.position, worldViewProj);
-	float3 positionVS = mul(input.position, worldView);
-	output.depth    = -positionVS.z / farPlane;
-   
-	// Generate the tanget space to view space matrix
-	output.tangentToView[0] = mul(input.tangent,  worldViewIT);
-	output.tangentToView[1] = mul(input.binormal, worldViewIT); // binormal = cross(input.tangent, input.normal)
-	output.tangentToView[2] = mul(input.normal,   worldViewIT);
-
-	output.viewVS = normalize(-positionVS);
-
-	output.uv = input.uv;
-
-	// Compute the ray direction for intersecting the height field profile with current view ray.
-
-	float3 viewTS = mul(output.tangentToView, output.viewVS);
-         
-	// Compute initial parallax displacement direction:
-	float2 parallaxDirection = normalize(viewTS.xy);
-       
-	// The length of this vector determines the furthest amount of displacement:
-	float fLength        = length( viewTS );
-	float parallaxLength = sqrt( fLength * fLength -viewTS.z * viewTS.z ) / viewTS.z; 
-       
-	// Compute the actual reverse parallax displacement vector:
-	// Need to scale the amount of displacement to account for different height ranges in height maps.
-	// This is controlled by an artist-editable parameter heightMapScale.
-	output.parallaxOffsetTS = parallaxDirection * parallaxLength * heightMapScale;
-
-	return output;
-} // GBufferWithParallaxVS
-
-GBufferWithTextureVS_OUTPUT GBufferTerrainVS(GBufferWithTangentVS_INPUT input)
-{
-	GBufferWithTextureVS_OUTPUT output = (GBufferWithTextureVS_OUTPUT)0;
-
-	// Change the uv space from the grid to the whole terrain.
-	float2 displacementUV = input.uv;
-	displacementUV.y = 1 - displacementUV.y;
-	displacementUV   = float2(displacementUV * uvRectangleSide + uvRectangleMin);
-	displacementUV.y = 1 - displacementUV.y;
-		
-	input.position.y = tex2Dlod(displacementSampler, float4(displacementUV, 0, 0)) / 100;
-	//position.y = LinearToGamma(tex2Dlod(displacementSampler, float4(displacementUV, 0, 0))) / 2;
-	float3 distance = mul(input.position, worldView);	
-	[branch]
-	if (farTerrain)
-	{		
-		float flatLerp = saturate((distance - farTerrainBeginDistance) / flatRange);
-		input.position.y = lerp(input.position.y, 0, flatLerp);
-	}
-	output.uv = displacementUV;
-
-	output.position = mul(input.position, worldViewProj);	
-	output.depth    = -distance.z / farPlane;
-    
-	return output;
-} // GBufferTerrainVS
-
-//////////////////////////////////////////////
-/////////////// Pixel Shader /////////////////
-//////////////////////////////////////////////
-
-PixelShader_OUTPUT GBufferWithoutTexturePS(GBufferWithoutTextureVS_OUTPUT input)
-{
-	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
- 
-	output.depth = float4(input.depth, 0, 1, 1);
-
-	input.normal = normalize(input.normal);
-		
-	// Spherical Coordinates
-	float f = input.normal.z * 2 + 1;
-	float g = dot(input.normal, input.normal);
-	float p = sqrt(g + f);
-	output.normal  = float4(input.normal.xy / p * 0.5 + 0.5, 1, 1);
-	//output.normal = float4(normalize(input.normal.xy) * sqrt(input.normal.z * 0.5 + 0.5), 1, 1); // Spheremap Transform: Crytek method. 
-	//output.normal = 0.5f * (float4(input.normal.xyz, 1) + 1.0f); // Change to the [0, 1] range to avoid negative values.
-
-	output.motionVectorSpecularPower.b = CompressSpecularPower(specularPower);
-
-	return output;
-} // GBufferWithoutTexturePS
-
-PixelShader_OUTPUT GBufferWithSpecularTexturePS(GBufferWithTextureVS_OUTPUT input)
-{
-	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
- 
-	output.depth = float4(input.depth, 0, 1, 1);
- 
- 	input.normal = normalize(input.normal);
-		
-	// Spherical Coordinates
-	float f = input.normal.z * 2 + 1;
-	float g = dot(input.normal, input.normal);
-	float p = sqrt(g + f);
-	output.normal  = float4(input.normal.xy / p * 0.5 + 0.5, 1, 1);
-	//output.normal = float4(normalize(input.normal.xy) * sqrt(input.normal.z * 0.5 + 0.5), 1, 1); // Spheremap Transform: Crytek method. 
-	//output.normal = 0.5f * (float4(input.normal.xyz, 1) + 1.0f); // Change to the [0, 1] range to avoid negative values.
-
-	output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(objectSpecularSampler, input.uv).a);	
-
-	return output;
-} // GBufferWithSpecularTexturePS
-
-PixelShader_OUTPUT GBufferWithNormalMapPS(GBufferWithTangentVS_OUTPUT input)
-{
-	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
- 
-	output.depth = float4(input.depth, 0, 1, 1);
- 
- 	output.normal.xyz = 2.0 * tex2D(objectNormalSampler, input.uv).rgb - 1;
-	output.normal.xyz =  normalize(mul(output.normal.xyz, input.tangentToView));
-
-	// Spherical Coordinates
-	float f = output.normal.z * 2 + 1;
-	float g = dot(output.normal.xyz, output.normal.xyz);
-	float p = sqrt(g + f);
-	output.normal  = float4(output.normal.xy / p * 0.5 + 0.5, 1, 1);
-
-	if (specularTextured)
-		output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(objectSpecularSampler, input.uv).a);
-	else
-		output.motionVectorSpecularPower.b = CompressSpecularPower(specularPower);
-
-	return output;
-} // GBufferWithNormalMap
-
-PixelShader_OUTPUT GBufferWithParallaxPS(GBufferWithParallaxVS_OUTPUT input)
-{
-	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
- 
-	output.depth = float4(input.depth, 0, 1, 1);
- 
- 	output.normal.xyz = 2.0 * tex2D(objectNormalSampler, CalculateParallaxUV(input.uv, input.parallaxOffsetTS, normalize(input.viewVS), input.tangentToView, objectNormalSampler)).rgb - 1;
-	output.normal.xyz =  normalize(mul(output.normal.xyz, input.tangentToView));
-
-	// Spherical Coordinates
-	float f = output.normal.z * 2 + 1;
-	float g = dot(output.normal.xyz, output.normal.xyz);
-	float p = sqrt(g + f);
-	output.normal  = float4(output.normal.xy / p * 0.5 + 0.5, 1, 1);
-	
-	if (specularTextured)
-		output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(objectSpecularSampler, input.uv).a);
-	else
-		output.motionVectorSpecularPower.b = CompressSpecularPower(specularPower);
-
-	return output;
-} // GBufferWithParallaxPS
-
-PixelShader_OUTPUT GBufferTerrainPS(GBufferWithTextureVS_OUTPUT input)
-{
-	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
- 
-	output.depth = float4(input.depth, 0, 1, 1);
- 	
-	float3 normalMap = 2.0 * tex2D(objectNormalSampler, input.uv).rgb - 1;
-	input.normal =  normalize(mul(normalMap, worldViewIT));
-		
-	// Spherical Coordinates
-	float f = input.normal.z * 2 + 1;
-	float g = dot(input.normal, input.normal);
-	float p = sqrt(g + f);
-	output.normal  = float4(input.normal.xy / p * 0.5 + 0.5, 1, 1);
-
-	output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(objectSpecularSampler, input.uv).a);	
-
-	return output;
-} // GBufferWithSpecularTexturePS
+#include <..\Helpers\ParallaxMapping.fxh>
+#include <GBufferVertexShaders.fxh>
+#include <GBufferPixelShaders.fxh>
+#include <GBufferSkinning.fxh>
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
@@ -394,8 +98,8 @@ technique GBufferWithoutTexture
 {
     pass p0
     {
-        VertexShader = compile vs_3_0 GBufferWithoutTextureVS();
-        PixelShader  = compile ps_3_0 GBufferWithoutTexturePS();
+        VertexShader = compile vs_3_0 WithoutTextureVS();
+        PixelShader  = compile ps_3_0 WithoutTexturePS();
     }
 } // GBufferWithoutSpecularTexture
 
@@ -403,8 +107,8 @@ technique GBufferWithSpecularTexture
 {
     pass p0
     {
-        VertexShader = compile vs_3_0 GBufferWithSpecularTextureVS();
-        PixelShader  = compile ps_3_0 GBufferWithSpecularTexturePS();
+        VertexShader = compile vs_3_0 WithSpecularTextureVS();
+        PixelShader  = compile ps_3_0 WithSpecularTexturePS();
     }
 } // GBufferWithSpecularTexture
 
@@ -412,8 +116,8 @@ technique GBufferWithNormalMap
 {
     pass p0
     {
-        VertexShader = compile vs_3_0 GBufferWithNormalMapVS();
-        PixelShader  = compile ps_3_0 GBufferWithNormalMapPS();
+        VertexShader = compile vs_3_0 WithNormalMapVS();
+        PixelShader  = compile ps_3_0 WithNormalMapPS();
     }
 } // GBufferWithNormalMap
 
@@ -421,8 +125,8 @@ technique GBufferWithParallax
 {
     pass p0
     {
-        VertexShader = compile vs_3_0 GBufferWithParallaxVS();
-        PixelShader  = compile ps_3_0 GBufferWithParallaxPS();
+        VertexShader = compile vs_3_0 WithParallaxVS();
+        PixelShader  = compile ps_3_0 WithParallaxPS();
     }
 } // GBufferWithParallax
 
@@ -430,7 +134,16 @@ technique GBufferTerrain
 {
     pass p0
     {
-        VertexShader = compile vs_3_0 GBufferTerrainVS();
-        PixelShader  = compile ps_3_0 GBufferTerrainPS();
+        VertexShader = compile vs_3_0 TerrainVS();
+        PixelShader  = compile ps_3_0 TerrainPS();
     }
 } // GBufferTerrain
+
+technique GBufferSkinnedWithTexture
+{
+    pass p0
+    {
+        VertexShader = compile vs_3_0 SkinnedWithTextureVS();
+        PixelShader  = compile ps_3_0 WithoutTexturePS();
+    }
+} // GBufferSkinnedWithTexture

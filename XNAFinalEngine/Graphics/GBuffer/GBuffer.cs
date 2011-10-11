@@ -570,15 +570,25 @@ namespace XNAFinalEngine.Graphics
 
         #region Render Model
 
-        public void RenderModel(Matrix worldMatrix, Assets.Model model)
+        public void RenderModel(Matrix worldMatrix, Assets.Model model, Matrix[] skinTransform)
         {
             try
             {
-                Resource.CurrentTechnique = Resource.Techniques["GBufferWithoutTexture"];
                 // Set parameters
                 SetTransposeInverseWorldViewMatrix(Matrix.Transpose(Matrix.Invert(worldMatrix * viewMatrix)));
                 SetWorldViewMatrix(worldMatrix * viewMatrix);
                 SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
+
+                if (model is FileModel && ((FileModel)model).InverseBindPose != null)
+                {
+                    Resource.CurrentTechnique = Resource.Techniques["GBufferSkinnedWithTexture"];
+                    Resource.Parameters["Bones"].SetValue(skinTransform);
+                }
+                else
+                {
+                    Resource.CurrentTechnique = Resource.Techniques["GBufferWithoutTexture"];
+                }
+                
                 Resource.CurrentTechnique.Passes[0].Apply();
                 model.Render();
             }

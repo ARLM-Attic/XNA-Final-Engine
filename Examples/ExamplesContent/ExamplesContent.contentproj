@@ -303,12 +303,6 @@
       <Processor>EffectProcessor</Processor>
       <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
-    <Compile Include="Shaders\GBuffer\GBuffer.fx">
-      <Name>GBuffer</Name>
-      <Importer>EffectImporter</Importer>
-      <Processor>EffectProcessor</Processor>
-      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
-    </Compile>
     <Compile Include="Shaders\LightPrePass\AmbientLight.fx">
       <Name>AmbientLight</Name>
       <Importer>EffectImporter</Importer>
@@ -1277,6 +1271,14 @@
       <Name>dude</Name>
       <Importer>FbxImporter</Importer>
       <Processor>SkinnedAnimationProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Shaders\GBuffer\GBuffer.fx">
+      <Name>GBuffer</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

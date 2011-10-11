@@ -34,7 +34,9 @@ using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 using XnaModel = Microsoft.Xna.Framework.Graphics.Model;
+using System.Collections.Generic;
 #endregion
 
 namespace XNAFinalEngine.Assets
@@ -125,6 +127,77 @@ namespace XNAFinalEngine.Assets
         } // Vertices
 
         #endregion
+
+        /// <summary>
+        /// Gets a collection of animation clips that operate on the root of the object.
+        /// These are stored by name in a dictionary, so there could for instance be clips for "Walk", "Run", "JumpReallyHigh", etc.
+        /// </summary>
+        public Dictionary<string, RootAnimationClip> RootAnimationClips
+        {
+            get
+            {
+                // If there is no animation information.
+                if (Resource.Tag == null || !(Resource.Tag is ModelAnimationData))
+                    return null;
+                return ((ModelAnimationData)Resource.Tag).RootAnimationClips;
+            }
+        } // RootAnimationClips
+
+        /// <summary>
+        /// Gets a collection of model animation clips. These are stored by name in a dictionary, so there could for instance be clips for "Walk", "Run", "JumpReallyHigh", etc.
+        /// </summary>
+        public Dictionary<string, ModelAnimationClip> ModelAnimationClips
+        {
+            get
+            {
+                // If there is no animation information.
+                if (Resource.Tag == null || !(Resource.Tag is ModelAnimationData))
+                    return null;
+                return ((ModelAnimationData)Resource.Tag).ModelAnimationClips;
+            }
+        } // ModelAnimationClips
+
+        /// <summary>
+        /// Bindpose matrices for each bone in the skeleton, relative to the parent bone.
+        /// </summary>
+        public List<Matrix> BindPose
+        {
+            get
+            {
+                // If there is no animation information.
+                if (Resource.Tag == null || !(Resource.Tag is ModelAnimationData))
+                    return null;
+                return ((ModelAnimationData)Resource.Tag).BindPose;
+            }
+        } // BindPose
+
+        /// <summary>
+        /// Vertex to bonespace transforms for each bone in the skeleton.
+        /// </summary>
+        public List<Matrix> InverseBindPose
+        {
+            get
+            {
+                // If there is no animation information.
+                if (Resource.Tag == null || !(Resource.Tag is ModelAnimationData))
+                    return null;
+                return ((ModelAnimationData)Resource.Tag).InverseBindPose;
+            }
+        } // InverseBindPose
+
+        /// <summary>
+        /// For each bone in the skeleton, stores the index of the parent bone.
+        /// </summary>
+        public List<int> SkeletonHierarchy
+        {
+            get
+            {
+                // If there is no animation information.
+                if (Resource.Tag == null || !(Resource.Tag is ModelAnimationData))
+                    return null;
+                return ((ModelAnimationData)Resource.Tag).SkeletonHierarchy;
+            }
+        } // SkeletonHierarchy
 
         #endregion
 

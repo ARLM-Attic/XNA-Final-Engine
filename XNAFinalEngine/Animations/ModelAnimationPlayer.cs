@@ -49,7 +49,7 @@ namespace XNAFinalEngine.Animations
 
         // Current timeindex and keyframe in the clip.
         private float currentTimeValue;
-        private int currentKeyframe;
+        private int   currentKeyframe;
 
         // Speed of playback.
         private float playbackRate = 1.0f;
