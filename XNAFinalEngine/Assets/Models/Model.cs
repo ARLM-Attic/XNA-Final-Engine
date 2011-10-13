@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using XNABoundingBox    = Microsoft.Xna.Framework.BoundingBox;
 using XNABoundingSphere = Microsoft.Xna.Framework.BoundingSphere;
 #endregion
@@ -79,7 +80,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Render the model.
         /// </summary>
-        internal abstract void Render();
+        internal abstract void Render(Matrix[] boneTransform, EffectParameter boneEffectParameter);
 
         #endregion
 

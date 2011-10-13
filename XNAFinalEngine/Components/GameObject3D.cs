@@ -34,35 +34,19 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
+        #region Components
+
+        private ModelRenderer modelRenderer;
+        private ModelFilter modelFilter;
+        private RootAnimations rootAnimation;
+        private ModelAnimations modelAnimation;
+
+        #endregion
+
         #endregion
 
         #region Properties
 
-        /// <summary>
-        /// Associated transform component.
-        /// </summary>
-        public Transform3D Transform { get; private set; }
-        
-        /// <summary>
-        /// Associated model renderer component.
-        /// </summary>
-        public ModelRenderer ModelRenderer { get; private set; }
-
-        /// <summary>
-        /// Associated model filter component.
-        /// </summary>
-        public ModelFilter ModelFilter { get; private set; }
-
-        /// <summary>
-        /// Associated root animation component.
-        /// </summary>
-        public RootAnimations RootAnimation { get; private set; }
-
-        /// <summary>
-        /// Associated model animation component.
-        /// </summary>
-        public ModelAnimations ModelAnimation { get; private set; }
-        
         /// <summary>
         /// The parent of this game object.
         /// </summary>
@@ -72,9 +56,102 @@ namespace XNAFinalEngine.Components
             set { Transform.Parent = value; }
         } // Parent
 
+        #region Components
+
+        /// <summary>
+        /// Associated transform component.
+        /// </summary>
+        public Transform3D Transform { get; private set; }
+        
+        /// <summary>
+        /// Associated model renderer component.
+        /// </summary>
+        public ModelRenderer ModelRenderer
+        {
+            get { return modelRenderer; }
+            private set
+            {
+                ModelRenderer oldValue = modelRenderer;
+                modelRenderer = value;
+                // Invoke event
+                if (ModelRendererChanged != null)
+                    ModelRendererChanged(this, oldValue, value);
+            }
+        } // ModelRenderer
+        
+        /// <summary>
+        /// Associated model filter component.
+        /// </summary>
+        public ModelFilter ModelFilter
+        {
+            get { return modelFilter; }
+            private set
+            {
+                ModelFilter oldValue = modelFilter;
+                modelFilter = value;
+                // Invoke event
+                if (ModelFilterChanged != null)
+                    ModelFilterChanged(this, oldValue, value);
+            }
+        } // ModelFilter
+        
+        /// <summary>
+        /// Associated root animation component.
+        /// </summary>
+        public RootAnimations RootAnimations
+        {
+            get { return rootAnimation; }
+            private set
+            {
+                RootAnimations oldValue = rootAnimation;
+                rootAnimation = value;
+                // Invoke event
+                if (RootAnimationChanged != null)
+                    RootAnimationChanged(this, oldValue, value);
+            }
+        } // RootAnimations
+        
+        /// <summary>
+        /// Associated model animation component.
+        /// </summary>
+        public ModelAnimations ModelAnimations
+        {
+            get { return modelAnimation; }
+            private set
+            {
+                ModelAnimations oldValue = modelAnimation;
+                modelAnimation = value;
+                // Invoke event
+                if (ModelAnimationChanged != null)
+                    ModelAnimationChanged(this, oldValue, value);
+            }
+        } // ModelAnimations
+
+        #endregion
+
         #endregion
 
         #region Events
+
+        /// <summary>
+        /// Raised when the game object's model renderer changes.
+        /// </summary>
+        public event ComponentEventHandler ModelRendererChanged;
+
+        /// <summary>
+        /// Raised when the game object's model filter changes.
+        /// </summary>
+        public event ComponentEventHandler ModelFilterChanged;
+
+        /// <summary>
+        /// Raised when the game object's root animation changes.
+        /// </summary>
+        public event ComponentEventHandler RootAnimationChanged;
+
+        /// <summary>
+        /// Raised when the game object's model animation changes.
+        /// </summary>
+        public event ComponentEventHandler ModelAnimationChanged;
 
         #endregion
 
@@ -182,10 +259,10 @@ namespace XNAFinalEngine.Components
                 // Search for an empty component in the pool.
                 rootAnimationAccessor = RootAnimations.RootAnimationPool.Fetch();
                 // A component is a reference value, so no problem to do this.
-                RootAnimation = RootAnimations.RootAnimationPool[rootAnimationAccessor];
+                RootAnimations = RootAnimations.RootAnimationPool[rootAnimationAccessor];
                 // Initialize the component to the default values.
-                RootAnimation.Initialize(this);
-                return RootAnimation;
+                RootAnimations.Initialize(this);
+                return RootAnimations;
             }
 
             #endregion
@@ -201,10 +278,10 @@ namespace XNAFinalEngine.Components
                 // Search for an empty component in the pool.
                 modelAnimationAccessor = ModelAnimations.ModelAnimationPool.Fetch();
                 // A component is a reference value, so no problem to do this.
-                ModelAnimation = ModelAnimations.ModelAnimationPool[modelAnimationAccessor];
+                ModelAnimations = ModelAnimations.ModelAnimationPool[modelAnimationAccessor];
                 // Initialize the component to the default values.
-                ModelAnimation.Initialize(this);
-                return ModelAnimation;
+                ModelAnimations.Initialize(this);
+                return ModelAnimations;
             }
 
             #endregion
@@ -283,9 +360,9 @@ namespace XNAFinalEngine.Components
                 {
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the root animation component. There is not one.");
                 }
-                RootAnimation.Uninitialize();
+                RootAnimations.Uninitialize();
                 RootAnimations.RootAnimationPool.Release(rootAnimationAccessor);
-                RootAnimation = null;
+                RootAnimations = null;
                 rootAnimationAccessor = null;
             }
             if (typeof(TComponentType) == typeof(ModelAnimations))
@@ -294,9 +371,9 @@ namespace XNAFinalEngine.Components
                 {
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the model animation component. There is not one.");
                 }
-                ModelAnimation.Uninitialize();
+                ModelAnimations.Uninitialize();
                 ModelAnimations.ModelAnimationPool.Release(modelAnimationAccessor);
-                ModelAnimation = null;
+                ModelAnimations = null;
                 modelAnimationAccessor = null;
             }
 

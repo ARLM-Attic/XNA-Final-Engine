@@ -55,12 +55,18 @@ namespace XNAFinalEngine.Components
         protected BoundingBox boundingBox;
 
         // Bone transforms for rigid and animated skinning models.
-        Matrix[] cachedBoneTransforms = null;
+        internal Matrix[] cachedBoneTransforms;
 
+        // Chaded model filter's model value.
+        private Model cachedModel;
+        
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// The material applied to the model.
+        /// </summary>
         public Material Material { get; set; }
         
         /// <summary>
@@ -80,7 +86,15 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Chaded model filter's model value.
         /// </summary>
-        internal Model CachedModel { get; set; }
+        internal Model CachedModel
+        {
+            get { return cachedModel; }
+            private set
+            {
+                cachedModel = value;
+                CalculateBoundingVolumes();
+            }
+        } // CachedModel
         
         #endregion
 
@@ -92,18 +106,23 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
-            // If there is not a ModelFilter component present then we create one.
-            if (((GameObject3D) Owner).ModelFilter == null)
+            
+            // Model
+            ((GameObject3D)Owner).ModelFilterChanged += OnModelFilterChanged;
+            if (((GameObject3D)Owner).ModelFilter != null)
             {
-                ((GameObject3D) Owner).AddComponent<ModelFilter>();
-            }
-            ((GameObject3D)Owner).ModelFilter.ModelChanged += OnModelChanged;
-            if (((GameObject3D)Owner).ModelFilter.Model != null)
-            {
+                ((GameObject3D)Owner).ModelFilter.ModelChanged += OnModelChanged;
                 CachedModel = ((GameObject3D)Owner).ModelFilter.Model;
             }
+            // Model Animations
+            ((GameObject3D)Owner).ModelAnimationChanged += OnModelAnimationChanged;
+            if (((GameObject3D)Owner).ModelAnimations != null)
+            {
+                ((GameObject3D)Owner).ModelAnimations.BoneTransformChanged += OnBoneTransformChanged;
+                cachedBoneTransforms = ((GameObject3D)Owner).ModelAnimations.BoneTransform;
+            }
+
             Material = null;
-            CalculateBoundingVolumes();
         } // Initialize
 
         #endregion
@@ -117,7 +136,9 @@ namespace XNAFinalEngine.Components
         internal override void Uninitialize()
         {
             base.Uninitialize();
-            ((GameObject3D)Owner).ModelFilter.ModelChanged -= OnModelChanged;
+            if (((GameObject3D)Owner).ModelFilter != null)
+                ((GameObject3D)Owner).ModelFilter.ModelChanged -= OnModelChanged;
+            ((GameObject3D)Owner).ModelFilterChanged -= OnModelFilterChanged;
         } // Uninitialize
 
         #endregion
@@ -143,8 +164,68 @@ namespace XNAFinalEngine.Components
         private void OnModelChanged(object sender, Model model)
         {
             CachedModel = model;
-            CalculateBoundingVolumes();
-        } // OnLayerChanged
+        } // OnModelChanged
+
+        #endregion
+
+        #region On Model Filter Changed
+
+        /// <summary>
+        /// On model filter changed.
+        /// </summary>
+        private void OnModelFilterChanged(object sender, Component oldComponent, Component newComponent)
+        {
+            // Remove event association.
+            if (oldComponent != null)
+                ((ModelFilter)oldComponent).ModelChanged -= OnModelChanged;
+            // Add new event association
+            if (newComponent != null)
+            {
+                ((ModelFilter)newComponent).ModelChanged += OnModelChanged;
+                CachedModel = ((GameObject3D)Owner).ModelFilter.Model;
+            }
+            else
+            {
+                CachedModel = null;
+            }
+        } // OnModelFilterChanged
+
+        #endregion
+
+        #region On Bone Transform Changed
+
+        /// <summary>
+        /// On model animation's bone transfomr changed.
+        /// </summary>
+        private void OnBoneTransformChanged(object sender, Matrix[] boneTransform)
+        {
+            cachedBoneTransforms = boneTransform;
+        } // OnBoneTransformChanged
+
+        #endregion
+
+        #region On Model Animation Changed
+
+        /// <summary>
+        /// On model animation changed.
+        /// </summary>
+        private void OnModelAnimationChanged(object sender, Component oldComponent, Component newComponent)
+        {
+            // Remove event association.
+            if (oldComponent != null)
+                ((ModelAnimations)oldComponent).BoneTransformChanged -= OnBoneTransformChanged;
+
+            if (newComponent != null)
+            {
+                ((ModelAnimations)newComponent).BoneTransformChanged += OnBoneTransformChanged;
+                cachedBoneTransforms = ((GameObject3D)Owner).ModelAnimations.BoneTransform;
+            }
+            else
+            {
+                cachedBoneTransforms = null;
+            }
+
+        } // OnModelAnimationChanged
 
         #endregion
 

@@ -59,7 +59,8 @@ namespace XNAFinalEngine.Components
             set
             {
                 enabled = value;
-                EnabledChanged(this, enabled);
+                if (EnabledChanged != null)
+                    EnabledChanged(this, enabled);
             }
         } // Enabled
         
@@ -72,7 +73,8 @@ namespace XNAFinalEngine.Components
             set
             {
                 layerMask = value.Mask;
-                LayerChanged(this, layerMask);
+                if (LayerChanged != null)
+                    LayerChanged(this, layerMask);
             }
         } // Layer
 
@@ -105,6 +107,15 @@ namespace XNAFinalEngine.Components
         /// Raised when the game object's is enabled or disabled.
         /// </summary>
         public event EnabledEventHandler EnabledChanged;
+
+        #endregion
+
+        #region Component Changed
+
+        /// <summary>
+        /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
+        /// </summary>
+        public delegate void ComponentEventHandler(object sender, Component oldComponent, Component newComponent);
 
         #endregion
 

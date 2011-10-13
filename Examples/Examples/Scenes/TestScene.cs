@@ -63,6 +63,7 @@ namespace XNAFinalEngineExamples
 
             lamboBody = new GameObject3D();
             lamboBody.AddComponent<ModelRenderer>();
+            lamboBody.AddComponent<ModelFilter>();
             lamboBody.ModelFilter.Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
             lamboBody.ModelRenderer.Material = new Constant { DiffuseColor = Color.Turquoise };
             lamboBody.AddComponent<RootAnimations>();
@@ -70,11 +71,15 @@ namespace XNAFinalEngineExamples
 
             //lamboBody.RootAnimation.Play("AnimatedCube");
             //lamboBody.Transform.Translate(new Vector3(0, -25, 0), Space.Local);
-            /*
+            
             dude = new GameObject3D();
             dude.AddComponent<ModelFilter>();
             dude.ModelFilter.Model = new FileModel("DudeWalk");
-            dude.AddComponent<ModelRenderer>();*/
+            dude.AddComponent<ModelRenderer>();
+            dude.ModelRenderer.Material = new Constant { DiffuseColor = Color.Turquoise };
+            dude.AddComponent<ModelAnimations>();
+            dude.ModelAnimations.AddAnimationClip(new ModelAnimation("dude"));
+            dude.ModelAnimations.Play("dude");
 
             GameLoop.ShowFramesPerSecond = true;
 

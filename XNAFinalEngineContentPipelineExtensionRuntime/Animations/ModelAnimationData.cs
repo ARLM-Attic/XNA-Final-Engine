@@ -54,7 +54,7 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         /// For each bone in the skeleton, stores the index of the parent bone.
         /// </summary>
         [ContentSerializer]
-        public List<int> SkeletonHierarchy { get; private set; }
+        public List<int> BoneHierarchy { get; private set; }
 
         #endregion
 
@@ -73,7 +73,7 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
             RootAnimationClips = rootAnimationClips;
             BindPose = bindPose;
             InverseBindPose = inverseBindPose;
-            SkeletonHierarchy = skeletonHierarchy;
+            BoneHierarchy = skeletonHierarchy;
         } // ModelAnimationData
 
         /// <summary>

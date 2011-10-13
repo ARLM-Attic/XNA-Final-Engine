@@ -99,6 +99,8 @@ namespace XNAFinalEngine.Graphics
                                        epMinimumNumberSamples,
                                        epMaximumNumberSamples,
                                        epHeightMapScale,
+                                       // Skinning
+                                       epBones,
                                        // Terrain
                                        epUvRectangleMin,
                                        epUvRectangleSide,
@@ -433,6 +435,8 @@ namespace XNAFinalEngine.Graphics
                     epMinimumNumberSamples    = Resource.Parameters["minimumNumberSamples"];
                     epMaximumNumberSamples    = Resource.Parameters["maximumNumberSamples"];
                     epHeightMapScale          = Resource.Parameters["heightMapScale"];
+                    // Skinning //
+                    epBones                   = Resource.Parameters["Bones"];
                     // Terrain //
                     epUvRectangleMin          = Resource.Parameters["uvRectangleMin"];
                     epUvRectangleSide         = Resource.Parameters["uvRectangleSide"];
@@ -570,7 +574,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Render Model
 
-        public void RenderModel(Matrix worldMatrix, Assets.Model model, Matrix[] skinTransform)
+        public void RenderModel(Matrix worldMatrix, Assets.Model model, Matrix[] boneTransform)
         {
             try
             {
@@ -582,7 +586,6 @@ namespace XNAFinalEngine.Graphics
                 if (model is FileModel && ((FileModel)model).InverseBindPose != null)
                 {
                     Resource.CurrentTechnique = Resource.Techniques["GBufferSkinnedWithTexture"];
-                    Resource.Parameters["Bones"].SetValue(skinTransform);
                 }
                 else
                 {
@@ -590,7 +593,7 @@ namespace XNAFinalEngine.Graphics
                 }
                 
                 Resource.CurrentTechnique.Passes[0].Apply();
-                model.Render();
+                model.Render(boneTransform, epBones);
             }
             catch (Exception e)
             {

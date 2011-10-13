@@ -57,13 +57,6 @@ namespace XNAFinalEngine.EngineCore
 
         private static GBuffer gbuffer;
         private static EditorCamera camera;
-        private static ModelAnimation testAnimation;
-        private static ModelAnimationPlayer animationPlayer;
-        private static FileModel dude;
-        private static SkinnedEffect effect;
-        private static Matrix[] boneTransforms = new Matrix[58];
-        private static Matrix[] worldTransforms = new Matrix[58];
-        private static Matrix[] skinTransforms = new Matrix[58];
 
         /// <summary>
         /// This game object will show the frames per second onto screen.
@@ -117,14 +110,6 @@ namespace XNAFinalEngine.EngineCore
             
             camera = new EditorCamera(new Vector3(0, 30, 0), 200, 0, 0);
             camera.FarPlane = 20000;
-
-            testAnimation = new ModelAnimation("dude");
-            animationPlayer = new ModelAnimationPlayer();
-
-            dude = new FileModel("DudeWalk");
-            effect = new SkinnedEffect(EngineManager.Device);
-
-            animationPlayer.Play(testAnimation);
 
             if (CurrentScene != null)
             {
@@ -212,8 +197,10 @@ namespace XNAFinalEngine.EngineCore
             // The output is a skeletal/rigid pose in local space for each active clip.
             // The pose might contain information for every joint in the skeleton (a full-body pose),
             // for only a subset of joints (partial pose), or it might be a difference pose for use in additive blending.
-            // TODO!!! foreach animation in poolanimationsplayers { Update }
-            animationPlayer.Update();
+            for (int i = 0; i < ModelAnimations.ModelAnimationPool.Count; i++)
+            {
+                ModelAnimations.ModelAnimationPool.Elements[i].Update();
+            }
 
             // Sometimes the final pose is a composition of a number of animation clips. In this stage the animations are blended.
             // The blending includes: lerp, additive blending and cross fading blending. 
@@ -226,62 +213,20 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Graphics
-
-            for (int bone = 0; bone < worldTransforms.Length; bone++)
-            {
-                boneTransforms[bone] = Matrix.CreateScale(animationPlayer.BoneTransforms[bone].scale) *
-                                       Matrix.CreateFromQuaternion(animationPlayer.BoneTransforms[bone].rotation) *
-                                       Matrix.CreateTranslation(animationPlayer.BoneTransforms[bone].position);
-            }
-            // Root bone.
-            worldTransforms[0] = boneTransforms[0] * Matrix.Identity;
-            // Child bones.
-            for (int bone = 1; bone < worldTransforms.Length; bone++)
-            {
-                int parentBone = ((ModelAnimationData)dude.Resource.Tag).SkeletonHierarchy[bone];
-                worldTransforms[bone] = boneTransforms[bone] * worldTransforms[parentBone];
-            }
-            for (int bone = 0; bone < skinTransforms.Length; bone++)
-            {
-                skinTransforms[bone] = ((ModelAnimationData)dude.Resource.Tag).InverseBindPose[bone] * worldTransforms[bone];
-            }
-            /*
-            effect.View = camera.ViewMatrix;
-            effect.Projection = camera.ProjectionMatrix;
-            effect.EnableDefaultLighting();
-            effect.DiffuseColor = new Vector3(255, 255, 255);
-            effect.SpecularColor = new Vector3(0.25f);
-            effect.SpecularPower = 1;
-            effect.SetBoneTransforms(skinTransforms);
-            effect.CurrentTechnique.Passes[0].Apply();
-            
-            foreach (ModelMesh mesh in dude.Resource.Meshes)
-            {
-                foreach (ModelMeshPart part in mesh.MeshParts)
-                {
-                    EngineManager.Device.SetVertexBuffer(part.VertexBuffer);
-                    EngineManager.Device.Indices = part.IndexBuffer;
-                    EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, part.VertexOffset, 0, part.NumVertices, part.StartIndex, part.PrimitiveCount);
-                }
-            }
-            */
-            
+          
             gbuffer.Begin(camera.ViewMatrix, camera.ProjectionMatrix, 100);
-                gbuffer.RenderModel(Matrix.Identity, dude, skinTransforms);
-                /*ModelRenderer currentModelRenderer; 
                 for (int i = 0; i < ModelRenderer.ModelRendererPool.Count; i++)
                 {
-                    currentModelRenderer = ModelRenderer.ModelRendererPool.Elements[i];
-                    if (currentModelRenderer.CachedModel != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                    ModelRenderer currentModelRenderer = ModelRenderer.ModelRendererPool.Elements[i];
+                    if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                     {
-                        gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel);
+                        gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
                     }
-                }*/
+                }
             gbuffer.End();
             
             SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
             
-
             #endregion
 
             #region Heads Up Display

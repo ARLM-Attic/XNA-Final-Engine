@@ -42,7 +42,7 @@ namespace XNAFinalEngine.Animations
         #region Variables
 
         // This is an array of the transforms to each object/bone in the model.
-        public readonly BoneTransformationData[] BoneTransforms = new BoneTransformationData[ModelAnimationClip.MaxBones - 1];
+        public readonly BoneTransformationData[] BoneTransforms = new BoneTransformationData[ModelAnimationClip.MaxBones];
 
         // Clip currently being played.
         private ModelAnimation currentAnimationClip;

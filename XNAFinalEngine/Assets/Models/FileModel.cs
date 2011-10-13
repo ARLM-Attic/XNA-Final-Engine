@@ -48,6 +48,13 @@ namespace XNAFinalEngine.Assets
     public class FileModel : Model
     {
 
+        #region Variables
+
+        private Matrix[] worldTransforms;
+        private Matrix[] skinTransforms;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -188,17 +195,27 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// For each bone in the skeleton, stores the index of the parent bone.
         /// </summary>
-        public List<int> SkeletonHierarchy
+        public List<int> BoneHierarchy
         {
             get
             {
                 // If there is no animation information.
                 if (Resource.Tag == null || !(Resource.Tag is ModelAnimationData))
                     return null;
-                return ((ModelAnimationData)Resource.Tag).SkeletonHierarchy;
+                return ((ModelAnimationData)Resource.Tag).BoneHierarchy;
             }
         } // SkeletonHierarchy
 
+        /// <summary>
+        /// Bone count.
+        /// </summary>
+        public int BoneCount { get; private set; }
+
+        /// <summary>
+        /// Is the model skinned?
+        /// </summary>
+        public bool IsSkinned { get; private set; }
+        
         #endregion
 
         #region Constructor
@@ -221,6 +238,16 @@ namespace XNAFinalEngine.Assets
                 Vector3[] vectices = Vectices;
                 boundingSphere = BoundingSphere.CreateFromPoints(vectices);
                 boundingBox    = BoundingBox.CreateFromPoints(vectices);
+                if (Resource.Tag != null && Resource.Tag is ModelAnimationData && ((ModelAnimationData)Resource.Tag).BoneHierarchy != null)
+                {
+                    BoneCount = ((ModelAnimationData) Resource.Tag).BoneHierarchy.Count;
+                    if (((ModelAnimationData)Resource.Tag).InverseBindPose != null) // If is skinned
+                    {
+                        worldTransforms = new Matrix[BoneCount];
+                        skinTransforms = new Matrix[BoneCount];    
+                    }
+                    IsSkinned = ((ModelAnimationData)Resource.Tag).InverseBindPose != null;
+                }
             }
             catch (ObjectDisposedException)
             {
@@ -239,8 +266,25 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Render the model.
         /// </summary>
-        internal override void Render()
+        internal override void Render(Matrix[] boneTransform, EffectParameter boneEffectParameter)
         {
+            if (boneTransform != null && IsSkinned)
+            {
+                // Root bone.
+                worldTransforms[0] = boneTransform[0] * Matrix.Identity;
+                // Child bones.
+                for (int bone = 1; bone < BoneCount; bone++)
+                {
+                    int parentBone = ((ModelAnimationData)Resource.Tag).BoneHierarchy[bone];
+                    worldTransforms[bone] = boneTransform[bone] * worldTransforms[parentBone];
+                }
+                for (int bone = 0; bone < BoneCount; bone++)
+                {
+                    skinTransforms[bone] = ((ModelAnimationData) Resource.Tag).InverseBindPose[bone] * worldTransforms[bone];
+                }
+                boneEffectParameter.SetValue(skinTransforms);
+            }
+
             // Go through all meshes in the model
             foreach (ModelMesh mesh in Resource.Meshes) // foreach is faster than for because no range checking is performed.
             {

@@ -32,7 +32,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Animations;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 #endregion
@@ -50,16 +51,37 @@ namespace XNAFinalEngine.Components
         #region Variables
 
         // Associated animations.
-        private readonly Dictionary<string, ModelAnimationClip> modelAnimations = new Dictionary<string, ModelAnimationClip>(0);
+        private readonly Dictionary<string, ModelAnimation> modelAnimations = new Dictionary<string, ModelAnimation>(0);
+
+        // Current bone transform matrices in absolute format.
+        // They have to be transform to world space and if the model is skinned they have to be transformed by the inverse bind pose.
+        private readonly Matrix[] boneTransform = new Matrix[ModelAnimationClip.MaxBones];
+
+        private readonly ModelAnimationPlayer animationPlayer = new ModelAnimationPlayer();
 
         #endregion
+
+        #region Properties
         
+        /// <summary>
+        /// Current bone transform matrices in absolute format.
+        /// They have to be transform to world space and if the model is skinned they have to be transformed by the inverse bind pose.
+        /// </summary>
+        public Matrix[] BoneTransform { get { return boneTransform; } }
+
+        #endregion
+
         #region Events
 
         /// <summary>
-        /// Invoked when playback has completed.
+        /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
         /// </summary>
-        public event EventHandler AnimationCompleted;
+        public delegate void AnimationEventHandler(object sender, Matrix[] boneTransform);
+
+        /// <summary>
+        /// Raised when the model animation's bone transform changes.
+        /// </summary>
+        public event AnimationEventHandler BoneTransformChanged;
 
         #endregion
 
@@ -83,44 +105,32 @@ namespace XNAFinalEngine.Components
         {
             if (!modelAnimations.ContainsKey(name))
                 throw new ArgumentException("Root Animation Component: the animation name does not exist.");
-
-            
+            // This is provisory, the animation system is in diapers.
+            animationPlayer.Play(modelAnimations[name]);
         } // Play
-
-        #endregion
-
-        #region Pause Resume
-
-        /// <summary>
-        /// Will pause the playback of the current clip
-        /// </summary>
-        public void Pause()
-        {
-            
-        } // PauseClip
-
-        /// <summary>
-        /// Will resume playback of the current clip
-        /// </summary>
-        public void Resume()
-        {
-            
-        } // ResumeClip
 
         #endregion
 
         #region Update
 
         /// <summary>
-        /// Called during the update loop to move the animation forward
-        /// </summary>        
-        public virtual void Update()
+        /// Update.
+        /// </summary>
+        internal void Update()
         {
-            
+            animationPlayer.Update();
+            for (int bone = 0; bone < ModelAnimationClip.MaxBones; bone++)
+            {
+                boneTransform[bone] = Matrix.CreateScale(animationPlayer.BoneTransforms[bone].scale) *
+                                      Matrix.CreateFromQuaternion(animationPlayer.BoneTransforms[bone].rotation) *
+                                      Matrix.CreateTranslation(animationPlayer.BoneTransforms[bone].position);
+            }
+            if (BoneTransformChanged != null)
+                BoneTransformChanged(this, boneTransform);
         } // Update
 
         #endregion
-        
+
         #region Initialize
 
         /// <summary>
@@ -152,9 +162,9 @@ namespace XNAFinalEngine.Components
         /// Determines if the component contains a specific model animation.
         /// </summary>
         /// <remarks>Checks both, the name and the clip.</remarks>
-        public bool ContainsAnimationClip(Assets.ModelAnimation animation)
+        public bool ContainsAnimationClip(ModelAnimation animation)
         {
-            return modelAnimations.ContainsValue(animation.Resource) || modelAnimations.ContainsKey(animation.Name);
+            return modelAnimations.ContainsValue(animation) || modelAnimations.ContainsKey(animation.Name);
         } // ContainsAnimationClip
 
         #endregion
@@ -164,10 +174,10 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Adds an animation clip to the component.
         /// </summary>
-        public void AddAnimationClip(Assets.ModelAnimation animation)
+        public void AddAnimationClip(ModelAnimation animation)
         {
             if (!ContainsAnimationClip(animation))
-                modelAnimations.Add(animation.Name, animation.Resource);
+                modelAnimations.Add(animation.Name, animation);
             else
                 throw new ArgumentException("Model Animation Component: The animation " + animation.Name + " is already assigned.");
         } // AddAnimationClip
