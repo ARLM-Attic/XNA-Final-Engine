@@ -67,10 +67,13 @@ namespace XNAFinalEngineExamples
             lamboBody.ModelFilter.Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
             lamboBody.ModelRenderer.Material = new Constant { DiffuseColor = Color.Turquoise };
             lamboBody.AddComponent<RootAnimations>();
+            lamboBody.AddComponent<Camera>();
             //lamboBody.RootAnimation.AddAnimationClip(animation);
 
             //lamboBody.RootAnimation.Play("AnimatedCube");
-            //lamboBody.Transform.Translate(new Vector3(0, -25, 0), Space.Local);
+            lamboBody.Transform.Rotate(new Vector3(0, 3.1416f / 2, 0), Space.World);
+            lamboBody.Transform.Translate(new Vector3(0, 25, -100), Space.Local);
+            lamboBody.Transform.Rotate(new Vector3(0, 3.1416f, 0), Space.Local);
             
             dude = new GameObject3D();
             dude.AddComponent<ModelFilter>();

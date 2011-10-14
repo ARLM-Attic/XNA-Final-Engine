@@ -31,6 +31,7 @@ namespace XNAFinalEngine.Components
         private Pool<ModelRenderer>.Accessor modelRendererAccessor;
         private Pool<RootAnimations>.Accessor rootAnimationAccessor;
         private Pool<ModelAnimations>.Accessor modelAnimationAccessor;
+        private Pool<Camera>.Accessor cameraAccessor;
 
         #endregion
 
@@ -40,6 +41,7 @@ namespace XNAFinalEngine.Components
         private ModelFilter modelFilter;
         private RootAnimations rootAnimation;
         private ModelAnimations modelAnimation;
+        private Camera camera;
 
         #endregion
 
@@ -127,6 +129,22 @@ namespace XNAFinalEngine.Components
             }
         } // ModelAnimations
 
+        /// <summary>
+        /// Associated camera component.
+        /// </summary>
+        public Camera Camera
+        {
+            get { return camera; }
+            private set
+            {
+                Camera oldValue = camera;
+                camera = value;
+                // Invoke event
+                if (CameraChanged != null)
+                    CameraChanged(this, oldValue, value);
+            }
+        } // Camera
+
         #endregion
 
         #endregion
@@ -152,6 +170,11 @@ namespace XNAFinalEngine.Components
         /// Raised when the game object's model animation changes.
         /// </summary>
         public event ComponentEventHandler ModelAnimationChanged;
+
+        /// <summary>
+        /// Raised when the game object's camera changes.
+        /// </summary>
+        public event ComponentEventHandler CameraChanged;
 
         #endregion
 
@@ -219,9 +242,9 @@ namespace XNAFinalEngine.Components
                     throw new ArgumentException("Game Object 3D: Unable to create the model filter component. There is one already.");
                 }
                 // Search for an empty component in the pool.
-                modelFilterAccessor = ModelFilter.ModelFilterPool.Fetch();
+                modelFilterAccessor = ModelFilter.ComponentPool.Fetch();
                 // A component is a reference value, so no problem to do this.
-                ModelFilter = ModelFilter.ModelFilterPool[modelFilterAccessor];
+                ModelFilter = ModelFilter.ComponentPool[modelFilterAccessor];
                 // Initialize the component to the default values.
                 ModelFilter.Initialize(this);
                 return ModelFilter;
@@ -238,9 +261,9 @@ namespace XNAFinalEngine.Components
                     throw new ArgumentException("Game Object 3D: Unable to create the model renderer component. There is one already.");
                 }
                 // Search for an empty component in the pool.
-                modelRendererAccessor = ModelRenderer.ModelRendererPool.Fetch();
+                modelRendererAccessor = ModelRenderer.ComponentPool.Fetch();
                 // A component is a reference value, so no problem to do this.
-                ModelRenderer = ModelRenderer.ModelRendererPool[modelRendererAccessor];
+                ModelRenderer = ModelRenderer.ComponentPool[modelRendererAccessor];
                 // Initialize the component to the default values.
                 ModelRenderer.Initialize(this);
                 return ModelRenderer;
@@ -257,9 +280,9 @@ namespace XNAFinalEngine.Components
                     throw new ArgumentException("Game Object 3D: Unable to create the root animation component. There is one already.");
                 }
                 // Search for an empty component in the pool.
-                rootAnimationAccessor = RootAnimations.RootAnimationPool.Fetch();
+                rootAnimationAccessor = RootAnimations.ComponentPool.Fetch();
                 // A component is a reference value, so no problem to do this.
-                RootAnimations = RootAnimations.RootAnimationPool[rootAnimationAccessor];
+                RootAnimations = RootAnimations.ComponentPool[rootAnimationAccessor];
                 // Initialize the component to the default values.
                 RootAnimations.Initialize(this);
                 return RootAnimations;
@@ -276,12 +299,31 @@ namespace XNAFinalEngine.Components
                     throw new ArgumentException("Game Object 3D: Unable to create the model animation component. There is one already.");
                 }
                 // Search for an empty component in the pool.
-                modelAnimationAccessor = ModelAnimations.ModelAnimationPool.Fetch();
+                modelAnimationAccessor = ModelAnimations.ComponentPool.Fetch();
                 // A component is a reference value, so no problem to do this.
-                ModelAnimations = ModelAnimations.ModelAnimationPool[modelAnimationAccessor];
+                ModelAnimations = ModelAnimations.ComponentPool[modelAnimationAccessor];
                 // Initialize the component to the default values.
                 ModelAnimations.Initialize(this);
                 return ModelAnimations;
+            }
+
+            #endregion
+
+            #region Camera
+
+            if (typeof(TComponentType) == typeof(Camera))
+            {
+                if (cameraAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the camera component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                cameraAccessor = Camera.ComponentPool.Fetch();
+                // A component is a reference value, so no problem to do this.
+                Camera = Camera.ComponentPool[cameraAccessor];
+                // Initialize the component to the default values.
+                Camera.Initialize(this);
+                return Camera;
             }
 
             #endregion
@@ -329,7 +371,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the model filter component. There are still components that use it.");
                 }
                 ModelFilter.Uninitialize();
-                ModelFilter.ModelFilterPool.Release(modelFilterAccessor);
+                ModelFilter.ComponentPool.Release(modelFilterAccessor);
                 ModelFilter = null;
                 modelFilterAccessor = null;
             }
@@ -345,7 +387,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the model renderer component. There is not one.");
                 }
                 ModelRenderer.Uninitialize();
-                ModelRenderer.ModelRendererPool.Release(modelRendererAccessor);
+                ModelRenderer.ComponentPool.Release(modelRendererAccessor);
                 ModelRenderer = null;
                 modelRendererAccessor = null;
             }
@@ -361,7 +403,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the root animation component. There is not one.");
                 }
                 RootAnimations.Uninitialize();
-                RootAnimations.RootAnimationPool.Release(rootAnimationAccessor);
+                RootAnimations.ComponentPool.Release(rootAnimationAccessor);
                 RootAnimations = null;
                 rootAnimationAccessor = null;
             }
@@ -372,9 +414,25 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the model animation component. There is not one.");
                 }
                 ModelAnimations.Uninitialize();
-                ModelAnimations.ModelAnimationPool.Release(modelAnimationAccessor);
+                ModelAnimations.ComponentPool.Release(modelAnimationAccessor);
                 ModelAnimations = null;
                 modelAnimationAccessor = null;
+            }
+
+            #endregion
+
+            #region Camera
+
+            if (typeof(TComponentType) == typeof(Camera))
+            {
+                if (cameraAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the camera component. There is not one.");
+                }
+                Camera.Uninitialize();
+                Camera.ComponentPool.Release(cameraAccessor);
+                Camera = null;
+                cameraAccessor = null;
             }
 
             #endregion

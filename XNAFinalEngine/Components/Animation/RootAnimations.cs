@@ -278,12 +278,12 @@ namespace XNAFinalEngine.Components
         #region Pool
 
         // Pool for this type of components.
-        private static readonly Pool<RootAnimations> rootAnimationPool = new Pool<RootAnimations>(20);
+        private static readonly Pool<RootAnimations> componentPool = new Pool<RootAnimations>(20);
 
         /// <summary>
         /// Pool for this type of components.
         /// </summary>
-        internal static Pool<RootAnimations> RootAnimationPool { get { return rootAnimationPool; } }
+        internal static Pool<RootAnimations> ComponentPool { get { return componentPool; } }
 
         #endregion
 

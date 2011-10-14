@@ -42,6 +42,8 @@ using XNAFinalEngine.Input;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 using RootAnimation = XNAFinalEngine.Components.RootAnimations;
 using XNAFinalEngine.Scenes;
+using Camera = XNAFinalEngine.Components.Camera;
+
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -105,7 +107,7 @@ namespace XNAFinalEngine.EngineCore
             fpsText.Transform.LocalRotation = 0f;
 
             #endregion
-
+            
             gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
             
             camera = new EditorCamera(new Vector3(0, 30, 0), 200, 0, 0);
@@ -162,9 +164,9 @@ namespace XNAFinalEngine.EngineCore
             Input.InputManager.Update();
             camera.Update();
 
-            for (int i = 0; i < RootAnimation.RootAnimationPool.Count; i++)
+            for (int i = 0; i < RootAnimation.ComponentPool.Count; i++)
             {
-                RootAnimation.RootAnimationPool.Elements[i].Update();
+                RootAnimation.ComponentPool.Elements[i].Update();
             }
         } // Update
 
@@ -197,9 +199,9 @@ namespace XNAFinalEngine.EngineCore
             // The output is a skeletal/rigid pose in local space for each active clip.
             // The pose might contain information for every joint in the skeleton (a full-body pose),
             // for only a subset of joints (partial pose), or it might be a difference pose for use in additive blending.
-            for (int i = 0; i < ModelAnimations.ModelAnimationPool.Count; i++)
+            for (int i = 0; i < ModelAnimations.ComponentPool.Count; i++)
             {
-                ModelAnimations.ModelAnimationPool.Elements[i].Update();
+                ModelAnimations.ComponentPool.Elements[i].Update();
             }
 
             // Sometimes the final pose is a composition of a number of animation clips. In this stage the animations are blended.
@@ -213,11 +215,12 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Graphics
-          
-            gbuffer.Begin(camera.ViewMatrix, camera.ProjectionMatrix, 100);
-                for (int i = 0; i < ModelRenderer.ModelRendererPool.Count; i++)
+
+            //gbuffer.Begin(camera.ViewMatrix, Camera.ComponentPool.Elements[0].ProjectionMatrix, 100);
+            gbuffer.Begin(Camera.ComponentPool.Elements[0].ViewMatrix, Camera.ComponentPool.Elements[0].ProjectionMatrix, 100);
+                for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
                 {
-                    ModelRenderer currentModelRenderer = ModelRenderer.ModelRendererPool.Elements[i];
+                    ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
                     if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                     {
                         gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);

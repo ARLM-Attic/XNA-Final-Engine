@@ -170,8 +170,9 @@ namespace XNAFinalEngine.EngineCore
         #endregion
 
         /// <summary>
-        /// This is the default aspect ratio for cameras. 
+        /// This is the default aspect ratio for cameras.
         /// Some cameras could ask to work only in the default aspect ratio, even if the default aspect ratio changes.
+        /// Value 0 = Width / Height and it will be updated if the resolution changes.
         /// </summary>
         public static float AspectRatio
         {
@@ -181,7 +182,12 @@ namespace XNAFinalEngine.EngineCore
                     return (float)Width / Height;
                 return aspectRatio;
             }
-            set { aspectRatio = value; }
+            set
+            {
+                aspectRatio = value;
+                if (AspectRatioChanged != null)
+                    AspectRatioChanged(null, EventArgs.Empty);
+            }
         } // AspectRatio
                 
         #endregion
@@ -205,17 +211,28 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static event EventHandler ScreenSizeChanged;
 
+        /// <summary>
+        /// Raised when the system aspect ratio changes.
+        /// </summary>
+        public static event EventHandler AspectRatioChanged;
+
         #endregion
 
-        #region  On Screen Size Changed
+        #region On Screen Size Changed
 
         /// <summary>
         /// Raised when the window size changes.
         /// </summary>
         internal static void OnScreenSizeChanged(object sender, EventArgs e)
         {
+            // If the aspect ratio is calculated using the width / height formula then in someway it changes its value.
+            if (aspectRatio == 0)
+            {
+                if (AspectRatioChanged != null)
+                    AspectRatioChanged(null, EventArgs.Empty);
+            }
             if (ScreenSizeChanged != null)
-                ScreenSizeChanged(sender, e);
+                ScreenSizeChanged(sender, EventArgs.Empty);
         } // OnScreenSizeChanged
 
         #endregion

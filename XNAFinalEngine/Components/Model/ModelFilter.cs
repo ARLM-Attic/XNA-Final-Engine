@@ -118,12 +118,12 @@ namespace XNAFinalEngine.Components
         #region Pool
         
         // Pool for this type of components.
-        private static readonly Pool<ModelFilter> modelFilterPool = new Pool<ModelFilter>(20);
+        private static readonly Pool<ModelFilter> componentPool = new Pool<ModelFilter>(20);
 
         /// <summary>
         /// Pool for this type of components.
         /// </summary>
-        internal static Pool<ModelFilter> ModelFilterPool { get { return modelFilterPool; } }
+        internal static Pool<ModelFilter> ComponentPool { get { return componentPool; } }
 
         #endregion
 

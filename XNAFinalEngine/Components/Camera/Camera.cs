@@ -51,14 +51,24 @@ namespace XNAFinalEngine.Components
         /// This is the cached world matrix from the transform component.
         /// This matrix represents the view matrix.
         /// </summary>
-        private Matrix cachedWorldMatrix;
+        internal Matrix cachedWorldMatrix;
 
-        /// <summary>
-        /// Use transform matrix or user view matrix.
-        /// </summary>
-        private bool useTransformMatrix = true;
+        // Clear color
+        private Color clearColor = new Color(20, 20, 20, 255);
 
+        //  Where on the screen is the camera rendered in normalized coordinates.
+        private RectangleF normalizedViewport = new RectangleF(0, 0, 1, 1);
+
+        private Rectangle viewport = Rectangle.Empty;
+        
         #region Projection
+
+        // Projection matrix.
+        private Matrix projectionMatrix;
+
+        // Use the projection matrix that the user set. 
+        // If a projection's value changes there will no change in the projection matrix until the user call the reset projection matrix method.
+        private bool useUserProjectionMatrix;
 
         /// <summary>
         /// Aspect Ratio. O means system aspect ratio.
@@ -71,29 +81,27 @@ namespace XNAFinalEngine.Components
         private float nearPlane = 0.1f,
                       farPlane = 1000.0f,
                       fieldOfView = 36;
-
-        /// <summary>
-        /// Camera's vertical size when in orthographic mode.
-        /// </summary>
-        private int orthographicVerticalSize = 10;
-
-        /// <summary>
-        ///  Where on the screen is the camera rendered in normalized coordinates.
-        /// </summary>
-        private RectangleF normalizedViewport = new RectangleF(0, 0, 1, 1);
-
-        private Rectangle viewport = Rectangle.Empty;
-
-        /// <summary>
-        /// Is the camera orthographic (true) or perspective (false)?
-        /// </summary>
+        
+        // Is the camera orthographic (true) or perspective (false)?
         private bool orthographic;
 
+        // Camera's vertical size when in orthographic mode.
+        private int orthographicVerticalSize = 10;
+        
         #endregion
 
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// The color with which the screen will be cleared.
+        /// </summary>
+        public Color ClearColor
+        {
+            get { return clearColor; }
+            set { clearColor = value; }
+        } // ClearColor
 
         /// <summary>
         /// Destination render texture.
@@ -111,11 +119,14 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public Matrix ViewMatrix
         {
-            get { return cachedWorldMatrix; }
+            get
+            {
+                return cachedWorldMatrix;
+            }
             set 
             {
+                // Aca tendriamos que actualizar el transform pero teniendo en cuenta que la view matrix mira al resve, no?
                 cachedWorldMatrix = value;
-                useTransformMatrix = false;
             }
         } // ViewMatrix
 
@@ -125,9 +136,17 @@ namespace XNAFinalEngine.Components
 
         /// <summary> 
         /// We can set the projection matrix.
-        /// However if a parameter changes or the projection matrix is manually updated then this value will be replaced.
+        /// If a projection's value changes there will no change in the projection matrix until the user call the reset projection matrix method.
         /// </summary>
-        public Matrix ProjectionMatrix { get; set; }
+        public Matrix ProjectionMatrix
+        {
+            get { return projectionMatrix; }
+            set
+            {
+                projectionMatrix = value;
+                useUserProjectionMatrix = true;
+            }
+        } // ProjectionMatrix
 
         /// <summary>
         /// The camera's aspect ratio (width divided by height).
@@ -140,17 +159,19 @@ namespace XNAFinalEngine.Components
             get
             {
                 if (aspectRatio == 0)
-                {
                     return Screen.AspectRatio;
-                }
                 return aspectRatio;
             }
             set
             {
                 if (value <= 0)
                     throw new Exception("Camera: the aspect ratio has to be a positive real number.");
+                if (aspectRatio == 0)
+                    Screen.AspectRatioChanged -= OnAspectRatioChanged;
+                if (value == 0)
+                    Screen.AspectRatioChanged += OnAspectRatioChanged;
                 aspectRatio = value;
-                ResetProjectionMatrix();
+                CalculateProjectionMatrix();
             }
         } // AspectRatio
 
@@ -167,7 +188,7 @@ namespace XNAFinalEngine.Components
             set
             {
                 fieldOfView = value;
-                ResetProjectionMatrix();
+                CalculateProjectionMatrix();
             }
         } // FieldOfView
 
@@ -181,7 +202,7 @@ namespace XNAFinalEngine.Components
             set
             {
                 nearPlane = value;
-                ResetProjectionMatrix();
+                CalculateProjectionMatrix();
             }
         } // NearPlane
 
@@ -195,7 +216,7 @@ namespace XNAFinalEngine.Components
             set
             {
                 farPlane = value;
-                ResetProjectionMatrix();
+                CalculateProjectionMatrix();
             }
         } // FarPlane
 
@@ -209,7 +230,7 @@ namespace XNAFinalEngine.Components
             set
             {
                 orthographic = value;
-                ResetProjectionMatrix();
+                CalculateProjectionMatrix();
             }
         } // OrthographicProjection
 
@@ -223,7 +244,7 @@ namespace XNAFinalEngine.Components
             set
             {
                 orthographicVerticalSize = value;
-                ResetProjectionMatrix();
+                CalculateProjectionMatrix();
             }
         } // OrthographicVerticalSize
 
@@ -253,43 +274,122 @@ namespace XNAFinalEngine.Components
         /// Initialize the component. 
         /// </summary>
         internal override void Initialize(GameObject owner)
-        {     
+        {
+            base.Initialize(owner);
             // Generate the projection matrix.
-            ResetProjectionMatrix();            
+            CalculateProjectionMatrix();
+            Screen.AspectRatioChanged += OnAspectRatioChanged;
+            // Cache transform matrix. It will be the view matrix.
+            cachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
+            ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
         } // Initialize
+        
+        #endregion
+
+        #region Uninitialize
+
+        /// <summary>
+        /// Uninitialize the component.
+        /// Is important to remove event associations and any other reference.
+        /// </summary>
+        internal override void Uninitialize()
+        {
+            base.Uninitialize();
+            if (aspectRatio == 0)
+                Screen.AspectRatioChanged -= OnAspectRatioChanged;
+            ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
+        } // Uninitialize
 
         #endregion
 
-        #region Reset Values
-
-        /// <summary>
-        /// Resets the aspect to the screen's aspect ratio.
-        /// </summary>
-        public void ResetAspectRatio()
-        {
-            aspectRatio = 0;
-            ResetProjectionMatrix();
-        } // ResetAspectRatio
-
-        /// <summary>
-        /// Make the transform world matrix reflect the camera's position in the scene.
-        /// </summary>
-        public void ResetViewMatrix()
-        {            
-            cachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
-            useTransformMatrix = true;
-        } // ResetViewMatrix
+        #region Calculate and Reset Projection Matrix
 
         /// <summary>
         /// Update projection matrix based in the camera's projection properties.
         /// </summary>
-        protected void ResetProjectionMatrix()
+        public void ResetProjectionMatrix()
         {
-            if (OrthographicProjection)
-                ProjectionMatrix = Matrix.CreateOrthographic(OrthographicVerticalSize * AspectRatio, OrthographicVerticalSize, NearPlane, FarPlane);
-            else
-                ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(3.1416f * FieldOfView / 180.0f, AspectRatio, NearPlane, FarPlane);
+            useUserProjectionMatrix = false;
         } // ResetProjectionMatrix
+
+        /// <summary>
+        /// Update projection matrix based in the camera's projection properties.
+        /// This is only executed if the user does not set a projection matrix.
+        /// </summary>
+        private void CalculateProjectionMatrix()
+        {
+            if (!useUserProjectionMatrix)
+            {
+                if (OrthographicProjection)
+                    ProjectionMatrix = Matrix.CreateOrthographic(OrthographicVerticalSize * AspectRatio, OrthographicVerticalSize, NearPlane, FarPlane);
+                else
+                    ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(3.1416f * FieldOfView / 180.0f, AspectRatio, NearPlane, FarPlane);
+            }
+        } // CalculateProjectionMatrix
+
+        #endregion
+        
+        #region Bounding Frustum
+
+        /// <summary>
+        /// Camera Far Plane Bounding Frustum (in view space). 
+        /// With the help of the bounding frustum, the position can be cheaply reconstructed from a depth value.
+        /// </summary>
+        public Vector3[] BoundingFrustum()
+        {
+            BoundingFrustum boundingFrustum = new BoundingFrustum(ViewMatrix * ProjectionMatrix);
+            Vector3[] cornersWorldSpace = boundingFrustum.GetCorners();
+            Vector3[] cornersViewSpace = new Vector3[4];
+            // Transform form world space to view space
+            for (int i = 0; i < 4; i++)
+            {
+                cornersViewSpace[i] = Vector3.Transform(cornersWorldSpace[i + 4], ViewMatrix);
+            }
+
+            // Swap the last 2 values.
+            Vector3 temp = cornersViewSpace[3];
+            cornersViewSpace[3] = cornersViewSpace[2];
+            cornersViewSpace[2] = temp;
+
+            return cornersViewSpace;
+        } // BoundingFrustum
+
+        #endregion
+
+        #region On Aspect Ratio Changed
+
+        /// <summary>
+        /// When the system aspect ratio changes then the projection matrix has to be recalculated.
+        /// </summary>
+        private void OnAspectRatioChanged(object sender, EventArgs e)
+        {
+            CalculateProjectionMatrix();
+        } // OnAspectRatioChanged
+
+        #endregion
+
+        #region On World Matrix Changed
+
+        /// <summary>
+        /// On transform's world matrix changed.
+        /// </summary>
+        protected virtual void OnWorldMatrixChanged(Matrix worldMatrix)
+        {
+            // The view matrix is the invert
+            cachedWorldMatrix = Matrix.Invert(worldMatrix);
+        } // OnWorldMatrixChanged
+
+        #endregion
+
+        #region Pool
+
+        // Pool for this type of components.
+        private static readonly Pool<Camera> componentPool = new Pool<Camera>(20);
+
+        /// <summary>
+        /// Pool for this type of components.
+        /// </summary>
+        internal static Pool<Camera> ComponentPool { get { return componentPool; } }
 
         #endregion
 

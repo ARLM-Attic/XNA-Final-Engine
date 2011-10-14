@@ -187,12 +187,12 @@ namespace XNAFinalEngine.Components
         #region Pool
 
         // Pool for this type of components.
-        private static readonly Pool<ModelAnimations> modelAnimationPool = new Pool<ModelAnimations>(20);
+        private static readonly Pool<ModelAnimations> componentPool = new Pool<ModelAnimations>(20);
 
         /// <summary>
         /// Pool for this type of components.
         /// </summary>
-        internal static Pool<ModelAnimations> ModelAnimationPool { get { return modelAnimationPool; } }
+        internal static Pool<ModelAnimations> ComponentPool { get { return componentPool; } }
 
         #endregion
         

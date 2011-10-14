@@ -337,11 +337,11 @@ namespace XNAFinalEngine.Components
         {
             if (space == Space.Local)
             {
-                LocalRotation = Quaternion.Concatenate(LocalRotation, Quaternion.CreateFromYawPitchRoll(rotation.X, rotation.Y, rotation.Z));
+                LocalRotation = Quaternion.Concatenate(LocalRotation, Quaternion.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z));
             }
             else
             {
-                Rotation = Quaternion.Concatenate(Rotation, Quaternion.CreateFromYawPitchRoll(rotation.X, rotation.Y, rotation.Z));
+                Rotation = Quaternion.Concatenate(Rotation, Quaternion.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z));
             }
         } // Rotate
 
