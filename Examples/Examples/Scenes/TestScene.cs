@@ -33,6 +33,7 @@ using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Scenes;
 #endregion
 
@@ -47,7 +48,7 @@ namespace XNAFinalEngineExamples
 
         #region Variables
         
-        private static GameObject3D lamboBody, dude;
+        private static GameObject3D lamboBody, dude, otherCamera;
 
         #endregion
 
@@ -74,6 +75,14 @@ namespace XNAFinalEngineExamples
             lamboBody.Transform.Rotate(new Vector3(0, 3.1416f / 2, 0), Space.World);
             lamboBody.Transform.Translate(new Vector3(0, 25, -100), Space.Local);
             lamboBody.Transform.Rotate(new Vector3(0, 3.1416f, 0), Space.Local);
+            lamboBody.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
+
+            otherCamera = new GameObject3D();
+            otherCamera.AddComponent<Camera>();
+            otherCamera.Transform.Rotate(new Vector3(0, -3.1416f / 2, 0), Space.World);
+            otherCamera.Transform.Translate(new Vector3(0, 25, -100), Space.Local);
+            otherCamera.Transform.Rotate(new Vector3(0, 3.1416f, 0), Space.Local);
+            otherCamera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
             
             dude = new GameObject3D();
             dude.AddComponent<ModelFilter>();

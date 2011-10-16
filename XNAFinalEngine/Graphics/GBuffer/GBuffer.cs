@@ -549,7 +549,7 @@ namespace XNAFinalEngine.Graphics
             {
                 // Set Render States.
                 EngineManager.Device.BlendState        = BlendState.Opaque;
-                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                EngineManager.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
                 EngineManager.Device.DepthStencilState = DepthStencilState.Default;
                 EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap; // objectNormalTexture
                 EngineManager.Device.SamplerStates[1] = SamplerState.LinearWrap;      // objectSpecularTexture

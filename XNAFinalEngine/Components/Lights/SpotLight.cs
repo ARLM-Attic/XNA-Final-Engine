@@ -43,7 +43,10 @@ namespace XNAFinalEngine.Components
 
         #region Variables
 
+        // Cached transfomr's position.
         internal Vector3 cachedPosition;
+
+        // Cached transform's direction.
         internal Vector3 cachedDirection;
 
         // // The range of the light.
@@ -52,9 +55,21 @@ namespace XNAFinalEngine.Components
         // The spot light cone (in degrees)
         private float apertureCone = 60;
 
+        // Light specular color.
+        private Color specularColor;
+
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Light specular color.
+        /// </summary>
+        public Color SpecularColor
+        {
+            get { return specularColor; }
+            set { specularColor = value; }
+        } // SpecularColor
 
         /// <summary>
         /// The spot light cone (in degrees)
@@ -87,9 +102,10 @@ namespace XNAFinalEngine.Components
             // Values
             range = 1;
             apertureCone = 60;
+            specularColor = Color.White;
         } // Initialize
 
         #endregion
-        
-    } // PointLight
+
+    } // SpotLight
 } // XNAFinalEngine.Components

@@ -43,7 +43,38 @@ namespace XNAFinalEngine.Components
 
         #region Variables
 
+        // Cached transform's direction.
         internal Vector3 cachedDirection;
+
+        // Light specular color.
+        private Color specularColor;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Light specular color.
+        /// </summary>
+        public Color SpecularColor
+        {
+            get { return specularColor; }
+            set { specularColor = value; }
+        } // SpecularColor
+
+        #endregion
+
+        #region Initialize
+
+        /// <summary>
+        /// Initialize the component. 
+        /// </summary>
+        internal override void Initialize(GameObject owner)
+        {
+            base.Initialize(owner);
+            // Values
+            specularColor = Color.White;
+        } // Initialize
 
         #endregion
 

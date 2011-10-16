@@ -28,68 +28,16 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
-#region Using directives
-using Microsoft.Xna.Framework;
-#endregion
-
-namespace XNAFinalEngine.Components
+namespace XNAFinalEngine.Graphics
 {
-
     /// <summary>
-    /// Point Light.
+    /// Base class for ambient occlusion effects.
+    /// There are two options where to apply them: in the ambient light or in the final result.
+    /// The first is more "correct" but subtle. I choose the first to achieve more photorealistic results.
     /// </summary>
-    public class PointLight : Light
+    public abstract class AmbientOcclusion
     {
 
-        #region Variables
+    } // AmbientOcclusion
+} // XNAFinalEngine.Graphics
 
-        // Cached transfomr's position.
-        internal Vector3 cachedPosition;
-
-        // Light attenuation.
-        private float range;
-
-        // Light specular color.
-        private Color specularColor;
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// The range of the light.
-        /// </summary>
-        public float Range
-        {
-            get { return range; }
-            set { range = value; }
-        } // Range
-
-        /// <summary>
-        /// Light specular color.
-        /// </summary>
-        public Color SpecularColor
-        {
-            get { return specularColor; }
-            set { specularColor = value; }
-        } // SpecularColor
-
-        #endregion
-
-        #region Initialize
-
-        /// <summary>
-        /// Initialize the component. 
-        /// </summary>
-        internal override void Initialize(GameObject owner)
-        {
-            base.Initialize(owner);
-            // Values
-            range = 1;
-            specularColor = Color.White;
-        } // Initialize
-
-        #endregion
-
-    } // PointLight
-} // XNAFinalEngine.Components

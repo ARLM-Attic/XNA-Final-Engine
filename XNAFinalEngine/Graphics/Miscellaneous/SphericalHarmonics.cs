@@ -32,110 +32,76 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using Microsoft.Xna.Framework;
 #endregion
 
-namespace XNAFinalEngine.Components
+namespace XNAFinalEngine.Graphics
 {
 
     /// <summary>
-    /// Base class for lights.
+    /// Spherical Harmonics for RGB colors.
+    /// A spherical harmonic approximates a spherical function using only a few values.
+    /// They are great for store low frequency ambient colors and are very fast.
     /// </summary>
-    public abstract class Light : Component
+    public abstract class SphericalHarmonic
     {
 
         #region Variables
 
-        // Light diffuse color.
-        private Color diffuseColor;
-        
-        // The Intensity of a light is multiplied with the Light color.
-        private float intensity;
-
         /// <summary>
-        /// Chaded game object's layer mask value.
+        /// Accumulated weighting value. This value is provided as a helper to make averaging easier. It stores accumulated weighting values from calls to AddLight.
+        /// See AddLight method for further details.
         /// </summary>
-        internal int cachedLayerMask;
+        protected float weighting;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Light diffuse color.
+        /// Coeficients.
         /// </summary>
-        public Color DiffuseColor
-        {
-            get { return diffuseColor; }
-            set { diffuseColor = value; }
-        } // DiffuseColor
-
-        /// <summary>
-        /// The Intensity of a light is multiplied with the Light color.
-        /// </summary>
-        public float Intensity
-        {
-            get { return intensity; } 
-            set { intensity = value; }
-        } // Intensity
+        public virtual Vector3[] Coeficients { get { return null; } }
 
         #endregion
 
-        #region Initialize
+        #region Fill constants
 
         /// <summary>
-        /// Initialize the component. 
+        /// Fill the constants with a color.
         /// </summary>
-        internal override void Initialize(GameObject owner)
+        public virtual void Fill(float red, float green, float blue)
         {
-            base.Initialize(owner);
-            // Values
-            intensity = 1;
-            diffuseColor = Color.White;
-            // Layer
-            cachedLayerMask = Owner.Layer.Mask;
-            Owner.LayerChanged += OnLayerChanged;
-            // Transformation
-            ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
-        } // Initialize
+            // Overrite it!!
+        } // Fill
 
         #endregion
 
-        #region Uninitialize
+        #region Add Light
 
         /// <summary>
-        /// Uninitialize the component.
-        /// Is important to remove event associations and any other reference.
+        /// Add light from a given direction to the SH function. See the class remarks for further details on how an SH can be used to approximate lighting.
+        /// Input light inputRGB will be multiplied by weight, and weight will be added to weighting.
         /// </summary>
-        internal override void Uninitialize()
+        /// <param name="inputRgb">Input light intensity in RGB (usually gamma space) format for the given direction</param>
+        /// <param name="direction">direction of the incoming light</param>
+        /// <param name="weight">Weighting for this light, usually 1.0f. Use this value, and weighting if averaging a large number of lighting samples (eg, when converting a cube map to an SH)</param>
+        public virtual void AddLight(Vector3 inputRgb, Vector3 direction, float weight = 1.0f)
         {
-            base.Uninitialize();
-            Owner.LayerChanged -= OnLayerChanged;
-            ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
-        } // Uninitialize
+            // Overrite it!!
+        } // AddLight
 
         #endregion
 
-        #region On World Matrix Changed
+        #region Sample Direction
 
         /// <summary>
-        /// On transform's world matrix changed.
+        /// Sample the spherical harmonic in the given direction.
         /// </summary>
-        protected virtual void OnWorldMatrixChanged(Matrix worldMatrix)
+        public virtual Vector3 SampleDirection(Vector3 direction)
         {
-            
-        } // OnWorldMatrixChanged
-
-        #endregion
-
-        #region On Layer Changed
-
-        /// <summary>
-        /// On game object's layer changed.
-        /// </summary>
-        private void OnLayerChanged(object sender, int layerMask)
-        {
-            cachedLayerMask = layerMask;
-        } // OnLayerChanged
+            // Overrite it!!
+            return Vector3.Zero;
+        } // SampleDirection
 
         #endregion
         
-    } // Light
-} // XNAFinalEngine.Components
+    } // SphericalHarmonic
+} // XNAFinalEngine.Graphics

@@ -29,67 +29,45 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System;
 using Microsoft.Xna.Framework;
 #endregion
 
-namespace XNAFinalEngine.Components
+namespace XNAFinalEngine.Graphics
 {
 
     /// <summary>
-    /// Point Light.
+    /// Gamma and linear space converter.
     /// </summary>
-    public class PointLight : Light
+    public static class GammaLinearSpaceHelper
     {
 
-        #region Variables
-
-        // Cached transfomr's position.
-        internal Vector3 cachedPosition;
-
-        // Light attenuation.
-        private float range;
-
-        // Light specular color.
-        private Color specularColor;
-
-        #endregion
-
-        #region Properties
+        /// <summary>
+        /// Linear to gamma space.
+        /// </summary>
+        public static Color LinearToGamma(Vector4 color)
+        {
+            return new Color((float)Math.Sqrt(color.X), (float)Math.Sqrt(color.Y), (float)Math.Sqrt(color.Z), (float)Math.Sqrt(color.W));
+        } // LinearToGamma
 
         /// <summary>
-        /// The range of the light.
+        /// Linear to gamma space.
         /// </summary>
-        public float Range
+        public static Color LinearToGamma(Vector3 color)
         {
-            get { return range; }
-            set { range = value; }
-        } // Range
+            return new Color((float)Math.Sqrt(color.X), (float)Math.Sqrt(color.Y), (float)Math.Sqrt(color.Z));
+        } // LinearToGamma
 
         /// <summary>
-        /// Light specular color.
+        /// Gamma to linear space.
         /// </summary>
-        public Color SpecularColor
+        public static Vector4 GammaToLinear(Color color)
         {
-            get { return specularColor; }
-            set { specularColor = value; }
-        } // SpecularColor
+            return new Vector4((color.R / 255f) * (color.R / 255f),
+                               (color.G / 255f) * (color.G / 255f),
+                               (color.B / 255f) * (color.B / 255f),
+                               (color.A / 255f) * (color.A / 255f));
+        } // GammaToLinear
 
-        #endregion
-
-        #region Initialize
-
-        /// <summary>
-        /// Initialize the component. 
-        /// </summary>
-        internal override void Initialize(GameObject owner)
-        {
-            base.Initialize(owner);
-            // Values
-            range = 1;
-            specularColor = Color.White;
-        } // Initialize
-
-        #endregion
-
-    } // PointLight
-} // XNAFinalEngine.Components
+    } // GammaLinearSpaceHelper
+} // XNAFinalEngine.Graphics

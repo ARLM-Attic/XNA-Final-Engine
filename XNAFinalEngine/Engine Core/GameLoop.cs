@@ -215,9 +215,18 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Graphics
-
-            //gbuffer.Begin(camera.ViewMatrix, Camera.ComponentPool.Elements[0].ProjectionMatrix, 100);
-            gbuffer.Begin(Camera.ComponentPool.Elements[0].ViewMatrix, Camera.ComponentPool.Elements[0].ProjectionMatrix, 100);
+            
+            // For each camera we render the scene in it
+            for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
+            {
+                Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
+                gbuffer.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane);
+                // Set our viewport. We store the old viewport so we can restore it when we're done.
+                Viewport oldViewport = EngineManager.Device.Viewport;
+                if (currentCamera.NeedViewport)
+                {
+                    EngineManager.Device.Viewport = new Viewport(currentCamera.Viewport);
+                }
                 for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
                 {
                     ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
@@ -226,8 +235,13 @@ namespace XNAFinalEngine.EngineCore
                         gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
                     }
                 }
-            gbuffer.End();
-            
+                if (currentCamera.NeedViewport)
+                {
+                    EngineManager.Device.Viewport = oldViewport;
+                }
+                gbuffer.End();
+            }
+
             SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
             
             #endregion

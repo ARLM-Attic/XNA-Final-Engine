@@ -30,51 +30,47 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
+using XNAFinalEngine.Graphics;
 #endregion
 
 namespace XNAFinalEngine.Components
 {
 
     /// <summary>
-    /// Base class for lights.
+    /// Point Light.
     /// </summary>
-    public abstract class Light : Component
+    public class AmbientLight : Light
     {
 
         #region Variables
-
-        // Light diffuse color.
-        private Color diffuseColor;
         
-        // The Intensity of a light is multiplied with the Light color.
-        private float intensity;
-
-        /// <summary>
-        /// Chaded game object's layer mask value.
-        /// </summary>
-        internal int cachedLayerMask;
+        // Ambient Occlusion Strength.
+        private static float ambientOcclusionStrength;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Light diffuse color.
+        /// Spherical Harmonic Ambient Light.
+        /// They are great for store low frequency ambient colors and are very fast.
         /// </summary>
-        public Color DiffuseColor
-        {
-            get { return diffuseColor; }
-            set { diffuseColor = value; }
-        } // DiffuseColor
+        public static SphericalHarmonicL2 SphericalHarmonicAmbientLight { get; set; }
 
         /// <summary>
-        /// The Intensity of a light is multiplied with the Light color.
+        /// Ambient Occlusion Effect.
+        /// If null no ambient occlusion will be used.
         /// </summary>
-        public float Intensity
+        public static AmbientOcclusion AmbientOcclusion { get; set; }
+
+        /// <summary>
+        /// Ambient Occlusion Strength.
+        /// </summary>
+        public static float AmbientOcclusionStrength
         {
-            get { return intensity; } 
-            set { intensity = value; }
-        } // Intensity
+            get { return ambientOcclusionStrength; }
+            set { ambientOcclusionStrength = value; }
+        } // AmbientOcclusionStrength
 
         #endregion
 
@@ -86,56 +82,13 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
-            // Values
-            intensity = 1;
-            diffuseColor = Color.White;
-            // Layer
-            cachedLayerMask = Owner.Layer.Mask;
-            Owner.LayerChanged += OnLayerChanged;
-            // Transformation
-            ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
+            // Redefine light's default values. Ambient lights behave different.
+            DiffuseColor = new Color(20, 20, 20);
+            Intensity = 0.1f;
+            ambientOcclusionStrength = 5;
         } // Initialize
 
         #endregion
 
-        #region Uninitialize
-
-        /// <summary>
-        /// Uninitialize the component.
-        /// Is important to remove event associations and any other reference.
-        /// </summary>
-        internal override void Uninitialize()
-        {
-            base.Uninitialize();
-            Owner.LayerChanged -= OnLayerChanged;
-            ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
-        } // Uninitialize
-
-        #endregion
-
-        #region On World Matrix Changed
-
-        /// <summary>
-        /// On transform's world matrix changed.
-        /// </summary>
-        protected virtual void OnWorldMatrixChanged(Matrix worldMatrix)
-        {
-            
-        } // OnWorldMatrixChanged
-
-        #endregion
-
-        #region On Layer Changed
-
-        /// <summary>
-        /// On game object's layer changed.
-        /// </summary>
-        private void OnLayerChanged(object sender, int layerMask)
-        {
-            cachedLayerMask = layerMask;
-        } // OnLayerChanged
-
-        #endregion
-        
-    } // Light
+    } // AmbientLight
 } // XNAFinalEngine.Components

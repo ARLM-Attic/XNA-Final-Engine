@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
@@ -45,6 +46,26 @@ namespace XNAFinalEngine.Components
     public class Camera : Component
     {
 
+        #region Enumerates
+
+        public enum RenderingType
+        {
+            /// <summary>
+            /// Deferred lighting (or Light Pre-Pass) rendering.
+            /// The default rendering type.
+            /// Use it for the rendering of the scene, or any king of rendering.
+            /// </summary>
+            DeferredLighting,
+            /// <summary>
+            /// Classic forward rendering.
+            /// Some graphic effects and material don't work in this renderer.
+            /// Use it for auxiliary rendering, like reflections.
+            /// </summary>
+            ForwardRendering,
+        } // RenderingType
+
+        #endregion
+
         #region Variables
 
         /// <summary>
@@ -56,10 +77,26 @@ namespace XNAFinalEngine.Components
         // Clear color
         private Color clearColor = new Color(20, 20, 20, 255);
 
-        //  Where on the screen is the camera rendered in normalized coordinates.
+        // Where on the screen is the camera rendered in clip space.
         private RectangleF normalizedViewport = new RectangleF(0, 0, 1, 1);
 
+        // Where on the screen is the camera rendered in screen space.
         private Rectangle viewport = Rectangle.Empty;
+
+        // The viewport is expressed in clip space or screen space?
+        private bool viewportExpressedInClipSpace = true;
+
+        // The master of this slave camera. A camera can't be master and slave simultaneity.
+        private Camera masterCamera;
+
+        // The slaves of this camera. A camera can't be master and slave simultaneity.
+        private readonly List<Camera> slavesCameras = new List<Camera>();
+
+        // Destination render texture.
+        private RenderTarget renderTarget;
+
+        // Deferred lighting or forward rendering?
+        private RenderingType renderer;
         
         #region Projection
 
@@ -94,21 +131,108 @@ namespace XNAFinalEngine.Components
 
         #region Properties
 
+        #region Clear Color
+
         /// <summary>
         /// The color with which the screen will be cleared.
         /// </summary>
         public Color ClearColor
         {
-            get { return clearColor; }
-            set { clearColor = value; }
+            get
+            {
+                if (masterCamera != null)
+                    return masterCamera.clearColor;
+                return clearColor;
+            }
+            set
+            {
+                if (masterCamera != null)
+                    masterCamera.clearColor = value;
+                else
+                    clearColor = value;
+            }
         } // ClearColor
+
+        #endregion
+
+        #region Renderer
+
+        /// <summary>
+        /// Deferred lighting or forward rendering?
+        /// </summary>
+        public RenderingType Renderer
+        {
+            get
+            {
+                if (masterCamera != null)
+                    return masterCamera.renderer;
+                return renderer;
+            }
+            set 
+            {
+                if (masterCamera != null)
+                    masterCamera.renderer = value;
+                else
+                    renderer = value; 
+            }
+        } // Renderer
+
+        #endregion
+
+        #region Render Target
 
         /// <summary>
         /// Destination render texture.
         /// XNA Final Engine works in linear space and in High Dynamic Range.
         /// If you want proper results use a floating point texture.
         /// </summary>
-        public RenderTarget RenderTarget { get; set; }
+        public RenderTarget RenderTarget
+        {
+            get
+            {
+                if (masterCamera != null)
+                    return masterCamera.renderTarget;
+                return renderTarget;
+            }
+            set
+            {
+                if (masterCamera != null)
+                    masterCamera.renderTarget = value;
+                else
+                    renderTarget = value;
+            }
+        } // RenderTarget
+
+        #endregion
+
+        #region Master Camera
+
+        /// <summary>
+        /// If you want to render the scene using more than one camera in a single render target (for example: split screen) you have to relate the cameras.
+        /// It does not matter who is the master, however, the rendering type, clear color and render target values come from the master camera.
+        /// </summary>
+        public Camera MasterCamera
+        {
+            get { return masterCamera; }
+            set
+            {
+                if (slavesCameras.Count != 0 || (value != null && value.masterCamera != null))
+                    throw new InvalidOperationException("Camera: A camera can't be master and slave simultaneity.");
+                // Remove this camera from the old master.
+                if (masterCamera != null)
+                    masterCamera.slavesCameras.Remove(this);
+                // Set new master.
+                masterCamera = value;
+                // Update master with its new slave.
+                if (value != null)
+                {
+                    value.slavesCameras.Add(this);
+                    renderTarget = null;
+                }
+            }
+        } // MasterCamera
+
+        #endregion
 
         #region View
 
@@ -255,17 +379,61 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Where on the screen is the camera rendered in clip space.
         /// Values: left, bottom, width, height.
+        /// The normalized values should update with screen size changes.
         /// </summary>
-        public RectangleF NormalizedViewport { get; set; }
+        public RectangleF NormalizedViewport
+        {
+            get
+            {
+                if (viewportExpressedInClipSpace)
+                    return normalizedViewport;
+                return new RectangleF((float)viewport.X / (float)Screen.Width, (float)viewport.Y / (float)Screen.Height,
+                                      (float)viewport.Width / (float)Screen.Width, (float)viewport.Height / (float)Screen.Height);
+            }
+            set
+            {
+                //if (RenderTarget == null)
+                    //throw new InvalidOperationException("Camera: there is not render target set.");
+                if (value.X < 0 || value.Y < 0 || (value.X + value.Width) > 1 || (value.Y + value.Height) > 1)
+                    throw new ArgumentException("Camera: viewport size invalid.", "value");
+                viewportExpressedInClipSpace = true;
+                normalizedViewport = value;
+            }
+        } // NormalizedViewport
 
         /// <summary>
         /// Where on the screen is the camera rendered in screen space.
         /// Values: left, bottom, width, height.
+        /// These values won't be updated with screen size changes.
         /// </summary>
-        public RectangleF Viewport { get; set; }
+        public Rectangle Viewport
+        {
+            get
+            {
+                if (viewportExpressedInClipSpace)
+                    return new Rectangle((int)(normalizedViewport.X * Screen.Width), (int)(normalizedViewport.Y * Screen.Height),
+                                         (int)(normalizedViewport.Width * Screen.Width), (int)(normalizedViewport.Height * Screen.Height));
+                // Check for viewport dimensions? Is the correct...
+                return viewport;
+            }
+            set
+            {
+                if (RenderTarget == null)
+                    throw new InvalidOperationException("Camera: there is not render target set.");
+                if (value == Rectangle.Empty || value.X < 0 || value.Y < 0 || (value.X + value.Width) > RenderTarget.Width || (value.Y + value.Height) > RenderTarget.Height)
+                    throw new ArgumentException("Camera: viewport size invalid.", "value");
+                viewportExpressedInClipSpace = false;
+                viewport = value;
+            }
+        } // Viewport
+
+        /// <summary>
+        /// True if the camera needs a viewport (split screen) for render.
+        /// </summary>
+        public bool NeedViewport { get { return NormalizedViewport != new RectangleF(0, 0, 1, 1); } }
 
         #endregion
-
+        
         #endregion
 
         #region Initialize
