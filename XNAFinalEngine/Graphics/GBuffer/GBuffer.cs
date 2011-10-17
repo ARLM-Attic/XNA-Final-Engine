@@ -71,7 +71,7 @@ namespace XNAFinalEngine.Graphics
         public RenderTarget MotionVectorsSpecularPowerTexture { get; private set; }
 
         // This structure is used to set multiple render targets without generating garbage in the process.
-        private RenderTarget.RenderTargetBinding renderTargetBinding;
+        private readonly RenderTarget.RenderTargetBinding renderTargetBinding;
 
         /// <summary>
         /// Current view and projection matrix. Used to set the shader parameters.
@@ -543,7 +543,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the G-Buffer render.
         /// </summary>
-        public void Begin(Matrix viewMatrix, Matrix projectionMatrix, float farPlane)
+        public void Begin()
         {
             try
             {
@@ -554,12 +554,6 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap; // objectNormalTexture
                 EngineManager.Device.SamplerStates[1] = SamplerState.LinearWrap;      // objectSpecularTexture
                 EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;      // displacementTexture
-
-                // Set common parameters.
-                this.viewMatrix = viewMatrix;
-                this.projectionMatrix = projectionMatrix;
-                SetFarPlane(farPlane);
-
                 // With multiple render targets the GBuffer performance can be vastly improved.
                 RenderTarget.EnableRenderTargets(renderTargetBinding);
                 RenderTarget.ClearCurrentRenderTargets(Color.White);
@@ -569,6 +563,32 @@ namespace XNAFinalEngine.Graphics
                 throw new InvalidOperationException("GBuffer: Unable to begin the rendering.", e);
             }
         } // Begin
+        
+        #endregion
+
+        #region
+
+        /// <summary>
+        /// Prepare the GBuffer for render from a camera.
+        /// </summary>
+        /// <param name="viewMatrix">Camera view matrix.</param>
+        /// <param name="projectionMatrix">Camera projection matrix.</param>
+        /// <param name="farPlane">Camera far plane.</param>
+        /// <param name="viewport">How to cut the render target.</param>
+        public void EnableCamera(Matrix viewMatrix, Matrix projectionMatrix, float farPlane, Viewport viewport)
+        {
+            try
+            {
+                this.viewMatrix = viewMatrix;
+                this.projectionMatrix = projectionMatrix;
+                SetFarPlane(farPlane);
+                EngineManager.Device.Viewport = viewport;
+            } // try
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("GBuffer: Unable to enable camera.", e);
+            }
+        } // EnableCamera
 
         #endregion
 

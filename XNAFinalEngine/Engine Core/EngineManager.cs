@@ -63,6 +63,8 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         private static Exception exception;
 
+        private static int oldScreenWidth, oldScreenHeight;
+
         #endregion
 
         #region Properties
@@ -173,6 +175,8 @@ namespace XNAFinalEngine.EngineCore
             }
             graphicsDeviceManager.PreferredBackBufferWidth = width;
             graphicsDeviceManager.PreferredBackBufferHeight = height;
+            oldScreenWidth = width;
+            oldScreenHeight = height;
 
             #endregion
 
@@ -285,10 +289,12 @@ namespace XNAFinalEngine.EngineCore
         private static void Window_ClientSizeChanged(object sender, EventArgs e)
         {
             // I don't want that this method is called when a device reset occurs.
-            // The device has the new value and the graphic device manager the old one.
-            if (Device.PresentationParameters.BackBufferWidth != GraphicsDeviceManager.PreferredBackBufferWidth ||
-                Device.PresentationParameters.BackBufferHeight != GraphicsDeviceManager.PreferredBackBufferHeight)
+            // The device has the new value and the graphic device manager the old one, but not always, that's the problem.
+            if (Device.PresentationParameters.BackBufferWidth != oldScreenWidth ||
+                Device.PresentationParameters.BackBufferHeight != oldScreenHeight)
             {
+                oldScreenWidth = Device.PresentationParameters.BackBufferWidth;
+                oldScreenHeight = Device.PresentationParameters.BackBufferHeight;
                 Screen.OnScreenSizeChanged(sender, e);
             }
         } // Window_ClientSizeChanged

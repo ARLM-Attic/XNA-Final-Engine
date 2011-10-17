@@ -473,7 +473,27 @@ namespace XNAFinalEngine.Assets
                 currentRenderTarget[i] = renderTargetBinding.renderTargets[i];
                 renderTargetBinding.renderTargets[i].alreadyResolved = false;
             }
-            EngineManager.Device.SetRenderTargets(renderTargetBinding.InternalBinding);
+            try
+            {
+                EngineManager.Device.SetRenderTargets(renderTargetBinding.InternalBinding);
+            }
+            catch
+            {
+                // Maybe the render targets where recreated.
+                // When the device is lost the RenderTargetBinding are not recreated because they are structures (garbage considerations). So I do it here.
+                try
+                {
+                    for (int i = 0; i < renderTargetBinding.InternalBinding.Length; i++)
+                    {
+                        renderTargetBinding.InternalBinding[i] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.renderTargets[i].renderTarget);
+                    }
+                    EngineManager.Device.SetRenderTargets(renderTargetBinding.InternalBinding);
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidOperationException("Render Target. Unable to bind the render targets.", e);
+                }
+            }
         } // EnableRenderTargets
         
         #endregion
@@ -555,8 +575,8 @@ namespace XNAFinalEngine.Assets
             {
                 InternalBinding = new[]
                 {
-                    new Microsoft.Xna.Framework.Graphics.RenderTargetBinding( renderTarget1.renderTarget),
-                    new Microsoft.Xna.Framework.Graphics.RenderTargetBinding( renderTarget2.renderTarget),
+                    new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget1.renderTarget),
+                    new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget2.renderTarget),
                 },
                 renderTargets = new[] { renderTarget1, renderTarget2 }
             };

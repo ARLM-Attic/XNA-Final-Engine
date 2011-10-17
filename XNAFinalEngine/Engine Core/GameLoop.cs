@@ -110,8 +110,7 @@ namespace XNAFinalEngine.EngineCore
             
             gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
             
-            camera = new EditorCamera(new Vector3(0, 30, 0), 200, 0, 0);
-            camera.FarPlane = 20000;
+            camera = new EditorCamera(new Vector3(0, 30, 0), 200, 0, 0) {FarPlane = 20000};
 
             if (CurrentScene != null)
             {
@@ -220,26 +219,34 @@ namespace XNAFinalEngine.EngineCore
             for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
             {
                 Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
-                gbuffer.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane);
-                // Set our viewport. We store the old viewport so we can restore it when we're done.
-                Viewport oldViewport = EngineManager.Device.Viewport;
-                if (currentCamera.NeedViewport)
+                if (currentCamera.MasterCamera == null) // If is a master camera...
                 {
-                    EngineManager.Device.Viewport = new Viewport(currentCamera.Viewport);
-                }
-                for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
-                {
-                    ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                    if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                    gbuffer.Begin();
+                    gbuffer.EnableCamera(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, new Viewport(currentCamera.Viewport));
+                    for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
                     {
-                        gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                        ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                        if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                        {
+                            gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                        }
                     }
+                    // Render the children cameras. I have to do it now because the render targets don't preserve the content.
+                    for (int slaveIndex = 0; slaveIndex < currentCamera.slavesCameras.Count; slaveIndex++)
+                    {
+                        Camera slaveCamera = currentCamera.slavesCameras[slaveIndex];
+                        gbuffer.EnableCamera(slaveCamera.ViewMatrix, slaveCamera.ProjectionMatrix, slaveCamera.FarPlane, new Viewport(slaveCamera.Viewport));
+                        for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+                        {
+                            ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                            if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                            {
+                                gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                            }
+                        }
+                    }
+                    gbuffer.End();
                 }
-                if (currentCamera.NeedViewport)
-                {
-                    EngineManager.Device.Viewport = oldViewport;
-                }
-                gbuffer.End();
             }
 
             SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);

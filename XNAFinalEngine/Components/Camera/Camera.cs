@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
@@ -90,7 +91,7 @@ namespace XNAFinalEngine.Components
         private Camera masterCamera;
 
         // The slaves of this camera. A camera can't be master and slave simultaneity.
-        private readonly List<Camera> slavesCameras = new List<Camera>();
+        internal readonly List<Camera> slavesCameras = new List<Camera>();
 
         // Destination render texture.
         private RenderTarget renderTarget;
@@ -138,18 +139,18 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public Color ClearColor
         {
-            get
-            {
-                if (masterCamera != null)
-                    return masterCamera.clearColor;
-                return clearColor;
-            }
+            get { return clearColor; }
             set
             {
                 if (masterCamera != null)
-                    masterCamera.clearColor = value;
+                    masterCamera.ClearColor = value; // So it updates its children.
                 else
+                {
                     clearColor = value;
+                    if (slavesCameras.Count > 0) // If is a master camera update its childrens.
+                        for (int i = 0; i < slavesCameras.Count; i++)
+                            slavesCameras[i].clearColor = value;
+                }
             }
         } // ClearColor
 
@@ -162,18 +163,18 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public RenderingType Renderer
         {
-            get
-            {
-                if (masterCamera != null)
-                    return masterCamera.renderer;
-                return renderer;
-            }
+            get { return renderer; }
             set 
             {
                 if (masterCamera != null)
-                    masterCamera.renderer = value;
+                    masterCamera.Renderer = value; // So it updates its children.
                 else
-                    renderer = value; 
+                {
+                    renderer = value;
+                    if (slavesCameras.Count > 0) // If is a master camera update its childrens.
+                        for (int i = 0; i < slavesCameras.Count; i++)
+                            slavesCameras[i].renderer = value;
+                }
             }
         } // Renderer
 
@@ -185,21 +186,22 @@ namespace XNAFinalEngine.Components
         /// Destination render texture.
         /// XNA Final Engine works in linear space and in High Dynamic Range.
         /// If you want proper results use a floating point texture.
+        /// I recommend using the SetRenderTarget method except you know very well what are doing. 
         /// </summary>
         public RenderTarget RenderTarget
         {
-            get
-            {
-                if (masterCamera != null)
-                    return masterCamera.renderTarget;
-                return renderTarget;
-            }
+            get { return renderTarget; }
             set
             {
                 if (masterCamera != null)
-                    masterCamera.renderTarget = value;
+                    masterCamera.RenderTarget = value; // So it updates its children.
                 else
+                {
                     renderTarget = value;
+                    if (slavesCameras.Count > 0) // If is a master camera update its childrens.
+                        for (int i = 0; i < slavesCameras.Count; i++)
+                            slavesCameras[i].renderTarget = value;
+                }
             }
         } // RenderTarget
 
@@ -227,7 +229,11 @@ namespace XNAFinalEngine.Components
                 if (value != null)
                 {
                     value.slavesCameras.Add(this);
-                    renderTarget = null;
+                    // Just to be robust...
+                    // I update the children values so that, in the case of a unparent, the values remain the same as the father.
+                    renderTarget = value.RenderTarget;
+                    clearColor = value.clearColor;
+                    renderer = value.Renderer;
                 }
             }
         } // MasterCamera
@@ -283,7 +289,10 @@ namespace XNAFinalEngine.Components
             get
             {
                 if (aspectRatio == 0)
-                    return Screen.AspectRatio;
+                {
+                    RectangleF normalizedViewport = NormalizedViewport;
+                    return Screen.AspectRatio * normalizedViewport.Width / normalizedViewport.Height;
+                }
                 return aspectRatio;
             }
             set
@@ -392,12 +401,13 @@ namespace XNAFinalEngine.Components
             }
             set
             {
-                //if (RenderTarget == null)
-                    //throw new InvalidOperationException("Camera: there is not render target set.");
+                if (RenderTarget == null)
+                    throw new InvalidOperationException("Camera: there is not render target set.");
                 if (value.X < 0 || value.Y < 0 || (value.X + value.Width) > 1 || (value.Y + value.Height) > 1)
                     throw new ArgumentException("Camera: viewport size invalid.", "value");
                 viewportExpressedInClipSpace = true;
                 normalizedViewport = value;
+                CalculateProjectionMatrix(); // The viewport could affect the aspect ratio.
             }
         } // NormalizedViewport
 
@@ -424,6 +434,7 @@ namespace XNAFinalEngine.Components
                     throw new ArgumentException("Camera: viewport size invalid.", "value");
                 viewportExpressedInClipSpace = false;
                 viewport = value;
+                CalculateProjectionMatrix(); // The viewport could affect the aspect ratio.
             }
         } // Viewport
 
@@ -470,6 +481,34 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
+        #region Set Render Target
+
+        /// <summary>
+        /// Creates and assign a render target for the camera.
+        /// The render target properties are the most addecuate for the task.
+        /// </summary>
+        /// <param name="size">Render Target size.</param>
+        public void SetRenderTarget(RenderTarget.SizeType size)
+        {
+            // It's in linear space. In this same render target the transparent object will be rendered. Maybe an RGBM encoding could work, but how?
+            // Multisampling could generate indeseable artifacts. Be careful!
+            RenderTarget = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.Depth24, RenderTarget.AntialiasingType.NoAntialiasing);
+        } // SetRenderTarget
+
+        /// <summary>
+        /// Creates and assign a render target for the camera.
+        /// The render target properties are the most addecuate for the task.
+        /// </summary>
+        /// <param name="size">>Render Target size.</param>
+        public void SetRenderTarget(Size size)
+        {
+            // It's in linear space. In this same render target the transparent object will be rendered. Maybe an RGBM encoding could work, but how?
+            // Multisampling could generate indeseable artifacts. Be careful!
+            RenderTarget = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.Depth24, RenderTarget.AntialiasingType.NoAntialiasing);
+        } // SetRenderTarget
+
+        #endregion
+
         #region Calculate and Reset Projection Matrix
 
         /// <summary>
@@ -478,6 +517,7 @@ namespace XNAFinalEngine.Components
         public void ResetProjectionMatrix()
         {
             useUserProjectionMatrix = false;
+            CalculateProjectionMatrix();
         } // ResetProjectionMatrix
 
         /// <summary>
@@ -489,9 +529,9 @@ namespace XNAFinalEngine.Components
             if (!useUserProjectionMatrix)
             {
                 if (OrthographicProjection)
-                    ProjectionMatrix = Matrix.CreateOrthographic(OrthographicVerticalSize * AspectRatio, OrthographicVerticalSize, NearPlane, FarPlane);
+                    projectionMatrix = Matrix.CreateOrthographic(OrthographicVerticalSize * AspectRatio, OrthographicVerticalSize, NearPlane, FarPlane);
                 else
-                    ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(3.1416f * FieldOfView / 180.0f, AspectRatio, NearPlane, FarPlane);
+                    projectionMatrix = Matrix.CreatePerspectiveFieldOfView(3.1416f * FieldOfView / 180.0f, AspectRatio, NearPlane, FarPlane);
             }
         } // CalculateProjectionMatrix
 
