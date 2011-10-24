@@ -36,6 +36,9 @@ namespace XNAFinalEngine.Helpers
 {
     /// <summary>
     /// A pool of elements of reference type T.
+    /// This type of pool avoid the accessor with the cost of an O(n) release operation.
+    /// The accessor for reference type is needed to destroy the element and to access the pointer.
+    /// This structure could only be needed in very specific scenarios.
     /// </summary>
     /// <remarks>
     /// This is a custom structure that pursues two specific objectives.
@@ -170,7 +173,10 @@ namespace XNAFinalEngine.Helpers
                 throw new ArgumentNullException("element", "Pool: Element value cannot be null");
             // To accomplish our second objective (memory locality) the last available element will be moved to the place where the released element resided.
             int i = 0;
-            while (i < Count || Elements[i].Equals(element)) { i++; }
+            while (i < Count || Elements[i].Equals(element))
+            {
+                i++;
+            }
             T temp = Elements[i];
             Elements[i] = Elements[Count];
             Elements[Count] = temp;

@@ -585,6 +585,8 @@ namespace XNAFinalEngine.Components
         {
             // The view matrix is the invert
             cachedWorldMatrix = Matrix.Invert(worldMatrix);
+            Matrix rotMatrix = Matrix.CreateFromQuaternion(((GameObject3D)Owner).Transform.Rotation);
+            cachedWorldMatrix = Matrix.CreateTranslation(-((GameObject3D)Owner).Transform.Position) * rotMatrix;
         } // OnWorldMatrixChanged
 
         #endregion

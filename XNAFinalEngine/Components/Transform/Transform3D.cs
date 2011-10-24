@@ -167,6 +167,7 @@ namespace XNAFinalEngine.Components
             set
             {
                 localRotation = value;
+                localRotation.Normalize();
                 UpdateLocalMatrix();
             }
         } // LocalRotation

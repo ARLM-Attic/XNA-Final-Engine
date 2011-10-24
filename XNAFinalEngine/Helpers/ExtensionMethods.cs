@@ -32,6 +32,7 @@ Authors: Digital Jellyfish Design Ltd (http://forums.create.msdn.com/forums/p/16
 #region Using directives
 using System;
 using System.Text;
+using Microsoft.Xna.Framework;
 #endregion
 
 namespace XNAFinalEngine.Helpers
@@ -118,6 +119,29 @@ namespace XNAFinalEngine.Helpers
 
             return stringBuilder;
         } // AppendWithoutGarbage
+
+        #endregion
+
+        #region Quaternion
+        
+        /// <summary>
+        /// Return yaw, pitch and roll from this quaternion.
+        /// </summary>
+        /// <returns>X = yaw, Y = pitch, Z = roll</returns>
+        public static Vector3 GetYawPitchRoll(this Quaternion quaternion)
+        {
+            Vector3 yawPitchRoll = new Vector3
+            {
+                X = (float)(Math.Asin(-2 * (quaternion.X * quaternion.Z - quaternion.W * quaternion.Y))),
+                Y = (float)(Math.Atan2(2 * (quaternion.Y * quaternion.Z + quaternion.W * quaternion.X),
+                                            quaternion.W * quaternion.W - quaternion.X * quaternion.X -
+                                            quaternion.Y * quaternion.Y + quaternion.Z * quaternion.Z)),
+                Z = (float)(Math.Atan2(2 * (quaternion.X * quaternion.Y + quaternion.W * quaternion.Z),
+                                            quaternion.W * quaternion.W + quaternion.X * quaternion.X -
+                                            quaternion.Y * quaternion.Y - quaternion.Z * quaternion.Z))
+            };
+            return yawPitchRoll;
+        } // GetYawPitchRoll
 
         #endregion
 

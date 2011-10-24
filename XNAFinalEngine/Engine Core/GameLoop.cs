@@ -33,17 +33,14 @@ using System;
 using System.Runtime;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAFinalEngine.Animations;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Input;
-using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 using RootAnimation = XNAFinalEngine.Components.RootAnimations;
 using XNAFinalEngine.Scenes;
 using Camera = XNAFinalEngine.Components.Camera;
-
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -58,7 +55,6 @@ namespace XNAFinalEngine.EngineCore
         #region Variables
 
         private static GBuffer gbuffer;
-        private static EditorCamera camera;
 
         /// <summary>
         /// This game object will show the frames per second onto screen.
@@ -110,8 +106,6 @@ namespace XNAFinalEngine.EngineCore
             
             gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
             
-            camera = new EditorCamera(new Vector3(0, 30, 0), 200, 0, 0) {FarPlane = 20000};
-
             if (CurrentScene != null)
             {
                 CurrentScene.Load();
@@ -148,6 +142,8 @@ namespace XNAFinalEngine.EngineCore
         internal static void Update(GameTime gameTime)
         {
             Time.GameDeltaTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
+            
+            InputManager.Update();
 
             #region Scene Update Tasks
 
@@ -158,15 +154,24 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            fpsText.Transform.LocalPosition = new Vector3(Screen.Width - 100, 20, 0);
- 
-            Input.InputManager.Update();
-            camera.Update();
+            #region Scripts Update
 
-            for (int i = 0; i < RootAnimation.ComponentPool.Count; i++)
+            foreach (var script in Script.ScriptList)
             {
-                RootAnimation.ComponentPool.Elements[i].Update();
+                script.Update();
             }
+
+            #endregion 
+            
+            #region Scripts Late Update
+
+            foreach (var script in Script.ScriptList)
+            {
+                script.LateUpdate();
+            }
+
+            #endregion
+
         } // Update
 
         #endregion
@@ -182,6 +187,7 @@ namespace XNAFinalEngine.EngineCore
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
             // Update frames per second visibility.
             fpsText.HudText.Visible = ShowFramesPerSecond;
+            fpsText.Transform.LocalPosition = new Vector3(Screen.Width - 100, 20, 0);
 
             #region Scene Pre Render Tasks
 
@@ -191,6 +197,20 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
+
+            #region Scripts Pre Render Update
+
+            foreach (var script in Script.ScriptList)
+            {
+                script.PreRenderUpdate();
+            }
+
+            #endregion 
+
+            for (int i = 0; i < RootAnimation.ComponentPool.Count; i++)
+            {
+                RootAnimation.ComponentPool.Elements[i].Update();
+            }
 
             #region Model Animation Processing
 
@@ -288,6 +308,15 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
+
+            #region Scripts Post Render Update
+
+            foreach (var script in Script.ScriptList)
+            {
+                script.PostRenderUpdate();
+            }
+
+            #endregion 
 
         } // Draw
 

@@ -386,6 +386,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Get yaw pitch and roll from quaternion
 
+        /// <summary>
+        /// Return yaw, pitch and roll from a quaternion.
+        /// </summary>
+        /// <returns>X = yaw, Y = pitch, Z = roll</returns>
         public Vector3 GetYawPitchRollFromQuaternion(Quaternion quaternion)
         {
             Vector3 yawPitchRoll = new Vector3

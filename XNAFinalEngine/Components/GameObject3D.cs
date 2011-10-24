@@ -6,6 +6,7 @@
 
 #region Using directives
 using System;
+using System.Collections.Generic;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -42,6 +43,7 @@ namespace XNAFinalEngine.Components
         private RootAnimations rootAnimation;
         private ModelAnimations modelAnimation;
         private Camera camera;
+        private readonly List<Script> scripts = new List<Script>(2);
 
         #endregion
 
@@ -324,6 +326,18 @@ namespace XNAFinalEngine.Components
                 // Initialize the component to the default values.
                 Camera.Initialize(this);
                 return Camera;
+            }
+
+            #endregion
+
+            #region Script
+            
+            if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
+            {
+                Component script = new TComponentType();
+                script.Initialize(this);
+                Script.ScriptList.Add((Script)script);
+                return script;
             }
 
             #endregion

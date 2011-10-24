@@ -77,15 +77,17 @@ namespace XNAFinalEngineExamples
             lamboBody.Transform.Rotate(new Vector3(0, 3.1416f, 0), Space.Local);
             lamboBody.Camera.Renderer = Camera.RenderingType.DeferredLighting;
             lamboBody.Camera.SetRenderTarget(RenderTarget.SizeType.FullScreen);
-            lamboBody.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
+            //lamboBody.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
+            lamboBody.AddComponent<ScriptEditorCamera>();
 
+            /*
             otherCamera = new GameObject3D();
             otherCamera.AddComponent<Camera>();
             otherCamera.Transform.Rotate(new Vector3(0, -3.1416f / 2, 0), Space.World);
             otherCamera.Transform.Translate(new Vector3(0, 25, -100), Space.Local);
             otherCamera.Transform.Rotate(new Vector3(0, 3.1416f, 0), Space.Local);
             otherCamera.Camera.MasterCamera = lamboBody.Camera;
-            otherCamera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
+            otherCamera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);*/
             
             
             dude = new GameObject3D();

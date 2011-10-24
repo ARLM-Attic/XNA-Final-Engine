@@ -141,7 +141,7 @@ namespace XNAFinalEngine.Components
         /// Adds a component to the game object.
         /// </summary>
         /// <typeparam name="TComponentType">Component Type</typeparam>
-        public virtual Component AddComponent<TComponentType>() where TComponentType : Component
+        public virtual Component AddComponent<TComponentType>() where TComponentType : Component, new()
         {
             return null; // Overrite it!!!
         } // AddComponent
