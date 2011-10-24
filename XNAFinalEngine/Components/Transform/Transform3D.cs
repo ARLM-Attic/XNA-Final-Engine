@@ -334,6 +334,7 @@ namespace XNAFinalEngine.Components
         /// Rotate the game object. 
         /// Default space: local space.
         /// </summary>
+        /// <param name="rotation">Pitch, Yaw, Roll</param>        
         public void Rotate(Vector3 rotation, Space space = Space.Local)
         {
             if (space == Space.Local)
@@ -345,6 +346,26 @@ namespace XNAFinalEngine.Components
                 Rotation = Quaternion.Concatenate(Rotation, Quaternion.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z));
             }
         } // Rotate
+
+        #endregion
+
+        #region Look At
+
+        /// <summary>
+        /// Look at a target from a position.
+        /// Default space: local space.
+        /// </summary>        
+        public void LookAt(Vector3 position, Vector3 target, Vector3 upVector, Space space = Space.Local)
+        {
+            if (space == Space.Local)
+            {
+                LocalMatrix = Matrix.CreateLookAt(position, target, upVector);
+            }
+            else
+            {
+                WorldMatrix = Matrix.CreateLookAt(position, target, upVector);
+            }
+        } // LookAt
 
         #endregion
 

@@ -212,21 +212,15 @@ namespace XNAFinalEngine.Components
                 if (Distance < 2) // TODO!!!
                     Distance = 2;
             }
-
-            // Update orientation
-            ((GameObject3D)Owner).Transform.Rotation = Quaternion.Identity;
-            ((GameObject3D)Owner).Transform.Rotation *= Quaternion.CreateFromYawPitchRoll(0, Pitch, 0);
-            ((GameObject3D)Owner).Transform.Rotation *= Quaternion.CreateFromYawPitchRoll(Yaw, 0, 0);
-            /*((GameObject3D)Owner).Transform.Rotate(new Vector3(Pitch, 0, 0), Space.World);
-            ((GameObject3D)Owner).Transform.Rotate(new Vector3(0, Yaw, 0), Space.World);
-            /*RotateGlobal(RotationAxis.Pitch, Pitch);
-            RotateGlobal(RotationAxis.Yaw, Yaw);*/
-            // Update position
-            Matrix rotMatrix = Matrix.CreateFromQuaternion(((GameObject3D)Owner).Transform.Rotation);
-            ((GameObject3D)Owner).Transform.Position = LookAtPosition + new Vector3(rotMatrix.M13, rotMatrix.M23, rotMatrix.M33) * Distance;
-
-            //((GameObject3D)Owner).Transform.WorldMatrix = Matrix.CreateTranslation(-(LookAtPosition + new Vector3(rotMatrix.M13, rotMatrix.M23, rotMatrix.M33) * Distance)) * rotMatrix;
-
+            // Calculate Rotation //
+            Quaternion rotation = Quaternion.Identity;
+            rotation *= Quaternion.CreateFromYawPitchRoll(0, Pitch, 0);
+            rotation *= Quaternion.CreateFromYawPitchRoll(Yaw, 0, 0);
+            // Its actually the invert...
+            Matrix rotationMatrix = Matrix.CreateFromQuaternion(rotation);            
+            ((GameObject3D)Owner).Transform.Rotation = Quaternion.CreateFromRotationMatrix(Matrix.Invert(rotationMatrix));
+            // Now the position.
+            ((GameObject3D)Owner).Transform.Position = LookAtPosition + new Vector3(rotationMatrix.M13, rotationMatrix.M23, rotationMatrix.M33) * Distance;            
         } // Update
 
         #endregion

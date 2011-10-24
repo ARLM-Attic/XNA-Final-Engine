@@ -72,25 +72,26 @@ namespace XNAFinalEngineExamples
             //lamboBody.RootAnimation.AddAnimationClip(animation);
 
             //lamboBody.RootAnimation.Play("AnimatedCube");
-            lamboBody.Transform.Rotate(new Vector3(0, 3.1416f / 2, 0), Space.World);
+            /*lamboBody.Transform.Rotate(new Vector3(0, 3.1416f / 2, 0), Space.World);
             lamboBody.Transform.Translate(new Vector3(0, 25, -100), Space.Local);
-            lamboBody.Transform.Rotate(new Vector3(0, 3.1416f, 0), Space.Local);
+            lamboBody.Transform.Rotate(new Vector3(0, 3.1416f, 0), Space.Local);*/
             lamboBody.Camera.Renderer = Camera.RenderingType.DeferredLighting;
             lamboBody.Camera.SetRenderTarget(RenderTarget.SizeType.FullScreen);
-            //lamboBody.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
+            lamboBody.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
             lamboBody.AddComponent<ScriptEditorCamera>();
 
-            /*
+            
             otherCamera = new GameObject3D();
-            otherCamera.AddComponent<Camera>();
-            otherCamera.Transform.Rotate(new Vector3(0, -3.1416f / 2, 0), Space.World);
-            otherCamera.Transform.Translate(new Vector3(0, 25, -100), Space.Local);
-            otherCamera.Transform.Rotate(new Vector3(0, 3.1416f, 0), Space.Local);
+            otherCamera.AddComponent<Camera>();            
+            otherCamera.Transform.Translate(new Vector3(0, 200, 0), Space.Local);
+            otherCamera.Transform.Rotate(new Vector3(-3.1416f / 2, 0, 0), Space.Local);
             otherCamera.Camera.MasterCamera = lamboBody.Camera;
-            otherCamera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);*/
+            otherCamera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
+            otherCamera.Camera.FarPlane = 20000;
             
             
             dude = new GameObject3D();
+            dude.Transform.Position = new Vector3(0, 0, 0);
             dude.AddComponent<ModelFilter>();
             dude.ModelFilter.Model = new FileModel("DudeWalk");
             dude.AddComponent<ModelRenderer>();
