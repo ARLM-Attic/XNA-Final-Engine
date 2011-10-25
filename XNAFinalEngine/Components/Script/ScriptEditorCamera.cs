@@ -84,16 +84,21 @@ namespace XNAFinalEngine.Components
         public Vector3 LookAtPosition { get; set; }
 
         /// <summary>
-        /// Yaw. 
+        /// Yaw.
         /// Controlled with the mouse Y movement.
         /// </summary> 
         private float Pitch { get; set; }
 
         /// <summary>
-        /// Pitch.  
+        /// Pitch.
         /// Controlled with the mouse X movement.
         /// </summary>
         private float Yaw { get; set; }
+
+        /// <summary>
+        /// Roll.
+        /// </summary>
+        private float Roll { get; set; }
 
         #endregion
 
@@ -125,9 +130,10 @@ namespace XNAFinalEngine.Components
         {
             LookAtPosition = lookAtPosition;
             Distance = Vector3.Distance(position, lookAtPosition);
-            Vector3 yawPitchRoll = ((GameObject3D)Owner).Transform.Rotation.GetYawPitchRoll();
+            Vector3 yawPitchRoll = Quaternion.CreateFromRotationMatrix(Matrix.CreateLookAt(position, lookAtPosition, Vector3.Up)).GetYawPitchRoll();
             Yaw = yawPitchRoll.X;
             Pitch = yawPitchRoll.Y;
+            Roll = yawPitchRoll.Z;
         } // SetPosition
 
         #endregion
@@ -178,12 +184,12 @@ namespace XNAFinalEngine.Components
                     if (Mouse.LeftButtonPressed)
                     {
                         LookAtPosition -= ((GameObject3D)Owner).Transform.Right * Mouse.XMovement * Distance / 2000;
-                        LookAtPosition += ((GameObject3D)Owner).Transform.Up * Mouse.YMovement * Distance / 2000;
+                        LookAtPosition += ((GameObject3D)Owner).Transform.Up    * Mouse.YMovement * Distance / 2000;
                     }
                     // Orientation
                     if (Mouse.RightButtonPressed)
                     {
-                        Yaw += Mouse.XMovement * 0.005f;
+                        Yaw   += Mouse.XMovement * 0.005f;
                         Pitch += Mouse.YMovement * 0.005f;
 
                         // Orientation bounds
@@ -209,18 +215,19 @@ namespace XNAFinalEngine.Components
                 Distance -= Mouse.WheelDelta * Distance / 1300;
                 if (Distance > ((GameObject3D)Owner).Camera.FarPlane)
                     Distance = ((GameObject3D)Owner).Camera.FarPlane;
-                if (Distance < 2) // TODO!!!
-                    Distance = 2;
+                if (Distance < ((GameObject3D)Owner).Camera.NearPlane)
+                    Distance = ((GameObject3D)Owner).Camera.NearPlane;
             }
             // Calculate Rotation //
             Quaternion rotation = Quaternion.Identity;
             rotation *= Quaternion.CreateFromYawPitchRoll(0, Pitch, 0);
             rotation *= Quaternion.CreateFromYawPitchRoll(Yaw, 0, 0);
+            rotation *= Quaternion.CreateFromYawPitchRoll(0, 0, Roll);
             // Its actually the invert...
-            Matrix rotationMatrix = Matrix.CreateFromQuaternion(rotation);            
-            ((GameObject3D)Owner).Transform.Rotation = Quaternion.CreateFromRotationMatrix(Matrix.Invert(rotationMatrix));
+            ((GameObject3D)Owner).Transform.Rotation = Quaternion.Inverse(rotation);
             // Now the position.
-            ((GameObject3D)Owner).Transform.Position = LookAtPosition + new Vector3(rotationMatrix.M13, rotationMatrix.M23, rotationMatrix.M33) * Distance;            
+            Matrix rotationMatrix = Matrix.CreateFromQuaternion(rotation);   
+            ((GameObject3D)Owner).Transform.Position = LookAtPosition + new Vector3(rotationMatrix.M13, rotationMatrix.M23, rotationMatrix.M33) * Distance;
         } // Update
 
         #endregion

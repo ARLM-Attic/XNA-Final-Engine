@@ -78,8 +78,8 @@ namespace XNAFinalEngineExamples
             lamboBody.Camera.Renderer = Camera.RenderingType.DeferredLighting;
             lamboBody.Camera.SetRenderTarget(RenderTarget.SizeType.FullScreen);
             lamboBody.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
-            lamboBody.AddComponent<ScriptEditorCamera>();
-
+            ScriptEditorCamera script = (ScriptEditorCamera)lamboBody.AddComponent<ScriptEditorCamera>();
+            script.SetPosition(new Vector3(0, 0, 100), Vector3.Zero);
             
             otherCamera = new GameObject3D();
             otherCamera.AddComponent<Camera>();            

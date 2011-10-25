@@ -61,8 +61,6 @@
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />
     <Compile Include="Assets\Textures\TextureCube.cs" />
-    <Compile Include="Cameras\Camera.cs" />
-    <Compile Include="Cameras\EditorCamera.cs" />
     <Compile Include="Components\Animation\ModelAnimations.cs" />
     <Compile Include="Components\Animation\RootAnimations.cs" />
     <Compile Include="Components\Camera\Camera.cs" />
