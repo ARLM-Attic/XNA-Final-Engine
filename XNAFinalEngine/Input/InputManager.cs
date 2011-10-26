@@ -101,6 +101,7 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// Update, called from EngineManager.Update().
 		/// Will catch all new states for keyboard, mouse, gamepads, and Wiimotes.
+		/// This produces garbage!!!! TODO!!!!
 		/// </summary>
 		public static void Update()
 		{

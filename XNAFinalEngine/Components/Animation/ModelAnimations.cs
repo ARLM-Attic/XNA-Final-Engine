@@ -127,6 +127,8 @@ namespace XNAFinalEngine.Components
             }
             if (BoneTransformChanged != null)
                 BoneTransformChanged(this, boneTransform);
+            // Update World and Skin Transform. They could be separated into two methods if animation post process exists.
+
         } // Update
 
         #endregion

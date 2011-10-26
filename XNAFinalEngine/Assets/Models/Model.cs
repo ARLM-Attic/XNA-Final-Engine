@@ -80,7 +80,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Render the model.
         /// </summary>
-        internal abstract void Render(Matrix[] boneTransform, EffectParameter boneEffectParameter);
+        internal abstract void Render();
 
         #endregion
 

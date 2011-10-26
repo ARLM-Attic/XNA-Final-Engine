@@ -101,7 +101,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Render the model.
         /// </summary>
-        internal override void Render(Matrix[] boneTransform, EffectParameter boneEffectParameter)
+        internal override void Render()
         {
             EngineManager.Device.Indices = indexBuffer;
             EngineManager.Device.SetVertexBuffer(vertexBuffer);

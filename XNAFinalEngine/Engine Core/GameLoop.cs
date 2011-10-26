@@ -54,7 +54,9 @@ namespace XNAFinalEngine.EngineCore
 
         #region Variables
 
+        // TODO!!! Esto no va.
         private static GBuffer gbuffer;
+        private static LightPrePass lightPrePass;
 
         /// <summary>
         /// This game object will show the frames per second onto screen.
@@ -105,6 +107,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
             
             gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
+            lightPrePass = new LightPrePass(RenderTarget.SizeType.FullScreen);
             
             if (CurrentScene != null)
             {
@@ -207,10 +210,14 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion 
 
+            #region Root Animation Processing
+
             for (int i = 0; i < RootAnimation.ComponentPool.Count; i++)
             {
                 RootAnimation.ComponentPool.Elements[i].Update();
             }
+
+            #endregion
 
             #region Model Animation Processing
 
@@ -239,8 +246,11 @@ namespace XNAFinalEngine.EngineCore
             for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
             {
                 Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
-                if (currentCamera.MasterCamera == null) // If is a master camera...
+                if (currentCamera.MasterCamera == null) // If it's a master camera...
                 {
+
+                    #region GBuffer
+                    
                     gbuffer.Begin();
                     gbuffer.EnableCamera(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, new Viewport(currentCamera.Viewport));
                     for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
@@ -248,7 +258,7 @@ namespace XNAFinalEngine.EngineCore
                         ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
                         if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                         {
-                            gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                            gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, currentModelRenderer.Material);
                         }
                     }
                     // Render the children cameras. I have to do it now because the render targets don't preserve the content.
@@ -261,15 +271,27 @@ namespace XNAFinalEngine.EngineCore
                             ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
                             if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                             {
-                                gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                                gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, currentModelRenderer.Material);
                             }
                         }
                     }
                     gbuffer.End();
+
+                    #endregion
+
+                    #region Light Pre Pass
+
+                    lightPrePass.Begin(Color.Gray);
+
+                    lightPrePass.End();
+
+                    #endregion
+                    
                 }
             }
 
             SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
+            //SpriteManager.DrawTextureToFullScreen(lightPrePass.LightTexture);
             
             #endregion
 

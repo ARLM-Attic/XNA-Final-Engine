@@ -199,7 +199,24 @@ namespace XNAFinalEngine.Components
         /// </summary>
         private void OnBoneTransformChanged(object sender, Matrix[] boneTransform)
         {
-            cachedBoneTransforms = boneTransform;
+            // If it is a skinned model then the skin transform should be updated.
+            // Why do it here? Because it should be do it only one time for frame and because the animation component has nothing to do with the model. 
+            // The skinning transforms information is only useful for rendering.
+            // Also, normally there are few skinned models in a scene and I don’t discriminate them like, for example, Unity does.
+            // So it’s difficult in this scheme to update the skinning data using a high level task and producing
+            // at the same time few cache misses (the majority of the model are not skinned)
+            // However, it’s possible that some skinned models will be updated that will be frustum culled
+            // but I doubt that too much animations will be performed on off-screen models.
+            // The Unity scheme could be faked using two pools in the ModelFilter component, one for common models and one for skinned models. This is a matter of choice.
+            if (cachedModel != null && cachedModel is FileModel && ((FileModel)cachedModel).IsSkinned)
+            {
+                ((FileModel)cachedModel).UpdateWorldSkinTransforms(boneTransform);
+                cachedBoneTransforms = null;
+            }
+            else // It is rigid animated.
+            {
+                cachedBoneTransforms = boneTransform;
+            }
         } // OnBoneTransformChanged
 
         #endregion

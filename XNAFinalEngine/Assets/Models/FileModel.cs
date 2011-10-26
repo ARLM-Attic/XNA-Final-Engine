@@ -50,8 +50,8 @@ namespace XNAFinalEngine.Assets
 
         #region Variables
 
-        private Matrix[] worldTransforms;
-        private Matrix[] skinTransforms;
+        private readonly Matrix[] worldTransforms;
+        private readonly Matrix[] skinTransforms;
 
         #endregion
 
@@ -215,7 +215,17 @@ namespace XNAFinalEngine.Assets
         /// Is the model skinned?
         /// </summary>
         public bool IsSkinned { get; private set; }
-        
+
+        /// <summary>
+        /// World transform (skinning information).
+        /// </summary>
+        public Matrix[] WorldTransforms { get { return worldTransforms; } }
+
+        /// <summary>
+        /// Skin transforms.
+        /// </summary>
+        public Matrix[] SkinTransforms { get { return skinTransforms; } }
+       
         #endregion
 
         #region Constructor
@@ -261,12 +271,11 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
-        #region Render
+        #region Update World Skin Transforms
 
-        /// <summary>
-        /// Render the model.
-        /// </summary>
-        internal override void Render(Matrix[] boneTransform, EffectParameter boneEffectParameter)
+        /// <summary>Calculate and update world transform and skin Transform.</summary>
+        /// <remarks>They could be separated into two methods if animation post process exists.</remarks>
+        internal void UpdateWorldSkinTransforms(Matrix[] boneTransform)
         {
             if (boneTransform != null && IsSkinned)
             {
@@ -280,11 +289,20 @@ namespace XNAFinalEngine.Assets
                 }
                 for (int bone = 0; bone < BoneCount; bone++)
                 {
-                    skinTransforms[bone] = ((ModelAnimationData) Resource.Tag).InverseBindPose[bone] * worldTransforms[bone];
+                    skinTransforms[bone] = ((ModelAnimationData)Resource.Tag).InverseBindPose[bone] * worldTransforms[bone];
                 }
-                boneEffectParameter.SetValue(skinTransforms);
             }
+        } // UpdateWorldSkinTransforms
 
+        #endregion
+
+        #region Render
+
+        /// <summary>
+        /// Render the model.
+        /// </summary>
+        internal override void Render()
+        {
             // Go through all meshes in the model
             foreach (ModelMesh mesh in Resource.Meshes) // foreach is faster than for because no range checking is performed.
             {

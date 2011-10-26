@@ -350,9 +350,25 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
+        #region Bones
+
+        //private static Matrix[] lastUsedBones;
+        private static void SetBones(Matrix[] bones)
+        {
+            // The values are probably different and the operation is costly and garbage prone (but this can be avoided).
+            /*if (!ArrayHelper.Equals(lastUsedBones, bones))
+            {
+                lastUsedBones = (Matrix[])(bones.Clone());
+                epBones.SetValue(bones);
+            }*/
+            epBones.SetValue(bones);
+        } // SetBones
+
         #endregion
 
-        #region Load Shader
+        #endregion
+
+        #region Constructors
 
         /// <summary>
         /// This shader generates a depth and normal map.
@@ -453,91 +469,7 @@ namespace XNAFinalEngine.Graphics
         } // GetParameters
 
         #endregion
-
-        #region Generate G Buffer
-        /*
-        /// <summary>
-        /// Render the object without taking care of the illumination information.
-        /// </summary>
-        private static void RenderObjects(Object renderObjects)
-        {
-            if (renderObjects is GraphicObject)
-            {
-                // Set parameters
-                SetTransposeInverseWorldViewMatrix(Matrix.Transpose(Matrix.Invert(renderObjects.WorldMatrix * ApplicationLogic.Camera.ViewMatrix)));
-                SetWorldViewMatrix(renderObjects.WorldMatrix * ApplicationLogic.Camera.ViewMatrix);
-                SetWorldViewProjMatrix(renderObjects.WorldMatrix * ApplicationLogic.Camera.ViewMatrix * ApplicationLogic.Camera.ProjectionMatrix);
-                SetFarPlane(ApplicationLogic.Camera.FarPlane);
-
-                bool textured = false;
-                if (((GraphicObject)renderObjects).Material is SpecularMaterial)
-                {
-                    // Specular texture
-                    if (((SpecularMaterial)((GraphicObject)renderObjects).Material).SpecularTexture != null && ((SpecularMaterial)((GraphicObject)renderObjects).Material).SpecularTexturePowerEnabled)
-                    {
-                        SetSpecularTexture(((SpecularMaterial)((GraphicObject)renderObjects).Material).SpecularTexture);
-                        SetSpecularTextured(true);
-                        textured = true;
-                        Effect.CurrentTechnique = Effect.Techniques["GBufferWithSpecularTexture"];
-                    }
-                    else
-                    {
-                        SetSpecularPower(((SpecularMaterial)((GraphicObject)renderObjects).Material).SpecularPower);
-                        SetSpecularTextured(false);
-                    }
-                    // Normal texture
-                    if (((SpecularMaterial)((GraphicObject)renderObjects).Material).NormalTexture != null)
-                    {
-                        textured = true;
-                        SetObjectNormalTexture(((SpecularMaterial)((GraphicObject)renderObjects).Material).NormalTexture);
-                        if (((SpecularMaterial)((GraphicObject)renderObjects).Material).ParallaxEnabled)
-                        {
-                            Effect.CurrentTechnique = Effect.Techniques["GBufferWithParallax"];
-                            SetLODThreshold(((SpecularMaterial)((GraphicObject)renderObjects).Material).ParallaxLodThreshold);
-                            SetMinimumNumberSamples(((SpecularMaterial)((GraphicObject)renderObjects).Material).ParallaxMinimumNumberSamples);
-                            SetMaximumNumberSamples(((SpecularMaterial)((GraphicObject)renderObjects).Material).ParallaxMaximumNumberSamples);
-                            SetHeightMapScale(((SpecularMaterial)((GraphicObject)renderObjects).Material).ParallaxHeightMapScale);
-                        }
-                        else
-                        {
-                            Effect.CurrentTechnique = Effect.Techniques["GBufferWithNormalMap"];
-                        }
-                    }
-                }
-                if (!textured)
-                    Effect.CurrentTechnique = Effect.Techniques["GBufferWithoutTexture"];
-                // Terrain
-                if (((GraphicObject)renderObjects).Material is TerrainMaterial)
-                {
-                    SetDisplacementTexture(TerrainMaterial.DisplacementTexture);
-                    SetUvRectangle(((TerrainMaterial)((GraphicObject)renderObjects).Material).UvRectangle);
-                    SetFarTerrainBeginDistance(TerrainMaterial.FarTerrainBeginDistance);
-                    SetFlatRange(TerrainMaterial.FlatRange);
-                    SetFarTerrain(((TerrainMaterial)((GraphicObject)renderObjects).Material).FarTerrain);
-                    SetObjectNormalTexture(TerrainMaterial.NormalTexture);
-                    SetSpecularPower(500);
-                    Effect.CurrentTechnique = Effect.Techniques["GBufferTerrain"];
-                }
-
-                // Render
-                Effect.CurrentTechnique.Passes[0].Apply();
-                ((GraphicObject)renderObjects).Model.Render();
-            }
-            else // if is a container object
-            {
-                foreach (GraphicObject graphicObj in ((ContainerObject)renderObjects).GraphicObjectsChildren)
-                {
-                    RenderObjects(graphicObj);
-                }
-                foreach (ContainerObject containerObject in ((ContainerObject)renderObjects).ContainerObjectsChildren)
-                {
-                    RenderObjects(containerObject);
-                }
-            }
-        } // RenderObjects        
-        */
-        #endregion
-
+        
         #region Begin
         
         /// <summary>
@@ -566,7 +498,7 @@ namespace XNAFinalEngine.Graphics
         
         #endregion
 
-        #region
+        #region Enable Camera
 
         /// <summary>
         /// Prepare the GBuffer for render from a camera.
@@ -594,7 +526,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Render Model
 
-        public void RenderModel(Matrix worldMatrix, Assets.Model model, Matrix[] boneTransform)
+        /// <summary>
+        /// Render a model into the GBuffer.
+        /// </summary>
+        public void RenderModel(Matrix worldMatrix, Assets.Model model, Matrix[] boneTransform, Material material)
         {
             try
             {
@@ -603,17 +538,80 @@ namespace XNAFinalEngine.Graphics
                 SetWorldViewMatrix(worldMatrix * viewMatrix);
                 SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
 
-                if (model is FileModel && ((FileModel)model).InverseBindPose != null)
+                if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
                 {
+                    // I only consider skinning model with UV information for now. The extension is pretty simple thought.
+                    // I have to do the extensions for normal and specular textures. TODO!!!
                     Resource.CurrentTechnique = Resource.Techniques["GBufferSkinnedWithTexture"];
+                    SetBones(((FileModel) model).SkinTransforms);
                 }
                 else
                 {
-                    Resource.CurrentTechnique = Resource.Techniques["GBufferWithoutTexture"];
+                    if (material is Constant)
+                    {
+                        Resource.CurrentTechnique = Resource.Techniques["GBufferWithoutTexture"];
+                    }
+                    else if (material is BlinnPhong)
+                    {
+                        BlinnPhong blinnPhongMaterial = ((BlinnPhong)material);
+                        bool textured = false;
+                        // Specular texture
+                        if (blinnPhongMaterial.SpecularTexture != null && blinnPhongMaterial.SpecularTexturePowerEnabled)
+                        {
+                            SetSpecularTexture(blinnPhongMaterial.SpecularTexture);
+                            SetSpecularTextured(true);
+                            textured = true;
+                            Resource.CurrentTechnique = Resource.Techniques["GBufferWithSpecularTexture"];
+                        }
+                        else
+                        {
+                            SetSpecularPower(blinnPhongMaterial.SpecularPower);
+                            SetSpecularTextured(false);
+                        }
+                        // Normal texture
+                        if (blinnPhongMaterial.NormalTexture != null)
+                        {
+                            textured = true;
+                            SetObjectNormalTexture(blinnPhongMaterial.NormalTexture);
+                            if (blinnPhongMaterial.ParallaxEnabled)
+                            {
+                                Resource.CurrentTechnique = Resource.Techniques["GBufferWithParallax"];
+                                SetLODThreshold(blinnPhongMaterial.ParallaxLodThreshold);
+                                SetMinimumNumberSamples(blinnPhongMaterial.ParallaxMinimumNumberSamples);
+                                SetMaximumNumberSamples(blinnPhongMaterial.ParallaxMaximumNumberSamples);
+                                SetHeightMapScale(blinnPhongMaterial.ParallaxHeightMapScale);
+                            }
+                            else
+                            {
+                                Resource.CurrentTechnique = Resource.Techniques["GBufferWithNormalMap"];
+                            }
+                        }
+                        if (!textured)
+                            Resource.CurrentTechnique = Resource.Techniques["GBufferWithoutTexture"];
+                    }
+                    /*else if (material is CarPaint)
+                    {
+                        
+                    }*/
+                    /*else if (material is Terrain)
+                    {
+                        SetDisplacementTexture(TerrainMaterial.DisplacementTexture);
+                        SetUvRectangle(((TerrainMaterial)((GraphicObject)renderObjects).Material).UvRectangle);
+                        SetFarTerrainBeginDistance(TerrainMaterial.FarTerrainBeginDistance);
+                        SetFlatRange(TerrainMaterial.FlatRange);
+                        SetFarTerrain(((TerrainMaterial)((GraphicObject)renderObjects).Material).FarTerrain);
+                        SetObjectNormalTexture(TerrainMaterial.NormalTexture);
+                        SetSpecularPower(500);
+                        Effect.CurrentTechnique = Effect.Techniques["GBufferTerrain"];
+                    }*/
+                    else
+                    {
+                        throw new InvalidOperationException("GBuffer: This material is not supported by the GBuffer renderer.");
+                    }
                 }
                 
                 Resource.CurrentTechnique.Passes[0].Apply();
-                model.Render(boneTransform, epBones);
+                model.Render();
             }
             catch (Exception e)
             {
@@ -633,7 +631,7 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 RenderTarget.DisableCurrentRenderTargets();
-            } // try
+            }
             catch (Exception e)
             {
                 throw new InvalidOperationException("GBuffer: Unable to end the rendering.", e);

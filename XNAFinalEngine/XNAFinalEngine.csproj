@@ -140,6 +140,10 @@
     <Compile Include="Engine Core\Time.cs" />
     <Compile Include="Graphics\GBuffer\GBuffer.cs" />
     <Compile Include="Graphics\GlobalIllumination\AmbientOcclusion.cs" />
+    <Compile Include="Graphics\LightPrePass\LightPrePass.cs" />
+    <Compile Include="Graphics\LightPrePass\LightPrePassDirectionalLight.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Graphics\Miscellaneous\GammaLinearSpace.cs" />
     <Compile Include="Graphics\Miscellaneous\RGBM.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonics.cs" />
