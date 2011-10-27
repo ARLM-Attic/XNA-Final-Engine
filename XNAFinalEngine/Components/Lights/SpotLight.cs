@@ -104,7 +104,22 @@ namespace XNAFinalEngine.Components
             range = 1;
             apertureCone = 60;
             specularColor = Color.White;
+            cachedPosition = ((GameObject3D)Owner).Transform.Position;
+            cachedDirection = ((GameObject3D)Owner).Transform.Forward;
         } // Initialize
+
+        #endregion
+
+        #region On World Matrix Changed
+
+        /// <summary>
+        /// On transform's world matrix changed.
+        /// </summary>
+        protected override void OnWorldMatrixChanged(Matrix worldMatrix)
+        {
+            cachedDirection = worldMatrix.Forward;
+            cachedPosition = worldMatrix.Translation;
+        } // OnWorldMatrixChanged
 
         #endregion
         

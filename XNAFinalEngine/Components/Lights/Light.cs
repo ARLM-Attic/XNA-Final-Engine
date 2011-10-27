@@ -29,6 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System;
 using Microsoft.Xna.Framework;
 #endregion
 
@@ -93,6 +95,10 @@ namespace XNAFinalEngine.Components
             cachedLayerMask = Owner.Layer.Mask;
             Owner.LayerChanged += OnLayerChanged;
             // Transformation
+            if (Owner is GameObject2D)
+            {
+                throw new InvalidOperationException("Lights does not work in 2D space.");
+            }
             ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
         } // Initialize
 
@@ -118,10 +124,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// On transform's world matrix changed.
         /// </summary>
-        protected virtual void OnWorldMatrixChanged(Matrix worldMatrix)
-        {
-            
-        } // OnWorldMatrixChanged
+        protected abstract void OnWorldMatrixChanged(Matrix worldMatrix);
 
         #endregion
 

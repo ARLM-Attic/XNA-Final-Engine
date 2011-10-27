@@ -119,7 +119,7 @@
     <Compile Include="Components\GameObject2D.cs" />
     <Compile Include="Components\GameObject3D.cs" />
     <Compile Include="Components\Layer.cs" />
-    <Compile Include="Components\Lights\AmbientLight.cs" />
+    <Compile Include="Graphics\AmbientLighting\AmbientLight.cs" />
     <Compile Include="Components\Lights\DirectionalLight.cs" />
     <Compile Include="Components\Lights\Light.cs" />
     <Compile Include="Components\Lights\PointLight.cs" />
@@ -138,12 +138,11 @@
     <Compile Include="Engine Core\GameLoop.cs" />
     <Compile Include="Engine Core\Screen.cs" />
     <Compile Include="Engine Core\Time.cs" />
-    <Compile Include="Graphics\GBuffer\GBuffer.cs" />
-    <Compile Include="Graphics\GlobalIllumination\AmbientOcclusion.cs" />
-    <Compile Include="Graphics\LightPrePass\LightPrePass.cs" />
-    <Compile Include="Graphics\LightPrePass\LightPrePassDirectionalLight.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Graphics\DeferredLighting\GBuffer\GBuffer.cs" />
+    <Compile Include="Graphics\AmbientLighting\AmbientOcclusion.cs" />
+    <Compile Include="Graphics\DeferredLighting\LightPrePass\LightPrePass.cs" />
+    <Compile Include="Graphics\DeferredLighting\LightPrePass\LightPrePassDirectionalLight.cs" />
+    <Compile Include="Graphics\DeferredLighting\HDRLinearSpacePass\HDRLinearSpacePass.cs" />
     <Compile Include="Graphics\Miscellaneous\GammaLinearSpace.cs" />
     <Compile Include="Graphics\Miscellaneous\RGBM.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonics.cs" />

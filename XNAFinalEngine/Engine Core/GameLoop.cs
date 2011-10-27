@@ -60,6 +60,7 @@ namespace XNAFinalEngine.EngineCore
         private static GBuffer gbuffer;
         private static LightPrePass lightPrePass;
         private static LightPrePassDirectionalLight directionalLightShader;
+        private static HdrLinearSpacePass hdrLinearSpacePass;
 
         /// <summary>
         /// This game object will show the frames per second onto screen.
@@ -112,6 +113,7 @@ namespace XNAFinalEngine.EngineCore
             gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
             lightPrePass = new LightPrePass(RenderTarget.SizeType.FullScreen);
             directionalLightShader = new LightPrePassDirectionalLight();
+            hdrLinearSpacePass = new HdrLinearSpacePass(RenderTarget.SizeType.FullScreen);
             
             if (CurrentScene != null)
             {
@@ -250,78 +252,69 @@ namespace XNAFinalEngine.EngineCore
             for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
             {
                 Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
-                if (currentCamera.MasterCamera == null) // If it's a master camera...
+
+                #region GBuffer
+                
+                gbuffer.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane);
+                for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
                 {
-
-                    #region GBuffer
-                    
-                    gbuffer.Begin();
-                    gbuffer.EnableCamera(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, new Viewport(currentCamera.Viewport));
-                    for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+                    ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                    if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                     {
-                        ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                        if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
-                        {
-                            gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, currentModelRenderer.Material);
-                        }
+                        gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, currentModelRenderer.Material);
                     }
-                    // Render the children cameras. I have to do it now because the render targets don't preserve the content.
-                    for (int slaveIndex = 0; slaveIndex < currentCamera.slavesCameras.Count; slaveIndex++)
-                    {
-                        Camera slaveCamera = currentCamera.slavesCameras[slaveIndex];
-                        gbuffer.EnableCamera(slaveCamera.ViewMatrix, slaveCamera.ProjectionMatrix, slaveCamera.FarPlane, new Viewport(slaveCamera.Viewport));
-                        for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
-                        {
-                            ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                            if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
-                            {
-                                gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, currentModelRenderer.Material);
-                            }
-                        }
-                    }
-                    gbuffer.End();
-
-                    #endregion
-
-                    #region Light Pre Pass
-                    
-                    lightPrePass.Begin(Color.Gray);
-
-                    // Render ambient light for every camera.
-
-                    // Render directional lights for every camera.
-                    directionalLightShader.Begin(gbuffer.DepthTexture, gbuffer.NormalTexture, gbuffer.MotionVectorsSpecularPowerTexture);
-                    directionalLightShader.EnableCamera(currentCamera.ViewMatrix, currentCamera.BoundingFrustum(), new Viewport(currentCamera.Viewport));
-                    for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
-                    {
-                        DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
-                        directionalLightShader.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity);
-                    }
-                    // Render the children cameras. I have to do it now because the render targets don't preserve the content.
-                    for (int slaveIndex = 0; slaveIndex < currentCamera.slavesCameras.Count; slaveIndex++)
-                    {
-                        Camera slaveCamera = currentCamera.slavesCameras[slaveIndex];
-                        directionalLightShader.EnableCamera(slaveCamera.ViewMatrix, slaveCamera.BoundingFrustum(), new Viewport(slaveCamera.Viewport));
-                        for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
-                        {
-                            DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
-                            directionalLightShader.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity);
-                        }
-                    }
-
-                    // Render point lights for every camera.
-
-                    // Render spot lights for every camera.
-
-                    lightPrePass.End();
-                    
-                    #endregion
-                    
                 }
+                gbuffer.End();
+
+                #endregion
+
+                #region Light Pre Pass
+                    
+                lightPrePass.Begin(currentCamera.AmbientLight.Color);
+
+                // Render ambient light for every camera.
+
+                // Render directional lights for every camera.
+                directionalLightShader.Begin(gbuffer.DepthTexture, gbuffer.NormalTexture, gbuffer.MotionVectorsSpecularPowerTexture, currentCamera.ViewMatrix, currentCamera.BoundingFrustum());
+                for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
+                {
+                    DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
+                    directionalLightShader.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity);
+                }
+
+                // Render point lights for every camera.
+
+                // Render spot lights for every camera.
+
+                lightPrePass.End();
+                    
+                #endregion
+
+                #region HDR Linear Space Pass
+
+                hdrLinearSpacePass.Begin(currentCamera.ClearColor);
+
+                // Render all the opaque objects
+
+                // The sky is render latter so that the GPU can avoid fragment processing. But it has to be before the transparent objects.
+
+                // The particle systems
+
+                // The transparent objects will be render in forward fashion.
+
+                hdrLinearSpacePass.End();
+
+                #endregion
+
+                #region Post Process
+
+                #endregion
+
             }
 
             //SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
             SpriteManager.DrawTextureToFullScreen(lightPrePass.LightTexture);
+            //SpriteManager.DrawTextureToFullScreen(hdrLinearSpacePass.SceneTexture);
             
             #endregion
 

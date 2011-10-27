@@ -143,6 +143,7 @@
       <Name>DudeWalk</Name>
       <Importer>FbxImporter</Importer>
       <Processor>SkinnedModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-AirTakesEngine.fbx">
       <Name>Murcielago-AirTakesEngine</Name>

@@ -75,7 +75,20 @@ namespace XNAFinalEngine.Components
             base.Initialize(owner);
             // Values
             specularColor = Color.White;
+            cachedDirection = ((GameObject3D)Owner).Transform.Forward;
         } // Initialize
+
+        #endregion
+
+        #region On World Matrix Changed
+
+        /// <summary>
+        /// On transform's world matrix changed.
+        /// </summary>
+        protected override void OnWorldMatrixChanged(Matrix worldMatrix)
+        {
+            cachedDirection = worldMatrix.Forward;
+        } // OnWorldMatrixChanged
 
         #endregion
 

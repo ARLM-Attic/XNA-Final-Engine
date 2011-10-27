@@ -88,7 +88,20 @@ namespace XNAFinalEngine.Components
             // Values
             range = 1;
             specularColor = Color.White;
+            cachedPosition = ((GameObject3D)Owner).Transform.Position;
         } // Initialize
+
+        #endregion
+
+        #region On World Matrix Changed
+
+        /// <summary>
+        /// On transform's world matrix changed.
+        /// </summary>
+        protected override void OnWorldMatrixChanged(Matrix worldMatrix)
+        {
+            cachedPosition = worldMatrix.Translation;
+        } // OnWorldMatrixChanged
 
         #endregion
 

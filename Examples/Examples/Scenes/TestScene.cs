@@ -68,29 +68,24 @@ namespace XNAFinalEngineExamples
             lamboBody.ModelFilter.Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
             lamboBody.ModelRenderer.Material = new Constant { DiffuseColor = Color.Turquoise };
             lamboBody.AddComponent<RootAnimations>();
+            /*
+            otherCamera = new GameObject3D();
+            otherCamera.AddComponent<Camera>();
+            otherCamera.Transform.Translate(new Vector3(0, 200, 0), Space.Local);
+            otherCamera.Transform.Rotate(new Vector3(-3.1416f / 2, 0, 0), Space.Local);
+            */
             lamboBody.AddComponent<Camera>();
-            //lamboBody.RootAnimation.AddAnimationClip(animation);
-
-            //lamboBody.RootAnimation.Play("AnimatedCube");
-            /*lamboBody.Transform.Rotate(new Vector3(0, 3.1416f / 2, 0), Space.World);
-            lamboBody.Transform.Translate(new Vector3(0, 25, -100), Space.Local);
-            lamboBody.Transform.Rotate(new Vector3(0, 3.1416f, 0), Space.Local);*/
             lamboBody.Camera.Renderer = Camera.RenderingType.DeferredLighting;
             lamboBody.Camera.SetRenderTarget(RenderTarget.SizeType.FullScreen);
-            lamboBody.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
+            //lamboBody.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
             ScriptEditorCamera script = (ScriptEditorCamera)lamboBody.AddComponent<ScriptEditorCamera>();
             script.SetPosition(new Vector3(0, 0, 100), Vector3.Zero);
             lamboBody.AddComponent<DirectionalLight>();
             lamboBody.DirectionalLight.DiffuseColor = Color.Violet;
-            
-            otherCamera = new GameObject3D();
-            otherCamera.AddComponent<Camera>();            
-            otherCamera.Transform.Translate(new Vector3(0, 200, 0), Space.Local);
-            otherCamera.Transform.Rotate(new Vector3(-3.1416f / 2, 0, 0), Space.Local);
+            /*
             otherCamera.Camera.MasterCamera = lamboBody.Camera;
             otherCamera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
-            otherCamera.Camera.FarPlane = 20000;
-            
+            otherCamera.Camera.FarPlane = 20000;*/
             
             dude = new GameObject3D();
             dude.Transform.Position = new Vector3(0, 0, 0);

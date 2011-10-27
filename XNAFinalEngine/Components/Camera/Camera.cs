@@ -35,6 +35,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -85,7 +86,6 @@ namespace XNAFinalEngine.Components
         internal Matrix cachedWorldMatrix;
 
         // Clear color
-        private Color clearColor = new Color(20, 20, 20, 255);
 
         // Where on the screen is the camera rendered in clip space.
         private RectangleF normalizedViewport = new RectangleF(0, 0, 1, 1);
@@ -134,6 +134,8 @@ namespace XNAFinalEngine.Components
 
         // Camera's vertical size when in orthographic mode.
         private int orthographicVerticalSize = 10;
+
+        private AmbientLight ambientLight = new AmbientLight();
         
         #endregion
 
@@ -146,22 +148,27 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// The color with which the screen will be cleared.
         /// </summary>
-        public Color ClearColor
+        public Color ClearColor { get; set; }
+
+        // ClearColor
+
+        #endregion
+
+        #region Ambient Light
+
+        /// <summary>
+        /// Ambient light.
+        /// </summary>
+        public AmbientLight AmbientLight
         {
-            get { return clearColor; }
+            get { return ambientLight; }
             set
             {
-                if (masterCamera != null)
-                    masterCamera.ClearColor = value; // So it updates its children.
-                else
-                {
-                    clearColor = value;
-                    if (slavesCameras.Count > 0) // If is a master camera update its childrens.
-                        for (int i = 0; i < slavesCameras.Count; i++)
-                            slavesCameras[i].clearColor = value;
-                }
+                if (value == null)
+                    throw new ArgumentNullException("value");
+                ambientLight = value;
             }
-        } // ClearColor
+        } // AmbientLight
 
         #endregion
 
@@ -173,18 +180,7 @@ namespace XNAFinalEngine.Components
         public RenderingType Renderer
         {
             get { return renderer; }
-            set 
-            {
-                if (masterCamera != null)
-                    masterCamera.Renderer = value; // So it updates its children.
-                else
-                {
-                    renderer = value;
-                    if (slavesCameras.Count > 0) // If is a master camera update its childrens.
-                        for (int i = 0; i < slavesCameras.Count; i++)
-                            slavesCameras[i].renderer = value;
-                }
-            }
+            set  { renderer = value; }
         } // Renderer
 
         #endregion
@@ -241,8 +237,6 @@ namespace XNAFinalEngine.Components
                     // Just to be robust...
                     // I update the children values so that, in the case of a unparent, the values remain the same as the father.
                     renderTarget = value.RenderTarget;
-                    clearColor = value.clearColor;
-                    renderer = value.Renderer;
                 }
             }
         } // MasterCamera
@@ -602,6 +596,11 @@ namespace XNAFinalEngine.Components
 
         // Pool for this type of components.
         private static readonly Pool<Camera> componentPool = new Pool<Camera>(20);
+
+        public Camera()
+        {
+            ClearColor = new Color(20, 20, 20, 255);
+        }
 
         /// <summary>
         /// Pool for this type of components.
