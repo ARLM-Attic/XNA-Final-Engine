@@ -44,6 +44,15 @@ namespace XNAFinalEngine.Components
     /// <summary>
     /// Camera component.
     /// </summary>
+    /// <remarks>
+    /// Viewport implementation:
+    /// There are two main approaches: viewports vs. multiple render targets.
+    /// The multiple render targets do not change the shader code. Only the C# has to now about the split screen.
+    /// Using viewports changes the shader code because when you read a previous calculation, for instance the GBuffer, you have to read only half the buffer.
+    /// This is easy to implement, but it cost processing power and it adds a little of complexity.
+    /// The viewport approach has its advantages thought. If you want that the viewport changes its size over time
+    /// the viewport approach does not have any performance penalty, but maybe the penalty could be absorbed in the render target approach. 
+    /// </remarks>
     public class Camera : Component
     {
 

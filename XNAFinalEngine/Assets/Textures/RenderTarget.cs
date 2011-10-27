@@ -79,6 +79,18 @@ namespace XNAFinalEngine.Assets
             /// </summary>
             QuarterScreen,
             /// <summary>
+            /// A split screen version of a full screen size, , e.g. 800x600 becomes 800x300 
+            /// </summary>
+            SplitFullScreen,
+            /// <summary>
+            /// A split screen version of a half screen size, , e.g. 800x600 becomes 400x150 
+            /// </summary>
+            SplitHalfScreen,
+            /// <summary>
+            /// A split screen version of a quarter screen size, , e.g. 800x600 becomes 200x75
+            /// </summary>
+            SplitQuarterScreen,
+            /// <summary>
             /// 256 x 256 pixels. Good for shadows.
             /// </summary>
             Square256X256,
@@ -390,6 +402,18 @@ namespace XNAFinalEngine.Assets
                 case SizeType.QuarterScreen:
                     width = Screen.Width / 4;
                     height = Screen.Height / 4;
+                    break;
+                case SizeType.SplitFullScreen:
+                    width = Screen.Width;
+                    height = Screen.Height / 2;
+                    break;
+                case SizeType.SplitHalfScreen:
+                    width = Screen.Width / 2;
+                    height = Screen.Height / 4;
+                    break;
+                case SizeType.SplitQuarterScreen:
+                    width = Screen.Width / 4;
+                    height = Screen.Height / 8;
                     break;
                 case SizeType.Square256X256:
                     width = 256;
