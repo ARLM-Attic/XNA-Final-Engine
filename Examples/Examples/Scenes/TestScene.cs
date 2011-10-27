@@ -80,6 +80,8 @@ namespace XNAFinalEngineExamples
             lamboBody.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
             ScriptEditorCamera script = (ScriptEditorCamera)lamboBody.AddComponent<ScriptEditorCamera>();
             script.SetPosition(new Vector3(0, 0, 100), Vector3.Zero);
+            lamboBody.AddComponent<DirectionalLight>();
+            lamboBody.DirectionalLight.DiffuseColor = Color.Violet;
             
             otherCamera = new GameObject3D();
             otherCamera.AddComponent<Camera>();            

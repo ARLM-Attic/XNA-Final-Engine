@@ -46,6 +46,15 @@ namespace XNAFinalEngine.Graphics
     internal class LightPrePassDirectionalLight : Shader
     {
 
+        #region Variables
+
+        /// <summary>
+        /// Current view matrix. Used to set the shader parameters.
+        /// </summary>
+        private Matrix viewMatrix;
+
+        #endregion
+
         #region Shader Parameters
 
         /// <summary>
@@ -77,12 +86,16 @@ namespace XNAFinalEngine.Graphics
 
         #region Frustum Corners
 
-        private static Vector3[] lastUsedFrustumCorners;
+        private static readonly Vector3[] lastUsedFrustumCorners = new Vector3[4];
         private static void SetFrustumCorners(Vector3[] frustumCorners)
         {
             if (!ArrayHelper.Equals(lastUsedFrustumCorners, frustumCorners))
             {
-                lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone());
+                // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
+                for (int i = 0; i < 4; i++)
+                {
+                    lastUsedFrustumCorners[i] = frustumCorners[i];
+                }
                 epFrustumCorners.SetValue(frustumCorners);
             }
         } // SetFrustumCorners
@@ -94,6 +107,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedDepthTexture;
         private static void SetDepthTexture(Texture depthTexture)
         {
+            EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp; // depthTexture
             if (EngineManager.DeviceLostInThisFrame || lastUsedDepthTexture != depthTexture)
             {
                 lastUsedDepthTexture = depthTexture;
@@ -108,6 +122,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedNormalTexture;
         private static void SetNormalTexture(Texture normalTexture)
         {
+            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp; // normalTexture
             if (EngineManager.DeviceLostInThisFrame || lastUsedNormalTexture != normalTexture)
             {
                 lastUsedNormalTexture = normalTexture;
@@ -122,6 +137,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedMotionVectorSpecularPower;
         private static void SetMotionVectorSpecularPower(Texture motionVectorSpecularPower)
         {
+            EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp; // motionVectorSpecularPowerTexture
             if (EngineManager.DeviceLostInThisFrame || lastUsedMotionVectorSpecularPower != motionVectorSpecularPower)
             {
                 lastUsedMotionVectorSpecularPower = motionVectorSpecularPower;
@@ -213,39 +229,81 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
+        #region Begin
+
+        /// <summary>
+        /// Begins the directional light rendering.
+        /// </summary>
+        public void Begin(RenderTarget depthTexture, RenderTarget normalTexture, RenderTarget motionVectorSpecularPowerTexture)
+        {
+            try
+            {
+                SetDepthTexture(depthTexture);
+                SetNormalTexture(normalTexture);
+                SetMotionVectorSpecularPower(motionVectorSpecularPowerTexture);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Light Pre Pass Directional Light:: Unable to begin the rendering.", e);
+            }
+        } // Begin
+
+        #endregion
+
+        #region Enable Camera
+
+        /// <summary>
+        /// Prepare for render from a camera.
+        /// </summary>
+        /// <param name="viewMatrix">Camera view matrix.</param>
+        /// <param name="boundingFrustum">Camera bounding frustum (use the camera's component method)</param>
+        /// <param name="viewport">How to cut the render target.</param>
+        public void EnableCamera(Matrix viewMatrix, Vector3[] boundingFrustum, Viewport viewport)
+        {
+            try
+            {
+                SetHalfPixel(new Vector2(-1f / viewport.Width, 1f / viewport.Height));
+                SetFrustumCorners(boundingFrustum);
+                this.viewMatrix = viewMatrix;
+                EngineManager.Device.Viewport = viewport;
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Light Pre Pass Directional Light:: Unable to enable camera.", e);
+            }
+        } // EnableCamera
+
+        #endregion
+
         #region Render
 
         /// <summary>
         /// Render to the light pre pass texture.
         /// </summary>
-        public void Render(DirectionalLight light, RenderTarget depthTexture, RenderTarget normalTexture, RenderTarget motionVectorSpecularPowerTexture, RenderTarget lightPrePassMap)
+        public void RenderLight(Color diffuseColor, Vector3 direction, float intensity)
         {
             try
-            {/*
+            {
                 #region Set Parameters
-
-                SetHalfPixel(new Vector2(-1f / lightPrePassMap.Width, 1f / lightPrePassMap.Height));
-                SetLightColor(light.DiffuseColor);
+              
+                SetLightColor(diffuseColor);
                 // The next three lines produce the same result.
-                SetLightDirection(Vector3.Transform(light.Direction, Matrix.CreateFromQuaternion(ApplicationLogic.Camera.Orientation)));
+                //SetLightDirection(Vector3.Transform(light.Direction, Matrix.CreateFromQuaternion(ApplicationLogic.Camera.Orientation)));
                 //SetLightDirection(Vector3.Transform(light.Direction, Matrix.Transpose(Matrix.Invert(ApplicationLogic.Camera.ViewMatrix))));
-                //SetLightDirection(Vector3.TransformNormal(light.Direction, ApplicationLogic.Camera.ViewMatrix));
-                SetLightIntensity(light.Intensity);
-                SetFrustumCorners(ApplicationLogic.Camera.BoundingFrustum());
-                SetDepthTexture(depthTexture);
-                SetNormalTexture(normalTexture);
-                SetMotionVectorSpecularPower(motionVectorSpecularPowerTexture);
+                SetLightDirection(Vector3.TransformNormal(/*direction*/ new Vector3(0, -1, 0), viewMatrix));
+                SetLightIntensity(intensity);
 
                 #endregion
 
+                /*
                 if (light.ShadowMap != null)
                 {
                     Resource.Parameters["shadowTexture"].SetValue(light.ShadowMap.ShadowTexture.XnaTexture);
                     Resource.CurrentTechnique = Effect.Techniques["DirectionalLightWithShadows"];
                 }
-                else
+                else*/
                     Resource.CurrentTechnique = Resource.Techniques["DirectionalLight"];
-                */
+                
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
             } // try
@@ -253,7 +311,7 @@ namespace XNAFinalEngine.Graphics
             {
                 throw new InvalidOperationException("Light Pre Pass Directional Light: Unable to render.", e);
             }
-        } // Render
+        } // RenderLight
 
         #endregion
 

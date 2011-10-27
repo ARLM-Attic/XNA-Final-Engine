@@ -41,6 +41,8 @@ using XNAFinalEngine.Input;
 using RootAnimation = XNAFinalEngine.Components.RootAnimations;
 using XNAFinalEngine.Scenes;
 using Camera = XNAFinalEngine.Components.Camera;
+using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
+
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -57,6 +59,7 @@ namespace XNAFinalEngine.EngineCore
         // TODO!!! Esto no va.
         private static GBuffer gbuffer;
         private static LightPrePass lightPrePass;
+        private static LightPrePassDirectionalLight directionalLightShader;
 
         /// <summary>
         /// This game object will show the frames per second onto screen.
@@ -108,6 +111,7 @@ namespace XNAFinalEngine.EngineCore
             
             gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
             lightPrePass = new LightPrePass(RenderTarget.SizeType.FullScreen);
+            directionalLightShader = new LightPrePassDirectionalLight();
             
             if (CurrentScene != null)
             {
@@ -280,18 +284,44 @@ namespace XNAFinalEngine.EngineCore
                     #endregion
 
                     #region Light Pre Pass
-
+                    
                     lightPrePass.Begin(Color.Gray);
 
-                    lightPrePass.End();
+                    // Render ambient light for every camera.
 
+                    // Render directional lights for every camera.
+                    directionalLightShader.Begin(gbuffer.DepthTexture, gbuffer.NormalTexture, gbuffer.MotionVectorsSpecularPowerTexture);
+                    directionalLightShader.EnableCamera(currentCamera.ViewMatrix, currentCamera.BoundingFrustum(), new Viewport(currentCamera.Viewport));
+                    for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
+                    {
+                        DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
+                        directionalLightShader.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity);
+                    }
+                    // Render the children cameras. I have to do it now because the render targets don't preserve the content.
+                    for (int slaveIndex = 0; slaveIndex < currentCamera.slavesCameras.Count; slaveIndex++)
+                    {
+                        Camera slaveCamera = currentCamera.slavesCameras[slaveIndex];
+                        directionalLightShader.EnableCamera(slaveCamera.ViewMatrix, slaveCamera.BoundingFrustum(), new Viewport(slaveCamera.Viewport));
+                        for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
+                        {
+                            DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
+                            directionalLightShader.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity);
+                        }
+                    }
+
+                    // Render point lights for every camera.
+
+                    // Render spot lights for every camera.
+
+                    lightPrePass.End();
+                    
                     #endregion
                     
                 }
             }
 
-            SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
-            //SpriteManager.DrawTextureToFullScreen(lightPrePass.LightTexture);
+            //SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
+            SpriteManager.DrawTextureToFullScreen(lightPrePass.LightTexture);
             
             #endregion
 

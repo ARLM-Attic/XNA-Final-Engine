@@ -49,6 +49,18 @@ namespace XNAFinalEngine.Graphics
     public class GBuffer : Shader
     {
 
+        #region Variables
+
+        // This structure is used to set multiple render targets without generating garbage in the process.
+        private readonly RenderTarget.RenderTargetBinding renderTargetBinding;
+
+        /// <summary>
+        /// Current view and projection matrix. Used to set the shader parameters.
+        /// </summary>
+        private Matrix viewMatrix, projectionMatrix;
+
+        #endregion
+
         #region Properties
 
         /// <summary> 
@@ -69,14 +81,6 @@ namespace XNAFinalEngine.Graphics
         /// A: Unused... yet.
         /// </summary>
         public RenderTarget MotionVectorsSpecularPowerTexture { get; private set; }
-
-        // This structure is used to set multiple render targets without generating garbage in the process.
-        private readonly RenderTarget.RenderTargetBinding renderTargetBinding;
-
-        /// <summary>
-        /// Current view and projection matrix. Used to set the shader parameters.
-        /// </summary>
-        private Matrix viewMatrix, projectionMatrix;
 
         #endregion
 
@@ -171,6 +175,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedObjectNormalTextureTexture;
         private static void SetObjectNormalTexture(Texture objectNormalTexture)
         {
+            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap; // objectNormalTexture
             if (lastUsedObjectNormalTextureTexture != objectNormalTexture)
             {
                 lastUsedObjectNormalTextureTexture = objectNormalTexture;
@@ -270,6 +275,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedSpecularTexture;
         private static void SetSpecularTexture(Texture specularTexture)
         {
+            EngineManager.Device.SamplerStates[1] = SamplerState.LinearWrap; // objectSpecularTexture
             if (lastUsedSpecularTexture != specularTexture)
             {
                 lastUsedSpecularTexture = specularTexture;
@@ -327,6 +333,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedDisplacementTexture;
         private static void SetDisplacementTexture(Texture displacementTexture)
         {
+            EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp; // displacementTexture
             if (lastUsedDisplacementTexture != displacementTexture)
             {
                 lastUsedDisplacementTexture = displacementTexture;
@@ -483,13 +490,13 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.BlendState        = BlendState.Opaque;
                 EngineManager.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
                 EngineManager.Device.DepthStencilState = DepthStencilState.Default;
-                EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap; // objectNormalTexture
-                EngineManager.Device.SamplerStates[1] = SamplerState.LinearWrap;      // objectSpecularTexture
-                EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;      // displacementTexture
+                // If I set the sampler states here and no texture is set then this could produce exceptions 
+                // because another texture from another shader could have an incorrect sampler state when this shader is executed.
+
                 // With multiple render targets the GBuffer performance can be vastly improved.
                 RenderTarget.EnableRenderTargets(renderTargetBinding);
                 RenderTarget.ClearCurrentRenderTargets(Color.White);
-            } // try
+            }
             catch (Exception e)
             {
                 throw new InvalidOperationException("GBuffer: Unable to begin the rendering.", e);
@@ -515,7 +522,7 @@ namespace XNAFinalEngine.Graphics
                 this.projectionMatrix = projectionMatrix;
                 SetFarPlane(farPlane);
                 EngineManager.Device.Viewport = viewport;
-            } // try
+            }
             catch (Exception e)
             {
                 throw new InvalidOperationException("GBuffer: Unable to enable camera.", e);
@@ -609,7 +616,6 @@ namespace XNAFinalEngine.Graphics
                         throw new InvalidOperationException("GBuffer: This material is not supported by the GBuffer renderer.");
                     }
                 }
-                
                 Resource.CurrentTechnique.Passes[0].Apply();
                 model.Render();
             }

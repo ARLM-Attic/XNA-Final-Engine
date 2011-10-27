@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
+using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XNAFinalEngine.Components
@@ -104,6 +105,18 @@ namespace XNAFinalEngine.Components
             apertureCone = 60;
             specularColor = Color.White;
         } // Initialize
+
+        #endregion
+        
+        #region Pool
+
+        // Pool for this type of components.
+        private static readonly Pool<SpotLight> componentPool = new Pool<SpotLight>(20);
+
+        /// <summary>
+        /// Pool for this type of components.
+        /// </summary>
+        internal static Pool<SpotLight> ComponentPool { get { return componentPool; } }
 
         #endregion
 

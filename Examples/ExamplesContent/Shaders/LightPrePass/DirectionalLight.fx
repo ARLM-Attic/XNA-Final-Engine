@@ -44,16 +44,16 @@ float  lightIntensity = 1;
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture shadowTexture;
+texture shadowTexture : register(t3);
 
-sampler2D shadowSampler = sampler_state
+sampler2D shadowSampler : register(s3) = sampler_state
 {
 	Texture = <shadowTexture>;
-    ADDRESSU = CLAMP;
+    /*ADDRESSU = CLAMP;
 	ADDRESSV = CLAMP;
 	MAGFILTER = POINT;
 	MINFILTER = POINT;
-	MIPFILTER = NONE;
+	MIPFILTER = NONE;*/
 };
 
 //////////////////////////////////////////////

@@ -53,8 +53,6 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private static BlendState additiveBlendingState;
 
-        private static LightPrePassDirectionalLight directionalLightShader;
-
         #endregion
 
         #region Properties
@@ -136,8 +134,6 @@ namespace XNAFinalEngine.Graphics
                 ColorDestinationBlend = Blend.One,
                 ColorSourceBlend = Blend.One,
             };
-            // Light Shaders
-            directionalLightShader = new LightPrePassDirectionalLight();
         } // CreateStatesAndShaders
 
         #endregion
@@ -155,9 +151,8 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.BlendState        = additiveBlendingState; // The resulting color will be added to current render target color.
                 EngineManager.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
-                //EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap; // objectNormalTexture
-                //EngineManager.Device.SamplerStates[1] = SamplerState.LinearWrap;      // objectSpecularTexture
-                //EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;      // displacementTexture
+                // If I set the sampler states here and no texture is set then this could produce exceptions 
+                // because another texture from another shader could have an incorrect sampler state when this shader is executed.
                 
                 #if (WINDOWS)
                     LightTexture.EnableRenderTarget();

@@ -33,6 +33,9 @@ namespace XNAFinalEngine.Components
         private Pool<RootAnimations>.Accessor rootAnimationAccessor;
         private Pool<ModelAnimations>.Accessor modelAnimationAccessor;
         private Pool<Camera>.Accessor cameraAccessor;
+        private Pool<DirectionalLight>.Accessor directionalLightAccessor;
+        private Pool<PointLight>.Accessor pointLightAccessor;
+        private Pool<SpotLight>.Accessor spotLightAccessor;
 
         #endregion
 
@@ -43,6 +46,7 @@ namespace XNAFinalEngine.Components
         private RootAnimations rootAnimation;
         private ModelAnimations modelAnimation;
         private Camera camera;
+        private Light light;
         private readonly List<Script> scripts = new List<Script>(2);
 
         #endregion
@@ -147,6 +151,37 @@ namespace XNAFinalEngine.Components
             }
         } // Camera
 
+        /// <summary>
+        /// Associated light component.
+        /// </summary>
+        public Light Light
+        {
+            get { return light; }
+            private set
+            {
+                Light oldValue = light;
+                light = value;
+                // Invoke event
+                if (LightChanged != null)
+                    LightChanged(this, oldValue, value);
+            }
+        } // Light
+
+        /// <summary>
+        /// Associated directional light component.
+        /// </summary>
+        public DirectionalLight DirectionalLight { get; private set; }
+
+        /// <summary>
+        /// Associated point light component.
+        /// </summary>
+        public PointLight PointLight { get; private set; }
+
+        /// <summary>
+        /// Associated spot light component.
+        /// </summary>
+        public SpotLight SpotLight { get; private set; }
+
         #endregion
 
         #endregion
@@ -177,6 +212,11 @@ namespace XNAFinalEngine.Components
         /// Raised when the game object's camera changes.
         /// </summary>
         public event ComponentEventHandler CameraChanged;
+
+        /// <summary>
+        /// Raised when the game object's light changes.
+        /// </summary>
+        public event ComponentEventHandler LightChanged;
 
         #endregion
 
@@ -330,8 +370,50 @@ namespace XNAFinalEngine.Components
 
             #endregion
 
+            #region Light
+
+            if (typeof(Light).IsAssignableFrom(typeof(TComponentType)))
+            {
+                if (Light != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the light component. There is one already.");
+                }
+                if (typeof(TComponentType) == typeof(DirectionalLight))
+                {
+                    // Search for an empty component in the pool.
+                    directionalLightAccessor = DirectionalLight.ComponentPool.Fetch();
+                    // A component is a reference value, so no problem to do this.
+                    Light = DirectionalLight.ComponentPool[directionalLightAccessor];
+                    DirectionalLight = DirectionalLight.ComponentPool[directionalLightAccessor];
+                }
+                else if (typeof(TComponentType) == typeof(PointLight))
+                {
+                    // Search for an empty component in the pool.
+                    pointLightAccessor = PointLight.ComponentPool.Fetch();
+                    // A component is a reference value, so no problem to do this.
+                    Light = PointLight.ComponentPool[pointLightAccessor];
+                    PointLight = PointLight.ComponentPool[pointLightAccessor];
+                }
+                else if (typeof(TComponentType) == typeof(SpotLight))
+                {
+                    // Search for an empty component in the pool.
+                    spotLightAccessor = SpotLight.ComponentPool.Fetch();
+                    // A component is a reference value, so no problem to do this.
+                    Light = SpotLight.ComponentPool[spotLightAccessor];
+                    SpotLight = SpotLight.ComponentPool[spotLightAccessor];
+                }
+                else
+                    throw new ArgumentException("Game Object 3D: Unable to create the light component.");
+                // Initialize the component to the default values.
+                Light.Initialize(this);
+                return Light;
+            }
+
+            #endregion
+
             #region Script
             
+            // Hacerlo de otra manera, creo. Algo como add script y remove script. Los script se comportan diferente que el resto de los componentes.
             if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
             {
                 Component script = new TComponentType();
@@ -447,6 +529,38 @@ namespace XNAFinalEngine.Components
                 Camera.ComponentPool.Release(cameraAccessor);
                 Camera = null;
                 cameraAccessor = null;
+            }
+
+            #endregion
+
+            #region Light
+
+            if (typeof(TComponentType) == typeof(Light))
+            {
+                if (Light == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the light component. There is not one.");
+                }
+                Light.Uninitialize();
+                if (typeof(TComponentType) == typeof(DirectionalLight))
+                {
+                    DirectionalLight.ComponentPool.Release(directionalLightAccessor);
+                    directionalLightAccessor = null;
+                    DirectionalLight = null;
+                }
+                if (typeof(TComponentType) == typeof(PointLight))
+                {
+                    PointLight.ComponentPool.Release(pointLightAccessor);
+                    pointLightAccessor = null;
+                    PointLight = null;
+                }
+                if (typeof(TComponentType) == typeof(SpotLight))
+                {
+                    SpotLight.ComponentPool.Release(spotLightAccessor);
+                    spotLightAccessor = null;
+                    SpotLight = null;
+                }
+                Light = null;
             }
 
             #endregion

@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
+using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XNAFinalEngine.Components
@@ -88,6 +89,18 @@ namespace XNAFinalEngine.Components
             range = 1;
             specularColor = Color.White;
         } // Initialize
+
+        #endregion
+
+        #region Pool
+
+        // Pool for this type of components.
+        private static readonly Pool<PointLight> componentPool = new Pool<PointLight>(20);
+
+        /// <summary>
+        /// Pool for this type of components.
+        /// </summary>
+        internal static Pool<PointLight> ComponentPool { get { return componentPool; } }
 
         #endregion
 
