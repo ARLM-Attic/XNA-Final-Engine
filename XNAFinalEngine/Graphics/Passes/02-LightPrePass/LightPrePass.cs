@@ -42,7 +42,7 @@ namespace XNAFinalEngine.Graphics
     /// <summary>
     /// Light Pre Pass base.
     /// </summary>
-    public class LightPrePass : Disposable
+    internal class LightPrePass : Disposable
     {
 
         #region Variables
@@ -52,6 +52,13 @@ namespace XNAFinalEngine.Graphics
         /// The resulting color will be added to current render target color.
         /// </summary>
         private static BlendState additiveBlendingState;
+
+        #if (XBOX)
+
+            // This structure is used to set multiple render targets without generating garbage in the process.
+            internal readonly RenderTarget.RenderTargetBinding renderTargetBinding;
+
+        #endif
 
         #endregion
 
@@ -78,17 +85,14 @@ namespace XNAFinalEngine.Graphics
         /// 
         /// One more thing, I can't use a color surface format because the RGBM format doesn't work with additive blending.
         /// </remarks>
-        public RenderTarget LightTexture { get; private set; }
+        internal RenderTarget LightTexture { get; private set; }
 
         #if (XBOX)
 
             /// <summary>
             /// See Light Texture remarks.
             /// </summary>
-            public RenderTarget Xbox360SpecularLightTexture { get; private set; }
-
-            // This structure is used to set multiple render targets without generating garbage in the process.
-            private readonly RenderTarget.RenderTargetBinding renderTargetBinding;
+            internal RenderTarget Xbox360SpecularLightTexture { get; private set; }
 
         #endif
 
@@ -99,7 +103,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Light Pre Pass base.
         /// </summary>
-        public LightPrePass(RenderTarget.SizeType size)
+        internal LightPrePass(RenderTarget.SizeType size)
         {
             LightTexture = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
             #if (XBOX)
@@ -112,7 +116,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Light Pre Pass base.
         /// </summary>
-        public LightPrePass(Size size)
+        internal LightPrePass(Size size)
         {
             LightTexture = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
             #if (XBOX)
@@ -143,7 +147,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the G-Buffer render.
         /// </summary>
-        public void Begin(Color ambientLightColor)
+        internal void Begin(Color ambientLightColor)
         {
             try
             {
@@ -175,7 +179,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Resolve render targets.
         /// </summary>
-        public void End()
+        internal void End()
         {
             try
             {

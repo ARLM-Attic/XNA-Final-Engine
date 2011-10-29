@@ -60,60 +60,59 @@ bool reflectionTextured;
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture lightMap;
-
-sampler2D lightSampler = sampler_state
-{
-	Texture = <lightMap>;
-	MipFilter = NONE;
-	MagFilter = POINT;
-	MinFilter = POINT;
-};
-
-texture diffuseTexture;
-
-sampler2D diffuseSampler = sampler_state
+texture diffuseTexture : register(t0);
+sampler2D diffuseSampler : register(s0) = sampler_state
 {
 	Texture = <diffuseTexture>;
-	ADDRESSU = WRAP;
+	/*MinFilter = ANISOTROPIC;
+	MagFilter = ANISOTROPIC;
+	MipFilter = Linear;
+	AddressU = WRAP;
+	AddressV = WRAP;*/
+};
+
+texture lightMap : register(t1);
+sampler2D lightSampler : register(s1) = sampler_state
+{
+	Texture = <lightMap>;
+	/*MipFilter = NONE;
+	MagFilter = POINT;
+	MinFilter = POINT;
+	AddressU = CLAMP;
+	AddressV = CLAMP;*/
+};
+
+texture specularTexture : register(t2);
+sampler2D specularSampler : register(s2) = sampler_state
+{
+	Texture = <specularTexture>;
+	/*ADDRESSU = WRAP;
 	ADDRESSV = WRAP;
 	MinFilter = ANISOTROPIC;
 	MagFilter = ANISOTROPIC;
-	MipFilter = LINEAR;	
+	MipFilter = LINEAR;*/
 };
 
-texture specularTexture;
-
-sampler2D specularSampler = sampler_state
-{
-	Texture = <specularTexture>;
-	ADDRESSU = WRAP;
-	ADDRESSV = WRAP;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;	
-};
-
-texture normalTexture : RENDERCOLORTARGET;
-
-sampler2D normalSampler = sampler_state
+texture normalTexture : register(t3);
+sampler2D normalSampler : register(s3) = sampler_state
 {
 	Texture = <normalTexture>;
-    ADDRESSU = WRAP;
+    /*ADDRESSU = WRAP;
 	ADDRESSV = WRAP;
 	MAGFILTER = ANISOTROPIC; //LINEAR;
 	MINFILTER = ANISOTROPIC; //LINEAR;
-	MIPFILTER = LINEAR;
+	MIPFILTER = LINEAR;*/
 };
 
-texture reflectionTexture : ENVIRONMENT;
-
-samplerCUBE reflectionSampler = sampler_state
+texture reflectionTexture : register(t4);
+samplerCUBE reflectionSampler : register(s4) = sampler_state
 {
 	Texture = <reflectionTexture>;
-	MinFilter = Linear;
+	/*MinFilter = Linear;
 	MagFilter = Linear;
 	MipFilter = Linear;
+	AddressU = CLAMP;
+	AddressV = CLAMP;*/
 };
 
 //////////////////////////////////////////////
@@ -266,7 +265,7 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float4 positionProj : TEXCOORD1, in 
 	return float4(GammaToLinear(materialColor) * light.rgb + specular * light.a,  1);
 } // ps_main
 
-float4 ps_mainWithTangent(VS_OUTTangent input) : COLOR
+float4 ps_mainWithParrallax(VS_OUTTangent input) : COLOR
 {
 	// Find the screen space texture coordinate & offset
 	float2 lightMapUv = PostProjectToScreen(input.postProj) + halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
@@ -341,11 +340,31 @@ technique BlinnPhongWithTexture
     }
 } // BlinnPhongWithTexture
 
-technique BlinnPhongWithTangent
+technique BlinnPhongWithParrallax
 {
     pass P0
     {
         VertexShader = compile vs_3_0 vs_mainWithTangent();
-        PixelShader  = compile ps_3_0 ps_mainWithTangent();
+        PixelShader  = compile ps_3_0 ps_mainWithParrallax();
     }
 } // BlinnPhongWithTangent
+
+#include <SkinnedBlinnPhong.fxh>
+
+technique SkinnedBlinnPhongWithoutTexture
+{
+    pass P0
+    {
+        VertexShader = compile vs_3_0 SkinnedWithoutTexture();
+        PixelShader  = compile ps_3_0 ps_main();
+    }
+} // SkinnedBlinnPhongWithoutTexture
+
+technique SkinnedBlinnPhongWithTexture
+{
+    pass P0
+    {
+        VertexShader = compile vs_3_0 SkinnedWithTexture();
+        PixelShader  = compile ps_3_0 ps_main();
+    }
+} // SkinnedBlinnPhongWithoutTexture

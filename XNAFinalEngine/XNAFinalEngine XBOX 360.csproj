@@ -41,7 +41,9 @@
     <XnaCompressContent>true</XnaCompressContent>
     <LangVersion>default</LangVersion>
   </PropertyGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Graphics\PostProcess\" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Animations\ModelAnimationPlayer.cs" />
     <Compile Include="Assets\Animations\ModelAnimation.cs" />
@@ -89,17 +91,20 @@
     <Compile Include="Engine Core\Time.cs" />
     <Compile Include="Graphics\AmbientLighting\AmbientLight.cs" />
     <Compile Include="Graphics\AmbientLighting\AmbientOcclusion.cs" />
-    <Compile Include="Graphics\DeferredLighting\GBuffer\GBuffer.cs" />
-    <Compile Include="Graphics\DeferredLighting\HDRLinearSpacePass\HDRLinearSpacePass.cs" />
-    <Compile Include="Graphics\DeferredLighting\LightPrePass\AmbientLight.cs" />
-    <Compile Include="Graphics\DeferredLighting\LightPrePass\LightPrePass.cs" />
-    <Compile Include="Graphics\DeferredLighting\LightPrePass\LightPrePassDirectionalLight.cs" />
-    <Compile Include="Graphics\DeferredLighting\LightPrePass\LightPrePassPointLight.cs" />
     <Compile Include="Graphics\Miscellaneous\GammaLinearSpace.cs" />
     <Compile Include="Graphics\Miscellaneous\RGBM.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonics.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL1.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL2.cs" />
+    <Compile Include="Graphics\Passes\01-GBuffer\GBuffer.cs" />
+    <Compile Include="Graphics\Passes\02-LightPrePass\DirectionalLightShader.cs" />
+    <Compile Include="Graphics\Passes\02-LightPrePass\LightPrePass.cs" />
+    <Compile Include="Graphics\Passes\02-LightPrePass\PointLightShader.cs" />
+    <Compile Include="Graphics\Passes\03-ScenePass\DeferredModelRenderer.cs" />
+    <Compile Include="Graphics\Passes\03-ScenePass\ForwardModelRenderer.cs" />
+    <Compile Include="Graphics\Passes\03-ScenePass\ScenePass.cs" />
+    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\BlinnPhongShader.cs" />
+    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\ConstantShader.cs" />
     <Compile Include="Graphics\SpriteManager.cs" />
     <Compile Include="Helpers\ArrayHelper.cs" />
     <Compile Include="Helpers\Chronometer.cs" />

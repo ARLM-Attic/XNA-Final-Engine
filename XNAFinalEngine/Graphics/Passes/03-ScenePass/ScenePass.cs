@@ -40,12 +40,12 @@ using XNAFinalEngine.Assets;
 namespace XNAFinalEngine.Graphics
 {
     /// <summary>
-    /// Light Space pass.
+    /// Scene Pass.
     /// </summary>
     /// <remarks>
     /// The scene will be render in HDR linear space here. Then, the post process will apply tone mapping to transform it to LDR gamma space.
     /// </remarks>
-    public class HdrLinearSpacePass : Disposable
+    internal class ScenePass : Disposable
     {
 
         #region Properties
@@ -57,27 +57,27 @@ namespace XNAFinalEngine.Graphics
         /// It's in linear space. In this same render target the transparent object will be rendered. Maybe an RGBM encoding could work, but how?
         /// Multisampling could generate indeseable artifacts. Be careful!
         /// </remarks>
-        public RenderTarget SceneTexture { get; private set; }
+        internal RenderTarget SceneTexture { get; private set; }
 
         #endregion
 
         #region Constructors
 
         /// <summary>
-        /// Light Space pass.
+        /// Scene Pass.
         /// </summary>
-        public HdrLinearSpacePass(RenderTarget.SizeType size)
+        internal ScenePass(RenderTarget.SizeType size)
         {
             SceneTexture = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.Depth24, RenderTarget.AntialiasingType.NoAntialiasing);
-        } // HdrLinearSpacePass
+        } // ScenePass
 
         /// <summary>
-        /// Light Space pass.
+        /// Scene Pass.
         /// </summary>
-        public HdrLinearSpacePass(Size size)
+        internal ScenePass(Size size)
         {
             SceneTexture = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.Depth24, RenderTarget.AntialiasingType.NoAntialiasing);
-        } // HdrLinearSpacePass
+        } // ScenePass
 
         #endregion
 
@@ -86,7 +86,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the G-Buffer render.
         /// </summary>
-        public void Begin(Color clearColor)
+        internal void Begin(Color clearColor)
         {
             try
             {
@@ -114,7 +114,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Resolve render targets.
         /// </summary>
-        public void End()
+        internal void End()
         {
             try
             {
@@ -140,5 +140,5 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-    } // LinearSpacePass
+    } // ScenePass
 } // XNAFinalEngine.Graphics

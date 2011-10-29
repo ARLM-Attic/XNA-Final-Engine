@@ -48,7 +48,7 @@ namespace XNAFinalEngineExamples
 
         #region Variables
         
-        private static GameObject3D lamboBody, dude, otherCamera;
+        private static GameObject3D lamboBody, dude, otherCamera, directionalLight;
 
         #endregion
 
@@ -66,7 +66,7 @@ namespace XNAFinalEngineExamples
             lamboBody.AddComponent<ModelRenderer>();
             lamboBody.AddComponent<ModelFilter>();
             lamboBody.ModelFilter.Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
-            lamboBody.ModelRenderer.Material = new Constant { DiffuseColor = Color.Turquoise };
+            lamboBody.ModelRenderer.Material = new Constant { DiffuseColor = Color.Turquoise, AlphaBlending = 0.5f };
             lamboBody.AddComponent<RootAnimations>();
             /*
             otherCamera = new GameObject3D();
@@ -80,8 +80,8 @@ namespace XNAFinalEngineExamples
             //lamboBody.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
             ScriptEditorCamera script = (ScriptEditorCamera)lamboBody.AddComponent<ScriptEditorCamera>();
             script.SetPosition(new Vector3(0, 0, 100), Vector3.Zero);
-            lamboBody.AddComponent<DirectionalLight>();
-            lamboBody.DirectionalLight.DiffuseColor = Color.Violet;
+            /*lamboBody.AddComponent<DirectionalLight>();
+            lamboBody.DirectionalLight.DiffuseColor = Color.Gray;*/
             /*
             otherCamera.Camera.MasterCamera = lamboBody.Camera;
             otherCamera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
@@ -92,10 +92,15 @@ namespace XNAFinalEngineExamples
             dude.AddComponent<ModelFilter>();
             dude.ModelFilter.Model = new FileModel("DudeWalk");
             dude.AddComponent<ModelRenderer>();
-            dude.ModelRenderer.Material = new Constant { DiffuseColor = Color.Turquoise };
+            dude.ModelRenderer.Material = new BlinnPhong { DiffuseColor = Color.Thistle };
             dude.AddComponent<ModelAnimations>();
             dude.ModelAnimations.AddAnimationClip(new ModelAnimation("dude"));
             dude.ModelAnimations.Play("dude");
+
+            directionalLight = new GameObject3D();
+            directionalLight.AddComponent<DirectionalLight>();
+            directionalLight.DirectionalLight.DiffuseColor = Color.Green;
+            directionalLight.Transform.LookAt(new Vector3(0, 1, 0), Vector3.Zero, Vector3.Forward);
 
             GameLoop.ShowFramesPerSecond = true;
 

@@ -35,21 +35,21 @@ float4x4 worldViewProj : WorldViewProjection;
 //////////////////////////////////////////////
 
 float3 diffuseColor;
+float alphaBlending;
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture diffuseTexture;
-
-sampler2D diffuseSampler = sampler_state
+texture diffuseTexture : register(t0);
+sampler2D diffuseSampler : register(s0) = sampler_state
 {
 	Texture = <diffuseTexture>;
-	MinFilter = ANISOTROPIC;
+	/*MinFilter = ANISOTROPIC;
 	MagFilter = ANISOTROPIC;
 	MipFilter = Linear;
-	AddressU = MIRROR;
-	AddressV = MIRROR;
+	AddressU = WRAP;
+	AddressV = WRAP;*/
 };
 
 //////////////////////////////////////////////
@@ -102,12 +102,12 @@ vertexOutputWT VSConstantWithTexture(vertexInput input)
 
 float4 PSConstantWithoutTexture() : COLOR
 {
-    return float4(GammaToLinear(diffuseColor), 1);
+    return float4(GammaToLinear(diffuseColor), alphaBlending);
 }
 
 float4 PSConstantWithTexture(vertexOutputWT input) : COLOR
 {
-    return float4(GammaToLinear(tex2D(diffuseSampler, input.uv).rgb), 1);
+    return float4(GammaToLinear(tex2D(diffuseSampler, input.uv).rgb), alphaBlending);
 }
 
 //////////////////////////////////////////////

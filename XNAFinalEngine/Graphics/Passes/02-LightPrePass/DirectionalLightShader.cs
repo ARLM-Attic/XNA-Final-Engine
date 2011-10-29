@@ -43,7 +43,7 @@ namespace XNAFinalEngine.Graphics
     /// <summary>
     /// Light Pre Pass Directional Light shader.
     /// </summary>
-    internal class LightPrePassDirectionalLight : Shader
+    internal class DirectionalLightShader : Shader
     {
 
         #region Variables
@@ -196,7 +196,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Light Pre Pass Directional Light shader.
         /// </summary>
-        internal LightPrePassDirectionalLight() : base("LightPrePass\\DirectionalLight") { }
+        internal DirectionalLightShader() : base("LightPrePass\\DirectionalLight") { }
 
         #endregion
 
@@ -239,7 +239,7 @@ namespace XNAFinalEngine.Graphics
         /// <param name="motionVectorSpecularPowerTexture">Gbuffer's motion vector and specular power texture.</param>
         /// <param name="viewMatrix">Camera view matrix.</param>
         /// <param name="boundingFrustum">Camera bounding frustum (use the camera's component method).</param>
-        public void Begin(RenderTarget depthTexture, RenderTarget normalTexture, RenderTarget motionVectorSpecularPowerTexture, Matrix viewMatrix, Vector3[] boundingFrustum)
+        internal void Begin(RenderTarget depthTexture, RenderTarget normalTexture, RenderTarget motionVectorSpecularPowerTexture, Matrix viewMatrix, Vector3[] boundingFrustum)
         {
             try
             {
@@ -263,10 +263,11 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render to the light pre pass texture.
         /// </summary>
-        public void RenderLight(Color diffuseColor, Vector3 direction, float intensity)
+        internal void RenderLight(Color diffuseColor, Vector3 direction, float intensity)
         {
             try
             {
+
                 #region Set Parameters
               
                 SetLightColor(diffuseColor);
@@ -298,5 +299,5 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-    } // LightPrePassDirectionalLight
+    } // DirectionalLightShader
 } // XNAFinalEngine.Graphics

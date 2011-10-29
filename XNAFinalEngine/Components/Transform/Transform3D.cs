@@ -357,13 +357,14 @@ namespace XNAFinalEngine.Components
         /// </summary>        
         public void LookAt(Vector3 position, Vector3 target, Vector3 upVector, Space space = Space.Local)
         {
+            // CreateLookAt creates a view matrix. We have to invert it to use it like a world matrix.
             if (space == Space.Local)
             {
-                LocalMatrix = Matrix.CreateLookAt(position, target, upVector);
+                LocalMatrix = Matrix.Invert(Matrix.CreateLookAt(position, target, upVector));
             }
             else
             {
-                WorldMatrix = Matrix.CreateLookAt(position, target, upVector);
+                WorldMatrix = Matrix.Invert(Matrix.CreateLookAt(position, target, upVector));
             }
         } // LookAt
 

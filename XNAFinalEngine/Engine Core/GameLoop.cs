@@ -59,8 +59,10 @@ namespace XNAFinalEngine.EngineCore
         // TODO!!! Esto no va.
         private static GBuffer gbuffer;
         private static LightPrePass lightPrePass;
-        private static LightPrePassDirectionalLight directionalLightShader;
-        private static HdrLinearSpacePass hdrLinearSpacePass;
+        private static DirectionalLightShader directionalLightShader;
+        private static ScenePass hdrLinearSpacePass;
+        private static ConstantShader constantShader;
+        private static BlinnPhongShader blinnPhongShader;
 
         /// <summary>
         /// This game object will show the frames per second onto screen.
@@ -112,8 +114,10 @@ namespace XNAFinalEngine.EngineCore
             
             gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
             lightPrePass = new LightPrePass(RenderTarget.SizeType.FullScreen);
-            directionalLightShader = new LightPrePassDirectionalLight();
-            hdrLinearSpacePass = new HdrLinearSpacePass(RenderTarget.SizeType.FullScreen);
+            directionalLightShader = new DirectionalLightShader();
+            hdrLinearSpacePass = new ScenePass(RenderTarget.SizeType.FullScreen);
+            constantShader = new ConstantShader();
+            blinnPhongShader = new BlinnPhongShader();
             
             if (CurrentScene != null)
             {
@@ -294,7 +298,24 @@ namespace XNAFinalEngine.EngineCore
 
                 hdrLinearSpacePass.Begin(currentCamera.ClearColor);
 
-                // Render all the opaque objects
+                // Render all the opaque objects);
+                for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+                {
+                    ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                    if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                    {
+                        if (currentModelRenderer.Material is Constant)
+                        {
+                            constantShader.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+                            constantShader.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (Constant)currentModelRenderer.Material);
+                        }
+                        else if (currentModelRenderer.Material is BlinnPhong)
+                        {
+                            blinnPhongShader.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightPrePass.LightTexture);
+                            blinnPhongShader.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, (BlinnPhong)currentModelRenderer.Material);
+                        }
+                    }
+                }
 
                 // The sky is render latter so that the GPU can avoid fragment processing. But it has to be before the transparent objects.
 
@@ -313,8 +334,8 @@ namespace XNAFinalEngine.EngineCore
             }
 
             //SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
-            SpriteManager.DrawTextureToFullScreen(lightPrePass.LightTexture);
-            //SpriteManager.DrawTextureToFullScreen(hdrLinearSpacePass.SceneTexture);
+            //SpriteManager.DrawTextureToFullScreen(lightPrePass.LightTexture);
+            SpriteManager.DrawTextureToFullScreen(hdrLinearSpacePass.SceneTexture);
             
             #endregion
 

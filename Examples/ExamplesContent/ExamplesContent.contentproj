@@ -1282,6 +1282,13 @@
       <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Materials\SkinnedBlinnPhong.fxh">
+      <Name>SkinnedBlinnPhong</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
