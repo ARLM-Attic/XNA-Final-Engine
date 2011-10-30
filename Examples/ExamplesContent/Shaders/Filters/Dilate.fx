@@ -27,25 +27,22 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 //////////////////////////////////////////////
 
 float2 halfPixel;
-
 float2 textureResolution;
-
-float dilateWidth = 1.0f;
+float  dilateWidth = 1.0f;
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture sceneMap : RENDERCOLORTARGET;
-
+texture sceneMap;
 sampler sceneMapSampler = sampler_state 
 {
     texture = <sceneMap>;
-    AddressU  = Clamp;
+    /*AddressU  = Clamp;
     AddressV  = Clamp;
     MIPFILTER = None;
     MINFILTER = POINT;
-    MAGFILTER = POINT;
+    MAGFILTER = POINT;*/
 };
 
 //////////////////////////////////////////////
@@ -98,7 +95,6 @@ technique Dilate
 		VertexShader = compile vs_3_0 VS_Dilate(float2(1, 0));
 		PixelShader  = compile ps_3_0 PS_Dilate();
 	}
-
 	pass DilateVertical
 	{
 		VertexShader = compile vs_3_0 VS_Dilate(float2(0, 1));

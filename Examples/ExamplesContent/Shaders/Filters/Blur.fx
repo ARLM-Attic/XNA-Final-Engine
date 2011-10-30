@@ -49,26 +49,26 @@ const float Weights8[8] =
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture sceneMap;
+texture sceneTexture;
 
-sampler sceneMapSamplerLinear = sampler_state 
+sampler sceneTextureSamplerLinear = sampler_state 
 {
-    texture = <sceneMap>;
-	AddressU  = CLAMP;
+    texture = <sceneTexture>;
+	/*AddressU  = CLAMP;
     AddressV  = CLAMP;
     MIPFILTER = NONE;
     MINFILTER = LINEAR;
-    MAGFILTER = LINEAR;
+    MAGFILTER = LINEAR;*/
 };
 
-sampler sceneMapSamplerPoint = sampler_state 
+sampler sceneTextureSamplerPoint = sampler_state 
 {
-    texture = <sceneMap>;
-	AddressU  = CLAMP;
+    texture = <sceneTexture>;
+	/*AddressU  = CLAMP;
     AddressV  = CLAMP;
     MIPFILTER = NONE;
     MINFILTER = POINT;
-    MAGFILTER = POINT;
+    MAGFILTER = POINT;*/
 };
 
 //////////////////////////////////////////////
@@ -141,7 +141,7 @@ float4 PS_Blur(VS_Output In) : COLOR
 	[unroll]
 	for (int i = 0; i < 8; i++)
 	{
-		ret += tex2D(sceneMapSamplerLinear, In.texCoord[i]) * Weights8[i];
+		ret += tex2D(sceneTextureSamplerLinear, In.texCoord[i]) * Weights8[i];
 	}
 	return ret;
 }
@@ -150,13 +150,13 @@ float4 PS_Blur(VS_Output In) : COLOR
 float4 PS_BlurPoint(VS_OutputPoint In) : COLOR
 {	
 	float4 ret = 0;
-	ret += tex2D(sceneMapSamplerPoint, In.texCoord[0]) * 0.05;
-	ret += tex2D(sceneMapSamplerPoint, In.texCoord[1]) * 0.1;
-	ret += tex2D(sceneMapSamplerPoint, In.texCoord[2]) * 0.2;
-	ret += tex2D(sceneMapSamplerPoint, In.texCoord[3]) * 0.3;
-	ret += tex2D(sceneMapSamplerPoint, In.texCoord[4]) * 0.2;
-    ret += tex2D(sceneMapSamplerPoint, In.texCoord[5]) * 0.1;
-	ret += tex2D(sceneMapSamplerPoint, In.texCoord[6]) * 0.05;
+	ret += tex2D(sceneTextureSamplerPoint, In.texCoord[0]) * 0.05;
+	ret += tex2D(sceneTextureSamplerPoint, In.texCoord[1]) * 0.1;
+	ret += tex2D(sceneTextureSamplerPoint, In.texCoord[2]) * 0.2;
+	ret += tex2D(sceneTextureSamplerPoint, In.texCoord[3]) * 0.3;
+	ret += tex2D(sceneTextureSamplerPoint, In.texCoord[4]) * 0.2;
+    ret += tex2D(sceneTextureSamplerPoint, In.texCoord[5]) * 0.1;
+	ret += tex2D(sceneTextureSamplerPoint, In.texCoord[6]) * 0.05;
 	return ret;
 }
 

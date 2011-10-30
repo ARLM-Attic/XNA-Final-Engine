@@ -107,6 +107,7 @@
     <Compile Include="Assets\Models\FileModel.cs" />
     <Compile Include="Assets\Models\Model.cs" />
     <Compile Include="Assets\Models\PrimitiveModel.cs" />
+    <Compile Include="Assets\PostProcess\PostProcess.cs" />
     <Compile Include="Assets\Shaders\Shader.cs" />
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />
@@ -150,6 +151,12 @@
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL2.cs" />
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\BlinnPhongShader.cs" />
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\ConstantShader.cs" />
+    <Compile Include="Assets\PostProcess\Bloom.cs" />
+    <Compile Include="Assets\PostProcess\AdjustLevels.cs" />
+    <Compile Include="Assets\PostProcess\AdjustLevelsIndividualChannels.cs" />
+    <Compile Include="Assets\PostProcess\ColorCorrection.cs" />
+    <Compile Include="Assets\PostProcess\FilmGrain.cs" />
+    <Compile Include="Assets\Textures\LookupTable.cs" />
     <Compile Include="Graphics\SpriteManager.cs" />
     <Compile Include="Helpers\ArrayHelper.cs" />
     <Compile Include="Helpers\Chronometer.cs" />
@@ -175,7 +182,10 @@
       <Name>XNAFinalEngineContentPipelineExtensionRuntime</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Graphics\Filters\" />
+    <Folder Include="Graphics\Passes\04-PostProcessPass\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--
