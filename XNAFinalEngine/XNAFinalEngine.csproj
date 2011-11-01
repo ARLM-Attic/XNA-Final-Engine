@@ -157,6 +157,7 @@
     <Compile Include="Assets\PostProcess\ColorCorrection.cs" />
     <Compile Include="Assets\PostProcess\FilmGrain.cs" />
     <Compile Include="Assets\Textures\LookupTable.cs" />
+    <Compile Include="Graphics\Passes\04-PostProcessPass\PostProcessingPass.cs" />
     <Compile Include="Graphics\SpriteManager.cs" />
     <Compile Include="Helpers\ArrayHelper.cs" />
     <Compile Include="Helpers\Chronometer.cs" />
@@ -184,7 +185,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Graphics\Filters\" />
-    <Folder Include="Graphics\Passes\04-PostProcessPass\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />

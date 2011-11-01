@@ -28,6 +28,11 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
+#region Using directives
+using System;
+using Microsoft.Xna.Framework;
+#endregion
+
 namespace XNAFinalEngine.Assets
 {
 
@@ -36,6 +41,23 @@ namespace XNAFinalEngine.Assets
     /// </summary>
     public abstract class Material : Asset
     {
+
+        // default material.
+        private static Material defaultMaterial = new BlinnPhong { DiffuseColor = Color.Gray };
+
+        /// <summary>
+        /// Default Material.
+        /// </summary>
+        public static Material DefaultMaterial
+        {
+            get { return defaultMaterial; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("value");
+                defaultMaterial = value;
+            }
+        } // DefaultMaterial
         
     } // Material
 } // XNAFinalEngine.Assets

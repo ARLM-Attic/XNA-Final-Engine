@@ -34,7 +34,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
-using Texture = Microsoft.Xna.Framework.Graphics.Texture;
+using Texture = XNAFinalEngine.Assets.Texture;
+
 #endregion
 
 namespace XNAFinalEngine.Graphics

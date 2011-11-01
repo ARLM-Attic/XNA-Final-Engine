@@ -43,7 +43,7 @@ namespace XNAFinalEngine.Graphics
     /// <summary>
     /// Über post processing shader.
     /// </summary>
-    internal class PostProcessing : Shader
+    internal class PostProcessingPass : Shader
     {
 
         #region Variables
@@ -176,7 +176,7 @@ namespace XNAFinalEngine.Graphics
             if (EngineManager.DeviceLostInThisFrame || lastUsedBloomTexture != bloomTexture)
             {
                 lastUsedBloomTexture = bloomTexture;
-                epBloomTexture.SetValue(bloomTexture.XnaTexture);
+                epBloomTexture.SetValue(bloomTexture.Resource);
             }
         } // SetBloomTexture
 
@@ -571,7 +571,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Über post processing shader.
         /// </summary>
-        internal PostProcessing(RenderTarget.SizeType size) : base("PostProcessing\\PostProcessing")
+        internal PostProcessingPass(RenderTarget.SizeType size) : base("PostProcessing\\PostProcessing")
         {
             PostProcessedSceneTexture = new RenderTarget(size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
         } // PostProcessing
@@ -579,7 +579,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Über post processing shader.
         /// </summary>
-        internal PostProcessing(Size size) : base("PostProcessing\\PostProcessing")
+        internal PostProcessingPass(Size size) : base("PostProcessing\\PostProcessing")
         {
             PostProcessedSceneTexture = new RenderTarget(size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
         } // PostProcessing
@@ -648,94 +648,125 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render.
         /// </summary>
-        public void Render(RenderTarget sceneTexture)
+        public void Render(Texture sceneTexture, PostProcess postProcess)
         {
             try
             {
+                if (postProcess == null)
+                    throw new ArgumentNullException("postProcess");
+                if (sceneTexture == null)
+                    throw new ArgumentNullException("sceneTexture");
+
                 // Set render states
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                // Generate bloom texture
-                Bloom.GenerateBloom(sceneTexture);
+                PostProcessedSceneTexture.EnableRenderTarget();
+
+                if (postProcess.Bloom != null)
+                {
+                    
+                }
                 // Set parameters
                 SetHalfPixel(new Vector2(-1f / sceneTexture.Width, 1f / sceneTexture.Height));
-                SetLensExposure(ToneMapping.LensExposure);
+                SetLensExposure(postProcess.LensExposure);
                 SetSceneTexture(sceneTexture);
 
                 #region Bloom
-
-                SetBloomEnabled(Bloom.Enabled);
-                if (Bloom.Enabled)
+                /*
+                if (postProcess.Bloom != null && postProcess.Bloom.Enabled)
                 {
-                    SetBloomScale(Bloom.BloomScale);
+                    SetBloomEnabled(true);
+                    // Generate bloom texture
+                    bloomShader.GenerateBloom(sceneTexture);
+                    SetBloomScale(postProcess.Bloom.BloomScale);
                     SetBloomTexture(Bloom.BloomTexture);
                 }
+                else*/
+                    SetBloomEnabled(false);
 
                 #endregion
 
                 #region Levels
 
-                SetAdjustLevelsEnabled(AdjustLevels.Enabled);
-                SetAdjustLevelsIndividualChannelsEnabled(AdjustLevelsIndividualChannels.Enabled);
-                if (AdjustLevels.Enabled)
+                // Adjust Levels
+                if (postProcess.AdjustLevels != null && postProcess.AdjustLevels.Enabled)
                 {
-                    SetInputBlack(AdjustLevels.InputBlack);
-                    SetInputWhite(AdjustLevels.InputWhite);
-                    SetInputGamma(AdjustLevels.InputGamma);
-                    SetOutputBlack(AdjustLevels.OutputBlack);
-                    SetOutputWhite(AdjustLevels.OutputWhite);
+                    SetAdjustLevelsEnabled(true);
+                    SetInputBlack(postProcess.AdjustLevels.InputBlack);
+                    SetInputWhite(postProcess.AdjustLevels.InputWhite);
+                    SetInputGamma(postProcess.AdjustLevels.InputGamma);
+                    SetOutputBlack(postProcess.AdjustLevels.OutputBlack);
+                    SetOutputWhite(postProcess.AdjustLevels.OutputWhite);
                 }
-                if (AdjustLevelsIndividualChannels.Enabled)
+                else
+                    SetAdjustLevelsEnabled(false);
+                // Adjust Levels Individual Channels
+                if (postProcess.AdjustLevelsIndividualChannels != null && postProcess.AdjustLevelsIndividualChannels.Enabled)
                 {
-                    SetInputBlackRgb(AdjustLevelsIndividualChannels.InputBlack);
-                    SetInputWhiteRgb(AdjustLevelsIndividualChannels.InputWhite);
-                    SetInputGammaRgb(AdjustLevelsIndividualChannels.InputGamma);
-                    SetOutputBlackRgb(AdjustLevelsIndividualChannels.OutputBlack);
-                    SetOutputWhiteRgb(AdjustLevelsIndividualChannels.OutputWhite);
+                    SetAdjustLevelsIndividualChannelsEnabled(true);
+                    SetInputBlackRgb(postProcess.AdjustLevelsIndividualChannels.InputBlack);
+                    SetInputWhiteRgb(postProcess.AdjustLevelsIndividualChannels.InputWhite);
+                    SetInputGammaRgb(postProcess.AdjustLevelsIndividualChannels.InputGamma);
+                    SetOutputBlackRgb(postProcess.AdjustLevelsIndividualChannels.OutputBlack);
+                    SetOutputWhiteRgb(postProcess.AdjustLevelsIndividualChannels.OutputWhite);
                 }
+                else
+                    SetAdjustLevelsIndividualChannelsEnabled(false);
 
                 #endregion
                 
                 #region Color Correction
 
-                if (ColorCorrection.FirstLookupTable == null || ColorCorrection.LerpOriginalColorAmount == 0) // No color correction
+                if (postProcess.ColorCorrection != null && postProcess.ColorCorrection.Enabled)
+                {
+                    if (postProcess.ColorCorrection.FirstLookupTable == null || postProcess.ColorCorrection.LerpOriginalColorAmount == 0)
+                    {
+                        // No color correction
+                        SetColorCorrectOneLutEnabled(false);
+                        SetColorCorrectTwoLutEnabled(false);
+                    }
+                    else
+                    {
+                        SetLookupTableScale(((float)(postProcess.ColorCorrection.FirstLookupTable.Size) - 1f) / (float)(postProcess.ColorCorrection.FirstLookupTable.Size));
+                        SetLookupTableOffset(1f / (2f * (float)(postProcess.ColorCorrection.FirstLookupTable.Size)));
+                        if (postProcess.ColorCorrection.SecondtLookupTable == null || postProcess.ColorCorrection.LerpLookupTablesAmount == 0) 
+                        {
+                            // Lerp between two lookup tables
+                            SetColorCorrectOneLutEnabled(false);
+                            SetColorCorrectTwoLutEnabled(true);
+                            SetFirstLookupTable(postProcess.ColorCorrection.FirstLookupTable);
+                            SetLerpOriginalColorAmount(postProcess.ColorCorrection.LerpOriginalColorAmount);
+                        }
+                        else 
+                        {
+                            // One lookup table
+                            SetColorCorrectOneLutEnabled(true);
+                            SetColorCorrectTwoLutEnabled(false);
+                            SetFirstLookupTable(postProcess.ColorCorrection.FirstLookupTable);
+                            SetSecondLookupTable(postProcess.ColorCorrection.SecondtLookupTable);
+                            SetLerpOriginalColorAmount(postProcess.ColorCorrection.LerpOriginalColorAmount);
+                            SetLerpLookupTablesAmount(postProcess.ColorCorrection.LerpLookupTablesAmount);
+                        }
+                    }
+                }
+                else
                 {
                     SetColorCorrectOneLutEnabled(false);
                     SetColorCorrectTwoLutEnabled(false);
                 }
-                else
-                {
-                    SetLookupTableScale(((float)(ColorCorrection.FirstLookupTable.Size) - 1f) / (float)(ColorCorrection.FirstLookupTable.Size));
-                    SetLookupTableOffset(1f / (2f * (float)(ColorCorrection.FirstLookupTable.Size)));
-                    if (ColorCorrection.SecondtLookupTable == null || ColorCorrection.LerpLookupTablesAmount == 0) // Lerp between two lookup tables
-                    {
-                        SetColorCorrectOneLutEnabled(false);
-                        SetColorCorrectTwoLutEnabled(true);
-                        SetFirstLookupTable(ColorCorrection.FirstLookupTable);
-                        SetLerpOriginalColorAmount(ColorCorrection.LerpOriginalColorAmount);
-                    }
-                    else // One lookup table
-                    {
-                        SetColorCorrectOneLutEnabled(true);
-                        SetColorCorrectTwoLutEnabled(false);
-                        SetFirstLookupTable(ColorCorrection.FirstLookupTable);
-                        SetSecondLookupTable(ColorCorrection.SecondtLookupTable);
-                        SetLerpOriginalColorAmount(ColorCorrection.LerpOriginalColorAmount);
-                        SetLerpLookupTablesAmount(ColorCorrection.LerpLookupTablesAmount);
-                    }
-                }
+                
 
                 #endregion
 
                 #region Film Grain
 
-                if (FilmGrain.Enabled || FilmGrain.FilmgrainStrength == 0)
+                if (postProcess.FilmGrain != null && postProcess.FilmGrain.Enabled && postProcess.FilmGrain.FilmgrainStrength != 0)
                 {
                     SetFilmGrainEnabled(true);
-                    SetFilmGrainStrength(FilmGrain.FilmgrainStrength);
-                    SetAccentuateDarkNoisePower(FilmGrain.AccentuateDarkNoisePower);
-                    SetRandomNoiseStrength(FilmGrain.RandomNoiseStrength);
+                    SetFilmGrainStrength(postProcess.FilmGrain.FilmgrainStrength);
+                    SetAccentuateDarkNoisePower(postProcess.FilmGrain.AccentuateDarkNoisePower);
+                    SetRandomNoiseStrength(postProcess.FilmGrain.RandomNoiseStrength);
                     SetRandomValue(randomNumber.Next(1, 10000) / 100.0f);
                 }
                 else
@@ -746,6 +777,8 @@ namespace XNAFinalEngine.Graphics
                 // Render post process effect.
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
+
+                PostProcessedSceneTexture.DisableRenderTarget();
             }
             catch (Exception e)
             {
@@ -755,5 +788,5 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-    } // PostProcessing
+    } // PostProcessingPass
 } // XNAFinalEngine.Graphics

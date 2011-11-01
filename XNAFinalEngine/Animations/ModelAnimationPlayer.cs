@@ -22,7 +22,7 @@ namespace XNAFinalEngine.Animations
     /// <summary>
     /// This plays any model animation clip.
     /// </summary>
-    public class ModelAnimationPlayer
+    internal class ModelAnimationPlayer
     {
 
         #region Structs

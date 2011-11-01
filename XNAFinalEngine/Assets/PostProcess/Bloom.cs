@@ -55,6 +55,15 @@ namespace XNAFinalEngine.Assets
         #region Properties
 
         /// <summary>
+        /// Is it enabled?
+        /// </summary>
+        public bool Enabled
+        {
+            get { return enabled; }
+            set { enabled = value; }
+        } // Enabled
+
+        /// <summary>
         /// Bloom Scale.
         /// </summary>
         public float BloomScale
@@ -67,15 +76,6 @@ namespace XNAFinalEngine.Assets
         /// Bloom Threshold.
         /// </summary>
         public float BloomThreshold { get { return bloomThreshold; } set { bloomThreshold = value; } }
-
-        /// <summary>
-        /// Is it enabled?
-        /// </summary>
-        public bool Enabled
-        {
-            get { return enabled; }
-            set { enabled = value; }
-        } // Enabled
 
         #endregion
 

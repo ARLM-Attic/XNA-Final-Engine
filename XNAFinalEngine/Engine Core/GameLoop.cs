@@ -63,6 +63,8 @@ namespace XNAFinalEngine.EngineCore
         private static ScenePass hdrLinearSpacePass;
         private static ConstantShader constantShader;
         private static BlinnPhongShader blinnPhongShader;
+        private static PostProcessingPass postProcessPass;
+        private static PostProcess postProcess;
 
         /// <summary>
         /// This game object will show the frames per second onto screen.
@@ -118,6 +120,12 @@ namespace XNAFinalEngine.EngineCore
             hdrLinearSpacePass = new ScenePass(RenderTarget.SizeType.FullScreen);
             constantShader = new ConstantShader();
             blinnPhongShader = new BlinnPhongShader();
+            postProcessPass = new PostProcessingPass(RenderTarget.SizeType.FullScreen);
+            postProcess = new PostProcess
+                              {
+                                  FilmGrain = new FilmGrain(),
+                                  AdjustLevels = new AdjustLevels()
+                              };
             
             if (CurrentScene != null)
             {
@@ -257,7 +265,7 @@ namespace XNAFinalEngine.EngineCore
             {
                 Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
 
-                #region GBuffer
+                #region GBuffer Pass
                 
                 gbuffer.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane);
                 for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
@@ -327,7 +335,9 @@ namespace XNAFinalEngine.EngineCore
 
                 #endregion
 
-                #region Post Process
+                #region Post Process Pass
+
+                postProcessPass.Render(hdrLinearSpacePass.SceneTexture, postProcess);
 
                 #endregion
 
@@ -335,7 +345,8 @@ namespace XNAFinalEngine.EngineCore
 
             //SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
             //SpriteManager.DrawTextureToFullScreen(lightPrePass.LightTexture);
-            SpriteManager.DrawTextureToFullScreen(hdrLinearSpacePass.SceneTexture);
+            //SpriteManager.DrawTextureToFullScreen(hdrLinearSpacePass.SceneTexture);
+            SpriteManager.DrawTextureToFullScreen(postProcessPass.PostProcessedSceneTexture);
             
             #endregion
 
