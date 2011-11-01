@@ -571,14 +571,6 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Über post processing shader.
         /// </summary>
-        internal PostProcessingPass(RenderTarget.SizeType size) : base("PostProcessing\\PostProcessing")
-        {
-            PostProcessedSceneTexture = new RenderTarget(size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-        } // PostProcessing
-
-        /// <summary>
-        /// Über post processing shader.
-        /// </summary>
         internal PostProcessingPass(Size size) : base("PostProcessing\\PostProcessing")
         {
             PostProcessedSceneTexture = new RenderTarget(size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);

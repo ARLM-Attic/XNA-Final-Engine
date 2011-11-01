@@ -120,6 +120,7 @@
     <Compile Include="Components\GameObject2D.cs" />
     <Compile Include="Components\GameObject3D.cs" />
     <Compile Include="Components\Layer.cs" />
+    <Compile Include="Engine Core\ScreenshotCapturer.cs" />
     <Compile Include="Graphics\AmbientLighting\AmbientLight.cs" />
     <Compile Include="Components\Lights\DirectionalLight.cs" />
     <Compile Include="Components\Lights\Light.cs" />

@@ -60,54 +60,7 @@ namespace XNAFinalEngine.Assets
         #endregion
 
         #region Enumerates
-
-        /// <summary>
-        /// Relative size to screen and shadow sizes.
-        /// </summary>
-        public enum SizeType
-        {
-            /// <summary>
-            /// Full screen size.
-            /// </summary>
-            FullScreen,
-            /// <summary>
-            /// Half the full screen size, e.g. 800x600 becomes 400x300
-            /// </summary>
-            HalfScreen,
-            /// <summary>
-            /// Quarter of the full screen size, e.g. 800x600 becomes 200x150
-            /// </summary>
-            QuarterScreen,
-            /// <summary>
-            /// A split screen version of a full screen size, , e.g. 800x600 becomes 800x300 
-            /// </summary>
-            SplitFullScreen,
-            /// <summary>
-            /// A split screen version of a half screen size, , e.g. 800x600 becomes 400x150 
-            /// </summary>
-            SplitHalfScreen,
-            /// <summary>
-            /// A split screen version of a quarter screen size, , e.g. 800x600 becomes 200x75
-            /// </summary>
-            SplitQuarterScreen,
-            /// <summary>
-            /// 256 x 256 pixels. Good for shadows.
-            /// </summary>
-            Square256X256,
-            /// <summary>
-            /// 512 x 512 pixels. Good for shadows.
-            /// </summary>
-            Square512X512,
-            /// <summary>
-            /// 1024 x 1024 pixels. Good for shadows.
-            /// </summary>
-            Square1024X1024,
-            /// <summary>
-            /// 2048 x 2048 pixels. Good for shadows.
-            /// </summary>
-            Square2048X2048,
-        } // SizeType
-
+        
         /// <summary>
         /// Antialiasing Type.
         /// </summary>
@@ -164,9 +117,9 @@ namespace XNAFinalEngine.Assets
         private readonly DepthFormat depthFormat;
 
         /// <summary>
-        /// Size type.
+        /// Size.
         /// </summary>
-        private readonly SizeType? sizeType;
+        private Size size;
 
         /// <summary>
         /// The count of render targets created for naming purposes.
@@ -235,6 +188,7 @@ namespace XNAFinalEngine.Assets
         public RenderTarget(Size size, SurfaceFormat _surfaceFormat, DepthFormat _depthFormat, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
         {
             Name = "Render Target " + nameNumber++;
+            this.size = size;
             Width = size.Width;
             Height = size.Height;
 
@@ -257,54 +211,7 @@ namespace XNAFinalEngine.Assets
         public RenderTarget(Size size, SurfaceFormat _surfaceFormat = SurfaceFormat.Color, bool _hasDepthBuffer = true, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
         {
             Name = "Render Target " + nameNumber++;
-            Width = size.Width;
-            Height = size.Height;
-
-            surfaceFormat = _surfaceFormat;
-            depthFormat = _hasDepthBuffer ? DepthFormat.Depth24 : DepthFormat.None;
-            Antialiasing = antialiasingType;
-
-            Create();
-
-            renderTargetList.Add(this);
-        } // RenderTarget
-
-        /// <summary>
-        /// Creates a render target for render to textures.
-        /// </summary>
-        /// <param name="_sizeType">Render target size</param>
-        /// <param name="_surfaceFormat">Surface format</param>
-        /// <param name="_depthFormat">Depth Format</param>
-        /// <param name="antialiasingType">Multi sampling type: System value or no antialiasing.</param>
-        public RenderTarget(SizeType _sizeType, SurfaceFormat _surfaceFormat, DepthFormat _depthFormat, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
-        {
-            Name = "Render Target " + nameNumber++;
-            sizeType = _sizeType;
-            Size size = CalculateSize(_sizeType);
-            Width = size.Width;
-            Height = size.Height;
-
-            surfaceFormat = _surfaceFormat;
-            depthFormat = _depthFormat;
-            Antialiasing = antialiasingType;
-
-            Create();
-
-            renderTargetList.Add(this);
-        } // RenderTarget
-
-        /// <summary>
-        /// Creates a render target for render to textures.
-        /// </summary>
-        /// <param name="_sizeType">Render target size</param>
-        /// <param name="_surfaceFormat">Surface format</param>
-        /// <param name="_hasDepthBuffer">Has depth buffer?</param>
-        /// <param name="antialiasingType">Multi sampling type: System value or no antialiasing.</param>
-        public RenderTarget(SizeType _sizeType, SurfaceFormat _surfaceFormat = SurfaceFormat.Color, bool _hasDepthBuffer = true, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
-        {
-            Name = "Render Target " + nameNumber++;
-            sizeType = _sizeType;
-            Size size = CalculateSize(_sizeType);
+            this.size = size;
             Width = size.Width;
             Height = size.Height;
 
@@ -326,10 +233,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         private void Create()
         {
-            if (sizeType == SizeType.FullScreen || sizeType == SizeType.HalfScreen || sizeType == SizeType.QuarterScreen)
-            {
-                Screen.ScreenSizeChanged += OnWindowSizeChanged;
-            }
+            Screen.ScreenSizeChanged += OnWindowSizeChanged;
             try
             {
                 // Create render target of specified size.
@@ -368,74 +272,16 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         private void OnWindowSizeChanged(object sender, EventArgs e)
         {
-            if (sizeType == SizeType.FullScreen || sizeType == SizeType.HalfScreen || sizeType == SizeType.QuarterScreen)
+            if (size == Size.FullScreen || size == Size.HalfScreen || size == Size.QuarterScreen ||
+                size == Size.SplitFullScreen || size == Size.SplitHalfScreen || size == Size.SplitQuarterScreen)
             {
                 // The size changes with the new window size.
                 renderTarget.Dispose();
-                Width = CalculateSize(sizeType.Value).Width;
-                Height = CalculateSize(sizeType.Value).Height;
+                Width = size.Width;
+                Height = size.Height;
                 Create();
             }
         } // OnWindowSizeChanged
-
-        #endregion
-
-        #region Calculate Size
-
-        /// <summary>
-        /// Calculate size from size type.
-        /// </summary>
-        private static Size CalculateSize(SizeType sizeType)
-        {
-            int width;
-            int height;
-            switch (sizeType)
-            {
-                case SizeType.FullScreen:
-                    width = Screen.Width;
-                    height = Screen.Height;
-                    break;
-                case SizeType.HalfScreen:
-                    width = Screen.Width / 2;
-                    height = Screen.Height / 2;
-                    break;
-                case SizeType.QuarterScreen:
-                    width = Screen.Width / 4;
-                    height = Screen.Height / 4;
-                    break;
-                case SizeType.SplitFullScreen:
-                    width = Screen.Width;
-                    height = Screen.Height / 2;
-                    break;
-                case SizeType.SplitHalfScreen:
-                    width = Screen.Width / 2;
-                    height = Screen.Height / 4;
-                    break;
-                case SizeType.SplitQuarterScreen:
-                    width = Screen.Width / 4;
-                    height = Screen.Height / 8;
-                    break;
-                case SizeType.Square256X256:
-                    width = 256;
-                    height = 256;
-                    break;
-                case SizeType.Square512X512:
-                    width = 512;
-                    height = 512;
-                    break;
-                case SizeType.Square1024X1024:
-                    width = 1024;
-                    height = 1024;
-                    break;
-                case SizeType.Square2048X2048:
-                    width = 1024;
-                    height = 1024;
-                    break;
-                default:
-                    throw new ArgumentException("Size type does not exist (probably a bug).");
-            }
-            return new Size(width, height);
-        } // CalculateSize
 
         #endregion
         

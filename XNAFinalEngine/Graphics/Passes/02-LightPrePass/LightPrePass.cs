@@ -103,19 +103,6 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Light Pre Pass base.
         /// </summary>
-        internal LightPrePass(RenderTarget.SizeType size)
-        {
-            LightTexture = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-            #if (XBOX)
-                Xbox360SpecularLightTexture = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-                renderTargetBinding = RenderTarget.BindRenderTargets(LightTexture, Xbox360SpecularLightTexture);
-            #endif
-            CreateStatesAndShaders();
-        } // LightPrePass
-
-        /// <summary>
-        /// Light Pre Pass base.
-        /// </summary>
         internal LightPrePass(Size size)
         {
             LightTexture = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);

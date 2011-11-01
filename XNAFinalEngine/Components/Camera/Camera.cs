@@ -88,13 +88,13 @@ namespace XNAFinalEngine.Components
         // Clear color
 
         // Where on the screen is the camera rendered in clip space.
-        private RectangleF normalizedViewport = new RectangleF(0, 0, 1, 1);
+        private RectangleF normalizedViewport;
 
         // Where on the screen is the camera rendered in screen space.
-        private Rectangle viewport = Rectangle.Empty;
+        private Rectangle viewport;
 
         // The viewport is expressed in clip space or screen space?
-        private bool viewportExpressedInClipSpace = true;
+        private bool viewportExpressedInClipSpace;
 
         // The master of this slave camera. A camera can't be master and slave simultaneity.
         private Camera masterCamera;
@@ -120,14 +120,14 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Aspect Ratio. O means system aspect ratio.
         /// </summary>
-        private float aspectRatio = 0;
+        private float aspectRatio;
 
         /// <summary>
         /// Field of view, near plane and far plane.
         /// </summary>
-        private float nearPlane = 0.1f,
-                      farPlane = 1000.0f,
-                      fieldOfView = 36;
+        private float nearPlane,
+                      farPlane,
+                      fieldOfView;
         
         // Is the camera orthographic (true) or perspective (false)?
         private bool orthographic;
@@ -136,6 +136,10 @@ namespace XNAFinalEngine.Components
         private int orthographicVerticalSize = 10;
 
         private AmbientLight ambientLight = new AmbientLight();
+
+        private PostProcess postProcess = new PostProcess();
+
+        private Size renderTargetSize;
         
         #endregion
 
@@ -185,28 +189,57 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
+        #region Post Process
+
+        /// <summary>
+        /// Post process effects applied to this camera.
+        /// </summary>
+        public PostProcess PostProcess
+        {
+            get { return postProcess; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("value");
+                postProcess = value;
+            }
+        } // PostProcess
+
+        #endregion
+
+        #region Render Target Size
+
+        public Size RenderTargetSize
+        {
+            get { return renderTargetSize; }
+            set
+            {
+                if (masterCamera != null)
+                    return;
+                renderTargetSize = value;
+                for (int i = 0; i < slavesCameras.Count; i++)
+                    slavesCameras[i].renderTargetSize = value;
+            }
+        } // RenderSize
+
+        #endregion
+
         #region Render Target
 
         /// <summary>
         /// Destination render texture.
-        /// XNA Final Engine works in linear space and in High Dynamic Range.
-        /// If you want proper results use a floating point texture.
-        /// I recommend using the SetRenderTarget method except you know very well what are doing. 
+        /// The render target is automatically set.
         /// </summary>
         public RenderTarget RenderTarget
         {
             get { return renderTarget; }
-            set
+            internal set
             {
                 if (masterCamera != null)
-                    masterCamera.RenderTarget = value; // So it updates its children.
-                else
-                {
-                    renderTarget = value;
-                    if (slavesCameras.Count > 0) // If is a master camera update its childrens.
-                        for (int i = 0; i < slavesCameras.Count; i++)
-                            slavesCameras[i].renderTarget = value;
-                }
+                    return;
+                renderTarget = value;
+                for (int i = 0; i < slavesCameras.Count; i++)
+                    slavesCameras[i].renderTarget = value;
             }
         } // RenderTarget
 
@@ -237,6 +270,7 @@ namespace XNAFinalEngine.Components
                     // Just to be robust...
                     // I update the children values so that, in the case of a unparent, the values remain the same as the father.
                     renderTarget = value.RenderTarget;
+                    renderTargetSize = value.RenderTargetSize;
                 }
             }
         } // MasterCamera
@@ -458,6 +492,21 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
+            // Values //
+            postProcess = new PostProcess();
+            ambientLight = new AmbientLight();
+            nearPlane = 0.1f;
+            farPlane = 1000.0f;
+            fieldOfView = 36;
+            aspectRatio = 0;
+            useUserProjectionMatrix = false;
+            renderer = RenderingType.DeferredLighting;
+            masterCamera = null;
+            normalizedViewport = new RectangleF(0, 0, 1, 1);
+            viewportExpressedInClipSpace = true;
+            viewport = Rectangle.Empty;
+            slavesCameras.Clear();
+            renderTargetSize = Size.FullScreen;
             // Generate the projection matrix.
             CalculateProjectionMatrix();
             Screen.AspectRatioChanged += OnAspectRatioChanged;
@@ -481,34 +530,6 @@ namespace XNAFinalEngine.Components
                 Screen.AspectRatioChanged -= OnAspectRatioChanged;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
         } // Uninitialize
-
-        #endregion
-
-        #region Set Render Target
-
-        /// <summary>
-        /// Creates and assign a render target for the camera.
-        /// The render target properties are the most addecuate for the task.
-        /// </summary>
-        /// <param name="size">Render Target size.</param>
-        public void SetRenderTarget(RenderTarget.SizeType size)
-        {
-            // It's in linear space. In this same render target the transparent object will be rendered. Maybe an RGBM encoding could work, but how?
-            // Multisampling could generate indeseable artifacts. Be careful!
-            RenderTarget = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.Depth24, RenderTarget.AntialiasingType.NoAntialiasing);
-        } // SetRenderTarget
-
-        /// <summary>
-        /// Creates and assign a render target for the camera.
-        /// The render target properties are the most addecuate for the task.
-        /// </summary>
-        /// <param name="size">>Render Target size.</param>
-        public void SetRenderTarget(Size size)
-        {
-            // It's in linear space. In this same render target the transparent object will be rendered. Maybe an RGBM encoding could work, but how?
-            // Multisampling could generate indeseable artifacts. Be careful!
-            RenderTarget = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.Depth24, RenderTarget.AntialiasingType.NoAntialiasing);
-        } // SetRenderTarget
 
         #endregion
 

@@ -93,6 +93,7 @@
     <Compile Include="Engine Core\EngineManager.cs" />
     <Compile Include="Engine Core\GameLoop.cs" />
     <Compile Include="Engine Core\Screen.cs" />
+    <Compile Include="Engine Core\ScreenshotCapturer.cs" />
     <Compile Include="Engine Core\Time.cs" />
     <Compile Include="Graphics\AmbientLighting\AmbientLight.cs" />
     <Compile Include="Graphics\AmbientLighting\AmbientOcclusion.cs" />

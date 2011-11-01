@@ -33,6 +33,7 @@ This class was based in the work of Emma Burrows. That work doesn't have a licen
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.Input
@@ -115,11 +116,11 @@ namespace XNAFinalEngine.Input
                 {
                     if (lParam.Flags == 28 && lParam.VkCode == 13)
                     {
-                        //EngineCore.EngineManager.ToggleFullscreen();
+                        Screen.ToggleFullscreen();
                     }
                     if (lParam.VkCode == 44)
                     {
-                        //EngineCore.EngineManager.ScreenshotCapturer.MakeScreenshot();
+                        ScreenshotCapturer.MakeScreenshot = true;
                     }
                     // Store current parameter.
                     lastParameter = lParam;

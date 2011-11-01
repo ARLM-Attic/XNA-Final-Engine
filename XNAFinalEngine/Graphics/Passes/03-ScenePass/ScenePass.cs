@@ -62,15 +62,7 @@ namespace XNAFinalEngine.Graphics
         #endregion
 
         #region Constructors
-
-        /// <summary>
-        /// Scene Pass.
-        /// </summary>
-        internal ScenePass(RenderTarget.SizeType size)
-        {
-            SceneTexture = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.Depth24, RenderTarget.AntialiasingType.NoAntialiasing);
-        } // ScenePass
-
+        
         /// <summary>
         /// Scene Pass.
         /// </summary>

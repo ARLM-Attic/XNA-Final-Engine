@@ -114,13 +114,13 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
             
-            gbuffer = new GBuffer(RenderTarget.SizeType.FullScreen);
-            lightPrePass = new LightPrePass(RenderTarget.SizeType.FullScreen);
+            gbuffer = new GBuffer(Size.FullScreen);
+            lightPrePass = new LightPrePass(Size.FullScreen);
             directionalLightShader = new DirectionalLightShader();
-            hdrLinearSpacePass = new ScenePass(RenderTarget.SizeType.FullScreen);
+            hdrLinearSpacePass = new ScenePass(Size.FullScreen);
             constantShader = new ConstantShader();
             blinnPhongShader = new BlinnPhongShader();
-            postProcessPass = new PostProcessingPass(RenderTarget.SizeType.FullScreen);
+            postProcessPass = new PostProcessingPass(Size.FullScreen);
             postProcess = new PostProcess
                               {
                                   FilmGrain = new FilmGrain(),
@@ -374,6 +374,16 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
             SpriteManager.End();
+
+            #endregion
+
+            #region Screenshot
+
+            if (ScreenshotCapturer.MakeScreenshot)
+            {
+                ScreenshotCapturer.MakeScreenshot = false;
+                //ScreenshotCapturer.SaveScreenshot(finalRenderTarget);
+            }
 
             #endregion
 

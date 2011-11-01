@@ -28,6 +28,11 @@ Authors: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
+#region Using directives
+using System;
+using XNAFinalEngine.EngineCore;
+#endregion
+
 namespace XNAFinalEngine.Helpers
 {
 
@@ -48,15 +53,97 @@ namespace XNAFinalEngine.Helpers
         /// <summary>
         /// Gets or sets the horizontal component of this Size structure.
         /// </summary>
-        public int Width { get { return width; } set { width = value; } }
+        public int Width
+        {
+            get
+            {
+                if (this == FullScreen || this == SplitFullScreen)
+                    return Screen.Width;
+                if (this == HalfScreen || this == SplitHalfScreen)
+                    return Screen.Width / 2;
+                if (this == QuarterScreen || this == SplitQuarterScreen)
+                    return Screen.Width / 4;
+                return width;
+            } 
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("value", "Width has to be greater than or equal to zero.");
+                width = value;
+            }
+        } // Width
                 
         /// <summary>
         /// Gets or sets the vertical component of this Size structure.
         /// </summary>
-        public int Height { get { return height; } set { height = value; } }
+        public int Height
+        {
+            get
+            {
+                if (this == FullScreen)
+                    return Screen.Height;
+                if (this == HalfScreen)
+                    return Screen.Height / 2;
+                if (this == QuarterScreen)
+                    return Screen.Height / 4;
+                if (this == SplitFullScreen)
+                    return Screen.Height / 2;
+                if (this == SplitHalfScreen)
+                    return Screen.Height / 4;
+                if (this == SplitQuarterScreen)
+                    return Screen.Height / 8;
+                return height;
+            }
+            set
+            {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("value", "Height has to be greater than or equal to zero.");
+                height = value;
+            }
+        } // Height
 
         #endregion
 
+        #region Predefined Values
+
+        /// <summary>Full screen size.</summary>
+        /// <remarks>This size will be updated with screen size changes.</remarks>
+        public static Size FullScreen { get { return new Size { width = -1, height = 0 }; } }
+
+        /// <summary>Half screen size. E.g. 800x600 becomes 400x300</summary>
+        /// <remarks>This size will be updated with screen size changes.</remarks>
+        public static Size HalfScreen { get { return new Size { width = -2, height = 0 }; } }
+
+        /// <summary>Quarter of the full screen size. E.g. 800x600 becomes 200x150</summary>
+        /// <remarks>This size will be updated with screen size changes.</remarks>
+        public static Size QuarterScreen { get { return new Size { width = -3, height = 0 }; } }
+
+        /// <summary>Horizontal split version of the full screen size. E.g. 800x600 becomes 800x300 </summary>
+        /// <remarks>This size will be updated with screen size changes.</remarks>
+        public static Size SplitFullScreen { get { return new Size { width = -4, height = 0 }; } }
+
+        /// <summary>Horizontal split version of the half screen size. E.g. 800x600 becomes 400x150</summary>
+        /// <remarks>This size will be updated with screen size changes.</remarks>
+        public static Size SplitHalfScreen { get { return new Size { width = -5, height = 0 }; } }
+
+        /// <summary>Horizontal split version of the quarter of the full screen size. E.g. 800x600 becomes 200x75</summary>
+        /// <remarks>This size will be updated with screen size changes.</remarks>
+        public static Size SplitQuarterScreen { get { return new Size { width = -6, height = 0 }; } }
+
+        /// <summary>256 x 256</summary>
+        public static Size Square256X256 { get { return new Size(256, 256); } }
+
+        /// <summary>512 x 512</summary>
+        public static Size Square512X512 { get { return new Size(512, 512); } }
+
+        /// <summary>1024 x 1024</summary>
+        public static Size Square1024X1024 { get { return new Size(1024, 1024); } }
+
+        /// <summary>2048 x 2048</summary>
+        public static Size Square2048X2048 { get { return new Size(2048, 2048); } }
+
+        #endregion
+        
         #region Constructor
 
         /// <summary>
@@ -64,6 +151,10 @@ namespace XNAFinalEngine.Helpers
         /// </summary>
         public Size(int width, int height)
         {
+            if (width < 0 )
+                throw new ArgumentOutOfRangeException("width", "Width has to be greater than or equal to zero.");
+            if (height < 0)
+                throw new ArgumentOutOfRangeException("height", "Height has to be greater than or equal to zero.");
             this.width = width;
             this.height = height;
         } // Size
@@ -82,7 +173,7 @@ namespace XNAFinalEngine.Helpers
             return x.width != y.width || x.height != y.height;
         } // Not Equal
 
-        public override bool Equals(System.Object obj)
+        public override bool Equals(Object obj)
         {
             return obj is Size && this == (Size)obj;
         } // Equals

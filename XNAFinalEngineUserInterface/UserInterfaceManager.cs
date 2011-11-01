@@ -272,7 +272,7 @@ namespace XNAFinalEngine.UserInterface
                 InputSystem.KeyUp      += KeyUpProcess;
                 InputSystem.KeyPress   += KeyPressProcess;
 
-                renderTarget = new RenderTarget(RenderTarget.SizeType.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
+                renderTarget = new RenderTarget(Helpers.Size.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
             }
             catch (Exception e)
             {

@@ -384,30 +384,6 @@ namespace XNAFinalEngine.Graphics
         /// The depth texture has a texture with a 32 bits single channel precision, and the normal has a half vector 2 format (r16f g16f). 
         /// The normals are store with spherical coordinates and the depth is store using the equation: -DepthVS / FarPlane.
         /// </summary>
-        internal GBuffer(RenderTarget.SizeType size) : base("GBuffer\\GBuffer")
-        {
-            // Multisampling on normal and depth maps makes no physical sense!!
-            // 32 bits single channel precision
-            DepthTexture = new RenderTarget(size, SurfaceFormat.Single);
-            // Half vector 2 format (r16f g16f). Be careful, in some GPUs this surface format is changed to the RGBA1010102 format.
-            // The XBOX 360 supports it though (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
-            NormalTexture = new RenderTarget(size, SurfaceFormat.HalfVector2, false);
-            // R: Motion vector X
-            // G: Motion vector Y
-            // B: Specular Power.
-            // A: Unused... yet.
-            MotionVectorsSpecularPowerTexture = new RenderTarget(size, SurfaceFormat.Color, false);
-
-            renderTargetBinding = RenderTarget.BindRenderTargets(DepthTexture, NormalTexture, MotionVectorsSpecularPowerTexture);
-        } // GBuffer
-
-        /// <summary>
-        /// This shader generates a depth and normal map.
-        /// It also generates a special buffer with motion vectors for motion blur and the specular power of the material.
-        /// It stores the result in two textures, the normals (normalMapTexture) and the depth (depthMapTexture).
-        /// The depth texture has a texture with a 32 bits single channel precision, and the normal has a half vector 2 format (r16f g16f). 
-        /// The normals are store with spherical coordinates and the depth is store using the equation: -DepthVS / FarPlane.
-        /// </summary>
         internal GBuffer(Size size) : base("GBuffer\\GBuffer")
         {
             // Multisampling on normal and depth maps makes no physical sense!!

@@ -41,7 +41,7 @@ namespace XNAFinalEngine.EngineCore
     /// Creates a png image of the current frame when the user press “print screen”.
     /// Because this key is "special" the call is done by the keyboard hook class. 
 	/// </summary>
-	public class ScreenshotCapturer
+	public static class ScreenshotCapturer
     {
 
         #region Constants
@@ -58,67 +58,49 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
 		/// Internal screenshot number (will increase by one each screenshot)
 		/// </summary>
-		private int screenshotNumber = 1;
-
-        /// <summary>
-        /// Render Target used to store the screenshot frame.
-        /// </summary>
-        private RenderTarget screenshotTexture;
+        private static int screenshotNumber;
 
 		#endregion
 
         #region Properties
 
         /// <summary>
-        /// We need to make a screenshot in this frame?
+        /// Make a screenshot the next time a frame ends.
         /// </summary>
-        internal bool NeedToMakeScreenshot { get; private set; }
+        public static bool MakeScreenshot { get; set; }
 
         #endregion
 
-        #region Constructor
-
-        /// <summary>
-        /// Screenshot Capturer
-        /// </summary>
-		public ScreenshotCapturer()
-		{   
-			screenshotNumber = CurrentScreenshotNumber();
-            NeedToMakeScreenshot = false;
-		} // ScreenshotCapturer
-
-		#endregion
-
-        #region Screenshot name builder
+        #region Screenshot Name Builder
 
         /// <summary>
         /// Screenshot name builder.
         /// </summary>
         private static string ScreenshotNameBuilder(int num)
         {
-            return Directories.ScreenshotsDirectory + "\\" + screenshotFileName + "-" + num.ToString("0000") + ".png";
+            return "Content\\Screenshot" + "\\" + screenshotFileName + "-" + num.ToString("0000") + ".png";
         } // ScreenshotNameBuilder
 
         #endregion
 
-        #region Current screenshot number
+        #region Current Screenshot Number
 
         /// <summary>
-        /// Get current screenshot num
+        /// Get current screenshot number.
         /// </summary>
         private static int CurrentScreenshotNumber()
         {
-            // We must search for last screenshot we can found in list using own fast filesearch
+            // We must search for last screenshot we can found in list using own fast filesearch.
             int i = 0, j = 0, k = 0, l = -1;
             // First check if at least 1 screenshot exist
             if (File.Exists(ScreenshotNameBuilder(1)))
             {
-                // First scan for screenshot num/1000
+                // Scan for screenshot number/1000
                 for (i = 1; i < 10; i++)
                 {
                     if (File.Exists(ScreenshotNameBuilder(i * 1000)) == false)
                         break;
-                } // for (i)
+                }
 
                 // This i*1000 does not exist, continue scan next level
                 // screenshotnr/100
@@ -127,7 +109,7 @@ namespace XNAFinalEngine.EngineCore
                 {
                     if (File.Exists(ScreenshotNameBuilder(i * 1000 + j * 100)) == false)
                         break;
-                } // for (j)
+                }
 
                 // This i*1000+j*100 does not exist, continue scan next level
                 // screenshotnr/10
@@ -136,7 +118,7 @@ namespace XNAFinalEngine.EngineCore
                 {
                     if (File.Exists(ScreenshotNameBuilder(i * 1000 + j * 100 + k * 10)) == false)
                         break;
-                } // for (k)
+                }
 
                 // This i*1000+j*100+k*10 does not exist, continue scan next level
                 // screenshotnr/1
@@ -145,73 +127,42 @@ namespace XNAFinalEngine.EngineCore
                 {
                     if (File.Exists(ScreenshotNameBuilder(i * 1000 + j * 100 + k * 10 + l)) == false)
                         break;
-                } // for (l)
+                }
 
                 // This i*1000+j*100+k*10+l does not exist, we have now last
                 // screenshot nr!!!
                 l--;
-            } // if (File.Exists)
+            }
 
             return i * 1000 + j * 100 + k * 10 + l;
         } // GetCurrentScreenshotNum
 
         #endregion
 
-		#region Make screenshot
-
-		/// <summary>
-		/// Make png screenshot.
-		/// </summary>
-		public void MakeScreenshot()
-		{
-            NeedToMakeScreenshot = true;
-        }// MakeScreenshot
+		#region Save Screenshot
 
         /// <summary>
-        /// Begin the screenshot process. Before the frame draw.
+        /// Save the texture to a file.
         /// </summary>
-        internal void BeginScreenshot()
+        internal static void SaveScreenshot(Texture texture)
         {
             try
-            {       
+            {
                 // Make sure screenshots directory exists
                 if (Directory.Exists(ContentManager.GameDataDirectory + "Screenshots") == false)
                     Directory.CreateDirectory(ContentManager.GameDataDirectory + "Screenshots");
 
-                screenshotTexture = new RenderTarget(RenderTarget.SizeType.FullScreen);
-                screenshotTexture.EnableRenderTarget();
-            } // try
-            catch (Exception ex)
-            {
-                NeedToMakeScreenshot = false;
-                throw new Exception("Failed to save screenshot: " + ex);
-            }
-        } // BeginScreenshot
-
-        /// <summary>
-        /// End the screenshot process. After the frame draw.
-        /// </summary>
-        internal void EndScreenshot()
-        {
-            try
-            {
+                screenshotNumber = CurrentScreenshotNumber();
                 screenshotNumber++;
+
                 var stream = new FileStream(ScreenshotNameBuilder(screenshotNumber), FileMode.OpenOrCreate);
-                screenshotTexture.DisableRenderTarget();
-                // Don't want a one frame purple screen, we need to show the screenshot frame on screen.
-                screenshotTexture.RenderOnFullScreen();
-                SpriteManager.DrawSprites();
-                screenshotTexture.XnaTexture.SaveAsPng(stream, EngineManager.Width, EngineManager.Height);
+                texture.Resource.SaveAsPng(stream, texture.Width, texture.Height);
             } // try
-            catch (Exception ex)
+            catch (Exception e)
             {
-                throw new Exception("Failed to save screenshot: " + ex);
+                throw new InvalidOperationException("Screenshot: Failed to save screenshot.", e);
             }
-            finally
-            {
-                NeedToMakeScreenshot = false;
-            }
-        } // EndScreenshot
+        } // SaveScreenshot
 
 		#endregion
 
