@@ -642,42 +642,46 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         public void Render(Texture sceneTexture, PostProcess postProcess)
         {
+            if (postProcess == null)
+                throw new ArgumentNullException("postProcess");
+            if (sceneTexture == null || sceneTexture.Resource == null)
+                throw new ArgumentNullException("sceneTexture");
+
+            #region Bloom
+
+            if (postProcess.Bloom != null && postProcess.Bloom.Enabled)
+            {
+                SetBloomEnabled(true);
+                // Generate bloom texture
+                Size bloomSize;
+                if (sceneTexture.Size == Size.FullScreen) // A common case
+                    bloomSize = Size.QuarterScreen;
+                else if (sceneTexture.Size == Size.SplitFullScreen) // The second common case
+                    bloomSize = Size.SplitQuarterScreen;
+                else
+                    bloomSize = new Size(sceneTexture.Width / 4, sceneTexture.Height / 4);
+                BloomShader.GetShader(bloomSize).Render(sceneTexture, postProcess);
+                SetBloomScale(postProcess.Bloom.BloomScale);
+                SetBloomTexture(BloomShader.GetShader(bloomSize).BloomTexture);
+            }
+            else
+                SetBloomEnabled(false);
+
+            #endregion
+
             try
             {
-                if (postProcess == null)
-                    throw new ArgumentNullException("postProcess");
-                if (sceneTexture == null)
-                    throw new ArgumentNullException("sceneTexture");
-
                 // Set render states
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                PostProcessedSceneTexture.EnableRenderTarget();
 
-                if (postProcess.Bloom != null)
-                {
-                    
-                }
                 // Set parameters
                 SetHalfPixel(new Vector2(-1f / sceneTexture.Width, 1f / sceneTexture.Height));
                 SetLensExposure(postProcess.LensExposure);
                 SetSceneTexture(sceneTexture);
 
-                #region Bloom
-                /*
-                if (postProcess.Bloom != null && postProcess.Bloom.Enabled)
-                {
-                    SetBloomEnabled(true);
-                    // Generate bloom texture
-                    bloomShader.GenerateBloom(sceneTexture);
-                    SetBloomScale(postProcess.Bloom.BloomScale);
-                    SetBloomTexture(Bloom.BloomTexture);
-                }
-                else*/
-                    SetBloomEnabled(false);
-
-                #endregion
+                PostProcessedSceneTexture.EnableRenderTarget();
 
                 #region Levels
 
@@ -777,6 +781,18 @@ namespace XNAFinalEngine.Graphics
                 throw new InvalidOperationException("Post Process: Unable to render.", e);
             }
         } // Render
+
+        #endregion
+
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            PostProcessedSceneTexture.Dispose();
+        } // DisposeManagedResources
 
         #endregion
 

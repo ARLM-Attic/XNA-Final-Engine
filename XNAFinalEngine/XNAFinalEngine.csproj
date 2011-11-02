@@ -107,6 +107,7 @@
     <Compile Include="Assets\Models\FileModel.cs" />
     <Compile Include="Assets\Models\Model.cs" />
     <Compile Include="Assets\Models\PrimitiveModel.cs" />
+    <Compile Include="Assets\PostProcess\MLAA.cs" />
     <Compile Include="Assets\PostProcess\PostProcess.cs" />
     <Compile Include="Assets\Shaders\Shader.cs" />
     <Compile Include="Assets\Textures\RenderTarget.cs" />
@@ -140,6 +141,8 @@
     <Compile Include="Engine Core\GameLoop.cs" />
     <Compile Include="Engine Core\Screen.cs" />
     <Compile Include="Engine Core\Time.cs" />
+    <Compile Include="Graphics\Filters\BlurShader.cs" />
+    <Compile Include="Graphics\Filters\DilateShader.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBuffer.cs" />
     <Compile Include="Graphics\AmbientLighting\AmbientOcclusion.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\DirectionalLightShader.cs" />
@@ -158,6 +161,10 @@
     <Compile Include="Assets\PostProcess\ColorCorrection.cs" />
     <Compile Include="Assets\PostProcess\FilmGrain.cs" />
     <Compile Include="Assets\Textures\LookupTable.cs" />
+    <Compile Include="Graphics\Passes\04-PostProcessPass\BloomShader.cs" />
+    <Compile Include="Graphics\Passes\04-PostProcessPass\MLAAShader.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Graphics\Passes\04-PostProcessPass\PostProcessingPass.cs" />
     <Compile Include="Graphics\SpriteManager.cs" />
     <Compile Include="Helpers\ArrayHelper.cs" />
@@ -184,9 +191,7 @@
       <Name>XNAFinalEngineContentPipelineExtensionRuntime</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Graphics\Filters\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

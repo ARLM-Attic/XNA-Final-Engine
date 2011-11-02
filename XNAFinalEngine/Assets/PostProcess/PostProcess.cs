@@ -82,6 +82,11 @@ namespace XNAFinalEngine.Assets
         /// Adjust color levels, just like Photoshop. This adjusts each channel individually.
         /// </summary>
         public AdjustLevelsIndividualChannels AdjustLevelsIndividualChannels { get; set; }
+
+        /// <summary>
+        /// Morphological Antialiasing (MLAA).
+        /// </summary>
+        public MLAA MLAA { get; set; }
         
         #endregion
 

@@ -30,19 +30,21 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
-using Texture = Microsoft.Xna.Framework.Graphics.Texture;
+using XNAFinalEngine.Helpers;
+using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.Graphics
 {
 	/// <summary>
-	/// Dilate a texture.
+    /// Dilate a single channel texture.
 	/// </summary>
-    public class Dilate : Shader
+    internal class DilateShader : Shader
 	{
 
 		#region Variables
@@ -51,25 +53,7 @@ namespace XNAFinalEngine.Graphics
 		/// Auxiliary render target.
 		/// </summary>
         private readonly RenderTarget dilatedTempTexture;
-
-        /// <summary>
-        /// Dilate Width
-        /// </summary>
-        private float width = 1.0f;
         
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Dilate Width
-        /// </summary>
-        public float Width
-        {
-            get { return width; }
-            set { width = value; }
-        } // Width
-
         #endregion
 
         #region Shader Parameters
@@ -84,13 +68,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Dilate Width
 
-        /// <summary>
-        /// Last used dilate width
-        /// </summary>
         private static float? lastUsedDilateWidth;
-        /// <summary>
-        /// Set Blur Width (between 0 and 10)
-        /// </summary>
         private static void SetDilateWidth(float _dilateWidth)
         {
             if (lastUsedDilateWidth != _dilateWidth && _dilateWidth >= 0.0f && _dilateWidth <= 10.0f)
@@ -104,13 +82,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Half Pixel
 
-        /// <summary>
-        /// Last used half pixel.
-        /// </summary>
         private static Vector2? lastUsedHalfPixel;
-        /// <summary>
-        /// Set Half Pixel.
-        /// </summary>
         private static void SetHalfPixel(Vector2 halfPixel)
         {
             if (lastUsedHalfPixel != halfPixel)
@@ -124,19 +96,13 @@ namespace XNAFinalEngine.Graphics
 
         #region Texture
 
-        /// <summary>
-        /// Last used texture.
-        /// </summary>
         private static Texture lastUsedTexture;
-        /// <summary>
-        /// Set scene texture.
-        /// </summary>
         private static void SetTexture(Texture texture)
         {
             if (EngineManager.DeviceLostInThisFrame || lastUsedTexture != texture)
             {
                 lastUsedTexture = texture;
-                epTexture.SetValue(texture.XnaTexture);
+                epTexture.SetValue(texture.Resource);
             }
         } // SetTexture
 
@@ -169,63 +135,66 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Dilate a single channel texture.
 		/// </summary>
-        public Dilate(RenderTarget.SizeType _rendeTargetSize = RenderTarget.SizeType.FullScreen)
+        private DilateShader(Size size) : base("Filters\\Dilate")
 		{
-            Effect = LoadShader("Filters\\Dilate");
-            Effect.CurrentTechnique = Effect.Techniques["Dilate"];
-
-            GetParametersHandles();
-            
-            dilatedTempTexture = new RenderTarget(_rendeTargetSize, SurfaceFormat.HalfSingle, false, 0);
-
+            dilatedTempTexture = new RenderTarget(size, SurfaceFormat.HalfSingle, false, RenderTarget.AntialiasingType.NoAntialiasing);
         } // Dilate
 
 		#endregion
 
 		#region Get parameters handles
 
-		/// <summary>
+        /// <summary>
         /// Get the handles of the parameters from the shader.
-		/// </summary>
-		protected void GetParametersHandles()
+        /// </summary>
+        /// <remarks>
+        /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
+        /// </remarks>
+        protected override void GetParametersHandles()
 		{
             try
             {
-			    epTextureResolution = Effect.Parameters["textureResolution"];
-                epDilateWidth = Effect.Parameters["dilateWidth"];
-                epTexture = Effect.Parameters["sceneMap"];
-                epHalfPixel = Effect.Parameters["halfPixel"];
+			    epTextureResolution = Resource.Parameters["textureResolution"];
+                epDilateWidth       = Resource.Parameters["dilateWidth"];
+                epTexture           = Resource.Parameters["sceneMap"];
+                epHalfPixel         = Resource.Parameters["halfPixel"];
             }
             catch
             {
-                throw new Exception("Get the handles from the dilate shader failed.");
+                throw new InvalidOperationException("The parameter's handles from the " + Name + " shader could not be retrieved.");
             }
-		} // GetParametersHandles
+        } // GetParameters
 
 		#endregion
 
-        #region Generate Dilate
+        #region Render
         
         /// <summary>
 		/// Generate the dilate effect.
 		/// </summary>
-		public void GenerateDilate(RenderTarget texture)
+        internal void Render(RenderTarget texture, float width = 1.0f)
 		{   
             // Only apply if the texture is valid
-			if (texture == null || texture.XnaTexture == null)
-				return;
-
+			if (texture == null || texture.Resource == null)
+                throw new ArgumentNullException("texture");
+            if (texture.Width != dilatedTempTexture.Width || texture.Height != dilatedTempTexture.Height)
+                throw new ArgumentException("Dilate Shader: Texture size does not match the dilate internal texture size", "texture");
+            if (texture.SurfaceFormat != SurfaceFormat.HalfSingle && texture.SurfaceFormat != SurfaceFormat.Single)
+                throw new ArgumentException("Dilate Shader: Invalid texture surface format. This shader only works with single channel textures", "texture");
             try
             {
+                // Set render states.
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                EngineManager.Device.SamplerStates[7] = SamplerState.PointClamp;
 
                 SetDilateWidth(width);
                 SetTextureResolution(new Vector2(texture.Width, texture.Height));
                 SetTexture(texture);
                 SetHalfPixel(new Vector2(-1f / texture.Width, 1f / texture.Height));
 
-                foreach (EffectPass pass in Effect.CurrentTechnique.Passes)
+                foreach (EffectPass pass in Resource.CurrentTechnique.Passes)
                 {
                     if (pass.Name == "DilateHorizontal")
                     {
@@ -237,7 +206,7 @@ namespace XNAFinalEngine.Graphics
                     }
 
                     pass.Apply();
-                    ScreenPlane.Render();
+                    RenderScreenPlane();
 
                     if (pass.Name == "DilateHorizontal")
                     {
@@ -249,15 +218,58 @@ namespace XNAFinalEngine.Graphics
                         texture.DisableRenderTarget();
                     }
                 }
-                EngineManager.SetDefaultRenderStates();
             }
             catch (Exception e)
             {
-                throw new Exception("Unable to render the dilate effect. " + e.Message);
+                throw new Exception("Dilate Shader: Unable to render.", e);
             }
-        } // GenerateDilate
+        } // Render
 
 		#endregion
+
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            dilatedTempTexture.Dispose();
+        } // DisposeManagedResources
+
+        #endregion
+
+        #region Stored Shaders
+
+        // A pool of all bloom shaders.
+        private static readonly Dictionary<Size, DilateShader> shaders = new Dictionary<Size, DilateShader>(1);
+
+        /// <summary>
+        /// Returns a bloom shader for this size.
+        /// The shaders are stored in a pool.
+        /// </summary>
+        public static DilateShader GetShader(Size size)
+        {
+            if (shaders.ContainsKey(size))
+                return shaders[size];
+            // If not return a new one.
+            shaders[size] = new DilateShader(size);
+            return shaders[size];
+        } // GetShader
+
+        /// <summary>
+        /// Dispose stored shaders.
+        /// </summary>
+        public static void DisposeShaders()
+        {
+            foreach (var shader in shaders)
+            {
+                shader.Value.Dispose();
+            }
+            shaders.Clear();
+        } // DisposeShaders
+
+        #endregion
 
 	} // Dilate
 } // XNAFinalEngine.Graphics

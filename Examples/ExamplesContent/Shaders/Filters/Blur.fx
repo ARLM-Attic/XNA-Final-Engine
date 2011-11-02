@@ -49,19 +49,9 @@ const float Weights8[8] =
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture sceneTexture;
+texture sceneTexture : register(t5);
 
-sampler sceneTextureSamplerLinear = sampler_state 
-{
-    texture = <sceneTexture>;
-	/*AddressU  = CLAMP;
-    AddressV  = CLAMP;
-    MIPFILTER = NONE;
-    MINFILTER = LINEAR;
-    MAGFILTER = LINEAR;*/
-};
-
-sampler sceneTextureSamplerPoint = sampler_state 
+sampler sceneTextureSamplerPoint : register(s5) = sampler_state 
 {
     texture = <sceneTexture>;
 	/*AddressU  = CLAMP;
@@ -69,6 +59,16 @@ sampler sceneTextureSamplerPoint = sampler_state
     MIPFILTER = NONE;
     MINFILTER = POINT;
     MAGFILTER = POINT;*/
+};
+
+sampler sceneTextureSamplerLinear : register(s6) = sampler_state 
+{
+    texture = <sceneTexture>;
+	/*AddressU  = CLAMP;
+    AddressV  = CLAMP;
+    MIPFILTER = NONE;
+    MINFILTER = LINEAR;
+    MAGFILTER = LINEAR;*/
 };
 
 //////////////////////////////////////////////

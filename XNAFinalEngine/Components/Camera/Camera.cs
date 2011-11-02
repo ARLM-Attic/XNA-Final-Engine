@@ -32,7 +32,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
@@ -207,23 +206,6 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
-        #region Render Target Size
-
-        public Size RenderTargetSize
-        {
-            get { return renderTargetSize; }
-            set
-            {
-                if (masterCamera != null)
-                    return;
-                renderTargetSize = value;
-                for (int i = 0; i < slavesCameras.Count; i++)
-                    slavesCameras[i].renderTargetSize = value;
-            }
-        } // RenderSize
-
-        #endregion
-
         #region Render Target
 
         /// <summary>
@@ -242,6 +224,19 @@ namespace XNAFinalEngine.Components
                     slavesCameras[i].renderTarget = value;
             }
         } // RenderTarget
+
+        public Size RenderTargetSize
+        {
+            get { return renderTargetSize; }
+            set
+            {
+                if (masterCamera != null)
+                    return;
+                renderTargetSize = value;
+                for (int i = 0; i < slavesCameras.Count; i++)
+                    slavesCameras[i].renderTargetSize = value;
+            }
+        } // RenderSize
 
         #endregion
 

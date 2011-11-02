@@ -30,12 +30,12 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
-using Texture = Microsoft.Xna.Framework.Graphics.Texture;
+using XNAFinalEngine.Helpers;
+using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.Graphics
@@ -43,102 +43,24 @@ namespace XNAFinalEngine.Graphics
     /// <summary>
     /// Morphological Antialiasing (MLAA).
     /// </summary>
-    public static class MLAA
+    internal class MLAAShader : Shader
     {
-
-        #region Enumerators
-
-        public enum EdgeDetectionType
-        {
-            Both,
-            Color,
-            Depth
-        } // EdgeDetectionType
-
-        #endregion
-
-        #region Variables
-
-        /// <summary>
-        /// Threshold Color.
-        /// </summary>
-        private static float thresholdColor = 0.1f;
-
-        /// <summary>
-        /// Threshold Depth.
-        /// </summary>
-        private static float thresholdDepth = 0.1f;
-
-        /// <summary>
-        /// Enabled?
-        /// </summary>
-        private static bool enabled = true;
-
-        /// <summary>
-        /// Blur radius.
-        /// </summary>
-        private static float blurRadius = 2;
-
-        #endregion
-
+                
         #region Properties
-
-        public static bool Enabled
-        {
-            get { return enabled; }
-            set { enabled = value; }
-        } // Enabled
 
         /// <summary>
         /// Blending Weight Texture.
         /// </summary>
-        public static RenderTarget BlendingWeightTexture { get; set; }
+        internal static RenderTarget BlendingWeightTexture { get; set; }
 
         /// <summary>
         /// Anti Aliased Texture.
         /// </summary>
-        public static RenderTarget AntiAliasedTexture { get; set; }
-
-        /// <summary>
-        /// Edge detection: both, color or depth.
-        /// </summary>
-        public static EdgeDetectionType EdgeDetection { get; set; }
-
-        /// <summary>
-        /// Threshold Color.
-        /// </summary>
-        public static float ThresholdColor
-        {
-            get { return thresholdColor; }
-            set { thresholdColor = value; }
-        } // ThresholdColor
-
-        /// <summary>
-        /// Threshold Depth.
-        /// </summary>
-        public static float ThresholdDepth
-        {
-            get { return thresholdDepth; }
-            set { thresholdDepth = value; }
-        } // ThresholdDepth
-
-        /// <summary>
-        /// Blur radius.
-        /// </summary>
-        public static float BlurRadius
-        {
-            get { return blurRadius; }
-            set { blurRadius = value; }
-        } // BlurRadius
+        internal static RenderTarget AntiAliasedTexture { get; set; }
 
         #endregion
 
         #region Shader Parameters
-
-        /// <summary>
-        /// The shader effect.
-        /// </summary>
-        private static Effect Effect { get; set; }
 
         #region Effect Handles
 
@@ -235,7 +157,7 @@ namespace XNAFinalEngine.Graphics
             if (EngineManager.DeviceLostInThisFrame || lastUsedSceneTexture != sceneTexture)
             {
                 lastUsedSceneTexture = sceneTexture;
-                epSceneTexture.SetValue(sceneTexture.XnaTexture);
+                epSceneTexture.SetValue(sceneTexture.Resource);
             }
         } // SetSceneTexture
 
@@ -250,7 +172,7 @@ namespace XNAFinalEngine.Graphics
             if (EngineManager.DeviceLostInThisFrame || lastUsedDepthTexture != depthTexture)
             {
                 lastUsedDepthTexture = depthTexture;
-                epDepthTexture.SetValue(depthTexture.XnaTexture);
+                epDepthTexture.SetValue(depthTexture.Resource);
             }
         } // SetDepthTexture
 
@@ -264,7 +186,7 @@ namespace XNAFinalEngine.Graphics
             if (EngineManager.DeviceLostInThisFrame || lastUsedEdgeTexture != edgeTexture)
             {
                 lastUsedEdgeTexture = edgeTexture;
-                epEdgeTexture.SetValue(edgeTexture.XnaTexture);
+                epEdgeTexture.SetValue(edgeTexture.Resource);
             }
         } // SetEdgeTexture
 
@@ -278,7 +200,7 @@ namespace XNAFinalEngine.Graphics
             if (EngineManager.DeviceLostInThisFrame || lastUsedBlendedWeightsTexture != blendedWeightsTexture)
             {
                 lastUsedBlendedWeightsTexture = blendedWeightsTexture;
-                epBlendedWeightsTexture.SetValue(blendedWeightsTexture.XnaTexture);
+                epBlendedWeightsTexture.SetValue(blendedWeightsTexture.Resource);
             }
         } // SetBlendedWeightsTexture
 
@@ -286,57 +208,49 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Load Shader
+        #region Constructor
 
         /// <summary>
-        /// Load shader
+        /// Morphological Antialiasing (MLAA).
         /// </summary>
-        private static void LoadShader()
-        {
-            const string filename = "PostProcessing\\MLAA";
-            // Load shader
-            try
-            {
-                Effect = EngineManager.SystemContent.Load<Effect>(Path.Combine(Directories.ShadersDirectory, filename));
-            } // try
-            catch
-            {
-                throw new Exception("Unable to load the shader " + filename);
-            } // catch
-            GetParametersHandles();
+        internal MLAAShader(Size size) : base("PostProcessing\\MLAA")
+        {            
             Texture areaTexture = new Texture("Shaders\\AreaMap32");
-            Effect.Parameters["areaTexture"].SetValue(areaTexture.XnaTexture);
-            
-            BlendingWeightTexture = new RenderTarget(RenderTarget.SizeType.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
-            AntiAliasedTexture = new RenderTarget(RenderTarget.SizeType.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
-        } // LoadShader
+            Resource.Parameters["areaTexture"].SetValue(areaTexture.Resource);
+
+            BlendingWeightTexture = new RenderTarget(size, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
+            AntiAliasedTexture = new RenderTarget(size, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
+        } // MLAAShader
 
         #endregion
 
         #region Get Parameters Handles
-
+        
         /// <summary>
         /// Get the handles of the parameters from the shader.
         /// </summary>
-        private static void GetParametersHandles()
-        {
+        /// <remarks>
+        /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
+        /// </remarks>
+        protected override void GetParametersHandles()
+        {            
             try
             {
-                epHalfPixel      = Effect.Parameters["halfPixel"];
-                epPixelSize      = Effect.Parameters["pixelSize"];
-                epThresholdColor = Effect.Parameters["thresholdColor"];
-                epThresholdDepth = Effect.Parameters["thresholdDepth"];
-                epSceneTexture   = Effect.Parameters["sceneTexture"];
-                epDepthTexture   = Effect.Parameters["depthTexture"];
-                epBlurRadius     = Effect.Parameters["blurRadius"];
-                epEdgeTexture = Effect.Parameters["edgeTexture"];
-                epBlendedWeightsTexture = Effect.Parameters["blendedWeightsTexture"];
+                epHalfPixel      = Resource.Parameters["halfPixel"];
+                epPixelSize      = Resource.Parameters["pixelSize"];
+                epThresholdColor = Resource.Parameters["thresholdColor"];
+                epThresholdDepth = Resource.Parameters["thresholdDepth"];
+                epSceneTexture   = Resource.Parameters["sceneTexture"];
+                epDepthTexture   = Resource.Parameters["depthTexture"];
+                epBlurRadius     = Resource.Parameters["blurRadius"];
+                epEdgeTexture    = Resource.Parameters["edgeTexture"];
+                epBlendedWeightsTexture = Resource.Parameters["blendedWeightsTexture"];
             }
             catch
             {
-                throw new Exception("Get the handles from the MLAA shader failed.");
+                throw new InvalidOperationException("The parameter's handles from the " + Name + " shader could not be retrieved.");
             }
-        } // GetParametersHandles
+        } // GetParameters
 
         #endregion
 
@@ -345,12 +259,14 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render.
         /// </summary>
-        public static void Render(RenderTarget sceneTexture, RenderTarget depthTexture)
+        public void Render(RenderTarget texture, RenderTarget depthTexture, PostProcess postProcess)
         {
-            if (Effect == null)
-            {
-                LoadShader();
-            }
+            if (texture == null || texture.Resource == null)
+                throw new ArgumentNullException("texture");
+            if (postProcess == null)
+                throw new ArgumentNullException("postProcess");
+            if (postProcess.MLAA != null || !(postProcess.MLAA.Enabled))
+                return;
             try
             {
                 // Set render states
@@ -358,22 +274,22 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
 
                 // Set parameters
-                SetHalfPixel(new Vector2(-1f / sceneTexture.Width, 1f / sceneTexture.Height));
-                SetPixelSize(new Vector2(1f / sceneTexture.Width, 1f / sceneTexture.Height));
-                SetSceneTexture(sceneTexture);
+                SetHalfPixel(new Vector2(-1f / texture.Width, 1f / texture.Height));
+                SetPixelSize(new Vector2(1f / texture.Width, 1f / texture.Height));
+                SetSceneTexture(texture);
                 SetDepthTexture(depthTexture);
-                SetThresholdColor(ThresholdColor);
-                SetThresholdDepth(ThresholdDepth);
-                SetBlurRadius(BlurRadius);
+                SetThresholdColor(postProcess.MLAA.ThresholdColor);
+                SetThresholdDepth(postProcess.MLAA.ThresholdDepth);
+                SetBlurRadius(postProcess.MLAA.BlurRadius);
 
-                switch (EdgeDetection)
+                switch (postProcess.MLAA.EdgeDetection)
                 {
-                    case EdgeDetectionType.Both: Effect.CurrentTechnique = Effect.Techniques["EdgeDetectionColorDepth"]; break;
-                    case EdgeDetectionType.Color: Effect.CurrentTechnique = Effect.Techniques["EdgeDetectionColor"]; break;
-                    case EdgeDetectionType.Depth: Effect.CurrentTechnique = Effect.Techniques["EdgeDetectionDepth"]; break;
+                    case MLAA.EdgeDetectionType.Both: Resource.CurrentTechnique = Resource.Techniques["EdgeDetectionColorDepth"]; break;
+                    case MLAA.EdgeDetectionType.Color: Resource.CurrentTechnique = Resource.Techniques["EdgeDetectionColor"]; break;
+                    case MLAA.EdgeDetectionType.Depth: Resource.CurrentTechnique = Resource.Techniques["EdgeDetectionDepth"]; break;
                 }
-                
-                foreach (EffectPass pass in Effect.CurrentTechnique.Passes)
+
+                foreach (EffectPass pass in Resource.CurrentTechnique.Passes)
                 {
                     if (pass.Name == "EdgeDetection")
                     {
@@ -393,7 +309,7 @@ namespace XNAFinalEngine.Graphics
                     }
                     
                     pass.Apply();
-                    ScreenPlane.Render();
+                    RenderScreenPlane();
 
                     if (pass.Name == "EdgeDetection")
                     {
@@ -410,16 +326,27 @@ namespace XNAFinalEngine.Graphics
                         AntiAliasedTexture.DisableRenderTarget();
                     }
                 }
-
-                EngineManager.SetDefaultRenderStates();
-            } // try
+            }
             catch (Exception e)
             {
-                throw new Exception("Unable to render the MLAA shader. " + e.Message);
+                throw new InvalidOperationException("MLAA Shader: Unable to render.", e);
             }
         } // Render
 
         #endregion
 
-    } // MLAA
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            BlendingWeightTexture.Dispose();
+            AntiAliasedTexture.Dispose();
+        } // DisposeManagedResources
+
+        #endregion
+
+    } // MLAAShader
 } // XNAFinalEngine.Graphics

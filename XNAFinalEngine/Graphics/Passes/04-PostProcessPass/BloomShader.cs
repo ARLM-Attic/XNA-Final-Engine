@@ -30,12 +30,13 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Helpers;
 using Texture = XNAFinalEngine.Assets.Texture;
-
 #endregion
 
 namespace XNAFinalEngine.Graphics
@@ -46,24 +47,20 @@ namespace XNAFinalEngine.Graphics
     /// Basically, if an object has a light behind it, the light will look more realistic and will somewhat overlap the front of the object from the 3rd person perspective. 
     /// http://en.wikipedia.org/wiki/Bloom_(shader_effect)
     /// </summary>
-    public class BloomShader : Shader
+    /// <remarks>
+    /// To avoid wasting space in temporal render targets we could create a blur auxiliary render target with enough size to work with all our render targets.
+    /// The system will use a viewport to match the sizes.
+    /// The problem is that in the second pass the shader has to know about the viewport so that it won’t read more than it should.
+    /// </remarks>
+    internal class BloomShader : Shader
     {
-
-        #region Variables
-
-        /// <summary>
-        /// Bloom Texture.
-        /// </summary>
-        private RenderTarget bloomTexture;
-
-        #endregion
 
         #region Properties
 
         /// <summary>
         /// Bloom Texture.
         /// </summary>
-        public RenderTarget BloomTexture { get { return bloomTexture; } }
+        public RenderTarget BloomTexture { get; private set; }
 
         #endregion
 
@@ -128,7 +125,7 @@ namespace XNAFinalEngine.Graphics
             if (EngineManager.DeviceLostInThisFrame || lastUsedSceneTexture != sceneTexture)
             {
                 lastUsedSceneTexture = sceneTexture;
-                epSceneTexture.SetValue(sceneTexture.XnaTexture);
+                epSceneTexture.SetValue(sceneTexture.Resource);
             }
         } // SetSceneTexture
 
@@ -141,9 +138,9 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Bloom shader.
         /// </summary>
-        internal BloomShader() : base("PostProcessing\\Bloom")
+        private BloomShader(Size size) : base("PostProcessing\\Bloom")
         {
-            bloomTexture = new RenderTarget(RenderTarget.SizeType.QuarterScreen, SurfaceFormat.Color);
+            BloomTexture = new RenderTarget(size, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
             Resource.CurrentTechnique = Resource.Techniques["Bloom"];
         } // BloomShader
 
@@ -179,34 +176,87 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Generate Bloom Texture.
         /// </summary>
-        public void GenerateBloom(Texture sceneTexture)
+        internal void Render(Texture sceneTexture, PostProcess postProcess)
         {
+            if (postProcess == null)
+                throw new ArgumentNullException("postProcess");
+            if (sceneTexture == null || sceneTexture.Resource == null)
+                throw new ArgumentNullException("sceneTexture");
+            if (postProcess.Bloom == null)
+                throw new ArgumentException("Bloom Shader: Bloom property can not be null.");
             try
             {
                 // Set Render States
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                EngineManager.Device.SamplerStates[8] = SamplerState.PointClamp;
+
                 // Set Parameters
                 SetHalfPixel(new Vector2(-1f / BloomTexture.Width, 1f / BloomTexture.Height));
-                SetLensExposure(ToneMapping.LensExposure);
-                SetBloomThreshold(BloomThreshold);
+                SetLensExposure(postProcess.LensExposure);
+                SetBloomThreshold(postProcess.Bloom.BloomThreshold);
                 SetSceneTexture(sceneTexture);
 
-                bloomTexture.EnableRenderTarget();
+                BloomTexture.EnableRenderTarget();
                 
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
 
-                bloomTexture.DisableRenderTarget();
+                BloomTexture.DisableRenderTarget();
 
                 // Blur it.
-                DeferredLightingManager.QuarterScreenBlur.GenerateBlur(bloomTexture, false);
+                BlurShader.GetShader(BloomTexture.Size).Render(BloomTexture, false, 1); // Quarter size blur
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Bloom: Unable to render.", e);
+                throw new InvalidOperationException("Bloom Shader: Unable to render.", e);
             }
-        } // GenerateBloom
+        } // Render
+
+        #endregion
+
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            BloomTexture.Dispose();
+        } // DisposeManagedResources
+
+        #endregion
+
+        #region Stored Shaders
+
+        // A pool of all bloom shaders.
+        private static readonly Dictionary<Size, BloomShader> shaders = new Dictionary<Size, BloomShader>(1);
+        
+        /// <summary>
+        /// Returns a bloom shader for this size.
+        /// The shaders are stored in a pool.
+        /// </summary>
+        public static BloomShader GetShader(Size size)
+        {
+            if (shaders.ContainsKey(size))
+                return shaders[size];
+            // If not return a new one.
+            shaders[size] = new BloomShader(size);
+            return shaders[size];
+        } // GetShader
+
+        /// <summary>
+        /// Dispose stored shaders.
+        /// </summary>
+        public static void DisposeShaders()
+        {
+            foreach (var shader in shaders)
+            {
+                shader.Value.Dispose();
+            }
+            shaders.Clear();
+        } // DisposeShaders
 
         #endregion
 

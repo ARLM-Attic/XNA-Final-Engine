@@ -73,25 +73,30 @@ namespace XNAFinalEngine.Assets
             set
             {
                 xnaTexture = value; 
-                Width = value.Width;
-                Height = value.Height;
+                Size = new Size(xnaTexture.Width, xnaTexture.Height);
             }
         } // XnaTexture
 
         /// <summary>
         /// Texture's width.
         /// </summary>
-        public int Width { get; protected set; }
+        public int Width { get { return Size.Width; } }
 
         /// <summary>
         /// Texture's height.
         /// </summary>
-        public int Height { get; protected set; }
+        public int Height { get { return Size.Height; } }
 
         /// <summary>
         /// Rectangle that starts in 0, 0 and finish in the width and height of the texture. 
         /// </summary>
         public Rectangle TextureRectangle { get { return new Rectangle(0, 0, Width, Height); } }
+
+        /// <summary>
+        /// Size.
+        /// This value store information about sizes relative to screen.
+        /// </summary>
+        public Size Size { get; protected set; }
         
         #endregion
 
@@ -120,8 +125,7 @@ namespace XNAFinalEngine.Assets
             try
             {
                 xnaTexture = ContentManager.CurrentContentManager.XnaContentManager.Load<Texture2D>(fullFilename);
-                Width = xnaTexture.Width;
-                Height = xnaTexture.Height;
+                Size = new Size(xnaTexture.Width, xnaTexture.Height);
             }
             catch (ObjectDisposedException)
             {

@@ -22,9 +22,8 @@ float	bloomThreshold;
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture sceneTexture;
-
-sampler2D sceneSampler = sampler_state
+texture sceneTexture : register(t7);
+sampler2D sceneSampler : register(s8) = sampler_state
 {
 	Texture = <sceneTexture>;
 	MipFilter = POINT;

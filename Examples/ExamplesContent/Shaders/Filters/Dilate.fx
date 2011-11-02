@@ -34,8 +34,8 @@ float  dilateWidth = 1.0f;
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture sceneMap;
-sampler sceneMapSampler = sampler_state 
+texture sceneMap : register(t6);
+sampler sceneMapSampler : register(s7) = sampler_state 
 {
     texture = <sceneMap>;
     /*AddressU  = Clamp;

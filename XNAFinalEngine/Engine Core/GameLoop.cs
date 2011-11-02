@@ -124,6 +124,7 @@ namespace XNAFinalEngine.EngineCore
             postProcess = new PostProcess
                               {
                                   FilmGrain = new FilmGrain(),
+                                  Bloom = new Bloom(),
                                   AdjustLevels = new AdjustLevels()
                               };
             
@@ -279,7 +280,7 @@ namespace XNAFinalEngine.EngineCore
                 gbuffer.End();
 
                 #endregion
-
+                
                 #region Light Pre Pass
                     
                 lightPrePass.Begin(currentCamera.AmbientLight.Color);
@@ -301,7 +302,7 @@ namespace XNAFinalEngine.EngineCore
                 lightPrePass.End();
                     
                 #endregion
-
+                
                 #region HDR Linear Space Pass
 
                 hdrLinearSpacePass.Begin(currentCamera.ClearColor);
@@ -334,7 +335,7 @@ namespace XNAFinalEngine.EngineCore
                 hdrLinearSpacePass.End();
 
                 #endregion
-
+                
                 #region Post Process Pass
 
                 postProcessPass.Render(hdrLinearSpacePass.SceneTexture, postProcess);

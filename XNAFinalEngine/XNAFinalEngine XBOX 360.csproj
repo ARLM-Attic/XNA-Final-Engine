@@ -62,6 +62,7 @@
     <Compile Include="Assets\PostProcess\Bloom.cs" />
     <Compile Include="Assets\PostProcess\ColorCorrection.cs" />
     <Compile Include="Assets\PostProcess\FilmGrain.cs" />
+    <Compile Include="Assets\PostProcess\MLAA.cs" />
     <Compile Include="Assets\PostProcess\PostProcess.cs" />
     <Compile Include="Assets\Shaders\Shader.cs" />
     <Compile Include="Assets\Textures\LookupTable.cs" />
@@ -97,8 +98,8 @@
     <Compile Include="Engine Core\Time.cs" />
     <Compile Include="Graphics\AmbientLighting\AmbientLight.cs" />
     <Compile Include="Graphics\AmbientLighting\AmbientOcclusion.cs" />
-    <Compile Include="Graphics\Filters\Blur.cs" />
-    <Compile Include="Graphics\Filters\Dilate.cs" />
+    <Compile Include="Graphics\Filters\BlurShader.cs" />
+    <Compile Include="Graphics\Filters\DilateShader.cs" />
     <Compile Include="Graphics\Miscellaneous\GammaLinearSpace.cs" />
     <Compile Include="Graphics\Miscellaneous\RGBM.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonics.cs" />
@@ -111,7 +112,7 @@
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\BlinnPhongShader.cs" />
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\ConstantShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\BloomShader.cs" />
-    <Compile Include="Graphics\Passes\04-PostProcessPass\MLAA.cs" />
+    <Compile Include="Graphics\Passes\04-PostProcessPass\MLAAShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\PostProcessingPass.cs" />
     <Compile Include="Graphics\SpriteManager.cs" />
     <Compile Include="Helpers\ArrayHelper.cs" />

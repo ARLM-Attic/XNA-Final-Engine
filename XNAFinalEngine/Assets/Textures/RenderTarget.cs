@@ -115,12 +115,7 @@ namespace XNAFinalEngine.Assets
         /// Depth Format.
         /// </summary>
         private readonly DepthFormat depthFormat;
-
-        /// <summary>
-        /// Size.
-        /// </summary>
-        private Size size;
-
+        
         /// <summary>
         /// The count of render targets created for naming purposes.
         /// </summary>
@@ -188,9 +183,7 @@ namespace XNAFinalEngine.Assets
         public RenderTarget(Size size, SurfaceFormat _surfaceFormat, DepthFormat _depthFormat, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
         {
             Name = "Render Target " + nameNumber++;
-            this.size = size;
-            Width = size.Width;
-            Height = size.Height;
+            Size = size;
 
             surfaceFormat = _surfaceFormat;
             depthFormat = _depthFormat;
@@ -211,9 +204,7 @@ namespace XNAFinalEngine.Assets
         public RenderTarget(Size size, SurfaceFormat _surfaceFormat = SurfaceFormat.Color, bool _hasDepthBuffer = true, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
         {
             Name = "Render Target " + nameNumber++;
-            this.size = size;
-            Width = size.Width;
-            Height = size.Height;
+            Size = size;
 
             surfaceFormat = _surfaceFormat;
             depthFormat = _hasDepthBuffer ? DepthFormat.Depth24 : DepthFormat.None;
@@ -272,13 +263,11 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         private void OnWindowSizeChanged(object sender, EventArgs e)
         {
-            if (size == Size.FullScreen || size == Size.HalfScreen || size == Size.QuarterScreen ||
-                size == Size.SplitFullScreen || size == Size.SplitHalfScreen || size == Size.SplitQuarterScreen)
+            if (Size == Size.FullScreen || Size == Size.HalfScreen || Size == Size.QuarterScreen ||
+                Size == Size.SplitFullScreen || Size == Size.SplitHalfScreen || Size == Size.SplitQuarterScreen)
             {
                 // The size changes with the new window size.
                 renderTarget.Dispose();
-                Width = size.Width;
-                Height = size.Height;
                 Create();
             }
         } // OnWindowSizeChanged

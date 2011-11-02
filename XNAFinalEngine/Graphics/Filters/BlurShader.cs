@@ -30,20 +30,21 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
-using Texture = Microsoft.Xna.Framework.Graphics.Texture;
+using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.Graphics
 {
 	/// <summary>
-	/// Blurs a texture.
+	/// Blur shader.
 	/// </summary>
-    public class Blur : Shader
+    public class BlurShader : Shader
 	{
 
 		#region Variables
@@ -52,27 +53,7 @@ namespace XNAFinalEngine.Graphics
 		/// Auxiliary render target.
 		/// </summary>
         private readonly RenderTarget blurTempTexture;
-
-        /// <summary>
-        /// Blur Width.
-        /// A value of 1 gives the better results and the better performance.
-        /// </summary>
-        private float width = 1.0f;
         
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Blur Width.
-        /// A value of 1 gives the better results and the better performance.
-        /// </summary>
-        public float Width
-        {
-            get { return width; }
-            set { width = value; }
-        } // Width
-
         #endregion
 
         #region Shader Parameters
@@ -139,7 +120,7 @@ namespace XNAFinalEngine.Graphics
             if (EngineManager.DeviceLostInThisFrame || lastUsedTexture != texture)
             {
                 lastUsedTexture = texture;
-                epTexture.SetValue(texture.XnaTexture);
+                epTexture.SetValue(texture.Resource);
             }
         } // SetTexture
 
@@ -170,21 +151,12 @@ namespace XNAFinalEngine.Graphics
         #region Constructor
 
         /// <summary>
-        /// Blurs a texture.
-		/// </summary>
-        internal Blur(Size size) : base("Filters\\Blur")
+        /// Blur shader.
+        /// </summary>
+        private BlurShader(Size size) : base("Filters\\Blur")
 		{
             blurTempTexture = new RenderTarget(size, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
-        } // Blur
-
-        /// <summary>
-        /// Blurs a texture.
-        /// </summary>
-        internal Blur(RenderTarget.SizeType size)
-            : base("Filters\\Blur")
-        {
-            blurTempTexture = new RenderTarget(size, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
-        } // Blur
+        } // BlurShader
 
 		#endregion
 
@@ -213,38 +185,46 @@ namespace XNAFinalEngine.Graphics
 
 		#endregion
 
-        #region Generate Blur
-        /*
+        #region Render
+
         /// <summary>
-		/// Generate the blur effect.
-		/// </summary>
-		/// 
-		*/
-        
-        /// <summary>
-        /// 
+        /// Blurs a texture.
         /// </summary>
-        /// <param name="texture"></param>
-        /// <param name="pointFilter"></param>
+        /// <param name="texture">The texture to blur. The result will be placed here.</param>
+        /// <param name="pointFilter">Use point filter or linear filter.</param>
         /// <param name="width">Blur Width. A value of 1 gives normally the better results and the better performance.</param>
-        public void GenerateBlur(RenderTarget texture, bool pointFilter = true, float width = 1.0f)
-		{   
+        internal void Render(RenderTarget texture, bool pointFilter = true, float width = 1.0f)
+		{
+            if (texture == null || texture.Resource == null)
+                throw new ArgumentNullException("texture");
+            if (texture.Width != blurTempTexture.Width || texture.Height != blurTempTexture.Height)
+                throw new ArgumentException("Blur Shader: Texture size does not match the blur internal texture size", "texture");
             try
             {
+                // Set Render States
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
 
+                // Works with point or linear filter?
+                if (pointFilter)
+                {
+                    Resource.CurrentTechnique = Resource.Techniques["BlurPoint"];
+                    EngineManager.Device.SamplerStates[5] = SamplerState.PointClamp;
+                }
+                else
+                {
+                    Resource.CurrentTechnique = Resource.Techniques["BlurLinear"];
+                    EngineManager.Device.SamplerStates[6] = SamplerState.LinearClamp;
+                }
+                
+                // Set shader parameters
                 SetBlurWidth(width);
                 SetTextureResolution(new Vector2(texture.Width, texture.Height));
                 SetTexture(texture);
                 SetHalfPixel(new Vector2(-1f / texture.Width, 1f / texture.Height));
 
-                if (pointFilter)
-                    Resource.CurrentTechnique = Resource.Techniques["BlurPoint"];
-                else
-                    Resource.CurrentTechnique = Resource.Techniques["BlurLinear"];
-
-                foreach (EffectPass pass in Effect.CurrentTechnique.Passes)
+                foreach (EffectPass pass in Resource.CurrentTechnique.Passes)
                 {
                     if (pass.Name == "BlurHorizontal")
                         blurTempTexture.EnableRenderTarget();
@@ -265,11 +245,55 @@ namespace XNAFinalEngine.Graphics
             }
             catch (Exception e)
             {
-                throw new Exception("Unable to render the blur effect. " + e.Message);
+                throw new InvalidOperationException("Blur Shader: Unable to render.", e);
             }
-        } // GenerateBlur
+        } // Render
 
 		#endregion
+        
+        #region Dispose
 
-	} // Blur
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            blurTempTexture.Dispose();
+        } // DisposeManagedResources
+
+        #endregion
+
+        #region Stored Shaders
+
+        // A pool of all bloom shaders.
+        private static readonly Dictionary<Size, BlurShader> shaders = new Dictionary<Size, BlurShader>(1);
+
+        /// <summary>
+        /// Returns a bloom shader for this size.
+        /// The shaders are stored in a pool.
+        /// </summary>
+        public static BlurShader GetShader(Size size)
+        {
+            if (shaders.ContainsKey(size))
+                return shaders[size];
+            // If not return a new one.
+            shaders[size] = new BlurShader(size);
+            return shaders[size];
+        } // GetShader
+
+        /// <summary>
+        /// Dispose stored shaders.
+        /// </summary>
+        public static void DisposeShaders()
+        {
+            foreach (var shader in shaders)
+            {
+                shader.Value.Dispose();
+            }
+            shaders.Clear();
+        } // DisposeShaders
+
+        #endregion
+
+    } // BlurShader
 } // XNAFinalEngine.Graphics
