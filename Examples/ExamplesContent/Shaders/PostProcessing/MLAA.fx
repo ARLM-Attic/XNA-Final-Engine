@@ -62,7 +62,6 @@ float blurRadius;
 //////////////////////////////////////////////
 
 texture sceneTexture;
-
 sampler2D sceneSampler = sampler_state
 {
 	Texture = <sceneTexture>;
@@ -70,7 +69,6 @@ sampler2D sceneSampler = sampler_state
 	MagFilter = POINT;
 	MinFilter = POINT;
 };
-
 sampler2D sceneLinearSampler = sampler_state
 {
 	Texture = <sceneTexture>;
@@ -80,7 +78,6 @@ sampler2D sceneLinearSampler = sampler_state
 };
 
 texture edgeTexture;
-
 sampler2D edgeSampler = sampler_state
 {
 	Texture = <edgeTexture>;
@@ -90,7 +87,6 @@ sampler2D edgeSampler = sampler_state
 };
 
 texture blendedWeightsTexture;
-
 sampler2D blendedWeightsSampler = sampler_state
 {
 	Texture = <blendedWeightsTexture>;
@@ -100,7 +96,6 @@ sampler2D blendedWeightsSampler = sampler_state
 };
 
 texture depthTexture;
-
 sampler2D depthSampler = sampler_state
 {
 	Texture = <depthTexture>;
@@ -110,7 +105,6 @@ sampler2D depthSampler = sampler_state
 };
 
 texture areaTexture;
-
 sampler2D areaSampler = sampler_state
 {
 	Texture = <areaTexture>;
@@ -325,7 +319,7 @@ float4 BlendingWeightCalculationPS(in float2 texcoord : TEXCOORD0) : COLOR0
 
     float2 e = tex2D(edgeSampler, texcoord).rg;
 	if (dot(e, 1.0) == 0.0) // if there is no edge then discard.
-	{
+	{		
         Discard();
     }
 	
@@ -363,7 +357,7 @@ float4 BlendingWeightCalculationPS(in float2 texcoord : TEXCOORD0) : COLOR0
 //////////////////////////////////////////////
 
 float4 NeighborhoodBlendingPS(in float2 texcoord : TEXCOORD0) : COLOR0
-{
+{	
     float2 topLeft = tex2D(blendedWeightsSampler, texcoord).rb;
     float right = tex2D(blendedWeightsSampler, texcoord + float2(0, pixelSize.y)).g;
     float bottom = tex2D(blendedWeightsSampler, texcoord + float2(pixelSize.x, 0)).a;

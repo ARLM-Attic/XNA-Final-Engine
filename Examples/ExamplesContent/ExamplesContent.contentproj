@@ -487,6 +487,8 @@
       <Name>AreaMap32</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\Shaders\OceanWavesNormal.dds">
       <Name>OceanWavesNormal</Name>

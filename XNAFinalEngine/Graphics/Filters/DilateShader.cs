@@ -271,5 +271,5 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-	} // Dilate
+    } // DilateShader
 } // XNAFinalEngine.Graphics

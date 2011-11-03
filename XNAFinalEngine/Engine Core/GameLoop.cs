@@ -65,6 +65,7 @@ namespace XNAFinalEngine.EngineCore
         private static BlinnPhongShader blinnPhongShader;
         private static PostProcessingPass postProcessPass;
         private static PostProcess postProcess;
+        private static MLAAShader mlaaShader;
 
         /// <summary>
         /// This game object will show the frames per second onto screen.
@@ -125,8 +126,10 @@ namespace XNAFinalEngine.EngineCore
                               {
                                   FilmGrain = new FilmGrain(),
                                   Bloom = new Bloom(),
-                                  AdjustLevels = new AdjustLevels()
+                                  AdjustLevels = new AdjustLevels(),
+                                  MLAA = new MLAA() { EdgeDetection = MLAA.EdgeDetectionType.Color}
                               };
+            mlaaShader = new MLAAShader(Size.FullScreen);
             
             if (CurrentScene != null)
             {
@@ -265,6 +268,9 @@ namespace XNAFinalEngine.EngineCore
             for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
             {
                 Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
+                // If does not have a render target
+                if (currentCamera.RenderTarget == null)
+                    currentCamera.RenderTarget = new RenderTarget(currentCamera.RenderTargetSize, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
 
                 #region GBuffer Pass
                 
@@ -339,6 +345,7 @@ namespace XNAFinalEngine.EngineCore
                 #region Post Process Pass
 
                 postProcessPass.Render(hdrLinearSpacePass.SceneTexture, postProcess);
+                mlaaShader.Render(postProcessPass.PostProcessedSceneTexture, gbuffer.DepthTexture, postProcess);
 
                 #endregion
 
@@ -347,7 +354,10 @@ namespace XNAFinalEngine.EngineCore
             //SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
             //SpriteManager.DrawTextureToFullScreen(lightPrePass.LightTexture);
             //SpriteManager.DrawTextureToFullScreen(hdrLinearSpacePass.SceneTexture);
-            SpriteManager.DrawTextureToFullScreen(postProcessPass.PostProcessedSceneTexture);
+            if (Keyboard.LeftPressed)
+                SpriteManager.DrawTextureToFullScreen(postProcessPass.PostProcessedSceneTexture);
+            else
+                SpriteManager.DrawTextureToFullScreen(mlaaShader.AntiAliasedTexture);
             
             #endregion
 

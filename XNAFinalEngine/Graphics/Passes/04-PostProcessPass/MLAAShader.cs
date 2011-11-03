@@ -51,12 +51,12 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Blending Weight Texture.
         /// </summary>
-        internal static RenderTarget BlendingWeightTexture { get; set; }
+        internal RenderTarget BlendingWeightTexture { get; private set; }
 
         /// <summary>
         /// Anti Aliased Texture.
         /// </summary>
-        internal static RenderTarget AntiAliasedTexture { get; set; }
+        internal RenderTarget AntiAliasedTexture { get; private set; }
 
         #endregion
 
@@ -214,7 +214,11 @@ namespace XNAFinalEngine.Graphics
         /// Morphological Antialiasing (MLAA).
         /// </summary>
         internal MLAAShader(Size size) : base("PostProcessing\\MLAA")
-        {            
+        {
+            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            // IMPORTANT: Be careful of the content processor properties of this texture
+            // Pre multiply alpha: false
+            // Texture format: No change.
             Texture areaTexture = new Texture("Shaders\\AreaMap32");
             Resource.Parameters["areaTexture"].SetValue(areaTexture.Resource);
 
@@ -265,13 +269,14 @@ namespace XNAFinalEngine.Graphics
                 throw new ArgumentNullException("texture");
             if (postProcess == null)
                 throw new ArgumentNullException("postProcess");
-            if (postProcess.MLAA != null || !(postProcess.MLAA.Enabled))
+            if (postProcess.MLAA == null || !(postProcess.MLAA.Enabled))
                 return;
             try
             {
                 // Set render states
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
 
                 // Set parameters
                 SetHalfPixel(new Vector2(-1f / texture.Width, 1f / texture.Height));
@@ -284,7 +289,7 @@ namespace XNAFinalEngine.Graphics
 
                 switch (postProcess.MLAA.EdgeDetection)
                 {
-                    case MLAA.EdgeDetectionType.Both: Resource.CurrentTechnique = Resource.Techniques["EdgeDetectionColorDepth"]; break;
+                    case MLAA.EdgeDetectionType.Both:  Resource.CurrentTechnique = Resource.Techniques["EdgeDetectionColorDepth"]; break;
                     case MLAA.EdgeDetectionType.Color: Resource.CurrentTechnique = Resource.Techniques["EdgeDetectionColor"]; break;
                     case MLAA.EdgeDetectionType.Depth: Resource.CurrentTechnique = Resource.Techniques["EdgeDetectionDepth"]; break;
                 }
@@ -299,11 +304,13 @@ namespace XNAFinalEngine.Graphics
                     }
                     else if (pass.Name == "BlendingWeight")
                     {
+                        SetEdgeTexture(AntiAliasedTexture);
                         BlendingWeightTexture.EnableRenderTarget();
                         BlendingWeightTexture.Clear(new Color(0, 0, 0, 0));
                     }
                     else
                     {
+                        SetBlendedWeightsTexture(BlendingWeightTexture);
                         AntiAliasedTexture.EnableRenderTarget();
                         AntiAliasedTexture.Clear(Color.Black);
                     }
@@ -312,19 +319,11 @@ namespace XNAFinalEngine.Graphics
                     RenderScreenPlane();
 
                     if (pass.Name == "EdgeDetection")
-                    {
                         AntiAliasedTexture.DisableRenderTarget();
-                    }
                     else if (pass.Name == "BlendingWeight")
-                    {
-                        SetEdgeTexture(AntiAliasedTexture);
                         BlendingWeightTexture.DisableRenderTarget();
-                    }
                     else
-                    {
-                        SetBlendedWeightsTexture(BlendingWeightTexture);
                         AntiAliasedTexture.DisableRenderTarget();
-                    }
                 }
             }
             catch (Exception e)

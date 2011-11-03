@@ -131,7 +131,6 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public void RenderScreenPlane()
         {
-            Resource.CurrentTechnique.Passes[0].Apply();
             if (vertexBufferScreenPlane == null)
             {
                 VertexPositionTexture[] vertices = new[]

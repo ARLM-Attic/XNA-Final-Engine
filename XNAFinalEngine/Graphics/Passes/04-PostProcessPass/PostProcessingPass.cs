@@ -642,11 +642,11 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         public void Render(Texture sceneTexture, PostProcess postProcess)
         {
-            if (postProcess == null)
-                throw new ArgumentNullException("postProcess");
             if (sceneTexture == null || sceneTexture.Resource == null)
                 throw new ArgumentNullException("sceneTexture");
-
+            if (postProcess == null)
+                throw new ArgumentNullException("postProcess");
+            
             #region Bloom
 
             if (postProcess.Bloom != null && postProcess.Bloom.Enabled)

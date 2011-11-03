@@ -42,6 +42,13 @@ namespace XNAFinalEngine.Assets
     /// <summary>
     /// Allows to render onto textures, this kind of textures are called Render Targets.
     /// </summary>
+    /// <remarks>
+    /// I have to implement a pool of render targets to avoid wasting unnecessary graphic memory.
+    /// The idea is that a render target has also a flag that tell us if the content is still need or not.
+    /// So, when a shader needs a render target it search in the pool for an unused render target with the right characteristics (size, surface format, etc.)
+    /// The problem if someone has to turn the flag false when the render target’s content is unnecessary and this could be somehow ugly (I think).
+    /// But the graphic pipeline performance is critical, it’s not an area for the user and its complexity was diminished thanks to the new code’s restructuring.
+    /// </remarks>
     public class RenderTarget : Texture
     {
 
