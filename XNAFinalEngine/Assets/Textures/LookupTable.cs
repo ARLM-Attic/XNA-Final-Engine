@@ -165,7 +165,7 @@ namespace XNAFinalEngine.Assets
             Texture2D lookupTable2DTexture = new Texture2D(EngineManager.Device, side1, side2, false, SurfaceFormat.Color);
             lookupTable.Resource.GetData(colors);
             lookupTable2DTexture.SetData(colors);
-            return new Texture { Resource = lookupTable2DTexture };
+            return new Texture(lookupTable2DTexture);
         } // LookupTextureToTexture
 
         #endregion

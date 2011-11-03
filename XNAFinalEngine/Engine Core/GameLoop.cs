@@ -127,7 +127,7 @@ namespace XNAFinalEngine.EngineCore
                                   FilmGrain = new FilmGrain(),
                                   Bloom = new Bloom(),
                                   AdjustLevels = new AdjustLevels(),
-                                  MLAA = new MLAA() { EdgeDetection = MLAA.EdgeDetectionType.Color}
+                                  MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Color, BlurRadius = 2}
                               };
             mlaaShader = new MLAAShader(Size.FullScreen);
             
@@ -263,14 +263,17 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Graphics
-            
+
+            Camera currentCamera = null;
             // For each camera we render the scene in it
             for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
             {
-                Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
+                currentCamera = Camera.ComponentPool.Elements[cameraIndex];
                 // If does not have a render target
                 if (currentCamera.RenderTarget == null)
                     currentCamera.RenderTarget = new RenderTarget(currentCamera.RenderTargetSize, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
+                if (currentCamera.PartialRenderTarget == null)
+                    currentCamera.PartialRenderTarget = new RenderTarget(currentCamera.RenderTargetSize, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
 
                 #region GBuffer Pass
                 
@@ -345,21 +348,41 @@ namespace XNAFinalEngine.EngineCore
                 #region Post Process Pass
 
                 postProcessPass.Render(hdrLinearSpacePass.SceneTexture, postProcess);
-                mlaaShader.Render(postProcessPass.PostProcessedSceneTexture, gbuffer.DepthTexture, postProcess);
+                mlaaShader.Filter(postProcessPass.PostProcessedSceneTexture, gbuffer.DepthTexture, postProcess);
 
                 #endregion
 
             }
 
-            //SpriteManager.DrawTextureToFullScreen(gbuffer.NormalTexture);
-            //SpriteManager.DrawTextureToFullScreen(lightPrePass.LightTexture);
-            //SpriteManager.DrawTextureToFullScreen(hdrLinearSpacePass.SceneTexture);
-            if (Keyboard.LeftPressed)
+            // If it is a master camera and it does not have slaves...
+            if (currentCamera.MasterCamera == null && currentCamera.slavesCameras.Count == 0)
+            {
                 SpriteManager.DrawTextureToFullScreen(postProcessPass.PostProcessedSceneTexture);
-            else
-                SpriteManager.DrawTextureToFullScreen(mlaaShader.AntiAliasedTexture);
+            }
             
             #endregion
+
+            //currentCamera.RenderTarget.EnableRenderTarget();
+            //currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
+            //SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget);
+            // Composite the different viewports
+            /*for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
+                currentCamera.slavesCameras[i];*/
+
+            #region Screenshot Preparations
+
+            RenderTarget screenshotRenderTarget = null;
+            if (ScreenshotCapturer.MakeScreenshot)
+            {
+                // Instead of render into the back buffer we render into a render target.
+                screenshotRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
+                screenshotRenderTarget.EnableRenderTarget();
+            }
+
+            #endregion
+
+            // Render onto back buffer the main camera and the HUD.
+            SpriteManager.DrawTextureToFullScreen(currentCamera.RenderTarget);
 
             #region Heads Up Display
 
@@ -392,8 +415,11 @@ namespace XNAFinalEngine.EngineCore
 
             if (ScreenshotCapturer.MakeScreenshot)
             {
+                screenshotRenderTarget.DisableRenderTarget();
                 ScreenshotCapturer.MakeScreenshot = false;
-                //ScreenshotCapturer.SaveScreenshot(finalRenderTarget);
+                ScreenshotCapturer.SaveScreenshot(screenshotRenderTarget);
+                SpriteManager.DrawTextureToFullScreen(screenshotRenderTarget);
+                screenshotRenderTarget.Dispose();
             }
 
             #endregion

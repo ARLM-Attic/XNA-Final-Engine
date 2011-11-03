@@ -122,7 +122,12 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedSceneTexture;
         private static void SetSceneTexture(Texture sceneTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedSceneTexture != sceneTexture)
+            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
+            // However the shaders have to re set to the GPU the new render targets to work properly.
+            // This problem seems to manifest only with floating point formats.
+            // So it's a floating point texture set it every time that is need it.
+            if (lastUsedSceneTexture != sceneTexture ||
+                (sceneTexture is RenderTarget && ((RenderTarget)sceneTexture).SurfaceFormat != SurfaceFormat.Color))
             {
                 lastUsedSceneTexture = sceneTexture;
                 epSceneTexture.SetValue(sceneTexture.Resource);
@@ -206,7 +211,7 @@ namespace XNAFinalEngine.Graphics
                 BloomTexture.DisableRenderTarget();
 
                 // Blur it.
-                BlurShader.GetShader(BloomTexture.Size).Render(BloomTexture, false, 1); // Quarter size blur
+                BlurShader.GetShader(BloomTexture.Size).Filter(BloomTexture, false, 1); // Quarter size blur
             }
             catch (Exception e)
             {

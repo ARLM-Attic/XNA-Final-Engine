@@ -224,7 +224,12 @@ namespace XNAFinalEngine.Graphics
         private static void SetLightTexture(Texture lightTexture)
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
-            if (EngineManager.DeviceLostInThisFrame || lastUsedLightTexture != lightTexture)
+            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
+            // However the shaders have to re set to the GPU the new render targets to work properly.
+            // This problem seems to manifest only with floating point formats.
+            // So it's a floating point texture set it every time that is need it.
+            if (lastUsedLightTexture != lightTexture ||
+                (lightTexture is RenderTarget && ((RenderTarget)lightTexture).SurfaceFormat != SurfaceFormat.Color))
             {
                 lastUsedLightTexture = lightTexture;
                 epLightTexture.SetValue(lightTexture.Resource);

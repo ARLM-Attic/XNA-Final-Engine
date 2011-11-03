@@ -100,13 +100,6 @@ namespace XNAFinalEngine.EngineCore
         public static GameServiceContainer GameServices { get; private set; }
 
         /// <summary>
-        /// XNA 4.0 reconstructs automatically the render targets when a device is lost.
-        /// However the shaders have to re set to the GPU the new render targets to work properly.
-        /// This problem seems to manifest only with floating point formats.
-        /// </summary>
-        public static bool DeviceLostInThisFrame { get; private set; }
-
-        /// <summary>
         /// Is application currently active (focused)?
         /// Some operations like input reading could be disabled.
         /// </summary>
@@ -273,7 +266,6 @@ namespace XNAFinalEngine.EngineCore
             Device = GraphicsDeviceManager.GraphicsDevice;
             // Restore render to the frame buffer.
             RenderTarget.DisableCurrentRenderTargets();
-            DeviceLostInThisFrame = true;
             #if (!XBOX)
                 Application.EnableVisualStyles();
                 Application.VisualStyleState = VisualStyleState.ClientAndNonClientAreasEnabled;
@@ -412,7 +404,6 @@ namespace XNAFinalEngine.EngineCore
             {
                 GameLoop.Draw(gameTime);
             }
-            DeviceLostInThisFrame = false; // Always in the method’s bottom. TODO!!! Que pasa si el shader por alguna razon no se ejecuto en esa ejecucion del draw y si en la siguiente. Se necesita algo más robusto.
         } // Draw
 
         /// <summary>

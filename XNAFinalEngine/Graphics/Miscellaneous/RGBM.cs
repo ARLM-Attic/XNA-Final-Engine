@@ -138,10 +138,8 @@ namespace XNAFinalEngine.Graphics
                 // Vector3 rgb = rgbe2float(floatArray[i*4], floatArray[i*4 + 1], floatArray[i*4 + 2], floatArray[i*4 + 3]); // If the texture is in rgbe format.
                 colorArray[i] = FloatLinearToRgbmGamma(floatArray[i * 4], floatArray[i * 4 + 1], floatArray[i * 4 + 2], maxRange);
             }
-            Texture result = new Texture
-            {
-                Resource = new Texture2D(EngineManager.Device, hdrTexture.Width, hdrTexture.Height)
-            };
+            Texture result = new Texture(new Texture2D(EngineManager.Device, hdrTexture.Width, hdrTexture.Height));
+            
             result.Resource.SetData(colorArray);
             return result;
         } // ConvertHdrTextureToRgbm
@@ -170,10 +168,7 @@ namespace XNAFinalEngine.Graphics
                 colorArray[i] = FloatLinearToRgbmGamma(floatArray[i * 4], floatArray[i * 4 + 1], floatArray[i * 4 + 2], maxRange);
                 colorArray[i] = new Color(colorArray[i].R, colorArray[i].G, colorArray[i].B);
             }
-            Texture result = new Texture
-            {
-                Resource = new Texture2D(EngineManager.Device, hdrTexture.Width, hdrTexture.Height)
-            };
+            Texture result = new Texture(new Texture2D(EngineManager.Device, hdrTexture.Width, hdrTexture.Height));
             result.Resource.SetData(colorArray);
             return result;
         } // ConvertHdrTextureToRgbm
@@ -202,10 +197,7 @@ namespace XNAFinalEngine.Graphics
                 colorArray[i] = FloatLinearToRgbmGamma(floatArray[i * 4], floatArray[i * 4 + 1], floatArray[i * 4 + 2], maxRange);
                 colorArray[i] = new Color(colorArray[i].A, colorArray[i].A, colorArray[i].A);
             }
-            Texture result = new Texture
-            {
-                Resource = new Texture2D(EngineManager.Device, hdrTexture.Width, hdrTexture.Height)
-            };
+            Texture result = new Texture(new Texture2D(EngineManager.Device, hdrTexture.Width, hdrTexture.Height));
             result.Resource.SetData(colorArray);
             return result;
         } // ConvertHdrTextureToRgbm

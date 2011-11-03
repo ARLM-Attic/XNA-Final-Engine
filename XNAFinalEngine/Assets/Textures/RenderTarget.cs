@@ -42,14 +42,7 @@ namespace XNAFinalEngine.Assets
     /// <summary>
     /// Allows to render onto textures, this kind of textures are called Render Targets.
     /// </summary>
-    /// <remarks>
-    /// I have to implement a pool of render targets to avoid wasting unnecessary graphic memory.
-    /// The idea is that a render target has also a flag that tell us if the content is still need or not.
-    /// So, when a shader needs a render target it search in the pool for an unused render target with the right characteristics (size, surface format, etc.)
-    /// The problem if someone has to turn the flag false when the render target’s content is unnecessary and this could be somehow ugly (I think).
-    /// But the graphic pipeline performance is critical, it’s not an area for the user and its complexity was diminished thanks to the new code’s restructuring.
-    /// </remarks>
-    public class RenderTarget : Texture
+    public sealed class RenderTarget : Texture
     {
 
         #region Structs
@@ -134,11 +127,6 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         private static readonly RenderTarget[] currentRenderTarget = new RenderTarget[4];
 
-        /// <summary>
-        /// All the active render targets.
-        /// </summary>
-        private static readonly List<RenderTarget> renderTargetList = new List<RenderTarget>();
-
         #endregion
 
         #region Properties
@@ -152,9 +140,9 @@ namespace XNAFinalEngine.Assets
             {
                 if (alreadyResolved)
                     return renderTarget;
-                throw new InvalidOperationException("Unable to return render target: render target not resolved.");
+                throw new InvalidOperationException("Render Target: Unable to return render target. Render target not resolved.");
             }
-        } // XnaTexture
+        } // Resource
 
         /// <summary>
         /// Surface Format.
@@ -197,8 +185,7 @@ namespace XNAFinalEngine.Assets
             Antialiasing = antialiasingType;
 
             Create();
-
-            renderTargetList.Add(this);
+            Screen.ScreenSizeChanged += OnWindowSizeChanged;
         } // RenderTarget
 
         /// <summary>
@@ -218,8 +205,7 @@ namespace XNAFinalEngine.Assets
             Antialiasing = antialiasingType;
 
             Create();
-
-            renderTargetList.Add(this);
+            Screen.ScreenSizeChanged += OnWindowSizeChanged;
         } // RenderTarget
 
         #endregion
@@ -231,7 +217,6 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         private void Create()
         {
-            Screen.ScreenSizeChanged += OnWindowSizeChanged;
             try
             {
                 // Create render target of specified size.
@@ -256,7 +241,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected override void DisposeManagedResources()
         {
-            renderTargetList.Remove(this);
+            Screen.ScreenSizeChanged -= OnWindowSizeChanged;
             renderTarget.Dispose();
         } // DisposeManagedResources
 
@@ -485,6 +470,35 @@ namespace XNAFinalEngine.Assets
             };
             return renderTargetsBinding;
         } // BindRenderTargets
+
+        #endregion
+
+        #region Pool
+
+        // A pool of all render targets.
+        private static readonly RenderTarget[] renderTargets = new RenderTarget[0];
+
+        /// <summary>
+        /// There is a pool of render targets to avoid wasting unnecessary graphic memory.
+        /// The idea is that a render target has also a flag that tell us if the content is still need or not.
+        /// So, when a shader needs a render target it search in the pool for an unused render target with the right characteristics (size, surface format, etc.)
+        /// The problem if someone has to turn the flag false when the render target’s content is unnecessary and this could be somehow ugly. 
+        /// But the graphic pipeline performance is critical, it’s not an area for the user and its complexity was diminished thanks to the new code’s restructuring.
+        /// The pool should be used in the filters, shadow maps and similar shaders. Not everything.
+        /// Use the Release method to return a render target to the pool.
+        /// </summary>
+        public static RenderTarget Fetch(Size size, SurfaceFormat surfaceFormat, DepthFormat depthFormat, AntialiasingType antialiasingType)
+        {
+            for (int i = 0; i < renderTargets.Length; i++)
+            {
+                RenderTarget renderTarget = renderTargets[i];
+                if (renderTarget.Size == size && renderTarget.SurfaceFormat == surfaceFormat && renderTarget.DepthFormat == depthFormat && renderTarget.Antialiasing == antialiasingType)
+                {
+                    
+                }
+            }
+            return null;
+        } // Fetch
 
         #endregion
 

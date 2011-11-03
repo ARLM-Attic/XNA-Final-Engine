@@ -209,7 +209,8 @@ namespace XNAFinalEngine.Components
         #region Render Target
 
         /// <summary>
-        /// Destination render texture.
+        /// The image with the rendering of the scene. 
+        /// This render target stores both, the master camera’s result and its slaves camera’s results.
         /// The render target is automatically set.
         /// </summary>
         public RenderTarget RenderTarget
@@ -225,6 +226,14 @@ namespace XNAFinalEngine.Components
             }
         } // RenderTarget
 
+        /// <summary>
+        /// 
+        /// </summary>
+        internal RenderTarget PartialRenderTarget { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public Size RenderTargetSize
         {
             get { return renderTargetSize; }
@@ -236,7 +245,7 @@ namespace XNAFinalEngine.Components
                 for (int i = 0; i < slavesCameras.Count; i++)
                     slavesCameras[i].renderTargetSize = value;
             }
-        } // RenderSize
+        } // RenderTargetSize
 
         #endregion
 

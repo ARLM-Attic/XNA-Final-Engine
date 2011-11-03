@@ -70,12 +70,7 @@ namespace XNAFinalEngine.Assets
         public virtual Texture2D Resource
         { 
             get { return xnaTexture; }
-            set
-            {
-                xnaTexture = value; 
-                Size = new Size(xnaTexture.Width, xnaTexture.Height);
-            }
-        } // XnaTexture
+        } // Resource
 
         /// <summary>
         /// Texture's width.
@@ -103,11 +98,18 @@ namespace XNAFinalEngine.Assets
         #region Constructor
 
         /// <summary>
-        /// Dummy texture.
+        /// Dummy Constructor.
         /// </summary>
-        public Texture()
+        protected Texture() { }
+
+	    /// <summary>
+        /// Texture from XNA asset.
+        /// </summary>
+        public Texture(Texture2D xnaTexture)
         {
             Name = "Texture " + nameNumber++;
+            this.xnaTexture = xnaTexture;
+            Size = new Size(xnaTexture.Width, xnaTexture.Height);
         } // Texture
 
 		/// <summary>
@@ -150,7 +152,7 @@ namespace XNAFinalEngine.Assets
         } // DisposeManagedResources
 
 	    #endregion
-        
+
     } // Texture
 } // XNAFinalEngine.Assets
 

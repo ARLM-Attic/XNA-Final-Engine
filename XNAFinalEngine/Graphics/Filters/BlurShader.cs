@@ -117,7 +117,12 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private static void SetTexture(Texture texture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedTexture != texture)
+            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
+            // However the shaders have to re set to the GPU the new render targets to work properly.
+            // This problem seems to manifest only with floating point formats.
+            // So it's a floating point texture set it every time that is need it.
+            if (lastUsedTexture != texture ||
+                (texture is RenderTarget && ((RenderTarget)texture).SurfaceFormat != SurfaceFormat.Color))
             {
                 lastUsedTexture = texture;
                 epTexture.SetValue(texture.Resource);
@@ -185,7 +190,7 @@ namespace XNAFinalEngine.Graphics
 
 		#endregion
 
-        #region Render
+        #region Filter
 
         /// <summary>
         /// Blurs a texture.
@@ -193,7 +198,7 @@ namespace XNAFinalEngine.Graphics
         /// <param name="texture">The texture to blur. The result will be placed here.</param>
         /// <param name="pointFilter">Use point filter or linear filter.</param>
         /// <param name="width">Blur Width. A value of 1 gives normally the better results and the better performance.</param>
-        internal void Render(RenderTarget texture, bool pointFilter = true, float width = 1.0f)
+        internal void Filter(RenderTarget texture, bool pointFilter = true, float width = 1.0f)
 		{
             if (texture == null || texture.Resource == null)
                 throw new ArgumentNullException("texture");

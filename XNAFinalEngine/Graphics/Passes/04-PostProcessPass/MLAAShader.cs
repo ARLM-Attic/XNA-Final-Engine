@@ -154,7 +154,12 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedSceneTexture;
         private static void SetSceneTexture(Texture sceneTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedSceneTexture != sceneTexture)
+            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
+            // However the shaders have to re set to the GPU the new render targets to work properly.
+            // This problem seems to manifest only with floating point formats.
+            // So it's a floating point texture set it every time that is need it.
+            if (lastUsedSceneTexture != sceneTexture ||
+                (sceneTexture is RenderTarget && ((RenderTarget)sceneTexture).SurfaceFormat != SurfaceFormat.Color))
             {
                 lastUsedSceneTexture = sceneTexture;
                 epSceneTexture.SetValue(sceneTexture.Resource);
@@ -166,10 +171,14 @@ namespace XNAFinalEngine.Graphics
         #region Depth Texture
 
         private static Texture lastUsedDepthTexture;
-
         private static void SetDepthTexture(Texture depthTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedDepthTexture != depthTexture)
+            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
+            // However the shaders have to re set to the GPU the new render targets to work properly.
+            // This problem seems to manifest only with floating point formats.
+            // So it's a floating point texture set it every time that is need it.
+            if (lastUsedDepthTexture != depthTexture ||
+                (depthTexture is RenderTarget && ((RenderTarget)depthTexture).SurfaceFormat != SurfaceFormat.Color))
             {
                 lastUsedDepthTexture = depthTexture;
                 epDepthTexture.SetValue(depthTexture.Resource);
@@ -183,7 +192,12 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedEdgeTexture;
         private static void SetEdgeTexture(Texture edgeTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedEdgeTexture != edgeTexture)
+            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
+            // However the shaders have to re set to the GPU the new render targets to work properly.
+            // This problem seems to manifest only with floating point formats.
+            // So it's a floating point texture set it every time that is need it.
+            if (lastUsedEdgeTexture != edgeTexture ||
+                (edgeTexture is RenderTarget && ((RenderTarget)edgeTexture).SurfaceFormat != SurfaceFormat.Color))
             {
                 lastUsedEdgeTexture = edgeTexture;
                 epEdgeTexture.SetValue(edgeTexture.Resource);
@@ -197,7 +211,12 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedBlendedWeightsTexture;
         private static void SetBlendedWeightsTexture(Texture blendedWeightsTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedBlendedWeightsTexture != blendedWeightsTexture)
+            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
+            // However the shaders have to re set to the GPU the new render targets to work properly.
+            // This problem seems to manifest only with floating point formats.
+            // So it's a floating point texture set it every time that is need it.
+            if (lastUsedBlendedWeightsTexture != blendedWeightsTexture ||
+                (blendedWeightsTexture is RenderTarget && ((RenderTarget)blendedWeightsTexture).SurfaceFormat != SurfaceFormat.Color))
             {
                 lastUsedBlendedWeightsTexture = blendedWeightsTexture;
                 epBlendedWeightsTexture.SetValue(blendedWeightsTexture.Resource);
@@ -258,12 +277,12 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Render
+        #region Filter
 
         /// <summary>
         /// Render.
         /// </summary>
-        public void Render(RenderTarget texture, RenderTarget depthTexture, PostProcess postProcess)
+        public void Filter(RenderTarget texture, RenderTarget depthTexture, PostProcess postProcess)
         {
             if (texture == null || texture.Resource == null)
                 throw new ArgumentNullException("texture");

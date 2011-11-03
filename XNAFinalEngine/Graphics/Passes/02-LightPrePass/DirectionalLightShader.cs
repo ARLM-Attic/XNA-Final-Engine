@@ -108,7 +108,12 @@ namespace XNAFinalEngine.Graphics
         private static void SetDepthTexture(Texture depthTexture)
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp; // depthTexture
-            if (EngineManager.DeviceLostInThisFrame || lastUsedDepthTexture != depthTexture)
+            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
+            // However the shaders have to re set to the GPU the new render targets to work properly.
+            // This problem seems to manifest only with floating point formats.
+            // So it's a floating point texture set it every time that is need it.
+            if (lastUsedDepthTexture != depthTexture ||
+                (depthTexture is RenderTarget && ((RenderTarget)depthTexture).SurfaceFormat != SurfaceFormat.Color))
             {
                 lastUsedDepthTexture = depthTexture;
                 epDepthTexture.SetValue(depthTexture.Resource);
@@ -122,8 +127,13 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedNormalTexture;
         private static void SetNormalTexture(Texture normalTexture)
         {
-            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp; // normalTexture
-            if (EngineManager.DeviceLostInThisFrame || lastUsedNormalTexture != normalTexture)
+            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
+            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
+            // However the shaders have to re set to the GPU the new render targets to work properly.
+            // This problem seems to manifest only with floating point formats.
+            // So it's a floating point texture set it every time that is need it.
+            if (lastUsedNormalTexture != normalTexture ||
+                (normalTexture is RenderTarget && ((RenderTarget)normalTexture).SurfaceFormat != SurfaceFormat.Color))
             {
                 lastUsedNormalTexture = normalTexture;
                 epNormalTexture.SetValue(normalTexture.Resource);
@@ -137,8 +147,13 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedMotionVectorSpecularPower;
         private static void SetMotionVectorSpecularPower(Texture motionVectorSpecularPower)
         {
-            EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp; // motionVectorSpecularPowerTexture
-            if (EngineManager.DeviceLostInThisFrame || lastUsedMotionVectorSpecularPower != motionVectorSpecularPower)
+            EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;
+            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
+            // However the shaders have to re set to the GPU the new render targets to work properly.
+            // This problem seems to manifest only with floating point formats.
+            // So it's a floating point texture set it every time that is need it.
+            if (lastUsedMotionVectorSpecularPower != motionVectorSpecularPower ||
+                (motionVectorSpecularPower is RenderTarget && ((RenderTarget)motionVectorSpecularPower).SurfaceFormat != SurfaceFormat.Color))
             {
                 lastUsedMotionVectorSpecularPower = motionVectorSpecularPower;
                 epMotionVectorSpecularPowerTexture.SetValue(motionVectorSpecularPower.Resource);

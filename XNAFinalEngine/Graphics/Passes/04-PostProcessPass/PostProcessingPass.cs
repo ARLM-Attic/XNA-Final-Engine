@@ -143,7 +143,13 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedSceneTexture;
         private static void SetSceneTexture(Texture sceneTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedSceneTexture != sceneTexture)
+            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
+            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
+            // However the shaders have to re set to the GPU the new render targets to work properly.
+            // This problem seems to manifest only with floating point formats.
+            // So it's a floating point texture set it every time that is need it.
+            if (lastUsedSceneTexture != sceneTexture ||
+                (sceneTexture is RenderTarget && ((RenderTarget)sceneTexture).SurfaceFormat != SurfaceFormat.Color))
             {
                 lastUsedSceneTexture = sceneTexture;
                 epSceneTexture.SetValue(sceneTexture.Resource);
@@ -173,7 +179,12 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedBloomTexture;
         private static void SetBloomTexture(Texture bloomTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedBloomTexture != bloomTexture)
+            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
+            // However the shaders have to re set to the GPU the new render targets to work properly.
+            // This problem seems to manifest only with floating point formats.
+            // So it's a floating point texture set it every time that is need it.
+            if (lastUsedBloomTexture != bloomTexture ||
+                (bloomTexture is RenderTarget && ((RenderTarget)bloomTexture).SurfaceFormat != SurfaceFormat.Color))
             {
                 lastUsedBloomTexture = bloomTexture;
                 epBloomTexture.SetValue(bloomTexture.Resource);
@@ -462,28 +473,18 @@ namespace XNAFinalEngine.Graphics
 
         #region First Lookup Table
 
-        private static LookupTable lastUsedFirstLookupTable;
         private static void SetFirstLookupTable(LookupTable firstLookupTable)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedFirstLookupTable != firstLookupTable)
-            {
-                lastUsedFirstLookupTable = firstLookupTable;
-                epFirstlookupTable.SetValue(firstLookupTable.Resource);
-            }
+            epFirstlookupTable.SetValue(firstLookupTable.Resource);
         } // SetFirstLookupTable
 
         #endregion
 
         #region Second Lookup Table
-
-        private static LookupTable lastUsedSecondLookupTable;
+        
         private static void SetSecondLookupTable(LookupTable secondLookupTable)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedSecondLookupTable != secondLookupTable)
-            {
-                lastUsedSecondLookupTable = secondLookupTable;
-                epSecondlookupTable.SetValue(secondLookupTable.Resource);
-            }
+            epSecondlookupTable.SetValue(secondLookupTable.Resource);
         } // SetSecondLookupTable
 
         #endregion
