@@ -96,37 +96,22 @@ namespace XNAFinalEngine.Assets
         
         #region Variables
 
-        /// <summary>
-        /// XNA Render target.
-        /// </summary>
+        // XNA Render target.
+        // Why don't use the derived xnaTexture? Good question. I don't remember why I do it.
         private RenderTarget2D renderTarget;
 
-        /// <summary>
-        /// Make sure we don't call xnaTexture before resolving for the first time!
-        /// </summary>
+        // Make sure we don't call xnaTexture before resolving for the first time!
         private bool alreadyResolved;
 
-        /// <summary>
-        /// Surface Format.
-        /// </summary>
-        private readonly SurfaceFormat surfaceFormat;
+        // Indicates if this render target is currently used and if its information has to be preserved.
+        private bool looked;
 
-        /// <summary>
-        /// Depth Format.
-        /// </summary>
-        private readonly DepthFormat depthFormat;
-        
-        /// <summary>
-        /// The count of render targets created for naming purposes.
-        /// </summary>
+        // The count of render targets created for naming purposes.
         private static int nameNumber = 1;
-
-        /// <summary>
-        /// Remember the last render targets we set.
-        /// We can enable up to four render targets at once.
-        /// </summary>
+        
+        // Remember the last render targets we set. We can enable up to four render targets at once.
         private static readonly RenderTarget[] currentRenderTarget = new RenderTarget[4];
-
+        
         #endregion
 
         #region Properties
@@ -147,12 +132,12 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Surface Format.
         /// </summary>
-        public SurfaceFormat SurfaceFormat { get { return surfaceFormat; } }
+        public SurfaceFormat SurfaceFormat { get; private set; }
 
         /// <summary>
         /// Depth Format.
         /// </summary>
-        public DepthFormat DepthFormat { get { return depthFormat; } }
+        public DepthFormat DepthFormat { get; private set; }
 
         /// <summary>
         /// Multi Sample Quality.
@@ -180,8 +165,8 @@ namespace XNAFinalEngine.Assets
             Name = "Render Target " + nameNumber++;
             Size = size;
 
-            surfaceFormat = _surfaceFormat;
-            depthFormat = _depthFormat;
+            SurfaceFormat = _surfaceFormat;
+            DepthFormat = _depthFormat;
             Antialiasing = antialiasingType;
 
             Create();
@@ -200,8 +185,8 @@ namespace XNAFinalEngine.Assets
             Name = "Render Target " + nameNumber++;
             Size = size;
 
-            surfaceFormat = _surfaceFormat;
-            depthFormat = _hasDepthBuffer ? DepthFormat.Depth24 : DepthFormat.None;
+            SurfaceFormat = _surfaceFormat;
+            DepthFormat = _hasDepthBuffer ? DepthFormat.Depth24 : DepthFormat.None;
             Antialiasing = antialiasingType;
 
             Create();
@@ -224,7 +209,7 @@ namespace XNAFinalEngine.Assets
                 // I use RenderTargetUsage.PlatformContents to be little more performance friendly with PC.
                 // But I assume that the system works in DiscardContents mode so that an XBOX 360 implementation works.
                 // What I lose, mostly nothing, because I made my own ZBuffer texture and the stencil buffer is deleted no matter what I do.
-                renderTarget = new RenderTarget2D(EngineManager.Device, Width, Height, false, surfaceFormat, depthFormat, CalculateMultiSampleQuality(Antialiasing), RenderTargetUsage.PlatformContents);
+                renderTarget = new RenderTarget2D(EngineManager.Device, Width, Height, false, SurfaceFormat, DepthFormat, CalculateMultiSampleQuality(Antialiasing), RenderTargetUsage.PlatformContents);
             }
             catch (Exception e)
             {
@@ -359,7 +344,7 @@ namespace XNAFinalEngine.Assets
         {            
             if (currentRenderTarget[0] != this)
                 throw new InvalidOperationException("Render Target: You can't clear a render target without first setting it");
-            if (depthFormat == DepthFormat.None)
+            if (DepthFormat == DepthFormat.None)
                 EngineManager.Device.Clear(clearColor);
             else
                 EngineManager.Device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, clearColor, 1.0f, 0);
@@ -476,7 +461,7 @@ namespace XNAFinalEngine.Assets
         #region Pool
 
         // A pool of all render targets.
-        private static readonly RenderTarget[] renderTargets = new RenderTarget[0];
+        private static readonly List<RenderTarget> renderTargets = new List<RenderTarget>(0);
 
         /// <summary>
         /// There is a pool of render targets to avoid wasting unnecessary graphic memory.
@@ -489,16 +474,45 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public static RenderTarget Fetch(Size size, SurfaceFormat surfaceFormat, DepthFormat depthFormat, AntialiasingType antialiasingType)
         {
-            for (int i = 0; i < renderTargets.Length; i++)
+            RenderTarget renderTarget;
+            for (int i = 0; i < renderTargets.Count; i++)
             {
-                RenderTarget renderTarget = renderTargets[i];
-                if (renderTarget.Size == size && renderTarget.SurfaceFormat == surfaceFormat && renderTarget.DepthFormat == depthFormat && renderTarget.Antialiasing == antialiasingType)
+                renderTarget = renderTargets[i];
+                if (renderTarget.Size == size && renderTarget.SurfaceFormat == surfaceFormat &&
+                    renderTarget.DepthFormat == depthFormat && renderTarget.Antialiasing == antialiasingType && !renderTarget.looked)
                 {
-                    
+                    renderTarget.looked = true;
+                    return renderTarget;
                 }
             }
-            return null;
+            renderTarget = new RenderTarget(size, surfaceFormat, depthFormat, antialiasingType);
+            renderTargets.Add(renderTarget);
+            renderTarget.looked = true;
+            return renderTarget;
         } // Fetch
+
+        /// <summary>
+        /// Release the render target.
+        /// </summary>
+        public static void Release(RenderTarget rendertarget)
+        {
+            for (int i = 0; i < renderTargets.Count; i++)
+            {
+                if (rendertarget == renderTargets[i])
+                {
+                    rendertarget.looked = false;
+                    return;
+                }
+            }
+            throw new ArgumentException("Render Target: Cannot release render target. The render target is not present in the pool.");
+        } // Release
+
+        public static void ClearRenderTargetPool()
+        {
+            for (int i = 0; i < renderTargets.Count; i++)
+                renderTargets[i].Dispose();
+            renderTargets.Clear();
+        } // ClearRenderTargetPool
 
         #endregion
 

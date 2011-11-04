@@ -355,19 +355,20 @@ namespace XNAFinalEngine.EngineCore
             }
 
             // If it is a master camera and it does not have slaves...
-            if (currentCamera.MasterCamera == null && currentCamera.slavesCameras.Count == 0)
+            /*if (currentCamera.MasterCamera == null && currentCamera.slavesCameras.Count == 0)
             {
                 SpriteManager.DrawTextureToFullScreen(postProcessPass.PostProcessedSceneTexture);
-            }
+            }*/
             
             #endregion
 
-            //currentCamera.RenderTarget.EnableRenderTarget();
-            //currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
-            //SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget);
+            currentCamera.RenderTarget.EnableRenderTarget();
+            currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
+            SpriteManager.DrawTextureToFullScreen(postProcessPass.PostProcessedSceneTexture);
             // Composite the different viewports
             /*for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
                 currentCamera.slavesCameras[i];*/
+            currentCamera.RenderTarget.DisableRenderTarget();
 
             #region Screenshot Preparations
 
