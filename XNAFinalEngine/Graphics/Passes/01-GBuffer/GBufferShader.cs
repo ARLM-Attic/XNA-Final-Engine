@@ -46,44 +46,35 @@ namespace XNAFinalEngine.Graphics
     /// The depth texture has a surface format of 32 bits single channel precision, and the normal has a half vector 2 format (r16f g16f). 
     /// The normals are store with spherical coordinates and the depth is store using the equation: -DepthVS / FarPlane.
     /// </summary>
-    internal class GBuffer : Shader
+    internal class GBufferShader : Shader
     {
 
         #region Variables
 
-        // This structure is used to set multiple render targets without generating garbage in the process.
-        private readonly RenderTarget.RenderTargetBinding renderTargetBinding;
-
-        /// <summary>
-        /// Current view and projection matrix. Used to set the shader parameters.
-        /// </summary>
         private Matrix viewMatrix, projectionMatrix;
 
+        // Singleton reference.
+        private static GBufferShader instance;
+        
         #endregion
 
         #region Properties
 
-        /// <summary> 
-        /// Single Z-Buffer texture with 32 bits single channel precision.
-        /// Equation: -DepthVS / FarPlane
-        /// </summary>
-        public RenderTarget DepthTexture { get; private set; }
-
         /// <summary>
-        /// Normal Map in half vector 2 format (r16f g16f) and using spherical coordinates.
+        /// A singleton of a G-Buffer shader.
         /// </summary>
-        public RenderTarget NormalTexture { get; private set; }
-
-        /// <summary>
-        /// R: Motion vector X
-        /// G: Motion vector Y
-        /// B: Specular Power.
-        /// A: Unused... yet.
-        /// </summary>
-        public RenderTarget MotionVectorsSpecularPowerTexture { get; private set; }
+        public static GBufferShader Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new GBufferShader();
+                return instance;
+            }
+        } // Instance
 
         #endregion
-
+        
         #region Shader Parameters
 
         /// <summary>
@@ -384,23 +375,7 @@ namespace XNAFinalEngine.Graphics
         /// The depth texture has a texture with a 32 bits single channel precision, and the normal has a half vector 2 format (r16f g16f). 
         /// The normals are store with spherical coordinates and the depth is store using the equation: -DepthVS / FarPlane.
         /// </summary>
-        internal GBuffer(Size size) : base("GBuffer\\GBuffer")
-        {
-            // Multisampling on normal and depth maps makes no physical sense!!
-            // 32 bits single channel precision
-            DepthTexture = new RenderTarget(size, SurfaceFormat.Single);
-            // Half vector 2 format (r16f g16f). Be careful, in some GPUs this surface format is changed to the RGBA1010102 format.
-            // The XBOX 360 supports it though (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
-            NormalTexture = new RenderTarget(size, SurfaceFormat.HalfVector2, false);
-            // R: Motion vector X
-            // G: Motion vector Y
-            // B: Specular Power.
-            // A: Unused... yet.
-            MotionVectorsSpecularPowerTexture = new RenderTarget(size, SurfaceFormat.Color, false);
-
-            renderTargetBinding = RenderTarget.BindRenderTargets(DepthTexture, NormalTexture, MotionVectorsSpecularPowerTexture);
-
-        } // GBuffer
+        internal GBufferShader() : base("GBuffer\\GBuffer") { }
 
         #endregion
 
@@ -449,37 +424,26 @@ namespace XNAFinalEngine.Graphics
         } // GetParameters
 
         #endregion
-        
+
         #region Begin
-        
+
         /// <summary>
-        /// Begins the G-Buffer render.
+        /// Begins the G Buffer rendering.
         /// </summary>
-        internal void Begin(Matrix viewMatrix, Matrix projectionMatrix, float farPlane)
+        internal void Begin(Matrix _viewMatrix, Matrix _projectionMatrix, float farPlane)
         {
             try
             {
-                // Set Render States.
-                EngineManager.Device.BlendState        = BlendState.Opaque;
-                EngineManager.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
-                EngineManager.Device.DepthStencilState = DepthStencilState.Default;
-                // If I set the sampler states here and no texture is set then this could produce exceptions 
-                // because another texture from another shader could have an incorrect sampler state when this shader is executed.
-
-                // With multiple render targets the GBuffer performance can be vastly improved.
-                RenderTarget.EnableRenderTargets(renderTargetBinding);
-                RenderTarget.ClearCurrentRenderTargets(Color.White);
-                // Set initial parameters
-                this.viewMatrix = viewMatrix;
-                this.projectionMatrix = projectionMatrix;
+                viewMatrix = _viewMatrix;
+                projectionMatrix = _projectionMatrix;
                 SetFarPlane(farPlane);
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("GBuffer: Unable to begin the rendering.", e);
+                throw new InvalidOperationException("Light Pre Pass Directional Light:: Unable to begin the rendering.", e);
             }
         } // Begin
-        
+
         #endregion
 
         #region Render Model
@@ -578,38 +542,5 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region End
-
-        /// <summary>
-        /// Resolve render targets.
-        /// </summary>
-        internal void End()
-        {
-            try
-            {
-                RenderTarget.DisableCurrentRenderTargets();
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException("GBuffer: Unable to end the rendering.", e);
-            }
-        } // Begin
-
-        #endregion
-
-        #region Dispose
-
-        /// <summary>
-        /// Dispose managed resources.
-        /// </summary>
-        protected override void DisposeManagedResources()
-        {
-            DepthTexture.Dispose();
-            NormalTexture.Dispose();
-            MotionVectorsSpecularPowerTexture.Dispose();
-        } // DisposeManagedResources
-
-        #endregion
-
-    } // GBuffer
+    } // GBufferShader
 } // XNAFinalEngine.Graphics

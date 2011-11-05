@@ -42,7 +42,7 @@ using RootAnimation = XNAFinalEngine.Components.RootAnimations;
 using XNAFinalEngine.Scenes;
 using Camera = XNAFinalEngine.Components.Camera;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
-
+using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -55,18 +55,7 @@ namespace XNAFinalEngine.EngineCore
     {
 
         #region Variables
-
-        // TODO!!! Esto no va.
-        private static GBuffer gbuffer;
-        private static LightPrePass lightPrePass;
-        private static DirectionalLightShader directionalLightShader;
-        private static ScenePass hdrLinearSpacePass;
-        private static ConstantShader constantShader;
-        private static BlinnPhongShader blinnPhongShader;
-        private static PostProcessingPass postProcessPass;
-        private static PostProcess postProcess;
-        private static MLAAShader mlaaShader;
-
+        
         /// <summary>
         /// This game object will show the frames per second onto screen.
         /// </summary>
@@ -114,22 +103,6 @@ namespace XNAFinalEngine.EngineCore
             fpsText.Transform.LocalRotation = 0f;
 
             #endregion
-            
-            gbuffer = new GBuffer(Size.FullScreen);
-            lightPrePass = new LightPrePass(Size.FullScreen);
-            directionalLightShader = new DirectionalLightShader();
-            hdrLinearSpacePass = new ScenePass(Size.FullScreen);
-            constantShader = new ConstantShader();
-            blinnPhongShader = new BlinnPhongShader();
-            postProcessPass = new PostProcessingPass(Size.FullScreen);
-            postProcess = new PostProcess
-                              {
-                                  FilmGrain = new FilmGrain(),
-                                  Bloom = new Bloom(),
-                                  AdjustLevels = new AdjustLevels(),
-                                  MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Color, BlurRadius = 2}
-                              };
-            mlaaShader = new MLAAShader(Size.FullScreen);
             
             if (CurrentScene != null)
             {
@@ -277,44 +250,49 @@ namespace XNAFinalEngine.EngineCore
 
                 #region GBuffer Pass
                 
-                gbuffer.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane);
+                GBufferPass.Begin(Size.FullScreen);
+                GBufferShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane);
                 for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
                 {
                     ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
                     if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                     {
-                        gbuffer.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, currentModelRenderer.Material);
+                        GBufferShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, currentModelRenderer.Material);
                     }
                 }
-                gbuffer.End();
+                RenderTarget.RenderTargetBinding gbufferTextures = GBufferPass.End();
 
                 #endregion
                 
                 #region Light Pre Pass
                     
-                lightPrePass.Begin(currentCamera.AmbientLight.Color);
+                LightPrePass.Begin(Size.FullScreen, currentCamera.AmbientLight.Color);
 
                 // Render ambient light for every camera.
 
                 // Render directional lights for every camera.
-                directionalLightShader.Begin(gbuffer.DepthTexture, gbuffer.NormalTexture, gbuffer.MotionVectorsSpecularPowerTexture, currentCamera.ViewMatrix, currentCamera.BoundingFrustum());
+                DirectionalLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
+                                             gbufferTextures.RenderTargets[1], // Normal Texture
+                                             gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
+                                             currentCamera.ViewMatrix,
+                                             currentCamera.BoundingFrustum());
                 for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
                 {
                     DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
-                    directionalLightShader.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity);
+                    DirectionalLightShader.Instance.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity);
                 }
 
                 // Render point lights for every camera.
 
                 // Render spot lights for every camera.
 
-                lightPrePass.End();
+                RenderTarget lightTexture = LightPrePass.End();
                     
                 #endregion
                 
                 #region HDR Linear Space Pass
 
-                hdrLinearSpacePass.Begin(currentCamera.ClearColor);
+                ScenePass.Begin(currentCamera.RenderTargetSize, currentCamera.ClearColor);
 
                 // Render all the opaque objects);
                 for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
@@ -324,13 +302,13 @@ namespace XNAFinalEngine.EngineCore
                     {
                         if (currentModelRenderer.Material is Constant)
                         {
-                            constantShader.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
-                            constantShader.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (Constant)currentModelRenderer.Material);
+                            ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+                            ConstantShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (Constant)currentModelRenderer.Material);
                         }
                         else if (currentModelRenderer.Material is BlinnPhong)
                         {
-                            blinnPhongShader.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightPrePass.LightTexture);
-                            blinnPhongShader.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, (BlinnPhong)currentModelRenderer.Material);
+                            BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                            BlinnPhongShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, (BlinnPhong)currentModelRenderer.Material);
                         }
                     }
                 }
@@ -341,14 +319,17 @@ namespace XNAFinalEngine.EngineCore
 
                 // The transparent objects will be render in forward fashion.
 
-                hdrLinearSpacePass.End();
+                RenderTarget sceneTexture = ScenePass.End();
+                RenderTarget.Release(lightTexture);
 
                 #endregion
-                
+
                 #region Post Process Pass
 
-                postProcessPass.Render(hdrLinearSpacePass.SceneTexture, postProcess);
-                mlaaShader.Filter(postProcessPass.PostProcessedSceneTexture, gbuffer.DepthTexture, postProcess);
+                RenderTarget postProcessedSceneTexture = PostProcessingPass.Process(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess);
+                RenderTarget.Release(sceneTexture); // It is not need anymore.
+                RenderTarget.Release(gbufferTextures); // It is not need anymore.
+                currentCamera.PartialRenderTarget = postProcessedSceneTexture;
 
                 #endregion
 
@@ -364,7 +345,8 @@ namespace XNAFinalEngine.EngineCore
 
             currentCamera.RenderTarget.EnableRenderTarget();
             currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
-            SpriteManager.DrawTextureToFullScreen(postProcessPass.PostProcessedSceneTexture);
+            SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget);
+            RenderTarget.Release(currentCamera.PartialRenderTarget);
             // Composite the different viewports
             /*for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
                 currentCamera.slavesCameras[i];*/

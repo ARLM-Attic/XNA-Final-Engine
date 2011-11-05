@@ -40,9 +40,9 @@ using XNAFinalEngine.Assets;
 namespace XNAFinalEngine.Graphics
 {
     /// <summary>
-    /// Light Pre Pass base.
+    /// Light Pre Pass.
     /// </summary>
-    internal class LightPrePass : Disposable
+    internal static class LightPrePass
     {
 
         #region Variables
@@ -52,17 +52,6 @@ namespace XNAFinalEngine.Graphics
         /// The resulting color will be added to current render target color.
         /// </summary>
         private static BlendState additiveBlendingState;
-
-        #if (XBOX)
-
-            // This structure is used to set multiple render targets without generating garbage in the process.
-            internal readonly RenderTarget.RenderTargetBinding renderTargetBinding;
-
-        #endif
-
-        #endregion
-
-        #region Properties
 
         /// <summary>
         /// Light Texture.
@@ -85,47 +74,19 @@ namespace XNAFinalEngine.Graphics
         /// 
         /// One more thing, I can't use a color surface format because the RGBM format doesn't work with additive blending.
         /// </remarks>
-        internal RenderTarget LightTexture { get; private set; }
+        private static RenderTarget lightTexture;
 
         #if (XBOX)
 
             /// <summary>
             /// See Light Texture remarks.
             /// </summary>
-            internal RenderTarget Xbox360SpecularLightTexture { get; private set; }
+            private static RenderTarget xbox360SpecularLightTexture;
+
+            // This structure is used to set multiple render targets without generating garbage in the process.
+            private static RenderTarget.RenderTargetBinding renderTargetBinding;
 
         #endif
-
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        /// Light Pre Pass base.
-        /// </summary>
-        internal LightPrePass(Size size)
-        {
-            LightTexture = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-            #if (XBOX)
-                Xbox360SpecularLightTexture = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-                renderTargetBinding = RenderTarget.BindRenderTargets(LightTexture, Xbox360SpecularLightTexture);
-            #endif
-            CreateStatesAndShaders();
-        } // LightPrePass
-
-        private static void CreateStatesAndShaders()
-        {
-            // The resulting color will be added to current render target color.
-            additiveBlendingState = new BlendState
-            {
-                AlphaBlendFunction = BlendFunction.Add,
-                AlphaDestinationBlend = Blend.One,
-                AlphaSourceBlend = Blend.One,
-                ColorBlendFunction = BlendFunction.Add,
-                ColorDestinationBlend = Blend.One,
-                ColorSourceBlend = Blend.One,
-            };
-        } // CreateStatesAndShaders
 
         #endregion
 
@@ -134,10 +95,24 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the G-Buffer render.
         /// </summary>
-        internal void Begin(Color ambientLightColor)
+        internal static void Begin(Size size, Color ambientLightColor)
         {
             try
             {
+                if (additiveBlendingState == null)
+                {
+                    // The resulting color will be added to current render target color.
+                    additiveBlendingState = new BlendState
+                    {
+                        AlphaBlendFunction = BlendFunction.Add,
+                        AlphaDestinationBlend = Blend.One,
+                        AlphaSourceBlend = Blend.One,
+                        ColorBlendFunction = BlendFunction.Add,
+                        ColorDestinationBlend = Blend.One,
+                        ColorSourceBlend = Blend.One,
+                    };
+                }
+
                 // Set Render States.
                 EngineManager.Device.BlendState        = additiveBlendingState; // The resulting color will be added to current render target color.
                 EngineManager.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
@@ -146,8 +121,11 @@ namespace XNAFinalEngine.Graphics
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
                 
                 #if (WINDOWS)
-                    LightTexture.EnableRenderTarget();
+                    lightTexture = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                    lightTexture.EnableRenderTarget();
                 #else
+                    Xbox360SpecularLightTexture = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                    renderTargetBinding = RenderTarget.BindRenderTargets(LightTexture, Xbox360SpecularLightTexture);
                     RenderTarget.EnableRenderTargets(renderTargetBinding);
                 #endif
                 
@@ -155,7 +133,7 @@ namespace XNAFinalEngine.Graphics
             } // try
             catch (Exception e)
             {
-                throw new InvalidOperationException("LightPrePass: Unable to begin the rendering.", e);
+                throw new InvalidOperationException("Light Pre Pass: Unable to begin the rendering.", e);
             }
         } // Begin
         
@@ -164,34 +142,20 @@ namespace XNAFinalEngine.Graphics
         #region End
 
         /// <summary>
-        /// Resolve render targets.
+        /// Resolve render targets and return a texture with the light information.
         /// </summary>
-        internal void End()
+        internal static RenderTarget End()
         {
             try
             {
                 RenderTarget.DisableCurrentRenderTargets();
+                return lightTexture;
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("LightPrePass: Unable to end the rendering.", e);
+                throw new InvalidOperationException("Light Pre Pass: Unable to end the rendering.", e);
             }
-        } // Begin
-
-        #endregion
-
-        #region Dispose
-
-        /// <summary>
-        /// Dispose managed resources.
-        /// </summary>
-        protected override void DisposeManagedResources()
-        {
-            LightTexture.Dispose();
-            #if (XBOX)
-                Xbox360SpecularLightTexture.Dispose();
-            #endif
-        } // DisposeManagedResources
+        } // End
 
         #endregion
 

@@ -30,7 +30,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
@@ -55,12 +54,27 @@ namespace XNAFinalEngine.Graphics
     internal class BloomShader : Shader
     {
 
+        #region Variables
+
+        // Singleton reference.
+        private static BloomShader instance;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
-        /// Bloom Texture.
+        /// A singleton of a bloom shader.
         /// </summary>
-        public RenderTarget BloomTexture { get; private set; }
+        public static BloomShader Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new BloomShader();
+                return instance;
+            }
+        } // Instance
 
         #endregion
 
@@ -143,9 +157,8 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Bloom shader.
         /// </summary>
-        private BloomShader(Size size) : base("PostProcessing\\Bloom")
+        private BloomShader() : base("PostProcessing\\Bloom")
         {
-            BloomTexture = new RenderTarget(size, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
             Resource.CurrentTechnique = Resource.Techniques["Bloom"];
         } // BloomShader
 
@@ -176,42 +189,53 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Generate Bloom
+        #region Render
 
         /// <summary>
         /// Generate Bloom Texture.
         /// </summary>
-        internal void Render(Texture sceneTexture, PostProcess postProcess)
+        internal RenderTarget Render(Texture sceneTexture, PostProcess postProcess)
         {
             if (postProcess == null)
                 throw new ArgumentNullException("postProcess");
             if (sceneTexture == null || sceneTexture.Resource == null)
                 throw new ArgumentNullException("sceneTexture");
             if (postProcess.Bloom == null)
-                throw new ArgumentException("Bloom Shader: Bloom property can not be null.");
+                throw new ArgumentException("Bloom Shader: Bloom properties can not be null.");
             try
             {
-                // Set Render States
+                // Fetch auxiliary render target.
+                Size bloomSize;
+                if (sceneTexture.Size == Size.FullScreen) // A common case
+                    bloomSize = Size.QuarterScreen;
+                else if (sceneTexture.Size == Size.SplitFullScreen) // The second common case
+                    bloomSize = Size.SplitQuarterScreen;
+                else
+                    bloomSize = new Size(sceneTexture.Width / 4, sceneTexture.Height / 4);
+                RenderTarget bloomTexture = RenderTarget.Fetch(bloomSize, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+
+                // Set Render States.
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
                 EngineManager.Device.SamplerStates[8] = SamplerState.PointClamp;
 
-                // Set Parameters
-                SetHalfPixel(new Vector2(-1f / BloomTexture.Width, 1f / BloomTexture.Height));
+                // Set Parameters.
+                SetHalfPixel(new Vector2(-1f / bloomTexture.Width, 1f / bloomTexture.Height));
                 SetLensExposure(postProcess.LensExposure);
                 SetBloomThreshold(postProcess.Bloom.BloomThreshold);
                 SetSceneTexture(sceneTexture);
 
-                BloomTexture.EnableRenderTarget();
-                
+                // Render it.
+                bloomTexture.EnableRenderTarget();
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
-
-                BloomTexture.DisableRenderTarget();
+                bloomTexture.DisableRenderTarget();
 
                 // Blur it.
-                BlurShader.GetShader(BloomTexture.Size).Filter(BloomTexture, false, 1); // Quarter size blur
+                BlurShader.Instance.Filter(bloomTexture, false, 1);
+
+                return bloomTexture;
             }
             catch (Exception e)
             {
@@ -220,50 +244,6 @@ namespace XNAFinalEngine.Graphics
         } // Render
 
         #endregion
-
-        #region Dispose
-
-        /// <summary>
-        /// Dispose managed resources.
-        /// </summary>
-        protected override void DisposeManagedResources()
-        {
-            BloomTexture.Dispose();
-        } // DisposeManagedResources
-
-        #endregion
-
-        #region Stored Shaders
-
-        // A pool of all bloom shaders.
-        private static readonly Dictionary<Size, BloomShader> shaders = new Dictionary<Size, BloomShader>(1);
         
-        /// <summary>
-        /// Returns a bloom shader for this size.
-        /// The shaders are stored in a pool.
-        /// </summary>
-        public static BloomShader GetShader(Size size)
-        {
-            if (shaders.ContainsKey(size))
-                return shaders[size];
-            // If not return a new one.
-            shaders[size] = new BloomShader(size);
-            return shaders[size];
-        } // GetShader
-
-        /// <summary>
-        /// Dispose stored shaders.
-        /// </summary>
-        public static void DisposeShaders()
-        {
-            foreach (var shader in shaders)
-            {
-                shader.Value.Dispose();
-            }
-            shaders.Clear();
-        } // DisposeShaders
-
-        #endregion
-
-    } // Bloom
+    } // BloomShader
 } // XNAFinalEngine.Graphics

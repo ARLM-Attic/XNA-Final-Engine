@@ -30,7 +30,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
@@ -44,16 +43,31 @@ namespace XNAFinalEngine.Graphics
 	/// <summary>
     /// Dilate a single channel texture.
 	/// </summary>
-    internal class DilateShader : Shader
+    public class DilateShader : Shader
 	{
 
-		#region Variables
+        #region Variables
 
-		/// <summary>
-		/// Auxiliary render target.
-		/// </summary>
-        private readonly RenderTarget dilatedTempTexture;
-        
+        // Singleton reference.
+        private static DilateShader instance;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// A singleton of a dilate shader.
+        /// </summary>
+        public static DilateShader Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new DilateShader();
+                return instance;
+            }
+        } // Instance
+
         #endregion
 
         #region Shader Parameters
@@ -140,10 +154,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Dilate a single channel texture.
 		/// </summary>
-        private DilateShader(Size size) : base("Filters\\Dilate")
-		{
-            dilatedTempTexture = new RenderTarget(size, SurfaceFormat.HalfSingle, false, RenderTarget.AntialiasingType.NoAntialiasing);
-        } // Dilate
+        private DilateShader() : base("Filters\\Dilate") { }
 
 		#endregion
 
@@ -175,25 +186,29 @@ namespace XNAFinalEngine.Graphics
         #region Filter
         
         /// <summary>
-		/// Generate the dilate effect.
+		/// Dilates a texture.
 		/// </summary>
+        /// <param name="texture">The texture to dilate. The result will be placed here.</param>
+        /// <param name="width">Dilate Width.</param>
         internal void Filter(RenderTarget texture, float width = 1.0f)
 		{   
-            // Only apply if the texture is valid
+            // Only apply if the texture is valid.
 			if (texture == null || texture.Resource == null)
                 throw new ArgumentNullException("texture");
-            if (texture.Width != dilatedTempTexture.Width || texture.Height != dilatedTempTexture.Height)
-                throw new ArgumentException("Dilate Shader: Texture size does not match the dilate internal texture size", "texture");
             if (texture.SurfaceFormat != SurfaceFormat.HalfSingle && texture.SurfaceFormat != SurfaceFormat.Single)
                 throw new ArgumentException("Dilate Shader: Invalid texture surface format. This shader only works with single channel textures", "texture");
             try
             {
+                // Auxiliary render target.
+                RenderTarget dilatedTempTexture = RenderTarget.Fetch(texture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+
                 // Set render states.
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
                 EngineManager.Device.SamplerStates[7] = SamplerState.PointClamp;
 
+                // Set parameters.
                 SetDilateWidth(width);
                 SetTextureResolution(new Vector2(texture.Width, texture.Height));
                 SetTexture(texture);
@@ -202,13 +217,9 @@ namespace XNAFinalEngine.Graphics
                 foreach (EffectPass pass in Resource.CurrentTechnique.Passes)
                 {
                     if (pass.Name == "DilateHorizontal")
-                    {
                         dilatedTempTexture.EnableRenderTarget();
-                    }
                     else
-                    {
                         texture.EnableRenderTarget();
-                    }
 
                     pass.Apply();
                     RenderScreenPlane();
@@ -219,62 +230,18 @@ namespace XNAFinalEngine.Graphics
                         SetTexture(dilatedTempTexture);
                     }
                     else
-                    {
                         texture.DisableRenderTarget();
-                    }
                 }
+                // It's not used anymore.
+                RenderTarget.Release(dilatedTempTexture);
             }
             catch (Exception e)
             {
                 throw new Exception("Dilate Shader: Unable to render.", e);
             }
-        } // Render
+        } // Filter
 
 		#endregion
-
-        #region Dispose
-
-        /// <summary>
-        /// Dispose managed resources.
-        /// </summary>
-        protected override void DisposeManagedResources()
-        {
-            dilatedTempTexture.Dispose();
-        } // DisposeManagedResources
-
-        #endregion
-
-        #region Stored Shaders
-
-        // A pool of all bloom shaders.
-        private static readonly Dictionary<Size, DilateShader> shaders = new Dictionary<Size, DilateShader>(1);
-
-        /// <summary>
-        /// Returns a bloom shader for this size.
-        /// The shaders are stored in a pool.
-        /// </summary>
-        public static DilateShader GetShader(Size size)
-        {
-            if (shaders.ContainsKey(size))
-                return shaders[size];
-            // If not return a new one.
-            shaders[size] = new DilateShader(size);
-            return shaders[size];
-        } // GetShader
-
-        /// <summary>
-        /// Dispose stored shaders.
-        /// </summary>
-        public static void DisposeShaders()
-        {
-            foreach (var shader in shaders)
-            {
-                shader.Value.Dispose();
-            }
-            shaders.Clear();
-        } // DisposeShaders
-
-        #endregion
 
     } // DilateShader
 } // XNAFinalEngine.Graphics

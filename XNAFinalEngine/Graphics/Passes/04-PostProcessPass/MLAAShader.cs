@@ -45,18 +45,28 @@ namespace XNAFinalEngine.Graphics
     /// </summary>
     internal class MLAAShader : Shader
     {
-                
+
+        #region Variables
+
+        // Singleton reference.
+        private static MLAAShader instance;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
-        /// Blending Weight Texture.
+        /// A singleton of a MLAA shader.
         /// </summary>
-        internal RenderTarget BlendingWeightTexture { get; private set; }
-
-        /// <summary>
-        /// Anti Aliased Texture.
-        /// </summary>
-        internal RenderTarget AntiAliasedTexture { get; private set; }
+        public static MLAAShader Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new MLAAShader();
+                return instance;
+            }
+        } // Instance
 
         #endregion
 
@@ -232,7 +242,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Morphological Antialiasing (MLAA).
         /// </summary>
-        internal MLAAShader(Size size) : base("PostProcessing\\MLAA")
+        internal MLAAShader() : base("PostProcessing\\MLAA")
         {
             ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
             // IMPORTANT: Be careful of the content processor properties of this texture
@@ -240,9 +250,6 @@ namespace XNAFinalEngine.Graphics
             // Texture format: No change.
             Texture areaTexture = new Texture("Shaders\\AreaMap32");
             Resource.Parameters["areaTexture"].SetValue(areaTexture.Resource);
-
-            BlendingWeightTexture = new RenderTarget(size, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
-            AntiAliasedTexture = new RenderTarget(size, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
         } // MLAAShader
 
         #endregion
@@ -282,16 +289,20 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render.
         /// </summary>
-        public void Filter(RenderTarget texture, RenderTarget depthTexture, PostProcess postProcess)
+        public RenderTarget Render(RenderTarget texture, Texture depthTexture, PostProcess postProcess)
         {
             if (texture == null || texture.Resource == null)
                 throw new ArgumentNullException("texture");
             if (postProcess == null)
                 throw new ArgumentNullException("postProcess");
             if (postProcess.MLAA == null || !(postProcess.MLAA.Enabled))
-                return;
+                throw new ArgumentException("MLAA Shader: MLAA properties can not be null.");
             try
             {
+                // Fetch render targets.
+                RenderTarget blendingWeightTexture = RenderTarget.Fetch(texture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                RenderTarget destinationTexture = RenderTarget.Fetch(texture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                
                 // Set render states
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
@@ -318,51 +329,41 @@ namespace XNAFinalEngine.Graphics
                     if (pass.Name == "EdgeDetection")
                     {
                         // Store the edge texture into the result texture to reduce memory consumption.
-                        AntiAliasedTexture.EnableRenderTarget();
-                        AntiAliasedTexture.Clear(Color.Black);
+                        destinationTexture.EnableRenderTarget();
+                        destinationTexture.Clear(Color.Black);
                     }
                     else if (pass.Name == "BlendingWeight")
                     {
-                        SetEdgeTexture(AntiAliasedTexture);
-                        BlendingWeightTexture.EnableRenderTarget();
-                        BlendingWeightTexture.Clear(new Color(0, 0, 0, 0));
+                        SetEdgeTexture(destinationTexture);
+                        blendingWeightTexture.EnableRenderTarget();
+                        blendingWeightTexture.Clear(new Color(0, 0, 0, 0));
                     }
                     else
                     {
-                        SetBlendedWeightsTexture(BlendingWeightTexture);
-                        AntiAliasedTexture.EnableRenderTarget();
-                        AntiAliasedTexture.Clear(Color.Black);
+                        SetBlendedWeightsTexture(blendingWeightTexture);
+                        destinationTexture.EnableRenderTarget();
+                        destinationTexture.Clear(Color.Black);
                     }
                     
                     pass.Apply();
                     RenderScreenPlane();
 
                     if (pass.Name == "EdgeDetection")
-                        AntiAliasedTexture.DisableRenderTarget();
+                        destinationTexture.DisableRenderTarget();
                     else if (pass.Name == "BlendingWeight")
-                        BlendingWeightTexture.DisableRenderTarget();
+                        blendingWeightTexture.DisableRenderTarget();
                     else
-                        AntiAliasedTexture.DisableRenderTarget();
+                        destinationTexture.DisableRenderTarget();
                 }
+                // It's not used anymore.
+                RenderTarget.Release(blendingWeightTexture);
+                return destinationTexture;
             }
             catch (Exception e)
             {
                 throw new InvalidOperationException("MLAA Shader: Unable to render.", e);
             }
         } // Render
-
-        #endregion
-
-        #region Dispose
-
-        /// <summary>
-        /// Dispose managed resources.
-        /// </summary>
-        protected override void DisposeManagedResources()
-        {
-            BlendingWeightTexture.Dispose();
-            AntiAliasedTexture.Dispose();
-        } // DisposeManagedResources
 
         #endregion
 

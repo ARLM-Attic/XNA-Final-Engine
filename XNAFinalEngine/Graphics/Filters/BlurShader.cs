@@ -48,17 +48,32 @@ namespace XNAFinalEngine.Graphics
 	{
 
 		#region Variables
-
-		/// <summary>
-		/// Auxiliary render target.
-		/// </summary>
-        private readonly RenderTarget blurTempTexture;
         
+        // Singleton reference.
+	    private static BlurShader instance;
+        
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// A singleton of a blur shader.
+        /// </summary>
+	    public static BlurShader Instance
+	    {
+	        get
+	        {
+	            if (instance == null)
+                    instance = new BlurShader();
+	            return instance;
+	        }
+	    } // Instance
+
         #endregion
 
         #region Shader Parameters
 
-	    /// <summary>
+        /// <summary>
 	    /// Effect handles
 	    /// </summary>
 	    private static EffectParameter epTextureResolution,
@@ -158,10 +173,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Blur shader.
         /// </summary>
-        private BlurShader(Size size) : base("Filters\\Blur")
-		{
-            blurTempTexture = new RenderTarget(size, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
-        } // BlurShader
+        private BlurShader() : base("Filters\\Blur") { }
 
 		#endregion
 
@@ -202,10 +214,9 @@ namespace XNAFinalEngine.Graphics
 		{
             if (texture == null || texture.Resource == null)
                 throw new ArgumentNullException("texture");
-            if (texture.Width != blurTempTexture.Width || texture.Height != blurTempTexture.Height)
-                throw new ArgumentException("Blur Shader: Texture size does not match the blur internal texture size", "texture");
             try
             {
+                RenderTarget blurTempTexture = RenderTarget.Fetch(texture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
                 // Set Render States
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
@@ -247,58 +258,16 @@ namespace XNAFinalEngine.Graphics
                     else
                         texture.DisableRenderTarget();
                 }
+                // It's not used anymore.
+                RenderTarget.Release(blurTempTexture);
             }
             catch (Exception e)
             {
                 throw new InvalidOperationException("Blur Shader: Unable to render.", e);
             }
-        } // Render
+        } // Filter
 
 		#endregion
         
-        #region Dispose
-
-        /// <summary>
-        /// Dispose managed resources.
-        /// </summary>
-        protected override void DisposeManagedResources()
-        {
-            blurTempTexture.Dispose();
-        } // DisposeManagedResources
-
-        #endregion
-
-        #region Stored Shaders
-
-        // A pool of all bloom shaders.
-        private static readonly Dictionary<Size, BlurShader> shaders = new Dictionary<Size, BlurShader>(1);
-
-        /// <summary>
-        /// Returns a bloom shader for this size.
-        /// The shaders are stored in a pool.
-        /// </summary>
-        public static BlurShader GetShader(Size size)
-        {
-            if (shaders.ContainsKey(size))
-                return shaders[size];
-            // If not return a new one.
-            shaders[size] = new BlurShader(size);
-            return shaders[size];
-        } // GetShader
-
-        /// <summary>
-        /// Dispose stored shaders.
-        /// </summary>
-        public static void DisposeShaders()
-        {
-            foreach (var shader in shaders)
-            {
-                shader.Value.Dispose();
-            }
-            shaders.Clear();
-        } // DisposeShaders
-
-        #endregion
-
     } // BlurShader
 } // XNAFinalEngine.Graphics

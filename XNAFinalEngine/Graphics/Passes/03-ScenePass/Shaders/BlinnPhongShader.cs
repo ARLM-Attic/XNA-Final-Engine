@@ -55,6 +55,26 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private Matrix viewMatrix, projectionMatrix;
 
+        // Singleton reference.
+        private static BlinnPhongShader instance;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// A singleton of a Blinn Phong shader.
+        /// </summary>
+        public static BlinnPhongShader Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new BlinnPhongShader();
+                return instance;
+            }
+        } // Instance
+
         #endregion
 
         #region Shader Parameters

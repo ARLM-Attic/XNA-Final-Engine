@@ -143,7 +143,8 @@
     <Compile Include="Engine Core\Time.cs" />
     <Compile Include="Graphics\Filters\BlurShader.cs" />
     <Compile Include="Graphics\Filters\DilateShader.cs" />
-    <Compile Include="Graphics\Passes\01-GBuffer\GBuffer.cs" />
+    <Compile Include="Graphics\Passes\01-GBuffer\GBufferShader.cs" />
+    <Compile Include="Graphics\Passes\01-GBuffer\GBufferPass.cs" />
     <Compile Include="Graphics\AmbientLighting\AmbientOcclusion.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\DirectionalLightShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\LightPrePass.cs" />
@@ -162,6 +163,7 @@
     <Compile Include="Assets\PostProcess\FilmGrain.cs" />
     <Compile Include="Assets\Textures\LookupTable.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\BloomShader.cs" />
+    <Compile Include="Graphics\Passes\04-PostProcessPass\PostProcessingShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\MLAAShader.cs">
       <SubType>Code</SubType>
     </Compile>

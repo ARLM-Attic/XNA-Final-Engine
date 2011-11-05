@@ -58,6 +58,26 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private Matrix viewMatrix, projectionMatrix;
 
+        // Singleton reference.
+        private static ConstantShader instance;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// A singleton of a Constant shader.
+        /// </summary>
+        public static ConstantShader Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new ConstantShader();
+                return instance;
+            }
+        } // Instance
+
         #endregion
 
         #region Shader Parameters

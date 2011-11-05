@@ -40,24 +40,18 @@ using XNAFinalEngine.Assets;
 namespace XNAFinalEngine.Graphics
 {
     /// <summary>
-    /// Scene Pass.
+    /// This shader generates a depth map, a normal map, a specular power map and a motion vectors map.
+    /// It stores the result in several render targets (depth texture, normal texture, and motion vector and specular power texture).
+    /// The depth texture has a surface format of 32 bits single channel precision, and the normal has a half vector 2 format (r16f g16f). 
+    /// The normals are store with spherical coordinates and the depth is store using the equation: -DepthVS / FarPlane.
     /// </summary>
-    /// <remarks>
-    /// The scene will be render in HDR linear space here. Then, the post process will apply tone mapping to transform it to LDR gamma space.
-    /// </remarks>
-    internal static class ScenePass
+    internal static class GBufferPass
     {
 
         #region Variables
 
-        /// <summary>
-        /// Light Texture.
-        /// </summary>
-        /// <remarks> 
-        /// It's in linear space. In this same render target the transparent object will be rendered. Maybe an RGBM encoding could work, but how?
-        /// Multisampling could generate indeseable artifacts. Be careful!
-        /// </remarks>
-        private static RenderTarget sceneTexture;
+        // This structure is used to set multiple render targets without generating garbage in the process.
+        private static RenderTarget.RenderTargetBinding renderTargetBinding;
 
         #endregion
 
@@ -66,50 +60,62 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the G-Buffer render.
         /// </summary>
-        internal static void Begin(Size size, Color clearColor)
+        internal static void Begin(Size size)
         {
             try
             {
-                sceneTexture = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.Depth24, RenderTarget.AntialiasingType.NoAntialiasing);
+                // Multisampling on normal and depth maps makes no physical sense!!
+                // Depth Texture: Single Z-Buffer texture with 32 bits single channel precision. Equation: -DepthVS / FarPlane
+                //
+                // Normal map: Normal Map in half vector 2 format (r16f g16f) and using spherical coordinates.
+                // Half vector 2 format (r16f g16f). Be careful, in some GPUs this surface format is changed to the RGBA1010102 format.
+                // The XBOX 360 supports it though (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
+                //
+                // Motion Vector and Specular Power texture:
+                // R: Motion vector X
+                // G: Motion vector Y
+                // B: Specular Power.
+                // A: Unused... yet.
+                renderTargetBinding = RenderTarget.Fetch(size, SurfaceFormat.Single, DepthFormat.Depth24, SurfaceFormat.HalfVector2, SurfaceFormat.Color);
 
                 // Set Render States.
-                EngineManager.Device.BlendState        = BlendState.Opaque; // The resulting color will be added to current render target color.
+                EngineManager.Device.BlendState        = BlendState.Opaque;
                 EngineManager.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
                 EngineManager.Device.DepthStencilState = DepthStencilState.Default;
                 // If I set the sampler states here and no texture is set then this could produce exceptions 
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
-                
-                sceneTexture.EnableRenderTarget();
-                
-                RenderTarget.ClearCurrentRenderTargets(new Color(clearColor.R, clearColor.G, clearColor.B, 255));
-            } // try
+
+                // With multiple render targets the GBuffer performance can be vastly improved.
+                RenderTarget.EnableRenderTargets(renderTargetBinding);
+                RenderTarget.ClearCurrentRenderTargets(Color.White);
+            }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Scene Pass: Unable to begin the rendering.", e);
+                throw new InvalidOperationException("GBuffer Pass: Unable to begin the rendering.", e);
             }
         } // Begin
         
         #endregion
-
+        
         #region End
 
         /// <summary>
-        /// Resolve render targets and return a texture with the scene.
+        /// Resolve render targets  and return three textures with the G-Buffer.
         /// </summary>
-        internal static RenderTarget End()
+        internal static RenderTarget.RenderTargetBinding End()
         {
             try
             {
                 RenderTarget.DisableCurrentRenderTargets();
-                return sceneTexture;
+                return renderTargetBinding;
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Scene Pass: Unable to end the rendering.", e);
+                throw new InvalidOperationException("GBuffer: Unable to end the rendering.", e);
             }
-        } // End
+        } // Begin
 
         #endregion
 
-    } // ScenePass
+    } // GBufferPass
 } // XNAFinalEngine.Graphics

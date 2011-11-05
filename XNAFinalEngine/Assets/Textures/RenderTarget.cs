@@ -54,7 +54,32 @@ namespace XNAFinalEngine.Assets
         public struct RenderTargetBinding
         {
             internal Microsoft.Xna.Framework.Graphics.RenderTargetBinding[] InternalBinding;
-            internal RenderTarget[] renderTargets;
+            public RenderTarget[] RenderTargets;
+
+            #region Equal
+
+            public static bool operator ==(RenderTargetBinding x, RenderTargetBinding y)
+            {
+                return x.InternalBinding == y.InternalBinding;
+            } // Equal
+
+            public static bool operator !=(RenderTargetBinding x, RenderTargetBinding y)
+            {
+                return x.InternalBinding != y.InternalBinding;
+            } // Not Equal
+
+            public override bool Equals(Object obj)
+            {
+                return obj is RenderTargetBinding && this == (RenderTargetBinding)obj;
+            } // Equals
+            
+            public override int GetHashCode()
+            {
+                return InternalBinding.GetHashCode() ^ InternalBinding.GetHashCode();
+            } // GetHashCode
+
+            #endregion
+
         } // RenderTargetBinding
 
         #endregion
@@ -304,10 +329,10 @@ namespace XNAFinalEngine.Assets
         {
             if (currentRenderTarget[0] != null)
                 throw new InvalidOperationException("Render Target: unable to set render target. Another render target is still set.");
-            for (int i = 0; i < renderTargetBinding.renderTargets.Length; i++)
+            for (int i = 0; i < renderTargetBinding.RenderTargets.Length; i++)
             {
-                currentRenderTarget[i] = renderTargetBinding.renderTargets[i];
-                renderTargetBinding.renderTargets[i].alreadyResolved = false;
+                currentRenderTarget[i] = renderTargetBinding.RenderTargets[i];
+                renderTargetBinding.RenderTargets[i].alreadyResolved = false;
             }
             try
             {
@@ -321,7 +346,7 @@ namespace XNAFinalEngine.Assets
                 {
                     for (int i = 0; i < renderTargetBinding.InternalBinding.Length; i++)
                     {
-                        renderTargetBinding.InternalBinding[i] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.renderTargets[i].renderTarget);
+                        renderTargetBinding.InternalBinding[i] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.RenderTargets[i].renderTarget);
                     }
                     EngineManager.Device.SetRenderTargets(renderTargetBinding.InternalBinding);
                 }
@@ -414,7 +439,7 @@ namespace XNAFinalEngine.Assets
                     new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget1.renderTarget),
                     new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget2.renderTarget),
                 },
-                renderTargets = new[] { renderTarget1, renderTarget2 }
+                RenderTargets = new[] { renderTarget1, renderTarget2 }
             };
             return renderTargetsBinding;
         } // BindRenderTargets
@@ -432,7 +457,7 @@ namespace XNAFinalEngine.Assets
                     new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget2.renderTarget),
                     new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget3.renderTarget),
                 },
-                renderTargets = new[] {renderTarget1, renderTarget2, renderTarget3}
+                RenderTargets = new[] {renderTarget1, renderTarget2, renderTarget3}
             };
             return renderTargetsBinding;
         } // BindRenderTargets
@@ -451,7 +476,7 @@ namespace XNAFinalEngine.Assets
                     new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget3.renderTarget),
                     new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTarget4.renderTarget),
                 },
-                renderTargets = new[] { renderTarget1, renderTarget2, renderTarget3, renderTarget4 }
+                RenderTargets = new[] { renderTarget1, renderTarget2, renderTarget3, renderTarget4 }
             };
             return renderTargetsBinding;
         } // BindRenderTargets
@@ -485,6 +510,7 @@ namespace XNAFinalEngine.Assets
                     return renderTarget;
                 }
             }
+            // If there is not one unlook or present we create one.
             renderTarget = new RenderTarget(size, surfaceFormat, depthFormat, antialiasingType);
             renderTargets.Add(renderTarget);
             renderTarget.looked = true;
@@ -513,6 +539,72 @@ namespace XNAFinalEngine.Assets
                 renderTargets[i].Dispose();
             renderTargets.Clear();
         } // ClearRenderTargetPool
+
+        #endregion
+
+        #region Multiple Render Target Pool
+
+        // A pool of all multiple render targets.
+        private static readonly List<RenderTargetBinding> multipleRenderTargets = new List<RenderTargetBinding>(0);
+
+        /// <summary>
+        /// Fetch a multiple render target.
+        /// </summary>
+        public static RenderTargetBinding Fetch(Size size, SurfaceFormat surfaceFormat1, DepthFormat depthFormat, SurfaceFormat surfaceFormat2, SurfaceFormat surfaceFormat3)
+        {
+            RenderTargetBinding renderTargetBinding;
+            for (int i = 0; i < multipleRenderTargets.Count; i++)
+            {
+                renderTargetBinding = multipleRenderTargets[i];
+                // If is a multiple render target of three render targets.
+                if (renderTargetBinding.RenderTargets.Length == 3)
+                {
+                    if (renderTargetBinding.RenderTargets[0].Size == size && renderTargetBinding.RenderTargets[0].SurfaceFormat == surfaceFormat1 &&
+                        renderTargetBinding.RenderTargets[0].DepthFormat == depthFormat &&
+                        renderTargetBinding.RenderTargets[1].SurfaceFormat == surfaceFormat2 &&
+                        renderTargetBinding.RenderTargets[2].SurfaceFormat == surfaceFormat3 &&
+                        !renderTargetBinding.RenderTargets[0].looked)
+                    {
+                        renderTargetBinding.RenderTargets[0].looked = true;
+                        return renderTargetBinding;
+                    }
+                }
+            }
+            // If there is not one unlook or present we create one.
+            RenderTarget renderTarget1 = new RenderTarget(size, surfaceFormat1, depthFormat, AntialiasingType.NoAntialiasing);
+            RenderTarget renderTarget2 = new RenderTarget(size, surfaceFormat2, false, AntialiasingType.NoAntialiasing);
+            RenderTarget renderTarget3 = new RenderTarget(size, surfaceFormat3, false, AntialiasingType.NoAntialiasing);
+            renderTargetBinding = BindRenderTargets(renderTarget1, renderTarget2, renderTarget3);
+            multipleRenderTargets.Add(renderTargetBinding);
+            renderTargetBinding.RenderTargets[0].looked = true;
+            return renderTargetBinding;
+        } // Fetch
+
+        /// <summary>
+        /// Release the multiple render target.
+        /// </summary>
+        public static void Release(RenderTargetBinding renderTargetBinding)
+        {
+            for (int i = 0; i < multipleRenderTargets.Count; i++)
+            {
+                if (renderTargetBinding == multipleRenderTargets[i])
+                {
+                    renderTargetBinding.RenderTargets[0].looked = false;
+                    return;
+                }
+            }
+            throw new ArgumentException("Render Target: Cannot release multiple render target. The multiple render target is not present in the pool.");
+        } // Release
+
+        public static void ClearMultpleRenderTargetPool()
+        {
+            for (int i = 0; i < multipleRenderTargets.Count; i++)
+            {
+                for (int j = 0; j < multipleRenderTargets[i].RenderTargets.Length; j++)
+                    multipleRenderTargets[i].RenderTargets[j].Dispose();
+            }
+            renderTargets.Clear();
+        } // ClearMultpleRenderTargetPool
 
         #endregion
 

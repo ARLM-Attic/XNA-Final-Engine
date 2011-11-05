@@ -87,6 +87,14 @@ namespace XNAFinalEngineExamples
             otherCamera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
             otherCamera.Camera.FarPlane = 20000;*/
             
+            lamboBody.Camera.PostProcess = new PostProcess
+            {
+                FilmGrain = new FilmGrain(),
+                Bloom = new Bloom(),
+                AdjustLevels = new AdjustLevels(),
+                MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Color, BlurRadius = 2 }
+            };
+            
             dude = new GameObject3D();
             dude.Transform.Position = new Vector3(0, 0, 0);
             dude.AddComponent<ModelFilter>();

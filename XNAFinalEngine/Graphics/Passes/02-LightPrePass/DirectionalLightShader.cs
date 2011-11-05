@@ -40,6 +40,7 @@ using Texture = XNAFinalEngine.Assets.Texture;
 
 namespace XNAFinalEngine.Graphics
 {
+
     /// <summary>
     /// Light Pre Pass Directional Light shader.
     /// </summary>
@@ -52,6 +53,26 @@ namespace XNAFinalEngine.Graphics
         /// Current view matrix. Used to set the shader parameters.
         /// </summary>
         private Matrix viewMatrix;
+
+        // Singleton reference.
+        private static DirectionalLightShader instance;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// A singleton of a directional light shader.
+        /// </summary>
+        public static DirectionalLightShader Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new DirectionalLightShader();
+                return instance;
+            }
+        } // Instance
 
         #endregion
 
