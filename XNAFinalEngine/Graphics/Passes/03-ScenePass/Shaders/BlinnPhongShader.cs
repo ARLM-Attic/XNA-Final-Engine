@@ -140,13 +140,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Diffuse Texture
 
-        private static Texture lastUsedDiffuseTexture;
+        private static Texture2D lastUsedDiffuseTexture;
         private static void SetDiffuseTexture(Texture _diffuseTexture)
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
-            if (lastUsedDiffuseTexture != _diffuseTexture)
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedDiffuseTexture != _diffuseTexture.Resource)
             {
-                lastUsedDiffuseTexture = _diffuseTexture;
+                lastUsedDiffuseTexture = _diffuseTexture.Resource;
                 epDiffuseTexture.SetValue(_diffuseTexture.Resource);
             }
         } // SetDiffuseTexture
@@ -183,13 +184,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Specular Texture
 
-        private static Texture lastUsedSpecularTexture;
+        private static Texture2D lastUsedSpecularTexture;
         private static void SetSpecularTexture(Texture specularTexture)
         {
             EngineManager.Device.SamplerStates[2] = SamplerState.AnisotropicWrap;
-            if (lastUsedSpecularTexture != specularTexture)
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedSpecularTexture != specularTexture.Resource)
             {
-                lastUsedSpecularTexture = specularTexture;
+                lastUsedSpecularTexture = specularTexture.Resource;
                 epSpecularTexture.SetValue(specularTexture.Resource);
             }
         } // SetSpecularTexture
@@ -240,18 +242,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Light Map Texture
 
-        private static Texture lastUsedLightTexture;
+        private static Texture2D lastUsedLightTexture;
         private static void SetLightTexture(Texture lightTexture)
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
-            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
-            // However the shaders have to re set to the GPU the new render targets to work properly.
-            // This problem seems to manifest only with floating point formats.
-            // So it's a floating point texture set it every time that is need it.
-            if (lastUsedLightTexture != lightTexture ||
-                (lightTexture is RenderTarget && ((RenderTarget)lightTexture).SurfaceFormat != SurfaceFormat.Color))
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedLightTexture != lightTexture.Resource)
             {
-                lastUsedLightTexture = lightTexture;
+                lastUsedLightTexture = lightTexture.Resource;
                 epLightTexture.SetValue(lightTexture.Resource);
             }
         } // SetLightTexture
@@ -302,13 +300,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Normal Texture (and size)
 
-        private static Texture lastUsedNormalTextureTexture;
+        private static Texture2D lastUsedNormalTextureTexture;
         private static void SetNormalTexture(Texture normalTexture)
         {
             EngineManager.Device.SamplerStates[3] = SamplerState.AnisotropicWrap;
-            if (lastUsedNormalTextureTexture != normalTexture)
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedNormalTextureTexture != normalTexture.Resource)
             {
-                lastUsedNormalTextureTexture = normalTexture;
+                lastUsedNormalTextureTexture = normalTexture.Resource;
                 epNormalTextureSize.SetValue(new Vector2(normalTexture.Width, normalTexture.Height));
                 epNormalTexture.SetValue(normalTexture.Resource);
             }
@@ -374,13 +373,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Reflection Texture
 
-        private static TextureCube lastUsedReflectionTexture;
+        private static Microsoft.Xna.Framework.Graphics.TextureCube lastUsedReflectionTexture;
         private static void SetReflectionTexture(TextureCube reflectionTexture)
         {
             EngineManager.Device.SamplerStates[4] = SamplerState.LinearClamp;
-            if (lastUsedReflectionTexture != reflectionTexture)
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedReflectionTexture != reflectionTexture.Resource)
             {
-                lastUsedReflectionTexture = reflectionTexture;
+                lastUsedReflectionTexture = reflectionTexture.Resource;
                 if (reflectionTexture.IsRgbm)
                 {
                     epIsRGBM.SetValue(true);

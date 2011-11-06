@@ -42,7 +42,6 @@ using RootAnimation = XNAFinalEngine.Components.RootAnimations;
 using XNAFinalEngine.Scenes;
 using Camera = XNAFinalEngine.Components.Camera;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
-using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.EngineCore

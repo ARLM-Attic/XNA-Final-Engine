@@ -125,18 +125,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Depth Texture
 
-        private static Texture lastUsedDepthTexture;
+        private static Texture2D lastUsedDepthTexture;
         private static void SetDepthTexture(Texture depthTexture)
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp; // depthTexture
-            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
-            // However the shaders have to re set to the GPU the new render targets to work properly.
-            // This problem seems to manifest only with floating point formats.
-            // So it's a floating point texture set it every time that is need it.
-            if (lastUsedDepthTexture != depthTexture ||
-                (depthTexture is RenderTarget && ((RenderTarget)depthTexture).SurfaceFormat != SurfaceFormat.Color))
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedDepthTexture != depthTexture.Resource)
             {
-                lastUsedDepthTexture = depthTexture;
+                lastUsedDepthTexture = depthTexture.Resource;
                 epDepthTexture.SetValue(depthTexture.Resource);
             }
         } // SetDepthTexture
@@ -145,18 +141,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Normal Texture
 
-        private static Texture lastUsedNormalTexture;
+        private static Texture2D lastUsedNormalTexture;
         private static void SetNormalTexture(Texture normalTexture)
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
-            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
-            // However the shaders have to re set to the GPU the new render targets to work properly.
-            // This problem seems to manifest only with floating point formats.
-            // So it's a floating point texture set it every time that is need it.
-            if (lastUsedNormalTexture != normalTexture ||
-                (normalTexture is RenderTarget && ((RenderTarget)normalTexture).SurfaceFormat != SurfaceFormat.Color))
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedNormalTexture != normalTexture.Resource)
             {
-                lastUsedNormalTexture = normalTexture;
+                lastUsedNormalTexture = normalTexture.Resource;
                 epNormalTexture.SetValue(normalTexture.Resource);
             }
         } // SetNormalTexture
@@ -165,18 +157,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Motion Vector Specular Power Texture
 
-        private static Texture lastUsedMotionVectorSpecularPower;
+        private static Texture2D lastUsedMotionVectorSpecularPower;
         private static void SetMotionVectorSpecularPower(Texture motionVectorSpecularPower)
         {
             EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;
-            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
-            // However the shaders have to re set to the GPU the new render targets to work properly.
-            // This problem seems to manifest only with floating point formats.
-            // So it's a floating point texture set it every time that is need it.
-            if (lastUsedMotionVectorSpecularPower != motionVectorSpecularPower ||
-                (motionVectorSpecularPower is RenderTarget && ((RenderTarget)motionVectorSpecularPower).SurfaceFormat != SurfaceFormat.Color))
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedMotionVectorSpecularPower != motionVectorSpecularPower.Resource)
             {
-                lastUsedMotionVectorSpecularPower = motionVectorSpecularPower;
+                lastUsedMotionVectorSpecularPower = motionVectorSpecularPower.Resource;
                 epMotionVectorSpecularPowerTexture.SetValue(motionVectorSpecularPower.Resource);
             }
         } // SetMotionVectorSpecularPower

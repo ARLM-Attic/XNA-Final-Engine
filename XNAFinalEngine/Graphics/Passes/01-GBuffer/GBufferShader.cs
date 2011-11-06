@@ -163,13 +163,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Object Normal Texture (and size)
 
-        private static Texture lastUsedObjectNormalTextureTexture;
+        private static Texture2D lastUsedObjectNormalTextureTexture;
         private static void SetObjectNormalTexture(Texture objectNormalTexture)
         {
-            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap; // objectNormalTexture
-            if (lastUsedObjectNormalTextureTexture != objectNormalTexture)
+            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedObjectNormalTextureTexture != objectNormalTexture.Resource)
             {
-                lastUsedObjectNormalTextureTexture = objectNormalTexture;
+                lastUsedObjectNormalTextureTexture = objectNormalTexture.Resource;
                 epObjectNormalTextureSize.SetValue(new Vector2(objectNormalTexture.Width, objectNormalTexture.Height));
                 epObjectNormalTexture.SetValue(objectNormalTexture.Resource);
             }
@@ -263,13 +264,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Specular Texture
 
-        private static Texture lastUsedSpecularTexture;
+        private static Texture2D lastUsedSpecularTexture;
         private static void SetSpecularTexture(Texture specularTexture)
         {
-            EngineManager.Device.SamplerStates[1] = SamplerState.LinearWrap; // objectSpecularTexture
-            if (lastUsedSpecularTexture != specularTexture)
+            EngineManager.Device.SamplerStates[1] = SamplerState.LinearWrap;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedSpecularTexture != specularTexture.Resource)
             {
-                lastUsedSpecularTexture = specularTexture;
+                lastUsedSpecularTexture = specularTexture.Resource;
                 epObjectSpecularTexture.SetValue(specularTexture.Resource);
             }
         } // SetSpecularTexture
@@ -321,13 +323,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Displacement Texture
 
-        private static Texture lastUsedDisplacementTexture;
+        private static Texture2D lastUsedDisplacementTexture;
         private static void SetDisplacementTexture(Texture displacementTexture)
         {
-            EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp; // displacementTexture
-            if (lastUsedDisplacementTexture != displacementTexture)
+            EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedDisplacementTexture != displacementTexture.Resource)
             {
-                lastUsedDisplacementTexture = displacementTexture;
+                lastUsedDisplacementTexture = displacementTexture.Resource;
                 epDisplacementTexture.SetValue(displacementTexture.Resource);
             }
         } // SetDisplacementTexture

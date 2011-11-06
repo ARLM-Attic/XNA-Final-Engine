@@ -34,7 +34,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Helpers;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -161,7 +160,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Scene Texture
 
-        private static Texture2D lastUsedSceneTexture; // 
+        private static Texture2D lastUsedSceneTexture;
         private static void SetSceneTexture(Texture sceneTexture)
         {
             EngineManager.Device.SamplerStates[10] = SamplerState.PointClamp;
@@ -178,18 +177,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Depth Texture
 
-        private static Texture lastUsedDepthTexture;
+        private static Texture2D lastUsedDepthTexture;
         private static void SetDepthTexture(Texture depthTexture)
         {
             EngineManager.Device.SamplerStates[14] = SamplerState.PointClamp;
-            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
-            // However the shaders have to re set to the GPU the new render targets to work properly.
-            // This problem seems to manifest only with floating point formats.
-            // So it's a floating point texture set it every time that is need it.
-            if (lastUsedDepthTexture != depthTexture ||
-                (depthTexture is RenderTarget && ((RenderTarget)depthTexture).SurfaceFormat != SurfaceFormat.Color))
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedDepthTexture != depthTexture.Resource)
             {
-                lastUsedDepthTexture = depthTexture;
+                lastUsedDepthTexture = depthTexture.Resource;
                 epDepthTexture.SetValue(depthTexture.Resource);
             }
         } // SetDepthTexture
@@ -198,18 +193,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Edge Texture
 
-        private static Texture lastUsedEdgeTexture;
+        private static Texture2D lastUsedEdgeTexture;
         private static void SetEdgeTexture(Texture edgeTexture)
         {
             EngineManager.Device.SamplerStates[12] = SamplerState.LinearClamp;
-            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
-            // However the shaders have to re set to the GPU the new render targets to work properly.
-            // This problem seems to manifest only with floating point formats.
-            // So it's a floating point texture set it every time that is need it.
-            if (lastUsedEdgeTexture != edgeTexture ||
-                (edgeTexture is RenderTarget && ((RenderTarget)edgeTexture).SurfaceFormat != SurfaceFormat.Color))
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedEdgeTexture != edgeTexture.Resource)
             {
-                lastUsedEdgeTexture = edgeTexture;
+                lastUsedEdgeTexture = edgeTexture.Resource;
                 epEdgeTexture.SetValue(edgeTexture.Resource);
             }
         } // SetEdgeTexture
@@ -218,18 +209,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Blended Weights Texture
 
-        private static Texture lastUsedBlendedWeightsTexture;
+        private static Texture2D lastUsedBlendedWeightsTexture;
         private static void SetBlendedWeightsTexture(Texture blendedWeightsTexture)
         {
             EngineManager.Device.SamplerStates[13] = SamplerState.PointClamp;
-            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
-            // However the shaders have to re set to the GPU the new render targets to work properly.
-            // This problem seems to manifest only with floating point formats.
-            // So it's a floating point texture set it every time that is need it.
-            if (lastUsedBlendedWeightsTexture != blendedWeightsTexture ||
-                (blendedWeightsTexture is RenderTarget && ((RenderTarget)blendedWeightsTexture).SurfaceFormat != SurfaceFormat.Color))
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedBlendedWeightsTexture != blendedWeightsTexture.Resource)
             {
-                lastUsedBlendedWeightsTexture = blendedWeightsTexture;
+                lastUsedBlendedWeightsTexture = blendedWeightsTexture.Resource;
                 epBlendedWeightsTexture.SetValue(blendedWeightsTexture.Resource);
             }
         } // SetBlendedWeightsTexture

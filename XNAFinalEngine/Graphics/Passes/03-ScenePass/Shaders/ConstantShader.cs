@@ -107,13 +107,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Diffuse Texture
         
-        private static Texture lastUsedDiffuseTexture;
+        private static Texture2D lastUsedDiffuseTexture;
         private static void SetDiffuseTexture(Texture _diffuseTexture)
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
-            if (lastUsedDiffuseTexture != _diffuseTexture)
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedDiffuseTexture != _diffuseTexture.Resource)
             {
-                lastUsedDiffuseTexture = _diffuseTexture;
+                lastUsedDiffuseTexture = _diffuseTexture.Resource;
                 epDiffuseTexture.SetValue(_diffuseTexture.Resource);
             }
         } // SetDiffuseTexture

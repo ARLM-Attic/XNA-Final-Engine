@@ -34,7 +34,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Helpers;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -110,17 +109,13 @@ namespace XNAFinalEngine.Graphics
 
         #region Texture
 
-        private static Texture lastUsedTexture;
+        private static Texture2D lastUsedTexture;
         private static void SetTexture(Texture texture)
         {
-            // XNA 4.0 reconstructs automatically the render targets when a device is lost.
-            // However the shaders have to re set to the GPU the new render targets to work properly.
-            // This problem seems to manifest only with floating point formats.
-            // So it's a floating point texture set it every time that is need it.
-            if (lastUsedTexture != texture ||
-                (texture is RenderTarget && ((RenderTarget)texture).SurfaceFormat != SurfaceFormat.Color))
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedTexture != texture.Resource)
             {
-                lastUsedTexture = texture;
+                lastUsedTexture = texture.Resource;
                 epTexture.SetValue(texture.Resource);
             }
         } // SetTexture
@@ -129,13 +124,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Texture Resolution
 
-        /// <summary>
-        /// Last used texture resolution.
-        /// </summary>
         private static Vector2? lastUsedTextureResolution;
-        /// <summary>
-        /// Set texture resolution.
-        /// </summary>
         private static void SetTextureResolution(Vector2 textureResolution)
         {
             if (lastUsedTextureResolution != textureResolution)
