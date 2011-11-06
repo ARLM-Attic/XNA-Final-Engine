@@ -61,24 +61,22 @@ bool filmGrainEnabled;
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture sceneTexture;
-
-sampler2D sceneSampler = sampler_state
+texture sceneTexture : register(t9);
+sampler2D sceneSampler : register(s9) = sampler_state
 {
 	Texture = <sceneTexture>;
-	MipFilter = NONE;
+	/*MipFilter = NONE;
 	MagFilter = POINT;
-	MinFilter = POINT;
+	MinFilter = POINT;*/
 };
 
-texture2D bloomTexture;
-
-sampler2D bloomSampler = sampler_state
+texture2D bloomTexture : register(t10);
+sampler2D bloomSampler : register(s10) = sampler_state
 {
 	Texture = <bloomTexture>;
-    MipFilter = LINEAR;
+    /*MipFilter = LINEAR;
 	MagFilter = ANISOTROPIC;
-	MinFilter = ANISOTROPIC;
+	MinFilter = ANISOTROPIC;*/
 };
 
 //////////////////////////////////////////////

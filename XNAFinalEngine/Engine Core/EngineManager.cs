@@ -272,6 +272,13 @@ namespace XNAFinalEngine.EngineCore
             #endif
             if (DeviceReset != null)
                 DeviceReset(sender, e);
+
+            // When a divice is lost some garbage is generated...
+            #if (WINDOWS)
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+            #else
+                GC.Collect();
+            #endif
         } // graphics_DeviceReset
 
         /// <summary>

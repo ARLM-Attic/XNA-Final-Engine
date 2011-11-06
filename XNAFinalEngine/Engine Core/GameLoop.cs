@@ -237,6 +237,11 @@ namespace XNAFinalEngine.EngineCore
 
             #region Graphics
 
+            RenderTarget.RenderTargetBinding gbufferTextures = new RenderTarget.RenderTargetBinding();
+            RenderTarget lightTexture = null;
+            RenderTarget sceneTexture = null;
+            RenderTarget postProcessedSceneTexture = null;
+
             Camera currentCamera = null;
             // For each camera we render the scene in it
             for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
@@ -260,7 +265,7 @@ namespace XNAFinalEngine.EngineCore
                         GBufferShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, currentModelRenderer.Material);
                     }
                 }
-                RenderTarget.RenderTargetBinding gbufferTextures = GBufferPass.End();
+                gbufferTextures = GBufferPass.End();
 
                 #endregion
                 
@@ -286,7 +291,7 @@ namespace XNAFinalEngine.EngineCore
 
                 // Render spot lights for every camera.
 
-                RenderTarget lightTexture = LightPrePass.End();
+                lightTexture = LightPrePass.End();
                     
                 #endregion
                 
@@ -319,20 +324,20 @@ namespace XNAFinalEngine.EngineCore
 
                 // The transparent objects will be render in forward fashion.
 
-                RenderTarget sceneTexture = ScenePass.End();
+                sceneTexture = ScenePass.End();
                 RenderTarget.Release(lightTexture);
 
                 #endregion
-
+                
                 #region Post Process Pass
 
-                RenderTarget postProcessedSceneTexture = PostProcessingPass.Process(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess);
+                postProcessedSceneTexture = PostProcessingPass.Process(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess);
                 RenderTarget.Release(sceneTexture); // It is not need anymore.
                 RenderTarget.Release(gbufferTextures); // It is not need anymore.
                 currentCamera.PartialRenderTarget = postProcessedSceneTexture;
 
                 #endregion
-
+                
             }
 
             // If it is a master camera and it does not have slaves...
@@ -340,13 +345,13 @@ namespace XNAFinalEngine.EngineCore
             {
                 SpriteManager.DrawTextureToFullScreen(postProcessPass.PostProcessedSceneTexture);
             }*/
-            
+
             #endregion
 
             currentCamera.RenderTarget.EnableRenderTarget();
             currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
             SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget);
-            RenderTarget.Release(currentCamera.PartialRenderTarget);
+            RenderTarget.Release(currentCamera.PartialRenderTarget); // It is not need anymore.
             // Composite the different viewports
             /*for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
                 currentCamera.slavesCameras[i];*/

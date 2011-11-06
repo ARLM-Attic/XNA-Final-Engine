@@ -136,7 +136,12 @@ namespace XNAFinalEngine.Assets
         
         // Remember the last render targets we set. We can enable up to four render targets at once.
         private static readonly RenderTarget[] currentRenderTarget = new RenderTarget[4];
-        
+
+        /// <summary>
+        /// Render Target Binding.
+        /// </summary>
+        private RenderTargetBinding? renderTargetBinding;
+
         #endregion
 
         #region Properties
@@ -271,6 +276,28 @@ namespace XNAFinalEngine.Assets
                 // The size changes with the new window size.
                 renderTarget.Dispose();
                 Create();
+                // Re do the bindings
+                if (renderTargetBinding.HasValue)
+                {
+                    switch (renderTargetBinding.Value.InternalBinding.Length)
+                    {
+                        case 2:
+                            renderTargetBinding.Value.InternalBinding[0] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[0].renderTarget);
+                            renderTargetBinding.Value.InternalBinding[1] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[1].renderTarget);
+                            break;
+                        case 3:
+                            renderTargetBinding.Value.InternalBinding[0] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[0].renderTarget);
+                            renderTargetBinding.Value.InternalBinding[1] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[1].renderTarget);
+                            renderTargetBinding.Value.InternalBinding[2] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[2].renderTarget);
+                            break;
+                        case 4:
+                            renderTargetBinding.Value.InternalBinding[0] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[0].renderTarget);
+                            renderTargetBinding.Value.InternalBinding[1] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[1].renderTarget);
+                            renderTargetBinding.Value.InternalBinding[2] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[2].renderTarget);
+                            renderTargetBinding.Value.InternalBinding[3] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[3].renderTarget);
+                            break;
+                    }
+                }
             }
         } // OnWindowSizeChanged
 
@@ -441,6 +468,8 @@ namespace XNAFinalEngine.Assets
                 },
                 RenderTargets = new[] { renderTarget1, renderTarget2 }
             };
+            renderTarget1.renderTargetBinding = renderTargetsBinding;
+            renderTarget2.renderTargetBinding = renderTargetsBinding;
             return renderTargetsBinding;
         } // BindRenderTargets
 
@@ -459,6 +488,9 @@ namespace XNAFinalEngine.Assets
                 },
                 RenderTargets = new[] {renderTarget1, renderTarget2, renderTarget3}
             };
+            renderTarget1.renderTargetBinding = renderTargetsBinding;
+            renderTarget2.renderTargetBinding = renderTargetsBinding;
+            renderTarget3.renderTargetBinding = renderTargetsBinding;
             return renderTargetsBinding;
         } // BindRenderTargets
 
@@ -478,6 +510,10 @@ namespace XNAFinalEngine.Assets
                 },
                 RenderTargets = new[] { renderTarget1, renderTarget2, renderTarget3, renderTarget4 }
             };
+            renderTarget1.renderTargetBinding = renderTargetsBinding;
+            renderTarget2.renderTargetBinding = renderTargetsBinding;
+            renderTarget3.renderTargetBinding = renderTargetsBinding;
+            renderTarget4.renderTargetBinding = renderTargetsBinding;
             return renderTargetsBinding;
         } // BindRenderTargets
 

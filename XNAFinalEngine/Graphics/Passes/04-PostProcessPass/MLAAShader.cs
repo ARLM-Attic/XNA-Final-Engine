@@ -164,12 +164,13 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedSceneTexture;
         private static void SetSceneTexture(Texture sceneTexture)
         {
+            EngineManager.Device.SamplerStates[10] = SamplerState.PointClamp;
+            EngineManager.Device.SamplerStates[11] = SamplerState.LinearClamp;
             // XNA 4.0 reconstructs automatically the render targets when a device is lost.
             // However the shaders have to re set to the GPU the new render targets to work properly.
             // This problem seems to manifest only with floating point formats.
             // So it's a floating point texture set it every time that is need it.
-            if (lastUsedSceneTexture != sceneTexture ||
-                (sceneTexture is RenderTarget && ((RenderTarget)sceneTexture).SurfaceFormat != SurfaceFormat.Color))
+            //if (lastUsedSceneTexture != sceneTexture || (sceneTexture is RenderTarget && ((RenderTarget)sceneTexture).SurfaceFormat != SurfaceFormat.Color))
             {
                 lastUsedSceneTexture = sceneTexture;
                 epSceneTexture.SetValue(sceneTexture.Resource);
@@ -183,6 +184,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedDepthTexture;
         private static void SetDepthTexture(Texture depthTexture)
         {
+            EngineManager.Device.SamplerStates[14] = SamplerState.PointClamp;
             // XNA 4.0 reconstructs automatically the render targets when a device is lost.
             // However the shaders have to re set to the GPU the new render targets to work properly.
             // This problem seems to manifest only with floating point formats.
@@ -202,6 +204,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedEdgeTexture;
         private static void SetEdgeTexture(Texture edgeTexture)
         {
+            EngineManager.Device.SamplerStates[12] = SamplerState.LinearClamp;
             // XNA 4.0 reconstructs automatically the render targets when a device is lost.
             // However the shaders have to re set to the GPU the new render targets to work properly.
             // This problem seems to manifest only with floating point formats.
@@ -221,6 +224,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedBlendedWeightsTexture;
         private static void SetBlendedWeightsTexture(Texture blendedWeightsTexture)
         {
+            EngineManager.Device.SamplerStates[13] = SamplerState.PointClamp;
             // XNA 4.0 reconstructs automatically the render targets when a device is lost.
             // However the shaders have to re set to the GPU the new render targets to work properly.
             // This problem seems to manifest only with floating point formats.
@@ -249,6 +253,8 @@ namespace XNAFinalEngine.Graphics
             // Pre multiply alpha: false
             // Texture format: No change.
             Texture areaTexture = new Texture("Shaders\\AreaMap32");
+            
+            EngineManager.Device.SamplerStates[15] = SamplerState.PointWrap;
             Resource.Parameters["areaTexture"].SetValue(areaTexture.Resource);
         } // MLAAShader
 
@@ -284,7 +290,7 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Filter
+        #region Render
 
         /// <summary>
         /// Render.
@@ -307,6 +313,8 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                // If someone changes the sampler state of the area texture could be a problem… in a form of an exception.
+                EngineManager.Device.SamplerStates[15] = SamplerState.PointWrap;
 
                 // Set parameters
                 SetHalfPixel(new Vector2(-1f / texture.Width, 1f / texture.Height));
@@ -349,7 +357,9 @@ namespace XNAFinalEngine.Graphics
                     RenderScreenPlane();
 
                     if (pass.Name == "EdgeDetection")
+                    {
                         destinationTexture.DisableRenderTarget();
+                    }
                     else if (pass.Name == "BlendingWeight")
                         blendingWeightTexture.DisableRenderTarget();
                     else

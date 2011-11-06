@@ -61,56 +61,56 @@ float blurRadius;
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture sceneTexture;
-sampler2D sceneSampler = sampler_state
+texture sceneTexture : register(t11);
+sampler2D sceneSampler : register(s10) = sampler_state
 {
 	Texture = <sceneTexture>;
-	MipFilter = NONE;
+	/*MipFilter = NONE;
 	MagFilter = POINT;
-	MinFilter = POINT;
+	MinFilter = POINT;*/
 };
-sampler2D sceneLinearSampler = sampler_state
+sampler2D sceneLinearSampler : register(s11) = sampler_state
 {
 	Texture = <sceneTexture>;
-	MipFilter = NONE;
+	/*MipFilter = NONE;
 	MagFilter = LINEAR;
-	MinFilter = LINEAR;
+	MinFilter = LINEAR;*/
 };
 
-texture edgeTexture;
-sampler2D edgeSampler = sampler_state
+texture edgeTexture : register(t12);
+sampler2D edgeSampler : register(s12) = sampler_state
 {
 	Texture = <edgeTexture>;
-	MipFilter = NONE;
+	/*MipFilter = NONE;
 	MagFilter = LINEAR;
-	MinFilter = LINEAR;
+	MinFilter = LINEAR;*/
 };
 
-texture blendedWeightsTexture;
-sampler2D blendedWeightsSampler = sampler_state
+texture blendedWeightsTexture : register(t13);
+sampler2D blendedWeightsSampler : register(s13) = sampler_state
 {
 	Texture = <blendedWeightsTexture>;
-	MipFilter = NONE;
+	/*MipFilter = NONE;
 	MagFilter = POINT;
-	MinFilter = POINT;
+	MinFilter = POINT;*/
 };
 
-texture depthTexture;
-sampler2D depthSampler = sampler_state
+texture depthTexture : register(t14);
+sampler2D depthSampler : register(s14) = sampler_state
 {
 	Texture = <depthTexture>;
-	MAGFILTER = POINT;
+	/*MAGFILTER = POINT;
 	MINFILTER = POINT;
-	MIPFILTER = NONE;
+	MIPFILTER = NONE;*/
 };
 
-texture areaTexture;
-sampler2D areaSampler = sampler_state
+texture areaTexture : register(t15);
+sampler2D areaSampler : register(s15) = sampler_state
 {
 	Texture = <areaTexture>;
-	MAGFILTER = POINT;
+	/*MAGFILTER = POINT;
 	MINFILTER = POINT;
-	MIPFILTER = NONE;
+	MIPFILTER = NONE;*/
 };
 
 //////////////////////////////////////////////

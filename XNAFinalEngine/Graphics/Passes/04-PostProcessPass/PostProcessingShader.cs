@@ -133,7 +133,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedSceneTexture;
         private static void SetSceneTexture(Texture sceneTexture)
         {
-            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
+            EngineManager.Device.SamplerStates[9] = SamplerState.PointClamp;
             // XNA 4.0 reconstructs automatically the render targets when a device is lost.
             // However the shaders have to re set to the GPU the new render targets to work properly.
             // This problem seems to manifest only with floating point formats.
@@ -169,6 +169,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedBloomTexture;
         private static void SetBloomTexture(Texture bloomTexture)
         {
+            EngineManager.Device.SamplerStates[10] = SamplerState.AnisotropicClamp;
             // XNA 4.0 reconstructs automatically the render targets when a device is lost.
             // However the shaders have to re set to the GPU the new render targets to work properly.
             // This problem seems to manifest only with floating point formats.

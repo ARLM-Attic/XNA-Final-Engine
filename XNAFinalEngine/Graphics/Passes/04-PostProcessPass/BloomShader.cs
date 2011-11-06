@@ -136,6 +136,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedSceneTexture;
         private static void SetSceneTexture(Texture sceneTexture)
         {
+            EngineManager.Device.SamplerStates[8] = SamplerState.PointClamp;
             // XNA 4.0 reconstructs automatically the render targets when a device is lost.
             // However the shaders have to re set to the GPU the new render targets to work properly.
             // This problem seems to manifest only with floating point formats.

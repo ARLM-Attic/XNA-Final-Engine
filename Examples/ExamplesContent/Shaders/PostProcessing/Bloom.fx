@@ -26,9 +26,9 @@ texture sceneTexture : register(t7);
 sampler2D sceneSampler : register(s8) = sampler_state
 {
 	Texture = <sceneTexture>;
-	MipFilter = POINT;
+	/*MipFilter = POINT;
 	MagFilter = POINT;
-	MinFilter = POINT;
+	MinFilter = POINT;*/
 };
 
 //////////////////////////////////////////////
