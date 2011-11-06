@@ -276,26 +276,12 @@ namespace XNAFinalEngine.Assets
                 // The size changes with the new window size.
                 renderTarget.Dispose();
                 Create();
-                // Re do the bindings
+                // Redo the bindings
                 if (renderTargetBinding.HasValue)
                 {
-                    switch (renderTargetBinding.Value.InternalBinding.Length)
+                    for (int i = 0; i < renderTargetBinding.Value.InternalBinding.Length; i++)
                     {
-                        case 2:
-                            renderTargetBinding.Value.InternalBinding[0] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[0].renderTarget);
-                            renderTargetBinding.Value.InternalBinding[1] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[1].renderTarget);
-                            break;
-                        case 3:
-                            renderTargetBinding.Value.InternalBinding[0] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[0].renderTarget);
-                            renderTargetBinding.Value.InternalBinding[1] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[1].renderTarget);
-                            renderTargetBinding.Value.InternalBinding[2] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[2].renderTarget);
-                            break;
-                        case 4:
-                            renderTargetBinding.Value.InternalBinding[0] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[0].renderTarget);
-                            renderTargetBinding.Value.InternalBinding[1] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[1].renderTarget);
-                            renderTargetBinding.Value.InternalBinding[2] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[2].renderTarget);
-                            renderTargetBinding.Value.InternalBinding[3] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[3].renderTarget);
-                            break;
+                        renderTargetBinding.Value.InternalBinding[i] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[i].renderTarget);
                     }
                 }
             }
@@ -365,22 +351,9 @@ namespace XNAFinalEngine.Assets
             {
                 EngineManager.Device.SetRenderTargets(renderTargetBinding.InternalBinding);
             }
-            catch
+            catch (Exception e)
             {
-                // Maybe the render targets where recreated.
-                // When the device is lost the RenderTargetBinding are not recreated because they are structures (garbage considerations). So I do it here.
-                try
-                {
-                    for (int i = 0; i < renderTargetBinding.InternalBinding.Length; i++)
-                    {
-                        renderTargetBinding.InternalBinding[i] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.RenderTargets[i].renderTarget);
-                    }
-                    EngineManager.Device.SetRenderTargets(renderTargetBinding.InternalBinding);
-                }
-                catch (Exception e)
-                {
-                    throw new InvalidOperationException("Render Target. Unable to bind the render targets.", e);
-                }
+                throw new InvalidOperationException("Render Target. Unable to bind the render targets.", e);
             }
         } // EnableRenderTargets
         
