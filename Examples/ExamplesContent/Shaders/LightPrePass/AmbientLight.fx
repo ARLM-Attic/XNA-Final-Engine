@@ -42,28 +42,15 @@ float ambientOcclusionStrength;
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture ambientOcclusionTexture;
-
-sampler2D ambientOcclusionSample = sampler_state
+texture ambientOcclusionTexture : register(t3);
+sampler2D ambientOcclusionSample : register(s3) = sampler_state
 {
     Texture = <ambientOcclusionTexture>;
-    MinFilter = Point;
+    /*MinFilter = Point;
     MagFilter = Point;
 	MipFilter = none;
 	AddressU = CLAMP;
-	AddressV = CLAMP;
-};
-
-texture lightMapTexture;
-
-sampler2D lightMapSample = sampler_state
-{
-    Texture = <lightMapTexture>;
-    MinFilter = Point;
-    MagFilter = Point;
-	MipFilter = none;
-	AddressU = CLAMP;
-	AddressV = CLAMP;
+	AddressV = CLAMP;*/
 };
 
 //////////////////////////////////////////////

@@ -33,6 +33,7 @@ using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Input;
 using XNAFinalEngine.Scenes;
@@ -92,6 +93,9 @@ namespace XNAFinalEngineExamples
                 AdjustLevels = new AdjustLevels(),
                 MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Both, BlurRadius = 1f, ThresholdDepth = 0.2f, ThresholdColor = 0.2f }
             };
+            camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicAmbientLight = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Showroom", false)),
+                                                            Color = new Color(30, 30, 30),
+                                                            Intensity = 0.7f};
 
             #endregion
 
@@ -102,8 +106,8 @@ namespace XNAFinalEngineExamples
             murcielagoBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"),
                                               new CarPaint
                                                     {
-                                                        SpecularIntensity = 9.5f,
-                                                        SpecularPower = 3,
+                                                        SpecularIntensity = 20.5f,
+                                                        SpecularPower = 2,
                                                         BasePaintColor = new Color(240, 210, 50),
                                                         SecondBasePaintColor = new Color(100, 100, 50),
                                                         MiddlePaintColor = new Color(150, 100, 100),

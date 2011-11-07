@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <XnaContent>
   <Asset Type="XNAFinalEngineContentPipelineExtensionRuntime.Settings.MainSettings">
-    <WindowName>TOTO</WindowName>
+    <WindowName>XNA FINAL ENGINE</WindowName>
     <WindowWidth>1280</WindowWidth>
     <WindowHeight>800</WindowHeight>
     <AspectRatio>0</AspectRatio>

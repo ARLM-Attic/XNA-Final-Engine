@@ -30,11 +30,12 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
+using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.Graphics
@@ -42,88 +43,35 @@ namespace XNAFinalEngine.Graphics
     /// <summary>
     /// Ambient Light.
     /// </summary>
-    public static class AmbientLight
+    internal class AmbientLightShader : Shader
     {
 
         #region Variables
 
-        /// <summary>
-        /// The ambient light color
-        /// When the light pre pass is cleared this color is used to fill the buffer.
-        /// The intensity property doesn’t affect this color.
-        /// </summary>         
-        private static Color color = new Color(0, 0, 0);
-
-        /// <summary>
-        /// Light intensity.
-        /// The intensity doesn’t affect the color property.
-        /// </summary>
-        private static float intensity = 0.1f;
-
-        /// <summary>
-        /// Ambient Occlusion Strength.
-        /// </summary>
-        private static float ambientOcclusionStrength = 5;
+        // Singleton reference.
+        private static AmbientLightShader instance;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Spherical Harmonic Ambient Light.
-        /// They are great for store low frequency ambient colors and are very fast.
+        /// A singleton of a directional light shader.
         /// </summary>
-        public static SphericalHarmonicL2 SphericalHarmonicAmbientLight { get; set; }
-
-        /// <summary>
-        /// Ambient Occlusion Effect.
-        /// If null no ambient occlusion will be used.
-        /// </summary>
-        public static AmbientOcclusion AmbientOcclusion { get; set; }
-
-        /// <summary>
-        /// Ambient Occlusion Strength.
-        /// </summary>
-        public static float AmbientOcclusionStrength
+        public static AmbientLightShader Instance
         {
-            get { return ambientOcclusionStrength; }
-            set { ambientOcclusionStrength = value; }
-        } // AmbientOcclusionStrength
-
-        /// <summary>
-        /// Light intensity.
-        /// The intensity doesn’t affect the color property.
-        /// </summary>
-        public static float Intensity
-        {
-            get { return intensity; }
-            set
+            get
             {
-                intensity = value;
-                if (intensity < 0)
-                    intensity = 0;
+                if (instance == null)
+                    instance = new AmbientLightShader();
+                return instance;
             }
-        } // Intensity
-
-        /// <summary>
-        /// The ambient light color.
-        /// When the light pre pass is cleared this color is used to fill the buffer. The intensity property doesn’t affect this color.
-        /// </summary>        
-        public static Color Color
-        {
-            get { return color; }
-            set { color = value; }
-        } // Color
+        } // Instance
 
         #endregion
 
         #region Shader Parameters
-
-        /// <summary>
-        /// The shader effect.
-        /// </summary>
-        private static Effect Effect { get; set; }
-
+        
         /// <summary>
         /// Effect handles
         /// </summary>
@@ -179,13 +127,15 @@ namespace XNAFinalEngine.Graphics
 
         #region Ambient Occlusion Texture
 
-        private static Texture lastUsedAmbientOcclusionTexture;
+        private static Texture2D lastUsedAmbientOcclusionTexture;
         private static void SetAmbientOcclusionTexture(Texture ambientOcclusionTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedAmbientOcclusionTexture != ambientOcclusionTexture)
+            EngineManager.Device.SamplerStates[3] = SamplerState.PointClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedAmbientOcclusionTexture != ambientOcclusionTexture.Resource)
             {
-                lastUsedAmbientOcclusionTexture = ambientOcclusionTexture;
-                epAmbientOcclusionTexture.SetValue(ambientOcclusionTexture.XnaTexture);
+                lastUsedAmbientOcclusionTexture = ambientOcclusionTexture.Resource;
+                epAmbientOcclusionTexture.SetValue(ambientOcclusionTexture.Resource);
             }
         } // SetAmbientOcclusionTexture
 
@@ -193,13 +143,15 @@ namespace XNAFinalEngine.Graphics
 
         #region Normal Texture
 
-        private static Texture lastUsedNormalTexture;
+        private static Texture2D lastUsedNormalTexture;
         private static void SetNormalTexture(Texture normalTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedNormalTexture != normalTexture)
+            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedNormalTexture != normalTexture.Resource)
             {
-                lastUsedNormalTexture = normalTexture;
-                epNormalTexture.SetValue(normalTexture.XnaTexture);
+                lastUsedNormalTexture = normalTexture.Resource;
+                epNormalTexture.SetValue(normalTexture.Resource);
             }
         } // SetNormalTexture
 
@@ -235,25 +187,12 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Load Shader
+        #region Constructor
 
         /// <summary>
-        /// Load shader
+        /// Light Pre Pass Directional Light Shader.
         /// </summary>
-        private static void LoadShader()
-        {
-            const string filename = "LightPrePass\\AmbientLight";
-            // Load shader
-            try
-            {
-                Effect = EngineManager.SystemContent.Load<Effect>(Path.Combine(Directories.ShadersDirectory, filename));
-            } // try
-            catch
-            {
-                throw new Exception("Unable to load the shader " + filename);
-            } // catch
-            GetParametersHandles();
-        } // LoadShader
+        internal AmbientLightShader() : base("LightPrePass\\AmbientLight") { }
 
         #endregion
 
@@ -262,75 +201,70 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Get the handles of the parameters from the shader.
         /// </summary>
-        private static void GetParametersHandles()
+        /// <remarks>
+        /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
+        /// </remarks>
+        protected override void GetParametersHandles()
         {
             try
             {
-                epHalfPixel                = Effect.Parameters["halfPixel"];
-                epNormalTexture            = Effect.Parameters["normalTexture"];
-                epAmbientOcclusionTexture  = Effect.Parameters["ambientOcclusionTexture"];
-                epSphericalHarmonicBase    = Effect.Parameters["sphericalHarmonicBase"];
-                epIntensity                = Effect.Parameters["intensity"];
-                epViewI                    = Effect.Parameters["viewI"];
-                epAmbientOcclusionStrength = Effect.Parameters["ambientOcclusionStrength"];
+                epHalfPixel                = Resource.Parameters["halfPixel"];
+                epNormalTexture            = Resource.Parameters["normalTexture"];
+                epAmbientOcclusionTexture  = Resource.Parameters["ambientOcclusionTexture"];
+                epSphericalHarmonicBase    = Resource.Parameters["sphericalHarmonicBase"];
+                epIntensity                = Resource.Parameters["intensity"];
+                epViewI                    = Resource.Parameters["viewI"];
+                epAmbientOcclusionStrength = Resource.Parameters["ambientOcclusionStrength"];
             }
             catch
             {
-                throw new Exception("Get the handles from the light pre pass ambient light shader failed.");
+                throw new InvalidOperationException("The parameter's handles from the " + Name + " shader could not be retrieved.");
             }
         } // GetParameters
 
         #endregion
 
-        #region Render
-
+        #region Render Light
+        
         /// <summary>
         /// Render to the light pre pass texture.
         /// </summary>
-        public static void Render(RenderTarget normalMap, RenderTarget lightPrePassMap)
+        public void RenderLight(RenderTarget normalTexture, AmbientLight ambientLight, Texture ambientOcclusionTexture, Matrix viewMatrix)
         {
-            if (Effect == null)
-            {
-                LoadShader();
-                if (SphericalHarmonicAmbientLight == null)
-                {
-                    SphericalHarmonicAmbientLight = new SphericalHarmonicL2();
-                    SphericalHarmonicAmbientLight.Fill(1, 1, 1);
-                }
-            }
+            
             try
             {
 
                 #region Set Parameters
 
-                SetHalfPixel(new Vector2(-1f / lightPrePassMap.Width, 1f / lightPrePassMap.Height));
-                SetNormalTexture(normalMap);
-                SetSphericalHarmonicBase(SphericalHarmonicAmbientLight.Coeficients);
-                SetIntensity(Intensity);
-                SetViewInverseMatrix(Matrix.Invert(Matrix.CreateFromQuaternion(ApplicationLogic.Camera.Orientation)));
-                SetAmbientOcclusionStrength(AmbientOcclusionStrength);
+                SetHalfPixel(new Vector2(-1f / normalTexture.Width, 1f / normalTexture.Height));
+                SetNormalTexture(normalTexture);
+                SetSphericalHarmonicBase(ambientLight.SphericalHarmonicAmbientLight.Coeficients);
+                SetIntensity(ambientLight.Intensity);
+                SetViewInverseMatrix(Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix))));
+                SetAmbientOcclusionStrength(ambientLight.AmbientOcclusionStrength);
 
                 #endregion
 
-                if (AmbientOcclusion == null)
-                    Effect.CurrentTechnique = Effect.Techniques["AmbientLightSH"];
+                if (ambientLight.AmbientOcclusion == null)
+                    Resource.CurrentTechnique = Resource.Techniques["AmbientLightSH"];
                 else
                 {
-                    Effect.CurrentTechnique = Effect.Techniques["AmbientLightSHSSAO"];
+                    Resource.CurrentTechnique = Resource.Techniques["AmbientLightSHSSAO"];
                     // And finally to the ambient light shader.
-                    SetAmbientOcclusionTexture(AmbientOcclusion.AmbientOcclusionTexture);
+                    SetAmbientOcclusionTexture(ambientOcclusionTexture);
                 }
 
-                Effect.CurrentTechnique.Passes[0].Apply();
-                ScreenPlane.Render();
-            } // try
+                Resource.CurrentTechnique.Passes[0].Apply();
+                RenderScreenPlane();
+            }
             catch (Exception e)
             {
-                throw new Exception("Unable to render the light pre pass ambient light shader. " + e.Message);
+                throw new InvalidOperationException("Light Pre Pass Ambient Light: Unable to render.", e);
             }
-        } // Render
+        } // RenderLight
 
         #endregion
 
-    } // AmbientLight
+    } // AmbientLightShader
 } // XNAFinalEngine.Graphics

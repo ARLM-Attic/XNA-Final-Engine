@@ -28,74 +28,16 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
-#region Using directives
-using Microsoft.Xna.Framework;
-#endregion
-
-namespace XNAFinalEngine.Graphics
+namespace XNAFinalEngine.Assets
 {
-
     /// <summary>
-    /// Point Light.
+    /// Base class for ambient occlusion effects.
+    /// There are two options where to apply them: in the ambient light or in the final result.
+    /// The first is more "correct" but subtle. I choose the first to achieve more photorealistic results.
     /// </summary>
-    public class AmbientLight
+    public abstract class AmbientOcclusion
     {
-        
-        #region Variables
 
-        // Light diffuse color.
-        private Color color = new Color(20, 20, 20);
+    } // AmbientOcclusion
+} // XNAFinalEngine.Assets
 
-        // The Intensity of a light is multiplied with the Light color.
-        private float intensity = 0.1f;
-        
-        // Ambient Occlusion Strength.
-        private static float ambientOcclusionStrength = 5;
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Light diffuse color.
-        /// </summary>
-        public Color Color
-        {
-            get { return color; }
-            set { color = value; }
-        } // DiffuseColor
-
-        /// <summary>
-        /// The Intensity of a light is multiplied with the Light color.
-        /// </summary>
-        public float Intensity
-        {
-            get { return intensity; }
-            set { intensity = value; }
-        } // Intensity
-
-        /// <summary>
-        /// Spherical Harmonic Ambient Light.
-        /// They are great for store low frequency ambient colors and are very fast.
-        /// </summary>
-        public static SphericalHarmonicL2 SphericalHarmonicAmbientLight { get; set; }
-
-        /// <summary>
-        /// Ambient Occlusion Effect.
-        /// If null no ambient occlusion will be used.
-        /// </summary>
-        public static AmbientOcclusion AmbientOcclusion { get; set; }
-
-        /// <summary>
-        /// Ambient Occlusion Strength.
-        /// </summary>
-        public static float AmbientOcclusionStrength
-        {
-            get { return ambientOcclusionStrength; }
-            set { ambientOcclusionStrength = value; }
-        } // AmbientOcclusionStrength
-
-        #endregion
-        
-    } // AmbientLight
-} // XNAFinalEngine.Graphics

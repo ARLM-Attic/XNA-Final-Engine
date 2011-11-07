@@ -139,7 +139,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture2D lastUsedLightTexture;
         private static void SetLightTexture(Texture lightTexture)
         {
-            EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
+            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
             if (lastUsedLightTexture != lightTexture.Resource)
             {

@@ -44,6 +44,8 @@
   <ItemGroup />
   <ItemGroup>
     <Compile Include="Animations\ModelAnimationPlayer.cs" />
+    <Compile Include="Assets\AmbientLight\AmbientLight.cs" />
+    <Compile Include="Assets\AmbientLight\AmbientOcclusion.cs" />
     <Compile Include="Assets\Animations\ModelAnimation.cs" />
     <Compile Include="Assets\Animations\RootAnimation.cs" />
     <Compile Include="Assets\Asset.cs" />
@@ -97,8 +99,6 @@
     <Compile Include="Engine Core\Screen.cs" />
     <Compile Include="Engine Core\ScreenshotCapturer.cs" />
     <Compile Include="Engine Core\Time.cs" />
-    <Compile Include="Graphics\AmbientLighting\AmbientLight.cs" />
-    <Compile Include="Graphics\AmbientLighting\AmbientOcclusion.cs" />
     <Compile Include="Graphics\Filters\BlurShader.cs" />
     <Compile Include="Graphics\Filters\DilateShader.cs" />
     <Compile Include="Graphics\Miscellaneous\GammaLinearSpace.cs" />
@@ -108,6 +108,7 @@
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL2.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBufferPass.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBufferShader.cs" />
+    <Compile Include="Graphics\Passes\02-LightPrePass\AmbientLightShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\DirectionalLightShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\LightPrePass.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\PointLightShader.cs" />

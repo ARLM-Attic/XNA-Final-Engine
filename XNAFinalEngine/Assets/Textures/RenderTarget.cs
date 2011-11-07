@@ -200,7 +200,7 @@ namespace XNAFinalEngine.Assets
             Antialiasing = antialiasingType;
 
             Create();
-            Screen.ScreenSizeChanged += OnWindowSizeChanged;
+            EngineManager.DeviceReset += OnWindowSizeChanged;
         } // RenderTarget
 
         /// <summary>
@@ -220,7 +220,7 @@ namespace XNAFinalEngine.Assets
             Antialiasing = antialiasingType;
 
             Create();
-            Screen.ScreenSizeChanged += OnWindowSizeChanged;
+            EngineManager.DeviceReset += OnWindowSizeChanged;
         } // RenderTarget
 
         #endregion
@@ -256,7 +256,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected override void DisposeManagedResources()
         {
-            Screen.ScreenSizeChanged -= OnWindowSizeChanged;
+            EngineManager.DeviceReset -= OnWindowSizeChanged;
             renderTarget.Dispose();
         } // DisposeManagedResources
 
@@ -270,8 +270,9 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         private void OnWindowSizeChanged(object sender, EventArgs e)
         {
-            if (Size == Size.FullScreen || Size == Size.HalfScreen || Size == Size.QuarterScreen ||
-                Size == Size.SplitFullScreen || Size == Size.SplitHalfScreen || Size == Size.SplitQuarterScreen)
+            // Just do it. Sometimes the render targets are not automatically recreated. This seems to happen with floating point surface format.
+            //if (Size == Size.FullScreen || Size == Size.HalfScreen || Size == Size.QuarterScreen ||
+            //    Size == Size.SplitFullScreen || Size == Size.SplitHalfScreen || Size == Size.SplitQuarterScreen)
             {
                 // The size changes with the new window size.
                 renderTarget.Dispose();

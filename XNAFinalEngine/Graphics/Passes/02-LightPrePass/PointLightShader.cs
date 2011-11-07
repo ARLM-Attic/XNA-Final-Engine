@@ -349,7 +349,7 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Render
+        #region Render Light
 
         /// <summary>
         /// Render to the light pre pass texture.
@@ -395,7 +395,7 @@ namespace XNAFinalEngine.Graphics
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Light Pre Pass Directional Light: Unable to render.", e);
+                throw new InvalidOperationException("Light Pre Pass Point Light: Unable to render.", e);
             }
         } // RenderLight
 

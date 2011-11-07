@@ -269,11 +269,18 @@ namespace XNAFinalEngine.EngineCore
                 #endregion
                 
                 #region Light Pre Pass
-                    
+
                 LightPrePass.Begin(Size.FullScreen, currentCamera.AmbientLight.Color);
-
+                
                 // Render ambient light for every camera.
-
+                if (currentCamera.AmbientLight != null)
+                {
+                    AmbientLightShader.Instance.RenderLight(gbufferTextures.RenderTargets[1], // Normal Texture
+                                                            currentCamera.AmbientLight,
+                                                            null,
+                                                            currentCamera.ViewMatrix);
+                }
+                
                 // Render directional lights for every camera.
                 DirectionalLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                              gbufferTextures.RenderTargets[1], // Normal Texture
@@ -285,7 +292,7 @@ namespace XNAFinalEngine.EngineCore
                     DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
                     DirectionalLightShader.Instance.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity);
                 }
-
+                
                 // Render point lights for every camera.
                 PointLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                                gbufferTextures.RenderTargets[1], // Normal Texture
@@ -301,7 +308,7 @@ namespace XNAFinalEngine.EngineCore
                 }
 
                 // Render spot lights for every camera.
-
+                
                 lightTexture = LightPrePass.End();
                     
                 #endregion
@@ -368,6 +375,7 @@ namespace XNAFinalEngine.EngineCore
             currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
             SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget);
             RenderTarget.Release(currentCamera.PartialRenderTarget); // It is not need anymore.
+            
             // Composite the different viewports
             /*for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
                 currentCamera.slavesCameras[i];*/
