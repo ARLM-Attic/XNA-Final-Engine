@@ -7,6 +7,7 @@
 #region Using directives
 using System;
 using System.Collections.Generic;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -239,6 +240,33 @@ namespace XNAFinalEngine.Components
             Name = "GameObject3D-" + nameNumber;
             nameNumber++;
             Initialize();
+        } // GameObject3D
+
+        /// <summary>
+        /// Base class for all entities in the scenes.
+        /// </summary>
+        public GameObject3D(string name, Model model, Material material)
+        {
+            Name = name;
+            Initialize();
+            AddComponent<ModelRenderer>();
+            AddComponent<ModelFilter>();
+            ModelFilter.Model = model;
+            ModelRenderer.Material = material;
+        } // GameObject3D
+
+        /// <summary>
+        /// Base class for all entities in the scenes.
+        /// </summary>
+        public GameObject3D(Model model, Material material)
+        {
+            Name = "GameObject3D-" + nameNumber;
+            nameNumber++;
+            Initialize();
+            AddComponent<ModelRenderer>();
+            AddComponent<ModelFilter>();
+            ModelFilter.Model = model;
+            ModelRenderer.Material = material;
         } // GameObject3D
 
         /// <summary>
@@ -568,6 +596,6 @@ namespace XNAFinalEngine.Components
         } // RemoveComponent
 
         #endregion
-
+        
     } // GameObject3D
 } // XNAFinalEngine.Components

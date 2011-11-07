@@ -42,16 +42,14 @@ namespace XNAFinalEngine.Graphics
 {
 
     /// <summary>
-    /// Light Pre Pass Directional Light shader.
+    /// Light Pre Pass Directional Light Shader.
     /// </summary>
     internal class DirectionalLightShader : Shader
     {
 
         #region Variables
-
-        /// <summary>
-        /// Current view matrix. Used to set the shader parameters.
-        /// </summary>
+        
+        // Current view matrix. Used to set the shader parameters.
         private Matrix viewMatrix;
 
         // Singleton reference.
@@ -218,7 +216,7 @@ namespace XNAFinalEngine.Graphics
         #region Constructor
 
         /// <summary>
-        /// Light Pre Pass Directional Light shader.
+        /// Light Pre Pass Directional Light Shader.
         /// </summary>
         internal DirectionalLightShader() : base("LightPrePass\\DirectionalLight") { }
 
@@ -314,7 +312,7 @@ namespace XNAFinalEngine.Graphics
                 
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
-            } // try
+            }
             catch (Exception e)
             {
                 throw new InvalidOperationException("Light Pre Pass Directional Light: Unable to render.", e);

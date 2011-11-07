@@ -138,7 +138,7 @@ namespace XNAFinalEngine.EngineCore
             MainSettings mainSettings;
             try
             {
-                mainSettings = Content.Load<MainSettings>(ContentManager.GameDataDirectory + "MainSettings.xml");
+                mainSettings = Content.Load<MainSettings>(ContentManager.GameDataDirectory + "MainSettings");
             }
             catch
             {

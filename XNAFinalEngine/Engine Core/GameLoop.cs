@@ -287,6 +287,18 @@ namespace XNAFinalEngine.EngineCore
                 }
 
                 // Render point lights for every camera.
+                PointLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
+                                               gbufferTextures.RenderTargets[1], // Normal Texture
+                                               gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
+                                               currentCamera.ViewMatrix,
+                                               currentCamera.ProjectionMatrix,
+                                               currentCamera.NearPlane,
+                                               currentCamera.FarPlane);
+                for (int i = 0; i < PointLight.ComponentPool.Count; i++)
+                {
+                    PointLight currentPointLight = PointLight.ComponentPool.Elements[i];
+                    PointLightShader.Instance.RenderLight(currentPointLight.DiffuseColor, currentPointLight.cachedPosition, currentPointLight.Intensity, currentPointLight.Range);
+                }
 
                 // Render spot lights for every camera.
 
@@ -313,6 +325,11 @@ namespace XNAFinalEngine.EngineCore
                         {
                             BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
                             BlinnPhongShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, (BlinnPhong)currentModelRenderer.Material);
+                        }
+                        else if (currentModelRenderer.Material is CarPaint)
+                        {
+                            CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                            CarPaintShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint)currentModelRenderer.Material);
                         }
                     }
                 }

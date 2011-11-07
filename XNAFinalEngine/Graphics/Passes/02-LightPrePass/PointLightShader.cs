@@ -33,34 +33,54 @@ using System;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Helpers;
+using Model = XNAFinalEngine.Assets.Model;
+using Texture = XNAFinalEngine.Assets.Texture;
+
 #endregion
 
 namespace XNAFinalEngine.Graphics
 {
     /// <summary>
-    /// Light Pre Pass Point Light.
-    /// This class could be mixed with the directionalLight class or could be coded with the partial class command.
+    /// Light Pre Pass Point Light Shader.
     /// </summary>
-    internal static class LightPrePassPointLight
+    internal class PointLightShader : Shader
     {
 
         #region Variables
 
-        /// <summary>
-        /// Bounding Light Object.
-        /// </summary>
+        private float nearPlane;
+
+        // Current view matrix. Used to set the shader parameters.
+        private Matrix viewMatrix, projectionMatrix;
+
+        // Bounding Light Object.
         private static Model boundingLightObject;
+
+        // Singleton reference.
+        private static PointLightShader instance;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// A singleton of a directional light shader.
+        /// </summary>
+        public static PointLightShader Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new PointLightShader();
+                return instance;
+            }
+        } // Instance
 
         #endregion
 
         #region Shader Parameters
-
-        /// <summary>
-        /// The shader effect.
-        /// </summary>
-        private static Effect Effect { get; set; }
 
         /// <summary>
         /// Effect handles
@@ -95,13 +115,15 @@ namespace XNAFinalEngine.Graphics
 
         #region Depth Texture
 
-        private static Texture lastUsedDepthTexture;
+        private static Texture2D lastUsedDepthTexture;
         private static void SetDepthTexture(Texture depthTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedDepthTexture != depthTexture)
+            EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp; // depthTexture
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedDepthTexture != depthTexture.Resource)
             {
-                lastUsedDepthTexture = depthTexture;
-                epDepthTexture.SetValue(depthTexture.XnaTexture);
+                lastUsedDepthTexture = depthTexture.Resource;
+                epDepthTexture.SetValue(depthTexture.Resource);
             }
         } // SetDepthTexture
 
@@ -109,13 +131,15 @@ namespace XNAFinalEngine.Graphics
 
         #region Normal Texture
 
-        private static Texture lastUsedNormalTexture;
+        private static Texture2D lastUsedNormalTexture;
         private static void SetNormalTexture(Texture normalTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedNormalTexture != normalTexture)
+            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedNormalTexture != normalTexture.Resource)
             {
-                lastUsedNormalTexture = normalTexture;
-                epNormalTexture.SetValue(normalTexture.XnaTexture);
+                lastUsedNormalTexture = normalTexture.Resource;
+                epNormalTexture.SetValue(normalTexture.Resource);
             }
         } // SetNormalTexture
 
@@ -123,13 +147,15 @@ namespace XNAFinalEngine.Graphics
 
         #region Motion Vector Specular Power Texture
 
-        private static Texture lastUsedMotionVectorSpecularPower;
+        private static Texture2D lastUsedMotionVectorSpecularPower;
         private static void SetMotionVectorSpecularPower(Texture motionVectorSpecularPower)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedMotionVectorSpecularPower != motionVectorSpecularPower)
+            EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedMotionVectorSpecularPower != motionVectorSpecularPower.Resource)
             {
-                lastUsedMotionVectorSpecularPower = motionVectorSpecularPower;
-                epMotionVectorSpecularPowerTexture.SetValue(motionVectorSpecularPower.XnaTexture);
+                lastUsedMotionVectorSpecularPower = motionVectorSpecularPower.Resource;
+                epMotionVectorSpecularPowerTexture.SetValue(motionVectorSpecularPower.Resource);
             }
         } // SetMotionVectorSpecularPower
 
@@ -245,25 +271,15 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Load Shader
+        #region Constructor
 
         /// <summary>
-        /// Load shader
+        /// Light Pre Pass Point Light Shader.
         /// </summary>
-        private static void LoadShader()
+        internal PointLightShader() : base("LightPrePass\\PointLight")
         {
-            const string filename = "LightPrePass\\PointLight";
-            // Load shader
-            try
-            {
-                Effect = EngineManager.SystemContent.Load<Effect>(Path.Combine(Directories.ShadersDirectory, filename));
-            } // try
-            catch
-            {
-                throw new Exception("Unable to load the shader " + filename);
-            } // catch
-            GetParametersHandles();
-        } // LoadShader
+            boundingLightObject = new Sphere(50, 50, 1);
+        } // PointLightShader
 
         #endregion
 
@@ -272,28 +288,64 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Get the handles of the parameters from the shader.
         /// </summary>
-        private static void GetParametersHandles()
+        /// <remarks>
+        /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
+        /// </remarks>
+        protected override void GetParametersHandles()
         {
             try
             {
-                epHalfPixel                        = Effect.Parameters["halfPixel"];
-                epLightColor                       = Effect.Parameters["lightColor"];
-                epLightPosition                    = Effect.Parameters["lightPosition"];
-                epLlightIntensity                  = Effect.Parameters["lightIntensity"];
-                epLightRadius                      = Effect.Parameters["lightRadius"];
-                epDepthTexture                     = Effect.Parameters["depthTexture"];
-                epNormalTexture                    = Effect.Parameters["normalTexture"];
-                epMotionVectorSpecularPowerTexture = Effect.Parameters["motionVectorSpecularPowerTexture"];
-                epFarPlane                         = Effect.Parameters["farPlane"];
-                epWorldViewProj                    = Effect.Parameters["worldViewProj"];
-                epWorldView                        = Effect.Parameters["worldView"];
-                epInsideBoundingLightObject        = Effect.Parameters["insideBoundingLightObject"];
+                epHalfPixel                        = Resource.Parameters["halfPixel"];
+                epLightColor                       = Resource.Parameters["lightColor"];
+                epLightPosition                    = Resource.Parameters["lightPosition"];
+                epLlightIntensity                  = Resource.Parameters["lightIntensity"];
+                epLightRadius                      = Resource.Parameters["lightRadius"];
+                epDepthTexture                     = Resource.Parameters["depthTexture"];
+                epNormalTexture                    = Resource.Parameters["normalTexture"];
+                epMotionVectorSpecularPowerTexture = Resource.Parameters["motionVectorSpecularPowerTexture"];
+                epFarPlane                         = Resource.Parameters["farPlane"];
+                epWorldViewProj                    = Resource.Parameters["worldViewProj"];
+                epWorldView                        = Resource.Parameters["worldView"];
+                epInsideBoundingLightObject        = Resource.Parameters["insideBoundingLightObject"];
             }
             catch
             {
-                throw new Exception("Get the handles from the light pre pass point light shader failed.");
+                throw new InvalidOperationException("The parameter's handles from the " + Name + " shader could not be retrieved.");
             }
         } // GetParameters
+        
+        #endregion
+
+        #region Begin
+
+        /// <summary>
+        /// Begins the point light rendering.
+        /// </summary>
+        /// <param name="depthTexture">Gbuffer's depth buffer.</param>
+        /// <param name="normalTexture">Gbuffer's normal map.</param>
+        /// <param name="motionVectorSpecularPowerTexture">Gbuffer's motion vector and specular power texture.</param>
+        /// <param name="viewMatrix">Camera view matrix.</param>
+        /// <param name="projectionMatrix">Camera projection matrix.</param>
+        /// <param name="farPlane">Camera far plane.</param>
+        internal void Begin(RenderTarget depthTexture, RenderTarget normalTexture, RenderTarget motionVectorSpecularPowerTexture,
+                            Matrix viewMatrix, Matrix projectionMatrix, float nearPlane, float farPlane)
+        {
+            try
+            {
+                SetDepthTexture(depthTexture);
+                SetNormalTexture(normalTexture);
+                SetMotionVectorSpecularPower(motionVectorSpecularPowerTexture);
+                SetHalfPixel(new Vector2(-1f / depthTexture.Width, 1f / depthTexture.Height)); // I use the depth texture, but I just need the destination render target dimension.
+                SetFarPlane(farPlane);
+                this.nearPlane = nearPlane;
+                this.viewMatrix = viewMatrix;
+                this.projectionMatrix = projectionMatrix;
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Light Pre Pass Directional Light:: Unable to begin the rendering.", e);
+            }
+        } // Begin
 
         #endregion
 
@@ -302,40 +354,31 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render to the light pre pass texture.
         /// </summary>
-        public static void Render(PointLight light, RenderTarget depthTexture, RenderTarget normalTexture, RenderTarget motionVectorSpecularPowerTexture, RenderTarget lightPrePassMap)
+        public void RenderLight(Color diffuseColor, Vector3 position, float intensity, float radius)
         {
-            if (Effect == null)
-            {
-                LoadShader();
-                boundingLightObject = new Sphere(50, 50, 1);
-            }
             try
             {
                 #region Set Parameters
-
-                SetHalfPixel(new Vector2(0.5f / depthTexture.Width, 0.5f / depthTexture.Height));
-                SetLightColor(light.DiffuseColor);
-                SetLightPosition(Vector3.Transform(light.Position, ApplicationLogic.Camera.ViewMatrix));
-                SetLightIntensity(light.Intensity);
-                SetLightRadius(light.Radius);
-                SetDepthTexture(depthTexture);
-                SetNormalTexture(normalTexture);
-                SetMotionVectorSpecularPower(motionVectorSpecularPowerTexture);
-                SetFarPlane(ApplicationLogic.Camera.FarPlane);
+                
+                SetLightColor(diffuseColor);
+                SetLightPosition(Vector3.Transform(position, viewMatrix));
+                SetLightIntensity(intensity);
+                SetLightRadius(radius);
+                
 
                 // Compute the light world matrix.
                 // Scale according to light radius, and translate it to light position.
-                Matrix boundingLightObjectWorldMatrix = Matrix.CreateScale(light.Radius) * Matrix.CreateTranslation(light.Position);
+                Matrix boundingLightObjectWorldMatrix = Matrix.CreateScale(radius) * Matrix.CreateTranslation(position);
 
-                SetWorldViewProjMatrix(boundingLightObjectWorldMatrix * ApplicationLogic.Camera.ViewMatrix * ApplicationLogic.Camera.ProjectionMatrix);
-                SetWorldViewMatrix(boundingLightObjectWorldMatrix * ApplicationLogic.Camera.ViewMatrix);
+                SetWorldViewProjMatrix(boundingLightObjectWorldMatrix * viewMatrix * projectionMatrix);
+                SetWorldViewMatrix(boundingLightObjectWorldMatrix * viewMatrix);
 
                 #endregion
 
                 // Calculate the distance between the camera and light center.
-                float cameraToCenter = Vector3.Distance(ApplicationLogic.Camera.Position, light.Position) - ApplicationLogic.Camera.NearPlane;
+                float cameraToCenter = Vector3.Distance(Matrix.Invert(viewMatrix).Translation, position) - nearPlane;
                 // If we are inside the light volume, draw the sphere's inside face.
-                if (cameraToCenter < light.Radius)
+                if (cameraToCenter < radius)
                 {
                     SetInsideBoundingLightObject(true);
                     EngineManager.Device.RasterizerState = RasterizerState.CullClockwise;
@@ -345,18 +388,18 @@ namespace XNAFinalEngine.Graphics
                     SetInsideBoundingLightObject(false);
                     EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
                 }
-                
-                Effect.CurrentTechnique = Effect.Techniques["PointLight"];
-                Effect.CurrentTechnique.Passes[0].Apply();
+
+                Resource.CurrentTechnique = Resource.Techniques["PointLight"];
+                Resource.CurrentTechnique.Passes[0].Apply();
                 boundingLightObject.Render();
-            } // try
+            }
             catch (Exception e)
             {
-                throw new Exception("Unable to render the light pre pass point light shader" + e.Message);
+                throw new InvalidOperationException("Light Pre Pass Directional Light: Unable to render.", e);
             }
-        } // Render
+        } // RenderLight
 
         #endregion
 
-    } // LightPrePassPointLights
+    } // PointLightShader
 } // XNAFinalEngine.Graphics

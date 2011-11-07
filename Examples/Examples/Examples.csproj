@@ -108,6 +108,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Scenes\LamborghiniMurcielagoScene.cs" />
     <Compile Include="Scenes\EmptyScene.cs" />
     <Compile Include="Scenes\TutorialNeoForceUI.cs" />
     <Compile Include="Scenes\TestScene.cs" />

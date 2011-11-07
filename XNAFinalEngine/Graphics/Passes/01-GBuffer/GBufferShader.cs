@@ -514,10 +514,33 @@ namespace XNAFinalEngine.Graphics
                         if (!textured)
                             Resource.CurrentTechnique = Resource.Techniques["GBufferWithoutTexture"];
                     }
-                    /*else if (material is CarPaint)
+                    else if (material is CarPaint)
                     {
-                        
-                    }*/
+                        CarPaint blinnPhongMaterial = ((CarPaint)material);
+                        bool textured = false;
+                        // Specular texture
+                        if (blinnPhongMaterial.SpecularTexture != null && blinnPhongMaterial.SpecularTexturePowerEnabled)
+                        {
+                            SetSpecularTexture(blinnPhongMaterial.SpecularTexture);
+                            SetSpecularTextured(true);
+                            textured = true;
+                            Resource.CurrentTechnique = Resource.Techniques["GBufferWithSpecularTexture"];
+                        }
+                        else
+                        {
+                            SetSpecularPower(blinnPhongMaterial.SpecularPower);
+                            SetSpecularTextured(false);
+                        }
+                        // Normal texture
+                        if (blinnPhongMaterial.NormalTexture != null)
+                        {
+                            textured = true;
+                            SetObjectNormalTexture(blinnPhongMaterial.NormalTexture);
+                            Resource.CurrentTechnique = Resource.Techniques["GBufferWithNormalMap"];
+                        }
+                        if (!textured)
+                            Resource.CurrentTechnique = Resource.Techniques["GBufferWithoutTexture"];
+                    }
                     /*else if (material is Terrain)
                     {
                         SetDisplacementTexture(TerrainMaterial.DisplacementTexture);

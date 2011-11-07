@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XnaContent>
+  <Asset Type="XNAFinalEngineContentPipelineExtensionRuntime.Settings.MainSettings">
+    <WindowName>TOTO</WindowName>
+    <WindowWidth>1280</WindowWidth>
+    <WindowHeight>800</WindowHeight>
+    <AspectRatio>0</AspectRatio>
+    <Fullscreen>false</Fullscreen>
+    <VSync>false</VSync>
+    <MultiSampleQuality>0</MultiSampleQuality>
+    <ChangeWindowSize>true</ChangeWindowSize>
+    <UpdateFrequency>-0</UpdateFrequency>
+    <IsMouseVisible>true</IsMouseVisible>
+  </Asset>
+</XnaContent>

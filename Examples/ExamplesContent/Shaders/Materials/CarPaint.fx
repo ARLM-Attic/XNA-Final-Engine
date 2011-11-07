@@ -46,36 +46,35 @@ float3 middlePaintColor;
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture microflakeMap;
-
-sampler2D microflakeSampler = sampler_state
+texture microflakeMap : register(t0);;
+sampler2D microflakeSampler : register(s0) = sampler_state
 {
 	Texture = <microflakeMap>;
-	MipFilter = LINEAR;
+	/*MipFilter = LINEAR;
 	MagFilter = LINEAR;
 	MinFilter = LINEAR;
 	ADDRESSU = WRAP;
-	ADDRESSV = WRAP;
+	ADDRESSV = WRAP;*/
 };
 
-texture reflectionTexture : ENVIRONMENT;
-
-samplerCUBE reflectionSampler = sampler_state
+texture reflectionTexture : register(t4);
+samplerCUBE reflectionSampler : register(s4) = sampler_state
 {
 	Texture = <reflectionTexture>;
-	MinFilter = Linear;
+	/*MinFilter = Linear;
 	MagFilter = Linear;
-	MipFilter = Linear;
+	MipFilter = Linear;*/
 };
 
-texture lightMap;
-
-sampler2D lightSampler = sampler_state
+texture lightMap : register(t1);
+sampler2D lightSampler : register(s1) = sampler_state
 {
 	Texture = <lightMap>;
-	MipFilter = NONE;
+	/*MipFilter = NONE;
 	MagFilter = POINT;
 	MinFilter = POINT;
+	AddressU = CLAMP;
+	AddressV = CLAMP;*/
 };
 
 //////////////////////////////////////////////

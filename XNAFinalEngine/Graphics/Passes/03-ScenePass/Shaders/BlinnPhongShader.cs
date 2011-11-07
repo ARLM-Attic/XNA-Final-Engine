@@ -49,10 +49,8 @@ namespace XNAFinalEngine.Graphics
     {
 
         #region Variables
-
-        /// <summary>
-        /// Current view and projection matrix. Used to set the shader parameters.
-        /// </summary>
+        
+        // Current view and projection matrix. Used to set the shader parameters.
         private Matrix viewMatrix, projectionMatrix;
 
         // Singleton reference.
@@ -504,7 +502,7 @@ namespace XNAFinalEngine.Graphics
 
         /// <summary>
         /// Render a model.
-		/// </summary>		
+		/// </summary>
         internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform, BlinnPhong blinnPhongMaterial)
         {
             try
@@ -572,7 +570,7 @@ namespace XNAFinalEngine.Graphics
             {
                 throw new InvalidOperationException("Bling Phong Material: Unable to render model.", e);
             }
-        } // Render
+        } // RenderModel
 
 		#endregion        
         

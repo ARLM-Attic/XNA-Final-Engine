@@ -148,137 +148,151 @@
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-AirTakesEngine.fbx">
       <Name>Murcielago-AirTakesEngine</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-BlackMetal.fbx">
       <Name>Murcielago-BlackMetal</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-Body.fbx">
       <Name>Murcielago-Body</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-BrakeCaliper.fbx">
       <Name>Murcielago-BrakeCaliper</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-BrakeDisc.fbx">
       <Name>Murcielago-BrakeDisc</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-Floor.fbx">
       <Name>Murcielago-Floor</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontLightBase.fbx">
       <Name>Murcielago-FrontLightBase</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontLightWhiteMetal.fbx">
       <Name>Murcielago-FrontLightWhiteMetal</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontRimLogo.fbx">
       <Name>Murcielago-FrontRimLogo</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontTyre.fbx">
       <Name>Murcielago-FrontTyre</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontTyre02.fbx">
       <Name>Murcielago-FrontTyre02</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-Glasses.fbx">
       <Name>Murcielago-Glasses</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-Logo.fbx">
       <Name>Murcielago-Logo</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP640-EngineGlasses.fbx">
       <Name>Murcielago-LP640-EngineGlasses</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP640-Exhaust.fbx">
       <Name>Murcielago-LP640-Exhaust</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP640-Grid.fbx">
       <Name>Murcielago-LP640-Grid</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP640-RearSpoilerDarkPart.fbx">
       <Name>Murcielago-LP640-RearSpoilerDarkPart</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP640-RimBase.fbx">
       <Name>Murcielago-LP640-RimBase</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP640-RimBase02.fbx">
       <Name>Murcielago-LP640-RimBase02</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP670-FrontRim.fbx">
       <Name>Murcielago-LP670-FrontRim</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP670-RearRim.fbx">
       <Name>Murcielago-LP670-RearRim</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-RearTyre.fbx">
       <Name>Murcielago-RearTyre</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-RearTyre02.fbx">
       <Name>Murcielago-RearTyre02</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-WheelBlackConstant.fbx">
       <Name>Murcielago-WheelBlackConstant</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\Terrain\TerrainLOD0Grid.fbx">
       <Name>TerrainLOD0Grid</Name>
       <Importer>FbxImporter</Importer>
       <Processor>ModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\Terrain\TerrainLOD1Grid.fbx">
       <Name>TerrainLOD1Grid</Name>
       <Importer>FbxImporter</Importer>
       <Processor>ModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\Terrain\TerrainLOD3Grid.fbx">
       <Name>TerrainLOD3Grid</Name>
       <Importer>FbxImporter</Importer>
       <Processor>ModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Shaders\Filters\Blur.fx">
       <Name>Blur</Name>
@@ -1259,7 +1273,6 @@
     <Folder Include="Shaders\Helpers\" />
     <Folder Include="Shaders\ScreenSpaceAlphaMasking\" />
     <Folder Include="Sounds\" />
-    <Folder Include="Textures\CubeMaps\" />
     <Folder Include="Textures\LookupTables\" />
     <Folder Include="Videos\" />
   </ItemGroup>
@@ -1290,6 +1303,32 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </None>
+    <Compile Include="Textures\CubeTextures\Showroom.dds">
+      <Name>Showroom</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\Stones-NormalHeightMap.tga">
+      <Name>Stones-NormalHeightMap</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\Stones-Diffuse.bmp">
+      <Name>Stones-Diffuse</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MainSettings.xml">
+      <Name>MainSettings</Name>
+      <Importer>XmlImporter</Importer>
+      <Processor>PassThroughProcessor</Processor>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 

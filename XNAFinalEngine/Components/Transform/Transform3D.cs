@@ -53,6 +53,18 @@ namespace XNAFinalEngine.Components
         World
     } // Space
 
+    public enum AngularMeasure
+    {
+        /// <summary>
+        /// Degrees.
+        /// </summary>
+        Degrees,
+        /// <summary>
+        /// Radians.
+        /// </summary>
+        Radians
+    }
+
     #endregion
 
     /// <summary>
@@ -104,7 +116,11 @@ namespace XNAFinalEngine.Components
                     return (GameObject3D)(parent.Owner);
                 return null;
             }
-            set { parent = value.Transform; }
+            set
+            {
+                parent = value.Transform;
+                UpdateLocalMatrix();
+            }
         } // Parent
 
         #endregion
@@ -334,16 +350,20 @@ namespace XNAFinalEngine.Components
         /// Rotate the game object. 
         /// Default space: local space.
         /// </summary>
-        /// <param name="rotation">Pitch, Yaw, Roll</param>        
-        public void Rotate(Vector3 rotation, Space space = Space.Local)
+        /// <param name="rotation">Pitch, Yaw, Roll</param>
+        /// <param name="space">Local or World space?</param>
+        /// <param name="angularMeasure">Degrees or radians?</param>        
+        public void Rotate(Vector3 rotation, Space space = Space.Local, AngularMeasure angularMeasure = AngularMeasure.Degrees)
         {
+            if (angularMeasure == AngularMeasure.Degrees)
+                rotation = new Vector3(rotation.X * (3.1416f / 180), rotation.Y * (3.1416f / 180), rotation.Z * (3.1416f / 180));
             if (space == Space.Local)
             {
                 LocalRotation = Quaternion.Concatenate(LocalRotation, Quaternion.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z));
             }
             else
             {
-                Rotation = Quaternion.Concatenate(Rotation, Quaternion.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z));
+                LocalRotation = Quaternion.Concatenate(Rotation, Quaternion.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z));
             }
         } // Rotate
 
