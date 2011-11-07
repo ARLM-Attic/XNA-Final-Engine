@@ -78,7 +78,7 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         private static string ScreenshotNameBuilder(int num)
         {
-            return "Content\\Screenshot" + "\\" + screenshotFileName + "-" + num.ToString("0000") + ".png";
+            return "Content\\Screenshots" + "\\" + screenshotFileName + "-" + num.ToString("0000") + ".png";
         } // ScreenshotNameBuilder
 
         #endregion
