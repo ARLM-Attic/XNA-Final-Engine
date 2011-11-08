@@ -240,6 +240,7 @@ namespace XNAFinalEngine.EngineCore
             RenderTarget lightTexture = null;
             RenderTarget sceneTexture = null;
             RenderTarget postProcessedSceneTexture = null;
+            RenderTarget ambientOcclusionTexture = null;
 
             Camera currentCamera = null;
             // For each camera we render the scene in it
@@ -270,6 +271,18 @@ namespace XNAFinalEngine.EngineCore
                 
                 #region Light Pre Pass
 
+                if (currentCamera.AmbientLight.AmbientOcclusion != null && currentCamera.AmbientLight.AmbientOcclusion.Enabled)
+                {
+                    if (currentCamera.AmbientLight.AmbientOcclusion is HorizonBasedAmbientOcclusion)
+                    {
+                        ambientOcclusionTexture = HorizonBasedAmbientOcclusionShader.Instance.Render(gbufferTextures.RenderTargets[0],
+                                                                                                     gbufferTextures.RenderTargets[1],
+                                                                                                     (HorizonBasedAmbientOcclusion)
+                                                                                                     (currentCamera.AmbientLight.AmbientOcclusion),
+                                                                                                     currentCamera.FieldOfView, currentCamera.ViewMatrix);
+                    }
+                }
+
                 LightPrePass.Begin(Size.FullScreen, currentCamera.AmbientLight.Color);
                 
                 // Render ambient light for every camera.
@@ -277,9 +290,10 @@ namespace XNAFinalEngine.EngineCore
                 {
                     AmbientLightShader.Instance.RenderLight(gbufferTextures.RenderTargets[1], // Normal Texture
                                                             currentCamera.AmbientLight,
-                                                            null,
+                                                            ambientOcclusionTexture,
                                                             currentCamera.ViewMatrix);
                 }
+                RenderTarget.Release(ambientOcclusionTexture);
                 
                 // Render directional lights for every camera.
                 DirectionalLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
@@ -375,6 +389,8 @@ namespace XNAFinalEngine.EngineCore
             currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
             SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget);
             RenderTarget.Release(currentCamera.PartialRenderTarget); // It is not need anymore.
+
+            SpriteManager.DrawTextureToFullScreen(ambientOcclusionTexture);
             
             // Composite the different viewports
             /*for (int i = 0; i < currentCamera.slavesCameras.Count; i++)

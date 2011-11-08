@@ -540,7 +540,8 @@ namespace XNAFinalEngine.Assets
                     return;
                 }
             }
-            throw new ArgumentException("Render Target: Cannot release render target. The render target is not present in the pool.");
+            // If not do nothing.
+            //throw new ArgumentException("Render Target: Cannot release render target. The render target is not present in the pool.");
         } // Release
 
         public static void ClearRenderTargetPool()

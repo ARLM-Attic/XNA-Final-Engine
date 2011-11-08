@@ -1269,7 +1269,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Music\" />
-    <Folder Include="Shaders\GlobalIllumination\" />
     <Folder Include="Shaders\Helpers\" />
     <Folder Include="Shaders\ScreenSpaceAlphaMasking\" />
     <Folder Include="Sounds\" />
@@ -1298,6 +1297,32 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Shaders\GlobalIllumination\HorizonBasedAmbientOcclusion.fx">
+      <Name>HorizonBasedAmbientOcclusion</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+      <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
+    </Compile>
+    <None Include="Shaders\GlobalIllumination\HorizonBasedAmbientOcclusionMiddleQuality.fxh">
+      <Name>HorizonBasedAmbientOcclusionMiddleQuality</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </None>
+    <None Include="Shaders\GlobalIllumination\HorizonBasedAmbientOcclusionLowQuality.fxh">
+      <Name>HorizonBasedAmbientOcclusionLowQuality</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </None>
+    <None Include="Shaders\GlobalIllumination\HorizonBasedAmbientOcclusionHighQuality.fxh">
+      <Name>HorizonBasedAmbientOcclusionHighQuality</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </None>
+    <None Include="Shaders\GlobalIllumination\HorizonBasedAmbientOcclusionCommon.fxh">
+      <Name>HorizonBasedAmbientOcclusionCommon</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </None>
     <None Include="Shaders\Materials\SkinnedBlinnPhong.fxh">
       <Name>SkinnedBlinnPhong</Name>
       <Importer>EffectImporter</Importer>

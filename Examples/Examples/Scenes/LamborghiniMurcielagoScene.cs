@@ -61,7 +61,7 @@ namespace XNAFinalEngineExamples
                                     murcielagoLP670RearLeftRim, murcielagoLP640RearLeftRimBase, murcielagoLP640RearLeftRimBase02,
                                     murcielagoRearLeftRimLogo, murcielagoRearLeftBrakeDisc, murcielagoRearLeftBrakeCaliper, murcielagoRearLeftTyre,
                                     murcielagoRearLeftTyre02, rearLeftRim,
-                                    floor,
+                                    floor, floor2, floor3,
                                     directionalLight, pointLight, pointLight2,
                                     camera;
 
@@ -95,7 +95,18 @@ namespace XNAFinalEngineExamples
             };
             camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicAmbientLight = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Showroom", false)),
                                                             Color = new Color(30, 30, 30),
-                                                            Intensity = 0.7f};
+                                                            Intensity = 500f,
+                                                            AmbientOcclusionStrength = 10};
+            camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
+            {
+                NumberSteps = 8, // Don't change this.
+                NumberDirections = 12, // Don't change this.
+                Radius = 0.00015f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                LineAttenuation = 0.3f,
+                Contrast = 0.5f,
+                AngleBias = 3,
+                Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality
+            };
 
             #endregion
 
@@ -404,11 +415,39 @@ namespace XNAFinalEngineExamples
                                //DiffuseColor = new Color(27, 27, 25),
                                NormalTexture = new Texture("Stones-NormalHeightMap"),
                                SpecularIntensity = 10.0f,
-                               ParallaxEnabled = true,
+                               //ParallaxEnabled = true,
                                ReflectionTexture = new TextureCube("Showroom", false),
                            });
             floor.Transform.LocalScale = new Vector3(2, 2, 2);
             floor.Transform.Position = new Vector3(0, -1.17f, 0);
+            floor2 = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid")/*new Graphics.Plane(20, 20)*/,
+               new BlinnPhong
+               {
+                   SpecularPower = 30,
+                   DiffuseTexture = new Texture("Stones-Diffuse"),
+                   //DiffuseColor = new Color(27, 27, 25),
+                   NormalTexture = new Texture("Stones-NormalHeightMap"),
+                   SpecularIntensity = 10.0f,
+                   //ParallaxEnabled = true,
+                   ReflectionTexture = new TextureCube("Showroom", false),
+               });
+            floor2.Transform.LocalScale = new Vector3(2, 2, 2);
+            floor2.Transform.Position = new Vector3(0, -1.17f, 0);
+            floor2.Transform.Rotate(new Vector3(180, 0, 0));
+            floor3 = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid")/*new Graphics.Plane(20, 20)*/,
+               new BlinnPhong
+               {
+                   SpecularPower = 30,
+                   DiffuseTexture = new Texture("Stones-Diffuse"),
+                   //DiffuseColor = new Color(27, 27, 25),
+                   NormalTexture = new Texture("Stones-NormalHeightMap"),
+                   SpecularIntensity = 10.0f,
+                   //ParallaxEnabled = true,
+                   ReflectionTexture = new TextureCube("Showroom", false),
+               });
+            floor3.Transform.LocalScale = new Vector3(2, 2, 2);
+            floor3.Transform.Position = new Vector3(0, 10, 0);
+            floor3.Transform.Rotate(new Vector3(180, 0, 0));
 
             #endregion
 
@@ -455,6 +494,10 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
+            if (Keyboard.LeftPressed)
+                camera.Camera.AmbientLight.AmbientOcclusion.Enabled = false;
+            else
+                camera.Camera.AmbientLight.AmbientOcclusion.Enabled = true;
         } // UpdateTasks
 
         #endregion

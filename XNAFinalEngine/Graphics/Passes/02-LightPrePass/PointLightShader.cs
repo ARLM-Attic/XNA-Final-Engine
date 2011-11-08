@@ -66,7 +66,7 @@ namespace XNAFinalEngine.Graphics
         #region Properties
 
         /// <summary>
-        /// A singleton of a directional light shader.
+        /// A singleton of a point light shader.
         /// </summary>
         public static PointLightShader Instance
         {

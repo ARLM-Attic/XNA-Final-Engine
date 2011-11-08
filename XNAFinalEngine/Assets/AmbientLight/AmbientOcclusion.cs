@@ -38,6 +38,26 @@ namespace XNAFinalEngine.Assets
     public abstract class AmbientOcclusion
     {
 
+        #region Variables
+
+        // Is it enabled?
+        private bool enabled = true;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Is it enabled?
+        /// </summary>
+        public bool Enabled
+        {
+            get { return enabled; }
+            set { enabled = value; }
+        } // Enabled
+
+        #endregion
+
     } // AmbientOcclusion
 } // XNAFinalEngine.Assets
 

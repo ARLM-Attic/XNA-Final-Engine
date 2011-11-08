@@ -56,7 +56,7 @@ namespace XNAFinalEngine.Graphics
         #region Properties
 
         /// <summary>
-        /// A singleton of a directional light shader.
+        /// A singleton of a ambient light shader.
         /// </summary>
         public static AmbientLightShader Instance
         {
@@ -246,12 +246,11 @@ namespace XNAFinalEngine.Graphics
 
                 #endregion
 
-                if (ambientLight.AmbientOcclusion == null)
+                if (ambientLight.AmbientOcclusion == null || !ambientLight.AmbientOcclusion.Enabled)
                     Resource.CurrentTechnique = Resource.Techniques["AmbientLightSH"];
                 else
                 {
                     Resource.CurrentTechnique = Resource.Techniques["AmbientLightSHSSAO"];
-                    // And finally to the ambient light shader.
                     SetAmbientOcclusionTexture(ambientOcclusionTexture);
                 }
 
