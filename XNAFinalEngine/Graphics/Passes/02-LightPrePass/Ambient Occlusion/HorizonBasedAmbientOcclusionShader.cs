@@ -415,8 +415,8 @@ namespace XNAFinalEngine.Graphics
                 SetHalfPixel(new Vector2(-1f / ambientOcclusionTexture.Width, 1f / ambientOcclusionTexture.Height));
                 Vector2 focalLen = new Vector2
                 {
-                    X = 1.0f / (float)Math.Tan(fieldOfView * (3.1416f / 180) * 0.5f) * (float)ambientOcclusionTexture.Width / (float)ambientOcclusionTexture.Height,
-                    Y = 1.0f / (float)Math.Tan(fieldOfView * (3.1416f / 180) * 0.5f)
+                    X = 1.0f / ((float)Math.Tan(fieldOfView * (3.1416f / 180) * 0.5f) * ((float)ambientOcclusionTexture.Height / (float)ambientOcclusionTexture.Width)),
+                    Y = 1.0f / ((float)Math.Tan(fieldOfView * (3.1416f / 180) * 0.5f))
                 };
                 SetFocalLength(focalLen);
                 SetInverseFocalLength(new Vector2(1 / focalLen.X, 1 / focalLen.Y));
@@ -441,6 +441,7 @@ namespace XNAFinalEngine.Graphics
 
                 // Render
                 ambientOcclusionTexture.EnableRenderTarget();
+                ambientOcclusionTexture.Clear(Color.White);
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
                 ambientOcclusionTexture.DisableRenderTarget();

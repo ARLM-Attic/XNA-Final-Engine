@@ -7,6 +7,7 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #define M_PI 3.14159265f
 #include <..\GBuffer\GBufferReader.fxh>
+#include <..\Helpers\Discard.fxh>
 
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
@@ -67,24 +68,23 @@ sampler2D RandNormal : register(s3) = sampler_state
 
 struct VS_OUTPUT
 {	
-	float4 pos   : POSITION;
-    float2 texUV : TEXCOORD1;
+	float4 position   : POSITION;
+    float2 uv         : TEXCOORD0;
 };
 
 //////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
-VS_OUTPUT VertexShaderFunction(float4 Position : POSITION, in float2 uv : TEXCOORD)
+VS_OUTPUT VertexShaderFunction(in float4 position : POSITION, in float2 uv : TEXCOORD)
 {	
-	VS_OUTPUT Out = (VS_OUTPUT)0;
+	VS_OUTPUT output = (VS_OUTPUT)0;
 		
-	Out.pos = Position;
-	Out.pos.xy += halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
-
-    Out.texUV = uv;
+	output.position = position;
+	output.position.xy += halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
+	output.uv = uv;
 		
-	return Out;
+	return output;
 } // VertexShaderFunction
 
 //////////////////////////////////////////////
@@ -104,7 +104,7 @@ float3 uv_to_eye(float2 uv, float eye_z)
 
 float3 fetch_eye_pos(float2 uv)
 {
-	float z = tex2D(depthSampler, uv).r; // Single channel zbuffer texture
+	float z = tex2Dlod(depthSampler, float4(uv, 0, 0)).r; // Single channel zbuffer texture
     return uv_to_eye(uv, z);
 }
 
@@ -116,7 +116,9 @@ float3 tangent_eye_pos(float2 uv, float4 tangentPlane)
     float NdotV = dot(tangentPlane.xyz, V);
     // intersect with tangent plane except for silhouette edges
     if (NdotV < -0.01)
-		V *= (tangentPlane.w / NdotV);		
+	{
+		V *= (tangentPlane.w / NdotV);
+	}
     return V;
 }
 

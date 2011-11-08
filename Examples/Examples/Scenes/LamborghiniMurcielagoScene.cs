@@ -93,7 +93,7 @@ namespace XNAFinalEngineExamples
                 AdjustLevels = new AdjustLevels(),
                 MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Both, BlurRadius = 1f, ThresholdDepth = 0.2f, ThresholdColor = 0.2f }
             };
-            camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicAmbientLight = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Showroom", false)),
+            camera.Camera.AmbientLight = new AmbientLight { //SphericalHarmonicAmbientLight = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Showroom", false)),
                                                             Color = new Color(30, 30, 30),
                                                             Intensity = 500f,
                                                             AmbientOcclusionStrength = 10};
@@ -101,10 +101,10 @@ namespace XNAFinalEngineExamples
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
-                Radius = 0.00015f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                Radius = 0.0002f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 0.3f,
                 Contrast = 0.5f,
-                AngleBias = 3,
+                AngleBias = 5,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality
             };
 

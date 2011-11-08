@@ -65,7 +65,7 @@ sampler2D motionVectorSpecularPowerSampler : register(s2) = sampler_state
 
 float3 SampleNormal(float2 uv, sampler2D textureSampler)
 {
-	float2 normalInformation = tex2D(textureSampler, uv).xy;
+	float2 normalInformation = tex2Dlod(textureSampler, float4(uv, 0, 0)).xy;
 	float3 N;
 	
 	// Spheremap Transform (not working)
