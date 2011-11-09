@@ -53,7 +53,7 @@ float2 halfPixel;
 //////////////////////////////////////////////
 
 texture randomTexture  : register(t3);
-sampler2D RandNormal : register(s3) = sampler_state
+sampler2D randomNormalSampler : register(s3) = sampler_state
 {
 	Texture = <randomTexture>;
     /*ADDRESSU = WRAP;
@@ -115,7 +115,7 @@ float3 tangent_eye_pos(float2 uv, float4 tangentPlane)
     float3 V = fetch_eye_pos(uv);
     float NdotV = dot(tangentPlane.xyz, V);
     // intersect with tangent plane except for silhouette edges
-    if (NdotV < -0.01)
+    if (NdotV < 0.0)
 	{
 		V *= (tangentPlane.w / NdotV);
 	}

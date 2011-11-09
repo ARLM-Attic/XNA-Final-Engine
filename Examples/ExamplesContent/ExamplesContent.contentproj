@@ -564,6 +564,8 @@
       <Name>RandomNormal</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\Skin\Default\Button.png">
       <Name>Button</Name>
@@ -1323,6 +1325,11 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </None>
+    <Compile Include="Shaders\GlobalIllumination\RayMarchingAmbientOcclusionShader.fx">
+      <Name>RayMarchingAmbientOcclusionShader</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
     <None Include="Shaders\Materials\SkinnedBlinnPhong.fxh">
       <Name>SkinnedBlinnPhong</Name>
       <Importer>EffectImporter</Importer>

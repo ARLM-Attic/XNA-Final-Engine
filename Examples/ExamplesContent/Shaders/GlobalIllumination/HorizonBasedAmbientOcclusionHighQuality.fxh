@@ -77,6 +77,7 @@ float4 HighQualityPixelShaderFunction(VS_OUTPUT input) : COLOR0
 	}
 	// Retrieve position in view space
 	float3 P = uv_to_eye(input.uv, depth);
+	return float4(P, 1);
 
     // Project the radius of influence g_R from eye space to texture space.
     // The scaling by 0.5 is to go from [-1,1] to [0,1].
@@ -90,7 +91,7 @@ float4 HighQualityPixelShaderFunction(VS_OUTPUT input) : COLOR0
 	
     // I don't use face normals and the cost to have them is very high. However, the results are good and the performance is slightly better.
 	float4 tangentPlane;
-	float3 N = SampleNormal(input.uv);
+	float3 N = SampleNormal(input.uv);	
 	tangentPlane = float4(N, dot(P, N)); // In view space of course.
 	
 	//[branch]
@@ -115,7 +116,7 @@ float4 HighQualityPixelShaderFunction(VS_OUTPUT input) : COLOR0
     float3 dPdv = min_diff(P, Pt, Pb) * (resolution.y * invResolution.x);
 
     // (cos(alpha),sin(alpha),jitter)
-    float3 rand = tex2D(RandNormal, input.uv * 200).rgb; // int2((int)IN.pos.x & 63, (int)IN.pos.y & 63)).rgb; This is new in shader model 4, imposible? to replicate in shader model 3.
+    float3 rand = tex2D(randomNormalSampler, input.uv * 200).rgb; // int2((int)IN.pos.x & 63, (int)IN.pos.y & 63)).rgb; This is new in shader model 4, imposible? to replicate in shader model 3.
 		
 	float ao = 0;
     float d;

@@ -386,20 +386,22 @@ namespace XNAFinalEngine.Graphics
 
 		#endregion
 
-        #region Generate Ambient Occlusion
+        #region Render
 
         /// <summary>
         /// Generate ambient occlusion texture.
 		/// </summary>
         public RenderTarget Render(RenderTarget depthTexture, RenderTarget normalTexture, HorizonBasedAmbientOcclusion hbao, float fieldOfView, Matrix viewMatrix)
         {
-            // Alpha8 doesn't work in my G92 GPU processor and I opt to work with half single. Color is another good choice because support texture filtering.
-            // XBOX 360 Xbox does not support 16 bit render targets (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
-            // Color would be the better choice for the XBOX 360.
-            // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.
-            RenderTarget ambientOcclusionTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
             try
             {
+                // Alpha8 doesn't work in my G92 GPU processor and I opt to work with half single. Color is another good choice because support texture filtering.
+                // XBOX 360 Xbox does not support 16 bit render targets (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
+                // Color would be the better choice for the XBOX 360.
+                // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.
+                //RenderTarget ambientOcclusionTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                RenderTarget ambientOcclusionTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.Color, DepthFormat.Depth24, RenderTarget.AntialiasingType.NoAntialiasing);
+
                 // Set shader atributes
                 SetNormalTexture(normalTexture);
                 SetDepthTexture(depthTexture);
@@ -415,14 +417,16 @@ namespace XNAFinalEngine.Graphics
                 SetHalfPixel(new Vector2(-1f / ambientOcclusionTexture.Width, 1f / ambientOcclusionTexture.Height));
                 Vector2 focalLen = new Vector2
                 {
-                    X = 1.0f / ((float)Math.Tan(fieldOfView * (3.1416f / 180) * 0.5f) * ((float)ambientOcclusionTexture.Height / (float)ambientOcclusionTexture.Width)),
-                    Y = 1.0f / ((float)Math.Tan(fieldOfView * (3.1416f / 180) * 0.5f))
+                    X = (1.0f / (float)Math.Tan(fieldOfView * (3.1416f / 180) * 0.5f)) * (float)ambientOcclusionTexture.Height / (float)ambientOcclusionTexture.Width,
+                    Y = 1.0f / (float)Math.Tan(fieldOfView * (3.1416f / 180) * 0.5f)
                 };
                 SetFocalLength(focalLen);
                 SetInverseFocalLength(new Vector2(1 / focalLen.X, 1 / focalLen.Y));
                 SetSquareRadius(hbao.AngleBias * hbao.AngleBias);
                 SetInverseRadius(1 / hbao.AngleBias);
                 SetTanAngleBias((float)Math.Tan(hbao.AngleBias));
+
+                Resource.Parameters["viewI"].SetValue((Matrix.Transpose(Matrix.Invert(viewMatrix)))); // TODO! SACAR
 
                 switch (hbao.Quality)
                 {
@@ -436,8 +440,6 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
                 EngineManager.Device.SamplerStates[3] = SamplerState.PointWrap;
-
-                Resource.Parameters["viewI"].SetValue(Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix))));
 
                 // Render
                 ambientOcclusionTexture.EnableRenderTarget();
@@ -453,7 +455,7 @@ namespace XNAFinalEngine.Graphics
             {
                 throw new InvalidOperationException("Horizon Based Ambient Occlusion Shader: Unable to render.", e);
             }
-        } // GenerateAmbientOcclusion
+        } // Render
 
 		#endregion
 

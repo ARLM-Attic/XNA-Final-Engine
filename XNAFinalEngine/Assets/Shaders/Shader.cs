@@ -143,7 +143,6 @@ namespace XNAFinalEngine.Assets
                 vertexBufferScreenPlane = new VertexBuffer(EngineManager.Device, typeof(VertexPositionTexture), vertices.Length, BufferUsage.WriteOnly);
                 vertexBufferScreenPlane.SetData(vertices);
             }
-
             EngineManager.Device.SetVertexBuffer(vertexBufferScreenPlane);
             EngineManager.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
         } // RenderScreenPlane

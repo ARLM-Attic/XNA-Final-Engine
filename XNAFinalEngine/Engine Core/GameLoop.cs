@@ -281,6 +281,14 @@ namespace XNAFinalEngine.EngineCore
                                                                                                      (currentCamera.AmbientLight.AmbientOcclusion),
                                                                                                      currentCamera.FieldOfView, currentCamera.ViewMatrix);
                     }
+                    if (currentCamera.AmbientLight.AmbientOcclusion is RayMarchingAmbientOcclusion)
+                    {
+                        ambientOcclusionTexture = RayMarchingAmbientOcclusionShader.Instance.Render(gbufferTextures.RenderTargets[0],
+                                                                                                    gbufferTextures.RenderTargets[1],
+                                                                                                    (RayMarchingAmbientOcclusion)
+                                                                                                    (currentCamera.AmbientLight.AmbientOcclusion),
+                                                                                                    currentCamera.FieldOfView);
+                    }
                 }
 
                 LightPrePass.Begin(Size.FullScreen, currentCamera.AmbientLight.Color);
@@ -390,7 +398,8 @@ namespace XNAFinalEngine.EngineCore
             SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget);
             RenderTarget.Release(currentCamera.PartialRenderTarget); // It is not need anymore.
 
-            SpriteManager.DrawTextureToFullScreen(ambientOcclusionTexture);
+            //SpriteManager.DrawTextureToFullScreen(ambientOcclusionTexture);
+            //SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[1]);
             
             // Composite the different viewports
             /*for (int i = 0; i < currentCamera.slavesCameras.Count; i++)

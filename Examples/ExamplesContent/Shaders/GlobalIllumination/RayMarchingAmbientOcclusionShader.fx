@@ -5,66 +5,34 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 ************************************************************************************************************************************************/
 
-#include <..\GBuffer\GBuffer.fx>
+#include <..\GBuffer\GBufferReader.fxh>
+#include <..\Helpers\Discard.fxh>
 
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
 //////////////////////////////////////////////
 
-float4x4 viewIT;
+float4x4 viewI;
 
 float2 focalLength;
 
-int numberSteps <
-    string UIWidget = "slider";
-    float UIMin = 1;
-    float UIMax = 32;
-    float UIStep = 1;
-    string UIName = "Number of steps";
-> = 4.0;
+// Between 1 to 32
+int numberSteps = 4.0;
+// Between 0 to 2
+float radius = 0.1;
+// Between 0 to 15
+int numberDirections = 6;
+// Between 0 to 25
+int numberRays = 4;
+// Between 0 to 2
+float linearAttenuation = 1;
 
-float radius <
-    string UIWidget = "slider";
-    float UIMin = 0;
-    float UIMax = 2;
-    float UIStep = 0.05;
-    string UIName = "Radius";
-> = 0.1;
+float contrast = 1;
 
-int numberDirections <
-    string UIWidget = "slider";
-    float UIMin = 0;
-    float UIMax = 15;
-    float UIStep = 1;
-    string UIName = "Number of Directions";
-> = 6;
+float2 halfPixel;
 
-int numberRays <
-    string UIWidget = "slider";
-    float UIMin = 0;
-    float UIMax = 25;
-    float UIStep = 1;
-    string UIName = "Number of Rays";
-> = 4;
-
-float linearAttenuation <
-    string UIWidget = "slider";
-    float UIMin = 0;
-    float UIMax = 2;
-    float UIStep = 0.05;
-    string UIName = "Line Attenuation";
-> = 1;
-
-float contrast <
-    string UIWidget = "slider";
-    float UIMin = 0;
-    float UIMax = 2;
-    float UIStep = 0.05;
-    string UIName = "Contrast";
-> = 1;
-
-float2 directions[16] 
-= {
+float2 directions[16] =
+{
 	normalize(float2(0.355512, 	-0.709318)),
 	normalize(float2(0.534186, 	 0.71511)),
 	normalize(float2(-0.87866, 	 0.157139)),
@@ -87,20 +55,14 @@ float2 directions[16]
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture randomTexture : Diffuse
-<
-	string UIName = "Random Texture";
-	string ResourceName = "RANDOMNORMAL.png";
->;
-
-sampler2D randomNormalSampler = sampler_state
+texture randomTexture  : register(t3);
+sampler2D randomNormalSampler : register(s3) = sampler_state
 {
 	Texture = <randomTexture>;
-    ADDRESSU = WRAP;
+    /*ADDRESSU = WRAP;
 	ADDRESSV = WRAP;
 	MAGFILTER = POINT;
-	MINFILTER = POINT;
-	MIPFILTER = NONE;
+	MINFILTER = POINT;*/
 };
 
 //////////////////////////////////////////////
@@ -109,9 +71,10 @@ sampler2D randomNormalSampler = sampler_state
 
 struct VS_OUTPUT
 {	
-	float4 pos   : POSITION;    
-	float2 tex   : TEXCOORD0;
-    float2 texUV : TEXCOORD1;
+	float4 position : POSITION;    
+	float2 tex      : TEXCOORD0;
+    float2 texUV    : TEXCOORD1;
+	float3 frustumRay	: TEXCOORD2;
 };
 
 //////////////////////////////////////////////
@@ -120,16 +83,16 @@ struct VS_OUTPUT
 
 VS_OUTPUT VertexShaderFunction(float4 position : POSITION, in float2 uv : TEXCOORD )
 {	
-	VS_OUTPUT Out = (VS_OUTPUT)0;
+	VS_OUTPUT output = (VS_OUTPUT)0;
 		
-	Out.pos = position;
-	Out.pos.xy += halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
+	output.position = position;
+	output.position.xy += halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
 
-	Out.tex = position.xy / focalLength;
+	output.tex = position.xy / focalLength;
 
-    Out.texUV = uv;
+    output.texUV = uv;
 		
-	return Out;
+	return output;
 }
 
 //////////////////////////////////////////////
@@ -139,60 +102,35 @@ VS_OUTPUT VertexShaderFunction(float4 position : POSITION, in float2 uv : TEXCOO
 float3 fetch_eye_pos(float3 pos)
 {
     float2 r =  pos.xy / pos.z;
-    float2 tx_n = float2(0.5, -0.5) * (focalLength * r + float2(1.0, -1.0));
+    float2 tx_n = float2(0.5, -0.5) * (focalLength * r + float2(1.0, -1.0));	
     
 	// The tex2dlod operation avoids a gradient operation.
-	float z = tex2Dlod(depthSampler, float4(tx_n, 0, 1)).r; 
-	//float z = tex2D(depthSampler, tx_n).r;
+	float z = tex2Dlod(depthSampler, float4(tx_n, 0, 0)).r;
 	
-    return float3(z * r, z);
+	return float3(r * z, z);
 } // fetch_eye_pos
 
 float4 PixelShaderFunction(VS_OUTPUT IN) : COLOR0
 {	
-    float  z = tex2D(depthSampler, IN.texUV).r;
-    float3 P = float3(z * IN.tex, z);
-		
+    float depth = tex2Dlod(depthSampler, float4(IN.texUV, 0, 0)).r;
 	// Account for far plane
-    if(P.z > 0.95)
-		return float4(1, 1, 1, 1);
-
-    // Get the basis per pixel
-	/*float3 N;
-	float3 Tan;
-	/*
-	[branch]
-	//if (useNormals)
+    if (depth == 1)
 	{
-		N = SampleNormal(IN.texUV);
-		Tan = SampleTangent(IN.texUV);
+		Discard();
 	}
-	/*else
-		N = mul(float3(0, 1, 0), viewIT);
-		Tan = mul(float3(1, 0, 0), viewIT);
-	}*/
-	/*N.z = -N.z;
-	Tan.z = -Tan.z;		
-    float3 BiTan = normalize(cross(N, Tan));    */
-
-	// Get the basis per pixel
-	float3 N;
-	[branch]
-	//if (useNormals)
-	{
-		N = SampleNormal(IN.texUV);
-	}
-	//else
-    //	N = mul(float3(0, 1, 0), viewIT);
-	
+	float3 P = float3(depth * IN.tex, depth);		
+		
+	// Get the basis per pixel	    
+	float3 N = SampleNormal(IN.texUV);	
 	N.z = -N.z; // I'm not sure about this, but it works. I suppose that this happen because DirectX is left handed and XNA is not.
-    float3 Tan   = float3(1, 0, 0);
+
+    float3 Tan   = float3(-1, 0, 0);
     float3 BiTan = normalize(cross(N, Tan));
     Tan          = cross(BiTan, N);
 
-    const float step_size = radius / numberSteps;
+    const float step_size = radius / numberSteps;	
 
-    float3 rand = tex2D(randomNormalSampler, IN.texUV * 200).rgb;// = tRandom.Load(int3((int)IN.pos.x&63, (int)IN.pos.y&63, 0)).xyz;
+    float3 rand = tex2D(randomNormalSampler, IN.texUV * 200).rgb;// = tRandom.Load(int3((int)IN.pos.x&63, (int)IN.pos.y&63, 0)).xyz;	
     
     float3 dir_t;
     float color = 0.0;
@@ -203,7 +141,7 @@ float4 PixelShaderFunction(VS_OUTPUT IN) : COLOR0
                             directions[d].x * rand.y + directions[d].y * rand.x, 
                             0);
 
-        dir = dir.x * Tan + dir.y * BiTan;
+        dir = dir.x * Tan + dir.y * BiTan;		
 		        
         for (float n = 1; n <= numberRays; n++)
 		{
@@ -216,14 +154,14 @@ float4 PixelShaderFunction(VS_OUTPUT IN) : COLOR0
 			{
                 float3 cur_ray = (i  + rand.z) * step_size * ndir;
                 float3 cur_pos = cur_ray + P;
-                float3 tex_pos = fetch_eye_pos(cur_pos);				
+                float3 tex_pos = fetch_eye_pos(cur_pos);					
 
                 if (tex_pos.z - cur_pos.z < 0.0)
 				{					
                     float l = length(P - tex_pos);
                     if (l < radius)
 					{
-                        color -= n_weight * (radius - linearAttenuation * l) / radius;					
+                        color -= n_weight * (radius - linearAttenuation * l) / radius;
                         break; // i = numberSteps + 1;
                     }
                 }

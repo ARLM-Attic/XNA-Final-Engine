@@ -104,7 +104,7 @@ float4 MiddleQualityPixelShaderFunction(VS_OUTPUT IN) : COLOR0
     float3 dPdv = min_diff(P, Pt, Pb) * (resolution.y * invResolution.x);
 
     // (cos(alpha),sin(alpha),jitter)
-    float3 rand = tex2D(RandNormal, IN.texUV * 200).rgb; // int2((int)IN.pos.x & 63, (int)IN.pos.y & 63)).rgb; This is new in shader model 4, imposible? to replicate in shader model 3.
+    float3 rand = tex2D(randomNormalSampler, IN.texUV * 200).rgb; // int2((int)IN.pos.x & 63, (int)IN.pos.y & 63)).rgb; This is new in shader model 4, imposible? to replicate in shader model 3.
 		
 	float ao = 0;
     float d;

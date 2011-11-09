@@ -32,7 +32,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
+using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.Graphics
@@ -44,140 +46,30 @@ namespace XNAFinalEngine.Graphics
     /// Horizon Based is similar in performance but better in results.
     /// However this is good example of how to make raymarching shaders and the results are not bad either.
     /// </summary>
-    public class SSAORayMarching : AmbientOcclusion
+    public class RayMarchingAmbientOcclusionShader : Shader
     {
 
         #region Variables
 
-        /// <summary>
-        /// Number of Steps.
-        /// It’s a sensitive performance parameter.
-        /// </summary>
-        private float numberSteps = 4.0f;
-
-        /// <summary>
-        /// Number of Rays.
-        /// It’s a sensitive performance parameter.
-        /// </summary>
-        private float numberRays = 4.0f;
-
-        /// <summary>
-        /// Number of Directions.
-        /// It’s a sensitive performance parameter.
-        /// </summary>
-        private float numberDirections = 6.0f;
-
-        /// <summary>
-        /// Contrast.
-        /// </summary>
-        private float contrast = 1;
-
-        /// <summary>
-        /// Line Attenuation.
-        /// The far samplers have a lower effect in the result. This controls how faster their weight decay.
-        /// </summary>
-        private float lineAttenuation = 1f;
-
-        /// <summary>
-        /// Radius.
-        /// Bigger the radius more cache misses will occur. Be careful!!
-        /// </summary>
-        private float radius = 0.01f;
+        // Singleton reference.
+        private static RayMarchingAmbientOcclusionShader instance;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Number of Steps.
-        /// It’s a sensitive performance parameter.
+        /// A singleton of this shader.
         /// </summary>
-        public float NumberSteps
+        public static RayMarchingAmbientOcclusionShader Instance
         {
-            get { return numberSteps; }
-            set
+            get
             {
-                numberSteps = value;
-                if (numberSteps <= 0)
-                    numberSteps = 0;
+                if (instance == null)
+                    instance = new RayMarchingAmbientOcclusionShader();
+                return instance;
             }
-        } // NumberSteps
-
-        /// <summary>
-        /// Number of Rays.
-        /// It’s a sensitive performance parameter.
-        /// </summary>
-        public float NumberRays
-        {
-            get { return numberRays; }
-            set
-            {
-                numberRays = value;
-                if (numberRays <= 0)
-                    numberRays = 0;
-            }
-        } // NumberRays
-
-        /// <summary>
-        /// Number of Directions.
-        /// It’s a sensitive performance parameter.
-        /// </summary>
-        public float NumberDirections
-        {
-            get { return numberDirections; }
-            set
-            {
-                numberDirections = value;
-                if (numberDirections <= 0)
-                    numberDirections = 0;
-            }
-        } // NumberDirections
-
-        /// <summary>
-        /// Contrast.
-        /// </summary>
-        public float Contrast
-        {
-            get { return contrast; }
-            set
-            {
-                contrast = value;
-                if (contrast <= 0)
-                    contrast = 0;
-            }
-        } // Contrast
-
-        /// <summary>
-        /// Line Attenuation.
-        /// The far samplers have a lower effect in the result. This controls how faster their weight decay.
-        /// </summary>
-        public float LineAttenuation
-        {
-            get { return lineAttenuation; }
-            set
-            {
-                lineAttenuation = value;
-                if (lineAttenuation <= 0)
-                    lineAttenuation = 0;
-            }
-        } // Line Attenuation
-
-        /// <summary>
-        /// Radius.
-        /// Bigger the radius more cache misses will occur. Be careful!!
-        /// </summary>
-        public float Radius
-        {
-            get { return radius; }
-            set
-            {
-                radius = value;
-                if (radius <= 0)
-                    radius = 0;
-                if (radius > 1)
-                    radius = 1;
-            }
-        } // Radius
+        } // Instance
 
         #endregion
 
@@ -322,25 +214,33 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Textures
+        #region Depth Texture
 
-        private static Texture lastUsedDepthTexture;
+        private static Texture2D lastUsedDepthTexture;
         private static void SetDepthTexture(Texture depthTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedDepthTexture != depthTexture)
+            EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedDepthTexture != depthTexture.Resource)
             {
-                lastUsedDepthTexture = depthTexture;
-                epDepthTexture.SetValue(depthTexture.XnaTexture);
+                lastUsedDepthTexture = depthTexture.Resource;
+                epDepthTexture.SetValue(depthTexture.Resource);
             }
         } // SetDepthTexture
 
-        private static Texture lastUsedNormalTexture;
+        #endregion
+
+        #region Normal Texture
+
+        private static Texture2D lastUsedNormalTexture;
         private static void SetNormalTexture(Texture normalTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedNormalTexture != normalTexture)
+            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedNormalTexture != normalTexture.Resource)
             {
-                lastUsedNormalTexture = normalTexture;
-                epNormalTexture.SetValue(normalTexture.XnaTexture);
+                lastUsedNormalTexture = normalTexture.Resource;
+                epNormalTexture.SetValue(normalTexture.Resource);
             }
         } // SetNormalTexture
 
@@ -353,115 +253,104 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Ray Marching Screen Space Ambient Occlusion.
 		/// </summary>
-        public SSAORayMarching(RenderTarget.SizeType _rendeTargetSize = RenderTarget.SizeType.HalfScreen)			
+        public RayMarchingAmbientOcclusionShader() : base("GlobalIllumination\\RayMarchingAmbientOcclusionShader")
 		{
-            Effect = LoadShader("GlobalIllumination\\SSAORayMarching");
-
-            // Alpha8 doesn't work in my G92 GPU processor and I opt to work with half single. Color is another good choice because support texture filtering.
-            // XBOX 360 Xbox does not support 16 bit render targets (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
-            // Color would be the better choice for the XBOX 360.
-            // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.
-            AmbientOcclusionTexture = new RenderTarget(_rendeTargetSize, SurfaceFormat.HalfSingle, DepthFormat.None, 0);
-
-            GetParametersHandles();
-
             // Set the random normal map. Helps to make the samplers more random.
             Texture randomNormalTexture = new Texture("Shaders\\RandomNormal");
-            Effect.Parameters["randomTexture"].SetValue(randomNormalTexture.XnaTexture);
-        } // SSAORayMarching
+            Resource.Parameters["randomTexture"].SetValue(randomNormalTexture.Resource);
+        } // RayMarchingAmbientOcclusionShader
 
 		#endregion
 
-		#region Get parameters handles
+		#region Get Parameters Handles
 
-		/// <summary>
+        /// <summary>
         /// Get the handles of the parameters from the shader.
-		/// </summary>
-		protected void GetParametersHandles()
-		{	
+        /// </summary>
+        /// <remarks>
+        /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
+        /// </remarks>
+        protected override void GetParametersHandles()
+        {
             try
-			{
-                epNormalTexture = Effect.Parameters["normalTexture"];
-                epDepthTexture = Effect.Parameters["depthTexture"];
-                epNumberSteps = Effect.Parameters["numberSteps"];
-                epNumberRays  = Effect.Parameters["numberRays"];
-                epNumberDirections = Effect.Parameters["numberDirections"];
-                epContrast = Effect.Parameters["contrast"];
-                epLineAttenuation = Effect.Parameters["linearAttenuation"];
-                epRadius = Effect.Parameters["radius"];
-                epHalfPixel = Effect.Parameters["halfPixel"];
-                epFocalLength = Effect.Parameters["focalLength"];
+            {
+                epNormalTexture    = Resource.Parameters["normalTexture"];
+                epDepthTexture     = Resource.Parameters["depthTexture"];
+                epNumberSteps      = Resource.Parameters["numberSteps"];
+                epNumberRays       = Resource.Parameters["numberRays"];
+                epNumberDirections = Resource.Parameters["numberDirections"];
+                epContrast         = Resource.Parameters["contrast"];
+                epLineAttenuation  = Resource.Parameters["linearAttenuation"];
+                epRadius           = Resource.Parameters["radius"];
+                epHalfPixel        = Resource.Parameters["halfPixel"];
+                epFocalLength      = Resource.Parameters["focalLength"];
             }
             catch
             {
-                throw new Exception("Get the handles from the SSAO Ray Marching shader failed.");
+                throw new InvalidOperationException("The parameter's handles from the " + Name + " shader could not be retrieved.");
             }
-		} // GetParametersHandles
+        } // GetParameters
 
 		#endregion
 
-        #region Set parameters
-
-        /// <summary>
-        /// Set to the shader the specific atributes of this effect.
-        /// </summary>
-        private void SetParameters()
-        {
-            SetNumberSteps(NumberSteps);
-            SetNumberRays(NumberRays);
-            SetNumberDirections(NumberDirections);
-            SetContrast(Contrast);
-            SetLineAttenuation(LineAttenuation);
-            SetRadius(Radius);
-            SetHalfPixel(new Vector2(-1f / AmbientOcclusionTexture.Width, 1f / AmbientOcclusionTexture.Height));
-            Vector2 focalLen = new Vector2
-            {
-                X = 1.0f / (float)Math.Tan(ApplicationLogic.Camera.FieldOfView * 0.5f) * (float)AmbientOcclusionTexture.Height / (float)AmbientOcclusionTexture.Width,
-                Y = 1.0f / (float)Math.Tan(ApplicationLogic.Camera.FieldOfView * 0.5f)
-            };
-            SetFocalLength(focalLen);
-        } // SetParameters
-
-        #endregion
-
-        #region Generate Ambient Occlusion
+        #region Render
 
         /// <summary>
         /// Generate ambient occlusion texture.
 		/// </summary>
-        public override void GenerateAmbientOcclusion(RenderTarget depthTexture, RenderTarget normalTexture)
+        public RenderTarget Render(RenderTarget depthTexture, RenderTarget normalTexture, RayMarchingAmbientOcclusion rmao, float fieldOfView)
         {
             try
             {
+                // Alpha8 doesn't work in my G92 GPU processor and I opt to work with half single. Color is another good choice because support texture filtering.
+                // XBOX 360 Xbox does not support 16 bit render targets (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
+                // Color would be the better choice for the XBOX 360.
+                // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.
+                RenderTarget ambientOcclusionTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+
                 // Set shader atributes
                 SetNormalTexture(normalTexture);
                 SetDepthTexture(depthTexture);
-                SetParameters();
-
+                SetNumberSteps(rmao.NumberSteps);
+                SetNumberRays(rmao.NumberRays);
+                SetNumberDirections(rmao.NumberDirections);
+                SetContrast(rmao.Contrast);
+                SetLineAttenuation(rmao.LineAttenuation);
+                SetRadius(rmao.Radius);
+                SetHalfPixel(new Vector2(-1f / ambientOcclusionTexture.Width, 1f / ambientOcclusionTexture.Height));
+                Vector2 focalLen = new Vector2
+                {
+                    X =  1.0f / (float)Math.Tan(fieldOfView * (3.1416f / 180) * 0.5f) * (float)ambientOcclusionTexture.Height / (float)ambientOcclusionTexture.Width,
+                    Y =  1.0f / (float)Math.Tan(fieldOfView * (3.1416f / 180) * 0.5f)
+                };
+                SetFocalLength(focalLen);
+                
+                // Set Render States.
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                EngineManager.Device.SamplerStates[3] = SamplerState.PointWrap;
 
-                // Start rendering onto the render target
-                AmbientOcclusionTexture.EnableRenderTarget();
-
-                Effect.CurrentTechnique = Effect.Techniques["SSAO"];
-                Effect.CurrentTechnique.Passes[0].Apply();
+                Resource.CurrentTechnique = Resource.Techniques["SSAO"];
+                Resource.CurrentTechnique.Passes[0].Apply();
 
                 // Render
-                ScreenPlane.Render();
+                ambientOcclusionTexture.EnableRenderTarget();
+                ambientOcclusionTexture.Clear(Color.White);
+                Resource.CurrentTechnique.Passes[0].Apply();
+                RenderScreenPlane();
+                ambientOcclusionTexture.DisableRenderTarget();
 
-                // Resolve the render target to get the texture (required for Xbox)
-                AmbientOcclusionTexture.DisableRenderTarget();
-
-                EngineManager.SetDefaultRenderStates();
-            } // try
+                BlurShader.Instance.Filter(ambientOcclusionTexture, true, 1);
+                return ambientOcclusionTexture;
+            }
             catch (Exception e)
             {
-                throw new Exception("Unable to render the SSAO Ray Marching effect " + e.Message);
+                throw new InvalidOperationException("Ray Marching Ambient Occlusion Shader: Unable to render.", e);
             }
-        } // GenerateAmbientOcclusion
+        } // Render
 
 		#endregion
 
-    } // SSAORayMarching
+    } // RayMarchingAmbientOcclusionShader
 } // XNAFinalEngine.Graphics

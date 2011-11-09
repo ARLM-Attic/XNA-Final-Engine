@@ -95,8 +95,8 @@ namespace XNAFinalEngineExamples
             };
             camera.Camera.AmbientLight = new AmbientLight { //SphericalHarmonicAmbientLight = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Showroom", false)),
                                                             Color = new Color(30, 30, 30),
-                                                            Intensity = 500f,
-                                                            AmbientOcclusionStrength = 10};
+                                                            Intensity = 1f,
+                                                            AmbientOcclusionStrength = 5};
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
@@ -106,6 +106,15 @@ namespace XNAFinalEngineExamples
                 Contrast = 0.5f,
                 AngleBias = 5,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality
+            };
+            camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
+            {
+                NumberSteps = 6, // Don't change this.
+                NumberDirections = 15, // Don't change this.
+                NumberRays = 12,
+                Radius = 0.005f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                LineAttenuation = 1.0f,
+                Contrast = 1f,
             };
 
             #endregion
@@ -410,12 +419,12 @@ namespace XNAFinalEngineExamples
             floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid")/*new Graphics.Plane(20, 20)*/,
                            new BlinnPhong
                            {
-                               SpecularPower = 30,
+                               SpecularPower = 300,
                                DiffuseTexture = new Texture("Stones-Diffuse"),
                                //DiffuseColor = new Color(27, 27, 25),
                                NormalTexture = new Texture("Stones-NormalHeightMap"),
-                               SpecularIntensity = 10.0f,
-                               //ParallaxEnabled = true,
+                               SpecularIntensity = 4.0f,
+                               ParallaxEnabled = true,
                                ReflectionTexture = new TextureCube("Showroom", false),
                            });
             floor.Transform.LocalScale = new Vector3(2, 2, 2);
@@ -426,7 +435,7 @@ namespace XNAFinalEngineExamples
                    SpecularPower = 30,
                    DiffuseTexture = new Texture("Stones-Diffuse"),
                    //DiffuseColor = new Color(27, 27, 25),
-                   NormalTexture = new Texture("Stones-NormalHeightMap"),
+                   //NormalTexture = new Texture("Stones-NormalHeightMap"),
                    SpecularIntensity = 10.0f,
                    //ParallaxEnabled = true,
                    ReflectionTexture = new TextureCube("Showroom", false),
@@ -454,13 +463,13 @@ namespace XNAFinalEngineExamples
             #endregion
 
             #region Shadows and Lights
-
+            
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.DiffuseColor = new Color(210, 200, 200);
             directionalLight.DirectionalLight.Intensity = 1.4f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.5f, 0.5f), Vector3.Zero, Vector3.Forward);
-
+            /*
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.DiffuseColor = new Color(250, 200, 180);
@@ -476,7 +485,7 @@ namespace XNAFinalEngineExamples
             pointLight2.PointLight.Range = 100;
             pointLight2.PointLight.SpecularColor = Color.White;
             pointLight.Transform.Position = new Vector3(15, 10, -20);
-
+            */
             #endregion
 
             GameLoop.ShowFramesPerSecond = true;
