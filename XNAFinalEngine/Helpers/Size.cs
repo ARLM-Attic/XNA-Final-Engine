@@ -184,6 +184,52 @@ namespace XNAFinalEngine.Helpers
         } // GetHashCode
         
         #endregion
-        
+
+        #region Half Size
+
+        /// <summary>
+        /// Returns a size of half dimensions.
+        /// It contemplates relative sizes.
+        /// </summary>
+        /// <returns></returns>
+        public Size HalfSize()
+        {
+            if (this == FullScreen)
+                return HalfScreen;
+            if (this == HalfScreen)
+                return QuarterScreen;
+            if (this == SplitFullScreen)
+                return SplitHalfScreen;
+            if (this == SplitHalfScreen)
+                return SplitQuarterScreen;
+            return new Size(Width / 2, Height / 2);
+        } // HalfSize
+
+        #endregion
+
+        #region Make Relative If Posible
+
+        /// <summary>
+        /// If this size value correspond to a relative screen size (like full screen) make it relative.
+        /// </summary>
+        public void MakeRelativeIfPosible()
+        {
+            if (this == FullScreen)
+                this = FullScreen;
+            if (this == HalfScreen)
+                this = HalfScreen;
+            if (this == QuarterScreen)
+                this = QuarterScreen;
+            if (this == SplitFullScreen)
+                this = SplitFullScreen;
+            if (this == SplitHalfScreen)
+                this = SplitHalfScreen;
+            if (this == SplitQuarterScreen)
+                this = SplitQuarterScreen;
+            // If not stay the same.
+        } // MakeRelativeIfPosible
+
+        #endregion
+
     } // Size 
 } // XNAFinalEngine.Helpers

@@ -341,7 +341,7 @@ namespace XNAFinalEngine.Graphics
                 RenderScreenPlane();
                 ambientOcclusionTexture.DisableRenderTarget();
 
-                BlurShader.Instance.Filter(ambientOcclusionTexture, true, 1);
+                BlurShader.Instance.Filter(ambientOcclusionTexture, true, 2);
                 return ambientOcclusionTexture;
             }
             catch (Exception e)

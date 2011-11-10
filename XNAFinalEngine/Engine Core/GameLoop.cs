@@ -236,175 +236,46 @@ namespace XNAFinalEngine.EngineCore
 
             #region Graphics
 
-            RenderTarget.RenderTargetBinding gbufferTextures = new RenderTarget.RenderTargetBinding();
-            RenderTarget lightTexture = null;
-            RenderTarget sceneTexture = null;
-            RenderTarget postProcessedSceneTexture = null;
-            RenderTarget ambientOcclusionTexture = null;
-
             Camera currentCamera = null;
             // For each camera we render the scene in it
             for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
             {
                 currentCamera = Camera.ComponentPool.Elements[cameraIndex];
-                // If does not have a render target
-                if (currentCamera.RenderTarget == null)
-                    currentCamera.RenderTarget = new RenderTarget(currentCamera.RenderTargetSize, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
-                if (currentCamera.PartialRenderTarget == null)
-                    currentCamera.PartialRenderTarget = new RenderTarget(currentCamera.RenderTargetSize, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
-
-                #region GBuffer Pass
-                
-                GBufferPass.Begin(Size.FullScreen);
-                GBufferShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane);
-                for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+                // If is a master camera
+                if (currentCamera.MasterCamera == null)
                 {
-                    ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                    if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                    if (currentCamera.RenderTarget != null)
+                        RenderTarget.Release(currentCamera.RenderTarget);
+                    // If it does not have slaves cameras...
+                    if (currentCamera.slavesCameras.Count == 0)
+                        currentCamera.RenderTarget = RenderCamera(currentCamera);
+                    else
                     {
-                        GBufferShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, currentModelRenderer.Material);
-                    }
-                }
-                gbufferTextures = GBufferPass.End();
-
-                #endregion
-                
-                #region Light Pre Pass
-
-                if (currentCamera.AmbientLight.AmbientOcclusion != null && currentCamera.AmbientLight.AmbientOcclusion.Enabled)
-                {
-                    if (currentCamera.AmbientLight.AmbientOcclusion is HorizonBasedAmbientOcclusion)
-                    {
-                        ambientOcclusionTexture = HorizonBasedAmbientOcclusionShader.Instance.Render(gbufferTextures.RenderTargets[0],
-                                                                                                     gbufferTextures.RenderTargets[1],
-                                                                                                     (HorizonBasedAmbientOcclusion)
-                                                                                                     (currentCamera.AmbientLight.AmbientOcclusion),
-                                                                                                     currentCamera.FieldOfView, currentCamera.ViewMatrix);
-                    }
-                    if (currentCamera.AmbientLight.AmbientOcclusion is RayMarchingAmbientOcclusion)
-                    {
-                        ambientOcclusionTexture = RayMarchingAmbientOcclusionShader.Instance.Render(gbufferTextures.RenderTargets[0],
-                                                                                                    gbufferTextures.RenderTargets[1],
-                                                                                                    (RayMarchingAmbientOcclusion)
-                                                                                                    (currentCamera.AmbientLight.AmbientOcclusion),
-                                                                                                    currentCamera.FieldOfView);
-                    }
-                }
-
-                LightPrePass.Begin(Size.FullScreen, currentCamera.AmbientLight.Color);
-                
-                // Render ambient light for every camera.
-                if (currentCamera.AmbientLight != null)
-                {
-                    AmbientLightShader.Instance.RenderLight(gbufferTextures.RenderTargets[1], // Normal Texture
-                                                            currentCamera.AmbientLight,
-                                                            ambientOcclusionTexture,
-                                                            currentCamera.ViewMatrix);
-                }
-                RenderTarget.Release(ambientOcclusionTexture);
-                
-                // Render directional lights for every camera.
-                DirectionalLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
-                                             gbufferTextures.RenderTargets[1], // Normal Texture
-                                             gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
-                                             currentCamera.ViewMatrix,
-                                             currentCamera.BoundingFrustum());
-                for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
-                {
-                    DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
-                    DirectionalLightShader.Instance.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity);
-                }
-                
-                // Render point lights for every camera.
-                PointLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
-                                               gbufferTextures.RenderTargets[1], // Normal Texture
-                                               gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
-                                               currentCamera.ViewMatrix,
-                                               currentCamera.ProjectionMatrix,
-                                               currentCamera.NearPlane,
-                                               currentCamera.FarPlane);
-                for (int i = 0; i < PointLight.ComponentPool.Count; i++)
-                {
-                    PointLight currentPointLight = PointLight.ComponentPool.Elements[i];
-                    PointLightShader.Instance.RenderLight(currentPointLight.DiffuseColor, currentPointLight.cachedPosition, currentPointLight.Intensity, currentPointLight.Range);
-                }
-
-                // Render spot lights for every camera.
-                
-                lightTexture = LightPrePass.End();
-                    
-                #endregion
-                
-                #region HDR Linear Space Pass
-
-                ScenePass.Begin(currentCamera.RenderTargetSize, currentCamera.ClearColor);
-
-                // Render all the opaque objects);
-                for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
-                {
-                    ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                    if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
-                    {
-                        if (currentModelRenderer.Material is Constant)
+                        // Render each camera to a render target and then merge.
+                        currentCamera.PartialRenderTarget = RenderCamera(currentCamera);
+                        for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
                         {
-                            ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
-                            ConstantShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (Constant)currentModelRenderer.Material);
+                            currentCamera.slavesCameras[i].PartialRenderTarget = RenderCamera(currentCamera.slavesCameras[i]);
                         }
-                        else if (currentModelRenderer.Material is BlinnPhong)
+                        // Composite cameras
+                        currentCamera.RenderTarget = RenderTarget.Fetch(currentCamera.RenderTargetSize, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                        currentCamera.RenderTarget.EnableRenderTarget();
+                        currentCamera.RenderTarget.Clear(Color.Black);
+                        EngineManager.Device.Viewport = new Viewport(currentCamera.Viewport.X, currentCamera.Viewport.Y, currentCamera.Viewport.Width, currentCamera.Viewport.Height);
+                        SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget);
+                        RenderTarget.Release(currentCamera.PartialRenderTarget);
+                        for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
                         {
-                            BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                            BlinnPhongShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, (BlinnPhong)currentModelRenderer.Material);
+                            EngineManager.Device.Viewport = new Viewport(currentCamera.slavesCameras[i].Viewport.X, currentCamera.slavesCameras[i].Viewport.Y, currentCamera.slavesCameras[i].Viewport.Width, currentCamera.slavesCameras[i].Viewport.Height);
+                            SpriteManager.DrawTextureToFullScreen(currentCamera.slavesCameras[i].PartialRenderTarget);
+                            RenderTarget.Release(currentCamera.slavesCameras[i].PartialRenderTarget);
                         }
-                        else if (currentModelRenderer.Material is CarPaint)
-                        {
-                            CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                            CarPaintShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint)currentModelRenderer.Material);
-                        }
+                        currentCamera.RenderTarget.DisableRenderTarget();
                     }
                 }
-
-                // The sky is render latter so that the GPU can avoid fragment processing. But it has to be before the transparent objects.
-
-                // The particle systems
-
-                // The transparent objects will be render in forward fashion.
-
-                sceneTexture = ScenePass.End();
-                RenderTarget.Release(lightTexture);
-
-                #endregion
-                
-                #region Post Process Pass
-
-                postProcessedSceneTexture = PostProcessingPass.Process(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess);
-                RenderTarget.Release(sceneTexture); // It is not need anymore.
-                RenderTarget.Release(gbufferTextures); // It is not need anymore.
-                currentCamera.PartialRenderTarget = postProcessedSceneTexture;
-
-                #endregion
-                
             }
 
-            // If it is a master camera and it does not have slaves...
-            /*if (currentCamera.MasterCamera == null && currentCamera.slavesCameras.Count == 0)
-            {
-                SpriteManager.DrawTextureToFullScreen(postProcessPass.PostProcessedSceneTexture);
-            }*/
-
             #endregion
-
-            currentCamera.RenderTarget.EnableRenderTarget();
-            currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
-            SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget);
-            RenderTarget.Release(currentCamera.PartialRenderTarget); // It is not need anymore.
-
-            //SpriteManager.DrawTextureToFullScreen(ambientOcclusionTexture);
-            //SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[1]);
-            
-            // Composite the different viewports
-            /*for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
-                currentCamera.slavesCameras[i];*/
-            currentCamera.RenderTarget.DisableRenderTarget();
 
             #region Screenshot Preparations
 
@@ -418,6 +289,7 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            EngineManager.Device.Clear(Color.Black);
             // Render onto back buffer the main camera and the HUD.
             SpriteManager.DrawTextureToFullScreen(currentCamera.RenderTarget);
 
@@ -480,6 +352,160 @@ namespace XNAFinalEngine.EngineCore
             #endregion 
 
         } // Draw
+
+        private static RenderTarget RenderCamera(Camera currentCamera)
+        {
+            // This is here to allow the rendering of these render targets for testing.
+            RenderTarget.RenderTargetBinding gbufferTextures = new RenderTarget.RenderTargetBinding();
+            RenderTarget lightTexture = null;
+            RenderTarget sceneTexture = null;
+            RenderTarget postProcessedSceneTexture = null;
+            RenderTarget ambientOcclusionTexture = null;
+
+            #region Calculate Size
+
+            Size destinationSize;
+            if (currentCamera.NeedViewport)
+            {
+                destinationSize = new Size(currentCamera.Viewport.Width, currentCamera.Viewport.Height);
+                destinationSize.MakeRelativeIfPosible();
+            }
+            else
+                destinationSize = currentCamera.RenderTargetSize;
+
+            #endregion
+
+            #region GBuffer Pass
+
+            GBufferPass.Begin(destinationSize);
+            GBufferShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane);
+            for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+            {
+                ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                {
+                    GBufferShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, currentModelRenderer.Material);
+                }
+            }
+            gbufferTextures = GBufferPass.End();
+
+            #endregion
+
+            #region Light Pre Pass
+
+            if (currentCamera.AmbientLight.AmbientOcclusion != null && currentCamera.AmbientLight.AmbientOcclusion.Enabled)
+            {
+                if (currentCamera.AmbientLight.AmbientOcclusion is HorizonBasedAmbientOcclusion)
+                {
+                    ambientOcclusionTexture = HorizonBasedAmbientOcclusionShader.Instance.Render(gbufferTextures.RenderTargets[0],
+                                                                                                 gbufferTextures.RenderTargets[1],
+                                                                                                 (HorizonBasedAmbientOcclusion)
+                                                                                                 currentCamera.AmbientLight.AmbientOcclusion,
+                                                                                                 currentCamera.FieldOfView, currentCamera.ViewMatrix);
+                }
+                if (currentCamera.AmbientLight.AmbientOcclusion is RayMarchingAmbientOcclusion)
+                {
+                    ambientOcclusionTexture = RayMarchingAmbientOcclusionShader.Instance.Render(gbufferTextures.RenderTargets[0],
+                                                                                                gbufferTextures.RenderTargets[1],
+                                                                                                (RayMarchingAmbientOcclusion)
+                                                                                                currentCamera.AmbientLight.AmbientOcclusion,
+                                                                                                currentCamera.FieldOfView);
+                }
+            }
+
+            LightPrePass.Begin(destinationSize, currentCamera.AmbientLight.Color);
+
+            // Render ambient light for every camera.
+            if (currentCamera.AmbientLight != null)
+            {
+                AmbientLightShader.Instance.RenderLight(gbufferTextures.RenderTargets[1], // Normal Texture
+                                                        currentCamera.AmbientLight,
+                                                        ambientOcclusionTexture,
+                                                        currentCamera.ViewMatrix);
+            }
+            RenderTarget.Release(ambientOcclusionTexture);
+
+            // Render directional lights for every camera.
+            DirectionalLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
+                                            gbufferTextures.RenderTargets[1], // Normal Texture
+                                            gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
+                                            currentCamera.ViewMatrix,
+                                            currentCamera.BoundingFrustum());
+            for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
+            {
+                DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
+                DirectionalLightShader.Instance.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity);
+            }
+
+            // Render point lights for every camera.
+            PointLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
+                                            gbufferTextures.RenderTargets[1], // Normal Texture
+                                            gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
+                                            currentCamera.ViewMatrix,
+                                            currentCamera.ProjectionMatrix,
+                                            currentCamera.NearPlane,
+                                            currentCamera.FarPlane);
+            for (int i = 0; i < PointLight.ComponentPool.Count; i++)
+            {
+                PointLight currentPointLight = PointLight.ComponentPool.Elements[i];
+                PointLightShader.Instance.RenderLight(currentPointLight.DiffuseColor, currentPointLight.cachedPosition, currentPointLight.Intensity, currentPointLight.Range);
+            }
+
+            // Render spot lights for every camera.
+
+            lightTexture = LightPrePass.End();
+
+            #endregion
+
+            #region HDR Linear Space Pass
+
+            ScenePass.Begin(destinationSize, currentCamera.ClearColor);
+
+            // Render all the opaque objects);
+            for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+            {
+                ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                {
+                    if (currentModelRenderer.Material is Constant)
+                    {
+                        ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+                        ConstantShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (Constant)currentModelRenderer.Material);
+                    }
+                    else if (currentModelRenderer.Material is BlinnPhong)
+                    {
+                        BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                        BlinnPhongShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, (BlinnPhong)currentModelRenderer.Material);
+                    }
+                    else if (currentModelRenderer.Material is CarPaint)
+                    {
+                        CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                        CarPaintShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint)currentModelRenderer.Material);
+                    }
+                }
+            }
+
+            // The sky is render latter so that the GPU can avoid fragment processing. But it has to be before the transparent objects.
+
+            // The particle systems
+
+            // The transparent objects will be render in forward fashion.
+
+            sceneTexture = ScenePass.End();
+            RenderTarget.Release(lightTexture);
+
+            #endregion
+
+            #region Post Process Pass
+
+            postProcessedSceneTexture = PostProcessingPass.Process(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess);
+            RenderTarget.Release(sceneTexture); // It is not need anymore.
+            RenderTarget.Release(gbufferTextures); // It is not need anymore.
+
+            #endregion
+
+            return postProcessedSceneTexture;
+        } // RenderCamera
 
         #endregion
 

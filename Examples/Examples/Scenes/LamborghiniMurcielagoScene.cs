@@ -63,7 +63,7 @@ namespace XNAFinalEngineExamples
                                     murcielagoRearLeftTyre02, rearLeftRim,
                                     floor, floor2, floor3,
                                     directionalLight, pointLight, pointLight2,
-                                    camera;
+                                    camera, camera2;
 
         #endregion
 
@@ -86,6 +86,7 @@ namespace XNAFinalEngineExamples
             script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 8.0f;
+            camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
             camera.Camera.PostProcess = new PostProcess
             {
                 FilmGrain = new FilmGrain { FilmgrainStrength = 0.2f }, // Don't overuse it. PLEASE!!!
@@ -109,14 +110,22 @@ namespace XNAFinalEngineExamples
             };
             camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
             {
-                NumberSteps = 6, // Don't change this.
-                NumberDirections = 15, // Don't change this.
-                NumberRays = 12,
+                NumberSteps = 4, // Don't change this.
+                NumberDirections = 6, // Don't change this.
+                NumberRays = 4,
                 Radius = 0.005f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 1.0f,
                 Contrast = 1f,
             };
-
+            
+            camera2 = new GameObject3D();
+            camera2.AddComponent<Camera>();
+            camera2.Camera.MasterCamera = camera.Camera;
+            camera2.Camera.ClearColor = Color.Black;
+            camera2.Camera.FieldOfView = 180 / 8.0f;
+            camera2.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
+            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);
+            
             #endregion
 
             #region Models
@@ -507,6 +516,10 @@ namespace XNAFinalEngineExamples
                 camera.Camera.AmbientLight.AmbientOcclusion.Enabled = false;
             else
                 camera.Camera.AmbientLight.AmbientOcclusion.Enabled = true;
+            if (Keyboard.RightPressed)
+                camera.Camera.PostProcess.MLAA.Enabled = false;
+            else
+                camera.Camera.PostProcess.MLAA.Enabled = true;
         } // UpdateTasks
 
         #endregion

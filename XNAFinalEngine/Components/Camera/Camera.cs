@@ -232,7 +232,7 @@ namespace XNAFinalEngine.Components
         internal RenderTarget PartialRenderTarget { get; set; }
 
         /// <summary>
-        /// 
+        /// Render Target Size.
         /// </summary>
         public Size RenderTargetSize
         {
@@ -331,8 +331,7 @@ namespace XNAFinalEngine.Components
             {
                 if (aspectRatio == 0)
                 {
-                    RectangleF normalizedViewport = NormalizedViewport;
-                    return Screen.AspectRatio * normalizedViewport.Width / normalizedViewport.Height;
+                    return Screen.AspectRatio;
                 }
                 return aspectRatio;
             }
@@ -442,8 +441,6 @@ namespace XNAFinalEngine.Components
             }
             set
             {
-                if (RenderTarget == null)
-                    throw new InvalidOperationException("Camera: there is not render target set.");
                 if (value.X < 0 || value.Y < 0 || (value.X + value.Width) > 1 || (value.Y + value.Height) > 1)
                     throw new ArgumentException("Camera: viewport size invalid.", "value");
                 viewportExpressedInClipSpace = true;
@@ -464,13 +461,11 @@ namespace XNAFinalEngine.Components
                 if (viewportExpressedInClipSpace)
                     return new Rectangle((int)(normalizedViewport.X * Screen.Width), (int)(normalizedViewport.Y * Screen.Height),
                                          (int)(normalizedViewport.Width * Screen.Width), (int)(normalizedViewport.Height * Screen.Height));
-                // Check for viewport dimensions? Is the correct...
+                // Check for viewport dimensions?
                 return viewport;
             }
             set
             {
-                if (RenderTarget == null)
-                    throw new InvalidOperationException("Camera: there is not render target set.");
                 if (value == Rectangle.Empty || value.X < 0 || value.Y < 0 || (value.X + value.Width) > RenderTarget.Width || (value.Y + value.Height) > RenderTarget.Height)
                     throw new ArgumentException("Camera: viewport size invalid.", "value");
                 viewportExpressedInClipSpace = false;

@@ -93,7 +93,7 @@ namespace XNAFinalEngine.EngineCore
             // We must search for last screenshot we can found in list using own fast filesearch.
             int i = 0, j = 0, k = 0, l = -1;
             // First check if at least 1 screenshot exist
-            if (File.Exists(ScreenshotNameBuilder(1)))
+            if (File.Exists(ScreenshotNameBuilder(0)))
             {
                 // Scan for screenshot number/1000
                 for (i = 1; i < 10; i++)

@@ -38,10 +38,24 @@ namespace XNAFinalEngine.Assets
     public abstract class AmbientOcclusion
     {
 
+        #region Enumerates
+
+        public enum AmbientOcclusionResolution
+        {
+            QuarterSize,
+            HalfSize,
+            FullSize,
+        } // Resolution
+
+        #endregion
+
         #region Variables
 
         // Is it enabled?
         private bool enabled = true;
+
+        // Ambient occlusion resolution, relative to the camera's render target.
+        private AmbientOcclusionResolution resolution = AmbientOcclusionResolution.QuarterSize;
 
         #endregion
 
@@ -55,6 +69,18 @@ namespace XNAFinalEngine.Assets
             get { return enabled; }
             set { enabled = value; }
         } // Enabled
+
+        /// <summary>
+        /// Ambient occlusion resolution, relative to the camera's render target.
+        /// Ambient occlusion is a costly technique but it produces a low frequency result.
+        /// So there is no need to use a render target of the same dimension as the frame buffer.
+        /// Normally a half resolution buffer produces very good results and if the performance is critical you could use a quarter size buffer.
+        /// </summary>
+        public AmbientOcclusionResolution Resolution
+        {
+            get { return resolution; }
+            set { resolution = value; }
+        } // Resolution
 
         #endregion
 
