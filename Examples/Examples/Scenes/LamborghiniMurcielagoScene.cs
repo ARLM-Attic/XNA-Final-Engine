@@ -86,7 +86,6 @@ namespace XNAFinalEngineExamples
             script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 8.0f;
-            camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
             camera.Camera.PostProcess = new PostProcess
             {
                 FilmGrain = new FilmGrain { FilmgrainStrength = 0.2f }, // Don't overuse it. PLEASE!!!
@@ -95,6 +94,8 @@ namespace XNAFinalEngineExamples
                 MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Both, BlurRadius = 1f, ThresholdDepth = 0.2f, ThresholdColor = 0.2f }
             };
             camera.Camera.AmbientLight = new AmbientLight { //SphericalHarmonicAmbientLight = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Showroom", false)),
+                                                            //SphericalHarmonicAmbientLight = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
+                                                            SphericalHarmonicAmbientLight = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
                                                             Color = new Color(30, 30, 30),
                                                             Intensity = 1f,
                                                             AmbientOcclusionStrength = 5};
@@ -103,28 +104,30 @@ namespace XNAFinalEngineExamples
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
                 Radius = 0.0002f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
-                LineAttenuation = 0.3f,
+                LineAttenuation = 1.0f,
                 Contrast = 0.5f,
-                AngleBias = 5,
-                Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality
+                AngleBias = 10,
+                Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
+                Resolution = AmbientOcclusion.AmbientOcclusionResolution.HalfSize,
             };
-            camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
+            /*camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
             {
-                NumberSteps = 4, // Don't change this.
-                NumberDirections = 6, // Don't change this.
+                NumberSteps = 12,
+                NumberDirections = 6,
                 NumberRays = 4,
                 Radius = 0.005f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
-                LineAttenuation = 1.0f,
-                Contrast = 1f,
-            };
-            
+                LineAttenuation = 1.5f,
+                Contrast = 1.5f,
+            };*/
+            /*
+            camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
             camera2 = new GameObject3D();
             camera2.AddComponent<Camera>();
             camera2.Camera.MasterCamera = camera.Camera;
             camera2.Camera.ClearColor = Color.Black;
             camera2.Camera.FieldOfView = 180 / 8.0f;
             camera2.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
-            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);
+            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);*/
             
             #endregion
 
@@ -432,7 +435,7 @@ namespace XNAFinalEngineExamples
                                DiffuseTexture = new Texture("Stones-Diffuse"),
                                //DiffuseColor = new Color(27, 27, 25),
                                NormalTexture = new Texture("Stones-NormalHeightMap"),
-                               SpecularIntensity = 4.0f,
+                               SpecularIntensity = 1.0f,
                                ParallaxEnabled = true,
                                ReflectionTexture = new TextureCube("Showroom", false),
                            });

@@ -242,7 +242,6 @@ namespace XNAFinalEngine.Graphics
                 SetSphericalHarmonicBase(ambientLight.SphericalHarmonicAmbientLight.Coeficients);
                 SetIntensity(ambientLight.Intensity);
                 SetViewInverseMatrix(Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix))));
-                SetAmbientOcclusionStrength(ambientLight.AmbientOcclusionStrength);
 
                 #endregion
 
@@ -252,6 +251,7 @@ namespace XNAFinalEngine.Graphics
                 {
                     Resource.CurrentTechnique = Resource.Techniques["AmbientLightSHSSAO"];
                     SetAmbientOcclusionTexture(ambientOcclusionTexture);
+                    SetAmbientOcclusionStrength(ambientLight.AmbientOcclusionStrength);
                 }
 
                 Resource.CurrentTechnique.Passes[0].Apply();

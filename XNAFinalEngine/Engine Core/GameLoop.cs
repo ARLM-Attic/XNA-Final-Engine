@@ -361,6 +361,10 @@ namespace XNAFinalEngine.EngineCore
             RenderTarget sceneTexture = null;
             RenderTarget postProcessedSceneTexture = null;
             RenderTarget ambientOcclusionTexture = null;
+            RenderTarget halfNormalTexture = null;
+            RenderTarget halfDepthTexture = null;
+            RenderTarget quarterNormalTexture = null;
+            RenderTarget quarterDepthTexture = null;
 
             #region Calculate Size
 
@@ -391,22 +395,74 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            #region DownSample GBuffer
+
+            halfDepthTexture = DepthDownsamplerShader.Instance.Render(gbufferTextures.RenderTargets[0]);
+            quarterDepthTexture = DepthDownsamplerShader.Instance.Render(halfDepthTexture);
+
+            // Donwsample normal map. Applying typical color filters in normal maps is not the best way course of action, but is simple, fast and the resulting error is subtle.
+            // In this case the buffer is downsampled using the sprite manager. Is important that the filter type is linear, not point.
+            // If some error occurs them probably the surfaceformat does not support linear filter.)
+            try
+            {
+                halfNormalTexture = RenderTarget.Fetch(destinationSize.HalfSize(),
+                                                       gbufferTextures.RenderTargets[1].SurfaceFormat,
+                                                       gbufferTextures.RenderTargets[1].DepthFormat,
+                                                       gbufferTextures.RenderTargets[1].Antialiasing);
+                // Downsampled half size normal map
+                halfNormalTexture.EnableRenderTarget();
+                SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[1]);
+                halfNormalTexture.DisableRenderTarget();
+                // Downsampled quarter size normal map
+                quarterNormalTexture = RenderTarget.Fetch(destinationSize.HalfSize().HalfSize(),
+                                                          gbufferTextures.RenderTargets[1].SurfaceFormat,
+                                                          gbufferTextures.RenderTargets[1].DepthFormat,
+                                                          gbufferTextures.RenderTargets[1].Antialiasing);
+                quarterNormalTexture.EnableRenderTarget();
+                SpriteManager.DrawTextureToFullScreen(halfNormalTexture);
+                quarterNormalTexture.DisableRenderTarget();
+            }
+            catch (Exception e)
+            {
+                // Maybe an error could occur if the surface format that XNA gives you doesn't support linear filtering. It needs further testing.
+                throw new InvalidOperationException("Unable to downsample the normal map. ", e);
+            }
+
+            #endregion
+
             #region Light Pre Pass
 
             if (currentCamera.AmbientLight.AmbientOcclusion != null && currentCamera.AmbientLight.AmbientOcclusion.Enabled)
             {
+                RenderTarget aoDepthTexture, aoNormalTexture;
+                if (currentCamera.AmbientLight.AmbientOcclusion.Resolution == AmbientOcclusion.AmbientOcclusionResolution.FullSize)
+                {
+                    aoDepthTexture = gbufferTextures.RenderTargets[0];
+                    aoNormalTexture = gbufferTextures.RenderTargets[1];
+                }
+                else if (currentCamera.AmbientLight.AmbientOcclusion.Resolution == AmbientOcclusion.AmbientOcclusionResolution.HalfSize)
+                {
+                    aoDepthTexture = halfDepthTexture;
+                    aoNormalTexture = halfNormalTexture;
+                }
+                else
+                {
+                    aoDepthTexture = quarterDepthTexture;
+                    aoNormalTexture = quarterNormalTexture;
+                }
+
                 if (currentCamera.AmbientLight.AmbientOcclusion is HorizonBasedAmbientOcclusion)
                 {
-                    ambientOcclusionTexture = HorizonBasedAmbientOcclusionShader.Instance.Render(gbufferTextures.RenderTargets[0],
-                                                                                                 gbufferTextures.RenderTargets[1],
+                    ambientOcclusionTexture = HorizonBasedAmbientOcclusionShader.Instance.Render(aoDepthTexture,
+                                                                                                 aoNormalTexture,
                                                                                                  (HorizonBasedAmbientOcclusion)
                                                                                                  currentCamera.AmbientLight.AmbientOcclusion,
-                                                                                                 currentCamera.FieldOfView, currentCamera.ViewMatrix);
+                                                                                                 currentCamera.FieldOfView);
                 }
                 if (currentCamera.AmbientLight.AmbientOcclusion is RayMarchingAmbientOcclusion)
                 {
-                    ambientOcclusionTexture = RayMarchingAmbientOcclusionShader.Instance.Render(gbufferTextures.RenderTargets[0],
-                                                                                                gbufferTextures.RenderTargets[1],
+                    ambientOcclusionTexture = RayMarchingAmbientOcclusionShader.Instance.Render(aoDepthTexture,
+                                                                                                aoNormalTexture,
                                                                                                 (RayMarchingAmbientOcclusion)
                                                                                                 currentCamera.AmbientLight.AmbientOcclusion,
                                                                                                 currentCamera.FieldOfView);
@@ -501,10 +557,17 @@ namespace XNAFinalEngine.EngineCore
             postProcessedSceneTexture = PostProcessingPass.Process(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess);
             RenderTarget.Release(sceneTexture); // It is not need anymore.
             RenderTarget.Release(gbufferTextures); // It is not need anymore.
+            RenderTarget.Release(halfNormalTexture);
+            RenderTarget.Release(halfDepthTexture);
+            RenderTarget.Release(quarterNormalTexture);
+            RenderTarget.Release(quarterDepthTexture);
 
             #endregion
 
             return postProcessedSceneTexture;
+            //RenderTarget.Release(postProcessedSceneTexture);
+            //return gbufferTextures.RenderTargets[1];
+            //return lightTexture;
         } // RenderCamera
 
         #endregion

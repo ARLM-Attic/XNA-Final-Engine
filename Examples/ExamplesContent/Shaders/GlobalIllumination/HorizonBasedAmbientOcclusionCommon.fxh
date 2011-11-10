@@ -114,8 +114,8 @@ float3 tangent_eye_pos(float2 uv, float4 tangentPlane)
     // view vector going through the surface point at uv
     float3 V = fetch_eye_pos(uv);
     float NdotV = dot(tangentPlane.xyz, V);
-    // intersect with tangent plane except for silhouette edges
-    if (NdotV < 0.0)
+    // intersect with tangent plane except for silhouette edges    
+	if (NdotV < 0.0)
 	{
 		V *= (tangentPlane.w / NdotV);
 	}

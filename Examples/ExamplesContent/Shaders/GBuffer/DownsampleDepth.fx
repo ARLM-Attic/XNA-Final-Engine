@@ -22,6 +22,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
+#include <..\GBuffer\GBufferReader.fxh>
+
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
 //////////////////////////////////////////////
@@ -30,22 +32,6 @@ float2 halfPixel;
 
 float2 quarterTexel;
 
-//////////////////////////////////////////////
-///////////////// Textures ///////////////////
-//////////////////////////////////////////////
-
-texture depthMap : RENDERCOLORTARGET;
-
-sampler depthMapSampler = sampler_state 
-{
-    texture = <depthMap>;
-    AddressU  = Clamp;
-    AddressV  = Clamp;
-    AddressW  = Clamp;    
-    MINFILTER = POINT;
-    MAGFILTER = POINT;
-	MIPFILTER = NONE;
-};
 
 //////////////////////////////////////////////
 ////////////// Data Structs //////////////////
@@ -81,10 +67,10 @@ float4 PS(VS_Output input) : COLOR
 {		
 	// Read in the 4 samples, doing a depth check for each
 	float fSamples[4];	
-	fSamples[0] = tex2D(depthMapSampler, input.texCoord + float2(-quarterTexel.x,  quarterTexel.y)).x;
-	fSamples[1] = tex2D(depthMapSampler, input.texCoord + float2(-quarterTexel.x, -quarterTexel.y)).x;
-	fSamples[2] = tex2D(depthMapSampler, input.texCoord + float2( quarterTexel.x,  quarterTexel.y)).x;  
-	fSamples[3] = tex2D(depthMapSampler, input.texCoord + float2( quarterTexel.x, -quarterTexel.y)).x;  
+	fSamples[0] = tex2D(depthSampler, input.texCoord + float2(-quarterTexel.x,  quarterTexel.y)).x;
+	fSamples[1] = tex2D(depthSampler, input.texCoord + float2(-quarterTexel.x, -quarterTexel.y)).x;
+	fSamples[2] = tex2D(depthSampler, input.texCoord + float2( quarterTexel.x,  quarterTexel.y)).x;  
+	fSamples[3] = tex2D(depthSampler, input.texCoord + float2( quarterTexel.x, -quarterTexel.y)).x;  
 	return max(max(fSamples[0], fSamples[1]), max( fSamples[2], fSamples[3]));
 }
 

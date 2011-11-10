@@ -32,7 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 float2 halfPixel;
 
-float4x4 viewI;
+float3x3 viewI;
 
 float intensity = 0.1f;
 
@@ -89,7 +89,7 @@ float4 ps_mainSH(in float2 uv : TEXCOORD0) : COLOR0
 
 	// Normal (view space) to world space
 	N = normalize(mul(N, viewI));
-	
+			
 	return float4(SampleSH(N) * intensity, 0);
 } // ps_mainSH
 

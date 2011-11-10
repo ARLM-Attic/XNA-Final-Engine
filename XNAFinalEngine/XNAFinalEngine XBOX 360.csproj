@@ -108,6 +108,7 @@
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonics.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL1.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL2.cs" />
+    <Compile Include="Graphics\Passes\01-GBuffer\DepthDownsamplerShader.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBufferPass.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBufferShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\Ambient Occlusion\HorizonBasedAmbientOcclusionShader.cs" />

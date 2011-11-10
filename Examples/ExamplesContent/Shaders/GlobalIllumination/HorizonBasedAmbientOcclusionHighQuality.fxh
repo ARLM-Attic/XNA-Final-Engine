@@ -76,8 +76,7 @@ float4 HighQualityPixelShaderFunction(VS_OUTPUT input) : COLOR0
 		Discard();
 	}
 	// Retrieve position in view space
-	float3 P = uv_to_eye(input.uv, depth);
-	return float4(P, 1);
+	float3 P = uv_to_eye(input.uv, depth);	
 
     // Project the radius of influence g_R from eye space to texture space.
     // The scaling by 0.5 is to go from [-1,1] to [0,1].
@@ -93,6 +92,7 @@ float4 HighQualityPixelShaderFunction(VS_OUTPUT input) : COLOR0
 	float4 tangentPlane;
 	float3 N = SampleNormal(input.uv);	
 	tangentPlane = float4(N, dot(P, N)); // In view space of course.
+	N.z = -N.z; // I'm not sure about this, but it works. I suppose that this happen because DirectX is left handed and XNA is not.
 	
 	//[branch]
 	//if (useNormals)
