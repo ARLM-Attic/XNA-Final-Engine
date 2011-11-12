@@ -36,6 +36,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.Helpers;
 using XNAFinalEngineContentPipelineExtensionRuntime.Settings;
 using XNAFinalEngine.Scenes;
 #if (!XBOX)
@@ -273,12 +274,7 @@ namespace XNAFinalEngine.EngineCore
             if (DeviceReset != null)
                 DeviceReset(sender, e);
 
-            // When a divice is lost some garbage is generated...
-            #if (WINDOWS)
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-            #else
-                GC.Collect();
-            #endif
+            GarbageCollector.CollectGarbage();
         } // graphics_DeviceReset
 
         /// <summary>

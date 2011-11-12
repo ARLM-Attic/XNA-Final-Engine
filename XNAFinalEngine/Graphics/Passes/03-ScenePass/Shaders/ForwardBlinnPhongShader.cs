@@ -34,6 +34,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Helpers;
 using Model = XNAFinalEngine.Assets.Model;
 using Texture = XNAFinalEngine.Assets.Texture;
 using TextureCube = XNAFinalEngine.Assets.TextureCube;
@@ -43,9 +44,19 @@ namespace XNAFinalEngine.Graphics
 {
 
     /// <summary>
-    /// Blinn Phong Shader.
+    /// Forward Blinn Phong Shader.
+    /// Alpha blending doesn't work very well with a deferred rendering.
+    /// There are a couple of ways to fix this but neither is completely elegant or easy to implement.
+    /// Working with a forward rendering for transparent objects is the common solution, K Buffer is another solution but not so common, and there are others.
+    /// I choose the forward rendering alternative, but of course the light management curse is back to wreak more horror ;) 
+    /// 
+    /// Instead of trying to achieve a flexible transparent system,
+    /// you can try to identify the game requirement and make a transparent shader that fits better your necessities.
+    /// I make one for my requirements and I suppose that it will be helpful for the majority of you. 
+    /// 
+    /// Thank Søren for the help and tips.
     /// </summary>
-    internal class BlinnPhongShader : Shader
+    internal class ForwardBlinnPhongShader : Shader
     {
 
         #region Variables
@@ -53,8 +64,11 @@ namespace XNAFinalEngine.Graphics
         // Current view and projection matrix. Used to set the shader parameters.
         private Matrix viewMatrix, projectionMatrix;
 
+        // It's an auxiliary structure that helps avoiding garbage.
+        private readonly Vector3[] coeficients = new Vector3[9];
+
         // Singleton reference.
-        private static BlinnPhongShader instance;
+        private static ForwardBlinnPhongShader instance;
 
         #endregion
 
@@ -63,12 +77,12 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// A singleton of a Blinn Phong shader.
         /// </summary>
-        public static BlinnPhongShader Instance
+        public static ForwardBlinnPhongShader Instance
         {
             get
             {
                 if (instance == null)
-                    instance = new BlinnPhongShader();
+                    instance = new ForwardBlinnPhongShader();
                 return instance;
             }
         } // Instance
@@ -83,27 +97,27 @@ namespace XNAFinalEngine.Graphics
         protected static EffectParameter
                                epHalfPixel,
                                epCameraPosition,
+                               // Matrices //
                                epWorldViewProj,
                                epWorld,
                                epWorldIT,
+                               // Surface //
                                epDiffuseColor,
-                               epDiffuseTexture,
                                epSpecularIntensity,
-                               epLightTexture,
-                               epSpecularTexture,
-                               epDiffuseTextured,
-                               epSpecularTextured,
+                               epSpecularPower,
                                epReflectionTextured,
                                epReflectionTexture,
                                epIsRGBM,
                                epMaxRange,
-                               // Parallax
-                               epNormalTexture,
-                               epNormalTextureSize,
-                               epLODThreshold,
-                               epMinimumNumberSamples,
-                               epMaximumNumberSamples,
-                               epHeightMapScale,
+                               epAlphaBlending,
+                               // Lights //
+                               epAmbientIntensity,
+                               epSphericalHarmonicBase,
+                               epAmbientColor,
+                               epHasAmbientSphericalHarmonics,
+                               epDirectionalLightDirection,
+                               epDirectionalLightColor,
+                               epDirectionalLightIntensity,
                                // Skinning
                                epBones;
                                
@@ -136,65 +150,7 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Diffuse Texture
-
-        private static Texture2D lastUsedDiffuseTexture;
-        private static void SetDiffuseTexture(Texture _diffuseTexture)
-        {
-            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDiffuseTexture != _diffuseTexture.Resource)
-            {
-                lastUsedDiffuseTexture = _diffuseTexture.Resource;
-                epDiffuseTexture.SetValue(_diffuseTexture.Resource);
-            }
-        } // SetDiffuseTexture
-
-        #endregion
-
-        #region Diffuse Color
-
-        private static Color? lastUsedDiffuseColor;
-        private static void SetDiffuseColor(Color diffuseColor)
-        {
-            if (lastUsedDiffuseColor != diffuseColor)
-            {
-                lastUsedDiffuseColor = diffuseColor;
-                epDiffuseColor.SetValue(new Vector3(diffuseColor.R / 255f, diffuseColor.G / 255f, diffuseColor.B / 255f));
-            }
-        } // SetDiffuseColor
-
-        #endregion
-
-        #region Specular Intensity
-
-        private static float? lastUsedSpecularIntensity;
-        private static void SetSpecularIntensity(float specularIntensity)
-        {
-            if (lastUsedSpecularIntensity != specularIntensity)
-            {
-                lastUsedSpecularIntensity = specularIntensity;
-                epSpecularIntensity.SetValue(specularIntensity);
-            }
-        } // SetSpecularIntensity
-
-        #endregion
-
-        #region Specular Texture
-
-        private static Texture2D lastUsedSpecularTexture;
-        private static void SetSpecularTexture(Texture specularTexture)
-        {
-            EngineManager.Device.SamplerStates[2] = SamplerState.AnisotropicWrap;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedSpecularTexture != specularTexture.Resource)
-            {
-                lastUsedSpecularTexture = specularTexture.Resource;
-                epSpecularTexture.SetValue(specularTexture.Resource);
-            }
-        } // SetSpecularTexture
-
-        #endregion
+        // Matrices //
 
         #region World View Projection Matrix
 
@@ -238,47 +194,47 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Light Map Texture
+        // Surface //
+        
+        #region Diffuse Color
 
-        private static Texture2D lastUsedLightTexture;
-        private static void SetLightTexture(Texture lightTexture)
+        private static Color? lastUsedDiffuseColor;
+        private static void SetDiffuseColor(Color diffuseColor)
         {
-            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedLightTexture != lightTexture.Resource)
+            if (lastUsedDiffuseColor != diffuseColor)
             {
-                lastUsedLightTexture = lightTexture.Resource;
-                epLightTexture.SetValue(lightTexture.Resource);
+                lastUsedDiffuseColor = diffuseColor;
+                epDiffuseColor.SetValue(new Vector3(diffuseColor.R / 255f, diffuseColor.G / 255f, diffuseColor.B / 255f));
             }
-        } // SetLightTexture
+        } // SetDiffuseColor
 
         #endregion
 
-        #region Diffuse Textured
+        #region Specular Intensity
 
-        private static bool lastUsedDiffuseTextured;
-        private static void SetDiffuseTextured(bool diffuseTextured)
+        private static float? lastUsedSpecularIntensity;
+        private static void SetSpecularIntensity(float specularIntensity)
         {
-            if (lastUsedDiffuseTextured != diffuseTextured)
+            if (lastUsedSpecularIntensity != specularIntensity)
             {
-                lastUsedDiffuseTextured = diffuseTextured;
-                epDiffuseTextured.SetValue(diffuseTextured);
+                lastUsedSpecularIntensity = specularIntensity;
+                epSpecularIntensity.SetValue(specularIntensity);
             }
-        } // SetDiffuseTextured
+        } // SetSpecularIntensity
 
         #endregion
 
-        #region Specular Textured
+        #region Specular Power
 
-        private static bool lastUsedSpecularTextured;
-        private static void SetSpecularTextured(bool specularTextured)
+        private static float? lastUsedSpecularPower;
+        private static void SetSpecularPower(float specularPower)
         {
-            if (lastUsedSpecularTextured != specularTextured)
+            if (lastUsedSpecularPower != specularPower)
             {
-                lastUsedSpecularTextured = specularTextured;
-                epSpecularTextured.SetValue(specularTextured);
+                lastUsedSpecularPower = specularPower;
+                epSpecularPower.SetValue(specularPower);
             }
-        } // SetSpecularTextured
+        } // SetSpecularPower
 
         #endregion
 
@@ -295,80 +251,7 @@ namespace XNAFinalEngine.Graphics
         } // SetReflectionTextured
 
         #endregion
-
-        #region Normal Texture (and size)
-
-        private static Texture2D lastUsedNormalTextureTexture;
-        private static void SetNormalTexture(Texture normalTexture)
-        {
-            EngineManager.Device.SamplerStates[3] = SamplerState.AnisotropicWrap;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTextureTexture != normalTexture.Resource)
-            {
-                lastUsedNormalTextureTexture = normalTexture.Resource;
-                epNormalTextureSize.SetValue(new Vector2(normalTexture.Width, normalTexture.Height));
-                epNormalTexture.SetValue(normalTexture.Resource);
-            }
-        } // SetNormalTexture
-
-        #endregion
-
-        #region LOD Threshold
-
-        private static int lastUsedLODThreshold;
-        private static void SetLODThreshold(int lodThreshold)
-        {
-            if (lastUsedLODThreshold != lodThreshold)
-            {
-                lastUsedLODThreshold = lodThreshold;
-                epLODThreshold.SetValue(lodThreshold);
-            }
-        } // SetLODThreshold
-
-        #endregion
-
-        #region Minimum Number Samples
-
-        private static int lastUsedMinimumNumberSamples;
-        private static void SetMinimumNumberSamples(int minimumNumberSamples)
-        {
-            if (lastUsedMinimumNumberSamples != minimumNumberSamples)
-            {
-                lastUsedMinimumNumberSamples = minimumNumberSamples;
-                epMinimumNumberSamples.SetValue(minimumNumberSamples);
-            }
-        } // SetMinimumNumberSamples
-
-        #endregion
-
-        #region Maximum Number Samples
-
-        private static int lastUsedMaximumNumberSamples;
-        private static void SetMaximumNumberSamples(int maximumNumberSamples)
-        {
-            if (lastUsedMaximumNumberSamples != maximumNumberSamples)
-            {
-                lastUsedMaximumNumberSamples = maximumNumberSamples;
-                epMaximumNumberSamples.SetValue(maximumNumberSamples);
-            }
-        } // SetMaximumNumberSamples
-
-        #endregion
-
-        #region Height Map Scale
-
-        private static float lastUsedHeightMapScale;
-        private static void SetHeightMapScale(float heightMapScale)
-        {
-            if (lastUsedHeightMapScale != heightMapScale)
-            {
-                lastUsedHeightMapScale = heightMapScale;
-                epHeightMapScale.SetValue(heightMapScale);
-            }
-        } // SetHeightMapScale
-
-        #endregion
-
+        
         #region Reflection Texture
 
         private static Microsoft.Xna.Framework.Graphics.TextureCube lastUsedReflectionTexture;
@@ -392,6 +275,126 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
+        #region Alpha Blending
+
+        private static float? lastUsedAlphaBlending;
+        private static void SetAlphaBlending(float alphaBlending)
+        {
+            if (lastUsedAlphaBlending != alphaBlending)
+            {
+                lastUsedAlphaBlending = alphaBlending;
+                epAlphaBlending.SetValue(alphaBlending);
+            }
+        } // SetAlphaBlending
+
+        #endregion
+
+        // Lights //
+
+        #region Ambient Intensity
+
+        private static float? lastUsedAmbientIntensity;
+        private static void SetAmbientIntensity(float ambientIntensity)
+        {
+            if (lastUsedAmbientIntensity != ambientIntensity)
+            {
+                lastUsedAmbientIntensity = ambientIntensity;
+                epAmbientIntensity.SetValue(ambientIntensity);
+            }
+        } // SetAmbientIntensity
+
+        #endregion
+
+        #region Spherical Harmonic Base
+        
+        private static readonly Vector3[] lastUsedSphericalHarmonicBase = new Vector3[9];
+        private static void SetSphericalHarmonicBase(Vector3[] sphericalHarmonicBase)
+        {
+            if (!ArrayHelper.Equals(lastUsedSphericalHarmonicBase, sphericalHarmonicBase))
+            {
+                //lastUsedSphericalHarmonicBase = (Vector3[])(sphericalHarmonicBase.Clone()); // Produces garbage
+                for (int i = 0; i < 9; i++)
+                {
+                    lastUsedSphericalHarmonicBase[i] = sphericalHarmonicBase[i];
+                }
+                epSphericalHarmonicBase.SetValue(sphericalHarmonicBase);
+            }
+        } // SetSphericalHarmonicBase
+
+        #endregion
+
+        #region Ambient Color
+
+        private static Color? lastUsedAmbientColor;
+        private static void SetAmbientColor(Color ambientColor)
+        {
+            if (lastUsedAmbientColor != ambientColor)
+            {
+                lastUsedAmbientColor = ambientColor;
+                epAmbientColor.SetValue(new Vector3(ambientColor.R / 255f, ambientColor.G / 255f, ambientColor.B / 255f));
+            }
+        } // SetAmbientColor
+
+        #endregion
+
+        #region Has Ambient Spherical Harmonics
+
+        private static bool lastUsedHasAmbientSphericalHarmonics;
+        private static void SetHasAmbientSphericalHarmonics(bool hasAmbientSphericalHarmonics)
+        {
+            if (lastUsedHasAmbientSphericalHarmonics != hasAmbientSphericalHarmonics)
+            {
+                lastUsedHasAmbientSphericalHarmonics = hasAmbientSphericalHarmonics;
+                epHasAmbientSphericalHarmonics.SetValue(hasAmbientSphericalHarmonics);
+            }
+        } // SetHasAmbientSphericalHarmonics
+
+        #endregion
+
+        #region Directional Light Color
+
+        private static Color? lastUsedDirectionalLightColor;
+        private static void SetDirectionalLightColor(Color directionalLightColor)
+        {
+            if (lastUsedDirectionalLightColor != directionalLightColor)
+            {
+                lastUsedDirectionalLightColor = directionalLightColor;
+                epDirectionalLightColor.SetValue(new Vector3(directionalLightColor.R / 255f, directionalLightColor.G / 255f, directionalLightColor.B / 255f));
+            }
+        } // SetDirectionalLightColor
+
+        #endregion
+
+        #region Directional Light Direction
+
+        private static Vector3? lastUsedDirectionalLightDirection;
+        private static void SetDirectionalLightDirection(Vector3 directionalLightDirection)
+        {
+            if (lastUsedDirectionalLightDirection != directionalLightDirection)
+            {
+                lastUsedDirectionalLightDirection = directionalLightDirection;
+                epDirectionalLightDirection.SetValue(directionalLightDirection);
+            }
+        } // SetDirectionalLightDirection
+
+        #endregion
+
+        #region Directional Light Intensity
+
+        private static float? lastUsedDirectionalLightIntensity;
+        private static void SetDirectionalLightIntensity(float directionalLightIntensity)
+        {
+            if (lastUsedDirectionalLightIntensity != directionalLightIntensity)
+            {
+                lastUsedDirectionalLightIntensity = directionalLightIntensity;
+                epDirectionalLightIntensity.SetValue(directionalLightIntensity);
+            }
+        } // SetDirectionalLightIntensity
+
+        #endregion
+
+        // Skinning
+
         #region Bones
 
         //private static Matrix[] lastUsedBones;
@@ -413,9 +416,9 @@ namespace XNAFinalEngine.Graphics
         #region Constructor
 
         /// <summary>
-        /// Blinn Phong Shader.
+        /// Forward Blinn Phong Shader.
 		/// </summary>
-        internal BlinnPhongShader() : base("Materials\\BlinnPhong") { }
+        internal ForwardBlinnPhongShader() : base("Materials\\ForwardBlinnPhong") { }
 
 		#endregion
         
@@ -439,25 +442,23 @@ namespace XNAFinalEngine.Graphics
                 epHalfPixel            = Resource.Parameters["halfPixel"];
                 epCameraPosition       = Resource.Parameters["cameraPosition"];
                 epSpecularIntensity    = Resource.Parameters["specularIntensity"];
+                epSpecularPower        = Resource.Parameters["specularPower"];
                 epDiffuseColor         = Resource.Parameters["diffuseColor"];
-                epDiffuseTexture       = Resource.Parameters["diffuseTexture"];
-                epLightTexture         = Resource.Parameters["lightMap"];
-                epSpecularTexture      = Resource.Parameters["specularTexture"];
-                epDiffuseTextured      = Resource.Parameters["diffuseTextured"];
-                epSpecularTextured     = Resource.Parameters["specularTextured"];
                 epReflectionTexture    = Resource.Parameters["reflectionTexture"];
                 epReflectionTextured   = Resource.Parameters["reflectionTextured"];
                 epIsRGBM               = Resource.Parameters["isRGBM"];
                 epMaxRange             = Resource.Parameters["maxRange"];
-                // Parallax //
-                epNormalTexture        = Resource.Parameters["normalTexture"];
-                epNormalTextureSize    = Resource.Parameters["objectNormalTextureSize"];
-                epLODThreshold         = Resource.Parameters["LODThreshold"];
-                epMinimumNumberSamples = Resource.Parameters["minimumNumberSamples"];
-                epMaximumNumberSamples = Resource.Parameters["maximumNumberSamples"];
-                epHeightMapScale       = Resource.Parameters["heightMapScale"];
+                epAlphaBlending        = Resource.Parameters["alphaBlending"];
+                // Lights //
+                epSphericalHarmonicBase        = Resource.Parameters["sphericalHarmonicBase"];
+                epAmbientIntensity             = Resource.Parameters["ambientIntensity"];
+                epAmbientColor                 = Resource.Parameters["ambientColor"];
+                epHasAmbientSphericalHarmonics = Resource.Parameters["hasAmbientSphericalHarmonics"];
+                epDirectionalLightDirection    = Resource.Parameters["directionalLightDirection"];
+                epDirectionalLightColor        = Resource.Parameters["directionalLightColor"];
+                epDirectionalLightIntensity    = Resource.Parameters["directionalLightIntensity"];
                 // Skinning //
-                epBones = Resource.Parameters["Bones"];
+                epBones                        = Resource.Parameters["Bones"];
             }
             catch
             {
@@ -477,8 +478,7 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 // Set Render States.
-                EngineManager.Device.BlendState = BlendState.Opaque;
-                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                EngineManager.Device.BlendState = BlendState.NonPremultiplied;
                 EngineManager.Device.DepthStencilState = DepthStencilState.Default;
                 // If I set the sampler states here and no texture is set then this could produce exceptions 
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
@@ -488,7 +488,6 @@ namespace XNAFinalEngine.Graphics
                 this.projectionMatrix = projectionMatrix;
                 SetHalfPixel(new Vector2(0.5f / lightTexture.Width, 0.5f / lightTexture.Height));
                 SetCameraPosition(Matrix.Invert(viewMatrix).Translation); // Tener cuidado con esto.
-                SetLightTexture(lightTexture);
             }
             catch (Exception e)
             {
@@ -503,7 +502,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render a model.
 		/// </summary>
-        internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform, BlinnPhong blinnPhongMaterial)
+        internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform, BlinnPhong blinnPhongMaterial, AmbientLight ambientLight)
         {
             try
             {
@@ -516,45 +515,12 @@ namespace XNAFinalEngine.Graphics
                 SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
                 SetWorldMatrix(worldMatrix);
                 SetTransposeInverseWorldMatrix(Matrix.Transpose(Matrix.Invert(worldMatrix)));
+
                 SetSpecularIntensity(blinnPhongMaterial.SpecularIntensity);
+                SetSpecularPower(blinnPhongMaterial.SpecularPower);
                 SetDiffuseColor(blinnPhongMaterial.DiffuseColor);
-                if (blinnPhongMaterial.DiffuseTexture == null && blinnPhongMaterial.SpecularTexture == null)
-                {
-                    if (!blinnPhongMaterial.ParallaxEnabled)
-                    {
-                        Resource.CurrentTechnique = isSkinned ? Resource.Techniques["SkinnedBlinnPhongWithoutTexture"] : Resource.Techniques["BlinnPhongWithoutTexture"];
-                    }
-                    SetSpecularTextured(false);
-                    SetDiffuseTextured(false);
-                }
-                else
-                {
-                    if (!blinnPhongMaterial.ParallaxEnabled)
-                        Resource.CurrentTechnique = isSkinned ? Resource.Techniques["SkinnedBlinnPhongWithTexture"] : Resource.Techniques["BlinnPhongWithTexture"];
-                    if (blinnPhongMaterial.DiffuseTexture != null)
-                    {
-                        SetDiffuseTextured(true);
-                        SetDiffuseTexture(blinnPhongMaterial.DiffuseTexture);
-                    }
-                    else
-                        SetDiffuseTextured(false);
-                    if (blinnPhongMaterial.SpecularTexture != null)
-                    {
-                        SetSpecularTextured(true);
-                        SetSpecularTexture(blinnPhongMaterial.SpecularTexture);
-                    }
-                    else
-                        SetSpecularTextured(false);
-                }
-                if (blinnPhongMaterial.ParallaxEnabled)
-                {
-                    Resource.CurrentTechnique = isSkinned ? Resource.Techniques["SkinnedBlinnPhongWithParrallax"] : Resource.Techniques["BlinnPhongWithParrallax"];
-                    SetNormalTexture(blinnPhongMaterial.NormalTexture);
-                    SetLODThreshold(blinnPhongMaterial.ParallaxLodThreshold);
-                    SetMinimumNumberSamples(blinnPhongMaterial.ParallaxMinimumNumberSamples);
-                    SetMaximumNumberSamples(blinnPhongMaterial.ParallaxMaximumNumberSamples);
-                    SetHeightMapScale(blinnPhongMaterial.ParallaxHeightMapScale);
-                }
+                SetAlphaBlending(blinnPhongMaterial.AlphaBlending);
+                
                 if (blinnPhongMaterial.ReflectionTexture != null)
                 {
                     SetReflectionTexture(blinnPhongMaterial.ReflectionTexture);
@@ -562,13 +528,38 @@ namespace XNAFinalEngine.Graphics
                 }
                 else
                     SetReflectionTextured(false);
+                // Lights //
+                SetAmbientColor(ambientLight.Color);
+                SetAmbientIntensity(ambientLight.Intensity);
+                
+                if (ambientLight.SphericalHarmonicAmbientLight == null)
+                {
+                    SetHasAmbientSphericalHarmonics(false);
+                }
+                else
+                {
+                    ambientLight.SphericalHarmonicAmbientLight.GetCoeficients(coeficients);
+                    SetHasAmbientSphericalHarmonics(true);
+                    SetSphericalHarmonicBase(coeficients);
+                }
+                /*if (SceneManager.DirectionalLightForTransparentObjects != null)
+                {
+                    SetDirectionalLightColor(SceneManager.DirectionalLightForTransparentObjects.DiffuseColor);
+                    SetDirectionalLightDirection(SceneManager.DirectionalLightForTransparentObjects.Direction);
+                    SetDirectionalLightIntensity(SceneManager.DirectionalLightForTransparentObjects.Intensity);
+                }
+                else
+                {
+                    SetDirectionalLightColor(Color.Black);
+                }*/
+
 
                 Resource.CurrentTechnique.Passes[0].Apply();
                 model.Render();
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Bling Phong Material: Unable to render model.", e);
+                throw new InvalidOperationException("Forward Bling Phong Material: Unable to render model.", e);
             }
         } // RenderModel
 

@@ -30,14 +30,16 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using System.Runtime;
 #endregion
 
 namespace XNAFinalEngine.Helpers
 {
     /// <summary>
-    /// Simple class to test if garbage collection occurs.
+    /// Collects the garbage using appropriate settings for both platforms. 
+    /// It also tests if a garbage collection occurs.
     /// </summary>
-    public sealed class TestGarbageCollection
+    public sealed class GarbageCollector
     {
 
         #region Destructor
@@ -45,14 +47,14 @@ namespace XNAFinalEngine.Helpers
         /// <summary>
         /// The garbage collector is working.
         /// </summary>
-        ~TestGarbageCollection()
+        ~GarbageCollector()
         {
             throw new Exception("Garbage Collection performed.");
         } // ~TestGarbageCollection
 
         #endregion
 
-        #region Register
+        #region Create Weak Reference
 
         /// <summary>
         /// Creates a dummy object and immediately it is dereferenced,
@@ -60,10 +62,34 @@ namespace XNAFinalEngine.Helpers
         /// </summary>
         public static void CreateWeakReference()
         {
-            new TestGarbageCollection();
+            new GarbageCollector();
         } // CreateWeakReference
 
         #endregion
 
-    } // TestGarbageCollection
+        #region Collect Garbage
+
+        /// <summary>
+        ///  Collect garbage.
+        /// </summary>
+        internal static void CollectGarbage()
+        {
+            // All generations will undergo a garbage collection.
+            #if (WINDOWS)
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
+            #else
+                GC.Collect();
+            #endif
+            // Enables garbage collection that is more conservative in reclaiming objects.
+            // Full Collections occur only if the system is under memory pressure while generation 0 and generation 1 collections might occur more frequently.
+            // This is the least intrusive mode.
+            // If the work is done right, this latency mode is not need really.
+            #if (WINDOWS)
+                GCSettings.LatencyMode = GCLatencyMode.LowLatency;
+            #endif
+        } // CollectGarbage
+
+        #endregion
+
+    } // GarbageCollector
 } // XNAFinalEngine.Helpers

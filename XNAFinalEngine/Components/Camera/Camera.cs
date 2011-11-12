@@ -562,15 +562,21 @@ namespace XNAFinalEngine.Components
         
         #region Bounding Frustum
 
+        // To avoid garbage use always the same values.
+        private static Vector3[] cornersWorldSpace = new Vector3[8];
+        private static BoundingFrustum boundingFrustum = new BoundingFrustum(Matrix.Identity);
+
         /// <summary>
         /// Camera Far Plane Bounding Frustum (in view space). 
         /// With the help of the bounding frustum, the position can be cheaply reconstructed from a depth value.
+        /// 
         /// </summary>
-        public Vector3[] BoundingFrustum()
+        public void BoundingFrustum(Vector3[] cornersViewSpace)
         {
-            BoundingFrustum boundingFrustum = new BoundingFrustum(ViewMatrix * ProjectionMatrix);
-            Vector3[] cornersWorldSpace = boundingFrustum.GetCorners();
-            Vector3[] cornersViewSpace = new Vector3[4];
+            if (cornersViewSpace.Length != 4)
+                throw new ArgumentOutOfRangeException("cornersViewSpace");
+            boundingFrustum.Matrix = ViewMatrix * ProjectionMatrix;
+            boundingFrustum.GetCorners(cornersWorldSpace);
             // Transform form world space to view space
             for (int i = 0; i < 4; i++)
             {
@@ -581,8 +587,6 @@ namespace XNAFinalEngine.Components
             Vector3 temp = cornersViewSpace[3];
             cornersViewSpace[3] = cornersViewSpace[2];
             cornersViewSpace[2] = temp;
-
-            return cornersViewSpace;
         } // BoundingFrustum
 
         #endregion

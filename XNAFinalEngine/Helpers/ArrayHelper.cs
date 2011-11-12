@@ -29,7 +29,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using System.Linq;
 using Microsoft.Xna.Framework;
 #endregion
 
@@ -53,7 +52,13 @@ namespace XNAFinalEngine.Helpers
             if (a1.Length != a2.Length)
                 return false;
 
-            return !a1.Where((t, i) => t != a2[i]).Any();
+            //return !a1.Where((t, i) => t != a2[i]).Any(); // Produces garbage
+            for (int i = 0; i < a1.Length; i++)
+            {
+                if (a1[i] != a2[i])
+                    return false;
+            }
+            return true;
         } // Equals
 
         #endregion
@@ -72,8 +77,14 @@ namespace XNAFinalEngine.Helpers
 
             if (a1.Length != a2.Length)
                 return false;
-
-            return !a1.Where((t, i) => t != a2[i]).Any();
+            
+            //return !a1.Where((t, i) => t != a2[i]).Any(); // Produces garbage
+            for (int i = 0; i < a1.Length; i++)
+            {
+                if (a1[i] != a2[i])
+                    return false;
+            }
+            return true;
         } // Equals
 
         #endregion
@@ -93,7 +104,13 @@ namespace XNAFinalEngine.Helpers
             if (a1.Length != a2.Length)
                 return false;
 
-            return !a1.Where((t, i) => t != a2[i]).Any();
+            //return !a1.Where((t, i) => t != a2[i]).Any(); // Produces garbage
+            for (int i = 0; i < a1.Length; i++)
+            {
+                if (a1[i] != a2[i])
+                    return false;
+            }
+            return true;
         } // Equals
 
         #endregion

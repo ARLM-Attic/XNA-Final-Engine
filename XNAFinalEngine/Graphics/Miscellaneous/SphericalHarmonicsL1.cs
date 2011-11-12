@@ -40,11 +40,6 @@ namespace XNAFinalEngine.Graphics
         #region Properties
 
         /// <summary>
-        /// Spherical Harmonic RGB coefficients.
-        /// </summary>
-        public override Vector3[] Coeficients { get { return new [] { C0, C1, C2, C3 }; } }
-
-        /// <summary>
         /// Spherical Harmonic RGB coefficient.
         /// </summary>
         public Vector3 C0 { get { return c0; } }
@@ -409,6 +404,23 @@ namespace XNAFinalEngine.Graphics
                 c3 = { X = xs * x.c3.X + ys * y.c3.X, Y = xs * x.c3.Y + ys * y.c3.Y, Z = xs * x.c3.Z + ys * y.c3.Z },
             };
         } // Lerp
+
+        #endregion
+
+        #region Get Coeficients
+
+        /// <summary>
+        /// Spherical Harmonic RGB coefficients.
+        /// </summary>
+        public void GetCoeficients(Vector3[] coeficients)
+        {
+            if (coeficients.Length != 4)
+                throw new ArgumentOutOfRangeException("coeficients");
+            coeficients[0] = c0;
+            coeficients[1] = c1;
+            coeficients[2] = c2;
+            coeficients[3] = c3;
+        } // GetCoeficients
 
         #endregion
 

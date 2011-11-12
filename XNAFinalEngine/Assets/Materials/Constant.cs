@@ -49,9 +49,6 @@ namespace XNAFinalEngine.Assets
         // Surface diffuse color. If a diffuse texture exists this color will be ignored.
         private Color diffuseColor = Color.Gray;
 
-        // Alpha Blending.
-        private float alphaBlending = 1.0f;
-
         #endregion
 
         #region Properties
@@ -71,27 +68,6 @@ namespace XNAFinalEngine.Assets
         /// Diffuse texture. If it's null then the DiffuseColor value will be used.
         /// </summary>
         public Texture DiffuseTexture { get; set; }
-
-        #endregion
-
-        #region Transparency
-
-        /// <summary>
-        /// Alpha Blending.
-        /// Default value: 1
-        /// </summary>
-        public float AlphaBlending
-        {
-            get { return alphaBlending; }
-            set { alphaBlending = value; }
-        } // AlphaBlending
-
-        /// <summary>
-        /// Render both sides.
-        /// I.e. it manages a the culling mode.
-        /// Default value: false (CullCounterClockwise)
-        /// </summary>
-        public bool BothSides { get; set; }
 
         #endregion
 

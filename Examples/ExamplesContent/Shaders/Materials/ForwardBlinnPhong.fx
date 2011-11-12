@@ -149,7 +149,7 @@ float4 PSBlinn(vertexOutput input) : COLOR
 	float3 normalWS  = normalize(input.normalWS);
     float3 viewWS    = normalize(input.viewWS);
     float3 diffuse;  // = float3(0,0,0);
-    float3 specular; // = float3(0,0,0);
+    float3 specular; // = float3(0,0,0);	
 
 	// Ambient Light //
 	[branch]
@@ -205,15 +205,15 @@ float4 PSBlinn(vertexOutput input) : COLOR
 		else
 			specular *= GammaToLinear(texCUBE(reflectionSampler, reflectionDir).rgb);
 	}
-	// Final color (in linear space)
-	return float4(GammaToLinear(diffuseColor) * diffuse + specular,  alphaBlending);
+	// Final color (in linear space)	
+	return float4(GammaToLinear(diffuseColor) * diffuse + specular, alphaBlending);
 } // PSBlinn
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-technique BlinnWithoutTexture
+technique ForwardBlinnPhong
 {
 	pass P0
 	{
@@ -221,3 +221,14 @@ technique BlinnWithoutTexture
 		PixelShader  = compile ps_3_0 PSBlinn();
 	}
 }
+
+//#include <SkinnedBlinnPhong.fxh>
+
+/*technique SkinnedForwardBlinnPhong
+{
+    pass P0
+    {
+        VertexShader = compile vs_3_0 SkinnedWithoutTexture();
+        PixelShader  = compile ps_3_0 PSBlinn();
+    }
+} // SkinnedForwardBlinnPhong*/

@@ -12,40 +12,23 @@ Modified by: Schneider, Jose Ignacio (jis@cs.uns.edu.ar)
 
 /////////////////////////////////////////////*/
 
-//#define FX_COMPOSER
-
-//////////////////////////////////////////////
-///////////////// Script /////////////////////
-//////////////////////////////////////////////
-
-float Script : STANDARDSGLOBAL <
-    string UIWidget = "none";
-    string ScriptClass = "object";
-    string ScriptOrder = "standard";
-    string ScriptOutput = "color";
-    string Script = "Technique=Technique?Ocean;";
-> = 0.8;
-
 //////////////////////////////////////////////
 //////////////// Matrices ////////////////////
 //////////////////////////////////////////////
 
-float4x4 World         : World                 <string UIWidget="None";>;
-float4x4 WorldIT       : WorldInverseTranspose <string UIWidget="None";>;
-float4x4 WorldViewProj : WorldViewProjection   <string UIWidget="None";>;
-float4x4 ViewI         : ViewInverse           <string UIWidget="None";>;
+float4x4 World         : World;
+float4x4 WorldIT       : WorldInverseTranspose;
+float4x4 WorldViewProj : WorldViewProjection;
+float4x4 ViewI         : ViewInverse;
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture NormalTexture  <
-    string ResourceName = "waves2.dds";
-    string UIName =  "OceanWavesNormal";
-    string ResourceType = "2D";
->;
+texture NormalTexture;
 
-sampler2D NormalSampler = sampler_state {
+sampler2D NormalSampler = sampler_state 
+{
     Texture = <NormalTexture>;
     MinFilter = Linear;
     MagFilter = Linear;
@@ -54,13 +37,9 @@ sampler2D NormalSampler = sampler_state {
     AddressV = Wrap;
 };
 
-texture EnvTexture : ENVIRONMENT <
-    string ResourceName = "CloudyHillsCubemap2.dds";
-    string UIName =  "Environment Cubemap";
-    string ResourceType = "Cube";
->;
-
-samplerCUBE EnvSampler = sampler_state {
+texture EnvTexture;
+samplerCUBE EnvSampler = sampler_state
+{
     Texture = <EnvTexture>;
     MinFilter = Linear;
     MagFilter = Linear;
@@ -74,7 +53,7 @@ samplerCUBE EnvSampler = sampler_state {
 //////////////// Surface /////////////////////
 //////////////////////////////////////////////
 
-float Timer : TIME < string UIWidget = "None"; >;
+float Timer;
 
 float BumpScale <
     string UIWidget = "slider";
@@ -153,7 +132,7 @@ float3 ShallowColor <
 float3 ReflTint <
     string UIName = "Reflection Tint";
     string UIWidget = "Color";
-> = {0.3f, 0.3f, 0.3f};//{1.0f, 1.0f, 1.0f};
+> = {0.3f, 0.3f, 0.3f};
 
 // these are redundant, but makes the ui easier:
 float Kr <
@@ -170,7 +149,7 @@ float KWater <
     float UIMin = 0.0;
     float UIMax = 2.0;
     float UIStep = 0.01;    
-> = 0.3f; //1.0f;
+> = 0.3f;
 
 float WaveAmp <
     string UIName = "Wave Amplitude";
@@ -223,7 +202,6 @@ struct Wave
 };
 
 #define NumberWaves 2
-
 
 float evaluateWave(Wave w, float2 pos, float t)
 {
@@ -346,22 +324,11 @@ float4 OceanPS(OceanVertOut IN) : COLOR
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-technique Ocean <
-	string Script = "Pass=p0;";
-> {
-    pass p0 <
-	string Script = "Draw=geometry;";
-    > {
+technique Ocean
+{
+    pass p0
+	{
         VertexShader = compile vs_2_0 OceanVS();
-		ZEnable = true;
-		ZWriteEnable = true;
-		ZFunc = LessEqual;
-		AlphaBlendEnable = false;
-#ifdef FX_COMPOSER
-        CullMode = None;   // For FX Composer
-#else
-        CullMode = CCW;    // For The Engine	
-#endif
         PixelShader = compile ps_2_0 OceanPS();
     }
 }

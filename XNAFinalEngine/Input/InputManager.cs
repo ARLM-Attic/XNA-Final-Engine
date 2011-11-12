@@ -55,8 +55,8 @@ namespace XNAFinalEngine.Input
         public static void EnableKeyboardHook()
         {
             #if (!XBOX)
-            if (keyboardHook == null)
-                keyboardHook = new KeyboardHook();
+                if (keyboardHook == null)
+                    keyboardHook = new KeyboardHook();
             #endif
         } // EnableKeyboardHook
 
@@ -66,8 +66,8 @@ namespace XNAFinalEngine.Input
         public static void DisableKeyboardHook()
         {
             #if (!XBOX)
-            if (keyboardHook != null)
-                keyboardHook.Dispose();
+                if (keyboardHook != null)
+                    keyboardHook.Dispose();
             #endif
         } // DisableKeyboardHook
 
@@ -101,16 +101,15 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// Update, called from EngineManager.Update().
 		/// Will catch all new states for keyboard, mouse, gamepads, and Wiimotes.
-		/// This produces garbage!!!! TODO!!!!
 		/// </summary>
 		public static void Update()
 		{
             //if (EngineManager.IsApplicationActive)
             {
-                XInputGamePad.XInputGamePadPlayerOne.Update();
+                /*XInputGamePad.XInputGamePadPlayerOne.Update();
                 XInputGamePad.XInputGamePadPlayerTwo.Update();
                 XInputGamePad.XInputGamePadPlayerThree.Update();
-                XInputGamePad.XInputGamePadPlayerFour.Update();
+                XInputGamePad.XInputGamePadPlayerFour.Update();*/
                 #if (!XBOX)
                     Mouse.Update();
                     Keyboard.Update();

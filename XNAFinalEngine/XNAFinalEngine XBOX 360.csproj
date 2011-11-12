@@ -121,6 +121,7 @@
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\BlinnPhongShader.cs" />
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\CarPaintShader.cs" />
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\ConstantShader.cs" />
+    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\ForwardBlinnPhongShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\BloomShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\MLAAShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\PostProcessingPass.cs" />
@@ -131,11 +132,11 @@
     <Compile Include="Helpers\Curve3D.cs" />
     <Compile Include="Helpers\Disposable.cs" />
     <Compile Include="Helpers\ExtensionMethods.cs" />
+    <Compile Include="Helpers\GarbageCollection.cs" />
     <Compile Include="Helpers\Pool.cs" />
     <Compile Include="Helpers\PoolWithoutAccessor.cs" />
     <Compile Include="Helpers\RectangleF.cs" />
     <Compile Include="Helpers\Size.cs" />
-    <Compile Include="Helpers\TestGarbageCollection.cs" />
     <Compile Include="Input\InputManager.cs" />
     <Compile Include="Input\Keyboard.cs" />
     <Compile Include="Input\Mouse.cs" />

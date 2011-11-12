@@ -88,7 +88,7 @@ VS_OUTPUT VertexShaderFunction(in float4 position : POSITION, in float2 uv : TEX
 } // VertexShaderFunction
 
 //////////////////////////////////////////////
-/////////////// Pixel Shader /////////////////
+///////////////// Functions //////////////////
 //////////////////////////////////////////////
 
 float tangent(float3 P, float3 S)
@@ -98,7 +98,7 @@ float tangent(float3 P, float3 S)
 
 float3 uv_to_eye(float2 uv, float eye_z)
 {
-    uv = (uv * float2(2.0, -2.0) - float2(1.0, -1.0)); // uv (0, 1) to (-1, 1)
+    uv = uv * float2(2.0, -2.0) - float2(1.0, -1.0); // uv (0, 1) to (-1, 1)
     return float3(uv * invFocalLength * eye_z, eye_z); // Position in view space	
 }
 
@@ -113,11 +113,11 @@ float3 tangent_eye_pos(float2 uv, float4 tangentPlane)
 {
     // view vector going through the surface point at uv
     float3 V = fetch_eye_pos(uv);
-    float NdotV = dot(tangentPlane.xyz, V);
+    float NdotV = dot(tangentPlane.xyz, normalize(V));
     // intersect with tangent plane except for silhouette edges    
 	if (NdotV < 0.0)
-	{
-		V *= (tangentPlane.w / NdotV);
+	{		
+		V *= tangentPlane.w / NdotV;
 	}
     return V;
 }

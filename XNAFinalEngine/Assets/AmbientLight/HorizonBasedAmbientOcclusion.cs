@@ -28,9 +28,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
-#region Using directives
-#endregion
-
 namespace XNAFinalEngine.Assets
 {
     /// <summary>

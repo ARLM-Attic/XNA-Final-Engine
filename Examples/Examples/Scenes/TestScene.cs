@@ -126,10 +126,10 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
-            if (Keyboard.LeftPressed)
+            /*if (Keyboard.LeftPressed)
                 lamboBody.Camera.PostProcess.MLAA.Enabled = false;
             else
-                lamboBody.Camera.PostProcess.MLAA.Enabled = true;
+                lamboBody.Camera.PostProcess.MLAA.Enabled = true;*/
             //lamboBody.Transform.Translate(new Vector3(0.0001f, 0, 0), Space.Local);
             //lamboBody.Transform.Rotate(new Vector3(0, 0.00001f, 0));
         } // UpdateTasks

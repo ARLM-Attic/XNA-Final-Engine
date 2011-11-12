@@ -29,10 +29,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.Assets
@@ -80,9 +77,6 @@ namespace XNAFinalEngine.Assets
 
         // Specular Intensity.
         private float specularIntensity = 1.0f;
-
-        // Alpha Blending.
-        private float alphaBlending = 1.0f;
 
         #endregion
 
@@ -213,27 +207,6 @@ namespace XNAFinalEngine.Assets
         /// Reflection Texture.
         /// </summary>
         public TextureCube ReflectionTexture { get; set; }
-
-        #endregion
-
-        #region Transparency
-
-        /// <summary>
-        /// Alpha Blending.
-        /// Default value: 1
-        /// </summary>
-        public float AlphaBlending
-        {
-            get { return alphaBlending; }
-            set { alphaBlending = value; }
-        } // AlphaBlending
-
-        /// <summary>
-        /// Render both sides.
-        /// I.e. it manages a the culling mode.
-        /// Default value: false (CullCounterClockwise)
-        /// </summary>
-        public bool BothSides { get; set; }
 
         #endregion
 

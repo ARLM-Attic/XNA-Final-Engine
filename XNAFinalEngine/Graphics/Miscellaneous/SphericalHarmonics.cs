@@ -52,16 +52,7 @@ namespace XNAFinalEngine.Graphics
         protected float weighting;
 
         #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Coeficients.
-        /// </summary>
-        public virtual Vector3[] Coeficients { get { return null; } }
-
-        #endregion
-
+        
         #region Fill constants
 
         /// <summary>

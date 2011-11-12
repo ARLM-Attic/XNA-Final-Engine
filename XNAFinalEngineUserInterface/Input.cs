@@ -140,7 +140,7 @@ namespace XNAFinalEngine.UserInterface
 
             KeyEventArgs e = new KeyEventArgs { Caps = (((ushort) GetKeyState(0x14)) & 0xffff) != 0 };
 
-            foreach (Keys key in Keyboard.KeyboardState.GetPressedKeys())
+            foreach (Keys key in Keyboard.CurrentKeyboardState.GetPressedKeys())
             {
                 if      (key == Keys.LeftAlt     || key == Keys.RightAlt)     e.Alt = true;
                 else if (key == Keys.LeftShift   || key == Keys.RightShift)   e.Shift = true;
@@ -156,7 +156,7 @@ namespace XNAFinalEngine.UserInterface
                     continue;
                 }
 
-                bool pressed = Keyboard.KeyboardState.IsKeyDown(key.Key);
+                bool pressed = Keyboard.CurrentKeyboardState.IsKeyDown(key.Key);
 
                 double frameTimeInMilliseconds = Time.GameDeltaTime * 1000; // From seconds to milliseconds.
                 if (pressed) key.Countdown -= frameTimeInMilliseconds;

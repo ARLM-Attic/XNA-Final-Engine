@@ -30,7 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.Runtime;
+using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Components;
@@ -59,6 +59,9 @@ namespace XNAFinalEngine.EngineCore
         /// This game object will show the frames per second onto screen.
         /// </summary>
         private static GameObject2D fpsText;
+
+        // It's an auxiliary value that helps avoiding garbage.
+        private static Vector3[] cornersViewSpace = new Vector3[4];
         
         #endregion
 
@@ -108,29 +111,22 @@ namespace XNAFinalEngine.EngineCore
                 CurrentScene.Load();
             }
 
+            // Pre draw to avoid the first frame's garbage and to place everything into memory.
+            Draw(new GameTime());
+
             #region Garbage Collection
 
-            // All generations will undergo a garbage collection.
-            #if (WINDOWS)
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-            #else
-                GC.Collect();
-            #endif
-            // Enables garbage collection that is more conservative in reclaiming objects.
-            // Full Collections occur only if the system is under memory pressure while generation 0 and generation 1 collections might occur more frequently.
-            // This is the least intrusive mode.
-            // If the work is done right, this latency mode is not need really.
-            #if (WINDOWS)
-                GCSettings.LatencyMode = GCLatencyMode.LowLatency;
-            #endif
-            //TestGarbageCollection.CreateWeakReference();
+            // Collect all garbage.
+            GarbageCollector.CollectGarbage();
+            // Test the garbage collector.
+            //GarbageCollector.CreateWeakReference();
 
             #endregion
 
         } // LoadContent
         
         #endregion
-
+        
         #region Update
 
         /// <summary>
@@ -139,8 +135,12 @@ namespace XNAFinalEngine.EngineCore
         internal static void Update(GameTime gameTime)
         {
             Time.GameDeltaTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
+
+            #region Input
             
             InputManager.Update();
+
+            #endregion
 
             #region Scene Update Tasks
 
@@ -185,7 +185,7 @@ namespace XNAFinalEngine.EngineCore
             // Update frames per second visibility.
             fpsText.HudText.Visible = ShowFramesPerSecond;
             fpsText.Transform.LocalPosition = new Vector3(Screen.Width - 100, 20, 0);
-
+            
             #region Scene Pre Render Tasks
 
             if (CurrentScene != null && CurrentScene.Loaded)
@@ -194,7 +194,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-
+            
             #region Scripts Pre Render Update
 
             foreach (var script in Script.ScriptList)
@@ -203,7 +203,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion 
-
+            
             #region Root Animation Processing
 
             for (int i = 0; i < RootAnimation.ComponentPool.Count; i++)
@@ -233,7 +233,7 @@ namespace XNAFinalEngine.EngineCore
             // the inverse bind pose multiplication stage in the mesh draw code. And for now the engine will do this.
 
             #endregion
-
+            
             #region Graphics
 
             Camera currentCamera = null;
@@ -320,7 +320,9 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            #region Screenshot
+            
+
+            #region Screenshot);
 
             if (ScreenshotCapturer.MakeScreenshot)
             {
@@ -366,6 +368,9 @@ namespace XNAFinalEngine.EngineCore
             RenderTarget quarterNormalTexture = null;
             RenderTarget quarterDepthTexture = null;
 
+            // Calculate view space bounding frustum.
+            currentCamera.BoundingFrustum(cornersViewSpace);
+            
             #region Calculate Size
 
             Size destinationSize;
@@ -394,7 +399,7 @@ namespace XNAFinalEngine.EngineCore
             gbufferTextures = GBufferPass.End();
 
             #endregion
-
+            
             #region DownSample GBuffer
 
             halfDepthTexture = DepthDownsamplerShader.Instance.Render(gbufferTextures.RenderTargets[0]);
@@ -431,7 +436,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Light Pre Pass
-
+            
             if (currentCamera.AmbientLight.AmbientOcclusion != null && currentCamera.AmbientLight.AmbientOcclusion.Enabled)
             {
                 RenderTarget aoDepthTexture, aoNormalTexture;
@@ -450,27 +455,25 @@ namespace XNAFinalEngine.EngineCore
                     aoDepthTexture = quarterDepthTexture;
                     aoNormalTexture = quarterNormalTexture;
                 }
-
+                
                 if (currentCamera.AmbientLight.AmbientOcclusion is HorizonBasedAmbientOcclusion)
                 {
                     ambientOcclusionTexture = HorizonBasedAmbientOcclusionShader.Instance.Render(aoDepthTexture,
                                                                                                  aoNormalTexture,
-                                                                                                 (HorizonBasedAmbientOcclusion)
-                                                                                                 currentCamera.AmbientLight.AmbientOcclusion,
+                                                                                                 (HorizonBasedAmbientOcclusion)currentCamera.AmbientLight.AmbientOcclusion,
                                                                                                  currentCamera.FieldOfView);
                 }
                 if (currentCamera.AmbientLight.AmbientOcclusion is RayMarchingAmbientOcclusion)
                 {
                     ambientOcclusionTexture = RayMarchingAmbientOcclusionShader.Instance.Render(aoDepthTexture,
                                                                                                 aoNormalTexture,
-                                                                                                (RayMarchingAmbientOcclusion)
-                                                                                                currentCamera.AmbientLight.AmbientOcclusion,
+                                                                                                (RayMarchingAmbientOcclusion)currentCamera.AmbientLight.AmbientOcclusion,
                                                                                                 currentCamera.FieldOfView);
                 }
             }
-
+            
             LightPrePass.Begin(destinationSize, currentCamera.AmbientLight.Color);
-
+            
             // Render ambient light for every camera.
             if (currentCamera.AmbientLight != null)
             {
@@ -480,19 +483,19 @@ namespace XNAFinalEngine.EngineCore
                                                         currentCamera.ViewMatrix);
             }
             RenderTarget.Release(ambientOcclusionTexture);
-
+            
             // Render directional lights for every camera.
             DirectionalLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                             gbufferTextures.RenderTargets[1], // Normal Texture
                                             gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
                                             currentCamera.ViewMatrix,
-                                            currentCamera.BoundingFrustum());
+                                            cornersViewSpace);
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
                 DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
                 DirectionalLightShader.Instance.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity);
             }
-
+            
             // Render point lights for every camera.
             PointLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                             gbufferTextures.RenderTargets[1], // Normal Texture
@@ -506,7 +509,7 @@ namespace XNAFinalEngine.EngineCore
                 PointLight currentPointLight = PointLight.ComponentPool.Elements[i];
                 PointLightShader.Instance.RenderLight(currentPointLight.DiffuseColor, currentPointLight.cachedPosition, currentPointLight.Intensity, currentPointLight.Range);
             }
-
+            
             // Render spot lights for every camera.
 
             lightTexture = LightPrePass.End();
@@ -521,7 +524,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
             {
                 ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                 {
                     if (currentModelRenderer.Material is Constant)
                     {
@@ -546,6 +549,28 @@ namespace XNAFinalEngine.EngineCore
             // The particle systems
 
             // The transparent objects will be render in forward fashion.
+            for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+            {
+                ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending != 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                {
+                    if (currentModelRenderer.Material is Constant)
+                    {
+                        ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+                        ConstantShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (Constant)currentModelRenderer.Material);
+                    }
+                    else if (currentModelRenderer.Material is BlinnPhong)
+                    {
+                        ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                        ForwardBlinnPhongShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, (BlinnPhong)currentModelRenderer.Material, currentCamera.AmbientLight);
+                    }
+                    else if (currentModelRenderer.Material is CarPaint)
+                    {
+                        CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                        CarPaintShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint)currentModelRenderer.Material);
+                    }
+                }
+            }
 
             sceneTexture = ScenePass.End();
             RenderTarget.Release(lightTexture);
@@ -568,6 +593,7 @@ namespace XNAFinalEngine.EngineCore
             //RenderTarget.Release(postProcessedSceneTexture);
             //return gbufferTextures.RenderTargets[1];
             //return lightTexture;
+            //return ambientOcclusionTexture;
         } // RenderCamera
 
         #endregion

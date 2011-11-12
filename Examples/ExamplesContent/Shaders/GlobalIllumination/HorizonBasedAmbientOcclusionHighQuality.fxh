@@ -5,16 +5,13 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 ************************************************************************************************************************************************/
 
-float3x3 viewI;
-
 float AccumulatedHorizonOcclusionHighQuality(float2 deltaUV, 
                                              float2 uv0, // uvs for original sample
                                              float3 P, 
                                              float numSteps, 
                                              float randstep,
                                              float3 dPdu,
-                                             float3 dPdv,
-										     float3 normal)
+                                             float3 dPdv)
 {
     // Jitter starting point within the first sample distance
     float2 uv = (uv0 + deltaUV) + randstep * deltaUV;
@@ -87,36 +84,35 @@ float4 HighQualityPixelShaderFunction(VS_OUTPUT input) : COLOR0
 
     // Nearest neighbor pixels on the tangent plane
     float3 Pr, Pl, Pt, Pb;
-	
-    // I don't use face normals and the cost to have them is very high. However, the results are good and the performance is slightly better.
-	float4 tangentPlane;
-	float3 N = SampleNormal(input.uv);	
-	tangentPlane = float4(N, dot(P, N)); // In view space of course.
-	N.z = -N.z; // I'm not sure about this, but it works. I suppose that this happen because DirectX is left handed and XNA is not.
-	
-	//[branch]
-	//if (useNormals)
+		 
+	/*[branch]
+	if (useNormals)
 	{
+		float3 N = SampleNormal(input.uv);	
+		N.z = -N.z; // I'm not sure about this, but it works. I suppose that this happen because DirectX is left handed and XNA is not	
+		// I don't use face normals.
+		float4 tangentPlane = float4(N, dot(normalize(P), N)); // In view space of course.
+
 		Pr = tangent_eye_pos(input.uv + float2( invResolution.x, 0),                tangentPlane);
 		Pl = tangent_eye_pos(input.uv + float2(-invResolution.x, 0),                tangentPlane);
 		Pt = tangent_eye_pos(input.uv + float2(0,                invResolution.y),  tangentPlane);
 		Pb = tangent_eye_pos(input.uv + float2(0,               -invResolution.y),  tangentPlane);
 	}
-	/*else
+	else*/
 	{
 		// Doesn't use normals
 		Pr = fetch_eye_pos(input.uv + float2( invResolution.x,  0));
 		Pl = fetch_eye_pos(input.uv + float2(-invResolution.x,  0));
 		Pt = fetch_eye_pos(input.uv + float2(0,                 invResolution.y));
 		Pb = fetch_eye_pos(input.uv + float2(0,                -invResolution.y));
-    }*/
+    }
 
     // Screen-aligned basis for the tangent plane
     float3 dPdu = min_diff(P, Pr, Pl);
     float3 dPdv = min_diff(P, Pt, Pb) * (resolution.y * invResolution.x);
 
     // (cos(alpha),sin(alpha),jitter)
-    float3 rand = tex2D(randomNormalSampler, input.uv * 200).rgb; // int2((int)IN.pos.x & 63, (int)IN.pos.y & 63)).rgb; This is new in shader model 4, imposible? to replicate in shader model 3.
+    float3 rand = tex2D(randomNormalSampler, input.uv * 20).rgb; // int2((int)IN.pos.x & 63, (int)IN.pos.y & 63)).rgb; This is new in shader model 4, imposible? to replicate in shader model 3.
 		
 	float ao = 0;
     float d;
@@ -128,7 +124,7 @@ float4 HighQualityPixelShaderFunction(VS_OUTPUT input) : COLOR0
 		float angle = alpha * d;
 		float2 dir = float2(cos(angle), sin(angle));
 		float2 deltaUV = rotate_direction(dir, rand.xy) * step_size.xy;
-		ao += AccumulatedHorizonOcclusionHighQuality(deltaUV, input.uv, P, numSteps, rand.z, dPdu, dPdv, N);
+		ao += AccumulatedHorizonOcclusionHighQuality(deltaUV, input.uv, P, numSteps, rand.z, dPdu, dPdv);
 	}
 		
 	return float4(1.0 - ao / numberDirections * contrast, 1, 1, 1);

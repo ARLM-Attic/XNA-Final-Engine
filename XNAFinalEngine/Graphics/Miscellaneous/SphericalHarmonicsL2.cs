@@ -48,11 +48,6 @@ namespace XNAFinalEngine.Graphics
         #region Properties
 
         /// <summary>
-        /// Spherical Harmonic RGB coefficients.
-        /// </summary>
-        public override Vector3[] Coeficients { get { return new [] { C0, C1, C2, C3, C4, C5, C6, C7, C8 }; } }
-
-        /// <summary>
         /// Spherical Harmonic RGB coefficient.
         /// </summary>
         public Vector3 C0 { get { return c0; } }
@@ -532,6 +527,28 @@ namespace XNAFinalEngine.Graphics
 
             return sh;
         } // ExtractSphericalHarmonicForCubeFace
+
+        #endregion
+
+        #region Get Coeficients
+
+        /// <summary>
+        /// Spherical Harmonic RGB coefficients.
+        /// </summary>
+        public void GetCoeficients(Vector3[] coeficients)
+        {
+            if (coeficients.Length != 9)
+                throw new ArgumentOutOfRangeException("coeficients");
+            coeficients[0] = c0;
+            coeficients[1] = c1;
+            coeficients[2] = c2;
+            coeficients[3] = c3;
+            coeficients[4] = c4;
+            coeficients[5] = c5;
+            coeficients[6] = c6;
+            coeficients[7] = c7;
+            coeficients[8] = c8;
+        } // GetCoeficients
 
         #endregion
 

@@ -152,7 +152,8 @@ namespace XNAFinalEngine.Components
 
                 if (sMode)
                 {
-                    if (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed)
+                    //if (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed)
+                    if (Keyboard.KeyJustPressed(Keys.Escape) || Keyboard.KeyJustPressed(Keys.Space))
                     {
                         sMode = false;
                     }

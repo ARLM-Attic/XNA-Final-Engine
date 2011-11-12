@@ -58,13 +58,15 @@ float AccumulatedHorizonOcclusionMiddleQuality(float2 deltaUV,
     return ao;
 }
 
-float4 MiddleQualityPixelShaderFunction(VS_OUTPUT IN) : COLOR0
+float4 MiddleQualityPixelShaderFunction(VS_OUTPUT input) : COLOR0
 {
+	float depth = tex2D(depthSampler, input.uv).r; // Single channel zbuffer texture
+	if (depth == 1)
+	{
+		Discard();
+	}
 	// Retrieve position in view space
-    float3 P = fetch_eye_pos(IN.texUV);
-
-	if (P.z > 0.95) // Ignore far geometry
-		return float4(1, 1, 1, 1);
+	float3 P = uv_to_eye(input.uv, depth);	
 
     // Project the radius of influence g_R from eye space to texture space.
     // The scaling by 0.5 is to go from [-1,1] to [0,1].
@@ -75,36 +77,35 @@ float4 MiddleQualityPixelShaderFunction(VS_OUTPUT IN) : COLOR0
 
     // Nearest neighbor pixels on the tangent plane
     float3 Pr, Pl, Pt, Pb;
-
-    // I don't use face normals and the cost to have them is very high. However, the results are good and the performance is slightly better.
-	float4 tangentPlane;
-	float3 N = SampleNormal(IN.texUV);
-	N.z = -N.z; // I'm not sure about this, but it works. I suppose that this happen because DirectX is left handed and XNA is not.
-	tangentPlane = float4(N, dot(P, N)); // In view space of course.
 	
-	//[branch]
-	//if (useNormals)
+	/*[branch]
+	if (useNormals)
 	{
-		Pr = tangent_eye_pos(IN.texUV + float2( invResolution.x, 0),                tangentPlane);
-		Pl = tangent_eye_pos(IN.texUV + float2(-invResolution.x, 0),                tangentPlane);
-		Pt = tangent_eye_pos(IN.texUV + float2(0,                invResolution.y),  tangentPlane);
-		Pb = tangent_eye_pos(IN.texUV + float2(0,               -invResolution.y),  tangentPlane);
+		float3 N = SampleNormal(input.uv);	
+		N.z = -N.z; // I'm not sure about this, but it works. I suppose that this happen because DirectX is left handed and XNA is not	
+		// I don't use face normals.
+		float4 tangentPlane = float4(N, dot(normalize(P), N)); // In view space of course.
+
+		Pr = tangent_eye_pos(input.uv + float2( invResolution.x, 0),                tangentPlane);
+		Pl = tangent_eye_pos(input.uv + float2(-invResolution.x, 0),                tangentPlane);
+		Pt = tangent_eye_pos(input.uv + float2(0,                invResolution.y),  tangentPlane);
+		Pb = tangent_eye_pos(input.uv + float2(0,               -invResolution.y),  tangentPlane);
 	}
-	/*else
+	else*/
 	{
 		// Doesn't use normals
-		Pr = fetch_eye_pos(IN.texUV + float2( invResolution.x,  0));
-		Pl = fetch_eye_pos(IN.texUV + float2(-invResolution.x,  0));
-		Pt = fetch_eye_pos(IN.texUV + float2(0,                 invResolution.y));
-		Pb = fetch_eye_pos(IN.texUV + float2(0,                -invResolution.y));
-    }*/
+		Pr = fetch_eye_pos(input.uv + float2( invResolution.x,  0));
+		Pl = fetch_eye_pos(input.uv + float2(-invResolution.x,  0));
+		Pt = fetch_eye_pos(input.uv + float2(0,                 invResolution.y));
+		Pb = fetch_eye_pos(input.uv + float2(0,                -invResolution.y));
+    }
 
     // Screen-aligned basis for the tangent plane
     float3 dPdu = min_diff(P, Pr, Pl);
     float3 dPdv = min_diff(P, Pt, Pb) * (resolution.y * invResolution.x);
 
     // (cos(alpha),sin(alpha),jitter)
-    float3 rand = tex2D(randomNormalSampler, IN.texUV * 200).rgb; // int2((int)IN.pos.x & 63, (int)IN.pos.y & 63)).rgb; This is new in shader model 4, imposible? to replicate in shader model 3.
+    float3 rand = tex2D(randomNormalSampler, input.uv * 200).rgb; // int2((int)IN.pos.x & 63, (int)IN.pos.y & 63)).rgb; This is new in shader model 4, imposible? to replicate in shader model 3.
 		
 	float ao = 0;
     float d;
@@ -116,7 +117,7 @@ float4 MiddleQualityPixelShaderFunction(VS_OUTPUT IN) : COLOR0
 		float angle = alpha * d;
 		float2 dir = float2(cos(angle), sin(angle));
 		float2 deltaUV = rotate_direction(dir, rand.xy) * step_size.xy;
-		ao += AccumulatedHorizonOcclusionMiddleQuality(deltaUV, IN.texUV, P, numSteps, rand.z, dPdu, dPdv);
+		ao += AccumulatedHorizonOcclusionMiddleQuality(deltaUV, input.uv, P, numSteps, rand.z, dPdu, dPdv);
 	}
 		
 	return float4(1.0 - ao / numberDirections * contrast, 1, 1, 1);

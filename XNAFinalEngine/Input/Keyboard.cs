@@ -1,19 +1,34 @@
 
 #region License
 /*
+Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+                         Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
- Based in the class Input.cs from RacingGame.
- License: Microsoft_Permissive_License
+•	Redistributions of source code must retain the above copyright, this list of conditions and the following disclaimer.
+
+•	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
+    in the documentation and/or other materials provided with the distribution.
+
+•	Neither the name of the Universidad Nacional del Sur nor the names of its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
-Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
+Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 */
 #endregion
 
 #region Using directives
-using System.Collections.Generic;
 using Microsoft.Xna.Framework.Input;
 #endregion
 
@@ -23,22 +38,16 @@ namespace XNAFinalEngine.Input
 	/// <summary>
 	/// Keyboard.
 	/// </summary>
-	public class Keyboard
+	public static class Keyboard
 	{
 
 		#region Variables
-        		
-		/// <summary>
-		/// The current keyboard state.
-		/// We can NOT use the last state because everytime we call Keyboard.GetState() the old state is useless (see XNA help for more information, section Input). 
-        /// We store our own array of keys from the last frame for comparing stuff.
-		/// </summary>
-		private static KeyboardState keyboardState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
-
-		/// <summary>
-		/// Keys pressed last frame, for comparison if a key was just pressed.
-		/// </summary>
-		private static List<Keys> keysPressedLastFrame = new List<Keys>();
+        
+		// The current keyboard state.
+		private static KeyboardState currentKeyboardState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
+        
+        // The previous keyboard state.
+        private static KeyboardState previousKeyboardState= Microsoft.Xna.Framework.Input.Keyboard.GetState();
 
 		#endregion
 
@@ -47,130 +56,84 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// The current keyboard state.
 		/// </summary>
-		public static KeyboardState KeyboardState
-		{
-			get { return keyboardState; }            
-        } // KeyboardState
+		public static KeyboardState CurrentKeyboardState { get { return currentKeyboardState; } }
 
         /// <summary>
-        /// Key just pressed
+        /// The previous keyboard state.
         /// </summary>
-        public static bool KeyJustPressed(Keys key)
-        {
-            return keyboardState.IsKeyDown(key) && keysPressedLastFrame.Contains(key) == false;
-        } // KeyJustPressed
+        public static KeyboardState PreviousKeyboardState { get { return previousKeyboardState; } }
 
         /// <summary>
-        /// Key pressed
+        /// Key just pressed.
         /// </summary>
-        public static bool KeyPressed(Keys key)
-        {
-            return keyboardState.IsKeyDown(key);
-        } // KeyPressed
+        public static bool KeyJustPressed(Keys key) { return currentKeyboardState.IsKeyDown(key) && !previousKeyboardState.IsKeyDown(key); }
+
+        /// <summary>
+        /// Key pressed.
+        /// </summary>
+        public static bool KeyPressed(Keys key) { return currentKeyboardState.IsKeyDown(key); }
 
         #region Pressed or Just Pressed
+        
+        /// <summary>
+        /// Space just pressed.
+        /// </summary>
+        public static bool SpaceJustPressed { get { return currentKeyboardState.IsKeyDown(Keys.Space) && !previousKeyboardState.IsKeyDown(Keys.Space); } }
 
         /// <summary>
-        /// Space just pressed
+        /// Enter just pressed.
         /// </summary>
-        public static bool SpaceJustPressed
-        {
-            get
-            {
-                return keyboardState.IsKeyDown(Keys.Space) && keysPressedLastFrame.Contains(Keys.Space) == false;
-            } // get
-        } // SpaceJustPressed
+        public static bool EnterJustPressed { get { return currentKeyboardState.IsKeyDown(Keys.Enter) && !previousKeyboardState.IsKeyDown(Keys.Enter); } }
 
         /// <summary>
-        /// Enter just pressed
+        /// Escape just pressed.
         /// </summary>
-        public static bool EnterJustPressed
-        {
-            get
-            {
-                return keyboardState.IsKeyDown(Keys.Enter) && keysPressedLastFrame.Contains(Keys.Enter) == false;
-            } // get
-        } // EnterJustPressed
-
-        /// <summary>
-        /// Escape just pressed
-        /// </summary>
-        public static bool EscapeJustPressed
-        {
-            get
-            {
-                return keyboardState.IsKeyDown(Keys.Escape) && keysPressedLastFrame.Contains(Keys.Escape) == false;
-            } // get
-        } // EscapeJustPressed
+        public static bool EscapeJustPressed { get { return currentKeyboardState.IsKeyDown(Keys.Escape) && !previousKeyboardState.IsKeyDown(Keys.Escape); } }
 
         #region Cursors
 
         /// <summary>
-        /// Left just pressed
+        /// Left just pressed.
         /// </summary>
-        public static bool LeftJustPressed
-        {
-            get
-            {
-                return keyboardState.IsKeyDown(Keys.Left) && keysPressedLastFrame.Contains(Keys.Left) == false;
-            } // get
-        } // LeftJustPressed
+        public static bool LeftJustPressed { get { return currentKeyboardState.IsKeyDown(Keys.Left) && !previousKeyboardState.IsKeyDown(Keys.Left); } }
 
         /// <summary>
         /// Right just pressed
         /// </summary>
-        public static bool RightJustPressed
-        {
-            get
-            {
-                return keyboardState.IsKeyDown(Keys.Right) && keysPressedLastFrame.Contains(Keys.Right) == false;
-            } // get
-        } // RightJustPressed
+        public static bool RightJustPressed { get { return currentKeyboardState.IsKeyDown(Keys.Right) && !previousKeyboardState.IsKeyDown(Keys.Right); } }
 
         /// <summary>
         /// Up just pressed
         /// </summary>
-        public static bool UpJustPressed
-        {
-            get
-            {
-                return keyboardState.IsKeyDown(Keys.Up) && keysPressedLastFrame.Contains(Keys.Up) == false;
-            } // get
-        } // UpJustPressed
+        public static bool UpJustPressed { get { return currentKeyboardState.IsKeyDown(Keys.Up) && !previousKeyboardState.IsKeyDown(Keys.Up); } }
 
         /// <summary>
         /// Down just pressed
         /// </summary>
-        public static bool DownJustPressed
-        {
-            get
-            {
-                return keyboardState.IsKeyDown(Keys.Down) && keysPressedLastFrame.Contains(Keys.Down) == false;
-            } // get
-        } // DownJustPressed
+        public static bool DownJustPressed { get { return currentKeyboardState.IsKeyDown(Keys.Down) && !previousKeyboardState.IsKeyDown(Keys.Down); } }
 
         /// <summary>
         /// Left pressed
         /// </summary>
-        public static bool LeftPressed { get { return keyboardState.IsKeyDown(Keys.Left); } }
+        public static bool LeftPressed { get { return currentKeyboardState.IsKeyDown(Keys.Left); } }
 
         /// <summary>
         /// Right pressed
         /// </summary>
-        public static bool RightPressed { get { return keyboardState.IsKeyDown(Keys.Right); } }
+        public static bool RightPressed { get { return currentKeyboardState.IsKeyDown(Keys.Right); } }
 
         /// <summary>
         /// Up pressed
         /// </summary>
-        public static bool UpPressed { get { return keyboardState.IsKeyDown(Keys.Up); } }
+        public static bool UpPressed { get { return currentKeyboardState.IsKeyDown(Keys.Up); } }
 
         /// <summary>
         /// Down pressed
         /// </summary>
-        public static bool DownPressed { get { return keyboardState.IsKeyDown(Keys.Down); } }
-
+        public static bool DownPressed { get { return currentKeyboardState.IsKeyDown(Keys.Down); } }
+        
         #endregion
-
+        
         #endregion
 
         #endregion
@@ -213,7 +176,6 @@ namespace XNAFinalEngine.Input
 		/// Key to string helper conversion method.
 		/// If the keys are mapped other than on a default QWERTY keyboard or non English distribution, this method will not work properly.
 		/// Most keyboards will return the same for A-Z and 0-9, but the special keys might be different.
-		/// For a game with chat (windows) you should implement the windows events for catching keyboard input, which are much better!
 		/// </summary>
         public static string KeyToString(Keys key, bool shift, bool caps)
         {
@@ -222,7 +184,10 @@ namespace XNAFinalEngine.Input
             int keyNum = (int) key;
             if (keyNum >= (int) Keys.A && keyNum <= (int) Keys.Z)
             {
-                return uppercase ? key.ToString() : key.ToString().ToLower();
+                if (uppercase) 
+                    return key.ToString();
+                else
+                    return key.ToString().ToLower();
             }
             switch (key)
             {
@@ -271,12 +236,12 @@ namespace XNAFinalEngine.Input
         #region Update
         
         /// <summary>
-		/// Update keyboard
+		/// Update keyboard.
 		/// </summary>
 		public static void Update()
 		{
-           	keysPressedLastFrame = new List<Keys>(keyboardState.GetPressedKeys());
-            keyboardState = Microsoft.Xna.Framework.Input.Keyboard.GetState();            
+            previousKeyboardState = currentKeyboardState;
+            currentKeyboardState = Microsoft.Xna.Framework.Input.Keyboard.GetState();            
 		} // Update
 		
         #endregion

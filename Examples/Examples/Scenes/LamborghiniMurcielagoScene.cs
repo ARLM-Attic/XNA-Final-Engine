@@ -30,13 +30,15 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
-using XNAFinalEngine.Input;
 using XNAFinalEngine.Scenes;
+using Keyboard = XNAFinalEngine.Input.Keyboard;
+
 #endregion
 
 namespace XNAFinalEngineExamples
@@ -62,7 +64,7 @@ namespace XNAFinalEngineExamples
                                     murcielagoRearLeftRimLogo, murcielagoRearLeftBrakeDisc, murcielagoRearLeftBrakeCaliper, murcielagoRearLeftTyre,
                                     murcielagoRearLeftTyre02, rearLeftRim,
                                     floor, floor2, floor3,
-                                    directionalLight, pointLight, pointLight2,
+                                    directionalLight, pointLight, pointLight2, pointLight3,
                                     camera, camera2;
 
         #endregion
@@ -91,22 +93,23 @@ namespace XNAFinalEngineExamples
                 FilmGrain = new FilmGrain { FilmgrainStrength = 0.2f }, // Don't overuse it. PLEASE!!!
                 Bloom = new Bloom(),
                 AdjustLevels = new AdjustLevels(),
-                MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Both, BlurRadius = 1f, ThresholdDepth = 0.2f, ThresholdColor = 0.2f }
+                MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Both, BlurRadius = 1f, ThresholdDepth = 0.2f, ThresholdColor = 0.2f },
+                LensExposure = 1.0f,
             };
             camera.Camera.AmbientLight = new AmbientLight { //SphericalHarmonicAmbientLight = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Showroom", false)),
                                                             //SphericalHarmonicAmbientLight = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
                                                             SphericalHarmonicAmbientLight = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
                                                             Color = new Color(30, 30, 30),
-                                                            Intensity = 1f,
+                                                            Intensity = 1.0f,
                                                             AmbientOcclusionStrength = 5};
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
-                Radius = 0.0002f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
-                LineAttenuation = 1.0f,
-                Contrast = 0.5f,
-                AngleBias = 10,
+                Radius = 0.00015f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                LineAttenuation = 0.5f,
+                Contrast = 0.9f,
+                AngleBias = 0.25f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 Resolution = AmbientOcclusion.AmbientOcclusionResolution.HalfSize,
             };
@@ -163,7 +166,7 @@ namespace XNAFinalEngineExamples
                                                     new BlinnPhong
                                                     {
                                                         DiffuseColor = new Color(20, 20, 20),
-                                                        AlphaBlending = 1.0f,
+                                                        AlphaBlending = 0.95f,
                                                         SpecularIntensity = 200,
                                                         SpecularPower = 5,
                                                         ReflectionTexture = new TextureCube("Showroom", false),
@@ -479,9 +482,9 @@ namespace XNAFinalEngineExamples
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.DiffuseColor = new Color(210, 200, 200);
-            directionalLight.DirectionalLight.Intensity = 1.4f;
+            directionalLight.DirectionalLight.Intensity = 2.5f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.5f, 0.5f), Vector3.Zero, Vector3.Forward);
-            /*
+            
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.DiffuseColor = new Color(250, 200, 180);
@@ -492,12 +495,20 @@ namespace XNAFinalEngineExamples
 
             pointLight2 = new GameObject3D();
             pointLight2.AddComponent<PointLight>();
-            pointLight2.PointLight.DiffuseColor = new Color(210, 250, 210);
-            pointLight2.PointLight.Intensity = 0.7f;
+            pointLight2.PointLight.DiffuseColor = new Color(70, 150, 255);
+            pointLight2.PointLight.Intensity = 0.5f;
             pointLight2.PointLight.Range = 100;
             pointLight2.PointLight.SpecularColor = Color.White;
-            pointLight.Transform.Position = new Vector3(15, 10, -20);
-            */
+            pointLight2.Transform.Position = new Vector3(45, 2, -2);
+
+            pointLight3 = new GameObject3D();
+            pointLight3.AddComponent<PointLight>();
+            pointLight3.PointLight.DiffuseColor = new Color(70, 250, 55);
+            pointLight3.PointLight.Intensity = 0.9f;
+            pointLight3.PointLight.Range = 100;
+            pointLight3.PointLight.SpecularColor = Color.White;
+            pointLight3.Transform.Position = new Vector3(0.1f, 5, -50);
+            
             #endregion
 
             GameLoop.ShowFramesPerSecond = true;
@@ -515,14 +526,18 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
-            if (Keyboard.LeftPressed)
+            if (Keyboard.KeyJustPressed(Keys.Left))
+                camera.Camera.AmbientLight.AmbientOcclusion.Enabled = !camera.Camera.AmbientLight.AmbientOcclusion.Enabled;
+            /*else
+                camera.Camera.AmbientLight.AmbientOcclusion.Enabled = true;*/
+            /*if (Keyboard.LeftPressed)
                 camera.Camera.AmbientLight.AmbientOcclusion.Enabled = false;
             else
                 camera.Camera.AmbientLight.AmbientOcclusion.Enabled = true;
             if (Keyboard.RightPressed)
                 camera.Camera.PostProcess.MLAA.Enabled = false;
             else
-                camera.Camera.PostProcess.MLAA.Enabled = true;
+                camera.Camera.PostProcess.MLAA.Enabled = true;*/
         } // UpdateTasks
 
         #endregion

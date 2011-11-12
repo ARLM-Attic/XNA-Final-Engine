@@ -33,6 +33,7 @@ This class was based in the work of Emma Burrows. That work doesn't have a licen
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.EngineCore;
 #endregion
 
@@ -110,18 +111,19 @@ namespace XNAFinalEngine.Input
             {
                 // If the key is disable or has a special function.
                 if (lParam.VkCode == 91 || lParam.VkCode == 92 ||  // Win
-                   //(lParam.Flags == 32 && lParam.VkCode == 13) ||  // Alt-Enter (old)
-                   (lParam.Flags == 28 && lParam.VkCode == 13) ||  // Alt-Enter (new)
+                    (lParam.VkCode == 13) ||  // Alt-Enter (does not work properly so I made a fix)
                     lParam.VkCode == 44) // Print Screen
                 {
-                    if (lParam.Flags == 28 && lParam.VkCode == 13)
-                    {
-                        Screen.ToggleFullscreen();
-                    }
                     if (lParam.VkCode == 44)
                     {
                         ScreenshotCapturer.MakeScreenshot = true;
                     }
+                    KeyboardState keyboardState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
+                    if (keyboardState.IsKeyDown(Keys.LeftAlt) || keyboardState.IsKeyDown(Keys.RightAlt))
+                    {
+                        Screen.ToggleFullscreen();
+                    }
+
                     // Store current parameter.
                     lastParameter = lParam;
                     return (IntPtr)1;

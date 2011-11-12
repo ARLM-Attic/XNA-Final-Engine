@@ -34,6 +34,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Input;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -400,7 +401,7 @@ namespace XNAFinalEngine.Graphics
                 // Color would be the better choice for the XBOX 360.
                 // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.
                 RenderTarget ambientOcclusionTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-
+                
                 // Set shader atributes
                 SetNormalTexture(normalTexture);
                 SetDepthTexture(depthTexture);
@@ -424,7 +425,7 @@ namespace XNAFinalEngine.Graphics
                 SetSquareRadius(hbao.AngleBias * hbao.AngleBias);
                 SetInverseRadius(1 / hbao.AngleBias);
                 SetTanAngleBias((float)Math.Tan(hbao.AngleBias));
-
+                
                 switch (hbao.Quality)
                 {
                     case HorizonBasedAmbientOcclusion.QualityType.LowQuality    : Resource.CurrentTechnique = Resource.Techniques["LowQuality"]; break;
@@ -445,7 +446,7 @@ namespace XNAFinalEngine.Graphics
                 RenderScreenPlane();
                 ambientOcclusionTexture.DisableRenderTarget();
 
-                BlurShader.Instance.Filter(ambientOcclusionTexture, true, 2);
+                BlurShader.Instance.Filter(ambientOcclusionTexture, true, 5);
                 return ambientOcclusionTexture;
             }
             catch (Exception e)

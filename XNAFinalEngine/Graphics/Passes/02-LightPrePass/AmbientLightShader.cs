@@ -51,6 +51,9 @@ namespace XNAFinalEngine.Graphics
         // Singleton reference.
         private static AmbientLightShader instance;
 
+        // It's an auxiliary structure that helps avoiding garbage.
+        private readonly Vector3[] coeficients = new Vector3[9];
+
         #endregion
 
         #region Properties
@@ -99,12 +102,16 @@ namespace XNAFinalEngine.Graphics
 
         #region Spherical Harmonic Base
 
-        private static Vector3[] lastUsedSphericalHarmonicBase;
+        private static readonly Vector3[] lastUsedSphericalHarmonicBase = new Vector3[9];
         private static void SetSphericalHarmonicBase(Vector3[] sphericalHarmonicBase)
         {
             if (!ArrayHelper.Equals(lastUsedSphericalHarmonicBase, sphericalHarmonicBase))
             {
-                lastUsedSphericalHarmonicBase = (Vector3[])(sphericalHarmonicBase.Clone());
+                //lastUsedSphericalHarmonicBase = (Vector3[])(sphericalHarmonicBase.Clone()); // Produces garbage
+                for (int i = 0; i < 9; i++)
+                {
+                    lastUsedSphericalHarmonicBase[i] = sphericalHarmonicBase[i];
+                }
                 epSphericalHarmonicBase.SetValue(sphericalHarmonicBase);
             }
         } // SetSphericalHarmonicBase
@@ -236,13 +243,14 @@ namespace XNAFinalEngine.Graphics
             {
 
                 #region Set Parameters
-
+                
                 SetHalfPixel(new Vector2(-1f / normalTexture.Width, 1f / normalTexture.Height));
                 SetNormalTexture(normalTexture);
-                SetSphericalHarmonicBase(ambientLight.SphericalHarmonicAmbientLight.Coeficients);
+                ambientLight.SphericalHarmonicAmbientLight.GetCoeficients(coeficients);
+                SetSphericalHarmonicBase(coeficients);
                 SetIntensity(ambientLight.Intensity);
                 SetViewInverseMatrix(Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix))));
-
+                
                 #endregion
 
                 if (ambientLight.AmbientOcclusion == null || !ambientLight.AmbientOcclusion.Enabled)

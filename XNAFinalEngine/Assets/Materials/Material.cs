@@ -42,8 +42,45 @@ namespace XNAFinalEngine.Assets
     public abstract class Material : Asset
     {
 
+        #region Variables
+
+        // Alpha Blending.
+        private float alphaBlending = 1.0f;
+
         // default material.
         private static Material defaultMaterial = new BlinnPhong { DiffuseColor = Color.Gray };
+
+        #endregion
+
+        #region Properties
+
+        #region Transparency
+
+        /// <summary>
+        /// Alpha Blending.
+        /// Default value: 1
+        /// </summary>
+        public float AlphaBlending
+        {
+            get { return alphaBlending; }
+            set
+            {
+                alphaBlending = value;
+                if (alphaBlending > 1)
+                    alphaBlending = 1;
+                else if (alphaBlending < 0)
+                    alphaBlending = 0;
+            }
+        } // AlphaBlending
+
+        /// <summary>
+        /// Render both sides.
+        /// I.e. it manages the culling mode.
+        /// Default value: false (CullCounterClockwise)
+        /// </summary>
+        public bool BothSides { get; set; }
+
+        #endregion
 
         /// <summary>
         /// Default Material.
@@ -58,6 +95,8 @@ namespace XNAFinalEngine.Assets
                 defaultMaterial = value;
             }
         } // DefaultMaterial
-        
+
+        #endregion
+
     } // Material
 } // XNAFinalEngine.Assets
