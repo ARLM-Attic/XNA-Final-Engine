@@ -54,9 +54,7 @@ namespace XNAFinalEngine.Input
         // Current mouse position.
         private static int positionX, positionY;
         
-		/// <summary>
-		/// Mouse wheel delta. XNA does report only the total scroll value, but we usually need the current delta!
-		/// </summary>
+		// Mouse wheel delta. XNA does report only the total scroll value, but we usually need the current delta!
 		private static int wheelDelta, wheelValue;
 
 		// Start dragging pos, will be set when we just pressed the left mouse button. Used for the MouseDraggingAmount property.
@@ -92,6 +90,8 @@ namespace XNAFinalEngine.Input
 	        {
 	            trackRelativeMovementMode = value;
                 Microsoft.Xna.Framework.Input.Mouse.SetPosition(Screen.Width / 2, Screen.Height / 2);
+                positionX = Screen.Width / 2;
+                positionY = Screen.Height / 2;
 	        }
 	    }
 
@@ -225,7 +225,7 @@ namespace XNAFinalEngine.Input
         #region Reset Mouse Dragging Amount
 
         /// <summary>
-		/// Reset mouse dragging amount
+		/// Reset mouse dragging amount.
 		/// </summary>
 		public static void ResetDraggingAmount()
 		{
@@ -237,7 +237,7 @@ namespace XNAFinalEngine.Input
         #region Mouse In Box
 
 	    /// <summary>
-	    /// Mouse in box
+	    /// Mouse in box.
 	    /// </summary>
 	    public static bool MouseInBox(Rectangle rectangle)
 		{
@@ -252,9 +252,9 @@ namespace XNAFinalEngine.Input
         #region Update
 
         /// <summary>
-		/// Update
+		/// Update.
 		/// </summary>
-		public static void Update()
+		internal static void Update()
 		{   
 			// Update mouse state.
             previousMouseState = currentMouseState;

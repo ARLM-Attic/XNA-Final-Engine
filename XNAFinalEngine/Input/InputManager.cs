@@ -29,6 +29,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.Input
@@ -40,7 +41,7 @@ namespace XNAFinalEngine.Input
 	internal class InputManager
     {   
 
-        #region KeyBoardHook
+        #region KeyBoard Hook
 
         #if (!XBOX)
             /// <summary>
@@ -73,25 +74,37 @@ namespace XNAFinalEngine.Input
 
         #endregion
 
-        #region Init Input Devices
+        #region Initialize
 
         /// <summary>
-        /// Init Input Devices. Only Wiimotes need special operations for initialization.
+        /// Initialize Input Devices.
         /// </summary>
         public static void Initialize()
         {
+            #if (!XBOX)
+                if (keyboardHook == null)
+                    keyboardHook = new KeyboardHook();
+            #endif
             //Wiimote.InitWiimotes();
         } // Initialize
 
         #endregion
 
-        #region Unload Input Devices
+        #region Unload
 
         /// <summary>
-        /// Unload Input Devices
+        /// Unload Input Devices.
         /// </summary>
         public static void UnloadInputDevices()
         {
+            #if (!XBOX)
+                if (keyboardHook != null)
+                    keyboardHook.Dispose();
+            #endif
+            /*Wiimote.PlayerOne.Disconnect();
+            Wiimote.PlayerTwo.Disconnect();
+            Wiimote.PlayerThree.Disconnect();
+            Wiimote.PlayerFour.Disconnect();*/
         } // UnloadInputDevices
 
         #endregion
@@ -99,20 +112,23 @@ namespace XNAFinalEngine.Input
         #region Update
 
         /// <summary>
-        /// Update, called from EngineManager.Update().
-		/// Will catch all new states for keyboard, mouse, gamepads, and Wiimotes.
+        ///  Will catch all new states for keyboard, mouse, gamepads, and Wiimotes.
 		/// </summary>
-		public static void Update()
+		internal static void Update()
 		{
-            //if (EngineManager.IsApplicationActive)
+            if (EngineManager.IsApplicationActive)
             {
-                /*XInputGamePad.XInputGamePadPlayerOne.Update();
-                XInputGamePad.XInputGamePadPlayerTwo.Update();
-                XInputGamePad.XInputGamePadPlayerThree.Update();
-                XInputGamePad.XInputGamePadPlayerFour.Update();*/
+                GamePad.PlayerOne.Update();
+                GamePad.PlayerTwo.Update();
+                GamePad.PlayerThree.Update();
+                GamePad.PlayerFour.Update();
                 #if (!XBOX)
                     Mouse.Update();
                     Keyboard.Update();
+                    /*Wiimote.PlayerOne.Update();
+                    Wiimote.PlayerTwo.Update();
+                    Wiimote.PlayerThree.Update();
+                    Wiimote.PlayerFour.Update();*/
                 #endif
             }
 		} // Update

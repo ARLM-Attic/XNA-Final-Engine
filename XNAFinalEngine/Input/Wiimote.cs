@@ -34,8 +34,10 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using WiimoteLib;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
+using Screen = XNAFinalEngine.EngineCore.Screen;
 #endregion
 
 namespace XNAFinalEngine.Input
@@ -51,40 +53,26 @@ namespace XNAFinalEngine.Input
 
         #region Variables
 
-        /// <summary>
-        /// The object of the class wiimoteLib that allow us to connect with the physical Wiimote.
-        /// </summary>
+        // The object of the class wiimoteLib that allow us to connect with the physical Wiimote.
         private WiimoteLib.Wiimote wiimote;
 
-        /// <summary>
-        /// The id number of the wiimote.
-        /// </summary>
+        // The id number of the wiimote.
         private readonly int playerIndex;
         
-        /// <summary>
-        /// Is the wiimote connected?
-        /// </summary>
+        // Is the wiimote connected?
         private bool isConnected;
         
-        /// <summary>
-		/// Wiimote state, set every frame in the Update method.
-		/// </summary>
-        private WiimoteState wiimoteState, wiimoteStateLastFrame;
-
-        /// <summary>
-        /// Chronometer used for the vibrations.
-        /// </summary>
+        // Wiimote state, set every frame in the Update method.
+		private WiimoteState wiimoteState, wiimoteStateLastFrame;
+        
+        // Chronometer used for the vibrations.
         private readonly Chronometer chronometer = new Chronometer();
-
-        /// <summary>
-        /// Duration of the current vibration.
-        /// </summary>
+        
+        // Duration of the current vibration.
         private double duration;
-
-        /// <summary>
-        /// Last position of the wiimote pointer.
-        /// </summary>
-        private PointF lastPosition = new PointF();
+        
+        // Last position of the wiimote pointer.
+        private PointF lastPosition;
 
 		#endregion
 
@@ -580,19 +568,19 @@ namespace XNAFinalEngine.Input
         {
             if (WiimoteIRSensor0Found)
             {
-                wiimoteSensorsTexture.RenderOnScreen(new Rectangle((int)(WiimoteIRSensor0Position.X * EngineManager.Width), (int)(WiimoteIRSensor0Position.Y * EngineManager.Height), 50, 50), new Rectangle(0, 0, 50, 50));
+                wiimoteSensorsTexture.RenderOnScreen(new Rectangle((int)(WiimoteIRSensor0Position.X * Screen.Width), (int)(WiimoteIRSensor0Position.Y * Screen.Height), 50, 50), new Rectangle(0, 0, 50, 50));
             }
             if (WiimoteIRSensor1Found)
             {
-                wiimoteSensorsTexture.RenderOnScreen(new Rectangle((int)(WiimoteIRSensor1Position.X * EngineManager.Width), (int)(WiimoteIRSensor1Position.Y * EngineManager.Height), 50, 50), new Rectangle(50, 0, 50, 50));
+                wiimoteSensorsTexture.RenderOnScreen(new Rectangle((int)(WiimoteIRSensor1Position.X * Screen.Width), (int)(WiimoteIRSensor1Position.Y * Screen.Height), 50, 50), new Rectangle(50, 0, 50, 50));
             }
             if (WiimoteIRSensor2Found)
             {
-                wiimoteSensorsTexture.RenderOnScreen(new Rectangle((int)(WiimoteIRSensor2Position.X * EngineManager.Width), (int)(WiimoteIRSensor2Position.Y * EngineManager.Height), 50, 50), new Rectangle(0, 50, 50, 50));
+                wiimoteSensorsTexture.RenderOnScreen(new Rectangle((int)(WiimoteIRSensor2Position.X * Screen.Width), (int)(WiimoteIRSensor2Position.Y * Screen.Height), 50, 50), new Rectangle(0, 50, 50, 50));
             }
             if (WiimoteIRSensor3Found)
             {
-                wiimoteSensorsTexture.RenderOnScreen(new Rectangle((int)(WiimoteIRSensor3Position.X * EngineManager.Width), (int)(WiimoteIRSensor3Position.Y * EngineManager.Height), 50, 50), new Rectangle(50, 50, 50, 50));
+                wiimoteSensorsTexture.RenderOnScreen(new Rectangle((int)(WiimoteIRSensor3Position.X * Screen.Width), (int)(WiimoteIRSensor3Position.Y * Screen.Height), 50, 50), new Rectangle(50, 50, 50, 50));
             }
         } // RenderSensors
 
@@ -615,7 +603,7 @@ namespace XNAFinalEngine.Input
         public Microsoft.Xna.Framework.Point CalculateSensorsMiddlePointScreenCoordinates()
         {   
             PointF wiimoteCursorPosition = CalculateSensorsMiddlePoint();
-            return new Microsoft.Xna.Framework.Point((int)(wiimoteCursorPosition.X * (float)(EngineManager.Width)), (int)(wiimoteCursorPosition.Y * (float)(EngineManager.Height)));
+            return new Microsoft.Xna.Framework.Point((int)(wiimoteCursorPosition.X * (float)(Screen.Width)), (int)(wiimoteCursorPosition.Y * (float)(Screen.Height)));
         }
 
         /// <summary>
@@ -751,7 +739,7 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// Texture used to represent the four IR lights in the engine.
         /// </summary>
-        private static Graphics.Texture wiimoteSensorsTexture;
+        private static Texture wiimoteSensorsTexture;
 
         #endregion
 
@@ -760,22 +748,22 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// Wiimote assigned to player one. 
         /// </summary>
-        public static Wiimote WiimotePlayerOne { get { return wiimotePlayerOne; } }
+        public static Wiimote PlayerOne { get { return wiimotePlayerOne; } }
 
         /// <summary>
         /// Wiimote assigned to player two. 
         /// </summary>
-        public static Wiimote WiimotePlayerTwo { get { return wiimotePlayerTwo; } }
+        public static Wiimote PlayerTwo { get { return wiimotePlayerTwo; } }
 
         /// <summary>
         /// Wiimote assigned to player three. 
         /// </summary>
-        public static Wiimote WiimotePlayerThree { get { return wiimotePlayerThree; } }
+        public static Wiimote PlayerThree { get { return wiimotePlayerThree; } }
 
         /// <summary>
         /// Wiimote assigned to player four. 
         /// </summary>
-        public static Wiimote WiimotePlayerFour { get { return wiimotePlayerFour; } }
+        public static Wiimote PlayerFour { get { return wiimotePlayerFour; } }
 
         #endregion
 
@@ -788,9 +776,8 @@ namespace XNAFinalEngine.Input
         {
             try
             {
-                WiimoteCollection wiimoteCollection;
                 // Find all wiimotes connected to the system
-                wiimoteCollection = new WiimoteCollection();
+                WiimoteCollection wiimoteCollection = new WiimoteCollection();
                 wiimoteCollection.FindAllWiimotes();
 
                 // For each Wiimote founded
@@ -820,13 +807,13 @@ namespace XNAFinalEngine.Input
                     }
                 }
             }
-            catch (Exception)
+            catch
             {
                 // If it can't connect to any Wiimote we do nothing.
                 // All problems with connections need to be address outside the application.
             }
             // Creates the texture
-            wiimoteSensorsTexture = new XNAFinalEngine.Graphics.Texture("WiimoteSensors");
+            wiimoteSensorsTexture = new Texture("WiimoteSensors");
         } // Wiimote
 
         #endregion

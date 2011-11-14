@@ -73,7 +73,7 @@ VS_OUT vs_main(in float4 position : POSITION, in float2 uv : TEXCOORD)
 	
 	output.position = position;
 	output.position.xy += halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
-	output.uv = uv; 
+	output.uv = uv;
 	
 	return output;
 }

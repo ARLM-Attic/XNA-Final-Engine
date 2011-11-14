@@ -56,12 +56,14 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// The current keyboard state.
 		/// </summary>
-		public static KeyboardState CurrentKeyboardState { get { return currentKeyboardState; } }
+		public static KeyboardState KeyboardState { get { return currentKeyboardState; } }
 
         /// <summary>
         /// The previous keyboard state.
         /// </summary>
         public static KeyboardState PreviousKeyboardState { get { return previousKeyboardState; } }
+
+        #region Pressed or Just Pressed
 
         /// <summary>
         /// Key just pressed.
@@ -72,8 +74,6 @@ namespace XNAFinalEngine.Input
         /// Key pressed.
         /// </summary>
         public static bool KeyPressed(Keys key) { return currentKeyboardState.IsKeyDown(key); }
-
-        #region Pressed or Just Pressed
         
         /// <summary>
         /// Space just pressed.
@@ -238,7 +238,7 @@ namespace XNAFinalEngine.Input
         /// <summary>
 		/// Update keyboard.
 		/// </summary>
-		public static void Update()
+		internal static void Update()
 		{
             previousKeyboardState = currentKeyboardState;
             currentKeyboardState = Microsoft.Xna.Framework.Input.Keyboard.GetState();            

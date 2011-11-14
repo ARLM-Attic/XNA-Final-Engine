@@ -92,7 +92,6 @@ namespace XNAFinalEngine.EngineCore
             SpriteManager.Init();
             // Input
             InputManager.Initialize();
-            InputManager.EnableKeyboardHook();
 
             #region FPS
 
@@ -602,7 +601,8 @@ namespace XNAFinalEngine.EngineCore
 
         internal static void UnloadContent()
         {
-            InputManager.DisableKeyboardHook();
+            // Disable wiimote and keyboard hook.
+            InputManager.UnloadInputDevices();
         } // UnloadContent
 
         #endregion
