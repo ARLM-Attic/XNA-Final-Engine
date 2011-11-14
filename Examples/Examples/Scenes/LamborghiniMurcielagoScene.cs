@@ -528,16 +528,8 @@ namespace XNAFinalEngineExamples
         {
             if (Keyboard.KeyJustPressed(Keys.Left))
                 camera.Camera.AmbientLight.AmbientOcclusion.Enabled = !camera.Camera.AmbientLight.AmbientOcclusion.Enabled;
-            /*else
-                camera.Camera.AmbientLight.AmbientOcclusion.Enabled = true;*/
-            /*if (Keyboard.LeftPressed)
-                camera.Camera.AmbientLight.AmbientOcclusion.Enabled = false;
-            else
-                camera.Camera.AmbientLight.AmbientOcclusion.Enabled = true;
-            if (Keyboard.RightPressed)
-                camera.Camera.PostProcess.MLAA.Enabled = false;
-            else
-                camera.Camera.PostProcess.MLAA.Enabled = true;*/
+            if (Keyboard.RightJustPressed)
+                camera.Camera.PostProcess.MLAA.Enabled = !camera.Camera.PostProcess.MLAA.Enabled;
         } // UpdateTasks
 
         #endregion

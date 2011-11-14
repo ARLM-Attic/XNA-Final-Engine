@@ -1347,12 +1347,6 @@
       <Processor>TextureProcessor</Processor>
       <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
-    <Compile Include="Textures\CubeTextures\FactoryCatwalkRGBM.dds">
-      <Name>FactoryCatwalkRGBM</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
     <Compile Include="Textures\CubeTextures\Colors.dds">
       <Name>Colors</Name>
       <Importer>TextureImporter</Importer>
