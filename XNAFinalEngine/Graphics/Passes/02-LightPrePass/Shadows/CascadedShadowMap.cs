@@ -404,6 +404,7 @@ namespace XNAFinalEngine.Graphics
         // To avoid garbage use always the same values.
         private static readonly Vector3[] cornersWorldSpace = new Vector3[8];
         private static readonly Vector3[] frustumCornersLightSpace = new Vector3[8];
+        private static readonly Vector3[] splitFrustumCornersViewSpace = new Vector3[8];
         private static readonly BoundingFrustum boundingFrustumTemp = new BoundingFrustum(Matrix.Identity);
 
         /// <summary>
@@ -411,54 +412,83 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         internal void SetLight(Vector3 direction, Matrix viewMatrix, Matrix projectionMatrix, float nearPlane, float farPlane, Vector3[] boundingFrustum)
         {
-            #region Far Frustum Corner in View Space
+            // Calculate the cascade splits. 
+            // We calculate these so that each successive split is larger than the previous, giving the closest split the most amount of shadow detail.  
+            const float fNumberSplits = numberSplits;
+            float fNearPlane = nearPlane, 
+                  fFarPlane = farPlane;
+            const float splitConstant = 0.97f;
 
-            boundingFrustumTemp.Matrix = viewMatrix * projectionMatrix;
-            boundingFrustumTemp.GetCorners(cornersWorldSpace);
-            Vector3 frustumCornersViewSpace4 = Vector3.Transform(cornersWorldSpace[4], viewMatrix);
-            Vector3 frustumCornersViewSpace5 = Vector3.Transform(cornersWorldSpace[5], viewMatrix);
-
-            #endregion
-
-            // Find the centroid
-            Vector3 frustumCentroid = new Vector3(0, 0, 0);
-            for (int i = 0; i < 8; i++)
-                frustumCentroid += cornersWorldSpace[i];
-            frustumCentroid /= 8;
-
-            // Position the shadow-caster camera so that it's looking at the centroid, and backed up in the direction of the sunlight
-            float distFromCentroid = MathHelper.Max((farPlane - nearPlane), Vector3.Distance(frustumCornersViewSpace4, frustumCornersViewSpace5)) + 50.0f;
-            lightViewMatrix = Matrix.CreateLookAt(frustumCentroid - (direction * distFromCentroid), frustumCentroid, new Vector3(0, 1, 0));
-
-            // Determine the position of the frustum corners in light space
-            Vector3.Transform(cornersWorldSpace, ref lightViewMatrix, frustumCornersLightSpace);
-
-            // Calculate an orthographic projection by sizing a bounding box to the frustum coordinates in light space
-            Vector3 mins = frustumCornersLightSpace[0];
-            Vector3 maxes = frustumCornersLightSpace[0];
-            for (int i = 0; i < 8; i++)
+            // First and last split.
+            splitDepths[0] = fNearPlane;
+            splitDepths[numberSplits] = fFarPlane;
+            // The middle splits.
+            for (int i = 1; i < splitDepths.Length - 1; i++)
             {
-                if (frustumCornersLightSpace[i].X > maxes.X)
-                    maxes.X = frustumCornersLightSpace[i].X;
-                else if (frustumCornersLightSpace[i].X < mins.X)
-                    mins.X = frustumCornersLightSpace[i].X;
-                if (frustumCornersLightSpace[i].Y > maxes.Y)
-                    maxes.Y = frustumCornersLightSpace[i].Y;
-                else if (frustumCornersLightSpace[i].Y < mins.Y)
-                    mins.Y = frustumCornersLightSpace[i].Y;
-                if (frustumCornersLightSpace[i].Z > maxes.Z)
-                    maxes.Z = frustumCornersLightSpace[i].Z;
-                else if (frustumCornersLightSpace[i].Z < mins.Z)
-                    mins.Z = frustumCornersLightSpace[i].Z;
+                splitDepths[i] = splitConstant  *   fNearPlane * (float)Math.Pow(fFarPlane / fNearPlane, i / fNumberSplits) +
+                                 (1.0f - splitConstant) * ((fNearPlane + (i / fNumberSplits)) * (fFarPlane - fNearPlane));
             }
 
-            // Create an orthographic camera for use as a shadow caster
-            const float nearClipOffset = 100.0f;
-            lightProjectionMatrix = Matrix.CreateOrthographicOffCenter(mins.X, maxes.X, mins.Y, maxes.Y, -maxes.Z - nearClipOffset, -mins.Z);
+            // Create the different view and projection matrices for each split.
+            for (int splitNumber = 0; splitNumber < numberSplits; splitNumber++)
+            {
+                float minimumDepth = splitDepths[splitNumber];
+                float maximumDepth = splitDepths[splitNumber + 1];
 
-            SetViewToLightViewProjMatrix(viewMatrix * lightViewMatrix * lightProjectionMatrix);
-            SetFrustumCorners(boundingFrustum);
+                #region Far Frustum Corner in View Space
 
+                boundingFrustumTemp.Matrix = viewMatrix * projectionMatrix;
+                boundingFrustumTemp.GetCorners(cornersWorldSpace);
+                Vector3 frustumCornersViewSpace4 = Vector3.Transform(cornersWorldSpace[4], viewMatrix);
+                Vector3 frustumCornersViewSpace5 = Vector3.Transform(cornersWorldSpace[5], viewMatrix);
+                Vector3.Transform(cornersWorldSpace, ref viewMatrix, frustumCornersLightSpace);
+
+                for (int i = 0; i < 4; i++)
+                    splitFrustumCornersViewSpace[i] = frustumCornersLightSpace[i + 4] * (minimumDepth / fFarPlane);
+
+                for (int i = 4; i < 8; i++)
+                    splitFrustumCornersViewSpace[i] = frustumCornersLightSpace[i] * (maximumDepth / farPlane);
+
+                Matrix viewInvert = Matrix.Invert(viewMatrix);
+                Vector3.Transform(splitFrustumCornersViewSpace, ref viewInvert, cornersWorldSpace);
+                
+                #endregion
+
+                // Find the centroid
+                Vector3 frustumCentroid = new Vector3(0, 0, 0);
+                for (int i = 0; i < 8; i++)
+                    frustumCentroid += cornersWorldSpace[i];
+                frustumCentroid /= 8;
+
+                // Position the shadow-caster camera so that it's looking at the centroid, and backed up in the direction of the sunlight
+                float distFromCentroid = MathHelper.Max((maximumDepth - minimumDepth), Vector3.Distance(splitFrustumCornersViewSpace[4], splitFrustumCornersViewSpace[5])) + 50.0f;
+                lightViewMatrix[splitNumber] = Matrix.CreateLookAt(frustumCentroid - (direction * distFromCentroid), frustumCentroid, new Vector3(0, 1, 0));
+
+                // Determine the position of the frustum corners in light space
+                Vector3.Transform(cornersWorldSpace, ref lightViewMatrix[splitNumber], frustumCornersLightSpace);
+
+                // Calculate an orthographic projection by sizing a bounding box to the frustum coordinates in light space
+                Vector3 mins = frustumCornersLightSpace[0];
+                Vector3 maxes = frustumCornersLightSpace[0];
+                for (int i = 0; i < 8; i++)
+                {
+                    if (frustumCornersLightSpace[i].X > maxes.X)
+                        maxes.X = frustumCornersLightSpace[i].X;
+                    else if (frustumCornersLightSpace[i].X < mins.X)
+                        mins.X = frustumCornersLightSpace[i].X;
+                    if (frustumCornersLightSpace[i].Y > maxes.Y)
+                        maxes.Y = frustumCornersLightSpace[i].Y;
+                    else if (frustumCornersLightSpace[i].Y < mins.Y)
+                        mins.Y = frustumCornersLightSpace[i].Y;
+                    if (frustumCornersLightSpace[i].Z > maxes.Z)
+                        maxes.Z = frustumCornersLightSpace[i].Z;
+                    else if (frustumCornersLightSpace[i].Z < mins.Z)
+                        mins.Z = frustumCornersLightSpace[i].Z;
+                }
+                // Create an orthographic camera for use as a shadow caster
+                const float nearClipOffset = 100.0f;
+                lightProjectionMatrix[splitNumber] = Matrix.CreateOrthographicOffCenter(mins.X, maxes.X, mins.Y, maxes.Y, -maxes.Z - nearClipOffset, -mins.Z);
+            }
             // We'll use these clip planes to determine which split a pixel belongs to
             for (int i = 0; i < numberSplits; i++)
             {
@@ -480,125 +510,6 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform)
         {
-            SetWorldViewProjMatrix(worldMatrix * lightViewMatrix[splitNumber] * lightProjectionMatrix[splitNumber]);
-            Resource.CurrentTechnique.Passes[0].Apply();
-            model.Render();
-
-        } // RenderModel
-
-        #endregion
-        
-        #region Calculate Light Matrices
-
-        /// <summary>
-		/// Calculate light matrices
-		/// </summary>
-		private void CalculateLightMatrices()
-		{
-            // Calculate the cascade splits. 
-            // We calculate these so that each successive split is larger than the previous, giving the closest split the most amount of shadow detail.  
-            const float fNumberSplits = numberSplits;
-            float fNearPlane = nearPlane, fFarPlane = farPlane;
-            const float splitConstant = 0.97f;
-
-            // First and last split.
-            splitDepths[0] = fNearPlane;
-            splitDepths[numberSplits] = fFarPlane;
-            // The middle splits.
-            for (int i = 1; i < splitDepths.Length - 1; i++)
-            {
-                splitDepths[i] =         splitConstant  *   fNearPlane * (float)Math.Pow(fFarPlane / fNearPlane, i / fNumberSplits) +
-                                    (1.0f - splitConstant) * ((fNearPlane + (i / fNumberSplits)) * (fFarPlane - fNearPlane));
-            }
-
-            // Create the different view and projection matrices for each split.
-            for (int i = 0; i < numberSplits; i++)
-            {
-                float minimumDepth = splitDepths[i];
-                float maximumDepth = splitDepths[i + 1];
-                CalculateLightMatricesDirectionalLight((DirectionalLight)Light, minimumDepth, maximumDepth, i);
-            }
-		} // CalculateLightMatrices
-
-	    /// <summary>
-        ///  Determines the size of the frustum needed to cover the viewable area, then creates the light view matrix and an appropriate orthographic projection.
-	    /// </summary>
-	    /// <param name="light">The directional light to use</param>
-	    /// <param name="minZ">Minimum depth.</param>
-	    /// <param name="maxZ">Maximum depth</param>
-	    /// <param name="splitNumber">The split number.</param>
-	    private void CalculateLightMatricesDirectionalLight(DirectionalLight light, float minZ, float maxZ, int splitNumber)
-        {
-            Vector3[] frustumCornersVS = new Vector3[8];
-            Vector3[] frustumCornersWS = new Vector3[8];
-            Vector3[] frustumCornersLS = new Vector3[8];
-            Vector3[] splitFrustumCornersVS = new Vector3[8];
-
-            Matrix viewMatrix = ApplicationLogic.Camera.ViewMatrix;
-            BoundingFrustum boundingFrustum = new BoundingFrustum(ApplicationLogic.Camera.ViewMatrix * ApplicationLogic.Camera.ProjectionMatrix);
-            boundingFrustum.GetCorners(frustumCornersWS);
-            Vector3.Transform(frustumCornersWS, ref viewMatrix, frustumCornersVS);
-            
-            for (int i = 0; i < 4; i++)
-                splitFrustumCornersVS[i] = frustumCornersVS[i + 4] * (minZ / ApplicationLogic.Camera.FarPlane);
-
-            for (int i = 4; i < 8; i++)
-                splitFrustumCornersVS[i] = frustumCornersVS[i] * (maxZ / ApplicationLogic.Camera.FarPlane);
-
-            Matrix viewInvert = Matrix.Invert(ApplicationLogic.Camera.ViewMatrix);
-            Vector3.Transform(splitFrustumCornersVS, ref viewInvert, frustumCornersWS);
-
-            // Find the centroid
-            Vector3 frustumCentroid = new Vector3(0, 0, 0);
-            for (int i = 0; i < 8; i++)
-                frustumCentroid += frustumCornersWS[i];
-            frustumCentroid /= 8;
-
-            // Position the shadow-caster camera so that it's looking at the centroid, and backed up in the direction of the sunlight
-            float distFromCentroid = MathHelper.Max((maxZ - minZ), Vector3.Distance(splitFrustumCornersVS[4], splitFrustumCornersVS[5])) + 50.0f;
-            lightViewMatrix[splitNumber] = Matrix.CreateLookAt(frustumCentroid - (light.Direction * distFromCentroid), frustumCentroid, new Vector3(0, 1, 0));
-            
-            // Determine the position of the frustum corners in light space
-            Vector3.Transform(frustumCornersWS, ref lightViewMatrix[splitNumber], frustumCornersLS);
-
-            // Calculate an orthographic projection by sizing a bounding box to the frustum coordinates in light space
-            Vector3 mins = frustumCornersLS[0];
-            Vector3 maxes = frustumCornersLS[0];
-            for (int i = 0; i < 8; i++)
-            {
-                if (frustumCornersLS[i].X > maxes.X)
-                    maxes.X = frustumCornersLS[i].X;
-                else if (frustumCornersLS[i].X < mins.X)
-                    mins.X = frustumCornersLS[i].X;
-                if (frustumCornersLS[i].Y > maxes.Y)
-                    maxes.Y = frustumCornersLS[i].Y;
-                else if (frustumCornersLS[i].Y < mins.Y)
-                    mins.Y = frustumCornersLS[i].Y;
-                if (frustumCornersLS[i].Z > maxes.Z)
-                    maxes.Z = frustumCornersLS[i].Z;
-                else if (frustumCornersLS[i].Z < mins.Z)
-                    mins.Z = frustumCornersLS[i].Z;
-            }
-
-            // Create an orthographic camera for use as a shadow caster
-            const float nearClipOffset = 100.0f;
-            lightProjectionMatrix[splitNumber] = Matrix.CreateOrthographicOffCenter(mins.X, maxes.X, mins.Y, maxes.Y, -maxes.Z - nearClipOffset, -mins.Z);
-        } // CalculateLightMatricesDirectionalLight
-        
-		#endregion
-
-        #region Generate Shadow Map
-
-		/// <summary>
-        /// Generate Light Depth Buffer.
-		/// </summary>
-        private void GenerateShadowMap(List<Object> objectsToRender)
-		{
-			shadowMapTexture.EnableRenderTarget();
-			shadowMapTexture.Clear(Color.White);
-            
-			Effect.CurrentTechnique = Effect.Techniques["GenerateShadowMap"];
-
             for (int i = 0; i < numberSplits; i++)
             {
                 // Set the viewport for the current split.
@@ -612,16 +523,13 @@ namespace XNAFinalEngine.Graphics
                     Height = shadowMapTexture.Height
                 };
                 EngineManager.Device.Viewport = splitViewport;
-                foreach (var objectToRender in objectsToRender)
-                {
-                    RenderObjects(objectToRender, i);
-                }
+                SetWorldViewProjMatrix(worldMatrix * lightViewMatrix[i] * lightProjectionMatrix[i]);
+                Resource.CurrentTechnique.Passes[0].Apply();
+                model.Render();
             }
+        } // RenderModel
 
-			shadowMapTexture.DisableRenderTarget();
-		} // GenerateShadowMap
-
-		#endregion
-
+        #endregion    
+        
     } // CascadedShadowMapShader
 } // XNAFinalEngine.Graphics

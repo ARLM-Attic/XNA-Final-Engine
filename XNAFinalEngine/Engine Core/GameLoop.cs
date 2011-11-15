@@ -318,9 +318,7 @@ namespace XNAFinalEngine.EngineCore
             SpriteManager.End();
 
             #endregion
-
             
-
             #region Screenshot);
 
             if (ScreenshotCapturer.MakeScreenshot)
@@ -478,19 +476,19 @@ namespace XNAFinalEngine.EngineCore
 
             #region Shadow Maps
 
-            BasicShadowMapShader.Instance.Begin(Size.Square1024X1024, Size.FullScreen, gbufferTextures.RenderTargets[0], 0.0025f, Shadow.FilterType.PCF5x5);
-            BasicShadowMapShader.Instance.SetLight(DirectionalLight.ComponentPool.Elements[0].cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
-                                                   currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace);
+            CascadedShadowMapShader.Instance.Begin(Size.Square1024X1024, Size.FullScreen, gbufferTextures.RenderTargets[0], 0.005f, Shadow.FilterType.PCF7x7);
+            CascadedShadowMapShader.Instance.SetLight(DirectionalLight.ComponentPool.Elements[0].cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
+                                                      currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace);
             // Render all the opaque objects);
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
             {
                 ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
                 if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                 {
-                    BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                    CascadedShadowMapShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
                 }
             }
-            deferredShadowMap = BasicShadowMapShader.Instance.End();
+            deferredShadowMap = CascadedShadowMapShader.Instance.End();
             RenderTarget.Release(deferredShadowMap);
 
             #endregion
