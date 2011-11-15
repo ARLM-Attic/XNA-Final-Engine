@@ -120,16 +120,17 @@ namespace XNAFinalEngine.Graphics
                 // If I set the sampler states here and no texture is set then this could produce exceptions 
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
                 
-                #if (WINDOWS)
+                //#if (WINDOWS)
                     lightTexture = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
                     lightTexture.EnableRenderTarget();
-                #else
-                    Xbox360SpecularLightTexture = new RenderTarget(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-                    renderTargetBinding = RenderTarget.BindRenderTargets(LightTexture, Xbox360SpecularLightTexture);
-                    RenderTarget.EnableRenderTargets(renderTargetBinding);
-                #endif
-                
-                RenderTarget.ClearCurrentRenderTargets(new Color(ambientLightColor.R, ambientLightColor.G, ambientLightColor.B, 0));
+                    /*#else
+                        // HdrBlendable on Xbox is a 1010102 format when in EDRAM, but expands to HalfVector4 when resolved into a system memory texture.
+                        // Twice the size = twice the bandwidth = twice the time for a simple copy operation such as EDRAM resolve.
+                        renderTargetBinding = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.None, SurfaceFormat.HdrBlendable);
+                        RenderTarget.EnableRenderTargets(renderTargetBinding);
+                    #endif*/
+
+                    RenderTarget.ClearCurrentRenderTargets(new Color(ambientLightColor.R, ambientLightColor.G, ambientLightColor.B, 0));
             } // try
             catch (Exception e)
             {

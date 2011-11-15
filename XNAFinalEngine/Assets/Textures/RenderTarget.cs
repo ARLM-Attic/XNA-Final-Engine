@@ -561,6 +561,37 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Fetch a multiple render target.
         /// </summary>
+        public static RenderTargetBinding Fetch(Size size, SurfaceFormat surfaceFormat1, DepthFormat depthFormat, SurfaceFormat surfaceFormat2)
+        {
+            RenderTargetBinding renderTargetBinding;
+            for (int i = 0; i < multipleRenderTargets.Count; i++)
+            {
+                renderTargetBinding = multipleRenderTargets[i];
+                // If is a multiple render target of three render targets.
+                if (renderTargetBinding.RenderTargets.Length == 2)
+                {
+                    if (renderTargetBinding.RenderTargets[0].Size == size && renderTargetBinding.RenderTargets[0].SurfaceFormat == surfaceFormat1 &&
+                        renderTargetBinding.RenderTargets[0].DepthFormat == depthFormat &&
+                        renderTargetBinding.RenderTargets[1].SurfaceFormat == surfaceFormat2 &&
+                        !renderTargetBinding.RenderTargets[0].looked)
+                    {
+                        renderTargetBinding.RenderTargets[0].looked = true;
+                        return renderTargetBinding;
+                    }
+                }
+            }
+            // If there is not one unlook or present we create one.
+            RenderTarget renderTarget1 = new RenderTarget(size, surfaceFormat1, depthFormat, AntialiasingType.NoAntialiasing);
+            RenderTarget renderTarget2 = new RenderTarget(size, surfaceFormat2, false, AntialiasingType.NoAntialiasing);
+            renderTargetBinding = BindRenderTargets(renderTarget1, renderTarget2);
+            multipleRenderTargets.Add(renderTargetBinding);
+            renderTargetBinding.RenderTargets[0].looked = true;
+            return renderTargetBinding;
+        } // Fetch
+
+        /// <summary>
+        /// Fetch a multiple render target.
+        /// </summary>
         public static RenderTargetBinding Fetch(Size size, SurfaceFormat surfaceFormat1, DepthFormat depthFormat, SurfaceFormat surfaceFormat2, SurfaceFormat surfaceFormat3)
         {
             RenderTargetBinding renderTargetBinding;

@@ -28,7 +28,7 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
 	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
 	float depth = tex2D(depthSampler, uv).r;
 
-	if (depth > 0.99)
+	if (depth == 1)
 		return float4(1, 1, 1, 1);
 
 	float3 positionVS = frustumRay * depth; // To convert this position into world space it only needs to add the camera position (in the pixel shader), and the frustumray multiply by the camera orientation (in the vertex shader).

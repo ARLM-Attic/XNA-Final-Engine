@@ -45,16 +45,15 @@ float2 FilterTaps[10] =
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture shadowMap : RENDERCOLORTARGET;
-
-sampler shadowMapSampler = sampler_state
+texture shadowMap : register(t3);
+sampler shadowMapSampler : register(s3) = sampler_state
 {
 	Texture = <shadowMap>;
-	AddressU  = CLAMP;
+	/*AddressU  = CLAMP;
 	AddressV  = CLAMP;
 	MinFilter = Point;
 	MagFilter = Point;
-	MipFilter = None;
+	MipFilter = None;*/
 };
 
 //////////////////////////////////////////////

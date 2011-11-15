@@ -366,6 +366,7 @@ namespace XNAFinalEngine.EngineCore
             RenderTarget halfDepthTexture = null;
             RenderTarget quarterNormalTexture = null;
             RenderTarget quarterDepthTexture = null;
+            RenderTarget deferredShadowMap = null;
 
             // Calculate view space bounding frustum.
             currentCamera.BoundingFrustum(cornersViewSpace);
@@ -435,7 +436,9 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Light Pre Pass
-            
+
+            #region Ambient Occlusion
+
             if (currentCamera.AmbientLight.AmbientOcclusion != null && currentCamera.AmbientLight.AmbientOcclusion.Enabled)
             {
                 RenderTarget aoDepthTexture, aoNormalTexture;
@@ -470,7 +473,28 @@ namespace XNAFinalEngine.EngineCore
                                                                                                 currentCamera.FieldOfView);
                 }
             }
-            
+
+            #endregion
+
+            #region Shadow Maps
+
+            BasicShadowMapShader.Instance.Begin(Size.Square1024X1024, Size.FullScreen, gbufferTextures.RenderTargets[0], 0.0025f, Shadow.FilterType.PCF5x5);
+            BasicShadowMapShader.Instance.SetLight(DirectionalLight.ComponentPool.Elements[0].cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
+                                                   currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace);
+            // Render all the opaque objects);
+            for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+            {
+                ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                {
+                    BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                }
+            }
+            deferredShadowMap = BasicShadowMapShader.Instance.End();
+            RenderTarget.Release(deferredShadowMap);
+
+            #endregion
+
             LightPrePass.Begin(destinationSize, currentCamera.AmbientLight.Color);
             
             // Render ambient light for every camera.
@@ -588,10 +612,10 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            return postProcessedSceneTexture;
-            //RenderTarget.Release(postProcessedSceneTexture);
+            //return postProcessedSceneTexture;
+            RenderTarget.Release(postProcessedSceneTexture);
             //return gbufferTextures.RenderTargets[1];
-            //return lightTexture;
+            return deferredShadowMap;
             //return ambientOcclusionTexture;
         } // RenderCamera
 

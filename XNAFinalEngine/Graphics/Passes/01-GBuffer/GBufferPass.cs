@@ -113,7 +113,7 @@ namespace XNAFinalEngine.Graphics
             {
                 throw new InvalidOperationException("GBuffer: Unable to end the rendering.", e);
             }
-        } // Begin
+        } // End
 
         #endregion
 

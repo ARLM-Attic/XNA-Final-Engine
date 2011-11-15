@@ -84,6 +84,7 @@ namespace XNAFinalEngineExamples
             camera.AddComponent<Camera>();
             camera.Camera.Renderer = Camera.RenderingType.DeferredLighting;
             camera.Camera.RenderTargetSize = Size.FullScreen;
+            camera.Camera.FarPlane = 100;
             ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
             script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
@@ -111,7 +112,7 @@ namespace XNAFinalEngineExamples
                 Contrast = 0.9f,
                 AngleBias = 0.25f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
-                Resolution = AmbientOcclusion.AmbientOcclusionResolution.HalfSize,
+                Resolution = AmbientOcclusion.AmbientOcclusionResolution.QuarterSize,
             };
             /*camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
             {

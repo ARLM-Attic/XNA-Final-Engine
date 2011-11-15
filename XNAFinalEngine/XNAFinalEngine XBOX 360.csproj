@@ -70,6 +70,7 @@
     <Compile Include="Assets\PostProcess\MLAA.cs" />
     <Compile Include="Assets\PostProcess\PostProcess.cs" />
     <Compile Include="Assets\Shaders\Shader.cs" />
+    <Compile Include="Assets\Shadows\Shadow.cs" />
     <Compile Include="Assets\Textures\LookupTable.cs" />
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />
@@ -117,6 +118,8 @@
     <Compile Include="Graphics\Passes\02-LightPrePass\DirectionalLightShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\LightPrePass.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\PointLightShader.cs" />
+    <Compile Include="Graphics\Passes\02-LightPrePass\Shadows\BasicShadowMapShader.cs" />
+    <Compile Include="Graphics\Passes\02-LightPrePass\Shadows\CascadedShadowMap.cs" />
     <Compile Include="Graphics\Passes\03-ScenePass\ScenePass.cs" />
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\BlinnPhongShader.cs" />
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\CarPaintShader.cs" />
