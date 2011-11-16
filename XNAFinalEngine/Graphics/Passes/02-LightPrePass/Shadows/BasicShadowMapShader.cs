@@ -341,8 +341,8 @@ namespace XNAFinalEngine.Graphics
                 RenderScreenPlane();
                 deferredShadowResult.DisableRenderTarget();
                 
-                /*RenderTarget.Release(deferredShadowResult);
-                return shadowMapTexture;*/
+                //RenderTarget.Release(deferredShadowResult);
+                //return shadowMapTexture;
 
                 RenderTarget.Release(shadowMapTexture);
                 return deferredShadowResult;
@@ -427,7 +427,7 @@ namespace XNAFinalEngine.Graphics
             const float nearClipOffset = 100.0f;
             lightProjectionMatrix = Matrix.CreateOrthographicOffCenter(mins.X, maxes.X, mins.Y, maxes.Y, -maxes.Z - nearClipOffset, -mins.Z);
 
-            SetViewToLightViewProjMatrix(viewMatrix * lightViewMatrix * lightProjectionMatrix);
+            SetViewToLightViewProjMatrix(Matrix.Invert(viewMatrix) * lightViewMatrix * lightProjectionMatrix);
             SetFrustumCorners(boundingFrustum);
         } // SetLight
 

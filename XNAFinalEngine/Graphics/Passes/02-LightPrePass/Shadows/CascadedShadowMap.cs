@@ -385,8 +385,8 @@ namespace XNAFinalEngine.Graphics
                 RenderScreenPlane();
                 deferredShadowResult.DisableRenderTarget();
 
-                /*RenderTarget.Release(deferredShadowResult);
-                return shadowMapTexture;*/
+                //RenderTarget.Release(deferredShadowResult);
+                //return shadowMapTexture;
 
                 RenderTarget.Release(shadowMapTexture);
                 return deferredShadowResult;
@@ -439,8 +439,6 @@ namespace XNAFinalEngine.Graphics
 
                 boundingFrustumTemp.Matrix = viewMatrix * projectionMatrix;
                 boundingFrustumTemp.GetCorners(cornersWorldSpace);
-                Vector3 frustumCornersViewSpace4 = Vector3.Transform(cornersWorldSpace[4], viewMatrix);
-                Vector3 frustumCornersViewSpace5 = Vector3.Transform(cornersWorldSpace[5], viewMatrix);
                 Vector3.Transform(cornersWorldSpace, ref viewMatrix, frustumCornersLightSpace);
 
                 for (int i = 0; i < 4; i++)

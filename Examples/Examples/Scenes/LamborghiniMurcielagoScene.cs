@@ -103,7 +103,7 @@ namespace XNAFinalEngineExamples
                                                             Color = new Color(30, 30, 30),
                                                             Intensity = 1.0f,
                                                             AmbientOcclusionStrength = 5};
-            camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
+            /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
@@ -113,7 +113,7 @@ namespace XNAFinalEngineExamples
                 AngleBias = 0.25f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 Resolution = AmbientOcclusion.AmbientOcclusionResolution.QuarterSize,
-            };
+            };*/
             /*camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
             {
                 NumberSteps = 12,
@@ -527,8 +527,8 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
-            if (Keyboard.KeyJustPressed(Keys.Left))
-                camera.Camera.AmbientLight.AmbientOcclusion.Enabled = !camera.Camera.AmbientLight.AmbientOcclusion.Enabled;
+            /*if (Keyboard.KeyJustPressed(Keys.Left))
+                camera.Camera.AmbientLight.AmbientOcclusion.Enabled = !camera.Camera.AmbientLight.AmbientOcclusion.Enabled;*/
             if (Keyboard.RightJustPressed)
                 camera.Camera.PostProcess.MLAA.Enabled = !camera.Camera.PostProcess.MLAA.Enabled;
         } // UpdateTasks

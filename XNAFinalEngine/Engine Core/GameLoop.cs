@@ -476,7 +476,7 @@ namespace XNAFinalEngine.EngineCore
 
             #region Shadow Maps
 
-            CascadedShadowMapShader.Instance.Begin(Size.Square1024X1024, Size.FullScreen, gbufferTextures.RenderTargets[0], 0.005f, Shadow.FilterType.PCF7x7);
+            CascadedShadowMapShader.Instance.Begin(Size.Square1024X1024, Size.FullScreen, gbufferTextures.RenderTargets[0], 0.003f, Shadow.FilterType.PCF7x7);
             CascadedShadowMapShader.Instance.SetLight(DirectionalLight.ComponentPool.Elements[0].cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
                                                       currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace);
             // Render all the opaque objects);
