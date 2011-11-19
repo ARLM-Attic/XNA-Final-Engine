@@ -353,6 +353,9 @@ namespace XNAFinalEngine.EngineCore
 
         private static RenderTarget RenderCamera(Camera currentCamera)
         {
+
+            #region Buffers Declarations
+
             // This is here to allow the rendering of these render targets for testing.
             RenderTarget.RenderTargetBinding gbufferTextures = new RenderTarget.RenderTargetBinding();
             RenderTarget lightTexture = null;
@@ -363,6 +366,8 @@ namespace XNAFinalEngine.EngineCore
             RenderTarget halfDepthTexture = null;
             RenderTarget quarterNormalTexture = null;
             RenderTarget quarterDepthTexture = null;
+
+            #endregion
 
             // Calculate view space bounding frustum.
             currentCamera.BoundingFrustum(cornersViewSpace);
@@ -394,8 +399,6 @@ namespace XNAFinalEngine.EngineCore
             }
             gbufferTextures = GBufferPass.End();
 
-            #endregion
-            
             #region DownSample GBuffer
 
             halfDepthTexture = DepthDownsamplerShader.Instance.Render(gbufferTextures.RenderTargets[0]);
@@ -431,6 +434,8 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            #endregion
+            
             #region Light Pre Pass
 
             #region Ambient Occlusion
@@ -438,12 +443,12 @@ namespace XNAFinalEngine.EngineCore
             if (currentCamera.AmbientLight.AmbientOcclusion != null && currentCamera.AmbientLight.AmbientOcclusion.Enabled)
             {
                 RenderTarget aoDepthTexture, aoNormalTexture;
-                if (currentCamera.AmbientLight.AmbientOcclusion.Resolution == AmbientOcclusion.AmbientOcclusionResolution.FullSize)
+                if (currentCamera.AmbientLight.AmbientOcclusion.TextureSize == Size.TextureSize.FullSize)
                 {
                     aoDepthTexture = gbufferTextures.RenderTargets[0];
                     aoNormalTexture = gbufferTextures.RenderTargets[1];
                 }
-                else if (currentCamera.AmbientLight.AmbientOcclusion.Resolution == AmbientOcclusion.AmbientOcclusionResolution.HalfSize)
+                else if (currentCamera.AmbientLight.AmbientOcclusion.TextureSize == Size.TextureSize.HalfSize)
                 {
                     aoDepthTexture = halfDepthTexture;
                     aoNormalTexture = halfNormalTexture;
@@ -480,11 +485,19 @@ namespace XNAFinalEngine.EngineCore
                 // If there is a shadow map...
                 if (currentDirectionalLight.Shadow != null && currentDirectionalLight.Shadow.Enabled)
                 {
+                    RenderTarget shadowDepthTexture;
+                    if (currentDirectionalLight.Shadow.TextureSize == Size.TextureSize.FullSize)
+                        shadowDepthTexture = gbufferTextures.RenderTargets[0];
+                    else if (currentDirectionalLight.Shadow.TextureSize == Size.TextureSize.HalfSize)
+                        shadowDepthTexture = halfDepthTexture;
+                    else
+                        shadowDepthTexture = quarterDepthTexture;
+
                     // If the shadow map is a cascaded shadow map...
                     if (currentDirectionalLight.Shadow is CascadedShadow)
                     {
                         CascadedShadow shadow = (CascadedShadow)currentDirectionalLight.Shadow;
-                        CascadedShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, Size.FullScreen, gbufferTextures.RenderTargets[0], shadow.DepthBias, shadow.Filter);
+                        CascadedShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, shadowDepthTexture, shadow.DepthBias, shadow.Filter);
                         CascadedShadowMapShader.Instance.SetLight(currentDirectionalLight.cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
                                                                   currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace);
                         // Render all the opaque objects...
@@ -504,6 +517,8 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
+
+            #region Light Texture
 
             LightPrePass.Begin(destinationSize, currentCamera.AmbientLight.Color);
             
@@ -548,6 +563,8 @@ namespace XNAFinalEngine.EngineCore
             // Render spot lights for every camera.
 
             lightTexture = LightPrePass.End();
+
+            #endregion
 
             #endregion
 
@@ -627,8 +644,6 @@ namespace XNAFinalEngine.EngineCore
             return postProcessedSceneTexture;
             //RenderTarget.Release(postProcessedSceneTexture);
             //return gbufferTextures.RenderTargets[1];
-            //return deferredShadowMap;
-            //return ambientOcclusionTexture;
         } // RenderCamera
 
         #endregion

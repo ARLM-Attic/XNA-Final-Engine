@@ -28,6 +28,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
+using XNAFinalEngine.Helpers;
+
 namespace XNAFinalEngine.Assets
 {
     /// <summary>
@@ -38,24 +40,13 @@ namespace XNAFinalEngine.Assets
     public abstract class AmbientOcclusion
     {
 
-        #region Enumerates
-
-        public enum AmbientOcclusionResolution
-        {
-            QuarterSize,
-            HalfSize,
-            FullSize,
-        } // Resolution
-
-        #endregion
-
         #region Variables
 
         // Is it enabled?
         private bool enabled = true;
 
         // Ambient occlusion resolution, relative to the camera's render target.
-        private AmbientOcclusionResolution resolution = AmbientOcclusionResolution.QuarterSize;
+        private Size.TextureSize textureSize = Size.TextureSize.QuarterSize;
 
         #endregion
 
@@ -76,11 +67,11 @@ namespace XNAFinalEngine.Assets
         /// So there is no need to use a render target of the same dimension as the frame buffer.
         /// Normally a half resolution buffer produces very good results and if the performance is critical you could use a quarter size buffer.
         /// </summary>
-        public AmbientOcclusionResolution Resolution
+        public Size.TextureSize TextureSize
         {
-            get { return resolution; }
-            set { resolution = value; }
-        } // Resolution
+            get { return textureSize; }
+            set { textureSize = value; }
+        } // TextureSize
 
         #endregion
 

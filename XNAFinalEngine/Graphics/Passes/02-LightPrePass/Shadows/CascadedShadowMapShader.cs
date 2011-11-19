@@ -314,7 +314,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the G-Buffer render.
         /// </summary>
-        internal void Begin(Size lightDepthTextureSize, Size shadowResultSize, RenderTarget depthTexture, float depthBias, Shadow.FilterType filterType)
+        internal void Begin(Size lightDepthTextureSize, RenderTarget depthTexture, float depthBias, Shadow.FilterType filterType)
         {
             try
             {
@@ -324,7 +324,7 @@ namespace XNAFinalEngine.Graphics
                 // XBOX 360 Xbox does not support 16 bit render targets (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
                 // Color would be the better choice for the XBOX 360.
                 // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.
-                shadowTexture = RenderTarget.Fetch(shadowResultSize, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                shadowTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
 
                 // Set Render States.
                 EngineManager.Device.BlendState = BlendState.Opaque;
@@ -334,7 +334,7 @@ namespace XNAFinalEngine.Graphics
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
 
                 // Set parameters.
-                SetHalfPixel(new Vector2(-1f / shadowResultSize.Width, 1f / shadowResultSize.Height));
+                SetHalfPixel(new Vector2(-1f / depthTexture.Width, 1f / depthTexture.Height));
                 SetShadowMapTexelSize(new Vector2(lightDepthTexture.Width, lightDepthTexture.Height));
                 SetDepthBias(depthBias);
                 SetDepthTexture(depthTexture);
@@ -386,6 +386,7 @@ namespace XNAFinalEngine.Graphics
                 shadowTexture.DisableRenderTarget();
 
                 RenderTarget.Release(lightDepthTexture);
+                BlurShader.Instance.Filter(shadowTexture, true, 1);
                 return shadowTexture;
             }
             catch (Exception e)

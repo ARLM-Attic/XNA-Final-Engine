@@ -112,7 +112,7 @@ namespace XNAFinalEngineExamples
                 Contrast = 0.9f,
                 AngleBias = 0.25f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
-                Resolution = AmbientOcclusion.AmbientOcclusionResolution.QuarterSize,
+                TextureSize = Size.TextureSize.QuarterSize,
             };
             /*camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
             {
@@ -485,8 +485,13 @@ namespace XNAFinalEngineExamples
             directionalLight.DirectionalLight.DiffuseColor = new Color(210, 200, 200);
             directionalLight.DirectionalLight.Intensity = 1.7f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.5f, 0.5f), Vector3.Zero, Vector3.Forward);
-            directionalLight.DirectionalLight.Shadow = new CascadedShadow();
-            
+            directionalLight.DirectionalLight.Shadow = new CascadedShadow
+            {
+                Filter = Shadow.FilterType.PCF3x3,
+                LightDepthTextureSize = Size.Square512X512,
+                TextureSize = Size.TextureSize.HalfSize
+            };
+
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.DiffuseColor = new Color(250, 200, 180);

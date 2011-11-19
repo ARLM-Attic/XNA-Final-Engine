@@ -32,7 +32,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.UserInterface;
-
 #endregion
 
 namespace XNAFinalEngineExamples

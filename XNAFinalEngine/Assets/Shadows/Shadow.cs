@@ -63,6 +63,7 @@ namespace XNAFinalEngine.Assets
         private Size lightDepthTextureSize = Size.Square1024X1024;
         private FilterType filter = FilterType.PCF5x5;
         private float depthBias = 0.0025f;
+        private Size.TextureSize textureSize = Size.TextureSize.HalfSize;
 
         // Is it enabled?
         private bool enabled = true;
@@ -123,6 +124,16 @@ namespace XNAFinalEngine.Assets
 	            lightDepthTextureSize = value;
 	        }
         } // ShadowMapSize
+
+	    /// <summary>
+        /// Shadow Texture Size.
+        /// This is a low frequency result therefore you don’t have to use a full screen size buffer.
+	    /// </summary>
+	    public Size.TextureSize TextureSize
+	    {
+	        get { return textureSize; }
+	        set { textureSize = value; }
+        } // TextureSize
 
 	    #endregion
 

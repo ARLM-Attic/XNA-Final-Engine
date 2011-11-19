@@ -40,7 +40,21 @@ namespace XNAFinalEngine.Helpers
     /// Stores an ordered pair of integers, which specify a Height and Width.
     /// </summary>
     public struct Size
-    {        
+    {
+
+        #region Enumerates
+
+        /// <summary>
+        /// Some effect works in different sizes but relative to the screen size.
+        /// </summary>
+        public enum TextureSize
+        {
+            QuarterSize,
+            HalfSize,
+            FullSize,
+        } // TextureSize
+
+        #endregion
 
         #region Variables
 
