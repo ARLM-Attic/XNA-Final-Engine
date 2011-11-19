@@ -385,6 +385,7 @@ namespace XNAFinalEngine.Input
         {
             playerIndex = _playerIndex;
             gamePadState = Microsoft.Xna.Framework.Input.GamePad.GetState(playerIndex);
+            DeadZone = GamePadDeadZone.IndependentAxes;
         } // GamePad
 
         #endregion

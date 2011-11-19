@@ -32,9 +32,11 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Mouse = XNAFinalEngine.Input.Mouse;
+using GamePad = XNAFinalEngine.Input.GamePad;
 #endregion
 
 namespace XNAFinalEngine.Components
@@ -50,6 +52,20 @@ namespace XNAFinalEngine.Components
     public sealed class ScriptEditorCamera : Script
     {
 
+        #region Enumerates
+
+        /// <summary>
+        /// This specified the key binding.
+        /// </summary>
+        public enum ModeType
+        {
+            Softimage,
+            Maya,
+            NoManipulationKey,
+        } // ModeType
+
+        #endregion
+
         #region Constants
 
         /// <summary>
@@ -64,10 +80,14 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Flags to register the S key functionality.
         /// If the S key is pressed the camera is in manipulation mode.
-        /// If the s key is just pressed, the camera enter in manipulation mode until the space or escape key is pressed.
+        /// If the S key is just pressed, the camera enter in manipulation mode until the space or escape key is pressed or the S key is pressed again.
         /// </summary>
         private bool sJustPressed,
-                     sMode;
+                     manipulationMode;
+        private float sJustPressedTime;
+
+        // Default values.
+        private ModeType mode = ModeType.NoManipulationKey;
                 
         #endregion
 
@@ -87,18 +107,39 @@ namespace XNAFinalEngine.Components
         /// Yaw.
         /// Controlled with the mouse Y movement.
         /// </summary> 
-        private float Pitch { get; set; }
+        public float Pitch { get; set; }
 
         /// <summary>
         /// Pitch.
         /// Controlled with the mouse X movement.
         /// </summary>
-        private float Yaw { get; set; }
+        public float Yaw { get; set; }
 
         /// <summary>
         /// Roll.
         /// </summary>
-        private float Roll { get; set; }
+        public float Roll { get; set; }
+        
+        /// <summary>
+        /// This specified the key binding.
+        /// Softimage: S key to activate manipulation mode. 
+        ///            Left mouse button: translate the camera in the view plane.
+        ///            Right mouse button: rotate the camera using the look at position as a pivot.
+        /// Maya:      Alt to activate manipuation mode.
+        ///            Left mouse button: rotate the camera using the look at position as a pivot.
+        ///            Middle mouse button: translate the camera in the view plane.
+        /// No manipulation key: it uses the Softimage binding.
+        /// </summary>
+        public ModeType Mode
+        {
+            get { return mode; }
+            set
+            {
+                mode = value;
+                sJustPressed = false;
+                manipulationMode = false;
+            }
+        } // Mode
 
         #endregion
 
@@ -145,80 +186,139 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public override void Update()
         {
-            //if (UserInterface.UserInterfaceManager.FocusedControl == null) // TODO Acordate de sacar el comentario
+            //if (UserInterface.UserInterfaceManager.FocusedControl == null) // TODO
             {
-
-                #region Is in S mode or not?
-
-                if (sMode)
+                if (mode == ModeType.Softimage || mode == ModeType.NoManipulationKey)
                 {
-                    //if (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed)
-                    if (Keyboard.KeyJustPressed(Keys.Escape) || Keyboard.KeyJustPressed(Keys.Space))
+                    #region Softimage mode
+
+                    #region Is it in manipulation mode?
+                    
+                    if (manipulationMode)
                     {
-                        sMode = false;
+                        // To exit the manipulation mode.
+                        if (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed)
+                        {
+                            manipulationMode = false;
+                        }
                     }
-                }
-                else
-                {
+                    // To enter or exit the manipulation mode using the s key.
                     if (Keyboard.KeyJustPressed(Keys.S))
                     {
                         sJustPressed = true;
+                        sJustPressedTime = Time.ApplicationTime;
                     }
                     else
                     {
-                        if (sJustPressed)
+                        if (sJustPressed && !Keyboard.KeyPressed(Keys.S))
                         {
-                            sJustPressed = false; // TODO!! Pasarla a tiempo, pero para eso debo implementar el tiempo.
-                            if (!(Keyboard.KeyPressed(Keys.S)))
-                            {
-                                sMode = true;
-                            }
+                            sJustPressed = false;
+                            if (Time.ApplicationTime - sJustPressedTime < 0.3f)
+                                manipulationMode = !manipulationMode;
                         }
                     }
+
+                    #endregion
+
+                    #region Keyboard
+
+                    if (manipulationMode || Keyboard.KeyPressed(Keys.S) || mode == ModeType.NoManipulationKey)
+                    {
+                        // Translation
+                        if (Mouse.LeftButtonPressed)
+                        {
+                            LookAtPosition -= ((GameObject3D)Owner).Transform.Right * Mouse.XMovement * Distance / 2000;
+                            LookAtPosition += ((GameObject3D)Owner).Transform.Up    * Mouse.YMovement * Distance / 2000;
+                        }
+                        // Orientation
+                        if (Mouse.RightButtonPressed)
+                        {
+                            Yaw   += Mouse.XMovement * 0.005f;
+                            Pitch += Mouse.YMovement * 0.005f;
+                        }
+                        // Zoom
+                        if (Mouse.MiddleButtonPressed)
+                        {
+                            Distance -= (-Mouse.XMovement + Mouse.YMovement) * Distance / 1300; // The minus is because I'm a little perfectionist.
+                        }
+                    }
+                    // Zoom
+                    Distance -= Mouse.WheelDelta * Distance / 1300;
+
+                    #endregion
+
+                    #endregion
                 }
+                else
+                {
+                    #region Maya mode
+
+                    if (Keyboard.KeyPressed(Keys.LeftAlt) || Keyboard.KeyPressed(Keys.RightAlt))
+                    {
+                        // Translation
+                        if (Mouse.MiddleButtonPressed)
+                        {
+                            LookAtPosition -= ((GameObject3D)Owner).Transform.Right * Mouse.XMovement * Distance / 2000;
+                            LookAtPosition += ((GameObject3D)Owner).Transform.Up * Mouse.YMovement * Distance / 2000;
+                        }
+                        // Orientation
+                        if (Mouse.LeftButtonPressed)
+                        {
+                            Yaw += Mouse.XMovement * 0.005f;
+                            Pitch += Mouse.YMovement * 0.005f;
+                        }
+                        if (Mouse.RightButtonPressed)
+                        {
+                            // Distance or zoom
+                            Distance -= (Mouse.XMovement + Mouse.YMovement) * Distance / 1300;
+                        }
+                    }
+                    // Distance or zoom
+                    Distance -= Mouse.WheelDelta * Distance / 1300; // 1300 is an arbitrary number.
+                    
+                    #endregion
+                }
+
+                #region Gamepad
+
+                LookAtPosition -= ((GameObject3D)Owner).Transform.Right * -GamePad.PlayerOne.LeftStickXMovement * Distance / 1000;
+                LookAtPosition += ((GameObject3D)Owner).Transform.Up * GamePad.PlayerOne.LeftStickYMovement * Distance / 1000;
+                // Orientation
+                Yaw -= GamePad.PlayerOne.RightStickXMovement * 0.008f;
+                Pitch += GamePad.PlayerOne.RightStickYMovement * 0.008f;
+                // Distance or zoom
+                Distance -= (GamePad.PlayerOne.RightTriggerMovement - GamePad.PlayerOne.LeftTriggerMovement) * Distance / 300;
 
                 #endregion
-
-                if (sMode || Keyboard.KeyPressed(Keys.S))
-                {
-                    // Translation
-                    if (Mouse.LeftButtonPressed)
-                    {
-                        LookAtPosition -= ((GameObject3D)Owner).Transform.Right * Mouse.XMovement * Distance / 2000;
-                        LookAtPosition += ((GameObject3D)Owner).Transform.Up    * Mouse.YMovement * Distance / 2000;
-                    }
-                    // Orientation
-                    if (Mouse.RightButtonPressed)
-                    {
-                        Yaw   += Mouse.XMovement * 0.005f;
-                        Pitch += Mouse.YMovement * 0.005f;
-
-                        // Orientation bounds
-                        if (Yaw >= twoPi)
-                        {
-                            Yaw -= twoPi;
-                        }
-                        if (Yaw < 0)
-                        {
-                            Yaw += twoPi;
-                        }
-                        if (Pitch >= twoPi)
-                        {
-                            Pitch -= twoPi;
-                        }
-                        if (Pitch < 0)
-                        {
-                            Pitch += twoPi;
-                        }
-                    }
-                }
-                // Distance or zoom
-                Distance -= Mouse.WheelDelta * Distance / 1300;
-                if (Distance > ((GameObject3D)Owner).Camera.FarPlane)
-                    Distance = ((GameObject3D)Owner).Camera.FarPlane;
-                if (Distance < ((GameObject3D)Owner).Camera.NearPlane)
-                    Distance = ((GameObject3D)Owner).Camera.NearPlane;
             }
+
+            #region Bounds
+
+            // Orientation bounds
+            if (Yaw >= twoPi)
+            {
+                Yaw -= twoPi;
+            }
+            if (Yaw < 0)
+            {
+                Yaw += twoPi;
+            }
+            if (Pitch >= twoPi)
+            {
+                Pitch -= twoPi;
+            }
+            if (Pitch < 0)
+            {
+                Pitch += twoPi;
+            }
+            // Distance bounds.
+            if (Distance > ((GameObject3D)Owner).Camera.FarPlane)
+                Distance = ((GameObject3D)Owner).Camera.FarPlane;
+            if (Distance < ((GameObject3D)Owner).Camera.NearPlane)
+                Distance = ((GameObject3D)Owner).Camera.NearPlane;
+
+            #endregion
+
             // Calculate Rotation //
             Quaternion rotation = Quaternion.Identity;
             rotation *= Quaternion.CreateFromYawPitchRoll(0, Pitch, 0);
