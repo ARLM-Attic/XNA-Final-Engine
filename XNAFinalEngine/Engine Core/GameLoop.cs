@@ -30,7 +30,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Components;
@@ -364,7 +363,6 @@ namespace XNAFinalEngine.EngineCore
             RenderTarget halfDepthTexture = null;
             RenderTarget quarterNormalTexture = null;
             RenderTarget quarterDepthTexture = null;
-            RenderTarget deferredShadowMap = null;
 
             // Calculate view space bounding frustum.
             currentCamera.BoundingFrustum(cornersViewSpace);
@@ -476,20 +474,34 @@ namespace XNAFinalEngine.EngineCore
 
             #region Shadow Maps
 
-            CascadedShadowMapShader.Instance.Begin(Size.Square1024X1024, Size.FullScreen, gbufferTextures.RenderTargets[0], 0.003f, Shadow.FilterType.PCF7x7);
-            CascadedShadowMapShader.Instance.SetLight(DirectionalLight.ComponentPool.Elements[0].cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
-                                                      currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace);
-            // Render all the opaque objects);
-            for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+            for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
-                ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
+                // If there is a shadow map...
+                if (currentDirectionalLight.Shadow != null && currentDirectionalLight.Shadow.Enabled)
                 {
-                    CascadedShadowMapShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                    // If the shadow map is a cascaded shadow map...
+                    if (currentDirectionalLight.Shadow is CascadedShadow)
+                    {
+                        CascadedShadow shadow = (CascadedShadow)currentDirectionalLight.Shadow;
+                        CascadedShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, Size.FullScreen, gbufferTextures.RenderTargets[0], shadow.DepthBias, shadow.Filter);
+                        CascadedShadowMapShader.Instance.SetLight(currentDirectionalLight.cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
+                                                                  currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace);
+                        // Render all the opaque objects...
+                        for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
+                        {
+                            ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                            if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                            {
+                                CascadedShadowMapShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                            }
+                        }
+                        currentDirectionalLight.ShadowTexture = CascadedShadowMapShader.Instance.End();
+                    }
                 }
+                else
+                    currentDirectionalLight.ShadowTexture = null;
             }
-            deferredShadowMap = CascadedShadowMapShader.Instance.End();
-            RenderTarget.Release(deferredShadowMap);
 
             #endregion
 
@@ -514,7 +526,9 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
                 DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
-                DirectionalLightShader.Instance.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity);
+                DirectionalLightShader.Instance.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity, currentDirectionalLight.ShadowTexture);
+                if (currentDirectionalLight.ShadowTexture != null)
+                    RenderTarget.Release(currentDirectionalLight.ShadowTexture);
             }
             
             // Render point lights for every camera.
@@ -541,7 +555,7 @@ namespace XNAFinalEngine.EngineCore
 
             ScenePass.Begin(destinationSize, currentCamera.ClearColor);
 
-            // Render all the opaque objects);
+            // Render all the opaque objects...
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
             {
                 ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
@@ -610,10 +624,10 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            //return postProcessedSceneTexture;
-            RenderTarget.Release(postProcessedSceneTexture);
+            return postProcessedSceneTexture;
+            //RenderTarget.Release(postProcessedSceneTexture);
             //return gbufferTextures.RenderTargets[1];
-            return deferredShadowMap;
+            //return deferredShadowMap;
             //return ambientOcclusionTexture;
         } // RenderCamera
 

@@ -28,12 +28,15 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
+using System;
+using XNAFinalEngine.Helpers;
+
 namespace XNAFinalEngine.Assets
 {
 	/// <summary>
 	/// Shadows.
 	/// </summary>
-    public class Shadow : Asset
+    public abstract class Shadow : Asset
 	{
 
         #region Enumerates
@@ -52,52 +55,43 @@ namespace XNAFinalEngine.Assets
             PCFPosion
         } // FilterType
 
-        /// <summary>
-        /// Shadow Map Type.
-        /// </summary>
-        public enum ShadowType
-        {
-            /// <summary>
-            /// Cascaded shadow map.
-            /// </summary>
-            Cascaded,
-            /// <summary>
-            /// Basic shadow map.
-            /// </summary>
-            Simple,
-        } // ShadowType
-
         #endregion
 
 		#region Variables
-
-        // The count of materials for naming purposes.
-        private static int nameNumber = 1;
-
-        /// <summary>
-        /// Depth Bias
-        /// </summary>
+        
+        // Default values.
+        private Size lightDepthTextureSize = Size.Square1024X1024;
+        private FilterType filter = FilterType.PCF5x5;
         private float depthBias = 0.0025f;
+
+        // Is it enabled?
+        private bool enabled = true;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Filter type.
-        /// There are four PCF standard filters and one with poison distribution.
-        /// In the future it can be expected a variance and exponential filters.
+        /// Is it enabled?
         /// </summary>
-        public FilterType Filter { get; set; }
+        public bool Enabled
+        {
+            get { return enabled; }
+            set { enabled = value; }
+        } // Enabled
 
         /// <summary>
         /// Filter type.
         /// There are four PCF standard filters and one with poison distribution.
         /// In the future it can be expected a variance and exponential filters.
         /// </summary>
-        public ShadowType Type { get; set; }
+        public FilterType Filter
+	    {
+	        get { return filter; }
+	        set { filter = value; }
+	    } // Filter
 
-        /// <summary>
+	    /// <summary>
         /// Depth Bias (value between 0 to 0.1)
         /// </summary>
         public float DepthBias
@@ -112,18 +106,25 @@ namespace XNAFinalEngine.Assets
                     depthBias = 0.1f;
             }
         } // DepthBias
+        
+        /// <summary>
+        /// Light depth texture size.
+        /// This is a temporal render target but its size is important. 
+        /// Greater size equals better results but the performance penalty is significant.
+        /// The size has to be square.
+        /// </summary>
+	    public Size LightDepthTextureSize
+	    {
+	        get { return lightDepthTextureSize; }
+	        set
+	        {
+                if (value.Width != value.Height)
+                    throw new ArgumentException("Shadow: light depth textures needs to be square.");
+	            lightDepthTextureSize = value;
+	        }
+        } // ShadowMapSize
 
-        #endregion
+	    #endregion
 
-        #region Constructor
-
-        public Shadow()
-        {
-            Name = "Shadow-" + nameNumber;
-            nameNumber++;
-        } // Shadow
-
-        #endregion
-
-    } // ShadowMap
+    } // Shadow
 } // XNAFinalEngine.Assets

@@ -29,7 +29,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System;
 using Microsoft.Xna.Framework;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -89,6 +92,20 @@ namespace XNAFinalEngine.Components
             get { return range; }
             set { range = value; }
         } // Range
+
+        /// <summary>
+        /// Associated shadow.
+        /// </summary>
+        public override Shadow Shadow
+        {
+            get { return shadow; }
+            set
+            {
+                if (value is CascadedShadow)
+                    throw new ArgumentException("Spot Light: Cascaded shadows does not work with spot lights.");
+                shadow = value;
+            }
+        } // Shadow
 
         #endregion
 

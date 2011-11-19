@@ -91,7 +91,7 @@ namespace XNAFinalEngine.Graphics
 
         private Shadow.FilterType filterType;
 
-        private RenderTarget shadowMapTexture, deferredShadowResult;
+        private RenderTarget lightDepthTexture, shadowTexture;
 
         // Singleton reference.
         private static CascadedShadowMapShader instance;
@@ -314,17 +314,17 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the G-Buffer render.
         /// </summary>
-        internal void Begin(Size shadowMapSize, Size shadowResultSize, RenderTarget depthTexture, float depthBias, Shadow.FilterType filterType)
+        internal void Begin(Size lightDepthTextureSize, Size shadowResultSize, RenderTarget depthTexture, float depthBias, Shadow.FilterType filterType)
         {
             try
             {
                 // Creates the render target textures
-                shadowMapTexture = RenderTarget.Fetch(new Size(shadowMapSize.Width * numberSplits, shadowMapSize.Height), SurfaceFormat.HalfSingle, DepthFormat.Depth16, RenderTarget.AntialiasingType.NoAntialiasing);
+                lightDepthTexture = RenderTarget.Fetch(new Size(lightDepthTextureSize.Width * numberSplits, lightDepthTextureSize.Height), SurfaceFormat.HalfSingle, DepthFormat.Depth16, RenderTarget.AntialiasingType.NoAntialiasing);
                 // Alpha8 doesn't work in my old G92 GPU processor and I opt to work with half single. Color is another good choice because support texture filtering.
                 // XBOX 360 Xbox does not support 16 bit render targets (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
                 // Color would be the better choice for the XBOX 360.
                 // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.
-                deferredShadowResult = RenderTarget.Fetch(shadowResultSize, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                shadowTexture = RenderTarget.Fetch(shadowResultSize, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
 
                 // Set Render States.
                 EngineManager.Device.BlendState = BlendState.Opaque;
@@ -335,14 +335,14 @@ namespace XNAFinalEngine.Graphics
 
                 // Set parameters.
                 SetHalfPixel(new Vector2(-1f / shadowResultSize.Width, 1f / shadowResultSize.Height));
-                SetShadowMapTexelSize(new Vector2(shadowMapTexture.Width, shadowMapTexture.Height));
+                SetShadowMapTexelSize(new Vector2(lightDepthTexture.Width, lightDepthTexture.Height));
                 SetDepthBias(depthBias);
                 SetDepthTexture(depthTexture);
                 this.filterType = filterType;
 
                 // Enable first render target.
-                shadowMapTexture.EnableRenderTarget();
-                shadowMapTexture.Clear(Color.White);
+                lightDepthTexture.EnableRenderTarget();
+                lightDepthTexture.Clear(Color.White);
                 Resource.CurrentTechnique = Resource.Techniques["GenerateShadowMap"];
             }
             catch (Exception e)
@@ -362,15 +362,15 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                // Resolve shadow map.
-                shadowMapTexture.DisableRenderTarget();
+                // Resolve light depth texture.
+                lightDepthTexture.DisableRenderTarget();
 
-                // Render deferred shadow result
+                // Render deferred shadow result.
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                SetShadowMapTexture(shadowMapTexture);
+                SetShadowMapTexture(lightDepthTexture);
 
-                deferredShadowResult.EnableRenderTarget();
-                deferredShadowResult.Clear(Color.White);
+                shadowTexture.EnableRenderTarget();
+                shadowTexture.Clear(Color.White);
 
                 switch (filterType)
                 {
@@ -383,13 +383,10 @@ namespace XNAFinalEngine.Graphics
 
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
-                deferredShadowResult.DisableRenderTarget();
+                shadowTexture.DisableRenderTarget();
 
-                //RenderTarget.Release(deferredShadowResult);
-                //return shadowMapTexture;
-
-                RenderTarget.Release(shadowMapTexture);
-                return deferredShadowResult;
+                RenderTarget.Release(lightDepthTexture);
+                return shadowTexture;
             }
             catch (Exception e)
             {
@@ -515,10 +512,10 @@ namespace XNAFinalEngine.Graphics
                 {
                     MinDepth = 0,
                     MaxDepth = 1,
-                    X = i * shadowMapTexture.Height,
+                    X = i * lightDepthTexture.Height,
                     Y = 0,
-                    Width = shadowMapTexture.Height,
-                    Height = shadowMapTexture.Height
+                    Width = lightDepthTexture.Height,
+                    Height = lightDepthTexture.Height
                 };
                 EngineManager.Device.Viewport = splitViewport;
                 SetWorldViewProjMatrix(worldMatrix * lightViewMatrix[i] * lightProjectionMatrix[i]);

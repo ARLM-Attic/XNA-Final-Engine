@@ -86,7 +86,8 @@ namespace XNAFinalEngine.Graphics
                                        epMotionVectorSpecularPowerTexture,
                                        epLightColor,
                                        epLightDirection,
-                                       epLlightIntensity;
+                                       epLlightIntensity,
+                                       epShadowTexture;
 
 
         #region Half Pixel
@@ -169,6 +170,22 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
+        #region Shadow Texture
+
+        private static Texture2D lastUsedShadowTexture;
+        private static void SetShadowTexture(Texture shadowTexture)
+        {
+            EngineManager.Device.SamplerStates[3] = SamplerState.PointClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedShadowTexture != shadowTexture.Resource)
+            {
+                lastUsedShadowTexture = shadowTexture.Resource;
+                epShadowTexture.SetValue(shadowTexture.Resource);
+            }
+        } // SetNormalTexture
+
+        #endregion
+
         #region Light Color
 
         private static Color? lastUsedLightColor;
@@ -242,6 +259,7 @@ namespace XNAFinalEngine.Graphics
                 epDepthTexture                     = Resource.Parameters["depthTexture"];
                 epNormalTexture                    = Resource.Parameters["normalTexture"];
                 epMotionVectorSpecularPowerTexture = Resource.Parameters["motionVectorSpecularPowerTexture"];
+                epShadowTexture                    = Resource.Parameters["shadowTexture"];
             }
             catch
             {
@@ -285,7 +303,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render to the light pre pass texture.
         /// </summary>
-        internal void RenderLight(Color diffuseColor, Vector3 direction, float intensity)
+        internal void RenderLight(Color diffuseColor, Vector3 direction, float intensity, Texture shadowTexture)
         {
             try
             {
@@ -301,13 +319,12 @@ namespace XNAFinalEngine.Graphics
 
                 #endregion
 
-                /*
-                if (light.ShadowMap != null)
+                if (shadowTexture != null)
                 {
-                    Resource.Parameters["shadowTexture"].SetValue(light.ShadowMap.ShadowTexture.XnaTexture);
-                    Resource.CurrentTechnique = Effect.Techniques["DirectionalLightWithShadows"];
+                    SetShadowTexture(shadowTexture);
+                    Resource.CurrentTechnique = Resource.Techniques["DirectionalLightWithShadows"];
                 }
-                else*/
+                else
                     Resource.CurrentTechnique = Resource.Techniques["DirectionalLight"];
                 
                 Resource.CurrentTechnique.Passes[0].Apply();

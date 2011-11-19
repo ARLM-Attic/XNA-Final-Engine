@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -62,7 +63,7 @@ namespace XNAFinalEngine.Components
             get { return specularColor; }
             set { specularColor = value; }
         } // SpecularColor
-
+        
         #endregion
 
         #region Initialize

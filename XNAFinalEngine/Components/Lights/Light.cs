@@ -29,9 +29,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
 using System;
 using Microsoft.Xna.Framework;
+using XNAFinalEngine.Assets;
 #endregion
 
 namespace XNAFinalEngine.Components
@@ -56,6 +56,8 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal int cachedLayerMask;
 
+        protected Shadow shadow;
+
         #endregion
 
         #region Properties
@@ -78,6 +80,20 @@ namespace XNAFinalEngine.Components
             set { intensity = value; }
         } // Intensity
 
+        /// <summary>
+        /// Associated shadow.
+        /// </summary>
+        public virtual Shadow Shadow
+        {
+            get { return shadow;}
+            set { shadow = value; }
+        } // Shadow
+
+        /// <summary>
+        /// Shadow Texture.
+        /// </summary>
+        internal RenderTarget ShadowTexture { get; set; }
+
         #endregion
 
         #region Initialize
@@ -91,6 +107,7 @@ namespace XNAFinalEngine.Components
             // Values
             intensity = 1;
             diffuseColor = Color.White;
+            Shadow = null;
             // Layer
             cachedLayerMask = Owner.Layer.Mask;
             Owner.LayerChanged += OnLayerChanged;

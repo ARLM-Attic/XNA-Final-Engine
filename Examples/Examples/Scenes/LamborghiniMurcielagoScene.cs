@@ -103,7 +103,7 @@ namespace XNAFinalEngineExamples
                                                             Color = new Color(30, 30, 30),
                                                             Intensity = 1.0f,
                                                             AmbientOcclusionStrength = 5};
-            /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
+            camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
@@ -113,7 +113,7 @@ namespace XNAFinalEngineExamples
                 AngleBias = 0.25f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 Resolution = AmbientOcclusion.AmbientOcclusionResolution.QuarterSize,
-            };*/
+            };
             /*camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
             {
                 NumberSteps = 12,
@@ -483,13 +483,14 @@ namespace XNAFinalEngineExamples
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.DiffuseColor = new Color(210, 200, 200);
-            directionalLight.DirectionalLight.Intensity = 2.5f;
+            directionalLight.DirectionalLight.Intensity = 1.7f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.5f, 0.5f), Vector3.Zero, Vector3.Forward);
+            directionalLight.DirectionalLight.Shadow = new CascadedShadow();
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.DiffuseColor = new Color(250, 200, 180);
-            pointLight.PointLight.Intensity = 0.7f;
+            pointLight.PointLight.Intensity = 0.4f;
             pointLight.PointLight.Range = 100;
             pointLight.PointLight.SpecularColor = Color.White;
             pointLight.Transform.Position = new Vector3(-25, 5, 10);
@@ -497,7 +498,7 @@ namespace XNAFinalEngineExamples
             pointLight2 = new GameObject3D();
             pointLight2.AddComponent<PointLight>();
             pointLight2.PointLight.DiffuseColor = new Color(70, 150, 255);
-            pointLight2.PointLight.Intensity = 0.5f;
+            pointLight2.PointLight.Intensity = 0.4f;
             pointLight2.PointLight.Range = 100;
             pointLight2.PointLight.SpecularColor = Color.White;
             pointLight2.Transform.Position = new Vector3(45, 2, -2);
@@ -505,7 +506,7 @@ namespace XNAFinalEngineExamples
             pointLight3 = new GameObject3D();
             pointLight3.AddComponent<PointLight>();
             pointLight3.PointLight.DiffuseColor = new Color(70, 250, 55);
-            pointLight3.PointLight.Intensity = 0.9f;
+            pointLight3.PointLight.Intensity = 0.5f;
             pointLight3.PointLight.Range = 100;
             pointLight3.PointLight.SpecularColor = Color.White;
             pointLight3.Transform.Position = new Vector3(0.1f, 5, -50);
@@ -527,10 +528,12 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
-            /*if (Keyboard.KeyJustPressed(Keys.Left))
-                camera.Camera.AmbientLight.AmbientOcclusion.Enabled = !camera.Camera.AmbientLight.AmbientOcclusion.Enabled;*/
+            if (Keyboard.KeyJustPressed(Keys.Left))
+                camera.Camera.AmbientLight.AmbientOcclusion.Enabled = !camera.Camera.AmbientLight.AmbientOcclusion.Enabled;
             if (Keyboard.RightJustPressed)
                 camera.Camera.PostProcess.MLAA.Enabled = !camera.Camera.PostProcess.MLAA.Enabled;
+            if (Keyboard.UpJustPressed)
+                directionalLight.DirectionalLight.Shadow.Enabled = !directionalLight.DirectionalLight.Shadow.Enabled;
         } // UpdateTasks
 
         #endregion

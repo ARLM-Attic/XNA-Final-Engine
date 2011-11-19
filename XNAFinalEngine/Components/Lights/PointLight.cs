@@ -29,7 +29,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System;
 using Microsoft.Xna.Framework;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -74,6 +76,22 @@ namespace XNAFinalEngine.Components
             get { return specularColor; }
             set { specularColor = value; }
         } // SpecularColor
+
+        /// <summary>
+        /// Associated shadow.
+        /// </summary>
+        public override Shadow Shadow
+        {
+            get { return shadow; }
+            set
+            {
+                if (value is CascadedShadow)
+                    throw new ArgumentException("Point Light: Cascaded shadows does not work with point lights.");
+                if (value is BasicShadow)
+                    throw new ArgumentException("Point Light: Basic shadows does not work with point lights.");
+                shadow = value;
+            }
+        } // Shadow
 
         #endregion
 
