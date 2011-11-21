@@ -28,6 +28,10 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Particles
         public string TextureName = null;
 
 
+        // Indicates is the particle system is soft or hard.
+        public bool SoftParticles = true;
+
+
         // Maximum number of particles that can be displayed at one time.
         public int MaxParticles = 100;
 

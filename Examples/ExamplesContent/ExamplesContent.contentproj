@@ -372,8 +372,8 @@
       <Processor>EffectProcessor</Processor>
       <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
-    <Compile Include="Shaders\Particles\Particle.fx">
-      <Name>Particle</Name>
+    <Compile Include="Shaders\Particles\Particles.fx">
+      <Name>Particles</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
       <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>

@@ -526,6 +526,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public static void LoadSkin(string skinName)
         {
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
 
             #region Unload previous skin
             
@@ -614,8 +615,8 @@ namespace XNAFinalEngine.UserInterface
 
             #endregion
             
-            // We don't want that other code mess with the skin's content manager.
-            ContentManager.CurrentContentManager = null;
+            // Restore user content manager.
+            ContentManager.CurrentContentManager = userContentManager;
 
         } // LoadSkin
 

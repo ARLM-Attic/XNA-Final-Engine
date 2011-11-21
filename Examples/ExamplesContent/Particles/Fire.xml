@@ -3,6 +3,7 @@
   <Asset Type="XNAFinalEngineContentPipelineExtensionRuntime.Particles.ParticleSettings">
     <BlendState>Additive</BlendState>
     <TextureName>Fire</TextureName>
+    <SoftParticles>true</SoftParticles>
     <MaxParticles>400</MaxParticles>
     <Duration>PT2S</Duration>
     <DurationRandomness>1</DurationRandomness>

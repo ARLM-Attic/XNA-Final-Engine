@@ -52,16 +52,15 @@ float2 EndSize;
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture Texture;
-
-sampler Sampler = sampler_state
+texture Texture : register(t1);
+sampler Sampler : register(s1) = sampler_state
 {
     Texture = <Texture>;
-    MinFilter = Linear;
+    /*MinFilter = Linear;
     MagFilter = Linear;
     MipFilter = Point;
     AddressU = Clamp;
-    AddressV = Clamp;
+    AddressV = Clamp;*/
 };
 
 //////////////////////////////////////////////
