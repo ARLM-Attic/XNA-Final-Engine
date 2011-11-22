@@ -110,7 +110,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             // Pre draw to avoid the first frame's garbage and to place everything into memory.
-            Draw(new GameTime());
+            //Draw(new GameTime());
 
             #region Garbage Collection
 
@@ -620,15 +620,16 @@ namespace XNAFinalEngine.EngineCore
 
             // The particle systems
             ParticleShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.AspectRatio, currentCamera.FarPlane,
-                                          new Size(currentCamera.Viewport.Width, currentCamera.Viewport.Height), quarterDepthTexture);
+                                          new Size(currentCamera.Viewport.Width, currentCamera.Viewport.Height), gbufferTextures.RenderTargets[0]);
             for (int i = 0; i < ParticleRenderer.ComponentPool.Count; i++)
             {
                 ParticleRenderer currentParticleRenderer = ParticleRenderer.ComponentPool.Elements[i];
-                /*ParticleShader.Instance.Render(currentParticleRenderer.cachedParticleRenderer, currentParticleRenderer.cachedDuration,
-                                               currentParticleRenderer.BlendState, currentParticleRenderer.DurationRandomness, currentParticleRenderer.Gravity,
-                                               currentParticleRenderer.EndVelocity, currentParticleRenderer.MinimumColor, currentParticleRenderer.MaximumColor,
-                                               currentParticleRenderer.RotateSpeed, currentParticleRenderer.StartSize, currentParticleRenderer.EndSize,
-                                               currentParticleRenderer.Texture, currentParticleRenderer.SoftParticles, currentParticleRenderer.FadeDistance);*/
+                if (currentParticleRenderer.cachedParticleSystem != null && currentParticleRenderer.Texture != null && currentParticleRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                    ParticleShader.Instance.Render(currentParticleRenderer.cachedParticleSystem, currentParticleRenderer.Duration,
+                                                   currentParticleRenderer.BlendState, currentParticleRenderer.DurationRandomness, currentParticleRenderer.Gravity,
+                                                   currentParticleRenderer.EndVelocity, currentParticleRenderer.MinimumColor, currentParticleRenderer.MaximumColor,
+                                                   currentParticleRenderer.RotateSpeed, currentParticleRenderer.StartSize, currentParticleRenderer.EndSize,
+                                                   currentParticleRenderer.Texture, currentParticleRenderer.SoftParticles, currentParticleRenderer.FadeDistance);
             }
 
             #endregion

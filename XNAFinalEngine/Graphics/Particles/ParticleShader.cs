@@ -299,7 +299,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture2D lastUsedTexture;
         private static void SetTexture(Texture texture)
         {
-            EngineManager.Device.SamplerStates[1] = SamplerState.LinearWrap;
+            EngineManager.Device.SamplerStates[3] = SamplerState.LinearWrap;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
             if (lastUsedTexture != texture.Resource)
             {
@@ -407,7 +407,7 @@ namespace XNAFinalEngine.Graphics
                 epStartSize          = Resource.Parameters["StartSize"];
                 epEndSize            = Resource.Parameters["EndSize"];
                 // Textures //
-                epTexture = Resource.Parameters["Texture"];
+                epTexture = Resource.Parameters["particleTexture"];
                 // Soft Particles //
                 epProjectionInvert = Resource.Parameters["ProjI"];
                 epFarPlane         = Resource.Parameters["farPlane"];
@@ -441,9 +441,9 @@ namespace XNAFinalEngine.Graphics
                 // Set initial parameters
                 SetViewProjectionMatrix(viewMatrix * projectionMatrix);
                 SetProjectionMatrix(projectionMatrix);
-                SetViewportScale(new Vector2(0.5f / aspectRatio, -0.5f));
-
                 SetProjectionInvertMatrix(Matrix.Invert(projectionMatrix));
+
+                SetViewportScale(new Vector2(0.5f / aspectRatio, -0.5f));                
                 SetFarPlane(farPlane);
                 SetHalfPixel(new Vector2(0.5f / cameraSize.Width, 0.5f / cameraSize.Height)); // The half depth size produce flickering.
                 SetDepthTexture(depthTexture);
@@ -471,8 +471,6 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.BlendState = blendState;
 
                 // Set parameters
-                // needed to convert particle sizes into screen space point sizes.
-                
                 // Set an effect parameter describing the current time. All the vertex shader particle animation is keyed off this value.
                 SetCurrentTime(particleSystem.CurrentTime);
                 // Surface
@@ -485,9 +483,9 @@ namespace XNAFinalEngine.Graphics
                 SetRotateSpeed(rotateSpeed);
                 SetStartSize(startSize);
                 SetEndSize(endSize);
-                // Texture //
+                // Texture
                 SetTexture(texture);
-                // Soft Particles //
+                // Soft Particles
                 if (softParticles)
                 {
                     SetFadeDistance(fadeDistance);

@@ -290,6 +290,10 @@ namespace XNAFinalEngine.Graphics
             {
                 try
                 {
+                    // Set the particle vertex and index buffer.
+                    EngineManager.Device.SetVertexBuffer(vertexBuffer);
+                    EngineManager.Device.Indices = indexBuffer;
+
                     if (firstActiveParticle < firstFreeParticle)
                     {
                         // If the active particles are all in one consecutive range, we can draw them all in a single call.

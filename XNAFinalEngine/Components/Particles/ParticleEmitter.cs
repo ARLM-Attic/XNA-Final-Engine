@@ -56,10 +56,7 @@ namespace XNAFinalEngine.Components
 
         // Maximum number of particles that can be displayed at one time.
         private int maximumNumberParticles;
-        
-        // The "vertex buffer" of the particle system.
-        protected ParticleSystem particleSystem;
-        
+                        
         // Time left over from the previous frame.
         protected float timeLeftOver;
 
@@ -75,11 +72,17 @@ namespace XNAFinalEngine.Components
         // Particle velocity.
         private Vector3 velocity;
 
+        // Particle duration.
+        private float duration;
+
         #endregion
 
         #region Properties
-
-        private float duration;
+        
+        /// <summary>
+        /// The "vertex buffer" of the particle system.
+        /// </summary>
+        internal ParticleSystem ParticleSystem { get; set; }
 
         /// <summary>
         /// Duration. How long these particles will last.
@@ -136,9 +139,9 @@ namespace XNAFinalEngine.Components
                 if (value > 0)
                 {
                     maximumNumberParticles = value;
-                    if (particleSystem != null)
-                        particleSystem.Dispose();
-                    particleSystem = new ParticleSystem(value);
+                    if (ParticleSystem != null)
+                        ParticleSystem.Dispose();
+                    ParticleSystem = new ParticleSystem(value);
                     TimeBetweenParticles = 1.0f / (MaximumNumberParticles / Duration);
                 }
             }
@@ -177,7 +180,8 @@ namespace XNAFinalEngine.Components
         {
             base.Initialize(owner);
             // Default values.
-            MaximumNumberParticles = 600;
+            MaximumNumberParticles = 400;
+            Duration = 10;
             EmitterVelocitySensitivity = 1;
             MinimumHorizontalVelocity = 0;
             MaximumHorizontalVelocity = 15;
@@ -208,11 +212,11 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal virtual void Update()
         {
-            particleSystem.Update(Duration);
+            ParticleSystem.Update(Duration);
 
             currentPosition = ((GameObject3D)Owner).Transform.Position; // Cache this one. TODO
             velocity = currentPosition / Time.FrameTime;
-
+            
             if (Time.FrameTime > 0)
             {
                 // If we had any time left over that we didn't use during the
@@ -250,7 +254,7 @@ namespace XNAFinalEngine.Components
         /// <param name="step">Step from last position to current position</param>
         protected virtual void AddParticle(float step)
         {
-            particleSystem.AddParticle(Vector3.Lerp(previousPosition, currentPosition, step), velocity, EmitterVelocitySensitivity,
+            ParticleSystem.AddParticle(Vector3.Lerp(previousPosition, currentPosition, step), velocity, EmitterVelocitySensitivity,
                                        MinimumHorizontalVelocity, MaximumHorizontalVelocity, MinimumVerticalVelocity, MaximumVerticalVelocity);
         } // AddParticle
 

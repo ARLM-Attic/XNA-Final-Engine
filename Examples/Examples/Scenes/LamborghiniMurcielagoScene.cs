@@ -65,7 +65,8 @@ namespace XNAFinalEngineExamples
                                     murcielagoRearLeftTyre02, rearLeftRim,
                                     floor, floor2, floor3,
                                     directionalLight, pointLight, pointLight2, pointLight3,
-                                    camera, camera2;
+                                    camera, camera2,
+                                    particleSystem;
 
         #endregion
 
@@ -84,7 +85,7 @@ namespace XNAFinalEngineExamples
             camera.AddComponent<Camera>();
             camera.Camera.Renderer = Camera.RenderingType.DeferredLighting;
             camera.Camera.RenderTargetSize = Size.FullScreen;
-            camera.Camera.FarPlane = 100;
+            camera.Camera.FarPlane = 1000;
             ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
             script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
@@ -103,7 +104,7 @@ namespace XNAFinalEngineExamples
                                                             Color = new Color(30, 30, 30),
                                                             Intensity = 1.0f,
                                                             AmbientOcclusionStrength = 5};
-            camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
+            /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
@@ -113,7 +114,7 @@ namespace XNAFinalEngineExamples
                 AngleBias = 0.25f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.QuarterSize,
-            };
+            };*/
             /*camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
             {
                 NumberSteps = 12,
@@ -136,7 +137,7 @@ namespace XNAFinalEngineExamples
             #endregion
 
             #region Models
-
+            
             #region Body
 
             murcielagoBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"),
@@ -432,7 +433,7 @@ namespace XNAFinalEngineExamples
 
             #region Floor
 
-            floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid")/*new Graphics.Plane(20, 20)*/,
+            floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
                            new BlinnPhong
                            {
                                SpecularPower = 300,
@@ -445,7 +446,7 @@ namespace XNAFinalEngineExamples
                            });
             floor.Transform.LocalScale = new Vector3(2, 2, 2);
             floor.Transform.Position = new Vector3(0, -1.17f, 0);
-            floor2 = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid")/*new Graphics.Plane(20, 20)*/,
+            floor2 = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
                new BlinnPhong
                {
                    SpecularPower = 30,
@@ -459,7 +460,7 @@ namespace XNAFinalEngineExamples
             floor2.Transform.LocalScale = new Vector3(2, 2, 2);
             floor2.Transform.Position = new Vector3(0, -1.17f, 0);
             floor2.Transform.Rotate(new Vector3(180, 0, 0));
-            floor3 = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid")/*new Graphics.Plane(20, 20)*/,
+            floor3 = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
                new BlinnPhong
                {
                    SpecularPower = 30,
@@ -475,7 +476,7 @@ namespace XNAFinalEngineExamples
             floor3.Transform.Rotate(new Vector3(180, 0, 0));
 
             #endregion
-
+            
             #endregion
 
             #region Shadows and Lights
@@ -516,6 +517,16 @@ namespace XNAFinalEngineExamples
             pointLight3.PointLight.SpecularColor = Color.White;
             pointLight3.Transform.Position = new Vector3(0.1f, 5, -50);
             
+            #endregion
+
+            #region Particles
+
+            particleSystem = new GameObject3D();
+            particleSystem.AddComponent<ParticleEmitter>();
+            particleSystem.AddComponent<ParticleRenderer>();
+            particleSystem.ParticleRenderer.Texture = new Texture("Particles\\Fire");
+            particleSystem.ParticleRenderer.SoftParticles = true;
+
             #endregion
 
             GameLoop.ShowFramesPerSecond = true;

@@ -45,8 +45,14 @@ namespace XNAFinalEngine.Components
     public class ParticleRenderer : Renderer
     {
 
-        #region Properties
+        #region Variables
 
+        internal XNAFinalEngine.Graphics.ParticleSystem cachedParticleSystem;
+
+        #endregion
+
+        #region Properties
+        
         /// <summary>
         /// Indicates is the particle system is soft or hard.
         /// In a soft particle system the closer the sprite’s fragment is to the scene, the more it fades out to show more of the background.
@@ -117,6 +123,12 @@ namespace XNAFinalEngine.Components
         /// Alpha blending state. 
         /// </summary>
         public BlendState BlendState { get; set; }
+
+        /// <summary>
+        /// Duration. How long these particles will last.
+        /// Normally this value is the same as the particle emitter.
+        /// </summary>
+        public float Duration { get; set; }
         
         #endregion
 
@@ -127,10 +139,12 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Initialize(GameObject owner)
         {
+            base.Initialize(owner);
             // Set default values.
             SoftParticles = true;
-            FadeDistance = 0.1f;
-            DurationRandomness = 0;
+            FadeDistance = 0.01f;
+            Duration = 10;
+            DurationRandomness = 1;
             Gravity = new Vector3(-20, -5, 0);
             EndVelocity = 0.75f;
             MinimumColor = new Color(255, 255, 255, 255);
@@ -140,7 +154,10 @@ namespace XNAFinalEngine.Components
             EndSize = new Vector2(50, 200);
             Texture = null;
             BlendState = BlendState.Additive;
-            base.Initialize(owner);
+            // Particle Emitter
+            ((GameObject3D)Owner).ParticleEmitterChanged += OnParticleEmitterChanged;
+            if (((GameObject3D)Owner).ParticleEmitter != null)
+                cachedParticleSystem = ((GameObject3D)Owner).ParticleEmitter.ParticleSystem;
         } // Initialize
 
         #endregion
@@ -153,8 +170,21 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
+            ((GameObject3D)Owner).ParticleEmitterChanged -= OnParticleEmitterChanged;
             base.Uninitialize();
         } // Uninitialize
+
+        #endregion
+
+        #region On Particle Emitter Changed
+
+        /// <summary>
+        /// On model filter's model changed.
+        /// </summary>
+        private void OnParticleEmitterChanged(object sender, Component oldComponent, Component newComponent)
+        {
+            cachedParticleSystem = ((ParticleEmitter)newComponent).ParticleSystem;
+        } // OnParticleEmitterChanged
 
         #endregion
 

@@ -52,10 +52,10 @@ float2 EndSize;
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture Texture : register(t1);
-sampler Sampler : register(s1) = sampler_state
+texture particleTexture : register(t3);
+sampler textureSampler : register(s3) = sampler_state
 {
-    Texture = <Texture>;
+    Texture = <particleTexture>;
     /*MinFilter = Linear;
     MagFilter = Linear;
     MipFilter = Point;
@@ -210,9 +210,9 @@ VertexShaderOutput ParticleVertexShader(VertexShaderInput input)
 
 float4 HardParticlePixelShader(VertexShaderOutput input) : COLOR0
 {	
-	float4 color = tex2D(Sampler, input.textureCoordinate);
-	color.rgb = GammaToLinear(color.rgb);
-    return color * input.color;
+	float4 color = tex2D(textureSampler, input.textureCoordinate);
+	color.rgb = GammaToLinear(color.rgb);	
+	return color * input.color;
 } // HardParticlePixelShader
 
 float4 SoftParticlePixelShader(VertexShaderOutput input) : COLOR0
@@ -238,7 +238,7 @@ float4 SoftParticlePixelShader(VertexShaderOutput input) : COLOR0
        
     input.color.a *= depthFade;
 		
-	float4 color = tex2D(Sampler, input.textureCoordinate);
+	float4 color = tex2D(textureSampler, input.textureCoordinate);
 	color.rgb = GammaToLinear(color.rgb);
     return color * input.color;
 } // SoftParticlePixelShader
