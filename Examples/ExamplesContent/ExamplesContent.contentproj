@@ -545,11 +545,6 @@
     <Compile Include="Cursors\Default\Vertical.cur">
       <Name>Vertical</Name>
     </Compile>
-    <Compile Include="Particles\Fire.xml">
-      <Name>Fire</Name>
-      <Importer>XmlImporter</Importer>
-      <Processor>PassThroughProcessor</Processor>
-    </Compile>
     <Compile Include="Textures\Caption.png">
       <Name>Caption</Name>
       <Importer>TextureImporter</Importer>

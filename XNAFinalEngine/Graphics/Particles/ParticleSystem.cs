@@ -14,12 +14,12 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngineContentPipelineExtensionRuntime.Particles;
+using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XNAFinalEngine.Graphics
@@ -28,48 +28,36 @@ namespace XNAFinalEngine.Graphics
     /// <summary>
     /// Particle System.
     /// </summary>
-    public class ParticleSystem
+    public class ParticleSystem : Disposable
     {
 
         #region Variables
 
-        /// <summary>
-        /// Current Time (in seconds)
-        /// </summary>
-        private float currentTime;
-      
-        /// <summary>
-        /// Settings class controls the appearance and animation of this particle system.
-        /// </summary>
-        private readonly ParticleSettings settings;
-
-        /// <summary>
-        /// Count how many times Draw has been called. This is used to know when it is safe to retire old particles back into the free list. 
-        /// </summary>
+        // Count how many times Draw has been called. This is used to know when it is safe to retire old particles back into the free list. 
         private int drawCounter;
 
-        /// <summary>
-        /// Shared random number generator.
-        /// </summary>
-        private static readonly Random random = new Random();
+        private readonly int maximumNumberParticles;
 
+        // Shared random number generator.
+        private static readonly Random random = new Random();
+        
         #region Data Structure
 
         /// <summary>
         /// An array of particles, treated as a circular queue.
         /// </summary>
-        private ParticleVertex[] particles;
+        private readonly ParticleVertex[] particles;
                         
         /// <summary>
         /// A vertex buffer holding our particles. This contains the same data as
         /// the particles array, but copied across to where the GPU can access it.
         /// </summary>
-        private DynamicVertexBuffer vertexBuffer;
+        private readonly DynamicVertexBuffer vertexBuffer;
 
         /// <summary>
         /// Index buffer turns sets of four vertices into particle quads (pairs of triangles).
         /// </summary>
-        private IndexBuffer indexBuffer;
+        private readonly IndexBuffer indexBuffer;
 
         // The particles array and vertex buffer are treated as a circular queue.
         // Initially, the entire contents of the array are free, because no particles
@@ -151,29 +139,11 @@ namespace XNAFinalEngine.Graphics
         #endregion
 
         #region Properties
-        /*
+
         /// <summary>
         /// Current Time (in seconds)
         /// </summary>
-        public float CurrentTime
-        {
-            get { return currentTime; }
-            set { currentTime = value; }
-        } // CurrentTime*/
-        /*
-        /// <summary>
-        /// Particle emitter. Can be null. If it's null then you need to add the particles manually.
-        /// </summary>
-        public ParticleEmitter ParticleEmitter
-        {
-            get { return emitter; }
-            set
-            {
-                emitter = value;
-                emitter.ParticleSystem = this;
-                emitter.TimeBetweenParticles = 1.0f / ((float)MaximumNumberParticles / Duration);
-            }
-        } // ParticleEmitter*/
+        public float CurrentTime { get; set; }
 
         #endregion
 
@@ -182,12 +152,14 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Particle System.
         /// </summary>
-        public ParticleSystem()
+        public ParticleSystem(int maximumNumberParticles)
         {
-            // Allocate the particle array, and fill in the corner fields (which never change).
-            particles = new ParticleVertex[MaximumNumberParticles * 4];
+            this.maximumNumberParticles = maximumNumberParticles;
 
-            for (int i = 0; i < MaximumNumberParticles; i++)
+            // Allocate the particle array, and fill in the corner fields (which never change).
+            particles = new ParticleVertex[maximumNumberParticles * 4];
+
+            for (int i = 0; i < maximumNumberParticles; i++)
             {
                 particles[i * 4 + 0].Corner = new Short2(-1, -1);
                 particles[i * 4 + 1].Corner = new Short2(1, -1);
@@ -196,12 +168,12 @@ namespace XNAFinalEngine.Graphics
             }
 
             // Create a dynamic vertex buffer.
-            vertexBuffer = new DynamicVertexBuffer(EngineManager.Device, ParticleVertex.VertexDeclaration, MaximumNumberParticles * 4, BufferUsage.WriteOnly);
+            vertexBuffer = new DynamicVertexBuffer(EngineManager.Device, ParticleVertex.VertexDeclaration, maximumNumberParticles * 4, BufferUsage.WriteOnly);
 
             // Create and populate the index buffer.
-            ushort[] indices = new ushort[MaximumNumberParticles * 6];
+            ushort[] indices = new ushort[maximumNumberParticles * 6];
 
-            for (int i = 0; i < MaximumNumberParticles; i++)
+            for (int i = 0; i < maximumNumberParticles; i++)
             {
                 indices[i * 6 + 0] = (ushort)(i * 4 + 0);
                 indices[i * 6 + 1] = (ushort)(i * 4 + 1);
@@ -224,40 +196,33 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Updates the particle system.
         /// </summary>
-        public void Update()
+        public void Update(float particleDuration)
         {
-            currentTime += (float)EngineManager.FrameTime;
+            CurrentTime += Time.FrameTime;
 
-            RetireActiveParticles();
+            RetireActiveParticles(particleDuration);
             FreeRetiredParticles();
 
             // If we let our timer go on increasing for ever, it would eventually run out of floating point precision,
             // at which point the particles would render incorrectly. An easy way to prevent this is to notice that
             // the time value doesn't matter when no particles are being drawn, so we can reset it back to zero any time the active queue is empty.
             if (firstActiveParticle == firstFreeParticle)
-                currentTime = 0;
+                CurrentTime = 0;
             if (firstRetiredParticle == firstActiveParticle)
                 drawCounter = 0;
-
-            if (emitter != null)
-            {
-                emitter.Update();
-            }
         } // Update
 
         /// <summary>
         /// Helper for checking when active particles have reached the end of their life.
         /// It moves old particles from the active area of the queue to the retired section.
         /// </summary>
-        private void RetireActiveParticles()
+        private void RetireActiveParticles(float particleDuration)
         {
-            float particleDuration = Duration;
-
             while (firstActiveParticle != firstNewParticle)
             {
                 // Is this particle old enough to retire?
                 // We multiply the active particle index by four, because each particle consists of a quad that is made up of four vertices.
-                float particleAge = currentTime - particles[firstActiveParticle * 4].DrawCounterWhenDie;
+                float particleAge = CurrentTime - particles[firstActiveParticle * 4].DrawCounterWhenDie;
 
                 if (particleAge < particleDuration) // if the current particle is alive the rest will be also.
                     break;
@@ -268,7 +233,7 @@ namespace XNAFinalEngine.Graphics
                 // Move the particle from the active to the retired queue.
                 firstActiveParticle++;
 
-                if (firstActiveParticle >= MaximumNumberParticles)
+                if (firstActiveParticle >= maximumNumberParticles)
                     firstActiveParticle = 0;
             }
         } // RetireActiveParticles
@@ -293,7 +258,7 @@ namespace XNAFinalEngine.Graphics
                 // Move the particle from the retired to the free queue.
                 firstRetiredParticle++;
 
-                if (firstRetiredParticle >= MaximumNumberParticles)
+                if (firstRetiredParticle >= maximumNumberParticles)
                     firstRetiredParticle = 0;
             }
         } // FreeRetiredParticles
@@ -336,8 +301,8 @@ namespace XNAFinalEngine.Graphics
                     {
                         // If the active particle range wraps past the end of the queue back to the start, we must split them over two draw calls.
                         EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
-                                                                    firstActiveParticle * 4, (MaximumNumberParticles - firstActiveParticle) * 4,
-                                                                    firstActiveParticle * 6, (MaximumNumberParticles - firstActiveParticle) * 2);
+                                                                    firstActiveParticle * 4, (maximumNumberParticles - firstActiveParticle) * 4,
+                                                                    firstActiveParticle * 6, (maximumNumberParticles - firstActiveParticle) * 2);
 
                         if (firstFreeParticle > 0)
                         {
@@ -368,7 +333,7 @@ namespace XNAFinalEngine.Graphics
             else
             {
                 // If the new particle range wraps past the end of the queue back to the start, we must split them over two upload calls.
-                vertexBuffer.SetData(firstNewParticle * stride * 4, particles, firstNewParticle * 4, (MaximumNumberParticles - firstNewParticle) * 4, stride, SetDataOptions.NoOverwrite);
+                vertexBuffer.SetData(firstNewParticle * stride * 4, particles, firstNewParticle * 4, (maximumNumberParticles - firstNewParticle) * 4, stride, SetDataOptions.NoOverwrite);
 
                 if (firstFreeParticle > 0)
                 {
@@ -388,12 +353,14 @@ namespace XNAFinalEngine.Graphics
         /// Adds a new particle to the system.
         /// If the particle system doesn't have an emitter then we need to create the particles manually.
         /// </summary>
-        public void AddParticle(Vector3 position, Vector3 velocity)
+        public void AddParticle(Vector3 position, Vector3 velocity, float emitterVelocitySensitivity,
+                                float minimumHorizontalVelocity, float maximumHorizontalVelocity,
+                                float minimumVerticalVelocity, float maximumVerticalVelocity)
         {
             // Figure out where in the circular queue to allocate the new particle.
             int nextFreeParticle = firstFreeParticle + 1;
 
-            if (nextFreeParticle >= MaximumNumberParticles)
+            if (nextFreeParticle >= maximumNumberParticles)
                 nextFreeParticle = 0;
 
             // If there are no free particles, we just have to give up.
@@ -402,11 +369,11 @@ namespace XNAFinalEngine.Graphics
 
             // Adjust the input velocity based on how much
             // this particle system wants to be affected by it.
-            velocity *= EmitterVelocitySensitivity;
+            velocity *= emitterVelocitySensitivity;
 
             // Add in some random amount of horizontal velocity.
-            float horizontalVelocity = MathHelper.Lerp(MinimumHorizontalVelocity,
-                                                       MaximumHorizontalVelocity,
+            float horizontalVelocity = MathHelper.Lerp(minimumHorizontalVelocity,
+                                                       maximumHorizontalVelocity,
                                                        (float)random.NextDouble());
 
             double horizontalAngle = random.NextDouble() * MathHelper.TwoPi;
@@ -415,8 +382,8 @@ namespace XNAFinalEngine.Graphics
             velocity.Z += horizontalVelocity * (float)Math.Sin(horizontalAngle);
 
             // Add in some random amount of vertical velocity.
-            velocity.Y += MathHelper.Lerp(MinimumVerticalVelocity,
-                                          MaximumVerticalVelocity,
+            velocity.Y += MathHelper.Lerp(minimumVerticalVelocity,
+                                          maximumVerticalVelocity,
                                           (float)random.NextDouble());
 
             // Choose four random control values. These will be used by the vertex
@@ -432,11 +399,24 @@ namespace XNAFinalEngine.Graphics
                 particles[firstFreeParticle * 4 + i].Position = position;
                 particles[firstFreeParticle * 4 + i].Velocity = velocity;
                 particles[firstFreeParticle * 4 + i].Random = randomValues;
-                particles[firstFreeParticle * 4 + i].DrawCounterWhenDie = currentTime;
+                particles[firstFreeParticle * 4 + i].DrawCounterWhenDie = CurrentTime;
             }
 
             firstFreeParticle = nextFreeParticle;
         } // AddParticle
+
+        #endregion
+
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            vertexBuffer.Dispose();
+            indexBuffer.Dispose();
+        } // DisposeManagedResources
 
         #endregion
 

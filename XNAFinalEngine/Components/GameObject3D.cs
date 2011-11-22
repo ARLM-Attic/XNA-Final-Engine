@@ -37,6 +37,8 @@ namespace XNAFinalEngine.Components
         private Pool<DirectionalLight>.Accessor directionalLightAccessor;
         private Pool<PointLight>.Accessor pointLightAccessor;
         private Pool<SpotLight>.Accessor spotLightAccessor;
+        private Pool<ParticleEmitter>.Accessor particleEmitterAccessor;
+        private Pool<ParticleRenderer>.Accessor particleRendererAccessor;
 
         #endregion
 
@@ -48,6 +50,8 @@ namespace XNAFinalEngine.Components
         private ModelAnimations modelAnimation;
         private Camera camera;
         private Light light;
+        private ParticleEmitter particleEmitter;
+        private ParticleRenderer particleRenderer;
         private readonly List<Script> scripts = new List<Script>(2);
 
         #endregion
@@ -183,6 +187,38 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public SpotLight SpotLight { get; private set; }
 
+        /// <summary>
+        /// Associated particle emitter component.
+        /// </summary>
+        public ParticleEmitter ParticleEmitter
+        {
+            get { return particleEmitter; }
+            private set
+            {
+                ParticleEmitter oldValue = particleEmitter;
+                particleEmitter = value;
+                // Invoke event
+                if (ParticleEmitterChanged != null)
+                    ParticleEmitterChanged(this, oldValue, value);
+            }
+        } // ParticleEmitter
+
+        /// <summary>
+        /// Associated particle renderer component.
+        /// </summary>
+        public ParticleRenderer ParticleRenderer
+        {
+            get { return particleRenderer; }
+            private set
+            {
+                ParticleRenderer oldValue = particleRenderer;
+                particleRenderer = value;
+                // Invoke event
+                if (ParticleRendererChanged != null)
+                    ParticleRendererChanged(this, oldValue, value);
+            }
+        } // ParticleRenderer
+
         #endregion
 
         #endregion
@@ -218,6 +254,16 @@ namespace XNAFinalEngine.Components
         /// Raised when the game object's light changes.
         /// </summary>
         public event ComponentEventHandler LightChanged;
+
+        /// <summary>
+        /// Raised when the game object's particle emitter changes.
+        /// </summary>
+        public event ComponentEventHandler ParticleEmitterChanged;
+
+        /// <summary>
+        /// Raised when the game object's particle renderer changes.
+        /// </summary>
+        public event ComponentEventHandler ParticleRendererChanged;
 
         #endregion
 
@@ -439,6 +485,45 @@ namespace XNAFinalEngine.Components
 
             #endregion
 
+            #region Particle Emitter
+
+            if (typeof(ParticleEmitter).IsAssignableFrom(typeof(TComponentType)))
+            {
+                if (ParticleEmitter != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the particle emitter component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                particleEmitterAccessor = ParticleEmitter.ComponentPool.Fetch();
+                // A component is a reference value, so no problem to do this.
+                ParticleEmitter = ParticleEmitter.ComponentPool[particleEmitterAccessor];
+
+                // Initialize the component to the default values.
+                ParticleEmitter.Initialize(this);
+                return ParticleEmitter;
+            }
+
+            #endregion
+
+            #region Particle Renderer
+
+            if (typeof(TComponentType) == typeof(ParticleRenderer))
+            {
+                if (particleRendererAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the particle renderer component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                particleRendererAccessor = ParticleRenderer.ComponentPool.Fetch();
+                // A component is a reference value, so no problem to do this.
+                ParticleRenderer = ParticleRenderer.ComponentPool[particleRendererAccessor];
+                // Initialize the component to the default values.
+                ParticleRenderer.Initialize(this);
+                return ParticleRenderer;
+            }
+
+            #endregion
+
             #region Script
             
             // Hacerlo de otra manera, creo. Algo como add script y remove script. Los script se comportan diferente que el resto de los componentes.
@@ -589,6 +674,38 @@ namespace XNAFinalEngine.Components
                     SpotLight = null;
                 }
                 Light = null;
+            }
+
+            #endregion
+
+            #region Particle Emitter
+
+            if (typeof(TComponentType) == typeof(ParticleEmitter))
+            {
+                if (particleEmitterAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the particle emitter component. There is not one.");
+                }
+                ParticleEmitter.Uninitialize();
+                ParticleEmitter.ComponentPool.Release(particleEmitterAccessor);
+                ParticleEmitter = null;
+                particleEmitterAccessor = null;
+            }
+
+            #endregion
+
+            #region Particle Renderer
+
+            if (typeof(TComponentType) == typeof(ParticleRenderer))
+            {
+                if (particleRendererAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the particle renderer component. There is not one.");
+                }
+                ParticleRenderer.Uninitialize();
+                ParticleRenderer.ComponentPool.Release(particleRendererAccessor);
+                ParticleRenderer = null;
+                particleRendererAccessor = null;
             }
 
             #endregion

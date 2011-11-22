@@ -1,12 +1,28 @@
 
 #region License
 /*
+Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+                         Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
- Based in the class ParticleSystem.cs from Microsoft XNA Community
- License: Microsoft_Permissive_License
+•	Redistributions of source code must retain the above copyright, this list of conditions and the following disclaimer.
+
+•	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
+    in the documentation and/or other materials provided with the distribution.
+
+•	Neither the name of the Universidad Nacional del Sur nor the names of its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
-Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
+Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
 */
@@ -30,6 +46,30 @@ namespace XNAFinalEngine.Graphics
     /// </summary>
     public class ParticleShader : Shader
     {
+
+        #region Variables
+
+        // Singleton reference.
+        private static ParticleShader instance;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// A singleton of this shader.
+        /// </summary>
+        public static ParticleShader Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new ParticleShader();
+                return instance;
+            }
+        } // Instance
+
+        #endregion
 
         #region Shader Parameters
 
@@ -421,40 +461,43 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Draws a particle system.
         /// </summary>
-        public void Render(Particle particle, float currentTime)
+        public void Render(ParticleSystem particleSystem, float duration, BlendState blendState, float durationRandomness,
+                           Vector3 gravity, float endVelocity, Color minimumColor, Color maximumColor, Vector2 rotateSpeed,
+                           Vector2 startSize, Vector2 endSize, Texture texture, bool softParticles, float fadeDistance)
         {
             try
             {
                 // Set Render States.
-                EngineManager.Device.BlendState = particle.BlendState;
+                EngineManager.Device.BlendState = blendState;
 
                 // Set parameters
                 // needed to convert particle sizes into screen space point sizes.
                 
                 // Set an effect parameter describing the current time. All the vertex shader particle animation is keyed off this value.
-                SetCurrentTime(currentTime);
+                SetCurrentTime(particleSystem.CurrentTime);
                 // Surface
-                SetDuration(particle.Duration);
-                SetDurationRandomness(particle.DurationRandomness);
-                SetGravity(particle.Gravity);
-                SetEndVelocity(particle.EndVelocity);
-                SetMinimumColor(particle.MinimumColor);
-                SetMaximumColor(particle.MaximumColor);
-                SetRotateSpeed(particle.RotateSpeed);
-                SetStartSize(particle.StartSize);
-                SetEndSize(particle.EndSize);
+                SetDuration(duration);
+                SetDurationRandomness(durationRandomness);
+                SetGravity(gravity);
+                SetEndVelocity(endVelocity);
+                SetMinimumColor(minimumColor);
+                SetMaximumColor(maximumColor);
+                SetRotateSpeed(rotateSpeed);
+                SetStartSize(startSize);
+                SetEndSize(endSize);
                 // Texture //
-                SetTexture(particle.Texture);
+                SetTexture(texture);
                 // Soft Particles //
-                if (particle.SoftParticles)
+                if (softParticles)
                 {
-                    SetFadeDistance(particle.FadeDistance);
+                    SetFadeDistance(fadeDistance);
                 }
 
-                Resource.CurrentTechnique = particle.SoftParticles ? Resource.Techniques["SoftParticles"] : Resource.Techniques["HardParticles"];
+                Resource.CurrentTechnique = softParticles ? Resource.Techniques["SoftParticles"] : Resource.Techniques["HardParticles"];
                 Resource.CurrentTechnique.Passes[0].Apply();
 
                 // Render particle system.
+                particleSystem.Render();
             }
             catch (Exception e)
             {

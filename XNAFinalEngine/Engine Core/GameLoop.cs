@@ -231,7 +231,17 @@ namespace XNAFinalEngine.EngineCore
             // the inverse bind pose multiplication stage in the mesh draw code. And for now the engine will do this.
 
             #endregion
-            
+
+            #region Particles Emitters
+
+            // Update particle emitters.
+            for (int i = 0; i < ParticleEmitter.ComponentPool.Count; i++)
+            {
+                ParticleEmitter.ComponentPool.Elements[i].Update();
+            }
+
+            #endregion
+
             #region Graphics
 
             Camera currentCamera = null;
@@ -350,6 +360,10 @@ namespace XNAFinalEngine.EngineCore
             #endregion 
 
         } // Draw
+
+        #endregion
+
+        #region Render Camera
 
         private static RenderTarget RenderCamera(Camera currentCamera)
         {
@@ -572,6 +586,8 @@ namespace XNAFinalEngine.EngineCore
 
             ScenePass.Begin(destinationSize, currentCamera.ClearColor);
 
+            #region Opaque Objects
+
             // Render all the opaque objects...
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
             {
@@ -596,9 +612,28 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
 
+            #endregion
+
             // The sky is render latter so that the GPU can avoid fragment processing. But it has to be before the transparent objects.
 
+            #region Particles
+
             // The particle systems
+            ParticleShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.AspectRatio, currentCamera.FarPlane,
+                                          new Size(currentCamera.Viewport.Width, currentCamera.Viewport.Height), quarterDepthTexture);
+            for (int i = 0; i < ParticleRenderer.ComponentPool.Count; i++)
+            {
+                ParticleRenderer currentParticleRenderer = ParticleRenderer.ComponentPool.Elements[i];
+                /*ParticleShader.Instance.Render(currentParticleRenderer.cachedParticleRenderer, currentParticleRenderer.cachedDuration,
+                                               currentParticleRenderer.BlendState, currentParticleRenderer.DurationRandomness, currentParticleRenderer.Gravity,
+                                               currentParticleRenderer.EndVelocity, currentParticleRenderer.MinimumColor, currentParticleRenderer.MaximumColor,
+                                               currentParticleRenderer.RotateSpeed, currentParticleRenderer.StartSize, currentParticleRenderer.EndSize,
+                                               currentParticleRenderer.Texture, currentParticleRenderer.SoftParticles, currentParticleRenderer.FadeDistance);*/
+            }
+
+            #endregion
+
+            #region Transparent Objects
 
             // The transparent objects will be render in forward fashion.
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
@@ -623,6 +658,8 @@ namespace XNAFinalEngine.EngineCore
                     }
                 }
             }
+
+            #endregion
 
             sceneTexture = ScenePass.End();
             RenderTarget.Release(lightTexture);

@@ -62,7 +62,6 @@
     <Compile Include="Assets\Models\FileModel.cs" />
     <Compile Include="Assets\Models\Model.cs" />
     <Compile Include="Assets\Models\PrimitiveModel.cs" />
-    <Compile Include="Assets\Particles\Particle.cs" />
     <Compile Include="Assets\PostProcess\AdjustLevels.cs" />
     <Compile Include="Assets\PostProcess\AdjustLevelsIndividualChannels.cs" />
     <Compile Include="Assets\PostProcess\Bloom.cs" />
@@ -91,9 +90,11 @@
     <Compile Include="Components\Lights\PointLight.cs" />
     <Compile Include="Components\Lights\SpotLight.cs" />
     <Compile Include="Components\Model\ModelFilter.cs" />
+    <Compile Include="Components\Particles\ParticleEmitter.cs" />
     <Compile Include="Components\Rendering\HeadsUpDisplay\HudElement.cs" />
     <Compile Include="Components\Rendering\HeadsUpDisplay\HudText.cs" />
     <Compile Include="Components\Rendering\ModelRenderer.cs" />
+    <Compile Include="Components\Rendering\ParticleRenderer.cs" />
     <Compile Include="Components\Rendering\Renderer.cs" />
     <Compile Include="Components\Script\Script.cs" />
     <Compile Include="Components\Script\ScriptEditorCamera.cs" />
@@ -112,10 +113,8 @@
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonics.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL1.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL2.cs" />
-    <Compile Include="Graphics\Particles\ParticleEmitter.cs" />
     <Compile Include="Graphics\Particles\ParticleEmitterCurve.cs" />
     <Compile Include="Graphics\Particles\ParticleEmitterObject.cs" />
-    <Compile Include="Graphics\Particles\ParticleEmitterSimple.cs" />
     <Compile Include="Graphics\Particles\ParticleShader.cs" />
     <Compile Include="Graphics\Particles\ParticleSystem.cs" />
     <Compile Include="Graphics\Particles\ParticleVertex.cs" />

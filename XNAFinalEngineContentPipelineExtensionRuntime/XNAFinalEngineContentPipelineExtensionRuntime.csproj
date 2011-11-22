@@ -94,9 +94,6 @@
     <Compile Include="Animations\ModelAnimationData.cs" />
     <Compile Include="Animations\Root\RootAnimationClip.cs" />
     <Compile Include="Animations\Keyframe.cs" />
-    <Compile Include="Particles\ParticleSettings.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Settings.cs" />
     <Compile Include="UserInterface\CursorReaders.cs" />
