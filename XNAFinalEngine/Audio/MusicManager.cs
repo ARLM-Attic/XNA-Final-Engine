@@ -34,9 +34,10 @@ using System.IO;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Media;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Assets;
 #endregion
 
-namespace XNAFinalEngine.Sounds
+namespace XNAFinalEngine.Audio
 {
 
     /// <summary>
@@ -54,52 +55,35 @@ namespace XNAFinalEngine.Sounds
     {
 
         #region Variables
-
-        /// <summary>
-        /// Music Volume. Range between 0.0f to 1.0f.
-        /// </summary>
+                
+        // Music Volume. Range between 0.0f to 1.0f.        
         private static float volume = 0.8f;
-
-        /// <summary>
-        /// List of music files.
-        /// </summary>
-        private static FileInfo[] musicFiles;
-
-        /// <summary>
-        /// Current song filename.
-        /// </summary>
-        private static string currentSongFilename;
-
-        /// <summary>
-        /// Current song.
-        /// </summary>
-        private static Song currentSong;
-
-        /// <summary>
-        /// Current music file index from the musicFiles array.
-        /// </summary>
+                
+        // List of song files.
+        private static FileInfo[] songsFileInformation;
+                
+        // Current music file index from the musicFiles array.        
         private static int currentMusicFileIndex;
-
-        /// <summary>
-        /// Last music file index from the musicFiles array, it's needed by the random player.
-        /// </summary>
+                
+        // Last music file index from the musicFiles array, it's needed by the random player.        
         private static int lastPlayedMusicFileIndex;
-
-        /// <summary>
-        /// Music content manager.
-        /// </summary>
+                
+        // Music content manager.        
         private static Assets.ContentManager musicContentManager;
-
-        /// <summary>
-        /// Random generation for shuffle.
-        /// If you use Random class but keep newly constructing it with 'new Random()' in a tight loop, you'll get the same values for a while.
-        /// This is because the initial state of the Random class comes from the system clock, but a tight loop doesn't let the clock's value change.
-        /// </summary>
+                
+        // Random generation for shuffle.
+        // If you use Random class but keep newly constructing it with 'new Random()' in a tight loop, you'll get the same values for a while.
+        // This is because the initial state of the Random class comes from the system clock, but a tight loop doesn't let the clock's value change.        
         private static Random random = new Random();
 
         #endregion
 
         #region Properties
+        
+        /// <summary>
+        ///  A list with the songs' information.
+        /// </summary>
+        private static FileInfo[] SongsFileInformation { get { return songsFileInformation; } }
 
         /// <summary>
         /// Music Volume. Range between 0.0f to 1.0f.
@@ -111,6 +95,11 @@ namespace XNAFinalEngine.Sounds
         } // MusicVolume
 
         /// <summary>
+        /// Current song.
+        /// </summary>
+        public static XNAFinalEngine.Assets.Song CurrentSong { get; private set; }
+
+        /// <summary>
         /// Shuffle on or off.
         /// </summary>
         public static bool Shuffle { get; set; }
@@ -119,7 +108,7 @@ namespace XNAFinalEngine.Sounds
         /// Is the music active?
         /// </summary>
         public static bool IsPlaying { get; private set; }
-
+        /*
         /// <summary>
         /// Song's name (currently playing).
         /// public static String SongName { get { return currentSong.Album.Name; } } doesn't work. It's a content processor compilation bug.
@@ -128,7 +117,7 @@ namespace XNAFinalEngine.Sounds
         { 
             get
             {
-                if (currentSongFilename != null)
+                if (currentSong != null)
                 {
                     return currentSongFilename.Split('-')[2];
                 }
@@ -151,7 +140,7 @@ namespace XNAFinalEngine.Sounds
                 return null;
             }
         } // CurrentSongArtistName
-
+        */
         #endregion
 
         #region Initialize
@@ -163,7 +152,19 @@ namespace XNAFinalEngine.Sounds
         {
             // Search the song files //
             DirectoryInfo musicDirectory = new DirectoryInfo(Assets.ContentManager.GameDataDirectory + "Music");
-            musicFiles = musicDirectory.GetFiles("*.xnb");
+            try
+            {
+                songsFileInformation = musicDirectory.GetFiles("*.xnb");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                // Do nothing.
+                songsFileInformation = new FileInfo[0];
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException("Music Manager: Unable to retrieve music information from files.");
+            }
             // This class creates a list of only a single song at a time. Because of this the list can’t repeat itself.
             MediaPlayer.IsRepeating = false;
             MediaPlayer.IsVisualizationEnabled = false;
@@ -179,49 +180,45 @@ namespace XNAFinalEngine.Sounds
         /// Load song.
         /// </summary>
         private static void LoadSong(string _currentSongFilename)
-        {            
-            currentSongFilename = _currentSongFilename;
-            string fullFilename = Assets.ContentManager.GameDataDirectory + "Music\\" + currentSongFilename;
-            if (File.Exists(fullFilename + ".xnb") == false)
-            {
-                throw new ArgumentException("Failed to load song: File " + fullFilename + " does not exists!", "_currentSongFilename");
-            }
+        {
             try
             {
+                Assets.ContentManager userContentManager = Assets.ContentManager.CurrentContentManager;
+                
                 if (musicContentManager != null)
                     musicContentManager.Unload();
                 else
                     // Creates a new content manager and load the new song.
-                    // It's needed because the content manager doesn't allow to reload a previously dispose asset.
                     musicContentManager = new Assets.ContentManager();
-                
-                currentSong = musicContentManager.XnaContentManager.Load<Song>(fullFilename);
-               
+                Assets.ContentManager.CurrentContentManager = musicContentManager;
+                CurrentSong = new Assets.Song(_currentSongFilename);
+
+                Assets.ContentManager.CurrentContentManager = userContentManager;               
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Failed to load song: " + currentSongFilename, e);
+                throw new InvalidOperationException("Music Manager: Failed to load song: " + _currentSongFilename, e);
             }
         } // LoadSong
 
         #endregion
 
-        #region Stop Play Pause
+        #region Play Pause Stop
                 
         /// <summary>
         /// Play the song from the start.
         /// </summary>
         public static void Play(int index = 0)
         {
-            if (musicFiles.Length > 0)
+            if (songsFileInformation.Length > 0)
             {
                 lastPlayedMusicFileIndex = currentMusicFileIndex;
                 currentMusicFileIndex = index;
-                LoadSong(musicFiles[currentMusicFileIndex].Name.Substring(0, musicFiles[currentMusicFileIndex].Name.Length - 4));
+                LoadSong(songsFileInformation[currentMusicFileIndex].Name.Substring(0, songsFileInformation[currentMusicFileIndex].Name.Length - 4));
                 IsPlaying = true;
                 try
                 {
-                    MediaPlayer.Play(currentSong);
+                    MediaPlayer.Play(CurrentSong.Resource);
                 }
                 catch (Exception)
                 {
@@ -261,21 +258,21 @@ namespace XNAFinalEngine.Sounds
         /// </summary>
         public static void Next()
         {
-            if (musicFiles.Length > 0)
+            if (songsFileInformation.Length > 0)
             {
                 if (Shuffle)
                 {
-                    int nextIndex = random.Next(musicFiles.Length);
+                    int nextIndex = random.Next(songsFileInformation.Length);
                     while (nextIndex == lastPlayedMusicFileIndex || nextIndex == currentMusicFileIndex)
                     {
                         nextIndex++;
-                        if (nextIndex == musicFiles.Length) nextIndex = 0;
+                        if (nextIndex == songsFileInformation.Length) nextIndex = 0;
                     }
                     Play(nextIndex);
                 }
                 else
                 {
-                    if (currentMusicFileIndex + 1 > musicFiles.Length - 1)
+                    if (currentMusicFileIndex + 1 > songsFileInformation.Length - 1)
                     {
                         Play(0);
                     }
@@ -290,11 +287,11 @@ namespace XNAFinalEngine.Sounds
         /// </summary>
         public static void Previous()
         {
-            if (musicFiles.Length > 0)
+            if (songsFileInformation.Length > 0)
             {
                 if (currentMusicFileIndex - 1 < 0)
                 {
-                    Play(musicFiles.Length - 1);
+                    Play(songsFileInformation.Length - 1);
                 }
                 else
                     Play(currentMusicFileIndex - 1);
@@ -310,7 +307,7 @@ namespace XNAFinalEngine.Sounds
         /// </summary>
         public static void Update()
         {       
-            if (musicFiles.Length > 0)
+            if (songsFileInformation.Length > 0)
             {
                 if (IsPlaying)
                 {
@@ -327,4 +324,4 @@ namespace XNAFinalEngine.Sounds
         #endregion
 
     } // MusicManager
-} // XNA2FinalEngine.Sounds
+} // XNA2FinalEngine.Audio

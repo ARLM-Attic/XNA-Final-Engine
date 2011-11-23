@@ -37,6 +37,7 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Input;
+using XNAFinalEngine.Audio;
 using RootAnimation = XNAFinalEngine.Components.RootAnimations;
 using XNAFinalEngine.Scenes;
 using Camera = XNAFinalEngine.Components.Camera;
@@ -94,6 +95,8 @@ namespace XNAFinalEngine.EngineCore
             SpriteManager.Init();
             // Input
             InputManager.Initialize();
+            // Music
+            MusicManager.Initialize();
 
             #endregion
 
@@ -147,9 +150,10 @@ namespace XNAFinalEngine.EngineCore
         {
             Time.GameDeltaTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
 
-            #region Input
+            #region Managers
 
             InputManager.Update();
+            MusicManager.Update();
             
             #endregion
             

@@ -37,8 +37,8 @@ using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Scenes;
+using XNAFinalEngine.Audio;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
-
 #endregion
 
 namespace XNAFinalEngineExamples
@@ -545,12 +545,17 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
-            if (Keyboard.KeyJustPressed(Keys.Left))
+            /*if (Keyboard.KeyJustPressed(Keys.Left))
                 camera.Camera.AmbientLight.AmbientOcclusion.Enabled = !camera.Camera.AmbientLight.AmbientOcclusion.Enabled;
             if (Keyboard.RightJustPressed)
                 camera.Camera.PostProcess.MLAA.Enabled = !camera.Camera.PostProcess.MLAA.Enabled;
             if (Keyboard.UpJustPressed)
-                directionalLight.DirectionalLight.Shadow.Enabled = !directionalLight.DirectionalLight.Shadow.Enabled;
+                directionalLight.DirectionalLight.Shadow.Enabled = !directionalLight.DirectionalLight.Shadow.Enabled;*/
+            if (Keyboard.KeyJustPressed(Keys.Left))
+                MusicManager.Previous();
+            if (Keyboard.RightJustPressed)
+                MusicManager.Next();
+
         } // UpdateTasks
 
         #endregion
