@@ -82,7 +82,10 @@ namespace XNAFinalEngine.Input
 	    /// <summary>
 	    /// This mode allows to track the mouse movement when the mouse reach and pass the system window border.
 	    /// Useful for FPS cameras or similar.
-	    /// </summary>
+        /// </summary>
+        /// <remarks>
+        /// This mode produces garbage because the XNA's Microsoft.Xna.Framework.Input.Mouse.SetPosition method produces garbage.
+        /// </remarks>
 	    public static bool TrackRelativeMovementMode
 	    {
 	        get { return trackRelativeMovementMode; }
@@ -93,7 +96,7 @@ namespace XNAFinalEngine.Input
                 positionX = Screen.Width / 2;
                 positionY = Screen.Height / 2;
 	        }
-	    }
+	    } // TrackRelativeMovementMode
 
 	    /// <summary>
 		/// Mouse position in screen coordinates.
@@ -118,9 +121,9 @@ namespace XNAFinalEngine.Input
                 if (!TrackRelativeMovementMode)
                 {
                     Microsoft.Xna.Framework.Input.Mouse.SetPosition(value.X, value.Y);
-                    positionX = value.X;
-                    positionY = value.Y;
                 }
+                positionX = value.X;
+                positionY = value.Y;
 			}
         } // MousePosition
 
@@ -285,7 +288,7 @@ namespace XNAFinalEngine.Input
                     positionY = 0;
                 Microsoft.Xna.Framework.Input.Mouse.SetPosition(Screen.Width / 2, Screen.Height / 2);
             }
-
+            
             // Dragging
             if (LeftButtonJustPressed)
             {
@@ -294,8 +297,6 @@ namespace XNAFinalEngine.Input
             // Wheel
 			wheelDelta = currentMouseState.ScrollWheelValue - wheelValue;
 			wheelValue = currentMouseState.ScrollWheelValue;
-
-            Position = new Point(positionX, positionY);
 		} // Update
 
 		#endregion

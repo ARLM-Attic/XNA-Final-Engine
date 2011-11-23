@@ -122,9 +122,9 @@ namespace XNAFinalEngine.Input
                 GamePad.PlayerTwo.Update();
                 GamePad.PlayerThree.Update();
                 GamePad.PlayerFour.Update();
+                Keyboard.Update();
                 #if (!XBOX)
                     Mouse.Update();
-                    Keyboard.Update();
                     /*Wiimote.PlayerOne.Update();
                     Wiimote.PlayerTwo.Update();
                     Wiimote.PlayerThree.Update();

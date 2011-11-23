@@ -30,7 +30,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
@@ -147,12 +146,16 @@ namespace XNAFinalEngine.Graphics
             }
         } // SetWorldViewProjMatrix
 
-        private static Matrix[] lastUsedViewToLightViewProjMatrix;
+        private static readonly Matrix[] lastUsedViewToLightViewProjMatrix = new Matrix[numberSplits];
         private static void SetViewToLightViewProjMatrix(Matrix[] viewToLightViewProjMatrix)
         {
             if (!ArrayHelper.Equals(lastUsedViewToLightViewProjMatrix, viewToLightViewProjMatrix))
             {
-                lastUsedViewToLightViewProjMatrix = (Matrix[])(viewToLightViewProjMatrix.Clone());
+                //lastUsedViewToLightViewProjMatrix = (Matrix[])(viewToLightViewProjMatrix.Clone()); // Produces garbage
+                for (int i = 0; i < numberSplits; i++)
+                {
+                    lastUsedViewToLightViewProjMatrix[i] = viewToLightViewProjMatrix[i];
+                }
                 epViewToLightViewProj.SetValue(viewToLightViewProjMatrix);
             }
         } // SetViewToLightViewProjMatrix
@@ -161,12 +164,16 @@ namespace XNAFinalEngine.Graphics
 
         #region Clip Planes
 
-        private static Vector2[] lastUsedClipPlanes;
+        private static readonly Vector2[] lastUsedClipPlanes = new Vector2[numberSplits];
         private static void SetClipPlanes(Vector2[] clipPlanes)
         {
             if (!ArrayHelper.Equals(lastUsedClipPlanes, clipPlanes))
             {
-                lastUsedClipPlanes = (Vector2[])(clipPlanes.Clone());
+                // lastUsedClipPlanes = (Vector2[])(clipPlanes.Clone()); // Produces garbage
+                for (int i = 0; i < numberSplits; i++)
+                {
+                    lastUsedClipPlanes[i] = clipPlanes[i];
+                }
                 epClipPlanes.SetValue(clipPlanes);
             }
         } // SetClipPlanes
@@ -221,12 +228,16 @@ namespace XNAFinalEngine.Graphics
 
         #region Frustum Corners
 
-        private static Vector3[] lastUsedFrustumCorners;
+        private static readonly Vector3[] lastUsedFrustumCorners = new Vector3[numberSplits];
         private static void SetFrustumCorners(Vector3[] frustumCorners)
         {
             if (!ArrayHelper.Equals(lastUsedFrustumCorners, frustumCorners))
             {
-                lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone());
+                // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
+                for (int i = 0; i < numberSplits; i++)
+                {
+                    lastUsedFrustumCorners[i] = frustumCorners[i];
+                }
                 epFrustumCorners.SetValue(frustumCorners);
             }
         } // SetFrustumCorners

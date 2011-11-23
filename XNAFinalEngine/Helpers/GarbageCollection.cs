@@ -72,6 +72,10 @@ namespace XNAFinalEngine.Helpers
         /// <summary>
         ///  Collect garbage.
         /// </summary>
+        /// <remarks>
+        /// In PC WinForms does generate some garbage in its message handling infrastructure, 
+        /// but this is all extremely short-lived and unlikely to make it into gen2, so it will be cheap to collect.
+        /// </remarks>
         internal static void CollectGarbage()
         {
             // All generations will undergo a garbage collection.

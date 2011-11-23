@@ -85,12 +85,17 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         internal static void LoadContent()
         {
+
+            #region Load Managers
+
             // Create the 32 layers.
             Layer.InitLayers();
             // Graphics
             SpriteManager.Init();
             // Input
             InputManager.Initialize();
+
+            #endregion
 
             #region FPS
 
@@ -103,14 +108,22 @@ namespace XNAFinalEngine.EngineCore
             fpsText.Transform.LocalRotation = 0f;
 
             #endregion
-            
+
+            #region Load Scene
+
             if (CurrentScene != null)
             {
                 CurrentScene.Load();
             }
 
+            #endregion
+
+            #region Pre Draw
+
             // Pre draw to avoid the first frame's garbage and to place everything into memory.
-            //Draw(new GameTime());
+            Draw(new GameTime());
+
+            #endregion
 
             #region Garbage Collection
 
@@ -135,13 +148,13 @@ namespace XNAFinalEngine.EngineCore
             Time.GameDeltaTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
 
             #region Input
-            
+
             InputManager.Update();
-
+            
             #endregion
-
+            
             #region Scene Update Tasks
-
+            
             if (CurrentScene != null && CurrentScene.Loaded)
             {
                 CurrentScene.UpdateTasks();
@@ -231,7 +244,7 @@ namespace XNAFinalEngine.EngineCore
             // the inverse bind pose multiplication stage in the mesh draw code. And for now the engine will do this.
 
             #endregion
-
+            
             #region Particles Emitters
 
             // Update particle emitters.
@@ -241,9 +254,9 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-
+            
             #region Graphics
-
+            
             Camera currentCamera = null;
             // For each camera we render the scene in it
             for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
@@ -282,7 +295,7 @@ namespace XNAFinalEngine.EngineCore
                     }
                 }
             }
-
+            
             #endregion
 
             #region Screenshot Preparations
@@ -398,7 +411,7 @@ namespace XNAFinalEngine.EngineCore
                 destinationSize = currentCamera.RenderTargetSize;
 
             #endregion
-
+            
             #region GBuffer Pass
 
             GBufferPass.Begin(destinationSize);
@@ -617,7 +630,7 @@ namespace XNAFinalEngine.EngineCore
             // The sky is render latter so that the GPU can avoid fragment processing. But it has to be before the transparent objects.
 
             #region Particles
-
+            
             // The particle systems
             ParticleShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.AspectRatio, currentCamera.FarPlane,
                                           new Size(currentCamera.Viewport.Width, currentCamera.Viewport.Height), gbufferTextures.RenderTargets[0]);
@@ -631,7 +644,7 @@ namespace XNAFinalEngine.EngineCore
                                                    currentParticleRenderer.RotateSpeed, currentParticleRenderer.StartSize, currentParticleRenderer.EndSize,
                                                    currentParticleRenderer.Texture, currentParticleRenderer.SoftParticles, currentParticleRenderer.FadeDistance);
             }
-
+            
             #endregion
 
             #region Transparent Objects

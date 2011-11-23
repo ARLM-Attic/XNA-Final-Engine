@@ -104,7 +104,7 @@ namespace XNAFinalEngineExamples
                                                             Color = new Color(30, 30, 30),
                                                             Intensity = 1.0f,
                                                             AmbientOcclusionStrength = 5};
-            /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
+            camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
@@ -114,7 +114,7 @@ namespace XNAFinalEngineExamples
                 AngleBias = 0.25f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.QuarterSize,
-            };*/
+            };
             /*camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
             {
                 NumberSteps = 12,
@@ -526,6 +526,7 @@ namespace XNAFinalEngineExamples
             particleSystem.AddComponent<ParticleRenderer>();
             particleSystem.ParticleRenderer.Texture = new Texture("Particles\\Fire");
             particleSystem.ParticleRenderer.SoftParticles = true;
+            particleSystem.ParticleRenderer.FadeDistance = 5f;
 
             #endregion
 
