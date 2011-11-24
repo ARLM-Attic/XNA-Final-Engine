@@ -30,18 +30,20 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Text;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Media;
 #endregion
 
 namespace XNAFinalEngine.Assets
 {
     /// <summary>
-    /// Font.
+    /// Song.
     /// </summary>
+    /// <remarks>
+    /// Because a content processor bug the song information (name, artist) can't be extracted. 
+    /// Because of that it uses the file name to extract this information. 
+    /// Filename format: index - artist - song name, where index is the song number in the list.
+    /// However the filename format: "artist - song name" works.
+    /// </remarks>
     public class Song : Asset
     {
         
@@ -51,16 +53,12 @@ namespace XNAFinalEngine.Assets
         /// XNA Sprite font.
         /// </summary>
         public Microsoft.Xna.Framework.Media.Song Resource { get; private set; }
-                  
-        /// <summary>
-        /// Gets the Album on which the Song appears.
-        /// </summary>
-        public Album Album { get { return Resource.Album; } }
         
         /// <summary>
         /// Gets the Artist of the Song.
+        /// Resource.Artist.Name doesn't work. It's a content processor compilation bug.
         /// </summary>
-        public Artist Artist { get { return Resource.Artist; } }
+        public string Artist { get; private set; }
 
         /// <summary>
         /// Gets the duration of the Song (in seconds)
@@ -74,7 +72,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Load song.
         /// </summary>
-        /// <param name="filename">The filename must be relative and be a valid file in the font directory.</param>
+        /// <param name="filename">The filename must be relative and be a valid file in the music directory.</param>
         public Song(string filename)
         {            
             string fullFilename = ContentManager.GameDataDirectory + "Music\\" + filename;
@@ -94,10 +92,30 @@ namespace XNAFinalEngine.Assets
             {
                 throw new Exception("Failed to load song: " + filename, e);
             }
-            Name = Resource.Name;
+            // Resource.Artist.Name and Resource.Name don't always work.
+            // It’s better to use the song filename but the format has to be respected.
+            // File name format: index - Artist - song name, where index is the song number in the list.
+            try
+            {
+                Artist = filename.Split('-')[1];
+                Name = filename.Split('-')[2];
+            }
+            catch // If there is an error maybe the index is not set.
+            {
+                try
+                {
+                    Artist = filename.Split('-')[0];
+                    Name = filename.Split('-')[1];
+                }
+                catch // If there is an error we are...
+                {
+                    Artist = "Unknown";
+                    Name = "Unknown";
+                }
+            }
         } // Song
 
         #endregion
         
-    } // Font
+    } // Song
 } // XNAFinalEngineBase.Assets
