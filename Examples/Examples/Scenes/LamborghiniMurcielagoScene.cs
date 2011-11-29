@@ -530,6 +530,17 @@ namespace XNAFinalEngineExamples
 
             #endregion
 
+            #region Music
+
+            //MusicManager.LoadAllSong(true);
+            //MusicManager.LoadSongs(new [] { MusicManager.SongsFilename[0], MusicManager.SongsFilename[1] }, true);
+            MusicManager.LoadSongs(MusicManager.SongsFilename, true);
+            /*MusicManager.RemoveSongs(new [] { MusicManager.SongsFilename[0] });
+            MusicManager.RemoveSongs(ContentManager.CurrentContentManager);*/
+            MusicManager.Shuffle = true;
+            MusicManager.Play(1);
+            #endregion
+
             GameLoop.ShowFramesPerSecond = true;
 
             base.Load();

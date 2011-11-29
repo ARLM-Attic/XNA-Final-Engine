@@ -58,7 +58,7 @@ namespace XNAFinalEngine.Assets
         /// Gets the Artist of the Song.
         /// Resource.Artist.Name doesn't work. It's a content processor compilation bug.
         /// </summary>
-        public string Artist { get; private set; }
+        public string Artist { get; set; }
 
         /// <summary>
         /// Gets the duration of the Song (in seconds)
@@ -110,7 +110,7 @@ namespace XNAFinalEngine.Assets
                 catch // If there is an error we are...
                 {
                     Artist = "Unknown";
-                    Name = "Unknown";
+                    Name = filename;
                 }
             }
         } // Song
