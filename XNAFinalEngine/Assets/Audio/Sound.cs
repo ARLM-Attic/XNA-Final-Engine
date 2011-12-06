@@ -31,58 +31,53 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.IO;
+using Microsoft.Xna.Framework.Audio;
 #endregion
 
 namespace XNAFinalEngine.Assets
 {
     /// <summary>
-    /// Song.
+    /// Sound.
     /// </summary>
-    /// <remarks>
-    /// Because a content processor bug the song information (name, artist) can't be extracted. 
-    /// Because of that it uses the file name to extract this information. 
-    /// Filename format: index - artist - song name, where index is the song number in the list.
-    /// However the filename format: "artist - song name" works.
-    /// </remarks>
-    public class Song : Asset
+    public class Sound : Asset
     {
         
         #region Properties
 
         /// <summary>
-        /// XNA song.
+        /// XNA sound effect.
         /// </summary>
-        public Microsoft.Xna.Framework.Media.Song Resource { get; private set; }
-        
-        /// <summary>
-        /// Gets the Artist of the Song.
-        /// Resource.Artist.Name doesn't work. It's a content processor compilation bug.
-        /// </summary>
-        public string Artist { get; set; }
+        public SoundEffect Resource { get; private set; }
 
         /// <summary>
-        /// Gets the duration of the Song (in seconds)
+        /// Gets the duration of the sound (in seconds)
         /// </summary>
         public float Duration { get { return (float)Resource.Duration.TotalSeconds; } }
+
+        /// <summary>
+        /// Returns the speed of sound: 343.5 meters per second.
+        /// </summary>
+        public static float SpeedOfSound { get { return SoundEffect.SpeedOfSound; } }
 
         #endregion
 
         #region Constructor
 
         /// <summary>
-        /// Load song.
+        /// Load sound.
         /// </summary>
-        /// <param name="filename">The filename must be relative and be a valid file in the music directory.</param>
-        public Song(string filename)
-        {            
-            string fullFilename = ContentManager.GameDataDirectory + "Music\\" + filename;
+        /// <param name="filename">The filename must be relative and be a valid file in the sound directory.</param>
+        public Sound(string filename)
+        {
+            Name = filename;
+            string fullFilename = ContentManager.GameDataDirectory + "Sound\\" + filename;
             if (File.Exists(fullFilename + ".xnb") == false)
             {
-                throw new Exception("Failed to load song: File " + fullFilename + " does not exists!");
+                throw new Exception("Failed to load sound: File " + fullFilename + " does not exists!");
             }
             try
             {
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Media.Song>(fullFilename);
+                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SoundEffect>(fullFilename);
             }
             catch (ObjectDisposedException e)
             {
@@ -90,32 +85,11 @@ namespace XNAFinalEngine.Assets
             }
             catch (Exception e)
             {
-                throw new Exception("Failed to load song: " + filename, e);
+                throw new Exception("Failed to load sound: " + filename, e);
             }
-            // Resource.Artist.Name and Resource.Name don't always work.
-            // It’s better to use the song filename but the format has to be respected.
-            // File name format: index - Artist - song name, where index is the song number in the list.
-            try
-            {
-                Artist = filename.Split('-')[1];
-                Name = filename.Split('-')[2];
-            }
-            catch // If there is an error maybe the index is not set.
-            {
-                try
-                {
-                    Artist = filename.Split('-')[0];
-                    Name = filename.Split('-')[1];
-                }
-                catch // If there is an error we are...
-                {
-                    Artist = "Unknown";
-                    Name = filename;
-                }
-            }
-        } // Song
+        } // Sound
 
         #endregion
         
-    } // Song
+    } // Sound
 } // XNAFinalEngineBase.Assets

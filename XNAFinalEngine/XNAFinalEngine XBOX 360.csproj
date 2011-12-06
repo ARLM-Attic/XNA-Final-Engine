@@ -52,6 +52,7 @@
     <Compile Include="Assets\Animations\RootAnimation.cs" />
     <Compile Include="Assets\Asset.cs" />
     <Compile Include="Assets\Audio\Song.cs" />
+    <Compile Include="Assets\Audio\Sound.cs" />
     <Compile Include="Assets\ContentManager.cs" />
     <Compile Include="Assets\Cursors\Cursor.cs" />
     <Compile Include="Assets\Documents\Document.cs" />
