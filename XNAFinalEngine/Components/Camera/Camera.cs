@@ -34,7 +34,6 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -506,6 +505,7 @@ namespace XNAFinalEngine.Components
             viewport = Rectangle.Empty;
             slavesCameras.Clear();
             renderTargetSize = Size.FullScreen;
+            ClearColor = new Color(20, 20, 20, 255); 
             // Generate the projection matrix.
             CalculateProjectionMatrix();
             Screen.AspectRatioChanged += OnAspectRatioChanged;
@@ -620,11 +620,6 @@ namespace XNAFinalEngine.Components
 
         // Pool for this type of components.
         private static readonly Pool<Camera> componentPool = new Pool<Camera>(20);
-
-        public Camera()
-        {
-            ClearColor = new Color(20, 20, 20, 255);
-        }
 
         /// <summary>
         /// Pool for this type of components.

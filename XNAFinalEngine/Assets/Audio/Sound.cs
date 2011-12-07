@@ -90,6 +90,49 @@ namespace XNAFinalEngine.Assets
         } // Sound
 
         #endregion
-        
+
+        #region Play
+
+        /// <summary>
+        /// Plays a sound.
+        /// </summary>
+        /// <remarks>
+        /// Play returns false if too many sounds already are playing. 
+        /// 
+        /// To loop a sound or apply 3D effects, call CreateInstance instead of Play, and SoundEffectInstance.Play. 
+        /// 
+        /// Sounds play in a "fire and forget" fashion with Play; therefore, the lifetime of these sounds is managed by the framework.
+        /// These sounds will play once, and then stop. They cannot be looped or 3D positioned.
+        /// To loop a sound or apply 3D effects, use the sound components.
+        /// </remarks>
+        /// <returns>true if the sound is playing back successfully; otherwise, false.</returns>
+        public bool Play ()
+        {
+            return Resource.Play();
+        } // Play
+
+        /// <summary>
+        /// Plays a sound.
+        /// </summary>
+        /// <remarks>
+        /// Play returns false if too many sounds already are playing. 
+        /// 
+        /// To loop a sound or apply 3D effects, call CreateInstance instead of Play, and SoundEffectInstance.Play. 
+        /// 
+        /// Sounds play in a "fire and forget" fashion with Play; therefore, the lifetime of these sounds is managed by the framework.
+        /// These sounds will play once, and then stop. They cannot be looped or 3D positioned.
+        /// To loop a sound or apply 3D effects, use the sound components.
+        /// </remarks>
+        /// <param name="volume">Volume, ranging from 0.0f (silence) to 1.0f (full volume). </param>
+        /// <param name="pitch">Pitch adjustment, ranging from -1.0f (down one octave) to 1.0f (up one octave). 0.0f is unity (normal) pitch.</param>
+        /// <param name="pan">Panning, ranging from -1.0f (full left) to 1.0f (full right). 0.0f is centered.</param>
+        /// <returns>true if the sound is playing back successfully; otherwise, false.</returns>
+        public bool Play(float volume, float pitch, float pan)
+        {
+            return Resource.Play(volume, pitch, pan);
+        } // Play
+
+        #endregion
+
     } // Sound
 } // XNAFinalEngineBase.Assets

@@ -61,6 +61,9 @@ namespace XNAFinalEngine.Audio
     /// Because of that it uses the file name to extract this information.
     /// Filename format: index - artist - song name, where index is the song number in the list.
     /// However the filename format: "artist - song name" works.
+    /// 
+    /// If you need a more memory efficient music manager you could try streaming wav files.
+    /// http://msdn.microsoft.com/en-us/library/ff827591.aspx
     /// </remarks>
     public static class MusicManager
     {
@@ -115,29 +118,43 @@ namespace XNAFinalEngine.Audio
         /// <summary>
         /// Music Volume.
         /// </summary>
+        /// <value>Volume, ranging from 0.0f (silence) to 1.0f (full volume).</value>
         /// <remarks>
-        /// Range between 0.0f to 1.0f.
         /// This value is meant for the user and the song volume is meant for the developer.
         /// The objective is to have an easy way to change the song volume (for example: fade) without losing the master volume.
         /// </remarks>
         public static float MasterVolume
         {
             get { return masterVolume; }
-            set { masterVolume = value; }
+            set
+            {
+                masterVolume = value;
+                if (masterVolume < 0)
+                    masterVolume = 0;
+                if (masterVolume > 1)
+                    masterVolume = 1;
+            }
         } // MusicVolume
 
         /// <summary>
         /// Song Volume.
         /// </summary>
+        /// <value>Volume, ranging from 0.0f (silence) to 1.0f (full volume).</value>
         /// <remarks>
-        /// Range between 0.0f to 1.0f.
         /// This value is meant for the developer and the master volume is meant for the user.
         /// The objective is to have an easy way to change the song volume (for example: fade) without losing the master volume.
         /// </remarks>
         public static float SongVolume
         {
             get { return songVolume; }
-            set { songVolume = value; }
+            set
+            {
+                songVolume = value;
+                if (songVolume < 0)
+                    songVolume = 0;
+                if (songVolume > 1)
+                    songVolume = 1;
+            }
         } // SongVolume
 
         #endregion

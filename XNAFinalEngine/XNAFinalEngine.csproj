@@ -124,8 +124,11 @@
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />
     <Compile Include="Assets\Textures\TextureCube.cs" />
+    <Compile Include="Audio\SoundManager.cs" />
     <Compile Include="Components\Animation\ModelAnimations.cs" />
     <Compile Include="Components\Animation\RootAnimations.cs" />
+    <Compile Include="Components\Audio\SoundEmitter.cs" />
+    <Compile Include="Components\Audio\SoundListener.cs" />
     <Compile Include="Components\Camera\Camera.cs" />
     <Compile Include="Components\Component.cs" />
     <Compile Include="Components\GameObject.cs" />
