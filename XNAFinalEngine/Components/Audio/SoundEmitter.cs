@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
 #endregion
@@ -53,10 +54,20 @@ namespace XNAFinalEngine.Components
 
         // Sound properties.
         private float volume, pan, pitch;
-
+        
         #endregion
 
         #region Properties
+        
+        /// <summary>
+        /// Sound Effect Instance.
+        /// </summary>
+        internal SoundEffectInstance SoundEffectInstance { get; private set; }
+
+        /// <summary>
+        /// Mutes the sound.
+        /// </summary>
+        public bool Mute { get; set; }
 
         /// <summary>
         /// Sound Volume.
@@ -158,7 +169,21 @@ namespace XNAFinalEngine.Components
         } // Uninitialize
 
         #endregion
-        
+
+        #region Play, Pause, Resume, Stop
+
+        public void Play()
+        {
+            SoundEffectInstance = Sound.Resource.CreateInstance();
+        } // Play
+
+        public void Play3D()
+        {
+            SoundEffectInstance = Sound.Resource.CreateInstance();
+        } // Play3D
+
+        #endregion
+
         #region On World Matrix Changed
 
         /// <summary>

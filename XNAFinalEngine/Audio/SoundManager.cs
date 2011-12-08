@@ -46,26 +46,12 @@ namespace XNAFinalEngine.Audio
     {
 
         #region Variables
-
-        /// <summary>
-        /// Sounds volume (it doesn't include music). Range between 0.0f to 1.0f.
-        /// </summary>
+        
+        // Default values.
         private static float masterVolume = 1;
-
-        /// <summary>
-        /// List of sounds that are currently playing.
-        /// </summary>
-        //private static List<SoundInstance> sounds = new List<SoundInstance>();
-
-        /// <summary>
-        /// Adjust the effect of distance calculations on the sounds.
-        /// </summary>
         private static float distanceScale = 1f;
-
-        /// <summary>
-        /// Master doppler scale.
-        /// </summary>
         private static float dopplerScale = 1f;
+        private static bool catchNoAudioHardwareException = true;
 
         #endregion
 
@@ -133,19 +119,20 @@ namespace XNAFinalEngine.Audio
                     dopplerScale = 0;
             }
         } // DopplerScale
-
-        #endregion
-
-        #region Add Sounds
-        /*
+        
         /// <summary>
-        /// Add the sound to the list of sounds currently playing.
+        /// Indicates if the system ignores or not the NoAudioHardwareException.
         /// </summary>
-        internal static void AddSound(SoundInstance soundInstance)
+        /// <remarks>
+        /// The exception that is thrown when no audio hardware is present, or when audio hardware is installed,
+        /// but the device drivers for the audio hardware are not present or enabled.
+        /// </remarks>
+        public static bool CatchNoAudioHardwareException
         {
-            sounds.Add(soundInstance);
-        } // AddSound
-        */
+            get { return catchNoAudioHardwareException; }
+            set { catchNoAudioHardwareException = value; }
+        } // CatchNoAudioHardwareException
+
         #endregion
 
         #region Pause Resume

@@ -33,9 +33,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.Audio;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngineContentPipelineExtensionRuntime.Settings;
 using XNAFinalEngine.Scenes;
@@ -330,8 +332,11 @@ namespace XNAFinalEngine.EngineCore
                 try { GameLoop.LoadContent(); }
                 catch (Exception e)
                 {
-                    Time.PauseGame();
-                    exception = e;
+                    if (!(e is NoAudioHardwareException) || SoundManager.CatchNoAudioHardwareException)
+                    {
+                        Time.PauseGame();
+                        exception = e;
+                    }
                 }
             }
             else
@@ -358,8 +363,11 @@ namespace XNAFinalEngine.EngineCore
                     try { GameLoop.Update(gameTime); }
                     catch (Exception e)
                     {
-                        Time.PauseGame();
-                        exception = e;
+                        if (!(e is NoAudioHardwareException) || SoundManager.CatchNoAudioHardwareException)
+                        {
+                            Time.PauseGame();
+                            exception = e;
+                        }
                     }
                 }
             }
@@ -387,8 +395,11 @@ namespace XNAFinalEngine.EngineCore
                     try { GameLoop.Draw(gameTime); }
                     catch (Exception e)
                     {
-                        Time.PauseGame();
-                        exception = e;
+                        if (!(e is NoAudioHardwareException) || SoundManager.CatchNoAudioHardwareException)
+                        {
+                            Time.PauseGame();
+                            exception = e;
+                        }
                     }
                 }
                 else // Show exception screen
@@ -410,7 +421,7 @@ namespace XNAFinalEngine.EngineCore
         } // Draw
 
         /// <summary>
-        /// 
+        /// Manages the message box exception dialog.
         /// </summary>
         private static void MessageBoxExceptionEnd(IAsyncResult result)
         {
