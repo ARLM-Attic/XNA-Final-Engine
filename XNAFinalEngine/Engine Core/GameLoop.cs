@@ -184,11 +184,17 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            #region Sound
+
+            SoundManager.Update();
+
             // Update sound emitters.
             for (int i = 0; i < SoundEmitter.ComponentPool.Count; i++)
             {
-                SoundEmitter.ComponentPool.Elements[i].Update();
+                SoundEmitter.ComponentPool.Elements[i].Update(null);
             }
+
+            #endregion
 
         } // Update
 

@@ -29,29 +29,43 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework.Audio;
-using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Assets;
 #endregion
 
 namespace XNAFinalEngine.Audio
 {
 
     /// <summary>
-    /// The sound content needs to be updating his parameters every frame, this class does this.
-    /// It also manages the master sound volume.
+    /// The sound manager.
     /// </summary>
-    public class SoundManager
+    public static class SoundManager
     {
 
+        #region Constants
+
+        /// <summary>
+        /// Maximum number of sound instances.
+        /// </summary>
+        private const int maximumNumberOfSoundInstances = 290;
+
+        #endregion
+
         #region Variables
-        
+
         // Default values.
         private static float masterVolume = 1;
         private static float distanceScale = 1f;
         private static float dopplerScale = 1f;
         private static bool catchNoAudioHardwareException = true;
+
+        // A counter used to avoid the creation of too many sound instances.
+        private static int soundInstanceCount;
+
+        // The active sound instances.
+        private static readonly SoundEffectInstance[] soundEffectInstances = new SoundEffectInstance[maximumNumberOfSoundInstances];
 
         #endregion
 
@@ -136,58 +150,84 @@ namespace XNAFinalEngine.Audio
         #endregion
 
         #region Pause Resume
-        /*
+        
         /// <summary>
         /// Pause all sounds.
         /// </summary>
-        public void PauseAllSounds()
+        public static void PauseAllSounds()
         {
-            foreach (SoundInstance soundInstance in sounds)
+            for (int i = 0; i < soundEffectInstances.Length; i++)
             {
-                soundInstance.Pause();
+                soundEffectInstances[i].Pause();
             }
         } // PauseAllSounds
 
         /// <summary>
         /// Resume all sounds.
         /// </summary>
-        public void ResumeAllSounds()
+        public static void ResumeAllSounds()
         {
-            foreach (SoundInstance soundInstance in sounds)
+            for (int i = 0; i < soundEffectInstances.Length; i++)
             {
-                soundInstance.Resume();
+                soundEffectInstances[i].Resume();
             }
         } // ResumeAllSounds
-        */
-        #endregion
         
+        #endregion
+
+        #region Fetch and Release Sound Instance
+
+        /// <summary>
+        /// Give a sound instance of a sound asset.
+        /// </summary>
+        /// <remarks>
+        /// In the XBOX 360 only 300 sound instances could be exist at the same time.
+        /// The sound system will not allow more than 290 instances at the same time so that you can use some fire and forget sounds.
+        /// </remarks>
+        internal static SoundEffectInstance FetchSoundInstance(Sound sound)
+        {
+            if (soundInstanceCount > maximumNumberOfSoundInstances)
+                return null;
+            soundEffectInstances[soundInstanceCount] = sound.Resource.CreateInstance();
+            soundInstanceCount++;
+            return soundEffectInstances[soundInstanceCount - 1];
+        } // GetSoundInstance
+
+        /// <summary>
+        /// Dispose the sound instance.
+        /// </summary>
+        internal static void ReleaseSoundInstance(SoundEffectInstance soundEffectInstance)
+        {
+            soundInstanceCount--;
+            soundEffectInstance.Dispose();
+            for (int i = 0; i < maximumNumberOfSoundInstances; i++)
+            {
+                if (soundEffectInstances[i] == soundEffectInstance)
+                {
+                    // Swap last value with this
+                    SoundEffectInstance temp = soundEffectInstances[i];
+                    soundEffectInstances[i] = soundEffectInstances[soundInstanceCount];
+                    soundEffectInstances[soundInstanceCount] = temp;
+                    return;
+                }
+            }
+            throw new InvalidOperationException("Sound Manager: Unable to release sound instance. The instance was not created with the sound manager.");
+        } // ReleaseSoundInstance
+
+        #endregion
+
         #region Update
 
         /// <summary>
-        /// Update automatically in every frame the sound's parameters of all the sounds currently playing.
+        /// Update the sound's global parameters.
         /// </summary>
-        public static void UpdateSound()
+        public static void Update()
         {
-            //try
-            {
-                // Update general parameters
-                SoundEffect.DistanceScale = DistanceScale;
-                SoundEffect.DopplerScale = DopplerScale;
-                SoundEffect.MasterVolume = MasterVolume;
-                // Remove sound instances that are over.
-                //sounds = (from SoundInstance soundInstance in sounds where !soundInstance.IsOver select soundInstance).ToList();
-                // Update sounds.
-                /*foreach (SoundInstance soundInstance in sounds)
-                {
-                    soundInstance.Update();
-                }*/
-            }
-            /*catch (Exception)
-            {
-                if (!EngineManager.IgnoreSoundExceptions)
-                    throw new Exception("Sound Manager critical error.");
-            }*/
-        } // UpdateSound
+            // Update general parameters
+            SoundEffect.DistanceScale = DistanceScale;
+            SoundEffect.DopplerScale = DopplerScale;
+            SoundEffect.MasterVolume = MasterVolume;
+        } // Update
 
         #endregion
 

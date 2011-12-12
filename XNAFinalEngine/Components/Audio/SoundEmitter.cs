@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.Audio;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 #endregion
@@ -241,7 +242,10 @@ namespace XNAFinalEngine.Components
         {
             if (SoundEffectInstance == null)
             {
-                SoundEffectInstance = Sound.Resource.CreateInstance();
+                SoundEffectInstance = SoundManager.FetchSoundInstance(Sound);
+                // If the sound instance could not be created then do nothing.
+                if (SoundEffectInstance == null)
+                    return;
                 SoundEffectInstance.Play();
                 SoundEffectInstance.Pan = Pan;
                 SoundEffectInstance.Pitch = Pitch;
@@ -261,8 +265,8 @@ namespace XNAFinalEngine.Components
         {
             if (SoundEffectInstance != null)
             {
-                // Avoid garbage collection.
-                SoundEffectInstance.Dispose();
+                // Dispose sound effect instance to avoid garbage collection.
+                SoundManager.ReleaseSoundInstance(SoundEffectInstance);
                 SoundEffectInstance = null;
             }
         } // Stop
@@ -291,59 +295,83 @@ namespace XNAFinalEngine.Components
         
         #endregion
 
-        internal void Update()
-        {
-            if (SoundEffectInstance != null && SoundEffectInstance.State == SoundState.Stopped)
-                Stop();
-        }
-
-        #region Update Sound Effect Instance
+        #region Update
 
         /// <summary>
-        /// Update emitter properties and sound effect properties.
+        /// Update sound emitter.
         /// </summary>
-        internal void UpdateSoundEffectInstance(AudioListener audioListener)
+        internal void Update(AudioListener audioListener)
         {
-            if (Type == SoundType.Sound3D)
+            if (SoundEffectInstance != null)
             {
-                audioEmitter.DopplerScale = DopplerScale;
-                audioEmitter.Forward = cachedWorldMatrix.Forward;
-                audioEmitter.Up = cachedWorldMatrix.Up;
-                audioEmitter.Position = cachedWorldMatrix.Translation;
-                audioEmitter.Velocity = (audioEmitter.Position - oldPosition) / Time.SmoothFrameTime; // Distance / Time
-                oldPosition = audioEmitter.Position;
-                if (SoundEffectInstance.State == SoundState.Playing)
+                // If the sound ends.
+                if (SoundEffectInstance.State == SoundState.Stopped)
+                    Stop();
+                else if (SoundEffectInstance.State == SoundState.Playing)
                 {
-                    SoundEffectInstance.Apply3D(audioListener, audioEmitter);
+                    SoundEffectInstance.Pan = Pan;
+                    SoundEffectInstance.Pitch = Pitch;
+                    SoundEffectInstance.Volume = Volume;
+                    // Update 3D information.
+                    if (Type == SoundType.Sound3D)
+                    {
+                        audioEmitter.DopplerScale = DopplerScale;
+                        audioEmitter.Forward = cachedWorldMatrix.Forward;
+                        audioEmitter.Up = cachedWorldMatrix.Up;
+                        audioEmitter.Position = cachedWorldMatrix.Translation;
+                        audioEmitter.Velocity = (audioEmitter.Position - oldPosition)/Time.SmoothFrameTime;
+                        // Distance / Time
+                        oldPosition = audioEmitter.Position;
+                        if (SoundEffectInstance.State == SoundState.Playing)
+                        {
+                            SoundEffectInstance.Apply3D(audioListener, audioEmitter);
+                        }
+                    }
                 }
             }
-            SoundEffectInstance.Pan = Pan;
-            SoundEffectInstance.Pitch = Pitch;
-            SoundEffectInstance.Volume = Volume;
-        } // UpdateSoundEffectInstance
+            else
+            {
+                // Check distance
+            }
+        } // Update
 
         /// <summary>
-        /// Update emitter properties and sound effect properties.
+        /// Update sound emitter.
         /// </summary>
-        internal void UpdateSoundEffectInstance(AudioListener[] audioListeners)
+        internal void Update(AudioListener[] audioListeners)
         {
-            if (Type == SoundType.Sound3D)
+            if (SoundEffectInstance != null)
             {
-                audioEmitter.DopplerScale = DopplerScale;
-                audioEmitter.Forward = cachedWorldMatrix.Forward;
-                audioEmitter.Up = cachedWorldMatrix.Up;
-                audioEmitter.Position = cachedWorldMatrix.Translation;
-                audioEmitter.Velocity = (audioEmitter.Position - oldPosition) / Time.SmoothFrameTime; // Distance / Time
-                oldPosition = audioEmitter.Position;
-                if (SoundEffectInstance.State == SoundState.Playing)
+                // If the sound ends.
+                if (SoundEffectInstance.State == SoundState.Stopped)
+                    Stop();
+                else if (SoundEffectInstance.State == SoundState.Playing)
                 {
-                    SoundEffectInstance.Apply3D(audioListeners, audioEmitter);
+                    SoundEffectInstance.Pan = Pan;
+                    SoundEffectInstance.Pitch = Pitch;
+                    SoundEffectInstance.Volume = Volume;
+                    // Update 3D information.
+                    if (Type == SoundType.Sound3D)
+                    {
+                        audioEmitter.DopplerScale = DopplerScale;
+                        audioEmitter.Forward = cachedWorldMatrix.Forward;
+                        audioEmitter.Up = cachedWorldMatrix.Up;
+                        audioEmitter.Position = cachedWorldMatrix.Translation;
+                        audioEmitter.Velocity = (audioEmitter.Position - oldPosition)/Time.SmoothFrameTime;
+                        // Distance / Time
+                        oldPosition = audioEmitter.Position;
+                        if (SoundEffectInstance.State == SoundState.Playing)
+                        {
+                            SoundEffectInstance.Apply3D(audioListeners, audioEmitter);
+                        }
+                    }
                 }
             }
-            SoundEffectInstance.Pan = Pan;
-            SoundEffectInstance.Pitch = Pitch;
-            SoundEffectInstance.Volume = Volume;
-        } // UpdateSoundEffectInstance
+            else
+            {
+                // Check distance
+            }
+        } // Update
 
         #endregion
 
