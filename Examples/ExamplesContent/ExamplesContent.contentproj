@@ -1270,7 +1270,6 @@
     <Folder Include="Music\" />
     <Folder Include="Shaders\Helpers\" />
     <Folder Include="Shaders\ScreenSpaceAlphaMasking\" />
-    <Folder Include="Sounds\" />
     <Folder Include="Textures\LookupTables\" />
     <Folder Include="Videos\" />
   </ItemGroup>
@@ -1362,6 +1361,38 @@
       <Name>MainSettings</Name>
       <Importer>XmlImporter</Importer>
       <Processor>PassThroughProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Sounds\Tutorials\Dog.wav">
+      <Name>Dog</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Sounds\Tutorials\FrontCenter.wav">
+      <Name>FrontCenter</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Sounds\Tutorials\FrontLeft.wav">
+      <Name>FrontLeft</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Sounds\Tutorials\FrontRight.wav">
+      <Name>FrontRight</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Sounds\Tutorials\RearLeft.wav">
+      <Name>RearLeft</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Sounds\Tutorials\RearRight.wav">
+      <Name>RearRight</Name>
+      <Importer>WavImporter</Importer>
+      <Processor>SoundEffectProcessor</Processor>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

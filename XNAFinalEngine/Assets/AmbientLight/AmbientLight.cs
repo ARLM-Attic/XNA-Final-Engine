@@ -67,7 +67,7 @@ namespace XNAFinalEngine.Assets
         {
             get { return color; }
             set { color = value; }
-        } // DiffuseColor
+        } // Color
 
         /// <summary>
         /// The Intensity of a light is multiplied with the Light color.
@@ -112,7 +112,7 @@ namespace XNAFinalEngine.Assets
             Name = "Post Process-" + nameNumber;
             nameNumber++;
             SphericalHarmonicAmbientLight = new SphericalHarmonicL2();
-            SphericalHarmonicAmbientLight.Fill(1, 1, 1);
+            SphericalHarmonicAmbientLight.Fill(0.5f, 0.5f, 0.5f);
         } // AmbientLight
 
         #endregion

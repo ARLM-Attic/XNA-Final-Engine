@@ -82,9 +82,7 @@ namespace XNAFinalEngine.Components
         /// This matrix represents the view matrix.
         /// </summary>
         internal Matrix cachedWorldMatrix;
-
-        // Clear color
-
+        
         // Where on the screen is the camera rendered in clip space.
         private RectangleF normalizedViewport;
 
@@ -131,11 +129,11 @@ namespace XNAFinalEngine.Components
         private bool orthographic;
 
         // Camera's vertical size when in orthographic mode.
-        private int orthographicVerticalSize = 10;
+        private int orthographicVerticalSize;
 
-        private AmbientLight ambientLight = new AmbientLight();
+        private AmbientLight ambientLight;
 
-        private PostProcess postProcess = new PostProcess();
+        private PostProcess postProcess;
 
         private Size renderTargetSize;
         
@@ -505,7 +503,8 @@ namespace XNAFinalEngine.Components
             viewport = Rectangle.Empty;
             slavesCameras.Clear();
             renderTargetSize = Size.FullScreen;
-            ClearColor = new Color(20, 20, 20, 255); 
+            ClearColor = new Color(20, 20, 20, 255);
+            orthographicVerticalSize = 10;
             // Generate the projection matrix.
             CalculateProjectionMatrix();
             Screen.AspectRatioChanged += OnAspectRatioChanged;

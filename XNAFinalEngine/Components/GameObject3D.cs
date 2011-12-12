@@ -39,6 +39,8 @@ namespace XNAFinalEngine.Components
         private Pool<SpotLight>.Accessor spotLightAccessor;
         private Pool<ParticleEmitter>.Accessor particleEmitterAccessor;
         private Pool<ParticleRenderer>.Accessor particleRendererAccessor;
+        private Pool<SoundEmitter>.Accessor soundEmitterAccessor;
+        private Pool<SoundListener>.Accessor soundListenerAccessor;
 
         #endregion
 
@@ -53,6 +55,8 @@ namespace XNAFinalEngine.Components
         private ParticleEmitter particleEmitter;
         private ParticleRenderer particleRenderer;
         private readonly List<Script> scripts = new List<Script>(2);
+        private SoundEmitter soundEmitter;
+        private SoundListener soundListener;
 
         #endregion
 
@@ -219,6 +223,38 @@ namespace XNAFinalEngine.Components
             }
         } // ParticleRenderer
 
+        /// <summary>
+        /// Associated sound emitter component.
+        /// </summary>
+        public SoundEmitter SoundEmitter
+        {
+            get { return soundEmitter; }
+            private set
+            {
+                SoundEmitter oldValue = soundEmitter;
+                soundEmitter = value;
+                // Invoke event
+                if (SoundEmitterChanged != null)
+                    SoundEmitterChanged(this, oldValue, value);
+            }
+        } // SoundEmitter
+
+        /// <summary>
+        /// Associated sound listener component.
+        /// </summary>
+        public SoundListener SoundListener
+        {
+            get { return soundListener; }
+            private set
+            {
+                SoundListener oldValue = soundListener;
+                soundListener = value;
+                // Invoke event
+                if (SoundListenerChanged != null)
+                    SoundListenerChanged(this, oldValue, value);
+            }
+        } // SoundListener
+
         #endregion
 
         #endregion
@@ -264,6 +300,16 @@ namespace XNAFinalEngine.Components
         /// Raised when the game object's particle renderer changes.
         /// </summary>
         public event ComponentEventHandler ParticleRendererChanged;
+
+        /// <summary>
+        /// Raised when the game object's sound emitter changes.
+        /// </summary>
+        public event ComponentEventHandler SoundEmitterChanged;
+
+        /// <summary>
+        /// Raised when the game object's sound listener changes.
+        /// </summary>
+        public event ComponentEventHandler SoundListenerChanged;
 
         #endregion
 
@@ -537,6 +583,44 @@ namespace XNAFinalEngine.Components
 
             #endregion
 
+            #region Sound Emitter
+
+            if (typeof(TComponentType) == typeof(SoundEmitter))
+            {
+                if (soundEmitterAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the sound emitter component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                soundEmitterAccessor = SoundEmitter.ComponentPool.Fetch();
+                // A component is a reference value, so no problem to do this.
+                SoundEmitter = SoundEmitter.ComponentPool[soundEmitterAccessor];
+                // Initialize the component to the default values.
+                SoundEmitter.Initialize(this);
+                return SoundEmitter;
+            }
+
+            #endregion
+
+            #region Sound Listener
+
+            if (typeof(TComponentType) == typeof(SoundListener))
+            {
+                if (soundListenerAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the sound listener component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                soundListenerAccessor = SoundListener.ComponentPool.Fetch();
+                // A component is a reference value, so no problem to do this.
+                SoundListener = SoundListener.ComponentPool[soundListenerAccessor];
+                // Initialize the component to the default values.
+                SoundListener.Initialize(this);
+                return SoundListener;
+            }
+
+            #endregion
+
             throw new ArgumentException("Game Object 3D: Unknown component type.");
         } // AddComponent
 
@@ -706,6 +790,38 @@ namespace XNAFinalEngine.Components
                 ParticleRenderer.ComponentPool.Release(particleRendererAccessor);
                 ParticleRenderer = null;
                 particleRendererAccessor = null;
+            }
+
+            #endregion
+
+            #region Sound Emitter
+
+            if (typeof(TComponentType) == typeof(SoundEmitter))
+            {
+                if (soundEmitterAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the sound emitter component. There is not one.");
+                }
+                SoundEmitter.Uninitialize();
+                SoundEmitter.ComponentPool.Release(soundEmitterAccessor);
+                SoundEmitter = null;
+                soundEmitterAccessor = null;
+            }
+
+            #endregion
+
+            #region Sound Listener
+
+            if (typeof(TComponentType) == typeof(SoundListener))
+            {
+                if (soundListenerAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the sound listener component. There is not one.");
+                }
+                SoundListener.Uninitialize();
+                SoundListener.ComponentPool.Release(soundListenerAccessor);
+                SoundListener = null;
+                soundListenerAccessor = null;
             }
 
             #endregion

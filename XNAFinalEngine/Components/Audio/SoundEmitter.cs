@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -43,7 +44,27 @@ namespace XNAFinalEngine.Components
     /// </summary>
     public class SoundEmitter : Component
     {
-        
+
+        #region Enumerates
+
+        /// <summary>
+        /// Indicates if the sound is 2D or 3D.
+        /// </summary>
+        public enum SoundType
+        {
+            /// <summary>
+            /// They sound the same no matter the listener and emitter properties.
+            /// </summary>
+            Sound2D,
+            /// <summary>
+            /// 3D sounds take in consideration the emitter and a listener properties, like position, orientation, velocity and distance. 
+            /// The sound source should be mono.
+            /// </summary>
+            Sound3D
+        } // SoundType
+
+        #endregion
+
         #region Variables
 
         /// <summary>
@@ -53,11 +74,23 @@ namespace XNAFinalEngine.Components
         internal Matrix cachedWorldMatrix;
 
         // Sound properties.
-        private float volume, pan, pitch;
+        private float volume, pan, pitch, dopplerScale;
+
+        // XNA audio emitter, used for 3D sounds.
+        private readonly AudioEmitter audioEmitter = new AudioEmitter();
+
+        // For velocity calculations.
+        private Vector3 oldPosition;
         
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Indicates if the sound is 2D or 3D.
+        /// </summary>
+        /// <value>Default value: 3D sound.</value>
+        public SoundType Type { get; set; }
         
         /// <summary>
         /// Sound Effect Instance.
@@ -132,6 +165,29 @@ namespace XNAFinalEngine.Components
                     pitch = 1;
             }
         } // Pitch
+
+        /// <summary>
+        /// Gets or sets a value that adjusts the effect of doppler calculations on the sound (emitter).
+        /// </summary>
+        /// <value>Value that scales doppler calculations on the sound (emitter).</value>
+        /// <remarks>
+        /// DopplerScale changes the relative velocities of emitters and listeners.
+        /// If sounds are shifting (pitch) too much for the given relative velocity of the emitter and listener, decrease the DopplerScale.
+        /// If sounds are not shifting enough for the given relative velocity of the emitter and listener, increase the DopplerScale.
+        /// 
+        /// 0.0 < DopplerScale <= 1.0 --> Decreases the effect of Doppler
+        /// DopplerScale > 1.0 --> Increase the effect of Doppler
+        /// </remarks>
+        public float DopplerScale
+        {
+            get { return dopplerScale; }
+            set
+            {
+                dopplerScale = value;
+                if (dopplerScale < 0)
+                    dopplerScale = 0;
+            }
+        } // DopplerScale
         
         #endregion
 
@@ -149,9 +205,12 @@ namespace XNAFinalEngine.Components
             IsLooped = false;
             Pan = 0;
             Pitch = 0;
+            dopplerScale = 1;
+            Type = SoundType.Sound3D;
             // Cache transform matrix. It will be the view matrix.
             cachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
+            oldPosition = cachedWorldMatrix.Translation;
         } // Initialize
         
         #endregion
@@ -172,15 +231,119 @@ namespace XNAFinalEngine.Components
 
         #region Play, Pause, Resume, Stop
 
+        /// <summary>
+        /// Plays or resumes a sound. 
+        /// </summary>
+        /// <remarks>
+        /// An emitter could only play one sound instance at a time.
+        /// </remarks>
         public void Play()
         {
-            SoundEffectInstance = Sound.Resource.CreateInstance();
+            if (SoundEffectInstance == null)
+            {
+                SoundEffectInstance = Sound.Resource.CreateInstance();
+                SoundEffectInstance.Play();
+                SoundEffectInstance.Pan = Pan;
+                SoundEffectInstance.Pitch = Pitch;
+                SoundEffectInstance.Volume = Volume;
+            }
+            else if (SoundEffectInstance.State == SoundState.Paused)
+            {
+                SoundEffectInstance.Resume();
+            }
         } // Play
 
-        public void Play3D()
+        /// <summary>
+        /// Stops playing the sound.
+        /// </summary>
+        /// <remarks>The sound instance is disposed.</remarks>
+        public void Stop()
         {
-            SoundEffectInstance = Sound.Resource.CreateInstance();
-        } // Play3D
+            if (SoundEffectInstance != null)
+            {
+                // Avoid garbage collection.
+                SoundEffectInstance.Dispose();
+                SoundEffectInstance = null;
+            }
+        } // Stop
+
+        /// <summary>
+        /// Pauses the sound.
+        /// </summary>
+        public void Pause()
+        {
+            if (SoundEffectInstance != null && SoundEffectInstance.State == SoundState.Playing)
+            {
+                SoundEffectInstance.Pause();
+            }
+        } // Pause
+
+        /// <summary>
+        /// Resumes playback for this sound.
+        /// </summary>
+        public void Resume()
+        {
+            if (SoundEffectInstance != null && SoundEffectInstance.State == SoundState.Paused)
+            {
+                SoundEffectInstance.Resume();
+            }
+        } // Resume
+        
+        #endregion
+
+        internal void Update()
+        {
+            if (SoundEffectInstance != null && SoundEffectInstance.State == SoundState.Stopped)
+                Stop();
+        }
+
+        #region Update Sound Effect Instance
+
+        /// <summary>
+        /// Update emitter properties and sound effect properties.
+        /// </summary>
+        internal void UpdateSoundEffectInstance(AudioListener audioListener)
+        {
+            if (Type == SoundType.Sound3D)
+            {
+                audioEmitter.DopplerScale = DopplerScale;
+                audioEmitter.Forward = cachedWorldMatrix.Forward;
+                audioEmitter.Up = cachedWorldMatrix.Up;
+                audioEmitter.Position = cachedWorldMatrix.Translation;
+                audioEmitter.Velocity = (audioEmitter.Position - oldPosition) / Time.SmoothFrameTime; // Distance / Time
+                oldPosition = audioEmitter.Position;
+                if (SoundEffectInstance.State == SoundState.Playing)
+                {
+                    SoundEffectInstance.Apply3D(audioListener, audioEmitter);
+                }
+            }
+            SoundEffectInstance.Pan = Pan;
+            SoundEffectInstance.Pitch = Pitch;
+            SoundEffectInstance.Volume = Volume;
+        } // UpdateSoundEffectInstance
+
+        /// <summary>
+        /// Update emitter properties and sound effect properties.
+        /// </summary>
+        internal void UpdateSoundEffectInstance(AudioListener[] audioListeners)
+        {
+            if (Type == SoundType.Sound3D)
+            {
+                audioEmitter.DopplerScale = DopplerScale;
+                audioEmitter.Forward = cachedWorldMatrix.Forward;
+                audioEmitter.Up = cachedWorldMatrix.Up;
+                audioEmitter.Position = cachedWorldMatrix.Translation;
+                audioEmitter.Velocity = (audioEmitter.Position - oldPosition) / Time.SmoothFrameTime; // Distance / Time
+                oldPosition = audioEmitter.Position;
+                if (SoundEffectInstance.State == SoundState.Playing)
+                {
+                    SoundEffectInstance.Apply3D(audioListeners, audioEmitter);
+                }
+            }
+            SoundEffectInstance.Pan = Pan;
+            SoundEffectInstance.Pitch = Pitch;
+            SoundEffectInstance.Volume = Volume;
+        } // UpdateSoundEffectInstance
 
         #endregion
 

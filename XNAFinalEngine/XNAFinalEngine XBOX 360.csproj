@@ -119,8 +119,6 @@
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonics.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL1.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL2.cs" />
-    <Compile Include="Graphics\Particles\ParticleEmitterCurve.cs" />
-    <Compile Include="Graphics\Particles\ParticleEmitterObject.cs" />
     <Compile Include="Graphics\Particles\ParticleShader.cs" />
     <Compile Include="Graphics\Particles\ParticleSystem.cs" />
     <Compile Include="Graphics\Particles\ParticleVertex.cs" />

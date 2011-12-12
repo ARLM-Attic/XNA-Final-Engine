@@ -133,7 +133,7 @@ namespace XNAFinalEngine.EngineCore
             // Collect all garbage.
             GarbageCollector.CollectGarbage();
             // Test the garbage collector.
-            //GarbageCollector.CreateWeakReference();
+            GarbageCollector.CreateWeakReference();
 
             #endregion
 
@@ -183,6 +183,12 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
+
+            // Update sound emitters.
+            for (int i = 0; i < SoundEmitter.ComponentPool.Count; i++)
+            {
+                SoundEmitter.ComponentPool.Elements[i].Update();
+            }
 
         } // Update
 

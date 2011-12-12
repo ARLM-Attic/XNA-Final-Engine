@@ -66,7 +66,8 @@ namespace XNAFinalEngineExamples
                                     floor, floor2, floor3,
                                     directionalLight, pointLight, pointLight2, pointLight3,
                                     camera, camera2,
-                                    particleSystem;
+                                    particleSystem,
+                                    dogSound;
 
         #endregion
 
@@ -538,8 +539,13 @@ namespace XNAFinalEngineExamples
             /*MusicManager.RemoveSongs(new [] { MusicManager.SongsFilename[0] });
             MusicManager.RemoveSongs(ContentManager.CurrentContentManager);*/
             MusicManager.Shuffle = true;
-            MusicManager.Play(1);
+            //MusicManager.Play(1);
+
             #endregion
+
+            dogSound = new GameObject3D();
+            dogSound.AddComponent<SoundEmitter>();
+            dogSound.SoundEmitter.Sound = new Sound("Tutorials\\Dog");
 
             GameLoop.ShowFramesPerSecond = true;
 
@@ -566,7 +572,7 @@ namespace XNAFinalEngineExamples
                 MusicManager.Previous();
             if (Keyboard.RightJustPressed)
                 MusicManager.Next();
-
+            dogSound.SoundEmitter.Play();
         } // UpdateTasks
 
         #endregion

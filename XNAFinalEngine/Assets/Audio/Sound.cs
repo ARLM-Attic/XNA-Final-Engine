@@ -70,7 +70,7 @@ namespace XNAFinalEngine.Assets
         public Sound(string filename)
         {
             Name = filename;
-            string fullFilename = ContentManager.GameDataDirectory + "Sound\\" + filename;
+            string fullFilename = ContentManager.GameDataDirectory + "Sounds\\" + filename;
             if (File.Exists(fullFilename + ".xnb") == false)
             {
                 throw new Exception("Failed to load sound: File " + fullFilename + " does not exists!");
@@ -101,9 +101,15 @@ namespace XNAFinalEngine.Assets
         /// 
         /// To loop a sound or apply 3D effects, call CreateInstance instead of Play, and SoundEffectInstance.Play. 
         /// 
-        /// Sounds play in a "fire and forget" fashion with Play; therefore, the lifetime of these sounds is managed by the framework.
+        /// Sounds play in a "fire and forget" fashion with Play.
         /// These sounds will play once, and then stop. They cannot be looped or 3D positioned.
         /// To loop a sound or apply 3D effects, use the sound components.
+        /// 
+        /// In the XBOX 360 only 300 sound instances could be exist at the same time.
+        /// The sound system will not allow more than 290 instances at the same time, so you can throw some fire and forget sounds, but be careful.
+        /// 
+        /// With the sound’s duration you can implement a system that checks fire and forget sound, but is unnecessary and it hurts the performance a little.
+        /// Besides, the sound emitter brings everything you need. Just use fire and forget sounds in testing or something similar.
         /// </remarks>
         /// <returns>true if the sound is playing back successfully; otherwise, false.</returns>
         public bool Play ()
@@ -119,9 +125,15 @@ namespace XNAFinalEngine.Assets
         /// 
         /// To loop a sound or apply 3D effects, call CreateInstance instead of Play, and SoundEffectInstance.Play. 
         /// 
-        /// Sounds play in a "fire and forget" fashion with Play; therefore, the lifetime of these sounds is managed by the framework.
+        /// Sounds play in a "fire and forget" fashion with Play.
         /// These sounds will play once, and then stop. They cannot be looped or 3D positioned.
         /// To loop a sound or apply 3D effects, use the sound components.
+        /// 
+        /// In the XBOX 360 only 300 sound instances could be exist at the same time.
+        /// The sound system will not allow more than 290 instances at the same time, so you can throw some fire and forget sounds, but be careful.
+        /// 
+        /// With the sound’s duration you can implement a system that checks fire and forget sound, but is unnecessary and it hurts the performance a little.
+        /// Besides, the sound emitter brings everything you need. Just use fire and forget sounds in testing or something similar.
         /// </remarks>
         /// <param name="volume">Volume, ranging from 0.0f (silence) to 1.0f (full volume). </param>
         /// <param name="pitch">Pitch adjustment, ranging from -1.0f (down one octave) to 1.0f (up one octave). 0.0f is unity (normal) pitch.</param>

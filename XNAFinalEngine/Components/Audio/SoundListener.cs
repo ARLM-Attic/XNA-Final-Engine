@@ -30,6 +30,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -50,10 +52,21 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal Matrix cachedWorldMatrix;
 
+        // XNA audio emitter, used for 3D sounds.
+        private readonly AudioListener audioListener = new AudioListener();
+
+        // For velocity calculations.
+        private Vector3 oldPosition;
+
         #endregion
 
         #region Properties
-        
+
+        /// <summary>
+        /// Enabled.
+        /// </summary>
+        public bool Enabled { get; set; }
+
         #endregion
 
         #region Initialize
@@ -64,11 +77,12 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
-            // Values //
-
+            // Default values.
+            Enabled = true;
             // Cache transform matrix. It will be the view matrix.
             cachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
+            oldPosition = cachedWorldMatrix.Translation;
         } // Initialize
         
         #endregion
@@ -84,6 +98,22 @@ namespace XNAFinalEngine.Components
             base.Uninitialize();
             ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
         } // Uninitialize
+
+        #endregion
+
+        #region Update Sound Effect Instance
+
+        /// <summary>
+        /// Update listener properties.
+        /// </summary>
+        internal void UpdateListenerProperties()
+        {
+            audioListener.Forward = cachedWorldMatrix.Forward;
+            audioListener.Up = cachedWorldMatrix.Up;
+            audioListener.Position = cachedWorldMatrix.Translation;
+            audioListener.Velocity = (audioListener.Position - oldPosition) / Time.SmoothFrameTime; // Distance / Time
+            oldPosition = audioListener.Position;
+        } // UpdateListenerProperties
 
         #endregion
         
