@@ -29,7 +29,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
 using System;
 using Microsoft.Xna.Framework.Audio;
 using XNAFinalEngine.Assets;
@@ -41,6 +40,12 @@ namespace XNAFinalEngine.Audio
     /// <summary>
     /// The sound manager.
     /// </summary>
+    /// <remarks>
+    /// It seems impossible to avoid garbage with soundEffectInstance and it’s a shame.
+    /// However we can reduce it. A pool (or something similar) could be implemented so that we don’t need to dispose the released sound instances.
+    /// Instead, they should be stored in a list and if the list is full the older item will be deleted.
+    /// If a new instance is required, then the system will search this list first and if it’s necessary create an instance.
+    /// </remarks>
     public static class SoundManager
     {
 
@@ -186,12 +191,12 @@ namespace XNAFinalEngine.Audio
         /// </remarks>
         internal static SoundEffectInstance FetchSoundInstance(Sound sound)
         {
-            if (soundInstanceCount > maximumNumberOfSoundInstances)
+            if (soundInstanceCount >= maximumNumberOfSoundInstances)
                 return null;
             soundEffectInstances[soundInstanceCount] = sound.Resource.CreateInstance();
             soundInstanceCount++;
             return soundEffectInstances[soundInstanceCount - 1];
-        } // GetSoundInstance
+        } // FetchSoundInstance
 
         /// <summary>
         /// Dispose the sound instance.
@@ -199,6 +204,7 @@ namespace XNAFinalEngine.Audio
         internal static void ReleaseSoundInstance(SoundEffectInstance soundEffectInstance)
         {
             soundInstanceCount--;
+            // TODO See class' remarks.
             soundEffectInstance.Dispose();
             for (int i = 0; i < maximumNumberOfSoundInstances; i++)
             {
@@ -211,7 +217,7 @@ namespace XNAFinalEngine.Audio
                     return;
                 }
             }
-            throw new InvalidOperationException("Sound Manager: Unable to release sound instance. The instance was not created with the sound manager.");
+            throw new InvalidOperationException("Sound Manager: Unable to release sound instance. The instance was not created with the sound manager or was already disposed.");
         } // ReleaseSoundInstance
 
         #endregion

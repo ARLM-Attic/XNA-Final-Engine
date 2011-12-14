@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
@@ -49,7 +50,7 @@ namespace XNAFinalEngineExamples
 
         #region Variables
         
-        private static GameObject3D lamboBody, dude, otherCamera, directionalLight;
+        private static SoundEffectInstance[] soundEffectInstances;
 
         #endregion
 
@@ -61,57 +62,17 @@ namespace XNAFinalEngineExamples
         /// <remarks>Remember to call the base implementation of this method at the end.</remarks>
         public override void Load()
         {
-            //RootAnimation animation = new RootAnimation("AnimatedCube");
+            #region Sound Instance Test
 
-            lamboBody = new GameObject3D();
-            lamboBody.AddComponent<ModelRenderer>();
-            lamboBody.AddComponent<ModelFilter>();
-            lamboBody.ModelFilter.Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
-            lamboBody.ModelRenderer.Material = new Constant { DiffuseColor = Color.Turquoise, AlphaBlending = 0.5f };
-            lamboBody.AddComponent<RootAnimations>();
-            /*
-            otherCamera = new GameObject3D();
-            otherCamera.AddComponent<Camera>();
-            otherCamera.Transform.Translate(new Vector3(0, 200, 0), Space.Local);
-            otherCamera.Transform.Rotate(new Vector3(-3.1416f / 2, 0, 0), Space.Local);
-            */
-            lamboBody.AddComponent<Camera>();
-            lamboBody.Camera.Renderer = Camera.RenderingType.DeferredLighting;
-            lamboBody.Camera.RenderTargetSize = Size.FullScreen;
-            //lamboBody.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
-            ScriptEditorCamera script = (ScriptEditorCamera)lamboBody.AddComponent<ScriptEditorCamera>();
-            script.SetPosition(new Vector3(0, 0, 100), Vector3.Zero);
-            /*lamboBody.AddComponent<DirectionalLight>();
-            lamboBody.DirectionalLight.DiffuseColor = Color.Gray;*/
-            /*
-            otherCamera.Camera.MasterCamera = lamboBody.Camera;
-            otherCamera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
-            otherCamera.Camera.FarPlane = 20000;*/
-            
-            lamboBody.Camera.PostProcess = new PostProcess
+            // Just a test to see exactly how it works internally.
+            Sound sound = new Sound("Tutorials\\Dog");
+            soundEffectInstances = new SoundEffectInstance[400];
+            for (int i = 0; i < 400; i++)
             {
-                FilmGrain = new FilmGrain(),
-                Bloom = new Bloom(),
-                AdjustLevels = new AdjustLevels(),
-                MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Both, BlurRadius = 1f, ThresholdDepth = 0.2f, ThresholdColor = 0.2f }
-            };
-            
-            dude = new GameObject3D();
-            dude.Transform.Position = new Vector3(0, 0, 0);
-            dude.AddComponent<ModelFilter>();
-            dude.ModelFilter.Model = new FileModel("DudeWalk");
-            dude.AddComponent<ModelRenderer>();
-            dude.ModelRenderer.Material = new BlinnPhong { DiffuseColor = Color.Thistle };
-            dude.AddComponent<ModelAnimations>();
-            dude.ModelAnimations.AddAnimationClip(new ModelAnimation("dude"));
-            dude.ModelAnimations.Play("dude");
+                soundEffectInstances[i] = sound.Resource.CreateInstance();
+            }
 
-            directionalLight = new GameObject3D();
-            directionalLight.AddComponent<DirectionalLight>();
-            directionalLight.DirectionalLight.DiffuseColor = Color.Green;
-            directionalLight.Transform.LookAt(new Vector3(0, 1, 0), Vector3.Zero, Vector3.Forward);
-
-            GameLoop.ShowFramesPerSecond = true;
+            #endregion
 
             base.Load();
         } // Load
@@ -126,12 +87,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
-            /*if (Keyboard.LeftPressed)
-                lamboBody.Camera.PostProcess.MLAA.Enabled = false;
-            else
-                lamboBody.Camera.PostProcess.MLAA.Enabled = true;*/
-            //lamboBody.Transform.Translate(new Vector3(0.0001f, 0, 0), Space.Local);
-            //lamboBody.Transform.Rotate(new Vector3(0, 0.00001f, 0));
+            
         } // UpdateTasks
 
         #endregion
@@ -147,6 +103,8 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PreRenderTasks()
         {
+
+
 
             #region XBOX Matrix test
             /*

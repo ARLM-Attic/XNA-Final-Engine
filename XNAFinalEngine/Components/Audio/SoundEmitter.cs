@@ -29,7 +29,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -215,7 +214,7 @@ namespace XNAFinalEngine.Components
             Pan = 0;
             Pitch = 0;
             dopplerScale = 1;
-            Type = SoundType.Sound3D;
+            Type = SoundType.Sound2D;
             // Cache transform matrix. It will be the view matrix.
             cachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
@@ -267,6 +266,7 @@ namespace XNAFinalEngine.Components
                     audioEmitter.Velocity = (audioEmitter.Position - oldPosition) / Time.SmoothFrameTime;
                     // Distance / Time
                     oldPosition = audioEmitter.Position;
+                    // Apply3D produces garbage if you don't use a audio listener array. Go figure.
                     oneAudioListener[0] = emptyAudioListener;
                     SoundEffectInstance.Apply3D(oneAudioListener, audioEmitter);
                 }
@@ -346,8 +346,9 @@ namespace XNAFinalEngine.Components
                         {
                             throw new Exception("Sound Manager: 3D sounds need at least one sound listener.");
                         }
-                        oneAudioListener[0] = audioListener;
-                        SoundEffectInstance.Apply3D(oneAudioListener, audioEmitter);
+                        // Apply3D produces garbage if you don't use a audio listener array. Go figure.
+                        //oneAudioListener[0] = audioListener;
+                        //SoundEffectInstance.Apply3D(oneAudioListener, audioEmitter);
                     }
                     else
                     {

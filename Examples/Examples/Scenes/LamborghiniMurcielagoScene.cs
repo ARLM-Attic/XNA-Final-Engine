@@ -70,6 +70,9 @@ namespace XNAFinalEngineExamples
                                     dogSound,
                                     soundFrontLeft, soundFrontRight, soundRearLeft, soundRearRight, soundFrontCenter;
 
+        private static GameObject3D[] soundArray = new GameObject3D[290];
+
+
         #endregion
 
         #region Load
@@ -239,7 +242,7 @@ namespace XNAFinalEngineExamples
                                                  });
 
             #endregion
-
+            
             #region Front Left Wheel
 
             murcielagoLP670FrontLeftRim = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP670-FrontRim"),
@@ -489,13 +492,13 @@ namespace XNAFinalEngineExamples
             directionalLight.DirectionalLight.DiffuseColor = new Color(210, 200, 200);
             directionalLight.DirectionalLight.Intensity = 1.7f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.5f, 0.5f), Vector3.Zero, Vector3.Forward);
-            /*directionalLight.DirectionalLight.Shadow = new CascadedShadow
+            directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
                 Filter = Shadow.FilterType.PCF3x3,
                 LightDepthTextureSize = Size.Square512X512,
                 TextureSize = Size.TextureSize.HalfSize
-            };*/
-
+            };
+            
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.DiffuseColor = new Color(250, 200, 180);
@@ -571,6 +574,13 @@ namespace XNAFinalEngineExamples
             soundFrontCenter.AddComponent<SoundEmitter>();
             soundFrontCenter.SoundEmitter.Sound = new Sound("Tutorials\\RearRight");
 
+            for (int i = 0; i < 280; i++)
+            {
+                soundArray[i] = new GameObject3D();
+                soundArray[i].AddComponent<SoundEmitter>();
+                soundArray[i].SoundEmitter.Sound = new Sound("Tutorials\\RearRight");
+            }
+
             SoundManager.DistanceScale = 10;
 
             GameLoop.ShowFramesPerSecond = true;
@@ -605,6 +615,11 @@ namespace XNAFinalEngineExamples
             soundRearLeft.SoundEmitter.Play();
             soundRearRight.SoundEmitter.Play();
             soundFrontCenter.SoundEmitter.Play();
+
+            for (int i = 0; i < 280; i++)
+            {
+                soundArray[i].SoundEmitter.Play();
+            }
 
         } // UpdateTasks
 

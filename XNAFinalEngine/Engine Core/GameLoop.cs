@@ -139,7 +139,7 @@ namespace XNAFinalEngine.EngineCore
             // Collect all garbage.
             GarbageCollector.CollectGarbage();
             // Test the garbage collector.
-            GarbageCollector.CreateWeakReference();
+            //GarbageCollector.CreateWeakReference();
 
             #endregion
 
@@ -232,7 +232,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
             
             #region Emitters
-
+            
             // Update sound emitters.
             for (int i = 0; i < SoundEmitter.ComponentPool.Count; i++)
             {
@@ -245,7 +245,7 @@ namespace XNAFinalEngine.EngineCore
                 else if (audioListenerCount == 4)
                     SoundEmitter.ComponentPool.Elements[i].Update(fourAudioListener);
             }
-
+            
             #endregion
 
             #endregion
