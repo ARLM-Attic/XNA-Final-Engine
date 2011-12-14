@@ -29,6 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using XNAFinalEngine.Assets;
@@ -246,10 +248,22 @@ namespace XNAFinalEngine.Components
                 // If the sound instance could not be created then do nothing.
                 if (SoundEffectInstance == null)
                     return;
-                SoundEffectInstance.Play();
                 SoundEffectInstance.Pan = Pan;
                 SoundEffectInstance.Pitch = Pitch;
                 SoundEffectInstance.Volume = Volume;
+                // We need to activate the 3D support before play it, but we don’t want to know anything about the listener in this stage. 
+                if (Type == SoundType.Sound3D)
+                {
+                    audioEmitter.DopplerScale = DopplerScale;
+                    audioEmitter.Forward = cachedWorldMatrix.Forward;
+                    audioEmitter.Up = cachedWorldMatrix.Up;
+                    audioEmitter.Position = cachedWorldMatrix.Translation;
+                    audioEmitter.Velocity = (audioEmitter.Position - oldPosition) / Time.SmoothFrameTime;
+                    // Distance / Time
+                    oldPosition = audioEmitter.Position;
+                    SoundEffectInstance.Apply3D(new AudioListener(), audioEmitter);
+                }
+                SoundEffectInstance.Play();
             }
             else if (SoundEffectInstance.State == SoundState.Paused)
             {
@@ -309,7 +323,7 @@ namespace XNAFinalEngine.Components
                     Stop();
                 else if (SoundEffectInstance.State == SoundState.Playing)
                 {
-                    SoundEffectInstance.Pan = Pan;
+                    //SoundEffectInstance.Pan = Pan;
                     SoundEffectInstance.Pitch = Pitch;
                     SoundEffectInstance.Volume = Volume;
                     // Update 3D information.
@@ -322,10 +336,11 @@ namespace XNAFinalEngine.Components
                         audioEmitter.Velocity = (audioEmitter.Position - oldPosition)/Time.SmoothFrameTime;
                         // Distance / Time
                         oldPosition = audioEmitter.Position;
-                        if (SoundEffectInstance.State == SoundState.Playing)
+                        if (audioListener == null)
                         {
-                            SoundEffectInstance.Apply3D(audioListener, audioEmitter);
+                            throw new Exception("Sound Manager: 3D sounds need at least one sound listener.");
                         }
+                        SoundEffectInstance.Apply3D(audioListener, audioEmitter);
                     }
                 }
             }

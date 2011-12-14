@@ -53,7 +53,7 @@ namespace XNAFinalEngine.Components
         internal Matrix cachedWorldMatrix;
 
         // XNA audio emitter, used for 3D sounds.
-        private readonly AudioListener audioListener = new AudioListener();
+        internal readonly AudioListener audioListener = new AudioListener();
 
         // For velocity calculations.
         private Vector3 oldPosition;
@@ -101,7 +101,7 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
-        #region Update Sound Effect Instance
+        #region Update Listener Properties
 
         /// <summary>
         /// Update listener properties.

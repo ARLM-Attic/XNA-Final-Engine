@@ -116,6 +116,7 @@ namespace XNAFinalEngineExamples
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.QuarterSize,
             };
+            camera.AddComponent<SoundListener>();
             /*camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
             {
                 NumberSteps = 12,
@@ -546,6 +547,7 @@ namespace XNAFinalEngineExamples
             dogSound = new GameObject3D();
             dogSound.AddComponent<SoundEmitter>();
             dogSound.SoundEmitter.Sound = new Sound("Tutorials\\Dog");
+            //dogSound.SoundEmitter.Type = SoundEmitter.SoundType.Sound2D;
 
             GameLoop.ShowFramesPerSecond = true;
 

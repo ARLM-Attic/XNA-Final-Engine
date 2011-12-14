@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Assets;
@@ -62,6 +63,11 @@ namespace XNAFinalEngine.EngineCore
 
         // It's an auxiliary value that helps avoiding garbage.
         private static Vector3[] cornersViewSpace = new Vector3[4];
+
+        private static AudioListener oneAudioListener;
+        private static AudioListener[] twoAudioListener = new AudioListener[2];
+        private static AudioListener[] threeAudioListener = new AudioListener[3];
+        private static AudioListener[] fourAudioListener = new AudioListener[4];
         
         #endregion
 
@@ -186,13 +192,61 @@ namespace XNAFinalEngine.EngineCore
 
             #region Sound
 
+            // Update the sound's general parameters.
             SoundManager.Update();
+
+            #region Sound Listener
+
+            // Count the active sound listeners.
+            int audioListenerCount = 0;
+            for (int i = 0; i < SoundListener.ComponentPool.Count; i++)
+            {
+                if (SoundListener.ComponentPool.Elements[i].Enabled)
+                {
+                    audioListenerCount++;
+                }
+            }
+            if (audioListenerCount > 4)
+            {
+                throw new InvalidOperationException("Sound Manager: The maximum number of active audio listener is 4");
+            }
+            // Update and put into a list.
+            int arrayindex = 0;
+            for (int i = 0; i < SoundListener.ComponentPool.Count; i++)
+            {
+                if (SoundListener.ComponentPool.Elements[i].Enabled)
+                {
+                    SoundListener.ComponentPool.Elements[i].UpdateListenerProperties();
+                    if (audioListenerCount == 1)
+                        oneAudioListener = SoundListener.ComponentPool.Elements[i].audioListener;
+                    else if (audioListenerCount == 2)
+                        twoAudioListener[arrayindex] = SoundListener.ComponentPool.Elements[i].audioListener;
+                    else if (audioListenerCount == 3)
+                        threeAudioListener[arrayindex] = SoundListener.ComponentPool.Elements[i].audioListener;
+                    else if (audioListenerCount == 4)
+                        fourAudioListener[arrayindex] = SoundListener.ComponentPool.Elements[i].audioListener;
+                    arrayindex++;
+                }
+            }
+
+            #endregion
+
+            #region Emitters
 
             // Update sound emitters.
             for (int i = 0; i < SoundEmitter.ComponentPool.Count; i++)
             {
-                SoundEmitter.ComponentPool.Elements[i].Update(null);
+                if (audioListenerCount <= 1)
+                    SoundEmitter.ComponentPool.Elements[i].Update(oneAudioListener);
+                else if (audioListenerCount == 2)
+                    SoundEmitter.ComponentPool.Elements[i].Update(twoAudioListener);
+                else if (audioListenerCount == 3)
+                    SoundEmitter.ComponentPool.Elements[i].Update(threeAudioListener);
+                else if (audioListenerCount == 4)
+                    SoundEmitter.ComponentPool.Elements[i].Update(fourAudioListener);
             }
+
+            #endregion
 
             #endregion
 
