@@ -191,7 +191,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Sound
-
+            
             // Update the sound's general parameters.
             SoundManager.Update();
 
@@ -230,7 +230,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-
+            
             #region Emitters
 
             // Update sound emitters.

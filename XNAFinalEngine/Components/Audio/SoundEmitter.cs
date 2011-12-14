@@ -84,6 +84,12 @@ namespace XNAFinalEngine.Components
 
         // For velocity calculations.
         private Vector3 oldPosition;
+
+        // The Apply3D method needs an audio listener, but when I play a sound I don't have this information so I use an empty audio listener.
+        // To avoid garbage I created beforehand.
+        private static readonly AudioListener emptyAudioListener = new AudioListener();
+        // Apply3D produces garbage if you don't use a audio listener array. Go figure.
+        private static readonly AudioListener[] oneAudioListener = new AudioListener[1];
         
         #endregion
 
@@ -251,7 +257,7 @@ namespace XNAFinalEngine.Components
                 SoundEffectInstance.Pan = Pan;
                 SoundEffectInstance.Pitch = Pitch;
                 SoundEffectInstance.Volume = Volume;
-                // We need to activate the 3D support before play it, but we don’t want to know anything about the listener in this stage. 
+                // We need to activate the 3D support before play it, but we don’t want to know anything about the listener in this stage.
                 if (Type == SoundType.Sound3D)
                 {
                     audioEmitter.DopplerScale = DopplerScale;
@@ -261,7 +267,8 @@ namespace XNAFinalEngine.Components
                     audioEmitter.Velocity = (audioEmitter.Position - oldPosition) / Time.SmoothFrameTime;
                     // Distance / Time
                     oldPosition = audioEmitter.Position;
-                    SoundEffectInstance.Apply3D(new AudioListener(), audioEmitter);
+                    oneAudioListener[0] = emptyAudioListener;
+                    SoundEffectInstance.Apply3D(oneAudioListener, audioEmitter);
                 }
                 SoundEffectInstance.Play();
             }
@@ -310,7 +317,7 @@ namespace XNAFinalEngine.Components
         #endregion
 
         #region Update
-
+        
         /// <summary>
         /// Update sound emitter.
         /// </summary>
@@ -323,7 +330,6 @@ namespace XNAFinalEngine.Components
                     Stop();
                 else if (SoundEffectInstance.State == SoundState.Playing)
                 {
-                    //SoundEffectInstance.Pan = Pan;
                     SoundEffectInstance.Pitch = Pitch;
                     SoundEffectInstance.Volume = Volume;
                     // Update 3D information.
@@ -340,7 +346,12 @@ namespace XNAFinalEngine.Components
                         {
                             throw new Exception("Sound Manager: 3D sounds need at least one sound listener.");
                         }
-                        SoundEffectInstance.Apply3D(audioListener, audioEmitter);
+                        oneAudioListener[0] = audioListener;
+                        SoundEffectInstance.Apply3D(oneAudioListener, audioEmitter);
+                    }
+                    else
+                    {
+                        SoundEffectInstance.Pan = Pan;
                     }
                 }
             }

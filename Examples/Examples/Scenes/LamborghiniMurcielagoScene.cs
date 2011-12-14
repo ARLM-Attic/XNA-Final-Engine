@@ -55,11 +55,11 @@ namespace XNAFinalEngineExamples
         private static GameObject3D murcielagoBody, murcielagoLP640AirTakesEngine, murcielagoFrontLightBase, murcielagoFrontLightWhiteMetal, murcielagoGlasses,
                                     murcielagoEngineGlasses, murcielagoBlackMetal, murcielagoLogo, murcielagoWheelBlackContant, murcielagoloor,
                                     murcielagoLP640Grid, murcielagoLP640RearSpoilerDarkPart, murcielagoLP640Exhaust,
-                                    // Front Left Wheel
+            // Front Left Wheel
                                     murcielagoLP670FrontLeftRim, murcielagoLP640FrontLeftRimBase, murcielagoLP640FrontLeftRimBase02,
                                     murcielagoFrontLeftRimLogo, murcielagoFrontLeftBrakeDisc, murcielagoFrontLeftBrakeCaliper, murcielagoFrontLeftTyre,
                                     murcielagoFrontLeftTyre02, frontLeftRim,
-                                    // Rear Left Wheel
+            // Rear Left Wheel
                                     murcielagoLP670RearLeftRim, murcielagoLP640RearLeftRimBase, murcielagoLP640RearLeftRimBase02,
                                     murcielagoRearLeftRimLogo, murcielagoRearLeftBrakeDisc, murcielagoRearLeftBrakeCaliper, murcielagoRearLeftTyre,
                                     murcielagoRearLeftTyre02, rearLeftRim,
@@ -67,7 +67,8 @@ namespace XNAFinalEngineExamples
                                     directionalLight, pointLight, pointLight2, pointLight3,
                                     camera, camera2,
                                     particleSystem,
-                                    dogSound;
+                                    dogSound,
+                                    soundFrontLeft, soundFrontRight, soundRearLeft, soundRearRight, soundFrontCenter;
 
         #endregion
 
@@ -488,12 +489,12 @@ namespace XNAFinalEngineExamples
             directionalLight.DirectionalLight.DiffuseColor = new Color(210, 200, 200);
             directionalLight.DirectionalLight.Intensity = 1.7f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.5f, 0.5f), Vector3.Zero, Vector3.Forward);
-            directionalLight.DirectionalLight.Shadow = new CascadedShadow
+            /*directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
                 Filter = Shadow.FilterType.PCF3x3,
                 LightDepthTextureSize = Size.Square512X512,
                 TextureSize = Size.TextureSize.HalfSize
-            };
+            };*/
 
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
@@ -523,12 +524,12 @@ namespace XNAFinalEngineExamples
 
             #region Particles
 
-            particleSystem = new GameObject3D();
+            /*particleSystem = new GameObject3D();
             particleSystem.AddComponent<ParticleEmitter>();
             particleSystem.AddComponent<ParticleRenderer>();
             particleSystem.ParticleRenderer.Texture = new Texture("Particles\\Fire");
             particleSystem.ParticleRenderer.SoftParticles = true;
-            particleSystem.ParticleRenderer.FadeDistance = 5f;
+            particleSystem.ParticleRenderer.FadeDistance = 5f;*/
 
             #endregion
 
@@ -548,6 +549,29 @@ namespace XNAFinalEngineExamples
             dogSound.AddComponent<SoundEmitter>();
             dogSound.SoundEmitter.Sound = new Sound("Tutorials\\Dog");
             //dogSound.SoundEmitter.Type = SoundEmitter.SoundType.Sound2D;
+
+            soundFrontLeft = new GameObject3D();
+            soundFrontLeft.Transform.Position = new Vector3(10, 0, 0);
+            soundFrontLeft.AddComponent<SoundEmitter>();
+            soundFrontLeft.SoundEmitter.Sound = new Sound("Tutorials\\FrontLeft");
+            soundFrontRight = new GameObject3D();
+            soundFrontRight.Transform.Position = new Vector3(-10, 0, 0);
+            soundFrontRight.AddComponent<SoundEmitter>();
+            soundFrontRight.SoundEmitter.Sound = new Sound("Tutorials\\FrontRight");
+            soundRearLeft = new GameObject3D();
+            soundRearLeft.Transform.Position = new Vector3(0, 0, 0);
+            soundRearLeft.AddComponent<SoundEmitter>();
+            soundRearLeft.SoundEmitter.Sound = new Sound("Tutorials\\FrontCenter");
+            soundRearRight = new GameObject3D();
+            soundRearRight.Transform.Position = new Vector3(10, 0, -20);
+            soundRearRight.AddComponent<SoundEmitter>();
+            soundRearRight.SoundEmitter.Sound = new Sound("Tutorials\\RearLeft");
+            soundFrontCenter = new GameObject3D();
+            soundFrontCenter.Transform.Position = new Vector3(-10, 0, -20);
+            soundFrontCenter.AddComponent<SoundEmitter>();
+            soundFrontCenter.SoundEmitter.Sound = new Sound("Tutorials\\RearRight");
+
+            SoundManager.DistanceScale = 10;
 
             GameLoop.ShowFramesPerSecond = true;
 
@@ -574,7 +598,14 @@ namespace XNAFinalEngineExamples
                 MusicManager.Previous();
             if (Keyboard.RightJustPressed)
                 MusicManager.Next();
-            dogSound.SoundEmitter.Play();
+            //dogSound.SoundEmitter.Play();
+            
+            soundFrontLeft.SoundEmitter.Play();
+            soundFrontRight.SoundEmitter.Play();
+            soundRearLeft.SoundEmitter.Play();
+            soundRearRight.SoundEmitter.Play();
+            soundFrontCenter.SoundEmitter.Play();
+
         } // UpdateTasks
 
         #endregion
