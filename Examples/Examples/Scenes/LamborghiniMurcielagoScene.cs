@@ -70,6 +70,8 @@ namespace XNAFinalEngineExamples
                                     dogSound,
                                     soundFrontLeft, soundFrontRight, soundRearLeft, soundRearRight, soundFrontCenter;
 
+        private static GameObject2D hudTextureTest;
+
         private static GameObject3D[] soundArray = new GameObject3D[290];
 
 
@@ -548,6 +550,8 @@ namespace XNAFinalEngineExamples
 
             #endregion
 
+            #region Sound
+
             dogSound = new GameObject3D();
             dogSound.AddComponent<SoundEmitter>();
             dogSound.SoundEmitter.Sound = new Sound("Tutorials\\Dog");
@@ -574,14 +578,21 @@ namespace XNAFinalEngineExamples
             soundFrontCenter.AddComponent<SoundEmitter>();
             soundFrontCenter.SoundEmitter.Sound = new Sound("Tutorials\\RearRight");
 
+            /*
             for (int i = 0; i < 280; i++)
             {
                 soundArray[i] = new GameObject3D();
                 soundArray[i].AddComponent<SoundEmitter>();
                 soundArray[i].SoundEmitter.Sound = new Sound("Tutorials\\RearRight");
-            }
+            }*/
 
             SoundManager.DistanceScale = 10;
+
+            #endregion
+
+            hudTextureTest = new GameObject2D();
+            hudTextureTest.AddComponent<HudTexture>();
+            hudTextureTest.HudTexture.Texture = new Texture("WiimoteSensors");
 
             GameLoop.ShowFramesPerSecond = true;
 
@@ -616,10 +627,11 @@ namespace XNAFinalEngineExamples
             soundRearRight.SoundEmitter.Play();
             soundFrontCenter.SoundEmitter.Play();
 
+            /*
             for (int i = 0; i < 280; i++)
             {
                 soundArray[i].SoundEmitter.Play();
-            }
+            }*/
 
         } // UpdateTasks
 

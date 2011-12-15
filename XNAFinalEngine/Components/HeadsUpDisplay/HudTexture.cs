@@ -29,8 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
 using System;
-using System.Text;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
@@ -39,16 +39,16 @@ using XNAFinalEngine.Helpers;
 namespace XNAFinalEngine.Components
 {
     /// <summary>
-    /// Display text into the HUD.
+    /// Display a texture into the HUD.
     /// This component works with 2D and 3D game objects.
     /// </summary>
-    public class HudText : HudElement
+    public class HudTexture : HudElement
     {
 
         #region Variables
 
-        // The size value is arbitrary.
-        private readonly StringBuilder text = new StringBuilder(20);
+        // To allow the checking.
+        private Rectangle? sourceRectangle;
 
         #endregion
 
@@ -57,7 +57,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// The Font to use when rendering the text.
         /// </summary>
-        public Font Font { get; set; }
+        public Texture Texture { get; set; }
 
         /// <summary>
         /// Text Color.
@@ -65,12 +65,29 @@ namespace XNAFinalEngine.Components
         public Color Color { get; set; }
 
         /// <summary>
-        /// The string to display.
-        /// The reason why the set is not available is because we want to avoid garbage at any cost.
-        /// Also don’t use the “+” operator with this type.
+        /// A rectangle that specifies (in texels) the source texels from a texture.
         /// </summary>
-        /// <remarks>A String Builder type is used to avoid garbage collection.</remarks>
-        public StringBuilder Text { get { return text; } }
+        /// <remarks>Use null to draw the entire texture.</remarks>
+        public Rectangle? SourceRectangle 
+        {
+            get
+            {
+                if (sourceRectangle.HasValue &&
+                    (sourceRectangle.Value.Width + sourceRectangle.Value.X > Texture.Width ||
+                     sourceRectangle.Value.Height + sourceRectangle.Value.Y > Texture.Height))
+                    throw new InvalidOperationException("HUD Texture: the source rectangle is out of bounds.");
+                return sourceRectangle;
+            }
+            set { sourceRectangle = value; }
+        } // SourceRectangle
+
+        /// <summary>
+        /// A rectangle that specifies (in screen coordinates) the destination for drawing the sprite.  
+        /// </summary>
+        /// <remarks>
+        /// If this rectangle is not the same size as the source rectangle, the sprite will be scaled to fit.
+        /// Also, if this value is null then the transform component will be used to position the texture.</remarks>
+        public Rectangle? DestinationRectangle { get; set; }
         
         #endregion
 
@@ -82,61 +99,23 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
-            Font = null;
+            Texture = null;
             Color = Color.White;
-            #if (XBOX)
-                if (Text.Length > 0)
-                    Text.Remove(0, Text.Length - 1); // Clear is not supported in XBOX.
-            #else
-                Text.Clear();
-            #endif
         } // Initialize
 
         #endregion
 
-        #region Measure String
-
-        /// <summary>
-        /// Returns the width and height of a string as a Vector2.
-        /// </summary>
-        public Vector2 MeasureString(string text)
-        {
-            if (Font == null)
-            {
-                throw new InvalidOperationException("HudText: There is no Font set.");
-            }
-            return Font.MeasureString(text);
-        } // MeasureString
-
-        /// <summary>
-        /// Returns the width and height of a string as a Vector2.
-        /// http://msdn.microsoft.com/en-us/library/system.text.stringbuilder.aspx
-        /// StringBuilder is good for avoid garbage.
-        /// </summary>
-        public Vector2 MeasureString(StringBuilder text)
-        {
-            if (Font == null)
-            {
-                throw new InvalidOperationException("HudText: There is no Font set.");
-            }
-            return Font.MeasureString(text);
-        } // MeasureString
-
-        #endregion
-
         #region Pool
-        
-        /// <summary>
-        /// Pool for 2D HUD Text components
-        /// </summary>
-        private static readonly Pool<HudText> hudTextPool2D = new Pool<HudText>(20);
+
+        // Pool for this type of components.
+        private static readonly Pool<HudTexture> hudTexturePool2D = new Pool<HudTexture>(20);
 
         /// <summary>
-        /// Pool for 2D HUD Text components.
+        /// Pool for this type of components.
         /// </summary>
-        internal static Pool<HudText> HudTextPool2D { get { return hudTextPool2D; } }
+        internal static Pool<HudTexture> HudTexturePool2D { get { return hudTexturePool2D; } }
 
         #endregion
 
-    } // HudText
+    } // HudTexture
 } // XNAFinalEngine.Components

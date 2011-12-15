@@ -28,6 +28,14 @@ namespace XNAFinalEngine.Components
         #region Accessors
 
         private Pool<HudText>.Accessor hudTextAccessor;
+        private Pool<HudTexture>.Accessor hudTextureAccessor;
+
+        #endregion
+
+        #region Components
+
+        private HudText hudText;
+        private HudTexture hudTexture;
 
         #endregion
 
@@ -41,14 +49,36 @@ namespace XNAFinalEngine.Components
         public Transform2D Transform { get; private set; }
         
         /// <summary>
-        /// Associated Renderer component.
+        /// Associated Hud Text component.
         /// </summary>
-        public Renderer Renderer { get; private set; }
+        public HudText HudText
+        {
+            get { return hudText; }
+            private set
+            {
+                HudText oldValue = hudText;
+                hudText = value;
+                // Invoke event
+                if (HudTextChanged != null)
+                    HudTextChanged(this, oldValue, value);
+            }
+        } // HudText
 
         /// <summary>
         /// Associated Hud Text component.
         /// </summary>
-        public HudText HudText { get; private set; }
+        public HudTexture HudTexture
+        {
+            get { return hudTexture; }
+            private set
+            {
+                HudTexture oldValue = hudTexture;
+                hudTexture = value;
+                // Invoke event
+                if (HudTextureChanged != null)
+                    HudTextureChanged(this, oldValue, value);
+            }
+        } // HudTexture
         
         /// <summary>
         /// The parent of this game object.
@@ -58,6 +88,20 @@ namespace XNAFinalEngine.Components
             get { return Transform.Parent; }
             set { Transform.Parent = value; }
         } // Parent
+
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// Raised when the game object's HUD text changes.
+        /// </summary>
+        public event ComponentEventHandler HudTextChanged;
+
+        /// <summary>
+        /// Raised when the game object's HUD texture changes.
+        /// </summary>
+        public event ComponentEventHandler HudTextureChanged;
 
         #endregion
         
@@ -102,6 +146,9 @@ namespace XNAFinalEngine.Components
         /// <typeparam name="TComponentType">Component Type</typeparam>
         public override Component AddComponent<TComponentType>()
         {
+
+            #region Transform
+
             // Get from a pool or create the component.
             if (typeof(TComponentType) == typeof(Transform2D))
             {
@@ -111,8 +158,17 @@ namespace XNAFinalEngine.Components
             {
                 throw new ArgumentException("Game Object exception. Unable to create the 3D transform component. A 2D Game Object does not work in 3D.");
             }
+
+            #endregion
+
+            #region HUD Text
+
             if (typeof(TComponentType) == typeof(HudText))
             {
+                if (hudTextAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 2D: Unable to create the HUD text component. There is one already.");
+                }
                 // Search for an empty component in the pool.
                 hudTextAccessor = HudText.HudTextPool2D.Fetch();
                 // A component is a reference value, so no problem to do this.
@@ -121,8 +177,91 @@ namespace XNAFinalEngine.Components
                 HudText.Initialize(this);
                 return HudText;
             }
-            return null;
+
+            #endregion
+
+            #region HUD Texture
+
+            if (typeof(TComponentType) == typeof(HudTexture))
+            {
+                if (hudTextureAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 2D: Unable to create the HUD texture component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                hudTextureAccessor = HudTexture.HudTexturePool2D.Fetch();
+                // A component is a reference value, so no problem to do this.
+                HudTexture = HudTexture.HudTexturePool2D[hudTextureAccessor];
+                // Initialize the component to the default values.
+                HudTexture.Initialize(this);
+                return HudTexture;
+            }
+
+            #endregion
+
+            throw new ArgumentException("Game Object 2D: Unknown component type.");
         } // AddComponent
+
+        #endregion
+
+        #region Remove Component
+
+        /// <summary>
+        /// Removes a component to the game object. 
+        /// </summary>
+        /// <remarks>
+        /// A component is not really destroyed, is recycled, it returns to the component pool.
+        /// </remarks>
+        /// <typeparam name="TComponentType">Component Type</typeparam>
+        public override void RemoveComponent<TComponentType>()
+        {
+
+            #region Transform
+
+            if (typeof(TComponentType) == typeof(Transform2D))
+            {
+                throw new ArgumentException("Game Object 2D: Unable to remove the 2D transform component. The transform component can’t be replaced or removed.");
+            }
+            if (typeof(TComponentType) == typeof(Transform3D))
+            {
+                throw new ArgumentException("Game Object 2D: Unable to remove the 3D transform component. A 2D Game Object does not work in 3D.");
+            }
+
+            #endregion
+
+            #region HUD Text
+
+            if (typeof(TComponentType) == typeof(HudText))
+            {
+                if (hudTextAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 2D: Unable to remove the HUD text component. There is not one.");
+                }
+                HudText.Uninitialize();
+                HudText.HudTextPool2D.Release(hudTextAccessor);
+                HudText = null;
+                hudTextAccessor = null;
+            }
+
+            #endregion
+
+            #region HUD Texture
+
+            if (typeof(TComponentType) == typeof(HudTexture))
+            {
+                if (hudTextureAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 2D: Unable to remove the HUD texture component. There is not one.");
+                }
+                HudTexture.Uninitialize();
+                HudTexture.HudTexturePool2D.Release(hudTextureAccessor);
+                HudTexture = null;
+                hudTextureAccessor = null;
+            }
+
+            #endregion
+
+        } // RemoveComponent
 
         #endregion
 

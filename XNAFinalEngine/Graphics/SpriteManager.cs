@@ -35,6 +35,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
+using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.Graphics
@@ -60,6 +61,9 @@ namespace XNAFinalEngine.Graphics
         
         private static SamplerState samplerState2D = SamplerState.LinearClamp;
         private static SamplerState samplerState3D = SamplerState.AnisotropicClamp;
+
+        // To control the good use of begin-end.
+        private static bool begined = false;
 
         #endregion
 
@@ -109,10 +113,14 @@ namespace XNAFinalEngine.Graphics
         {
             if (spriteBatch == null)
                 throw new Exception("The Sprite Manager is not initialized.");
+            if (begined)
+                throw new InvalidOperationException("Sprite Manager: Begin has been called before calling End after the last call to Begin. Begin cannot be called again until End has been successfully called.");
 
             // In PC BlendState.AlphaBlend is a little more expensive than BlendState.Opaque when alpha = 1.
             // But PC is the powerful platform so no need to choose between the two.
             spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, samplerState2D, DepthStencilState.None, RasterizerState.CullCounterClockwise);
+            
+            begined = true;
         } // Begin
 
         #endregion
@@ -131,8 +139,48 @@ namespace XNAFinalEngine.Graphics
         /// <param name="scale">Scale factor.</param>
         public static void DrawText(Font font, StringBuilder text, Vector3 position, Color color, float rotation, Vector2 origin, float scale)
         {
-            spriteBatch.DrawString(font.Resource, text, new Vector2(position.X, position.Y), color, rotation, Vector2.Zero, scale, SpriteEffects.None, position.Z);
+            if (!begined)
+                throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+            spriteBatch.DrawString(font.Resource, text, new Vector2(position.X, position.Y), color, rotation, origin, scale, SpriteEffects.None, position.Z);
         } // DrawText
+
+        #endregion
+
+        #region Draw Texture
+
+        /// <summary>
+        /// Adds a sprite to a batch of sprites for rendering using the specified texture, position, source rectangle, color, rotation, origin, scale, effects and layer.
+        /// </summary>
+        /// <param name="texture">A texture.</param>
+        /// <param name="position">The location (in screen coordinates) to draw the sprite. It also includes the depth. By default, 0 represents the front layer and 1 represents a back layer.</param>
+        /// <param name="sourceRectangle">A rectangle that specifies (in texels) the source texels from a texture. Use null to draw the entire texture.</param>
+        /// <param name="color">The color to tint the font.</param>
+        /// <param name="rotation">Specifies the angle (in radians) to rotate the sprite about its center.</param>
+        /// <param name="origin">The sprite origin; the default is (0,0) which represents the upper-left corner.</param>
+        /// <param name="scale">Scale factor.</param>
+        public static void DrawTexture(Texture texture, Vector3 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, float scale)
+        {
+            if (!begined)
+                throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+            spriteBatch.Draw(texture.Resource, new Vector2(position.X, position.Y), sourceRectangle, color, rotation, origin, scale, SpriteEffects.None, position.Z);
+        } // DrawTexture
+
+        /// <summary>
+        /// Adds a sprite to a batch of sprites for rendering using the specified texture, position, source rectangle, color, rotation, origin, scale, effects and layer.
+        /// </summary>
+        /// <param name="texture">A texture.</param>
+        /// <param name="depth">The depth of a layer. By default, 0 represents the front layer and 1 represents a back layer.</param>
+        /// <param name="destinationRectangle">A rectangle that specifies (in screen coordinates) the destination for drawing the sprite. If this rectangle is not the same size as the source rectangle, the sprite will be scaled to fit.</param>
+        /// <param name="sourceRectangle">A rectangle that specifies (in texels) the source texels from a texture. Use null to draw the entire texture.</param>
+        /// <param name="color">The color to tint the font.</param>
+        /// <param name="rotation">Specifies the angle (in radians) to rotate the sprite about its center.</param>
+        /// <param name="origin">The sprite origin; the default is (0,0) which represents the upper-left corner.</param>
+        public static void DrawTexture(Texture texture, float depth, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin)
+        {
+            if (!begined)
+                throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+            spriteBatch.Draw(texture.Resource, destinationRectangle, sourceRectangle, color, rotation, origin, SpriteEffects.None, depth);
+        } // DrawTexture
 
         #endregion
 
@@ -142,8 +190,11 @@ namespace XNAFinalEngine.Graphics
         /// Flushes the sprite batch and restores the device state to how it was before Begin was called.
         /// </summary>
         public static void End()
-        {            
+        {
+            if (!begined)
+                throw new InvalidOperationException("Sprite Manager: End was called, but Begin has not yet been called. You must call Begin successfully before you can call End.");
             spriteBatch.End();
+            begined = false;
         } // End
 
         #endregion

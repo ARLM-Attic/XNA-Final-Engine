@@ -214,7 +214,7 @@ namespace XNAFinalEngine.Components
             Pan = 0;
             Pitch = 0;
             dopplerScale = 1;
-            Type = SoundType.Sound2D;
+            Type = SoundType.Sound3D;
             // Cache transform matrix. It will be the view matrix.
             cachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
@@ -339,7 +339,7 @@ namespace XNAFinalEngine.Components
                         audioEmitter.Forward = cachedWorldMatrix.Forward;
                         audioEmitter.Up = cachedWorldMatrix.Up;
                         audioEmitter.Position = cachedWorldMatrix.Translation;
-                        audioEmitter.Velocity = (audioEmitter.Position - oldPosition)/Time.SmoothFrameTime;
+                        audioEmitter.Velocity = (audioEmitter.Position - oldPosition) / Time.SmoothFrameTime;
                         // Distance / Time
                         oldPosition = audioEmitter.Position;
                         if (audioListener == null)
@@ -347,8 +347,8 @@ namespace XNAFinalEngine.Components
                             throw new Exception("Sound Manager: 3D sounds need at least one sound listener.");
                         }
                         // Apply3D produces garbage if you don't use a audio listener array. Go figure.
-                        //oneAudioListener[0] = audioListener;
-                        //SoundEffectInstance.Apply3D(oneAudioListener, audioEmitter);
+                        oneAudioListener[0] = audioListener;
+                        SoundEffectInstance.Apply3D(oneAudioListener, audioEmitter);
                     }
                     else
                     {
@@ -359,6 +359,7 @@ namespace XNAFinalEngine.Components
             else
             {
                 // Check distance
+                // TODO!!
             }
         } // Update
 
@@ -397,6 +398,7 @@ namespace XNAFinalEngine.Components
             else
             {
                 // Check distance
+                // TODO!!
             }
         } // Update
 

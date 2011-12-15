@@ -124,6 +124,8 @@
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />
     <Compile Include="Assets\Textures\TextureCube.cs" />
+    <Compile Include="Assets\Videos\Video.cs" />
+    <Compile Include="Components\HeadsUpDisplay\HudTexture.cs" />
     <Compile Include="Audio\SoundManager.cs" />
     <Compile Include="Components\Animation\ModelAnimations.cs" />
     <Compile Include="Components\Animation\RootAnimations.cs" />
@@ -144,8 +146,8 @@
     <Compile Include="Components\Lights\PointLight.cs" />
     <Compile Include="Components\Lights\SpotLight.cs" />
     <Compile Include="Components\Model\ModelFilter.cs" />
-    <Compile Include="Components\Rendering\HeadsUpDisplay\HudElement.cs" />
-    <Compile Include="Components\Rendering\HeadsUpDisplay\HudText.cs" />
+    <Compile Include="Components\HeadsUpDisplay\HudElement.cs" />
+    <Compile Include="Components\HeadsUpDisplay\HudText.cs" />
     <Compile Include="Components\Rendering\ModelRenderer.cs" />
     <Compile Include="Components\Rendering\Renderer.cs" />
     <Compile Include="Components\Script\ScriptEditorCamera.cs" />

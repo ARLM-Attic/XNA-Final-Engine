@@ -79,6 +79,7 @@
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />
     <Compile Include="Assets\Textures\TextureCube.cs" />
+    <Compile Include="Assets\Videos\Video.cs" />
     <Compile Include="Audio\MusicManager.cs" />
     <Compile Include="Audio\SoundManager.cs" />
     <Compile Include="Components\Animation\ModelAnimations.cs" />
@@ -90,6 +91,9 @@
     <Compile Include="Components\GameObject.cs" />
     <Compile Include="Components\GameObject2D.cs" />
     <Compile Include="Components\GameObject3D.cs" />
+    <Compile Include="Components\HeadsUpDisplay\HudElement.cs" />
+    <Compile Include="Components\HeadsUpDisplay\HudText.cs" />
+    <Compile Include="Components\HeadsUpDisplay\HudTexture.cs" />
     <Compile Include="Components\Layer.cs" />
     <Compile Include="Components\Lights\DirectionalLight.cs" />
     <Compile Include="Components\Lights\Light.cs" />
@@ -97,8 +101,6 @@
     <Compile Include="Components\Lights\SpotLight.cs" />
     <Compile Include="Components\Model\ModelFilter.cs" />
     <Compile Include="Components\Particles\ParticleEmitter.cs" />
-    <Compile Include="Components\Rendering\HeadsUpDisplay\HudElement.cs" />
-    <Compile Include="Components\Rendering\HeadsUpDisplay\HudText.cs" />
     <Compile Include="Components\Rendering\ModelRenderer.cs" />
     <Compile Include="Components\Rendering\ParticleRenderer.cs" />
     <Compile Include="Components\Rendering\Renderer.cs" />

@@ -389,11 +389,13 @@ namespace XNAFinalEngine.EngineCore
             // Draw 2D Heads Up Display
             SpriteManager.Begin();
             {
+                #region HUD Text
+
                 HudText currentHudText;
                 for (int i = 0; i < HudText.HudTextPool2D.Count; i++)
                 {
                     currentHudText = HudText.HudTextPool2D.Elements[i];
-                    if (currentHudText.Visible)
+                    if (currentHudText.Visible && currentHudText.Font != null)
                     {
                         currentHudText.Text.Length = 4;
                         currentHudText.Text.AppendWithoutGarbage(Time.FramesPerSecond);
@@ -406,6 +408,37 @@ namespace XNAFinalEngine.EngineCore
                                                currentHudText.CachedScale);
                     }
                 }
+
+                #endregion
+
+                #region HUD Texture
+
+                HudTexture currentHudTexture;
+                for (int i = 0; i < HudTexture.HudTexturePool2D.Count; i++)
+                {
+                    currentHudTexture = HudTexture.HudTexturePool2D.Elements[i];
+                    if (currentHudTexture.Visible && currentHudTexture.Texture != null)
+                    {
+                        if (currentHudTexture.DestinationRectangle != null)
+                            SpriteManager.DrawTexture(currentHudTexture.Texture,
+                                                      currentHudTexture.CachedPosition.Z,
+                                                      currentHudTexture.DestinationRectangle.Value,
+                                                      currentHudTexture.SourceRectangle,
+                                                      currentHudTexture.Color,
+                                                      currentHudTexture.CachedRotation,
+                                                      Vector2.Zero);
+                        else
+                            SpriteManager.DrawTexture(currentHudTexture.Texture,
+                                                      currentHudTexture.CachedPosition,
+                                                      currentHudTexture.SourceRectangle,
+                                                      currentHudTexture.Color,
+                                                      currentHudTexture.CachedRotation,
+                                                      Vector2.Zero,
+                                                      currentHudTexture.CachedScale);
+                    }
+                }
+
+                #endregion
             }
             SpriteManager.End();
 

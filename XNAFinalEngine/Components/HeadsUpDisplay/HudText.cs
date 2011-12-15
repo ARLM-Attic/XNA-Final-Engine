@@ -29,40 +29,49 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System;
+using System.Text;
 using Microsoft.Xna.Framework;
+using XNAFinalEngine.Assets;
+using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XNAFinalEngine.Components
 {
-
     /// <summary>
-    /// Base class for renderers.
-    /// A renderer is what makes an object appear on the screen.
+    /// Display text into the HUD.
+    /// This component works with 2D and 3D game objects.
     /// </summary>
-    public abstract class Renderer : Component
+    public class HudText : HudElement
     {
 
         #region Variables
 
-        /// <summary>
-        /// Chaded transform's world matrix value.
-        /// </summary>
-        internal Matrix cachedWorldMatrix;
-
-        /// <summary>
-        /// Chaded game object's layer mask value.
-        /// </summary>
-        internal int cachedLayerMask;
+        // The size value is arbitrary.
+        private readonly StringBuilder text = new StringBuilder(20);
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Makes the game object visible or not.
+        /// The Font to use when rendering the text.
         /// </summary>
-        public bool Visible { get; set; }
+        public Font Font { get; set; }
 
+        /// <summary>
+        /// Text Color.
+        /// </summary>
+        public Color Color { get; set; }
+
+        /// <summary>
+        /// The string to display.
+        /// The reason why the set is not available is because we want to avoid garbage at any cost.
+        /// Also don’t use the “+” operator with this type.
+        /// </summary>
+        /// <remarks>A String Builder type is used to avoid garbage collection.</remarks>
+        public StringBuilder Text { get { return text; } }
+        
         #endregion
 
         #region Initialize
@@ -73,70 +82,59 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
-            Visible = true;
-            // Set Layer
-            cachedLayerMask = Owner.Layer.Mask;
-            Owner.LayerChanged += OnLayerChanged;
-            // Set World Matrix
-            if (Owner is GameObject2D)
-            {
-                OnWorldMatrixChanged(((GameObject2D)Owner).Transform.WorldMatrix);
-                ((GameObject2D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
-            }
-            else
-            {
-                OnWorldMatrixChanged(((GameObject3D)Owner).Transform.WorldMatrix);
-                ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
-            }
+            Font = null;
+            Color = Color.White;
+            #if (XBOX)
+                if (Text.Length > 0)
+                    Text.Remove(0, Text.Length - 1); // Clear is not supported in XBOX.
+            #else
+                Text.Clear();
+            #endif
         } // Initialize
 
         #endregion
 
-        #region Uninitialize
+        #region Measure String
 
         /// <summary>
-        /// Uninitialize the component.
-        /// Is important to remove event associations and any other reference.
+        /// Returns the width and height of a string as a Vector2.
         /// </summary>
-        internal override void Uninitialize()
+        public Vector2 MeasureString(string text)
         {
-            base.Uninitialize();
-            Owner.LayerChanged -= OnLayerChanged;
-            if (Owner is GameObject2D)
+            if (Font == null)
             {
-                ((GameObject2D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
+                throw new InvalidOperationException("HudText: There is no Font set.");
             }
-            else
+            return Font.MeasureString(text);
+        } // MeasureString
+
+        /// <summary>
+        /// Returns the width and height of a string as a Vector2.
+        /// http://msdn.microsoft.com/en-us/library/system.text.stringbuilder.aspx
+        /// StringBuilder is good for avoid garbage.
+        /// </summary>
+        public Vector2 MeasureString(StringBuilder text)
+        {
+            if (Font == null)
             {
-                ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
+                throw new InvalidOperationException("HudText: There is no Font set.");
             }
-        } // Uninitialize
+            return Font.MeasureString(text);
+        } // MeasureString
 
         #endregion
 
-        #region On Layer Changed
+        #region Pool
+
+        // Pool for this type of components.
+        private static readonly Pool<HudText> hudTextPool2D = new Pool<HudText>(20);
 
         /// <summary>
-        /// On game object's layer changed.
+        /// Pool for this type of components.
         /// </summary>
-        private void OnLayerChanged(object sender, int layerMask)
-        {
-            cachedLayerMask = layerMask;
-        } // OnLayerChanged
+        internal static Pool<HudText> HudTextPool2D { get { return hudTextPool2D; } }
 
         #endregion
 
-        #region On World Matrix Changed
-
-        /// <summary>
-        /// On transform's world matrix changed.
-        /// </summary>
-        protected virtual void OnWorldMatrixChanged(Matrix worldMatrix)
-        {
-            cachedWorldMatrix = worldMatrix;
-        } // OnWorldMatrixChanged
-
-        #endregion
-
-    } // Renderer
+    } // HudText
 } // XNAFinalEngine.Components

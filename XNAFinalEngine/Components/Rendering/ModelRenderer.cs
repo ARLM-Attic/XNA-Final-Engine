@@ -253,7 +253,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         private void CalculateBoundingVolumes()
         {
-            if (((GameObject3D)Owner).ModelFilter.Model == null)
+            if (((GameObject3D)Owner).ModelFilter == null || ((GameObject3D)Owner).ModelFilter.Model == null)
             {
                 // If no model asset is present then the bounding volumes will be empty.
                 boundingSphere = new BoundingSphere();

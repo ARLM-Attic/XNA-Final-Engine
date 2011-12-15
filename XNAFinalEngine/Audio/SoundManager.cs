@@ -43,8 +43,17 @@ namespace XNAFinalEngine.Audio
     /// <remarks>
     /// It seems impossible to avoid garbage with soundEffectInstance and it’s a shame.
     /// However we can reduce it. A pool (or something similar) could be implemented so that we don’t need to dispose the released sound instances.
-    /// Instead, they should be stored in a list and if the list is full the older item will be deleted.
+    /// Instead, they should be stored in a list and if the list is full the older item will be disposed.
     /// If a new instance is required, then the system will search this list first and if it’s necessary create an instance.
+    /// 
+    /// About XACT:
+    /// Shawn Hargreaves said: "All our future investment in audio technology will be in the SoundEffect, Song, and MediaPlayer APIs, as opposed to XACT."
+    /// Moreover it seems that XACT has problems with garbage (similar to SounEffect). But I’m not so sure, I didn’t make tests to corroborate this.
+    /// But, what can I do? Make an implementation that supports XACT? or ignore it?
+    /// I’m not a sound guy but it seems that even if the XACT’s tools are nice they don’t compensate the garbage problems and complexity.
+    /// Besides XNA Final Engine is a complete framework but if you want to do a game in this you could re implement the parts that do not fit well with your project.
+    /// The sound’s components are there, you only need to change some lines of code to work with XACT.
+    /// Any suggestions?
     /// </remarks>
     public static class SoundManager
     {
