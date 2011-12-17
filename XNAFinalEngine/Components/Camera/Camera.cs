@@ -185,6 +185,15 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
+        #region Sky
+
+        /// <summary>
+        /// The background sky shader.
+        /// </summary>
+        public Sky Sky { get; set; }
+
+        #endregion
+
         #region Post Process
 
         /// <summary>
@@ -497,6 +506,7 @@ namespace XNAFinalEngine.Components
             aspectRatio = 0;
             useUserProjectionMatrix = false;
             renderer = RenderingType.DeferredLighting;
+            Sky = null;
             masterCamera = null;
             normalizedViewport = new RectangleF(0, 0, 1, 1);
             viewportExpressedInClipSpace = true;

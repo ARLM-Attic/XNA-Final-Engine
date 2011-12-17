@@ -29,7 +29,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 //////////////// Matrices ////////////////////
 //////////////////////////////////////////////
 
-float4x4 ViewITProj : VIEWPROJECTION;
+float4x4 ViewITProj;
 
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
@@ -43,17 +43,16 @@ float intensity = 1;
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture CubeMapTexture;
-
-samplerCUBE CubeMapSampler = sampler_state
+texture CubeMapTexture : register(t0);
+samplerCUBE CubeMapSampler : register(s0) = sampler_state
 {
     Texture = <CubeMapTexture>;
-    MinFilter = Linear;
+    /*MinFilter = Linear;
     MagFilter = Linear;
     MipFilter = Linear;
 	AddressU = CLAMP;
 	AddressV = CLAMP;
-	AddressW = CLAMP;
+	AddressW = CLAMP;*/
 };
 
 //////////////////////////////////////////////

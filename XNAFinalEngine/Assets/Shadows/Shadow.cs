@@ -28,8 +28,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
+#region Using directives
 using System;
 using XNAFinalEngine.Helpers;
+#endregion
 
 namespace XNAFinalEngine.Assets
 {

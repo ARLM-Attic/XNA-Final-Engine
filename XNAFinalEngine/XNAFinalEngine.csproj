@@ -120,6 +120,8 @@
     <Compile Include="Assets\Shaders\Shader.cs" />
     <Compile Include="Assets\Shadows\CascadedShadow.cs" />
     <Compile Include="Assets\Shadows\BasicShadow.cs" />
+    <Compile Include="Assets\Sky\Skybox.cs" />
+    <Compile Include="Assets\Sky\Sky.cs" />
     <Compile Include="Assets\Shadows\Shadow.cs" />
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />
@@ -194,6 +196,7 @@
     <Compile Include="Assets\PostProcess\ColorCorrection.cs" />
     <Compile Include="Assets\PostProcess\FilmGrain.cs" />
     <Compile Include="Assets\Textures\LookupTable.cs" />
+    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\SkyboxShader.cs" />
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\ForwardBlinnPhongShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\BloomShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\PostProcessingShader.cs" />

@@ -466,7 +466,6 @@ namespace XNAFinalEngine.EngineCore
                             int blackStripe = (int)((Screen.Width - (Screen.Width / vsAspectRatio)) / 2);
                             screenRectangle = new Rectangle(0 + blackStripe, 0, Screen.Width - blackStripe * 2, Screen.Height);
                         }
-
                         SpriteManager.DrawTexture(currentVideo.Texture,
                                                   currentVideo.CachedPosition.Z,
                                                   screenRectangle,
@@ -771,6 +770,13 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             // The sky is render latter so that the GPU can avoid fragment processing. But it has to be before the transparent objects.
+            if (currentCamera.Sky != null)
+            {
+                if (currentCamera.Sky is Skybox && ((Skybox)currentCamera.Sky).CubeTexture != null)
+                {
+                    SkyboxShader.Instance.Render(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, (Skybox)(currentCamera.Sky));
+                }
+            }
 
             #region Particles
             

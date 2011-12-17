@@ -123,6 +123,7 @@ namespace XNAFinalEngineExamples
                 TextureSize = Size.TextureSize.QuarterSize,
             };
             camera.AddComponent<SoundListener>();
+            camera.Camera.Sky = new Skybox { CubeTexture = new TextureCube("FactoryCatwalkRGBM", true, 50) };
             /*camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
             {
                 NumberSteps = 12,
@@ -597,7 +598,7 @@ namespace XNAFinalEngineExamples
             videoTest = new GameObject2D();
             videoTest.AddComponent<VideoRenderer>();
             videoTest.VideoRenderer.Video = new Video("LogosIntro");
-            videoTest.VideoRenderer.Play();
+            //videoTest.VideoRenderer.Play();
             videoTest.Transform.Position = new Vector3(0, 0, 1);
 
             GameLoop.ShowFramesPerSecond = true;
@@ -626,6 +627,10 @@ namespace XNAFinalEngineExamples
             if (Keyboard.RightJustPressed)
                 MusicManager.Next();
             //dogSound.SoundEmitter.Play();
+            if (Keyboard.KeyJustPressed(Keys.Up))
+                camera.Camera.PostProcess.LensExposure = camera.Camera.PostProcess.LensExposure + 0.1f;
+            if (Keyboard.DownJustPressed)
+                camera.Camera.PostProcess.LensExposure = camera.Camera.PostProcess.LensExposure - 0.1f;
             
             soundFrontLeft.SoundEmitter.Play();
             soundFrontRight.SoundEmitter.Play();
