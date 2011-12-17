@@ -69,6 +69,9 @@ namespace XNAFinalEngine.Components
 
         #region Variables
 
+        // Sound Effect Instance.
+        private SoundEffectInstance soundEffectInstance;
+
         /// <summary>
         /// This is the cached world matrix from the transform component.
         /// This matrix represents the view matrix.
@@ -99,16 +102,6 @@ namespace XNAFinalEngine.Components
         /// </summary>
         /// <value>Default value: 3D sound.</value>
         public SoundType Type { get; set; }
-        
-        /// <summary>
-        /// Sound Effect Instance.
-        /// </summary>
-        internal SoundEffectInstance SoundEffectInstance { get; private set; }
-
-        /// <summary>
-        /// Mutes the sound.
-        /// </summary>
-        public bool Mute { get; set; }
 
         /// <summary>
         /// Sound Volume.
@@ -196,7 +189,34 @@ namespace XNAFinalEngine.Components
                     dopplerScale = 0;
             }
         } // DopplerScale
+
+        /// <summary>
+        /// Gets the current state (playing, paused, or stopped) 
+        /// </summary>
+        public SoundState State
+        {
+            get
+            {
+                if (soundEffectInstance == null)
+                    return SoundState.Stopped;
+                return soundEffectInstance.State;
+            }
+        } // State
         
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
+        /// </summary>
+        public delegate void SoundEventHandler(object sender, Sound sound);
+
+        /// <summary>
+        /// Raised when the sound ends.
+        /// </summary>
+        public event SoundEventHandler SoundEnded;
+
         #endregion
 
         #region Initialize
@@ -247,15 +267,16 @@ namespace XNAFinalEngine.Components
         /// </remarks>
         public void Play()
         {
-            if (SoundEffectInstance == null)
+            if (soundEffectInstance == null)
             {
-                SoundEffectInstance = SoundManager.FetchSoundInstance(Sound);
+                soundEffectInstance = SoundManager.FetchSoundInstance(Sound);
                 // If the sound instance could not be created then do nothing.
-                if (SoundEffectInstance == null)
+                if (soundEffectInstance == null)
                     return;
-                SoundEffectInstance.Pan = Pan;
-                SoundEffectInstance.Pitch = Pitch;
-                SoundEffectInstance.Volume = Volume;
+                soundEffectInstance.Pan = Pan;
+                soundEffectInstance.Pitch = Pitch;
+                soundEffectInstance.Volume = Volume;
+                soundEffectInstance.IsLooped = IsLooped;
                 // We need to activate the 3D support before play it, but we don’t want to know anything about the listener in this stage.
                 if (Type == SoundType.Sound3D)
                 {
@@ -268,13 +289,13 @@ namespace XNAFinalEngine.Components
                     oldPosition = audioEmitter.Position;
                     // Apply3D produces garbage if you don't use a audio listener array. Go figure.
                     oneAudioListener[0] = emptyAudioListener;
-                    SoundEffectInstance.Apply3D(oneAudioListener, audioEmitter);
+                    soundEffectInstance.Apply3D(oneAudioListener, audioEmitter);
                 }
-                SoundEffectInstance.Play();
+                soundEffectInstance.Play();
             }
-            else if (SoundEffectInstance.State == SoundState.Paused)
+            else if (soundEffectInstance.State == SoundState.Paused)
             {
-                SoundEffectInstance.Resume();
+                soundEffectInstance.Resume();
             }
         } // Play
 
@@ -284,11 +305,14 @@ namespace XNAFinalEngine.Components
         /// <remarks>The sound instance is disposed.</remarks>
         public void Stop()
         {
-            if (SoundEffectInstance != null)
+            if (soundEffectInstance != null)
             {
                 // Dispose sound effect instance to avoid garbage collection.
-                SoundManager.ReleaseSoundInstance(SoundEffectInstance);
-                SoundEffectInstance = null;
+                SoundManager.ReleaseSoundInstance(soundEffectInstance);
+                soundEffectInstance = null;
+                // Raise event
+                if (SoundEnded != null)
+                    SoundEnded(this, Sound);
             }
         } // Stop
 
@@ -297,9 +321,9 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public void Pause()
         {
-            if (SoundEffectInstance != null && SoundEffectInstance.State == SoundState.Playing)
+            if (soundEffectInstance != null && soundEffectInstance.State == SoundState.Playing)
             {
-                SoundEffectInstance.Pause();
+                soundEffectInstance.Pause();
             }
         } // Pause
 
@@ -308,9 +332,9 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public void Resume()
         {
-            if (SoundEffectInstance != null && SoundEffectInstance.State == SoundState.Paused)
+            if (soundEffectInstance != null && soundEffectInstance.State == SoundState.Paused)
             {
-                SoundEffectInstance.Resume();
+                soundEffectInstance.Resume();
             }
         } // Resume
         
@@ -323,15 +347,17 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal void Update(AudioListener audioListener)
         {
-            if (SoundEffectInstance != null)
+            if (soundEffectInstance != null)
             {
                 // If the sound ends.
-                if (SoundEffectInstance.State == SoundState.Stopped)
-                    Stop();
-                else if (SoundEffectInstance.State == SoundState.Playing)
+                if (soundEffectInstance.State == SoundState.Stopped)
                 {
-                    SoundEffectInstance.Pitch = Pitch;
-                    SoundEffectInstance.Volume = Volume;
+                    Stop();
+                }
+                else if (soundEffectInstance.State == SoundState.Playing)
+                {
+                    soundEffectInstance.Pitch = Pitch;
+                    soundEffectInstance.Volume = Volume;
                     // Update 3D information.
                     if (Type == SoundType.Sound3D)
                     {
@@ -348,11 +374,11 @@ namespace XNAFinalEngine.Components
                         }
                         // Apply3D produces garbage if you don't use a audio listener array. Go figure.
                         oneAudioListener[0] = audioListener;
-                        SoundEffectInstance.Apply3D(oneAudioListener, audioEmitter);
+                        soundEffectInstance.Apply3D(oneAudioListener, audioEmitter);
                     }
                     else
                     {
-                        SoundEffectInstance.Pan = Pan;
+                        soundEffectInstance.Pan = Pan;
                     }
                 }
             }
@@ -368,16 +394,15 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal void Update(AudioListener[] audioListeners)
         {
-            if (SoundEffectInstance != null)
+            if (soundEffectInstance != null)
             {
                 // If the sound ends.
-                if (SoundEffectInstance.State == SoundState.Stopped)
+                if (soundEffectInstance.State == SoundState.Stopped)
                     Stop();
-                else if (SoundEffectInstance.State == SoundState.Playing)
+                else if (soundEffectInstance.State == SoundState.Playing)
                 {
-                    SoundEffectInstance.Pan = Pan;
-                    SoundEffectInstance.Pitch = Pitch;
-                    SoundEffectInstance.Volume = Volume;
+                    soundEffectInstance.Pitch = Pitch;
+                    soundEffectInstance.Volume = Volume;
                     // Update 3D information.
                     if (Type == SoundType.Sound3D)
                     {
@@ -388,10 +413,14 @@ namespace XNAFinalEngine.Components
                         audioEmitter.Velocity = (audioEmitter.Position - oldPosition)/Time.SmoothFrameTime;
                         // Distance / Time
                         oldPosition = audioEmitter.Position;
-                        if (SoundEffectInstance.State == SoundState.Playing)
+                        if (soundEffectInstance.State == SoundState.Playing)
                         {
-                            SoundEffectInstance.Apply3D(audioListeners, audioEmitter);
+                            soundEffectInstance.Apply3D(audioListeners, audioEmitter);
                         }
+                    }
+                    else
+                    {
+                        soundEffectInstance.Pan = Pan;
                     }
                 }
             }

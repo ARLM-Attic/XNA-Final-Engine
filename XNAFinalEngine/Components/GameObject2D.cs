@@ -29,6 +29,7 @@ namespace XNAFinalEngine.Components
 
         private Pool<HudText>.Accessor hudTextAccessor;
         private Pool<HudTexture>.Accessor hudTextureAccessor;
+        private Pool<VideoRenderer>.Accessor videoRendererAccessor;
 
         #endregion
 
@@ -36,6 +37,7 @@ namespace XNAFinalEngine.Components
 
         private HudText hudText;
         private HudTexture hudTexture;
+        private VideoRenderer videoRenderer;
 
         #endregion
 
@@ -43,11 +45,17 @@ namespace XNAFinalEngine.Components
 
         #region Properties
 
+        #region Transform
+
         /// <summary>
         /// Associated transform component.
         /// </summary>
         public Transform2D Transform { get; private set; }
-        
+
+        #endregion
+
+        #region HUD Text
+
         /// <summary>
         /// Associated Hud Text component.
         /// </summary>
@@ -64,6 +72,10 @@ namespace XNAFinalEngine.Components
             }
         } // HudText
 
+        #endregion
+
+        #region HUD Texture
+
         /// <summary>
         /// Associated Hud Text component.
         /// </summary>
@@ -79,7 +91,31 @@ namespace XNAFinalEngine.Components
                     HudTextureChanged(this, oldValue, value);
             }
         } // HudTexture
-        
+
+        #endregion
+
+        #region Video Renderer
+
+        /// <summary>
+        /// Associated video renderer component.
+        /// </summary>
+        public VideoRenderer VideoRenderer
+        {
+            get { return videoRenderer; }
+            private set
+            {
+                VideoRenderer oldValue = videoRenderer;
+                videoRenderer = value;
+                // Invoke event
+                if (VideoRendererChanged != null)
+                    VideoRendererChanged(this, oldValue, value);
+            }
+        } // VideoRenderer
+
+        #endregion
+
+        #region Parent
+
         /// <summary>
         /// The parent of this game object.
         /// </summary>
@@ -88,6 +124,8 @@ namespace XNAFinalEngine.Components
             get { return Transform.Parent; }
             set { Transform.Parent = value; }
         } // Parent
+
+        #endregion
 
         #endregion
 
@@ -102,6 +140,11 @@ namespace XNAFinalEngine.Components
         /// Raised when the game object's HUD texture changes.
         /// </summary>
         public event ComponentEventHandler HudTextureChanged;
+
+        /// <summary>
+        /// Raised when the game object's HUD texture changes.
+        /// </summary>
+        public event ComponentEventHandler VideoRendererChanged;
 
         #endregion
         
@@ -199,6 +242,25 @@ namespace XNAFinalEngine.Components
 
             #endregion
 
+            #region Video Renderer
+
+            if (typeof(TComponentType) == typeof(VideoRenderer))
+            {
+                if (videoRendererAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 2D: Unable to create the video renderer component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                videoRendererAccessor = VideoRenderer.ComponentPool.Fetch();
+                // A component is a reference value, so no problem to do this.
+                videoRenderer = VideoRenderer.ComponentPool[videoRendererAccessor];
+                // Initialize the component to the default values.
+                videoRenderer.Initialize(this);
+                return videoRenderer;
+            }
+
+            #endregion
+
             throw new ArgumentException("Game Object 2D: Unknown component type.");
         } // AddComponent
 
@@ -257,6 +319,22 @@ namespace XNAFinalEngine.Components
                 HudTexture.HudTexturePool2D.Release(hudTextureAccessor);
                 HudTexture = null;
                 hudTextureAccessor = null;
+            }
+
+            #endregion
+
+            #region Video Renderer
+
+            if (typeof(TComponentType) == typeof(VideoRenderer))
+            {
+                if (videoRendererAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 2D: Unable to remove the video renderer component. There is not one.");
+                }
+                VideoRenderer.Uninitialize();
+                VideoRenderer.ComponentPool.Release(videoRendererAccessor);
+                VideoRenderer = null;
+                videoRendererAccessor = null;
             }
 
             #endregion

@@ -1271,7 +1271,6 @@
     <Folder Include="Shaders\Helpers\" />
     <Folder Include="Shaders\ScreenSpaceAlphaMasking\" />
     <Folder Include="Textures\LookupTables\" />
-    <Folder Include="Videos\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\XNAFinalEngineContentPipelineExtension\XNAFinalEngineContentPipelineExtension.csproj">
@@ -1394,6 +1393,13 @@
       <Name>RearRight</Name>
       <Importer>WavImporter</Importer>
       <Processor>SoundEffectProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Videos\LogosIntro.wmv">
+      <Name>LogosIntro</Name>
+      <Importer>WmvImporter</Importer>
+      <Processor>VideoProcessor</Processor>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

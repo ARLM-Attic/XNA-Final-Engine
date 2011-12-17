@@ -70,6 +70,13 @@ namespace XNAFinalEngine.Assets
         public virtual Texture2D Resource
         { 
             get { return xnaTexture; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("value");
+                xnaTexture = value;
+                Size = new Size(xnaTexture.Width, xnaTexture.Height);
+            }
         } // Resource
 
         /// <summary>
@@ -98,9 +105,12 @@ namespace XNAFinalEngine.Assets
         #region Constructor
 
         /// <summary>
-        /// Dummy Constructor.
+        /// Empty texture. 
         /// </summary>
-        protected Texture() { }
+        public Texture()
+        {
+            Name = "Empty Texture";
+        } // Texture
 
 	    /// <summary>
         /// Texture from XNA asset.

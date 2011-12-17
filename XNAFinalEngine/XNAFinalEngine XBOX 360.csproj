@@ -104,6 +104,7 @@
     <Compile Include="Components\Rendering\ModelRenderer.cs" />
     <Compile Include="Components\Rendering\ParticleRenderer.cs" />
     <Compile Include="Components\Rendering\Renderer.cs" />
+    <Compile Include="Components\Rendering\VideoRenderer.cs" />
     <Compile Include="Components\Script\Script.cs" />
     <Compile Include="Components\Script\ScriptEditorCamera.cs" />
     <Compile Include="Components\Transform\Transform.cs" />

@@ -439,6 +439,46 @@ namespace XNAFinalEngine.EngineCore
                 }
 
                 #endregion
+
+                #region Videos
+
+                VideoRenderer currentVideo;
+                for (int i = 0; i < VideoRenderer.ComponentPool.Count; i++)
+                {
+                    currentVideo = VideoRenderer.ComponentPool.Elements[i];
+                    currentVideo.Update();
+                    if (currentVideo.Visible && currentVideo.Texture != null)
+                    {
+                        // Aspect ratio
+                        Rectangle screenRectangle;
+                        float videoAspectRatio = (float)currentVideo.Texture.Width / (float)currentVideo.Texture.Height,
+                              screenAspectRatio = (float)Screen.Width / (float)Screen.Height;
+
+                        if (videoAspectRatio > screenAspectRatio)
+                        {
+                            float vsAspectRatio = videoAspectRatio / screenAspectRatio;
+                            int blackStripe = (int)((Screen.Height - (Screen.Height / vsAspectRatio)) / 2);
+                            screenRectangle = new Rectangle(0, 0 + blackStripe, Screen.Width, Screen.Height - blackStripe * 2);
+                        }
+                        else
+                        {
+                            float vsAspectRatio = screenAspectRatio / videoAspectRatio;
+                            int blackStripe = (int)((Screen.Width - (Screen.Width / vsAspectRatio)) / 2);
+                            screenRectangle = new Rectangle(0 + blackStripe, 0, Screen.Width - blackStripe * 2, Screen.Height);
+                        }
+
+                        SpriteManager.DrawTexture(currentVideo.Texture,
+                                                  currentVideo.CachedPosition.Z,
+                                                  screenRectangle,
+                                                  null,
+                                                  Color.White,
+                                                  0,
+                                                  Vector2.Zero);
+                    }
+                }
+
+                #endregion
+
             }
             SpriteManager.End();
 

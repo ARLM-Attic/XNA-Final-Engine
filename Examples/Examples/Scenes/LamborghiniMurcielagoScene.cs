@@ -70,7 +70,7 @@ namespace XNAFinalEngineExamples
                                     dogSound,
                                     soundFrontLeft, soundFrontRight, soundRearLeft, soundRearRight, soundFrontCenter;
 
-        private static GameObject2D hudTextureTest;
+        private static GameObject2D hudTextureTest, videoTest;
 
         private static GameObject3D[] soundArray = new GameObject3D[290];
 
@@ -593,6 +593,12 @@ namespace XNAFinalEngineExamples
             hudTextureTest = new GameObject2D();
             hudTextureTest.AddComponent<HudTexture>();
             hudTextureTest.HudTexture.Texture = new Texture("WiimoteSensors");
+
+            videoTest = new GameObject2D();
+            videoTest.AddComponent<VideoRenderer>();
+            videoTest.VideoRenderer.Video = new Video("LogosIntro");
+            videoTest.VideoRenderer.Play();
+            videoTest.Transform.Position = new Vector3(0, 0, 1);
 
             GameLoop.ShowFramesPerSecond = true;
 
