@@ -306,8 +306,8 @@
       <Processor>EffectProcessor</Processor>
       <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
-    <Compile Include="Shaders\GBuffer\CombineDepth.fx">
-      <Name>CombineDepth</Name>
+    <Compile Include="Shaders\GBuffer\CombineDepthAndNormals.fx">
+      <Name>CombineDepthAndNormals</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
       <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>

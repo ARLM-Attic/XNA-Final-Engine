@@ -32,56 +32,52 @@ float2 halfPixel;
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture depthOpaqueTexture : RENDERCOLORTARGET;
-
-sampler depthOpaqueSampler = sampler_state 
+texture depthOpaqueTexture : register(t0);
+sampler depthOpaqueSampler : register(s0) = sampler_state 
 {
     texture = <depthOpaqueTexture>;
-    AddressU  = Clamp;
+    /*AddressU  = Clamp;
     AddressV  = Clamp;
     AddressW  = Clamp;    
     MINFILTER = POINT;
     MAGFILTER = POINT;
-	MIPFILTER = NONE;
+	MIPFILTER = NONE;*/
 };
 
-texture normalsOpaqueTexture : RENDERCOLORTARGET;
-
-sampler normalsOpaqueSampler = sampler_state 
+texture normalsOpaqueTexture : register(t1);
+sampler normalsOpaqueSampler : register(s1) = sampler_state 
 {
     texture = <normalsOpaqueTexture>;
-    AddressU  = Clamp;
+    /*AddressU  = Clamp;
     AddressV  = Clamp;
     AddressW  = Clamp;    
     MINFILTER = POINT;
     MAGFILTER = POINT;
-	MIPFILTER = NONE;
+	MIPFILTER = NONE;*/
 };
 
-texture depthFoliageTexture : RENDERCOLORTARGET;
-
-sampler deptFoliageSampler = sampler_state 
+texture depthFoliageTexture : register(t2);
+sampler deptFoliageSampler : register(s2) = sampler_state
 {
     texture = <depthFoliageTexture>;
-    AddressU  = Clamp;
+    /*AddressU  = Clamp;
     AddressV  = Clamp;
     AddressW  = Clamp;    
     MINFILTER = POINT;
     MAGFILTER = POINT;
-	MIPFILTER = NONE;
+	MIPFILTER = NONE;*/
 };
 
-texture normalsFoliageTexture : RENDERCOLORTARGET;
-
-sampler normalsFoliageSampler = sampler_state 
+texture normalsFoliageTexture : register(t3);
+sampler normalsFoliageSampler : register(s3) = sampler_state
 {
     texture = <normalsFoliageTexture>;
-    AddressU  = Clamp;
+    /*AddressU  = Clamp;
     AddressV  = Clamp;
     AddressW  = Clamp;    
     MINFILTER = POINT;
     MAGFILTER = POINT;
-	MIPFILTER = NONE;
+	MIPFILTER = NONE;*/
 };
 
 //////////////////////////////////////////////
