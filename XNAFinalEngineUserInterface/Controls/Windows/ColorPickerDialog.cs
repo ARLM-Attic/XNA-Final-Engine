@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2010, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,9 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
+using XNAFinalEngine.Helpers;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -45,18 +47,14 @@ namespace XNAFinalEngine.UserInterface
     /// </summary>
     public class ColorPickerDialog : Dialog
     {
-        /*
+        
         #region Constants
-
-        /// <summary>
-        /// Square color lenght.
-        /// </summary>
+        
+        // Square color lenght.
         const int squareColorlenght = 132;
 
-        /// <summary>
-        /// For the square color palette.
-        /// This is part of the implementation to capture the mouse movement outside the control's border.
-        /// </summary>
+        // For the square color palette.
+        // This is part of the implementation to capture the mouse movement outside the control's border.
         private const int squareColorLeft = 5;
         private const int squareColorTop = 5;
 
@@ -64,50 +62,32 @@ namespace XNAFinalEngine.UserInterface
 
         #region Variables
 
-        /// <summary>
-        /// The initial color.
-        /// </summary>
+        // The initial color.
         private readonly Color oldColor;
 
-        /// <summary>
-        /// The current square color's position.
-        /// </summary>
+        // The current square color's position.
         private Point positionSquareColor;
 
-        /// <summary>
-        /// Intensity level of the right bar.
-        /// </summary>
+        // Intensity level of the right bar.
         private float intensityLevel = 0.5f;
 
-        /// <summary>
-        /// The first position in the color palette when this sub control is changing its value (left mouse pressed and not released).
-        /// </summary>
+        // The first position in the color palette when this sub control is changing its value (left mouse pressed and not released).
         private Point positionBeginningMovement;
         
-        /// <summary>
-        /// The control is updating the values. 
-        /// When a sub control updates one value of another control we don't want that the updated control update the values of the first one.
-        /// </summary>
+        // The control is updating the values. 
+        // When a sub control updates one value of another control we don't want that the updated control update the values of the first one.
         private bool update = true;
 
-        /// <summary>
-        /// The first intensity level value when the control is updated (left mouse pressed and not released).
-        /// </summary>
+        // The first intensity level value when the control is updated (left mouse pressed and not released).
         private float intensityLevelValueBeginningMovement;
 
-        /// <summary>
-        /// The texture picker for screen picking.
-        /// </summary>
+        // The texture picker for screen picking.
         private Picker picker;
 
-        /// <summary>
-        /// If the control is in screen picking mode.
-        /// </summary>
+        // If the control is in screen picking mode.
         private bool isPicking;
         
-        /// <summary>
-        /// Controls
-        /// </summary>
+        // Controls.
         private readonly Button buttonPick;
         private readonly Button buttonClose;
         private readonly Control squareColorPalette;
@@ -143,8 +123,8 @@ namespace XNAFinalEngine.UserInterface
             {
                 Left = 0,
                 Top = 0,
-                Width = EngineManager.Width,
-                Height = EngineManager.Height,
+                Width = Screen.Width,
+                Height = Screen.Height,
                 StayOnTop = true, // To bring it to the second place (first is the main control)
                 Color = new Color(0, 0, 0, 0)
             };
@@ -406,7 +386,7 @@ namespace XNAFinalEngine.UserInterface
             {
                 if (e.Key == Keys.Enter)
                 {
-                    if (StringHelper.IsNumericFloat(textBoxRed.Text))
+                    if (textBoxRed.Text.IsNumericFloat())
                     {
                         if ((float)double.Parse(textBoxRed.Text) < 0)
                             textBoxRed.Text = "0";
@@ -423,7 +403,7 @@ namespace XNAFinalEngine.UserInterface
             // For tabs and other not so common things.
             textBoxRed.FocusLost += delegate
             {
-                if (StringHelper.IsNumericFloat(textBoxRed.Text))
+                if (textBoxRed.Text.IsNumericFloat())
                 {
                     if ((float)double.Parse(textBoxRed.Text) < 0)
                         textBoxRed.Text = "0";
@@ -445,7 +425,7 @@ namespace XNAFinalEngine.UserInterface
             {
                 if (e.Key == Keys.Enter)
                 {
-                    if (StringHelper.IsNumericFloat(textBoxGreen.Text))
+                    if (textBoxGreen.Text.IsNumericFloat())
                     {
                         if ((float)double.Parse(textBoxGreen.Text) < 0)
                             textBoxGreen.Text = "0";
@@ -462,7 +442,7 @@ namespace XNAFinalEngine.UserInterface
             // For tabs and other not so common things.
             textBoxGreen.FocusLost += delegate
             {
-                if (StringHelper.IsNumericFloat(textBoxGreen.Text))
+                if (textBoxGreen.Text.IsNumericFloat())
                 {
                     if ((float)double.Parse(textBoxGreen.Text) < 0)
                         textBoxGreen.Text = "0";
@@ -484,7 +464,7 @@ namespace XNAFinalEngine.UserInterface
             {
                 if (e.Key == Keys.Enter)
                 {
-                    if (StringHelper.IsNumericFloat(textBoxBlue.Text))
+                    if (textBoxBlue.Text.IsNumericFloat())
                     {
                         if ((float)double.Parse(textBoxBlue.Text) < 0)
                             textBoxBlue.Text = "0";
@@ -501,7 +481,7 @@ namespace XNAFinalEngine.UserInterface
             // For tabs and other not so common things.
             textBoxBlue.FocusLost += delegate
             {
-                if (StringHelper.IsNumericFloat(textBoxBlue.Text))
+                if (textBoxBlue.Text.IsNumericFloat())
                 {
                     if ((float)double.Parse(textBoxBlue.Text) < 0)
                         textBoxBlue.Text = "0";
@@ -631,7 +611,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Return the color from the position in the square color.
         /// </summary>
-        private Color ColorFromPositionWithIntensity(Point position, float _intensityLevel)
+        private static Color ColorFromPositionWithIntensity(Point position, float _intensityLevel)
         {
             return Color.Lerp(MultiplyColorByFloat(ColorFromPosition(position), _intensityLevel), MultiplyColorByFloat(new Color(255, 255, 255), _intensityLevel), position.Y / 132f);
         } // ColorFromPositionWithIntensity
@@ -639,7 +619,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Return the color from the position in the square color.
         /// </summary>
-        private Color ColorFromPosition(Point position)
+        private static Color ColorFromPosition(Point position)
         {
             Color color = new Color(0, 0, 0, 255);
             // the position in the step or band (unknown for now)
@@ -762,7 +742,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Multiply a color by a float.
         /// </summary>
-        private Color MultiplyColorByFloat(Color color, float intensityLevel)
+        private static Color MultiplyColorByFloat(Color color, float intensityLevel)
         {
             Color result = Color.White;
             result.R = (byte)(color.R * intensityLevel);
@@ -799,6 +779,6 @@ namespace XNAFinalEngine.UserInterface
         } // OnKeyPress
 
         #endregion
-        */
+        
     } // ColorPickerDialog
 } // XNAFinalEngine.UserInterface

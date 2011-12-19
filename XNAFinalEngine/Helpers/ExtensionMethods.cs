@@ -26,11 +26,14 @@ Authors: Digital Jellyfish Design Ltd (http://forums.create.msdn.com/forums/p/16
          deadlydog (http://www.danskingdom.com)
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
+String extension methods based on the class StringHelper.cs from RacingGame. License: Microsoft_Permissive_License
+  
 */
 #endregion
 
 #region Using directives
 using System;
+using System.Globalization;
 using System.Text;
 using Microsoft.Xna.Framework;
 #endregion
@@ -122,8 +125,180 @@ namespace XNAFinalEngine.Helpers
 
         #endregion
 
+        #region String
+
+        /// <summary>
+        /// Is numeric float
+        /// </summary>
+        public static bool IsNumericFloat(this String str)
+        {
+            return IsNumericFloat(str, CultureInfo.InvariantCulture.NumberFormat);
+        } // IsNumericFloat
+
+        /// <summary>
+        /// Checks if string is numeric float value
+        /// </summary>
+        /// <param name="str">Input string</param>
+        /// <param name="numberFormat">Used number format, e.g. CultureInfo.InvariantCulture.NumberFormat</param>
+        /// <returns>True if str can be converted to a float, false otherwise</returns>
+        public static bool IsNumericFloat(this String str, NumberFormatInfo numberFormat)
+        {
+            // Can't be a float if string is not valid!
+            if (String.IsNullOrEmpty(str))
+                return false;
+
+            //not supported by Convert.ToSingle:
+            //if (str.EndsWith("f"))
+            //	str = str.Substring(0, str.Length - 1);
+
+            // Only 1 decimal point is allowed
+            if (AllowOnlyOneDecimalPoint(str, numberFormat) == false)
+                return false;
+
+            // + allows in the first,last,don't allow in middle of the string
+            // - allows in the first,last,don't allow in middle of the string
+            // $ allows in the first,last,don't allow in middle of the string
+            // , allows in the last,middle,don't allow in first char of the string
+            // . allows in the first,last,middle, allows in all the indexs
+            bool retVal = false;
+
+            // If string is just 1 letter, don't allow it to be a sign
+            if (str.Length == 1 &&
+                "+-$.,".IndexOf(str[0]) >= 0)
+                return false;
+
+            for (int i = 0; i < str.Length; i++)
+            {
+                // For first indexchar
+                char pChar =
+                    //char.Parse(str.Substring(i, 1));
+                    Convert.ToChar(str.Substring(i, 1));
+
+                if (retVal)
+                    retVal = false;
+
+                if ((str.IndexOf(pChar) == 0))
+                {
+                    retVal = ("+-$.0123456789".IndexOf(pChar) >= 0) ? true : false;
+                }
+                // For middle characters
+                if ((!retVal) && (str.IndexOf(pChar) > 0) &&
+                    (str.IndexOf(pChar) < (str.Length - 1)))
+                {
+                    retVal = (",.0123456789".IndexOf(pChar) >= 0) ? true : false;
+                }
+                // For last characters
+                if ((!retVal) && (str.IndexOf(pChar) == (str.Length - 1)))
+                {
+                    retVal = ("+-$,.0123456789".IndexOf(pChar) >= 0) ? true : false;
+                }
+
+                if (!retVal)
+                    break;
+            }
+
+            return retVal;
+        } // IsNumericFloat
+
+        /// <summary>
+        /// Check if string is numeric integer. A decimal point is not accepted.
+        /// </summary>
+        /// <param name="str">String to check</param>
+        public static bool IsNumericInt(this string str)
+        {
+            // Can't be an int if string is not valid!
+            if (String.IsNullOrEmpty(str))
+                return false;
+
+            // Go through every letter in str
+            int strPos = 0;
+            foreach (char ch in str)
+            {
+                // Only 0-9 are allowed
+                if ("0123456789".IndexOf(ch) < 0 &&
+                    // Allow +/- for first char
+                    (strPos > 0 || (ch != '-' && ch != '+')))
+                    return false;
+                strPos++;
+            } // foreach (ch in str)
+
+            // All fine, return true, this is a number!
+            return true;
+        } // IsNumericInt
+
+        #region Allow Only One Decimal Point
+
+        /// <summary>
+        /// Allow only one decimal point, used for IsNumericFloat.
+        /// </summary>
+        /// <param name="str">Input string to check</param>
+        /// <param name="numberFormat">Used number format, e.g. CultureInfo.InvariantCulture.NumberFormat</param>
+        /// <return>True if check succeeded, false otherwise</return>
+        private static bool AllowOnlyOneDecimalPoint(string str, NumberFormatInfo numberFormat)
+        {
+            char[] strInChars = str.ToCharArray();
+            bool hasGroupSeperator = false;
+            int decimalSeperatorCount = 0;
+            for (int i = 0; i < strInChars.Length; i++)
+            {
+                if (numberFormat.CurrencyDecimalSeparator.IndexOf(strInChars[i]) == 0)
+                {
+                    decimalSeperatorCount++;
+                } // if (numberFormat.CurrencyDecimalSeparator.IndexOf)
+
+                // has float group seperators  ?
+                if (numberFormat.CurrencyGroupSeparator.IndexOf(strInChars[i]) == 0)
+                {
+                    hasGroupSeperator = true;
+                } // if (numberFormat.CurrencyGroupSeparator.IndexOf)
+            } // for (int)
+
+            if (hasGroupSeperator)
+            {
+                // If first digit is the group seperator or begins with 0,
+                // there is something wrong, the group seperator is used as a comma.
+                if (str.StartsWith(numberFormat.CurrencyGroupSeparator) ||
+                    strInChars[0] == '0')
+                    return false;
+
+                // look only at the digits in front of the decimal point
+                string[] splittedByDecimalSeperator = str.Split(
+                    numberFormat.CurrencyDecimalSeparator.ToCharArray());
+
+                #region Invert the digits for modulo check
+                //   ==> 1.000 -> 000.1  ==> only after 3 digits 
+                char[] firstSplittedInChars = splittedByDecimalSeperator[0].ToCharArray();
+                int arrayLength = firstSplittedInChars.Length;
+                char[] firstSplittedInCharsInverted = new char[arrayLength];
+                for (int i = 0; i < arrayLength; i++)
+                {
+                    firstSplittedInCharsInverted[i] =
+                        firstSplittedInChars[arrayLength - 1 - i];
+                } // for (int)
+                #endregion
+
+                // group seperators are only allowed between 3 digits -> 1.000.000
+                for (int i = 0; i < arrayLength; i++)
+                {
+                    if (i % 3 != 0 && numberFormat.CurrencyGroupSeparator.IndexOf(
+                        firstSplittedInCharsInverted[i]) == 0)
+                    {
+                        return false;
+                    } // if (i)
+                } // for (int)
+            } // if (hasGroupSeperator)
+            if (decimalSeperatorCount > 1)
+                return false;
+
+            return true;
+        } // AllowOnlyOneDecimalPoint
+
+        #endregion
+
+        #endregion
+
         #region Quaternion
-        
+
         /// <summary>
         /// Return yaw, pitch and roll from this quaternion.
         /// </summary>

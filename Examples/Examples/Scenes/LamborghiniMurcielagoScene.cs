@@ -35,10 +35,12 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
-using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Scenes;
 using XNAFinalEngine.Audio;
+using XNAFinalEngine.UserInterface;
+using XNAFinalEngineExamples.Editor;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
+using Size = XNAFinalEngine.Helpers.Size;
 #endregion
 
 namespace XNAFinalEngineExamples
@@ -603,6 +605,8 @@ namespace XNAFinalEngineExamples
 
             GameLoop.ShowFramesPerSecond = true;
 
+            UserInterfaceManager.Initialize();
+
             base.Load();
         } // Load
 
@@ -638,12 +642,17 @@ namespace XNAFinalEngineExamples
             soundRearRight.SoundEmitter.Play();
             soundFrontCenter.SoundEmitter.Play();
 
+            if (Keyboard.SpaceJustPressed)
+            {
+                ConstantWindow.Show((Constant)murcielagoWheelBlackContant.ModelRenderer.Material);
+            }
+
             /*
             for (int i = 0; i < 280; i++)
             {
                 soundArray[i].SoundEmitter.Play();
             }*/
-
+            UserInterfaceManager.Update();
         } // UpdateTasks
 
         #endregion
@@ -659,8 +668,17 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PreRenderTasks()
         {
-
+            UserInterfaceManager.DrawToTexture();
         } // PreRenderTasks
+
+        /// <summary>
+        /// Tasks after the engine render.
+        /// Probably you won’t need to place any task here.
+        /// </summary>
+        public override void PostRenderTasks()
+        {
+            UserInterfaceManager.DrawTextureToScreen();
+        } // PostRenderTasks
 
         #endregion
 
