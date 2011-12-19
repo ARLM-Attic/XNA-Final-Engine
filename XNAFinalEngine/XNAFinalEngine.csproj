@@ -211,6 +211,7 @@
     <Compile Include="Helpers\Curve3D.cs" />
     <Compile Include="Helpers\Disposable.cs" />
     <Compile Include="Helpers\ExtensionMethods.cs" />
+    <Compile Include="Pickers\Picker.cs" />
     <Compile Include="Helpers\Pool.cs" />
     <Compile Include="Helpers\PoolWithoutAccessor.cs" />
     <Compile Include="Helpers\RectangleF.cs" />
