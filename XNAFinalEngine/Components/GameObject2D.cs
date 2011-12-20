@@ -30,6 +30,7 @@ namespace XNAFinalEngine.Components
         private Pool<HudText>.Accessor hudTextAccessor;
         private Pool<HudTexture>.Accessor hudTextureAccessor;
         private Pool<VideoRenderer>.Accessor videoRendererAccessor;
+        private Pool<LineRenderer>.Accessor lineRendererAccessor;
 
         #endregion
 
@@ -38,6 +39,7 @@ namespace XNAFinalEngine.Components
         private HudText hudText;
         private HudTexture hudTexture;
         private VideoRenderer videoRenderer;
+        private LineRenderer lineRenderer;
 
         #endregion
 
@@ -114,6 +116,26 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
+        #region Line Renderer
+
+        /// <summary>
+        /// Associated line renderer component.
+        /// </summary>
+        public LineRenderer LineRenderer
+        {
+            get { return lineRenderer; }
+            private set
+            {
+                LineRenderer oldValue = lineRenderer;
+                lineRenderer = value;
+                // Invoke event
+                if (LineRendererChanged != null)
+                    LineRendererChanged(this, oldValue, value);
+            }
+        } // LineRenderer
+
+        #endregion
+
         #region Parent
 
         /// <summary>
@@ -142,9 +164,14 @@ namespace XNAFinalEngine.Components
         public event ComponentEventHandler HudTextureChanged;
 
         /// <summary>
-        /// Raised when the game object's HUD texture changes.
+        /// Raised when the game object's video renderer changes.
         /// </summary>
         public event ComponentEventHandler VideoRendererChanged;
+
+        /// <summary>
+        /// Raised when the game object's line renderer changes.
+        /// </summary>
+        public event ComponentEventHandler LineRendererChanged;
 
         #endregion
         
@@ -213,9 +240,9 @@ namespace XNAFinalEngine.Components
                     throw new ArgumentException("Game Object 2D: Unable to create the HUD text component. There is one already.");
                 }
                 // Search for an empty component in the pool.
-                hudTextAccessor = HudText.HudTextPool2D.Fetch();
+                hudTextAccessor = HudText.ComponentPool2D.Fetch();
                 // A component is a reference value, so no problem to do this.
-                HudText = HudText.HudTextPool2D[hudTextAccessor];
+                HudText = HudText.ComponentPool2D[hudTextAccessor];
                 // Initialize the component to the default values.
                 HudText.Initialize(this);
                 return HudText;
@@ -232,9 +259,9 @@ namespace XNAFinalEngine.Components
                     throw new ArgumentException("Game Object 2D: Unable to create the HUD texture component. There is one already.");
                 }
                 // Search for an empty component in the pool.
-                hudTextureAccessor = HudTexture.HudTexturePool2D.Fetch();
+                hudTextureAccessor = HudTexture.ComponentPool2D.Fetch();
                 // A component is a reference value, so no problem to do this.
-                HudTexture = HudTexture.HudTexturePool2D[hudTextureAccessor];
+                HudTexture = HudTexture.ComponentPool2D[hudTextureAccessor];
                 // Initialize the component to the default values.
                 HudTexture.Initialize(this);
                 return HudTexture;
@@ -257,6 +284,25 @@ namespace XNAFinalEngine.Components
                 // Initialize the component to the default values.
                 videoRenderer.Initialize(this);
                 return videoRenderer;
+            }
+
+            #endregion
+
+            #region Line Renderer
+
+            if (typeof(TComponentType) == typeof(LineRenderer))
+            {
+                if (lineRendererAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 2D: Unable to create the line renderer component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                lineRendererAccessor = LineRenderer.ComponentPool2D.Fetch();
+                // A component is a reference value, so no problem to do this.
+                lineRenderer = LineRenderer.ComponentPool2D[lineRendererAccessor];
+                // Initialize the component to the default values.
+                lineRenderer.Initialize(this);
+                return lineRenderer;
             }
 
             #endregion
@@ -300,7 +346,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 2D: Unable to remove the HUD text component. There is not one.");
                 }
                 HudText.Uninitialize();
-                HudText.HudTextPool2D.Release(hudTextAccessor);
+                HudText.ComponentPool2D.Release(hudTextAccessor);
                 HudText = null;
                 hudTextAccessor = null;
             }
@@ -316,7 +362,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 2D: Unable to remove the HUD texture component. There is not one.");
                 }
                 HudTexture.Uninitialize();
-                HudTexture.HudTexturePool2D.Release(hudTextureAccessor);
+                HudTexture.ComponentPool2D.Release(hudTextureAccessor);
                 HudTexture = null;
                 hudTextureAccessor = null;
             }
@@ -335,6 +381,22 @@ namespace XNAFinalEngine.Components
                 VideoRenderer.ComponentPool.Release(videoRendererAccessor);
                 VideoRenderer = null;
                 videoRendererAccessor = null;
+            }
+
+            #endregion
+
+            #region Line Renderer
+
+            if (typeof(TComponentType) == typeof(LineRenderer))
+            {
+                if (lineRendererAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 2D: Unable to remove the line renderer component. There is not one.");
+                }
+                LineRenderer.Uninitialize();
+                LineRenderer.ComponentPool2D.Release(lineRendererAccessor);
+                LineRenderer = null;
+                lineRendererAccessor = null;
             }
 
             #endregion

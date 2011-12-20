@@ -518,8 +518,8 @@ namespace XNAFinalEngine.UserInterface
             Color color = new Color(255, 0, 0, 255);
             // Relative square position
             Vector2 position = new Vector2(5, 5);
-
-            //Primitives.Begin(PrimitiveType.LineList);
+                        
+            LineManager.Begin(PrimitiveType.LineList);
             // I divide the problem into six steps.
             for (int i = 0; i < squareColorlenght; i++)
             {
@@ -545,14 +545,14 @@ namespace XNAFinalEngine.UserInterface
                 {
                     color.R = (byte)(255 * porcentaje);
                 }
-                else                                    // violet to red
+                else                                               // violet to red
                 {
                     color.B = (byte)(255 - 255 * porcentaje);
                 }
-                //Primitives.AddVertex(new Vector2(i + position.X, position.Y),       MultiplyColorByFloat(color, intensityLevel));
-                //Primitives.AddVertex(new Vector2(i + position.X, position.Y + 132), MultiplyColorByFloat(new Color(255, 255, 255), intensityLevel));
+                LineManager.AddVertex(new Vector2(i + position.X, position.Y), MultiplyColorByFloat(color, intensityLevel));
+                LineManager.AddVertex(new Vector2(i + position.X, position.Y + 132), MultiplyColorByFloat(new Color(255, 255, 255), intensityLevel));
             }
-            //Primitives.End();
+            LineManager.End();
 
             #endregion
 
@@ -562,15 +562,15 @@ namespace XNAFinalEngine.UserInterface
                 colorPointerScale = 1.0f;
             else
                 colorPointerScale = 1 - intensityLevel;
-            //Primitives.Draw2DPlane(new Rectangle(positionSquareColor.X + 2, positionSquareColor.Y + 2, 6, 6), new Color(colorPointerScale, colorPointerScale, colorPointerScale));
+            LineManager.Draw2DPlane(new Rectangle(positionSquareColor.X + 2, positionSquareColor.Y + 2, 6, 6), new Color(colorPointerScale, colorPointerScale, colorPointerScale));
             // Color planes
-            //Primitives.DrawSolid2DPlane(new Rectangle(5, squareColorlenght + 10, 40, 40), oldColor);
-            //Primitives.DrawSolid2DPlane(new Rectangle(45, squareColorlenght + 10, 40, 40), Color);
+            LineManager.DrawSolid2DPlane(new Rectangle(5, squareColorlenght + 10, 40, 40), oldColor);
+            LineManager.DrawSolid2DPlane(new Rectangle(45, squareColorlenght + 10, 40, 40), Color);
             // Intensity Level Bar
-            //Primitives.DrawSolid2DPlane(new Rectangle(squareColorlenght + 5, 5, 20, squareColorlenght),
-                                        //positionSquareColor.Y == squareColorlenght ? Color.White : ColorFromPositionWithIntensity(positionSquareColor, 1), Color.Black);
+            LineManager.DrawSolid2DPlane(new Rectangle(squareColorlenght + 5, 5, 20, squareColorlenght),
+                                         positionSquareColor.Y == squareColorlenght ? Color.White : ColorFromPositionWithIntensity(positionSquareColor, 1), Color.Black);
 
-            //Primitives.Draw2DPlane(new Rectangle(squareColorlenght + 5, (int)(squareColorlenght * (1 - intensityLevel)) - 3 + 5, 20, 6), new Color(200, 200, 200));
+            LineManager.Draw2DPlane(new Rectangle(squareColorlenght + 5, (int)(squareColorlenght * (1 - intensityLevel)) - 3 + 5, 20, 6), new Color(200, 200, 200));
         } // DrawControl
 
         #endregion

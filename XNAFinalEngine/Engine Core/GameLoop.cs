@@ -389,12 +389,13 @@ namespace XNAFinalEngine.EngineCore
             // Draw 2D Heads Up Display
             SpriteManager.Begin();
             {
+
                 #region HUD Text
 
                 HudText currentHudText;
-                for (int i = 0; i < HudText.HudTextPool2D.Count; i++)
+                for (int i = 0; i < HudText.ComponentPool2D.Count; i++)
                 {
-                    currentHudText = HudText.HudTextPool2D.Elements[i];
+                    currentHudText = HudText.ComponentPool2D.Elements[i];
                     if (currentHudText.Visible && currentHudText.Font != null)
                     {
                         currentHudText.Text.Length = 4;
@@ -414,9 +415,9 @@ namespace XNAFinalEngine.EngineCore
                 #region HUD Texture
 
                 HudTexture currentHudTexture;
-                for (int i = 0; i < HudTexture.HudTexturePool2D.Count; i++)
+                for (int i = 0; i < HudTexture.ComponentPool2D.Count; i++)
                 {
-                    currentHudTexture = HudTexture.HudTexturePool2D.Elements[i];
+                    currentHudTexture = HudTexture.ComponentPool2D.Elements[i];
                     if (currentHudTexture.Visible && currentHudTexture.Texture != null)
                     {
                         if (currentHudTexture.DestinationRectangle != null)

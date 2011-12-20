@@ -41,6 +41,9 @@ namespace XNAFinalEngine.Components
         private Pool<ParticleRenderer>.Accessor particleRendererAccessor;
         private Pool<SoundEmitter>.Accessor soundEmitterAccessor;
         private Pool<SoundListener>.Accessor soundListenerAccessor;
+        private Pool<HudText>.Accessor hudTextAccessor;
+        private Pool<HudTexture>.Accessor hudTextureAccessor;        
+        private Pool<LineRenderer>.Accessor lineRendererAccessor;
 
         #endregion
 
@@ -57,6 +60,9 @@ namespace XNAFinalEngine.Components
         private readonly List<Script> scripts = new List<Script>(2);
         private SoundEmitter soundEmitter;
         private SoundListener soundListener;
+        private HudText hudText;
+        private HudTexture hudTexture;        
+        private LineRenderer lineRenderer;
 
         #endregion
 
@@ -73,13 +79,17 @@ namespace XNAFinalEngine.Components
             set { Transform.Parent = value; }
         } // Parent
 
-        #region Components
+        #region Transform
 
         /// <summary>
         /// Associated transform component.
         /// </summary>
         public Transform3D Transform { get; private set; }
-        
+
+        #endregion
+
+        #region Model Renderer
+
         /// <summary>
         /// Associated model renderer component.
         /// </summary>
@@ -95,7 +105,11 @@ namespace XNAFinalEngine.Components
                     ModelRendererChanged(this, oldValue, value);
             }
         } // ModelRenderer
-        
+
+        #endregion
+
+        #region Model Filter
+
         /// <summary>
         /// Associated model filter component.
         /// </summary>
@@ -111,7 +125,11 @@ namespace XNAFinalEngine.Components
                     ModelFilterChanged(this, oldValue, value);
             }
         } // ModelFilter
-        
+
+        #endregion
+
+        #region Root Animations
+
         /// <summary>
         /// Associated root animation component.
         /// </summary>
@@ -127,7 +145,11 @@ namespace XNAFinalEngine.Components
                     RootAnimationChanged(this, oldValue, value);
             }
         } // RootAnimations
-        
+
+        #endregion
+
+        #region Model Animations
+
         /// <summary>
         /// Associated model animation component.
         /// </summary>
@@ -144,6 +166,10 @@ namespace XNAFinalEngine.Components
             }
         } // ModelAnimations
 
+        #endregion
+
+        #region Camera
+
         /// <summary>
         /// Associated camera component.
         /// </summary>
@@ -159,6 +185,10 @@ namespace XNAFinalEngine.Components
                     CameraChanged(this, oldValue, value);
             }
         } // Camera
+
+        #endregion
+
+        #region Lights
 
         /// <summary>
         /// Associated light component.
@@ -191,6 +221,10 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public SpotLight SpotLight { get; private set; }
 
+        #endregion
+
+        #region Particle Emitter
+
         /// <summary>
         /// Associated particle emitter component.
         /// </summary>
@@ -206,6 +240,10 @@ namespace XNAFinalEngine.Components
                     ParticleEmitterChanged(this, oldValue, value);
             }
         } // ParticleEmitter
+
+        #endregion
+
+        #region Particle Renderer
 
         /// <summary>
         /// Associated particle renderer component.
@@ -223,6 +261,10 @@ namespace XNAFinalEngine.Components
             }
         } // ParticleRenderer
 
+        #endregion
+
+        #region Sound Emitter
+
         /// <summary>
         /// Associated sound emitter component.
         /// </summary>
@@ -239,6 +281,10 @@ namespace XNAFinalEngine.Components
             }
         } // SoundEmitter
 
+        #endregion
+
+        #region Sound Listener
+
         /// <summary>
         /// Associated sound listener component.
         /// </summary>
@@ -254,6 +300,66 @@ namespace XNAFinalEngine.Components
                     SoundListenerChanged(this, oldValue, value);
             }
         } // SoundListener
+
+        #endregion
+
+        #region HUD Text
+
+        /// <summary>
+        /// Associated Hud Text component.
+        /// </summary>
+        public HudText HudText
+        {
+            get { return hudText; }
+            private set
+            {
+                HudText oldValue = hudText;
+                hudText = value;
+                // Invoke event
+                if (HudTextChanged != null)
+                    HudTextChanged(this, oldValue, value);
+            }
+        } // HudText
+
+        #endregion
+
+        #region HUD Texture
+
+        /// <summary>
+        /// Associated Hud Text component.
+        /// </summary>
+        public HudTexture HudTexture
+        {
+            get { return hudTexture; }
+            private set
+            {
+                HudTexture oldValue = hudTexture;
+                hudTexture = value;
+                // Invoke event
+                if (HudTextureChanged != null)
+                    HudTextureChanged(this, oldValue, value);
+            }
+        } // HudTexture
+
+        #endregion
+
+        #region Line Renderer
+
+        /// <summary>
+        /// Associated line renderer component.
+        /// </summary>
+        public LineRenderer LineRenderer
+        {
+            get { return lineRenderer; }
+            private set
+            {
+                LineRenderer oldValue = lineRenderer;
+                lineRenderer = value;
+                // Invoke event
+                if (LineRendererChanged != null)
+                    LineRendererChanged(this, oldValue, value);
+            }
+        } // LineRenderer
 
         #endregion
 
@@ -310,6 +416,21 @@ namespace XNAFinalEngine.Components
         /// Raised when the game object's sound listener changes.
         /// </summary>
         public event ComponentEventHandler SoundListenerChanged;
+
+        /// <summary>
+        /// Raised when the game object's HUD text changes.
+        /// </summary>
+        public event ComponentEventHandler HudTextChanged;
+
+        /// <summary>
+        /// Raised when the game object's HUD texture changes.
+        /// </summary>
+        public event ComponentEventHandler HudTextureChanged;
+
+        /// <summary>
+        /// Raised when the game object's line renderer changes.
+        /// </summary>
+        public event ComponentEventHandler LineRendererChanged;
 
         #endregion
 
@@ -621,6 +742,63 @@ namespace XNAFinalEngine.Components
 
             #endregion
 
+            #region HUD Text
+
+            if (typeof(TComponentType) == typeof(HudText))
+            {
+                if (hudTextAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the HUD text component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                hudTextAccessor = HudText.ComponentPool2D.Fetch();
+                // A component is a reference value, so no problem to do this.
+                HudText = HudText.ComponentPool2D[hudTextAccessor];
+                // Initialize the component to the default values.
+                HudText.Initialize(this);
+                return HudText;
+            }
+
+            #endregion
+
+            #region HUD Texture
+
+            if (typeof(TComponentType) == typeof(HudTexture))
+            {
+                if (hudTextureAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the HUD texture component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                hudTextureAccessor = HudTexture.ComponentPool2D.Fetch();
+                // A component is a reference value, so no problem to do this.
+                HudTexture = HudTexture.ComponentPool2D[hudTextureAccessor];
+                // Initialize the component to the default values.
+                HudTexture.Initialize(this);
+                return HudTexture;
+            }
+
+            #endregion
+
+            #region Line Renderer
+
+            if (typeof(TComponentType) == typeof(LineRenderer))
+            {
+                if (lineRendererAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the line renderer component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                lineRendererAccessor = LineRenderer.ComponentPool3D.Fetch();
+                // A component is a reference value, so no problem to do this.
+                lineRenderer = LineRenderer.ComponentPool3D[lineRendererAccessor];
+                // Initialize the component to the default values.
+                lineRenderer.Initialize(this);
+                return lineRenderer;
+            }
+
+            #endregion
+
             throw new ArgumentException("Game Object 3D: Unknown component type.");
         } // AddComponent
 
@@ -822,6 +1000,54 @@ namespace XNAFinalEngine.Components
                 SoundListener.ComponentPool.Release(soundListenerAccessor);
                 SoundListener = null;
                 soundListenerAccessor = null;
+            }
+
+            #endregion
+
+            #region HUD Text
+
+            if (typeof(TComponentType) == typeof(HudText))
+            {
+                if (hudTextAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the HUD text component. There is not one.");
+                }
+                HudText.Uninitialize();
+                HudText.ComponentPool3D.Release(hudTextAccessor);
+                HudText = null;
+                hudTextAccessor = null;
+            }
+
+            #endregion
+
+            #region HUD Texture
+
+            if (typeof(TComponentType) == typeof(HudTexture))
+            {
+                if (hudTextureAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the HUD texture component. There is not one.");
+                }
+                HudTexture.Uninitialize();
+                HudTexture.ComponentPool3D.Release(hudTextureAccessor);
+                HudTexture = null;
+                hudTextureAccessor = null;
+            }
+
+            #endregion
+
+            #region Line Renderer
+
+            if (typeof(TComponentType) == typeof(LineRenderer))
+            {
+                if (lineRendererAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the line renderer component. There is not one.");
+                }
+                LineRenderer.Uninitialize();
+                LineRenderer.ComponentPool3D.Release(lineRendererAccessor);
+                LineRenderer = null;
+                lineRendererAccessor = null;
             }
 
             #endregion

@@ -34,6 +34,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
+using XNAFinalEngine.Assets;
 #endregion
 
 namespace XNAFinalEngine.Graphics
@@ -76,46 +77,32 @@ namespace XNAFinalEngine.Graphics
 
         #region Variables
 
-        /// <summary>
-        /// XNA basic shader. We don't need more than this.
-        /// </summary>
+        // Camera matrices.
+        private static Matrix viewMatrix, projectionMatrix;
+
+        // XNA basic shader. We use it to render simple lines.
         private static readonly BasicEffect basicEffect;
 
-        /// <summary>
-        /// A block of vertices that calling AddVertex will fill. 
-        /// Flush will draw using this array, and will determine how many primitives to draw from positionInBuffer.
-        /// </summary>
+        // A block of vertices that calling AddVertex will fill. 
+        // Flush will draw using this array, and will determine how many primitives to draw from positionInBuffer.
         private static readonly VertexPositionColor[] vertices = new VertexPositionColor[defaultBufferSize]; 
         
-        /// <summary>
-        /// Keeps track of how many vertices have been added. this value increases until we run out of space in the buffer,
-        /// at which time Flush is automatically called.
-        /// </summary>
+        // Keeps track of how many vertices have been added. this value increases until we run out of space in the buffer, at which time Flush is automatically called.
         private static int positionInBuffer;
 
-        /// <summary>
-        /// This value is set by Begin, and is the type of primitives that we are drawing.
-        /// </summary>
+        // This value is set by Begin, and is the type of primitives that we are drawing.
         private static PrimitiveType primitiveType;
 
-        /// <summary>
-        /// How many verts does each of these primitives take up? points are 1, lines are 2, and triangles are 3.
-        /// </summary>
+        // How many verts does each of these primitives take up? points are 1, lines are 2, and triangles are 3.
         private static int numVertsPerPrimitive;
 
-        /// <summary>
-        /// HasBegun is flipped to true once Begin is called, and is used to make sure users don't call End before Begin is called.
-        /// </summary>
+        // HasBegun is flipped to true once Begin is called, and is used to make sure users don't call End before Begin is called.
         private static bool hasBegun;
 
-        /// <summary>
-        /// Indicates if the basic effect shader values were set or not.
-        /// </summary>
+        // Indicates if the basic effect shader values were set or not.
         private static bool shaderValuesSeted;
 
-        /// <summary>
-        /// Vertex buffer to render stuff on screen.
-        /// </summary>
+        // Vertex buffer to render stuff on screen.
         private static VertexBuffer vbScreen;
 
         #endregion
@@ -172,6 +159,19 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
+        #region Set General Parameters
+
+        /// <summary>
+        /// Set Camera Matrices.
+        /// </summary>        
+        public static void SetCameraMatrices(Matrix _viewMatrix, Matrix _projectionMatrix)
+        {
+            viewMatrix = _viewMatrix;
+            projectionMatrix = _projectionMatrix;
+        } // SetCameraMatrices
+
+        #endregion
+
         #region Add Vertex
 
         /// <summary>
@@ -191,10 +191,10 @@ namespace XNAFinalEngine.Graphics
             if (!shaderValuesSeted)
             {
                 // Work in screen coordinates.
-                if (RenderTarget.CurrentRenderTarget != null) // If there is a render target active...
-                    basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, RenderTarget.CurrentRenderTarget.Width, RenderTarget.CurrentRenderTarget.Height, 0, 0, 1);
+                if (RenderTarget.CurrentRenderTarget[0] != null)
+                    basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, RenderTarget.CurrentRenderTarget[0].Width, RenderTarget.CurrentRenderTarget[0].Height, 0, 0, 1);
                 else
-                    basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, EngineManager.Width, EngineManager.Height, 0, 0, 1);
+                    basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, Screen.Width, Screen.Height, 0, 0, 1);
                 basicEffect.View = Matrix.Identity;
                 shaderValuesSeted = true;
             }
@@ -231,8 +231,8 @@ namespace XNAFinalEngine.Graphics
             if (!shaderValuesSeted)
             {
                 // Work in world space.
-                basicEffect.Projection = ApplicationLogic.Camera.ProjectionMatrix;
-                basicEffect.View = ApplicationLogic.Camera.ViewMatrix;
+                basicEffect.Projection = projectionMatrix;
+                basicEffect.View = viewMatrix;
                 shaderValuesSeted = true;
             }
 
@@ -402,15 +402,15 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Draw a Billboard Plane.
         /// </summary>
-        public static void Draw3DBillboardPlane(Vector3 center, float size, Color color)
+        public static void Draw3DBillboardPlane(Vector3 center, float size, Color color, Vector3 cameraPosition, Vector3 cameraUp)
         {
-            Draw3DBillboardPlane(center, size, size, color);
+            Draw3DBillboardPlane(center, size, size, color, cameraPosition, cameraUp);
         } // Draw3DBillboardPlane
 
         /// <summary>
         /// Draw a Billboard Plane.
         /// </summary>
-        public static void Draw3DBillboardPlane(Vector3 center, float width, float height, Color color)
+        public static void Draw3DBillboardPlane(Vector3 center, float width, float height, Color color, Vector3 cameraPosition, Vector3 cameraUp)
         {
             width = width / 2.0f;
             height = height / 2.0f;
@@ -422,7 +422,7 @@ namespace XNAFinalEngine.Graphics
 
             Begin(PrimitiveType.LineList);
 
-                basicEffect.World = Matrix.CreateBillboard(center, ApplicationLogic.Camera.Position, Vector3.Up, null);
+            basicEffect.World = Matrix.CreateBillboard(center, cameraPosition, cameraUp, null);
 
                 AddVertex(vertices[0].Position, color);
                 AddVertex(vertices[1].Position, color);

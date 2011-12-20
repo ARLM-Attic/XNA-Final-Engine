@@ -107,13 +107,21 @@ namespace XNAFinalEngine.Components
 
         #region Pool
 
-        // Pool for this type of components.
-        private static readonly Pool<HudTexture> hudTexturePool2D = new Pool<HudTexture>(20);
+        // Pool for this type of 2D components.
+        private static readonly Pool<HudTexture> componentPool2D = new Pool<HudTexture>(20);
 
         /// <summary>
-        /// Pool for this type of components.
+        /// Pool for this type of 2D components.
         /// </summary>
-        internal static Pool<HudTexture> HudTexturePool2D { get { return hudTexturePool2D; } }
+        internal static Pool<HudTexture> ComponentPool2D { get { return componentPool2D; } }
+
+        // Pool for this type of 3D components.
+        private static readonly Pool<HudTexture> componentPool3D = new Pool<HudTexture>(20);
+
+        /// <summary>
+        /// Pool for this type of 3D components.
+        /// </summary>
+        internal static Pool<HudTexture> ComponentPool3D { get { return componentPool3D; } }
 
         #endregion
 

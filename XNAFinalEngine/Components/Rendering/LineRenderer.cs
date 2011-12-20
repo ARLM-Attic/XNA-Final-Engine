@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using XNAFinalEngine.Helpers;
+using Microsoft.Xna.Framework.Graphics;
 #endregion
 
 namespace XNAFinalEngine.Components
@@ -38,14 +39,31 @@ namespace XNAFinalEngine.Components
     /// <summary>
     /// Line Renderer.
     /// </summary>
+    /// <remarks>
+    /// Lines are normally not used, and if they are used there are few lines or the performance is not critical.
+    /// </remarks>
     public class LineRenderer : Renderer
     {
 
-        #region Variables
-        
-        #endregion
-
         #region Properties
+
+        /// <summary>
+        /// The array of vertex to connect.
+        /// </summary>
+        /// <remarks>
+        /// If the component works in 2D the third value of the position indicate the vertex’s depth.
+        /// </remarks>
+        public VertexPositionColor[] Vertices { get; set; }
+
+        /// <summary>
+        /// If the texture is null then the system will be draw a simple 1 pixel wide line.
+        /// </summary>
+        public Texture Texture { get; set; }
+
+        /// <summary>
+        /// Line width (only valid when texture is not null).
+        /// </summary>
+        public float Width { get; set; }
         
         #endregion
 
@@ -57,6 +75,10 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
+            // Default values
+            Vertices = null;
+            Texture = null;
+            Width = 10;
         } // Initialize
 
         #endregion
