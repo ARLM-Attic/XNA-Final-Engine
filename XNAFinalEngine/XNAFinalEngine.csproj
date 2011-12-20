@@ -140,6 +140,8 @@
     <Compile Include="Components\GameObject3D.cs" />
     <Compile Include="Components\Layer.cs" />
     <Compile Include="Components\Particles\ParticleEmitter.cs" />
+    <Compile Include="Components\Rendering\BoundingVolumeRenderer.cs" />
+    <Compile Include="Components\Rendering\LineRenderer.cs" />
     <Compile Include="Components\Rendering\VideoRenderer.cs" />
     <Compile Include="Components\Rendering\ParticleRenderer.cs" />
     <Compile Include="Engine Core\ScreenshotCapturer.cs" />
@@ -164,6 +166,7 @@
     <Compile Include="Engine Core\Time.cs" />
     <Compile Include="Graphics\Filters\BlurShader.cs" />
     <Compile Include="Graphics\Filters\DilateShader.cs" />
+    <Compile Include="Graphics\LineManager.cs" />
     <Compile Include="Graphics\Particles\ParticleShader.cs" />
     <Compile Include="Graphics\Particles\ParticleSystem.cs" />
     <Compile Include="Graphics\Particles\ParticleVertex.cs" />
@@ -211,7 +214,6 @@
     <Compile Include="Helpers\Curve3D.cs" />
     <Compile Include="Helpers\Disposable.cs" />
     <Compile Include="Helpers\ExtensionMethods.cs" />
-    <Compile Include="Pickers\Picker.cs" />
     <Compile Include="Helpers\Pool.cs" />
     <Compile Include="Helpers\PoolWithoutAccessor.cs" />
     <Compile Include="Helpers\RectangleF.cs" />
@@ -232,7 +234,9 @@
       <Name>XNAFinalEngineContentPipelineExtensionRuntime</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Pickers\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2010, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -46,17 +47,12 @@ namespace XNAFinalEngine.UserInterface
         #region Variables
 
         private TextBox textBoxR, textBoxG, textBoxB;
-
         private TrackBar sliderR, sliderG, sliderB;
 
-        /// <summary>
-        /// If the system is updating the color, then the color won't be updated by the RGB sliders.
-        /// </summary>
+        // If the system is updating the color, then the color won't be updated by the RGB sliders.
         private bool updatingColor;
 
-        /// <summary>
-        /// If the system is updating the RGB sliders, then the RGB sliders won't be updated by the color.
-        /// </summary>
+        // If the system is updating the RGB sliders, then the RGB sliders won't be updated by the color.
         private bool updatingRGB;
 
         #endregion
@@ -98,7 +94,7 @@ namespace XNAFinalEngine.UserInterface
             };
             Add(squareColor);
             squareColor.MouseDown += delegate
-                                    {/*
+                                    {
                                         var colorPickerDialog = new ColorPickerDialog(Color);
                                         UserInterfaceManager.Add(colorPickerDialog);
 
@@ -110,10 +106,10 @@ namespace XNAFinalEngine.UserInterface
                                         #region Color Picker Position
                                         
                                         int left = squareColor.ControlLeftAbsoluteCoordinate;
-                                        if (left + colorPickerDialog.Width > SystemInformation.ScreenWidth)
+                                        if (left + colorPickerDialog.Width > Screen.Width)
                                             left -= colorPickerDialog.Width;
                                         int top = squareColor.ControlTopAbsoluteCoordinate + squareColor.Height;
-                                        if (top + colorPickerDialog.Height > SystemInformation.ScreenHeight)
+                                        if (top + colorPickerDialog.Height > Screen.Height)
                                             top -= colorPickerDialog.Height + squareColor.Height;
                                         colorPickerDialog.SetPosition(left, top);
                                         
@@ -122,7 +118,7 @@ namespace XNAFinalEngine.UserInterface
                                         colorPickerDialog.ColorChanged += delegate
                                         {
                                             Color = colorPickerDialog.Color;
-                                        };*/ // TODO!!!!
+                                        };
                                     };
 
             #endregion

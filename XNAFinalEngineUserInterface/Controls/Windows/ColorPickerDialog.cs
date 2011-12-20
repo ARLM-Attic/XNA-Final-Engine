@@ -82,7 +82,7 @@ namespace XNAFinalEngine.UserInterface
         private float intensityLevelValueBeginningMovement;
 
         // The texture picker for screen picking.
-        private Picker picker;
+        //private Picker picker;
 
         // If the control is in screen picking mode.
         private bool isPicking;
@@ -137,7 +137,7 @@ namespace XNAFinalEngine.UserInterface
                                              {
                                                  if (isPicking)
                                                  {   
-                                                    picker.BeginManualRenderPickerTexture();
+                                                    /*picker.BeginManualRenderPickerTexture();
                                                     //UIManager.BeginDraw(); // Don't want this. It's already do.
                                                     ApplicationLogic.Render();
                                                     SpriteManager.DrawSprites();
@@ -148,7 +148,7 @@ namespace XNAFinalEngine.UserInterface
                                                     isPicking = false;
                                                     // The background control takes the first place (z order), now it needs to be in second.
                                                     background.StayOnTop = false;  // We need to change this so that the main control can take first place.
-                                                    BringToFront();
+                                                    BringToFront();*/
                                                  }
                                                  else
                                                      Close();
@@ -163,7 +163,7 @@ namespace XNAFinalEngine.UserInterface
             buttonPick = new Button
             {
                 Top = 8,
-                Glyph = new Glyph(new Texture("Skin\\Dropper")), // It need to be store in the skin file, I know.
+                Glyph = new Glyph(new Texture("Skin\\Default\\Dropper")), // It needs to be store in the skin file, I know.
                 GlyphCentered = true,
                 //Text = "Pick",
             };
@@ -171,7 +171,7 @@ namespace XNAFinalEngine.UserInterface
             BottomPanel.Add(buttonPick);
             buttonPick.Click += delegate
             {
-                picker = new Picker();
+                //picker = new Picker();
                 isPicking = true;
                 background.StayOnTop = true;
                 background.BringToFront();
@@ -519,7 +519,7 @@ namespace XNAFinalEngine.UserInterface
             // Relative square position
             Vector2 position = new Vector2(5, 5);
 
-            Primitives.Begin(PrimitiveType.LineList);
+            //Primitives.Begin(PrimitiveType.LineList);
             // I divide the problem into six steps.
             for (int i = 0; i < squareColorlenght; i++)
             {
@@ -549,10 +549,10 @@ namespace XNAFinalEngine.UserInterface
                 {
                     color.B = (byte)(255 - 255 * porcentaje);
                 }
-                Primitives.AddVertex(new Vector2(i + position.X, position.Y),       MultiplyColorByFloat(color, intensityLevel));
-                Primitives.AddVertex(new Vector2(i + position.X, position.Y + 132), MultiplyColorByFloat(new Color(255, 255, 255), intensityLevel));
+                //Primitives.AddVertex(new Vector2(i + position.X, position.Y),       MultiplyColorByFloat(color, intensityLevel));
+                //Primitives.AddVertex(new Vector2(i + position.X, position.Y + 132), MultiplyColorByFloat(new Color(255, 255, 255), intensityLevel));
             }
-            Primitives.End();
+            //Primitives.End();
 
             #endregion
 
@@ -562,15 +562,15 @@ namespace XNAFinalEngine.UserInterface
                 colorPointerScale = 1.0f;
             else
                 colorPointerScale = 1 - intensityLevel;
-            Primitives.Draw2DPlane(new Rectangle(positionSquareColor.X + 2, positionSquareColor.Y + 2, 6, 6), new Color(colorPointerScale, colorPointerScale, colorPointerScale));
+            //Primitives.Draw2DPlane(new Rectangle(positionSquareColor.X + 2, positionSquareColor.Y + 2, 6, 6), new Color(colorPointerScale, colorPointerScale, colorPointerScale));
             // Color planes
-            Primitives.DrawSolid2DPlane(new Rectangle(5, squareColorlenght + 10, 40, 40), oldColor);
-            Primitives.DrawSolid2DPlane(new Rectangle(45, squareColorlenght + 10, 40, 40), Color);
+            //Primitives.DrawSolid2DPlane(new Rectangle(5, squareColorlenght + 10, 40, 40), oldColor);
+            //Primitives.DrawSolid2DPlane(new Rectangle(45, squareColorlenght + 10, 40, 40), Color);
             // Intensity Level Bar
-            Primitives.DrawSolid2DPlane(new Rectangle(squareColorlenght + 5, 5, 20, squareColorlenght),
-                                        positionSquareColor.Y == squareColorlenght ? Color.White : ColorFromPositionWithIntensity(positionSquareColor, 1), Color.Black);
+            //Primitives.DrawSolid2DPlane(new Rectangle(squareColorlenght + 5, 5, 20, squareColorlenght),
+                                        //positionSquareColor.Y == squareColorlenght ? Color.White : ColorFromPositionWithIntensity(positionSquareColor, 1), Color.Black);
 
-            Primitives.Draw2DPlane(new Rectangle(squareColorlenght + 5, (int)(squareColorlenght * (1 - intensityLevel)) - 3 + 5, 20, 6), new Color(200, 200, 200));
+            //Primitives.Draw2DPlane(new Rectangle(squareColorlenght + 5, (int)(squareColorlenght * (1 - intensityLevel)) - 3 + 5, 20, 6), new Color(200, 200, 200));
         } // DrawControl
 
         #endregion

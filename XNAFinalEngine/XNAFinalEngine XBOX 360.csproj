@@ -103,6 +103,8 @@
     <Compile Include="Components\Lights\SpotLight.cs" />
     <Compile Include="Components\Model\ModelFilter.cs" />
     <Compile Include="Components\Particles\ParticleEmitter.cs" />
+    <Compile Include="Components\Rendering\BoundingVolumeRenderer.cs" />
+    <Compile Include="Components\Rendering\LineRenderer.cs" />
     <Compile Include="Components\Rendering\ModelRenderer.cs" />
     <Compile Include="Components\Rendering\ParticleRenderer.cs" />
     <Compile Include="Components\Rendering\Renderer.cs" />
@@ -119,6 +121,7 @@
     <Compile Include="Engine Core\Time.cs" />
     <Compile Include="Graphics\Filters\BlurShader.cs" />
     <Compile Include="Graphics\Filters\DilateShader.cs" />
+    <Compile Include="Graphics\LineManager.cs" />
     <Compile Include="Graphics\Miscellaneous\GammaLinearSpace.cs" />
     <Compile Include="Graphics\Miscellaneous\RGBM.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonics.cs" />
