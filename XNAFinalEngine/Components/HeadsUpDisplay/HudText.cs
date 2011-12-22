@@ -60,11 +60,6 @@ namespace XNAFinalEngine.Components
         public Font Font { get; set; }
 
         /// <summary>
-        /// Text Color.
-        /// </summary>
-        public Color Color { get; set; }
-
-        /// <summary>
         /// The string to display.
         /// The reason why the set is not available is because we want to avoid garbage at any cost.
         /// Also don’t use the “+” operator with this type.
@@ -82,8 +77,8 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
+            // Default values.
             Font = null;
-            Color = Color.White;
             #if (XBOX)
                 if (Text.Length > 0)
                     Text.Remove(0, Text.Length - 1); // Clear is not supported in XBOX.

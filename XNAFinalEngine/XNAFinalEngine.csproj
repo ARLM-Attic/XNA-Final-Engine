@@ -140,7 +140,6 @@
     <Compile Include="Components\GameObject3D.cs" />
     <Compile Include="Components\Layer.cs" />
     <Compile Include="Components\Particles\ParticleEmitter.cs" />
-    <Compile Include="Components\Rendering\BoundingVolumeRenderer.cs" />
     <Compile Include="Components\Rendering\LineRenderer.cs" />
     <Compile Include="Components\Rendering\VideoRenderer.cs" />
     <Compile Include="Components\Rendering\ParticleRenderer.cs" />

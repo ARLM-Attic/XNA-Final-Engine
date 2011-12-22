@@ -307,6 +307,13 @@ namespace XNAFinalEngine.Components
             }
         } // ViewMatrix
 
+        /// <summary>
+        /// Camera position.
+        /// </summary>
+        public Vector3 Position { get; set; }
+
+        public Vector3 Up { get; set; }
+
         #endregion
 
         #region Projection
@@ -519,8 +526,8 @@ namespace XNAFinalEngine.Components
             CalculateProjectionMatrix();
             Screen.AspectRatioChanged += OnAspectRatioChanged;
             // Cache transform matrix. It will be the view matrix.
-            cachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
+            OnWorldMatrixChanged(((GameObject3D) Owner).Transform.WorldMatrix);
         } // Initialize
         
         #endregion
@@ -620,7 +627,9 @@ namespace XNAFinalEngine.Components
         protected virtual void OnWorldMatrixChanged(Matrix worldMatrix)
         {
             // The view matrix is the invert
-            cachedWorldMatrix = Matrix.Invert(worldMatrix);            
+            cachedWorldMatrix = Matrix.Invert(worldMatrix);
+            Position = worldMatrix.Translation;
+            Up = worldMatrix.Up;
         } // OnWorldMatrixChanged
 
         #endregion

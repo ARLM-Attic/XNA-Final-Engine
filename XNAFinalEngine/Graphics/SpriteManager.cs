@@ -65,6 +65,10 @@ namespace XNAFinalEngine.Graphics
         // To control the good use of begin-end.
         private static bool begined = false;
 
+        private static Matrix viewMatrix, projectionMatrix;
+
+        private static Effect spriteEffect;
+
         #endregion
 
         #region Properties
@@ -100,6 +104,8 @@ namespace XNAFinalEngine.Graphics
         public static void Init()
         {            
             spriteBatch = new SpriteBatch(EngineManager.Device);
+
+            spriteEffect = ContentManager.SystemContentManager.XnaContentManager.Load<Effect>(ContentManager.GameDataDirectory + "Shaders\\Sprites\\SpriteEffect");
         } // Init
 
         #endregion
@@ -107,9 +113,9 @@ namespace XNAFinalEngine.Graphics
         #region Begin
 
         /// <summary>
-        /// Begins a sprite batch operation.
+        /// Begins a sprite batch operation in 2D.
         /// </summary>
-        public static void Begin()
+        public static void Begin2D()
         {
             if (spriteBatch == null)
                 throw new Exception("The Sprite Manager is not initialized.");
@@ -121,7 +127,27 @@ namespace XNAFinalEngine.Graphics
             spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, samplerState2D, DepthStencilState.None, RasterizerState.CullCounterClockwise);
             
             begined = true;
-        } // Begin
+        } // Begin2D
+
+        /// <summary>
+        /// Begins a sprite batch operation in 3D.
+        /// </summary>
+        public static void Begin3D(Matrix _viewMatrix, Matrix _projectionMatrix)
+        {
+            if (spriteBatch == null)
+                throw new Exception("The Sprite Manager is not initialized.");
+            if (begined)
+                throw new InvalidOperationException("Sprite Manager: Begin has been called before calling End after the last call to Begin. Begin cannot be called again until End has been successfully called.");
+
+            viewMatrix = _viewMatrix;
+            projectionMatrix = _projectionMatrix;
+
+            // In PC BlendState.AlphaBlend is a little more expensive than BlendState.Opaque when alpha = 1.
+            // But PC is the powerful platform so no need to choose between the two.
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState3D, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise, spriteEffect);
+
+            begined = true;
+        } // Begin3D
 
         #endregion
 
@@ -142,6 +168,46 @@ namespace XNAFinalEngine.Graphics
             if (!begined)
                 throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
             spriteBatch.DrawString(font.Resource, text, new Vector2(position.X, position.Y), color, rotation, origin, scale, SpriteEffects.None, position.Z);
+        } // DrawText
+
+        /// <summary>
+        /// Adds a string to a batch of sprites for rendering using the specified font, text, position, color, rotation, origin, scale, effects and layer.
+        /// </summary>
+        /// <param name="font">A font for diplaying text.</param>
+        /// <param name="text">Text string.</param>
+        /// <param name="worldMatrix">The location to draw the sprite.</param>
+        /// <param name="color">The color to tint the font.</param>
+        public static void DrawText(Font font, StringBuilder text, Matrix worldMatrix, Color color)
+        {
+            if (!begined)
+                throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+            
+            spriteEffect.Parameters["worldViewProj"].SetValue(Matrix.CreateFromYawPitchRoll(0, 3.1416f, 0) * worldMatrix * viewMatrix * projectionMatrix);
+            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
+            //spriteEffect.Parameters["diffuseTexture"].SetValue(texture.Resource);
+            spriteEffect.CurrentTechnique.Passes[0].Apply();
+            spriteBatch.DrawString(font.Resource, text, Vector2.Zero, color);
+        } // DrawText
+
+        /// <summary>
+        /// Adds a string to a batch of sprites for rendering using the specified font, text, position, color, rotation, origin, scale, effects and layer.
+        /// </summary>
+        /// <param name="font">A font for diplaying text.</param>
+        /// <param name="text">Text string.</param>
+        /// <param name="worldMatrix">The location to draw the sprite.</param>
+        /// <param name="color">The color to tint the font.</param>
+        public static void DrawText(Font font, StringBuilder text, Matrix worldMatrix, Color color, Vector3 cameraPosition, Vector3 cameraUp, Vector3 cameraForward)
+        {
+            if (!begined)
+                throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+            
+            float scale = new Vector3(worldMatrix.M11, worldMatrix.M12, worldMatrix.M13).Length();
+            worldMatrix = Matrix.CreateBillboard(worldMatrix.Translation, cameraPosition, cameraUp, null);
+            spriteEffect.Parameters["worldViewProj"].SetValue(Matrix.CreateScale(scale) * Matrix.CreateFromYawPitchRoll(0, 0, 3.1416f) * worldMatrix * viewMatrix * projectionMatrix);
+            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
+            //spriteEffect.Parameters["diffuseTexture"].SetValue(texture.Resource);
+            spriteEffect.CurrentTechnique.Passes[0].Apply();
+            spriteBatch.DrawString(font.Resource, text, Vector2.Zero, color);
         } // DrawText
 
         #endregion
@@ -180,6 +246,42 @@ namespace XNAFinalEngine.Graphics
             if (!begined)
                 throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
             spriteBatch.Draw(texture.Resource, destinationRectangle, sourceRectangle, color, rotation, origin, SpriteEffects.None, depth);
+        } // DrawTexture
+
+        /// <summary>
+        /// Adds a sprite to a batch of sprites for rendering using the specified texture, position, source rectangle, color, rotation, origin, scale, effects and layer.
+        /// </summary>
+        /// <param name="texture">A texture.</param>
+        /// <param name="worldMatrix">The location to draw the sprite.</param>
+        /// <param name="sourceRectangle">A rectangle that specifies (in texels) the source texels from a texture. Use null to draw the entire texture.</param>
+        /// <param name="color">The color to tint the font.</param>
+        public static void DrawTexture(Texture texture, Matrix worldMatrix, Rectangle? sourceRectangle, Color color)
+        {
+            if (!begined)
+                throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+
+            spriteEffect.Parameters["worldViewProj"].SetValue(worldMatrix * viewMatrix * projectionMatrix);
+            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
+            spriteEffect.Parameters["diffuseTexture"].SetValue(texture.Resource);
+            spriteBatch.Draw(texture.Resource, Vector2.Zero, sourceRectangle, color);
+        } // DrawTexture
+
+        /// <summary>
+        /// Adds a sprite to a batch of sprites for rendering using the specified texture, position, source rectangle, color, rotation, origin, scale, effects and layer.
+        /// </summary>
+        /// <param name="texture">A texture.</param>
+        /// <param name="worldMatrix">The location to draw the sprite.</param>
+        /// <param name="color">The color to tint the font.</param>
+        public static void DrawTexture(Texture texture, Matrix worldMatrix, Color color)
+        {
+            if (!begined)
+                throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+
+            spriteEffect.Parameters["worldViewProj"].SetValue(worldMatrix * Matrix.CreateFromYawPitchRoll(0, 3.1416f, 0) * viewMatrix * projectionMatrix);
+            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
+            spriteEffect.Parameters["diffuseTexture"].SetValue(texture.Resource);
+            spriteEffect.CurrentTechnique.Passes[0].Apply();
+            spriteBatch.Draw(texture.Resource, Vector2.Zero, color);
         } // DrawTexture
 
         #endregion

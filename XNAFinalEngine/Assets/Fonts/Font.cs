@@ -44,8 +44,29 @@ namespace XNAFinalEngine.Assets
     /// </summary>
     public class Font : Asset
     {
-        
+
+        #region Variables
+
+        // default material.
+        private static Font defaultFont = new Font("Default");
+
+        #endregion
+
         #region Properties
+
+        /// <summary>
+        /// Default Font.
+        /// </summary>
+        public static Font DefaultFont
+        {
+            get { return defaultFont; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("value");
+                defaultFont = value;
+            }
+        } // DefaultFont
 
         /// <summary>
         /// XNA Sprite font.

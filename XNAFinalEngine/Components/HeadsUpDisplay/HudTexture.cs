@@ -60,11 +60,6 @@ namespace XNAFinalEngine.Components
         public Texture Texture { get; set; }
 
         /// <summary>
-        /// Text Color.
-        /// </summary>
-        public Color Color { get; set; }
-
-        /// <summary>
         /// A rectangle that specifies (in texels) the source texels from a texture.
         /// </summary>
         /// <remarks>Use null to draw the entire texture.</remarks>
@@ -99,8 +94,8 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
+            // Default values.
             Texture = null;
-            Color = Color.White;
         } // Initialize
 
         #endregion

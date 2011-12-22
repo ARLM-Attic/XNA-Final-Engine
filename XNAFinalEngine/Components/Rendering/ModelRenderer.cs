@@ -95,6 +95,16 @@ namespace XNAFinalEngine.Components
                 CalculateBoundingVolumes();
             }
         } // CachedModel
+
+        /// <summary>
+        /// Render bounding box using lines.
+        /// </summary>
+        public bool RenderBoundingBox { get; set; }
+
+        /// <summary>
+        /// Render bounding sphere using lines.
+        /// </summary>
+        public bool RenderBoundingSphere { get; set; }
         
         #endregion
 

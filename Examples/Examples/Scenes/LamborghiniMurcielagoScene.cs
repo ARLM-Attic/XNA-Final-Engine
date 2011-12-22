@@ -70,7 +70,8 @@ namespace XNAFinalEngineExamples
                                     camera, camera2,
                                     particleSystem,
                                     dogSound,
-                                    soundFrontLeft, soundFrontRight, soundRearLeft, soundRearRight, soundFrontCenter;
+                                    soundFrontLeft, soundFrontRight, soundRearLeft, soundRearRight, soundFrontCenter,
+                                    hudTexture3DTest, hudTexture3DTest2, hudText3DTest;
 
         private static GameObject2D hudTextureTest, videoTest;
 
@@ -596,6 +597,22 @@ namespace XNAFinalEngineExamples
             hudTextureTest = new GameObject2D();
             hudTextureTest.AddComponent<HudTexture>();
             hudTextureTest.HudTexture.Texture = new Texture("WiimoteSensors");
+
+            hudText3DTest = new GameObject3D();
+            hudText3DTest.AddComponent<HudText>();
+            hudText3DTest.HudText.Text.Insert(0, "Toto");
+            hudText3DTest.HudText.Color = Color.Red;
+            hudText3DTest.Transform.LocalScale = new Vector3(0.5f, 0.5f, 0.5f);
+
+            hudTexture3DTest = new GameObject3D();
+            hudTexture3DTest.AddComponent<HudTexture>();
+            hudTexture3DTest.Transform.Position = new Vector3(0, 0, 1);
+            hudTexture3DTest.HudTexture.Texture = new Texture("WiimoteSensors");
+
+            hudTexture3DTest2 = new GameObject3D();
+            hudTexture3DTest2.AddComponent<HudTexture>();
+            hudTexture3DTest2.Transform.Position = new Vector3(5, 0, 5);
+            hudTexture3DTest2.HudTexture.Texture = new Texture("WiimoteSensors");
 
             videoTest = new GameObject2D();
             videoTest.AddComponent<VideoRenderer>();

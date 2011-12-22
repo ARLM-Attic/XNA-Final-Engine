@@ -59,6 +59,31 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal float CachedScale { get; set; }
 
+        /// <summary>
+        /// Color.
+        /// </summary>
+        public Color Color { get; set; }
+
+        /// <summary>
+        /// If the element is in 3D space then it can be automatically rotated so it always faces the camera. Default value: false.
+        /// </summary> 
+        public bool Billboard { get; set; }
+
+        #endregion
+
+        #region Initialize
+
+        /// <summary>
+        /// Initialize the component. 
+        /// </summary>
+        internal override void Initialize(GameObject owner)
+        {
+            base.Initialize(owner);
+            // Default values
+            Color = Color.White;
+            Billboard = false;
+        } // Initialize
+
         #endregion
 
         #region On World Matrix Changed

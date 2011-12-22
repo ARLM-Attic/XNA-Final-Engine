@@ -751,9 +751,9 @@ namespace XNAFinalEngine.Components
                     throw new ArgumentException("Game Object 3D: Unable to create the HUD text component. There is one already.");
                 }
                 // Search for an empty component in the pool.
-                hudTextAccessor = HudText.ComponentPool2D.Fetch();
+                hudTextAccessor = HudText.ComponentPool3D.Fetch();
                 // A component is a reference value, so no problem to do this.
-                HudText = HudText.ComponentPool2D[hudTextAccessor];
+                HudText = HudText.ComponentPool3D[hudTextAccessor];
                 // Initialize the component to the default values.
                 HudText.Initialize(this);
                 return HudText;
@@ -770,9 +770,9 @@ namespace XNAFinalEngine.Components
                     throw new ArgumentException("Game Object 3D: Unable to create the HUD texture component. There is one already.");
                 }
                 // Search for an empty component in the pool.
-                hudTextureAccessor = HudTexture.ComponentPool2D.Fetch();
+                hudTextureAccessor = HudTexture.ComponentPool3D.Fetch();
                 // A component is a reference value, so no problem to do this.
-                HudTexture = HudTexture.ComponentPool2D[hudTextureAccessor];
+                HudTexture = HudTexture.ComponentPool3D[hudTextureAccessor];
                 // Initialize the component to the default values.
                 HudTexture.Initialize(this);
                 return HudTexture;

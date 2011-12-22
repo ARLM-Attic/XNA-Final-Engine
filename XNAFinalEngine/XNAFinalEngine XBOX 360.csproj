@@ -103,7 +103,6 @@
     <Compile Include="Components\Lights\SpotLight.cs" />
     <Compile Include="Components\Model\ModelFilter.cs" />
     <Compile Include="Components\Particles\ParticleEmitter.cs" />
-    <Compile Include="Components\Rendering\BoundingVolumeRenderer.cs" />
     <Compile Include="Components\Rendering\LineRenderer.cs" />
     <Compile Include="Components\Rendering\ModelRenderer.cs" />
     <Compile Include="Components\Rendering\ParticleRenderer.cs" />

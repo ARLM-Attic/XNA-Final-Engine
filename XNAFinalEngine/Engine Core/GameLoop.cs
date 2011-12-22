@@ -387,7 +387,7 @@ namespace XNAFinalEngine.EngineCore
             #region Heads Up Display
 
             // Draw 2D Heads Up Display
-            SpriteManager.Begin();
+            SpriteManager.Begin2D();
             {
 
                 #region HUD Text
@@ -396,11 +396,11 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < HudText.ComponentPool2D.Count; i++)
                 {
                     currentHudText = HudText.ComponentPool2D.Elements[i];
-                    if (currentHudText.Visible && currentHudText.Font != null)
+                    if (currentHudText.Visible)
                     {
                         currentHudText.Text.Length = 4;
                         currentHudText.Text.AppendWithoutGarbage(Time.FramesPerSecond);
-                        SpriteManager.DrawText(currentHudText.Font,
+                        SpriteManager.DrawText(currentHudText.Font ?? Font.DefaultFont,
                                                currentHudText.Text,
                                                currentHudText.CachedPosition,
                                                currentHudText.Color,
@@ -821,6 +821,47 @@ namespace XNAFinalEngine.EngineCore
                         CarPaintShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint)currentModelRenderer.Material);
                     }
                 }
+            }
+
+            #endregion
+
+            #region Textures and Text
+
+            if (HudText.ComponentPool3D.Count != 0 || HudTexture.ComponentPool3D.Count != 0)
+            {
+                SpriteManager.Begin3D(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+                for (int i = 0; i < HudTexture.ComponentPool3D.Count; i++)
+                {
+                    HudTexture currentHudTexture = HudTexture.ComponentPool3D.Elements[i];
+                    if (currentHudTexture.Visible && currentHudTexture.Texture != null)
+                    {
+                        if (currentHudTexture.DestinationRectangle != null)
+                            SpriteManager.DrawTexture(currentHudTexture.Texture,
+                                                      currentHudTexture.cachedWorldMatrix,
+                                                      currentHudTexture.SourceRectangle,
+                                                      currentHudTexture.Color);
+                        else
+                            SpriteManager.DrawTexture(currentHudTexture.Texture,
+                                                      currentHudTexture.cachedWorldMatrix,
+                                                      currentHudTexture.Color);
+                    }
+                }
+                for (int i = 0; i < HudText.ComponentPool3D.Count; i++)
+                {
+                    HudText currentHudText = HudText.ComponentPool3D.Elements[i];
+                    if (currentHudText.Visible)
+                    {
+                        SpriteManager.DrawText(currentHudText.Font ?? Font.DefaultFont, currentHudText.Text, currentHudText.cachedWorldMatrix, currentHudText.Color);
+                        SpriteManager.DrawText(currentHudText.Font ?? Font.DefaultFont,
+                                               currentHudText.Text, 
+                                               currentHudText.cachedWorldMatrix,
+                                               currentHudText.Color,
+                                               currentCamera.Position,
+                                               currentCamera.Up,
+                                               currentCamera.ViewMatrix.Forward);
+                    }
+                }
+                SpriteManager.End();
             }
 
             #endregion
