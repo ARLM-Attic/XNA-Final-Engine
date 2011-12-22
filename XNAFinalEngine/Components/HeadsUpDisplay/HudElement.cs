@@ -45,7 +45,7 @@ namespace XNAFinalEngine.Components
         #region Properties
 
         /// <summary>
-        /// Chaded transform2D's world matrix value.
+        /// Chaded transform2D's position value.
         /// </summary>
         internal Vector3 CachedPosition;
 
@@ -69,6 +69,11 @@ namespace XNAFinalEngine.Components
         /// </summary> 
         public bool Billboard { get; set; }
 
+        /// <summary>
+        /// If post processed is enabled the element will be influenced for the post process (bloom, tone mapping, exposure, etc.).
+        /// </summary>
+        public bool PostProcessed { get; set; }
+
         #endregion
 
         #region Initialize
@@ -82,6 +87,7 @@ namespace XNAFinalEngine.Components
             // Default values
             Color = Color.White;
             Billboard = false;
+            PostProcessed = false;
         } // Initialize
 
         #endregion

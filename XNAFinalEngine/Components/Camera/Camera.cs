@@ -294,25 +294,19 @@ namespace XNAFinalEngine.Components
         /// If you change this matrix, the camera no longer updates its rendering based on its Transform.
         /// This lasts until you call ResetWorldToCameraMatrix.
         /// </summary>
-        public Matrix ViewMatrix
-        {
-            get
-            {
-                return cachedWorldMatrix;
-            }
-            set 
-            {
-                // Aca tendriamos que actualizar el transform pero teniendo en cuenta que la view matrix mira al resve, no?
-                cachedWorldMatrix = value;
-            }
-        } // ViewMatrix
+        public Matrix ViewMatrix { get { return cachedWorldMatrix; } }
 
-        /// <summary>
-        /// Camera position.
-        /// </summary>
-        public Vector3 Position { get; set; }
+        /// <summary>Camera position.</summary>
+        /// <remarks>The view matrix is the inverse of the camera's world matrix. Consequently the view matrix can't be used directly.</remarks>
+        public Vector3 Position { get; private set; }
 
-        public Vector3 Up { get; set; }
+        /// <summary>Camera up vector.</summary>
+        /// <remarks>The view matrix is the inverse of the camera's world matrix. Consequently the view matrix can't be used directly.</remarks>
+        public Vector3 Up { get; private set; }
+
+        /// <summary>Camera forward vector.</summary>
+        /// <remarks>The view matrix is the inverse of the camera's world matrix. Consequently the view matrix can't be used directly.</remarks>
+        public Vector3 Forward { get; private set; }
 
         #endregion
 
@@ -630,6 +624,7 @@ namespace XNAFinalEngine.Components
             cachedWorldMatrix = Matrix.Invert(worldMatrix);
             Position = worldMatrix.Translation;
             Up = worldMatrix.Up;
+            Forward = worldMatrix.Forward;
         } // OnWorldMatrixChanged
 
         #endregion

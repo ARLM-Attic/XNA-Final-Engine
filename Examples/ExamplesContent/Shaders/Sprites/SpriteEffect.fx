@@ -23,7 +23,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
 #include <..\Helpers\GammaLinearSpace.fxh>
-#include <..\Helpers\Discard.fxh>
 
 //////////////////////////////////////////////
 //////////////// Matrices ////////////////////
@@ -62,9 +61,9 @@ void SpriteVertexShader(inout float4 color    : COLOR0,
 //////////////////////////////////////////////
 
 float4 SpritePixelShader(float4 color : COLOR0, float2 texCoord : TEXCOORD0) : SV_Target0
-{
+{	
 	float4 textureSampled = tex2D(diffuseSampler, texCoord).rgba;
-	return float4(GammaToLinear(textureSampled.rgb * color), textureSampled.a);
+	return float4(GammaToLinear(textureSampled.rgb * color), textureSampled.a * color.a);
 } // SpritePixelShader
 
 //////////////////////////////////////////////

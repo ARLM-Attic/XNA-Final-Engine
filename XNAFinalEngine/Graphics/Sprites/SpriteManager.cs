@@ -63,11 +63,7 @@ namespace XNAFinalEngine.Graphics
         private static SamplerState samplerState3D = SamplerState.AnisotropicClamp;
 
         // To control the good use of begin-end.
-        private static bool begined = false;
-
-        private static Matrix viewMatrix, projectionMatrix;
-
-        private static Effect spriteEffect;
+        private static bool begined = false, begin2D = false;
 
         #endregion
 
@@ -104,8 +100,6 @@ namespace XNAFinalEngine.Graphics
         public static void Init()
         {            
             spriteBatch = new SpriteBatch(EngineManager.Device);
-
-            spriteEffect = ContentManager.SystemContentManager.XnaContentManager.Load<Effect>(ContentManager.GameDataDirectory + "Shaders\\Sprites\\SpriteEffect");
         } // Init
 
         #endregion
@@ -127,26 +121,27 @@ namespace XNAFinalEngine.Graphics
             spriteBatch.Begin(SpriteSortMode.BackToFront, BlendState.AlphaBlend, samplerState2D, DepthStencilState.None, RasterizerState.CullCounterClockwise);
             
             begined = true;
+            begin2D = true;
         } // Begin2D
 
         /// <summary>
         /// Begins a sprite batch operation in 3D.
         /// </summary>
-        public static void Begin3D(Matrix _viewMatrix, Matrix _projectionMatrix)
+        public static void Begin3D(Matrix viewMatrix, Matrix projectionMatrix)
         {
             if (spriteBatch == null)
                 throw new Exception("The Sprite Manager is not initialized.");
             if (begined)
                 throw new InvalidOperationException("Sprite Manager: Begin has been called before calling End after the last call to Begin. Begin cannot be called again until End has been successfully called.");
 
-            viewMatrix = _viewMatrix;
-            projectionMatrix = _projectionMatrix;
-
             // In PC BlendState.AlphaBlend is a little more expensive than BlendState.Opaque when alpha = 1.
             // But PC is the powerful platform so no need to choose between the two.
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState3D, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise, spriteEffect);
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState3D, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise, SpriteShader.Instance.Resource);
+
+            SpriteShader.Instance.Begin(viewMatrix, projectionMatrix);
 
             begined = true;
+            begin2D = false;
         } // Begin3D
 
         #endregion
@@ -163,52 +158,52 @@ namespace XNAFinalEngine.Graphics
         /// <param name="rotation">Specifies the angle (in radians) to rotate the sprite about its center.</param>
         /// <param name="origin">The sprite origin; the default is (0,0) which represents the upper-left corner.</param>
         /// <param name="scale">Scale factor.</param>
-        public static void DrawText(Font font, StringBuilder text, Vector3 position, Color color, float rotation, Vector2 origin, float scale)
+        public static void Draw2DText(Font font, StringBuilder text, Vector3 position, Color color, float rotation, Vector2 origin, float scale)
         {
             if (!begined)
                 throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+            if (!begin2D)
+                throw new InvalidOperationException("Sprite Manager: Begin was called in 3D mode.");
             spriteBatch.DrawString(font.Resource, text, new Vector2(position.X, position.Y), color, rotation, origin, scale, SpriteEffects.None, position.Z);
-        } // DrawText
+        } // Draw2DText
 
         /// <summary>
-        /// Adds a string to a batch of sprites for rendering using the specified font, text, position, color, rotation, origin, scale, effects and layer.
+        /// Draws a text in 3D space.
         /// </summary>
         /// <param name="font">A font for diplaying text.</param>
         /// <param name="text">Text string.</param>
         /// <param name="worldMatrix">The location to draw the sprite.</param>
         /// <param name="color">The color to tint the font.</param>
-        public static void DrawText(Font font, StringBuilder text, Matrix worldMatrix, Color color)
+        public static void Draw3DText(Font font, StringBuilder text, Matrix worldMatrix, Color color)
         {
             if (!begined)
                 throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
-            
-            spriteEffect.Parameters["worldViewProj"].SetValue(Matrix.CreateFromYawPitchRoll(0, 3.1416f, 0) * worldMatrix * viewMatrix * projectionMatrix);
-            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
-            //spriteEffect.Parameters["diffuseTexture"].SetValue(texture.Resource);
-            spriteEffect.CurrentTechnique.Passes[0].Apply();
+            if (begin2D)
+                throw new InvalidOperationException("Sprite Manager: Begin was called in 2D mode.");
+
+            SpriteShader.Instance.SetParameters(Matrix.CreateFromYawPitchRoll(0, 3.1416f, 0) * worldMatrix);
             spriteBatch.DrawString(font.Resource, text, Vector2.Zero, color);
-        } // DrawText
+        } // Draw3DText
 
         /// <summary>
-        /// Adds a string to a batch of sprites for rendering using the specified font, text, position, color, rotation, origin, scale, effects and layer.
+        /// Draws a text in 3D space in billboard fashion.
         /// </summary>
         /// <param name="font">A font for diplaying text.</param>
         /// <param name="text">Text string.</param>
         /// <param name="worldMatrix">The location to draw the sprite.</param>
         /// <param name="color">The color to tint the font.</param>
-        public static void DrawText(Font font, StringBuilder text, Matrix worldMatrix, Color color, Vector3 cameraPosition, Vector3 cameraUp, Vector3 cameraForward)
+        public static void Draw3DBillboardText(Font font, StringBuilder text, Matrix worldMatrix, Color color, Vector3 cameraPosition, Vector3 cameraUp, Vector3 cameraForward)
         {
             if (!begined)
                 throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+            if (begin2D)
+                throw new InvalidOperationException("Sprite Manager: Begin was called in 2D mode.");
             
             float scale = new Vector3(worldMatrix.M11, worldMatrix.M12, worldMatrix.M13).Length();
             worldMatrix = Matrix.CreateBillboard(worldMatrix.Translation, cameraPosition, cameraUp, null);
-            spriteEffect.Parameters["worldViewProj"].SetValue(Matrix.CreateScale(scale) * Matrix.CreateFromYawPitchRoll(0, 0, 3.1416f) * worldMatrix * viewMatrix * projectionMatrix);
-            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
-            //spriteEffect.Parameters["diffuseTexture"].SetValue(texture.Resource);
-            spriteEffect.CurrentTechnique.Passes[0].Apply();
+            SpriteShader.Instance.SetParameters(Matrix.CreateScale(scale) * Matrix.CreateFromYawPitchRoll(0, 0, 3.1416f) * worldMatrix);
             spriteBatch.DrawString(font.Resource, text, Vector2.Zero, color);
-        } // DrawText
+        } // Draw3DBillboardText
 
         #endregion
 
@@ -224,12 +219,15 @@ namespace XNAFinalEngine.Graphics
         /// <param name="rotation">Specifies the angle (in radians) to rotate the sprite about its center.</param>
         /// <param name="origin">The sprite origin; the default is (0,0) which represents the upper-left corner.</param>
         /// <param name="scale">Scale factor.</param>
-        public static void DrawTexture(Texture texture, Vector3 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, float scale)
+        public static void Draw2DTexture(Texture texture, Vector3 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, float scale)
         {
             if (!begined)
                 throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+            if (!begin2D)
+                throw new InvalidOperationException("Sprite Manager: Begin was called in 3D mode.");
+
             spriteBatch.Draw(texture.Resource, new Vector2(position.X, position.Y), sourceRectangle, color, rotation, origin, scale, SpriteEffects.None, position.Z);
-        } // DrawTexture
+        } // Draw2DTexture
 
         /// <summary>
         /// Adds a sprite to a batch of sprites for rendering using the specified texture, position, source rectangle, color, rotation, origin, scale, effects and layer.
@@ -241,12 +239,15 @@ namespace XNAFinalEngine.Graphics
         /// <param name="color">The color to tint the font.</param>
         /// <param name="rotation">Specifies the angle (in radians) to rotate the sprite about its center.</param>
         /// <param name="origin">The sprite origin; the default is (0,0) which represents the upper-left corner.</param>
-        public static void DrawTexture(Texture texture, float depth, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin)
+        public static void Draw2DTexture(Texture texture, float depth, Rectangle destinationRectangle, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin)
         {
             if (!begined)
                 throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+            if (!begin2D)
+                throw new InvalidOperationException("Sprite Manager: Begin was called in 3D mode.");
+
             spriteBatch.Draw(texture.Resource, destinationRectangle, sourceRectangle, color, rotation, origin, SpriteEffects.None, depth);
-        } // DrawTexture
+        } // Draw2DTexture
 
         /// <summary>
         /// Adds a sprite to a batch of sprites for rendering using the specified texture, position, source rectangle, color, rotation, origin, scale, effects and layer.
@@ -255,16 +256,16 @@ namespace XNAFinalEngine.Graphics
         /// <param name="worldMatrix">The location to draw the sprite.</param>
         /// <param name="sourceRectangle">A rectangle that specifies (in texels) the source texels from a texture. Use null to draw the entire texture.</param>
         /// <param name="color">The color to tint the font.</param>
-        public static void DrawTexture(Texture texture, Matrix worldMatrix, Rectangle? sourceRectangle, Color color)
+        public static void Draw3DTexture(Texture texture, Matrix worldMatrix, Rectangle? sourceRectangle, Color color)
         {
             if (!begined)
                 throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+            if (begin2D)
+                throw new InvalidOperationException("Sprite Manager: Begin was called in 2D mode.");
 
-            spriteEffect.Parameters["worldViewProj"].SetValue(worldMatrix * viewMatrix * projectionMatrix);
-            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
-            spriteEffect.Parameters["diffuseTexture"].SetValue(texture.Resource);
+            SpriteShader.Instance.SetParameters(worldMatrix * Matrix.CreateFromYawPitchRoll(0, 3.1416f, 0));
             spriteBatch.Draw(texture.Resource, Vector2.Zero, sourceRectangle, color);
-        } // DrawTexture
+        } // Draw3DTexture
 
         /// <summary>
         /// Adds a sprite to a batch of sprites for rendering using the specified texture, position, source rectangle, color, rotation, origin, scale, effects and layer.
@@ -272,17 +273,55 @@ namespace XNAFinalEngine.Graphics
         /// <param name="texture">A texture.</param>
         /// <param name="worldMatrix">The location to draw the sprite.</param>
         /// <param name="color">The color to tint the font.</param>
-        public static void DrawTexture(Texture texture, Matrix worldMatrix, Color color)
+        public static void Draw3DTexture(Texture texture, Matrix worldMatrix, Color color)
         {
             if (!begined)
                 throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+            if (begin2D)
+                throw new InvalidOperationException("Sprite Manager: Begin was called in 2D mode.");
 
-            spriteEffect.Parameters["worldViewProj"].SetValue(worldMatrix * Matrix.CreateFromYawPitchRoll(0, 3.1416f, 0) * viewMatrix * projectionMatrix);
-            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
-            spriteEffect.Parameters["diffuseTexture"].SetValue(texture.Resource);
-            spriteEffect.CurrentTechnique.Passes[0].Apply();
+            SpriteShader.Instance.SetParameters(worldMatrix * Matrix.CreateFromYawPitchRoll(0, 3.1416f, 0));
             spriteBatch.Draw(texture.Resource, Vector2.Zero, color);
-        } // DrawTexture
+        } // Draw3DTexture
+
+        /// <summary>
+        /// Adds a sprite to a batch of sprites for rendering using the specified texture, position, source rectangle, color, rotation, origin, scale, effects and layer.
+        /// </summary>
+        /// <param name="texture">A texture.</param>
+        /// <param name="worldMatrix">The location to draw the sprite.</param>
+        /// <param name="sourceRectangle">A rectangle that specifies (in texels) the source texels from a texture. Use null to draw the entire texture.</param>
+        /// <param name="color">The color to tint the font.</param>
+        public static void Draw3DBillboardTexture(Texture texture, Matrix worldMatrix, Rectangle? sourceRectangle, Color color, Vector3 cameraPosition, Vector3 cameraUp, Vector3 cameraForward)
+        {
+            if (!begined)
+                throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+            if (begin2D)
+                throw new InvalidOperationException("Sprite Manager: Begin was called in 2D mode.");
+
+            float scale = new Vector3(worldMatrix.M11, worldMatrix.M12, worldMatrix.M13).Length();
+            worldMatrix = Matrix.CreateBillboard(worldMatrix.Translation, cameraPosition, cameraUp, cameraForward);
+            SpriteShader.Instance.SetParameters(Matrix.CreateScale(scale) * Matrix.CreateFromYawPitchRoll(0, 0, 3.1416f) * worldMatrix);
+            spriteBatch.Draw(texture.Resource, Vector2.Zero, sourceRectangle, color);
+        } // Draw3DBillboardTexture
+
+        /// <summary>
+        /// Adds a sprite to a batch of sprites for rendering using the specified texture, position, source rectangle, color, rotation, origin, scale, effects and layer.
+        /// </summary>
+        /// <param name="texture">A texture.</param>
+        /// <param name="worldMatrix">The location to draw the sprite.</param>
+        /// <param name="color">The color to tint the font.</param>
+        public static void Draw3DBillboardTexture(Texture texture, Matrix worldMatrix, Color color, Vector3 cameraPosition, Vector3 cameraUp, Vector3 cameraForward)
+        {
+            if (!begined)
+                throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
+            if (begin2D)
+                throw new InvalidOperationException("Sprite Manager: Begin was called in 2D mode.");
+
+            float scale = new Vector3(worldMatrix.M11, worldMatrix.M12, worldMatrix.M13).Length();
+            worldMatrix = Matrix.CreateBillboard(worldMatrix.Translation, cameraPosition, cameraUp, cameraForward);
+            SpriteShader.Instance.SetParameters(Matrix.CreateScale(scale) * Matrix.CreateFromYawPitchRoll(0, 0, 3.1416f) * worldMatrix);
+            spriteBatch.Draw(texture.Resource, Vector2.Zero, color);
+        } // Draw3DBillboardTexture
 
         #endregion
 

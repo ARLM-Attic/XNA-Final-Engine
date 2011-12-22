@@ -207,7 +207,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Graphics\Passes\04-PostProcessPass\PostProcessingPass.cs" />
-    <Compile Include="Graphics\SpriteManager.cs" />
+    <Compile Include="Graphics\Sprites\SpriteShader.cs" />
+    <Compile Include="Graphics\Sprites\SpriteManager.cs" />
     <Compile Include="Helpers\ArrayHelper.cs" />
     <Compile Include="Helpers\Chronometer.cs" />
     <Compile Include="Helpers\Curve3D.cs" />

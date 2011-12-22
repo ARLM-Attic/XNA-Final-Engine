@@ -400,7 +400,7 @@ namespace XNAFinalEngine.EngineCore
                     {
                         currentHudText.Text.Length = 4;
                         currentHudText.Text.AppendWithoutGarbage(Time.FramesPerSecond);
-                        SpriteManager.DrawText(currentHudText.Font ?? Font.DefaultFont,
+                        SpriteManager.Draw2DText(currentHudText.Font ?? Font.DefaultFont,
                                                currentHudText.Text,
                                                currentHudText.CachedPosition,
                                                currentHudText.Color,
@@ -421,7 +421,7 @@ namespace XNAFinalEngine.EngineCore
                     if (currentHudTexture.Visible && currentHudTexture.Texture != null)
                     {
                         if (currentHudTexture.DestinationRectangle != null)
-                            SpriteManager.DrawTexture(currentHudTexture.Texture,
+                            SpriteManager.Draw2DTexture(currentHudTexture.Texture,
                                                       currentHudTexture.CachedPosition.Z,
                                                       currentHudTexture.DestinationRectangle.Value,
                                                       currentHudTexture.SourceRectangle,
@@ -429,7 +429,7 @@ namespace XNAFinalEngine.EngineCore
                                                       currentHudTexture.CachedRotation,
                                                       Vector2.Zero);
                         else
-                            SpriteManager.DrawTexture(currentHudTexture.Texture,
+                            SpriteManager.Draw2DTexture(currentHudTexture.Texture,
                                                       currentHudTexture.CachedPosition,
                                                       currentHudTexture.SourceRectangle,
                                                       currentHudTexture.Color,
@@ -467,7 +467,7 @@ namespace XNAFinalEngine.EngineCore
                             int blackStripe = (int)((Screen.Width - (Screen.Width / vsAspectRatio)) / 2);
                             screenRectangle = new Rectangle(0 + blackStripe, 0, Screen.Width - blackStripe * 2, Screen.Height);
                         }
-                        SpriteManager.DrawTexture(currentVideo.Texture,
+                        SpriteManager.Draw2DTexture(currentVideo.Texture,
                                                   currentVideo.CachedPosition.Z,
                                                   screenRectangle,
                                                   null,
@@ -770,6 +770,8 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            #region Sky
+
             // The sky is render latter so that the GPU can avoid fragment processing. But it has to be before the transparent objects.
             if (currentCamera.Sky != null)
             {
@@ -779,8 +781,10 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
 
+            #endregion
+
             #region Particles
-            
+
             // The particle systems
             ParticleShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.AspectRatio, currentCamera.FarPlane,
                                           new Size(currentCamera.Viewport.Width, currentCamera.Viewport.Height), gbufferTextures.RenderTargets[0]);
@@ -836,14 +840,20 @@ namespace XNAFinalEngine.EngineCore
                     if (currentHudTexture.Visible && currentHudTexture.Texture != null)
                     {
                         if (currentHudTexture.DestinationRectangle != null)
-                            SpriteManager.DrawTexture(currentHudTexture.Texture,
+                            SpriteManager.Draw3DTexture(currentHudTexture.Texture,
                                                       currentHudTexture.cachedWorldMatrix,
                                                       currentHudTexture.SourceRectangle,
                                                       currentHudTexture.Color);
                         else
-                            SpriteManager.DrawTexture(currentHudTexture.Texture,
+                            SpriteManager.Draw3DTexture(currentHudTexture.Texture,
                                                       currentHudTexture.cachedWorldMatrix,
                                                       currentHudTexture.Color);
+                        SpriteManager.Draw3DBillboardTexture(currentHudTexture.Texture,
+                                                      currentHudTexture.cachedWorldMatrix,
+                                                      currentHudTexture.Color,
+                                                      currentCamera.Position,
+                                                      currentCamera.Up,
+                                                      currentCamera.Forward);
                     }
                 }
                 for (int i = 0; i < HudText.ComponentPool3D.Count; i++)
@@ -851,14 +861,14 @@ namespace XNAFinalEngine.EngineCore
                     HudText currentHudText = HudText.ComponentPool3D.Elements[i];
                     if (currentHudText.Visible)
                     {
-                        SpriteManager.DrawText(currentHudText.Font ?? Font.DefaultFont, currentHudText.Text, currentHudText.cachedWorldMatrix, currentHudText.Color);
-                        SpriteManager.DrawText(currentHudText.Font ?? Font.DefaultFont,
+                        SpriteManager.Draw3DText(currentHudText.Font ?? Font.DefaultFont, currentHudText.Text, currentHudText.cachedWorldMatrix, currentHudText.Color);
+                        SpriteManager.Draw3DBillboardText(currentHudText.Font ?? Font.DefaultFont,
                                                currentHudText.Text, 
                                                currentHudText.cachedWorldMatrix,
                                                currentHudText.Color,
                                                currentCamera.Position,
                                                currentCamera.Up,
-                                               currentCamera.ViewMatrix.Forward);
+                                               currentCamera.Forward);
                     }
                 }
                 SpriteManager.End();

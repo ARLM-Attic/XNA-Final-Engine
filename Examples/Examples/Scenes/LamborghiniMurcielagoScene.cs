@@ -607,7 +607,7 @@ namespace XNAFinalEngineExamples
             hudTexture3DTest = new GameObject3D();
             hudTexture3DTest.AddComponent<HudTexture>();
             hudTexture3DTest.Transform.Position = new Vector3(0, 0, 1);
-            hudTexture3DTest.HudTexture.Texture = new Texture("WiimoteSensors");
+            hudTexture3DTest.HudTexture.Texture = new Texture("WiimoteSensors");            
 
             hudTexture3DTest2 = new GameObject3D();
             hudTexture3DTest2.AddComponent<HudTexture>();

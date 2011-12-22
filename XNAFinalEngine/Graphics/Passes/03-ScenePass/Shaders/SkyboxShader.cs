@@ -216,7 +216,7 @@ namespace XNAFinalEngine.Graphics
                 // If I set the sampler states here and no texture is set then this could produce exceptions 
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
 
-                SetViewProjectionMatrix(viewMatrix * projectionMatrix);
+                SetViewProjectionMatrix(Matrix.Transpose(Matrix.Invert(viewMatrix)) * projectionMatrix); // I remove the translation and scale of the view matrix.
                 SetAlphaBlending(skybox.AlphaBlending);
                 SetIntensity(skybox.ColorIntensity);
                 SetCubeTexture(skybox.CubeTexture);
