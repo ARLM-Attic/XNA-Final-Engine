@@ -23,12 +23,21 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
 #include <..\Helpers\GammaLinearSpace.fxh>
+#include <..\Helpers\Discard.fxh>
 
 //////////////////////////////////////////////
 //////////////// Matrices ////////////////////
 //////////////////////////////////////////////
 
 float4x4 worldViewProj : WorldViewProjection;
+float4x4 projectionInverse;
+
+//////////////////////////////////////////////
+/////////////// Parameters ///////////////////
+//////////////////////////////////////////////
+
+float farPlane;
+float2 halfPixel;
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
@@ -45,36 +54,87 @@ sampler2D diffuseSampler : register(s0) = sampler_state
 	AddressV = WRAP;*/
 };
 
+texture depthTexture   : register(t1);
+sampler2D depthSampler : register(s1) = sampler_state
+{
+	Texture = <depthTexture>;
+    /*ADDRESSU = CLAMP;
+	ADDRESSV = CLAMP;
+	MAGFILTER = POINT;
+	MINFILTER = POINT;
+	MIPFILTER = NONE;*/
+};
+
 //////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
-void SpriteVertexShader(inout float4 color    : COLOR0,
-                        inout float2 texCoord : TEXCOORD0,
-                        inout float4 position : POSITION0)
+void SpriteVertexShaderLinearSpace(inout float4 color    : COLOR0,
+                                   inout float2 texCoord : TEXCOORD0,
+                                   inout float4 position : POSITION0)
 {
     position = mul(position, worldViewProj);
-} // SpriteVertexShader
+} // SpriteVertexShaderLinearSpace
+
+void SpriteVertexShaderGammaSpace(inout float4 color    : COLOR0,
+                                  inout float2 texCoord : TEXCOORD0,
+                                  inout float4 position : Position0,
+								  out   float  spriteDepth : TEXCOORD1,
+								  out   float4 screenPosition : TEXCOORD2)
+{
+    position = mul(position, worldViewProj);
+	screenPosition = position;
+	spriteDepth = -mul(position, projectionInverse).z / farPlane;
+} // SpriteVertexShaderGammaSpace
 
 //////////////////////////////////////////////
 /////////////// Pixel Shader /////////////////
 //////////////////////////////////////////////
 
-float4 SpritePixelShader(float4 color : COLOR0, float2 texCoord : TEXCOORD0) : SV_Target0
+float4 SpritePixelShaderLinearSpace(float4 color : COLOR0, float2 texCoord : TEXCOORD0) : SV_Target0
 {	
 	float4 textureSampled = tex2D(diffuseSampler, texCoord).rgba;
 	return float4(GammaToLinear(textureSampled.rgb * color), textureSampled.a * color.a);
-} // SpritePixelShader
+} // SpritePixelShaderLinearSpace
+
+float4 SpritePixelShaderGammaSpace(float4 color : COLOR0, float2 texCoord : TEXCOORD0, float spriteDepth : TEXCOORD1, float4 screenPosition : TEXCOORD2) : SV_Target0
+{		
+	// Obtain screen position. You have to do this in here so that the clip-space position interpolates correctly.
+    screenPosition.xy /= screenPosition.w;
+
+	// Obtain textureCoordinates corresponding to the current pixel
+	// The screen coordinates are in [-1,1]*[1,-1]
+    // The texture coordinates need to be in [0,1]*[0,1]
+    float2 uv = 0.5f * (float2(screenPosition.x, -screenPosition.y) + 1) + halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
+
+	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
+	float depth = tex2D(depthSampler, uv).r;
+		
+    if(depth < spriteDepth)
+	{
+        Discard();
+	}	
+	return float4(tex2D(diffuseSampler, texCoord) * color);
+} // SpritePixelShaderGammaSpace
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-technique SpriteBatch
+technique SpriteBatchLinearSpace
 {
     pass
     {
-        VertexShader = compile vs_2_0 SpriteVertexShader();
-        PixelShader  = compile ps_2_0 SpritePixelShader();
+        VertexShader = compile vs_3_0 SpriteVertexShaderLinearSpace();
+        PixelShader  = compile ps_3_0 SpritePixelShaderLinearSpace();
+    }
+}
+
+technique SpriteBatchGammaSpace
+{
+    pass
+    {
+        VertexShader = compile vs_3_0 SpriteVertexShaderGammaSpace();
+        PixelShader  = compile ps_3_0 SpritePixelShaderGammaSpace();
     }
 }

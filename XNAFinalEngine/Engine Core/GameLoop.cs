@@ -833,42 +833,60 @@ namespace XNAFinalEngine.EngineCore
 
             if (HudText.ComponentPool3D.Count != 0 || HudTexture.ComponentPool3D.Count != 0)
             {
-                SpriteManager.Begin3D(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+                SpriteManager.Begin3DLinearSpace(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
                 for (int i = 0; i < HudTexture.ComponentPool3D.Count; i++)
                 {
                     HudTexture currentHudTexture = HudTexture.ComponentPool3D.Elements[i];
-                    if (currentHudTexture.Visible && currentHudTexture.Texture != null)
+                    if (currentHudTexture.Visible && currentHudTexture.Texture != null && currentHudTexture.PostProcessed)
                     {
-                        if (currentHudTexture.DestinationRectangle != null)
-                            SpriteManager.Draw3DTexture(currentHudTexture.Texture,
-                                                      currentHudTexture.cachedWorldMatrix,
-                                                      currentHudTexture.SourceRectangle,
-                                                      currentHudTexture.Color);
+                        if (currentHudTexture.Billboard)
+                        {
+                            if (currentHudTexture.DestinationRectangle != null)
+                                SpriteManager.Draw3DBillboardTexture(currentHudTexture.Texture,
+                                                                     currentHudTexture.cachedWorldMatrix,
+                                                                     currentHudTexture.Color,
+                                                                     currentCamera.Position,
+                                                                     currentCamera.Up,
+                                                                     currentCamera.Forward);
+                            else
+                                SpriteManager.Draw3DBillboardTexture(currentHudTexture.Texture,
+                                                                     currentHudTexture.cachedWorldMatrix,
+                                                                     currentHudTexture.SourceRectangle,
+                                                                     currentHudTexture.Color,
+                                                                     currentCamera.Position,
+                                                                     currentCamera.Up,
+                                                                     currentCamera.Forward);
+                        }
                         else
-                            SpriteManager.Draw3DTexture(currentHudTexture.Texture,
-                                                      currentHudTexture.cachedWorldMatrix,
-                                                      currentHudTexture.Color);
-                        SpriteManager.Draw3DBillboardTexture(currentHudTexture.Texture,
-                                                      currentHudTexture.cachedWorldMatrix,
-                                                      currentHudTexture.Color,
-                                                      currentCamera.Position,
-                                                      currentCamera.Up,
-                                                      currentCamera.Forward);
+                        {
+                            if (currentHudTexture.DestinationRectangle != null)
+                                SpriteManager.Draw3DTexture(currentHudTexture.Texture,
+                                                          currentHudTexture.cachedWorldMatrix,
+                                                          currentHudTexture.SourceRectangle,
+                                                          currentHudTexture.Color);
+                            else
+                                SpriteManager.Draw3DTexture(currentHudTexture.Texture,
+                                                          currentHudTexture.cachedWorldMatrix,
+                                                          currentHudTexture.Color);    
+                        }
                     }
                 }
                 for (int i = 0; i < HudText.ComponentPool3D.Count; i++)
                 {
                     HudText currentHudText = HudText.ComponentPool3D.Elements[i];
-                    if (currentHudText.Visible)
+                    if (currentHudText.Visible && currentHudText.PostProcessed)
                     {
-                        SpriteManager.Draw3DText(currentHudText.Font ?? Font.DefaultFont, currentHudText.Text, currentHudText.cachedWorldMatrix, currentHudText.Color);
-                        SpriteManager.Draw3DBillboardText(currentHudText.Font ?? Font.DefaultFont,
-                                               currentHudText.Text, 
-                                               currentHudText.cachedWorldMatrix,
-                                               currentHudText.Color,
-                                               currentCamera.Position,
-                                               currentCamera.Up,
-                                               currentCamera.Forward);
+                        if (currentHudText.Billboard)
+                            SpriteManager.Draw3DBillboardText(currentHudText.Font ?? Font.DefaultFont,
+                                                              currentHudText.Text,
+                                                              currentHudText.cachedWorldMatrix,
+                                                              currentHudText.Color,
+                                                              currentCamera.Position,
+                                                              currentCamera.Up,
+                                                              currentCamera.Forward);
+                        else
+                            SpriteManager.Draw3DText(currentHudText.Font ?? Font.DefaultFont, currentHudText.Text, currentHudText.cachedWorldMatrix, currentHudText.Color);
+                        
                     }
                 }
                 SpriteManager.End();
@@ -883,9 +901,79 @@ namespace XNAFinalEngine.EngineCore
 
             #region Post Process Pass
 
-            postProcessedSceneTexture = PostProcessingPass.Process(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess);
-            RenderTarget.Release(sceneTexture); // It is not need anymore.
-            RenderTarget.Release(gbufferTextures); // It is not need anymore.
+            PostProcessingPass.BeginAndProcess(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess);
+            // Render in gamma space
+
+            #region Textures and Text
+
+            if (HudText.ComponentPool3D.Count != 0 || HudTexture.ComponentPool3D.Count != 0)
+            {
+                SpriteManager.Begin3DGammaSpace(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, gbufferTextures.RenderTargets[0], currentCamera.FarPlane);
+                for (int i = 0; i < HudTexture.ComponentPool3D.Count; i++)
+                {
+                    HudTexture currentHudTexture = HudTexture.ComponentPool3D.Elements[i];
+                    if (currentHudTexture.Visible && currentHudTexture.Texture != null && !currentHudTexture.PostProcessed)
+                    {
+                        if (currentHudTexture.Billboard)
+                        {
+                            if (currentHudTexture.DestinationRectangle != null)
+                                SpriteManager.Draw3DBillboardTexture(currentHudTexture.Texture,
+                                                                     currentHudTexture.cachedWorldMatrix,
+                                                                     currentHudTexture.Color,
+                                                                     currentCamera.Position,
+                                                                     currentCamera.Up,
+                                                                     currentCamera.Forward);
+                            else
+                                SpriteManager.Draw3DBillboardTexture(currentHudTexture.Texture,
+                                                                     currentHudTexture.cachedWorldMatrix,
+                                                                     currentHudTexture.SourceRectangle,
+                                                                     currentHudTexture.Color,
+                                                                     currentCamera.Position,
+                                                                     currentCamera.Up,
+                                                                     currentCamera.Forward);
+                        }
+                        else
+                        {
+                            if (currentHudTexture.DestinationRectangle != null)
+                                SpriteManager.Draw3DTexture(currentHudTexture.Texture,
+                                                          currentHudTexture.cachedWorldMatrix,
+                                                          currentHudTexture.SourceRectangle,
+                                                          currentHudTexture.Color);
+                            else
+                                SpriteManager.Draw3DTexture(currentHudTexture.Texture,
+                                                          currentHudTexture.cachedWorldMatrix,
+                                                          currentHudTexture.Color);
+                        }
+                    }
+                }
+                for (int i = 0; i < HudText.ComponentPool3D.Count; i++)
+                {
+                    HudText currentHudText = HudText.ComponentPool3D.Elements[i];
+                    if (currentHudText.Visible && !currentHudText.PostProcessed)
+                    {
+                        if (currentHudText.Billboard)
+                            SpriteManager.Draw3DBillboardText(currentHudText.Font ?? Font.DefaultFont,
+                                                              currentHudText.Text,
+                                                              currentHudText.cachedWorldMatrix,
+                                                              currentHudText.Color,
+                                                              currentCamera.Position,
+                                                              currentCamera.Up,
+                                                              currentCamera.Forward);
+                        else
+                            SpriteManager.Draw3DText(currentHudText.Font ?? Font.DefaultFont, currentHudText.Text, currentHudText.cachedWorldMatrix, currentHudText.Color);
+
+                    }
+                }
+                SpriteManager.End();
+            }
+
+            #endregion
+
+            postProcessedSceneTexture = PostProcessingPass.End();
+
+            // They are not needed anymore.
+            RenderTarget.Release(sceneTexture);
+            RenderTarget.Release(gbufferTextures);
             RenderTarget.Release(halfNormalTexture);
             RenderTarget.Release(halfDepthTexture);
             RenderTarget.Release(quarterNormalTexture);

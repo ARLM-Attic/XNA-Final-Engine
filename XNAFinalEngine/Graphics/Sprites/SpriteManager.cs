@@ -127,7 +127,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins a sprite batch operation in 3D.
         /// </summary>
-        public static void Begin3D(Matrix viewMatrix, Matrix projectionMatrix)
+        public static void Begin3DLinearSpace(Matrix viewMatrix, Matrix projectionMatrix)
         {
             if (spriteBatch == null)
                 throw new Exception("The Sprite Manager is not initialized.");
@@ -138,7 +138,27 @@ namespace XNAFinalEngine.Graphics
             // But PC is the powerful platform so no need to choose between the two.
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState3D, DepthStencilState.DepthRead, RasterizerState.CullCounterClockwise, SpriteShader.Instance.Resource);
 
-            SpriteShader.Instance.Begin(viewMatrix, projectionMatrix);
+            SpriteShader.Instance.BeginLinearSpace(viewMatrix, projectionMatrix);
+
+            begined = true;
+            begin2D = false;
+        } // Begin3D
+
+        /// <summary>
+        /// Begins a sprite batch operation in 3D.
+        /// </summary>
+        public static void Begin3DGammaSpace(Matrix viewMatrix, Matrix projectionMatrix, Texture depthTexture, float farPlane)
+        {
+            if (spriteBatch == null)
+                throw new Exception("The Sprite Manager is not initialized.");
+            if (begined)
+                throw new InvalidOperationException("Sprite Manager: Begin has been called before calling End after the last call to Begin. Begin cannot be called again until End has been successfully called.");
+
+            // In PC BlendState.AlphaBlend is a little more expensive than BlendState.Opaque when alpha = 1.
+            // But PC is the powerful platform so no need to choose between the two.
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState3D, DepthStencilState.None, RasterizerState.CullCounterClockwise, SpriteShader.Instance.Resource);
+
+            SpriteShader.Instance.BeginGammaSpace(viewMatrix, projectionMatrix, depthTexture, farPlane);
 
             begined = true;
             begin2D = false;

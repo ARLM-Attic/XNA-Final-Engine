@@ -338,6 +338,8 @@ namespace XNAFinalEngine.Graphics
             }
         } // SetHalfPixel
 
+        #endregion
+
         #region Far Plane
 
         private static float lastUsedFarPlane;
@@ -349,8 +351,6 @@ namespace XNAFinalEngine.Graphics
                 epFarPlane.SetValue(_farPlane);
             }
         } // SetFarPlane
-
-        #endregion
 
         #endregion
 

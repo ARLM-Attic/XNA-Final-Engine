@@ -81,7 +81,11 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Effect handles for this shader.
         /// </summary>
-        private static EffectParameter epWorldViewProj;
+        private static EffectParameter epWorldViewProj,
+                                       epDepthTexture,
+                                       epProjectionInverse,
+                                       epHalfPixel,
+                                       epFarPlane;
 
         #region World View Projection Matrix
 
@@ -94,6 +98,64 @@ namespace XNAFinalEngine.Graphics
                 epWorldViewProj.SetValue(worldViewProjMatrix);
             }
         } // WorldViewProjMatrix
+
+        #endregion
+
+        #region Projection Inverse Matrix
+
+        private static Matrix? lastUsedProjectionInverseMatrix;
+        private static void SetProjectionInverseMatrix(Matrix projectionInverseMatrix)
+        {
+            if (lastUsedProjectionInverseMatrix != projectionInverseMatrix)
+            {
+                lastUsedProjectionInverseMatrix = projectionInverseMatrix;
+                epProjectionInverse.SetValue(projectionInverseMatrix);
+            }
+        } // SetProjectionInverseMatrix
+
+        #endregion
+
+        #region Depth Texture
+
+        private static Texture2D lastUsedDepthTexture;
+        private static void SetDepthTexture(Texture depthTexture)
+        {
+            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedDepthTexture != depthTexture.Resource)
+            {
+                lastUsedDepthTexture = depthTexture.Resource;
+                epDepthTexture.SetValue(depthTexture.Resource);
+            }
+        } // SetDepthTexture
+
+        #endregion
+
+        #region Half Pixel
+
+        private static Vector2? lastUsedHalfPixel;
+        private static void SetHalfPixel(Vector2 _halfPixel)
+        {
+            if (lastUsedHalfPixel != _halfPixel)
+            {
+                lastUsedHalfPixel = _halfPixel;
+                epHalfPixel.SetValue(_halfPixel);
+            }
+        } // SetHalfPixel
+
+        #endregion
+
+        #region Far Plane
+
+        private static float lastUsedFarPlane;
+        private static void SetFarPlane(float _farPlane)
+        {
+            if (lastUsedFarPlane != _farPlane)
+            {
+                lastUsedFarPlane = _farPlane;
+                epFarPlane.SetValue(_farPlane);
+            }
+        } // SetFarPlane
 
         #endregion
 
@@ -121,6 +183,10 @@ namespace XNAFinalEngine.Graphics
 			try
 			{
                 epWorldViewProj  = Resource.Parameters["worldViewProj"];
+                epProjectionInverse = Resource.Parameters["projectionInverse"];
+                epFarPlane = Resource.Parameters["farPlane"];
+                epDepthTexture = Resource.Parameters["depthTexture"];
+                epHalfPixel = Resource.Parameters["halfPixel"];
             }
             catch
             {
@@ -135,19 +201,42 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the render.
         /// </summary>
-        internal void Begin(Matrix viewMatrix, Matrix projectionMatrix)
+        internal void BeginLinearSpace(Matrix viewMatrix, Matrix projectionMatrix)
         {
             try
             {
                 // Set initial parameters
                 this.viewMatrix = viewMatrix;
                 this.projectionMatrix = projectionMatrix;
+                Resource.CurrentTechnique = Resource.Techniques["SpriteBatchLinearSpace"];
             }
             catch (Exception e)
             {
                 throw new InvalidOperationException("Constant Material: Unable to begin the rendering.", e);
             }
-        } // Begin
+        } // BeginLinearSpace
+
+        /// <summary>
+        /// Begins the render.
+        /// </summary>
+        internal void BeginGammaSpace(Matrix viewMatrix, Matrix projectionMatrix, Texture depthTexture, float farPlane)
+        {
+            try
+            {
+                // Set initial parameters
+                this.viewMatrix = viewMatrix;
+                this.projectionMatrix = projectionMatrix;
+                SetProjectionInverseMatrix(Matrix.Invert(projectionMatrix));
+                SetDepthTexture(depthTexture);
+                SetFarPlane(farPlane);
+                SetHalfPixel(new Vector2(0.5f / depthTexture.Width, 0.5f / depthTexture.Height)); // The half depth size produce flickering.
+                Resource.CurrentTechnique = Resource.Techniques["SpriteBatchGammaSpace"];
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Constant Material: Unable to begin the rendering.", e);
+            }
+        } // BeginGammaSpace
 
         #endregion
 

@@ -593,7 +593,7 @@ namespace XNAFinalEngineExamples
             SoundManager.DistanceScale = 10;
 
             #endregion
-
+            /*
             hudTextureTest = new GameObject2D();
             hudTextureTest.AddComponent<HudTexture>();
             hudTextureTest.HudTexture.Texture = new Texture("WiimoteSensors");
@@ -603,16 +603,21 @@ namespace XNAFinalEngineExamples
             hudText3DTest.HudText.Text.Insert(0, "Toto");
             hudText3DTest.HudText.Color = Color.Red;
             hudText3DTest.Transform.LocalScale = new Vector3(0.5f, 0.5f, 0.5f);
+            hudText3DTest.HudText.Billboard = true;*/
 
             hudTexture3DTest = new GameObject3D();
             hudTexture3DTest.AddComponent<HudTexture>();
             hudTexture3DTest.Transform.Position = new Vector3(0, 0, 1);
-            hudTexture3DTest.HudTexture.Texture = new Texture("WiimoteSensors");            
+            hudTexture3DTest.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
+            hudTexture3DTest.HudTexture.Texture = new Texture("WiimoteSensors");
+            hudTexture3DTest.HudTexture.Billboard = true;
+            //hudTexture3DTest.HudTexture.PostProcessed = true;
 
+            /*
             hudTexture3DTest2 = new GameObject3D();
             hudTexture3DTest2.AddComponent<HudTexture>();
             hudTexture3DTest2.Transform.Position = new Vector3(5, 0, 5);
-            hudTexture3DTest2.HudTexture.Texture = new Texture("WiimoteSensors");
+            hudTexture3DTest2.HudTexture.Texture = new Texture("WiimoteSensors");*/
 
             videoTest = new GameObject2D();
             videoTest.AddComponent<VideoRenderer>();

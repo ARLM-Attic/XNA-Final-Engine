@@ -30,11 +30,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Helpers;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -51,9 +48,16 @@ namespace XNAFinalEngine.Graphics
         // Post process shader.
         private static PostProcessingShader postProcessingShader;
 
+        // Destination render target.
+        private static RenderTarget postProcessedSceneTexture;
+
+        // Stores for use with the end method.
+        private static Texture depthTexture;
+        private static PostProcess postProcess;
+
         #endregion
-        
-        #region Process
+
+        #region Begin And Process
 
         /// <summary>
         /// Process
@@ -62,7 +66,7 @@ namespace XNAFinalEngine.Graphics
         /// <param name="depthTexture">Depth texture.</param>
         /// <param name="postProcess">Post process parameters.</param>
         /// <returns>The gamma space post process texture of the linear space scene texture.</returns>
-        public static RenderTarget Process(Texture sceneTexture, Texture depthTexture, PostProcess postProcess)
+        public static void BeginAndProcess(Texture sceneTexture, Texture depthTexture, PostProcess postProcess)
         {
             if (sceneTexture == null || sceneTexture.Resource == null)
                 throw new ArgumentNullException("sceneTexture");
@@ -71,6 +75,9 @@ namespace XNAFinalEngine.Graphics
             
             try
             {
+                PostProcessingPass.depthTexture = depthTexture;
+                PostProcessingPass.postProcess = postProcess;
+
                 // Generate bloom texture
                 RenderTarget bloomTexture = null;
                 if (postProcess.Bloom != null && postProcess.Bloom.Enabled)
@@ -79,12 +86,33 @@ namespace XNAFinalEngine.Graphics
                 // If the shader was not created...
                 if (postProcessingShader == null)
                     postProcessingShader = new PostProcessingShader();
+
+                postProcessedSceneTexture = RenderTarget.Fetch(sceneTexture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                postProcessedSceneTexture.EnableRenderTarget();
                 
                 // Post process the scene texture.
-                RenderTarget postProcessedSceneTexture = postProcessingShader.Render(sceneTexture, postProcess, bloomTexture);
+                postProcessingShader.Render(sceneTexture, postProcess, bloomTexture);
                 if (bloomTexture != null)
                     RenderTarget.Release(bloomTexture);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Post Process: Unable to render.", e);
+            }
+        } // BeginAndProcess
 
+        #endregion
+
+        #region End
+
+        /// <summary>
+        /// Resolve render targets and return a texture with the scene.
+        /// </summary>
+        internal static RenderTarget End()
+        {
+            try
+            {
+                RenderTarget.DisableCurrentRenderTargets();
                 // Process MLAA
                 if (postProcess.MLAA != null && postProcess.MLAA.Enabled)
                 {
@@ -96,9 +124,9 @@ namespace XNAFinalEngine.Graphics
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Post Process: Unable to render.", e);
+                throw new InvalidOperationException("Scene Pass: Unable to end the rendering.", e);
             }
-        } // Render
+        } // End
 
         #endregion
         

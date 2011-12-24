@@ -621,7 +621,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render.
         /// </summary>
-        public RenderTarget Render(Texture sceneTexture, PostProcess postProcess, RenderTarget bloomTexture)
+        public void Render(Texture sceneTexture, PostProcess postProcess, RenderTarget bloomTexture)
         {
             if (sceneTexture == null || sceneTexture.Resource == null)
                 throw new ArgumentNullException("sceneTexture");
@@ -630,9 +630,6 @@ namespace XNAFinalEngine.Graphics
 
             try
             {
-                // Fetch a unused render target.
-                RenderTarget destinationRenderTarget = RenderTarget.Fetch(sceneTexture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-
                 // Set render states
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
@@ -739,12 +736,8 @@ namespace XNAFinalEngine.Graphics
                 #endregion
 
                 // Render post process effect.
-                destinationRenderTarget.EnableRenderTarget();
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
-                destinationRenderTarget.DisableRenderTarget();
-
-                return destinationRenderTarget;
             }
             catch (Exception e)
             {
