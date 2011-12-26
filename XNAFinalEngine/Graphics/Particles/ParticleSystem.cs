@@ -298,15 +298,15 @@ namespace XNAFinalEngine.Graphics
                     {
                         // If the active particles are all in one consecutive range, we can draw them all in a single call.
                         EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
-                                                                    firstActiveParticle * 4, (firstFreeParticle - firstActiveParticle) * 4,
-                                                                    firstActiveParticle * 6, (firstFreeParticle - firstActiveParticle) * 2);
+                                                                   firstActiveParticle * 4, (firstFreeParticle - firstActiveParticle) * 4,
+                                                                   firstActiveParticle * 6, (firstFreeParticle - firstActiveParticle) * 2);
                     }
                     else
                     {
                         // If the active particle range wraps past the end of the queue back to the start, we must split them over two draw calls.
                         EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
-                                                                    firstActiveParticle * 4, (maximumNumberParticles - firstActiveParticle) * 4,
-                                                                    firstActiveParticle * 6, (maximumNumberParticles - firstActiveParticle) * 2);
+                                                                   firstActiveParticle * 4, (maximumNumberParticles - firstActiveParticle) * 4,
+                                                                   firstActiveParticle * 6, (maximumNumberParticles - firstActiveParticle) * 2);
 
                         if (firstFreeParticle > 0)
                         {

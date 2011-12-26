@@ -511,6 +511,7 @@ namespace XNAFinalEngine.UserInterface
         protected override void DrawControl(Rectangle rect)
         {
             base.DrawControl(rect);
+            LineManager.Begin2D(PrimitiveType.LineList);
 
             #region Render Square Color
 
@@ -518,8 +519,7 @@ namespace XNAFinalEngine.UserInterface
             Color color = new Color(255, 0, 0, 255);
             // Relative square position
             Vector2 position = new Vector2(5, 5);
-                        
-            LineManager.Begin(PrimitiveType.LineList);
+            
             // I divide the problem into six steps.
             for (int i = 0; i < squareColorlenght; i++)
             {
@@ -552,7 +552,6 @@ namespace XNAFinalEngine.UserInterface
                 LineManager.AddVertex(new Vector2(i + position.X, position.Y), MultiplyColorByFloat(color, intensityLevel));
                 LineManager.AddVertex(new Vector2(i + position.X, position.Y + 132), MultiplyColorByFloat(new Color(255, 255, 255), intensityLevel));
             }
-            LineManager.End();
 
             #endregion
 
@@ -571,6 +570,8 @@ namespace XNAFinalEngine.UserInterface
                                          positionSquareColor.Y == squareColorlenght ? Color.White : ColorFromPositionWithIntensity(positionSquareColor, 1), Color.Black);
 
             LineManager.Draw2DPlane(new Rectangle(squareColorlenght + 5, (int)(squareColorlenght * (1 - intensityLevel)) - 3 + 5, 20, 6), new Color(200, 200, 200));
+
+            LineManager.End();
         } // DrawControl
 
         #endregion

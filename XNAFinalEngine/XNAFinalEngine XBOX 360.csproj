@@ -120,7 +120,7 @@
     <Compile Include="Engine Core\Time.cs" />
     <Compile Include="Graphics\Filters\BlurShader.cs" />
     <Compile Include="Graphics\Filters\DilateShader.cs" />
-    <Compile Include="Graphics\LineManager.cs" />
+    <Compile Include="Graphics\Lines\LineManager.cs" />
     <Compile Include="Graphics\Miscellaneous\GammaLinearSpace.cs" />
     <Compile Include="Graphics\Miscellaneous\RGBM.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonics.cs" />

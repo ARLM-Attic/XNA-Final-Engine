@@ -34,7 +34,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
-using Model = XNAFinalEngine.Assets.Model;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -64,15 +63,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// A singleton of a Constant shader.
         /// </summary>
-        public static SpriteShader Instance
-        {
-            get
-            {
-                if (instance == null)
-                    instance = new SpriteShader();
-                return instance;
-            }
-        } // Instance
+        public static SpriteShader Instance { get { return instance ?? (instance = new SpriteShader()); } }
 
         #endregion
 
