@@ -28,15 +28,19 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
+#region Using directives
 using XNAFinalEngine.Helpers;
+#endregion
 
 namespace XNAFinalEngine.Assets
 {
     /// <summary>
     /// Base class for ambient occlusion effects.
-    /// There are two options where to apply them: in the ambient light or in the final result.
-    /// The first is more "correct" but subtle. I choose the first to achieve more photorealistic results.
     /// </summary>
+    /// <remarks>
+    /// There are two options where to apply them: in the ambient light or in the final result, previous to the post process.
+    /// The first is more "correct" but subtle. I choose the first to achieve more photorealistic results.
+    /// </remarks>
     public abstract class AmbientOcclusion
     {
 

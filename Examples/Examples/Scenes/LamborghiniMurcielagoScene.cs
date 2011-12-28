@@ -48,36 +48,46 @@ namespace XNAFinalEngineExamples
 {
 
     /// <summary>
-    /// Test scene
+    /// This was used to test most of the new version's features.
+    /// It’s a mess, really, but it’s the best start point to understand the new version.
     /// </summary>
     public class LamborghiniMurcielagoScene : Scene
     {
 
         #region Variables
 
-        private static GameObject3D murcielagoBody, murcielagoLP640AirTakesEngine, murcielagoFrontLightBase, murcielagoFrontLightWhiteMetal, murcielagoGlasses,
+        // Now every entity is a game object and the entity’s behavior is defined by the components attached to it.
+        // There are several types of components, components related to models, to sound, to particles, to physics, etc.
+        private static GameObject3D // Lambo parts
+                                    murcielagoBody, murcielagoLP640AirTakesEngine, murcielagoFrontLightBase, murcielagoFrontLightWhiteMetal, murcielagoGlasses,
                                     murcielagoEngineGlasses, murcielagoBlackMetal, murcielagoLogo, murcielagoWheelBlackContant, murcielagoloor,
                                     murcielagoLP640Grid, murcielagoLP640RearSpoilerDarkPart, murcielagoLP640Exhaust,
-            // Front Left Wheel
+                                    // Front Left Wheel
                                     murcielagoLP670FrontLeftRim, murcielagoLP640FrontLeftRimBase, murcielagoLP640FrontLeftRimBase02,
                                     murcielagoFrontLeftRimLogo, murcielagoFrontLeftBrakeDisc, murcielagoFrontLeftBrakeCaliper, murcielagoFrontLeftTyre,
                                     murcielagoFrontLeftTyre02, frontLeftRim,
-            // Rear Left Wheel
+                                    // Rear Left Wheel
                                     murcielagoLP670RearLeftRim, murcielagoLP640RearLeftRimBase, murcielagoLP640RearLeftRimBase02,
                                     murcielagoRearLeftRimLogo, murcielagoRearLeftBrakeDisc, murcielagoRearLeftBrakeCaliper, murcielagoRearLeftTyre,
                                     murcielagoRearLeftTyre02, rearLeftRim,
+                                    // Test floors
                                     floor, floor2, floor3,
+                                    // Lights
                                     directionalLight, pointLight, pointLight2, pointLight3,
+                                    // Cameras
                                     camera, camera2,
+                                    // Particle system
                                     particleSystem,
-                                    dogSound,
-                                    soundFrontLeft, soundFrontRight, soundRearLeft, soundRearRight, soundFrontCenter,
+                                    // Sounds
+                                    dogSound, soundFrontLeft, soundFrontRight, soundRearLeft, soundRearRight, soundFrontCenter,
+                                    // HUD
                                     hudTexture3DTest, hudTexture3DTest2, hudText3DTest;
 
+        // To test 2D HUD.
         private static GameObject2D hudTextureTest, videoTest;
 
+        // To test sound instance limit.
         private static GameObject3D[] soundArray = new GameObject3D[290];
-
 
         #endregion
 
@@ -94,13 +104,14 @@ namespace XNAFinalEngineExamples
 
             camera = new GameObject3D();
             camera.AddComponent<Camera>();
-            camera.Camera.Renderer = Camera.RenderingType.DeferredLighting;
+            camera.AddComponent<SoundListener>();
+            camera.Camera.Renderer = Camera.RenderingType.DeferredLighting; // The only option available for the time being.
             camera.Camera.RenderTargetSize = Size.FullScreen;
             camera.Camera.FarPlane = 1000;
-            ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
+            ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>(); // This script will be moved to the editor namespace.
             script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
-            camera.Camera.FieldOfView = 180 / 8.0f;
+            camera.Camera.FieldOfView = 180 / 8.0f;            
             camera.Camera.PostProcess = new PostProcess
             {
                 FilmGrain = new FilmGrain { FilmgrainStrength = 0.2f }, // Don't overuse it. PLEASE!!!
@@ -109,12 +120,12 @@ namespace XNAFinalEngineExamples
                 MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Both, BlurRadius = 1f, ThresholdDepth = 0.2f, ThresholdColor = 0.2f },
                 LensExposure = 1.0f,
             };
-            camera.Camera.AmbientLight = new AmbientLight { //SphericalHarmonicAmbientLight = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Showroom", false)),
-                                                            //SphericalHarmonicAmbientLight = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
-                                                            SphericalHarmonicAmbientLight = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
+            camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
+                                                            //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
                                                             Color = new Color(30, 30, 30),
                                                             Intensity = 1.0f,
                                                             AmbientOcclusionStrength = 5};
+            camera.Camera.Sky = new Skybox { CubeTexture = new TextureCube("FactoryCatwalkRGBM", true, 50) };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
@@ -126,8 +137,6 @@ namespace XNAFinalEngineExamples
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.QuarterSize,
             };
-            camera.AddComponent<SoundListener>();
-            camera.Camera.Sky = new Skybox { CubeTexture = new TextureCube("FactoryCatwalkRGBM", true, 50) };
             /*camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
             {
                 NumberSteps = 12,
@@ -136,8 +145,8 @@ namespace XNAFinalEngineExamples
                 Radius = 0.005f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 1.5f,
                 Contrast = 1.5f,
-            };
-            */
+            };*/
+            // The second camera
             camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
             camera2 = new GameObject3D();
             camera2.AddComponent<Camera>();
@@ -535,7 +544,7 @@ namespace XNAFinalEngineExamples
             #endregion
 
             #region Particles
-
+                        
             /*particleSystem = new GameObject3D();
             particleSystem.AddComponent<ParticleEmitter>();
             particleSystem.AddComponent<ParticleRenderer>();
@@ -547,6 +556,7 @@ namespace XNAFinalEngineExamples
 
             #region Music
 
+            // Different tests
             //MusicManager.LoadAllSong(true);
             //MusicManager.LoadSongs(new [] { MusicManager.SongsFilename[0], MusicManager.SongsFilename[1] }, true);
             MusicManager.LoadSongs(MusicManager.SongsFilename, true);
@@ -596,7 +606,9 @@ namespace XNAFinalEngineExamples
             SoundManager.DistanceScale = 10;
 
             #endregion
-            
+
+            #region HUD
+
             hudTextureTest = new GameObject2D();
             hudTextureTest.AddComponent<HudTexture>();
             hudTextureTest.HudTexture.Texture = new Texture("WiimoteSensors");
@@ -622,15 +634,23 @@ namespace XNAFinalEngineExamples
             hudTexture3DTest2.HudTexture.Texture = new Texture("WiimoteSensors");
             hudTexture3DTest2.Transform.LocalScale = new Vector3(0.3f, 0.3f, 0.3f);
 
+            #endregion
+
+            #region Video
+
             videoTest = new GameObject2D();
             videoTest.AddComponent<VideoRenderer>();
             videoTest.VideoRenderer.Video = new Video("LogosIntro");
             //videoTest.VideoRenderer.Play();
             videoTest.Transform.Position = new Vector3(0, 0, 1);
 
+            #endregion
+
             GameLoop.ShowFramesPerSecond = true;
 
+            // The user interface is separated and manually called because its GPL license.
             UserInterfaceManager.Initialize();
+            ConstantWindow.Show((Constant)murcielagoWheelBlackContant.ModelRenderer.Material);
 
             base.Load();
         } // Load
@@ -654,8 +674,7 @@ namespace XNAFinalEngineExamples
             if (Keyboard.KeyJustPressed(Keys.Left))
                 MusicManager.Previous();
             if (Keyboard.RightJustPressed)
-                MusicManager.Next();
-            //dogSound.SoundEmitter.Play();
+                MusicManager.Next();            
             if (Keyboard.KeyJustPressed(Keys.Up))
                 camera.Camera.PostProcess.LensExposure = camera.Camera.PostProcess.LensExposure + 0.1f;
             if (Keyboard.DownJustPressed)

@@ -32,11 +32,13 @@ namespace XNAFinalEngine.Assets
 {
     /// <summary>
     /// Horizon Based Screen Space Ambient Occlusion.
-    /// Important: I have to put constants in the shader's for.
+    /// </summary>
+    /// <remarks>
+    /// Important: I have to put constants in the shader's for sentences.
     /// If you want to change the number of steps and the number of directions will need to change the properties and the shader code.
     /// 
     /// This shader is baded in a Shader X 7 article with some minor modifications.
-    /// </summary>
+    /// </remarks>
     public class HorizonBasedAmbientOcclusion : AmbientOcclusion
     {
 

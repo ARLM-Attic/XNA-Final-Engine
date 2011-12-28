@@ -36,11 +36,13 @@ namespace XNAFinalEngine.Assets
 {
     /// <summary>
     /// Ray Marching Screen Space Ambient Occlusion.
-    /// This shader is baded in a Shader X 7 article.
-    /// 
-    /// Horizon Based is similar in performance but better in results.
-    /// However this is good example of how to make raymarching shaders and the results are not bad either.
     /// </summary>
+    /// <remarks>
+    /// Horizon Based is similar in performance but better in results.
+    /// However this is a good example of how to make raymarching shaders, and the results are not bad either.
+    /// 
+    /// This shader is baded in a Shader X 7 article.
+    /// </remarks>
     public class RayMarchingAmbientOcclusion : AmbientOcclusion
     {
 

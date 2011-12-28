@@ -37,7 +37,9 @@ namespace XNAFinalEngine.Assets
 {
 
     /// <summary>
-    /// Point Light.
+    /// An ambient light source represents the light that is not directly influenced by local light sources (point, directional and spot lights).
+    /// This includes spherical harmonic lighting, ambient occlusion and
+    /// clear color (a fixed-intensity and fixed-color light source that affects all objects in the scene equally).
     /// </summary>
     public class AmbientLight : Asset
     {
@@ -84,9 +86,12 @@ namespace XNAFinalEngine.Assets
 
         /// <summary>
         /// Spherical Harmonic Ambient Light.
-        /// They are great for store low frequency ambient colors and are very fast.
         /// </summary>
-        public SphericalHarmonicL2 SphericalHarmonicAmbientLight { get; set; }
+        /// <remarks>
+        /// They are great for store low frequency ambient colors and are very fast.
+        /// You can generate a spherical harmonic lighting from a cubemap texture (either RGBM or RGB format).
+        /// </remarks>
+        public SphericalHarmonicL2 SphericalHarmonicLighting { get; set; }
 
         /// <summary>
         /// Ambient Occlusion Effect.
@@ -111,8 +116,8 @@ namespace XNAFinalEngine.Assets
         {
             Name = "Post Process-" + nameNumber;
             nameNumber++;
-            SphericalHarmonicAmbientLight = new SphericalHarmonicL2();
-            SphericalHarmonicAmbientLight.Fill(0.5f, 0.5f, 0.5f);
+            SphericalHarmonicLighting = new SphericalHarmonicL2();
+            SphericalHarmonicLighting.Fill(0.5f, 0.5f, 0.5f);
         } // AmbientLight
 
         #endregion

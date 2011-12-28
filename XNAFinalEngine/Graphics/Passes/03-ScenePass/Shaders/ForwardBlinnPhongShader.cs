@@ -532,13 +532,13 @@ namespace XNAFinalEngine.Graphics
                 SetAmbientColor(ambientLight.Color);
                 SetAmbientIntensity(ambientLight.Intensity);
                 
-                if (ambientLight.SphericalHarmonicAmbientLight == null)
+                if (ambientLight.SphericalHarmonicLighting == null)
                 {
                     SetHasAmbientSphericalHarmonics(false);
                 }
                 else
                 {
-                    ambientLight.SphericalHarmonicAmbientLight.GetCoeficients(coeficients);
+                    ambientLight.SphericalHarmonicLighting.GetCoeficients(coeficients);
                     SetHasAmbientSphericalHarmonics(true);
                     SetSphericalHarmonicBase(coeficients);
                 }

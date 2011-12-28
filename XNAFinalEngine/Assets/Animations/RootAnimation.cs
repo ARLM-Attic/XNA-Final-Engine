@@ -39,7 +39,7 @@ namespace XNAFinalEngine.Assets
 
     /// <summary>
     /// Root Animation.
-    /// Animations that works at the transform level.
+    /// Animations that works at the transform (or root) level.
     /// </summary>
     public class RootAnimation : Asset
     {

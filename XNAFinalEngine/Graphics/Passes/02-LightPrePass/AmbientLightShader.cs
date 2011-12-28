@@ -246,7 +246,7 @@ namespace XNAFinalEngine.Graphics
                 
                 SetHalfPixel(new Vector2(-1f / normalTexture.Width, 1f / normalTexture.Height));
                 SetNormalTexture(normalTexture);
-                ambientLight.SphericalHarmonicAmbientLight.GetCoeficients(coeficients);
+                ambientLight.SphericalHarmonicLighting.GetCoeficients(coeficients);
                 SetSphericalHarmonicBase(coeficients);
                 SetIntensity(ambientLight.Intensity);
                 SetViewInverseMatrix(Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix))));
