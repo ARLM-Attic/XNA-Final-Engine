@@ -41,7 +41,9 @@
     <XnaCompressContent>true</XnaCompressContent>
     <LangVersion>default</LangVersion>
   </PropertyGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Pickers\" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Animations\ModelAnimationPlayer.cs" />
     <Compile Include="Assets\AmbientLight\AmbientLight.cs" />
@@ -167,7 +169,6 @@
     <Compile Include="Input\InputManager.cs" />
     <Compile Include="Input\Keyboard.cs" />
     <Compile Include="Input\Mouse.cs" />
-    <Compile Include="Pickers\Picker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scenes\Scene.cs" />
   </ItemGroup>

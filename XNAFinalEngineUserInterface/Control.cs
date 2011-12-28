@@ -59,179 +59,109 @@ namespace XNAFinalEngine.UserInterface
 
         #region Variables
 
-        /// <summary>
-        /// List of all controls.
-        /// </summary>
+        // List of all controls.
         private static readonly ControlsList controlList = new ControlsList();
 
-        /// <summary>
-        /// List of all child controls.
-        /// </summary>
+        // List of all child controls.
         private readonly ControlsList childrenControls = new ControlsList();
 
-        /// <summary>
-        /// Specifies how many pixels is used for edges (and corners) allowing resizing of the control.
-        /// </summary>
+        // Specifies how many pixels is used for edges (and corners) allowing resizing of the control.
         private int resizerSize = 4;
 
-        /// <summary>
-        /// Rectangular area that reacts on moving the control with the mouse.
-        /// </summary>
+        // Rectangular area that reacts on moving the control with the mouse.
         private Rectangle movableArea = Rectangle.Empty;
 
-        /// <summary>
-        /// Parent control.
-        /// </summary>
+        // Parent control.
         private Control parent;
 
-        /// <summary>
-        /// The root control.
-        /// </summary>
+        // The root control.
         private Control root;
 
-        /// <summary>
-        /// Indicates whether this control can receive focus. 
-        /// </summary>
+        // Indicates whether this control can receive focus. 
         private bool canFocus = true;
 
-        /// <summary>
-        /// Indicates whether this control can be moved by the mouse.
-        /// </summary>
+        // Indicates whether this control can be moved by the mouse.
         private bool movable;
 
-        /// <summary>
-        /// Indicate whether this control can be resized by the mouse.
-        /// </summary>
+        // Indicate whether this control can be resized by the mouse.
         private bool resizable;
 
-        /// <summary>
-        /// Indicates whether this control should process mouse double-clicks.
-        /// </summary>
+        // Indicates whether this control should process mouse double-clicks.
         private bool doubleClicks = true;
 
-        /// <summary>
-        ///  Indicates whether this control should use ouline resizing.
-        /// </summary>
+        //  Indicates whether this control should use ouline resizing.
         private bool outlineResizing;
 
-        /// <summary>
-        /// Indicates whether this control should use outline moving.
-        /// </summary>
+        // Indicates whether this control should use outline moving.
         private bool outlineMoving;
 
-        /// <summary>
-        /// Indicates the distance from another control. Usable with StackPanel control.
-        /// </summary>
+        // Indicates the distance from another control. Usable with StackPanel control.
         private Margins margins = new Margins(4, 4, 4, 4);
 
-        /// <summary>
-        /// Indicates whether the control outline is displayed only for certain edges. 
-        /// </summary>
+        // Indicates whether the control outline is displayed only for certain edges. 
         private bool partialOutline = true;
 
-        /// <summary>
-        /// Indicates whether the control is allowed to be brought in the front.
-        /// </summary>
+        // Indicates whether the control is allowed to be brought in the front.
         private bool stayOnBack;
 
-        /// <summary>
-        /// Indicates that the control should stay on top of other controls.
-        /// </summary>
+        // Indicates that the control should stay on top of other controls.
         private bool stayOnTop;
 
-        /// <summary>
-        /// Control's tool tip.
-        /// </summary>
+        // Control's tool tip.
         private ToolTip toolTip;
 
-        /// <summary>
-        /// The area where is the control supposed to be drawn.
-        /// </summary>
+        // The area where is the control supposed to be drawn.
         private Rectangle drawingRect = Rectangle.Empty;
 
-        /// <summary>
-        /// The skin parameters used for rendering the control.
-        /// </summary>
+        // The skin parameters used for rendering the control.
         private SkinControl skinControl;
 
-        /// <summary>
-        /// Indicates whether the control can respond to user interaction.
-        /// </summary>
+        // Indicates whether the control can respond to user interaction.
         private bool enabled = true;
 
-        /// <summary>
-        /// Indicates whether the control is rendered.
-        /// </summary>
+        // Indicates whether the control is rendered.
         private bool visible = true;
 
-        /// <summary>
-        /// The color for the control.
-        /// </summary>
+        // The color for the control.
         private Color color = UndefinedColor;
 
-        /// <summary>
-        /// Text color for the control.
-        /// </summary>
+        // Text color for the control.
         private Color textColor = UndefinedColor;
 
-        /// <summary>
-        /// The background color for the control.
-        /// </summary>
+        // The background color for the control.
         private Color backgroundColor = Color.Transparent;
 
-        /// <summary>
-        /// The alpha value for this control.
-        /// </summary>
+        // The alpha value for this control.
         private byte alpha = 255;
 
-        /// <summary>
-        /// The edges of the container to which a control is bound and determines how a control is resized with its parent.
-        /// </summary>
+        // The edges of the container to which a control is bound and determines how a control is resized with its parent.
         private Anchors anchor = Anchors.Left | Anchors.Top;
 
-        /// <summary>
-        /// The width of the control.
-        /// </summary>
+        // The width of the control.
         private int width = 64;
 
-        /// <summary>
-        /// The height of the control.
-        /// </summary>
+        // The height of the control.
         private int height = 64;
 
-        /// <summary>
-        /// The distance, in pixels, between the left edge of the control and the left edge of its parent.
-        /// </summary>
+        // The distance, in pixels, between the left edge of the control and the left edge of its parent.
         private int left;
 
-        /// <summary>
-        /// The distance, in pixels, between the top edge of the control and the top edge of its parent.
-        /// </summary>
+        // The distance, in pixels, between the top edge of the control and the top edge of its parent.
         private int top;
 
-        /// <summary>
-        /// The minimum width in pixels the control can be sized to.
-        /// </summary>
+        // The minimum width in pixels the control can be sized to.
         private int minimumWidth;
 
-        /// <summary>
-        /// The maximum width in pixels the control can be sized to.
-        /// </summary>
+        // The maximum width in pixels the control can be sized to.
         private int maximumWidth = 4096;
 
-        /// <summary>
-        /// The minimum height in pixels the control can be sized to.
-        /// </summary>
+        // The minimum height in pixels the control can be sized to.
         private int minimumHeight;
 
-        /// <summary>
-        /// The maximum height in pixels the control can be sized to.
-        /// </summary>
+        // The maximum height in pixels the control can be sized to.
         private int maximumHeight = 4096;
 
-        /// <summary>
-        /// Stack that stores new controls.
-        /// </summary>
+        // Stack that stores new controls.
         private static readonly Stack<Control> newControls = new Stack<Control>();
 
         private Anchors resizeEdge = Anchors.All;
@@ -1394,11 +1324,33 @@ namespace XNAFinalEngine.UserInterface
 
             if (childrenControls != null)
             {
-                ControlsList childrenControlsAuxList = new ControlsList(childrenControls);
-                foreach (Control control in childrenControlsAuxList)
+                // The lines commented does not produce garbage.
+                // I begin the process to reduce garbage in the user interface
+                // but it’s too much work for something that probably won’t be necessary.
+                /*
+                int childrenControlsCount = childrenControls.Count;
+                try
                 {
-                    control.Update();
+                    // The list updateControlList needs to be clear each frame.
+                    int j = 0;
+                    while (updateControlList[j] != null)
+                        j++;
+                    for (int i = 0; i < childrenControlsCount; i++)
+                    {
+                        updateControlList[i + j] = childrenControls[i];
+                    }
+                    for (int i = 0; i < childrenControlsCount; i++)
+                    {
+                        updateControlList[j + i].Update();
+                    }
                 }
+                catch (IndexOutOfRangeException)
+                {*/
+                    // This is the alternative that produces garbage but it does not have out of range problems.
+                    ControlsList childrenControlsAuxList = new ControlsList(childrenControls);
+                    foreach (Control control in childrenControlsAuxList)
+                        control.Update();
+                //}
             }
         } // Update
 

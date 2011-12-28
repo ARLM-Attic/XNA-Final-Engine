@@ -82,7 +82,8 @@ namespace XNAFinalEngine.UserInterface
                 for (int i = 0; i < Count; i++)
                 {
                     SkinBase s = (SkinBase)(object)this[i];
-                    if (s.Name.ToLower() == index.ToLower())
+                    //if (s.Name.ToLower() == index.ToLower()) // Not need to produce so much garbage unnecessary.
+                    if (s.Name == index)
                     {
                         return this[i];
                     }

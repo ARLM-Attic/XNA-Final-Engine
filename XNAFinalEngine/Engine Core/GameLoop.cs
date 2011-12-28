@@ -382,7 +382,8 @@ namespace XNAFinalEngine.EngineCore
 
             EngineManager.Device.Clear(Color.Black);
             // Render onto back buffer the main camera and the HUD.
-            SpriteManager.DrawTextureToFullScreen(currentCamera.RenderTarget);
+            if (currentCamera != null)
+                SpriteManager.DrawTextureToFullScreen(currentCamera.RenderTarget);
 
             #region Heads Up Display
 
@@ -969,6 +970,36 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            #region Lines
+
+            #region Opaque Objects
+
+            LineManager.Begin3D(PrimitiveType.LineList, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+            
+            #region Bounding Volumes
+            for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+            {
+                ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                if (currentModelRenderer.CachedModel != null && (currentModelRenderer.RenderBoundingBox || currentModelRenderer.RenderBoundingSphere))
+                {
+                    if (currentModelRenderer.RenderBoundingBox)
+                    {
+                        LineManager.DrawBoundingBox(currentModelRenderer.BoundingBox, Color.Red);
+                    }
+                    if (currentModelRenderer.RenderBoundingSphere)
+                    {
+                        LineManager.DrawBoundingSphere(currentModelRenderer.BoundingSphere, Color.Green);
+                    }
+                }
+            }
+            #endregion
+
+            LineManager.End();
+
+            #endregion
+
+            #endregion
+
             postProcessedSceneTexture = PostProcessingPass.End();
 
             // They are not needed anymore.
@@ -982,8 +1013,9 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             return postProcessedSceneTexture;
-            //RenderTarget.Release(postProcessedSceneTexture);
-            //return gbufferTextures.RenderTargets[1];
+            RenderTarget.Release(postProcessedSceneTexture);
+            return gbufferTextures.RenderTargets[1];
+            //return sceneTexture;
         } // RenderCamera
 
         #endregion

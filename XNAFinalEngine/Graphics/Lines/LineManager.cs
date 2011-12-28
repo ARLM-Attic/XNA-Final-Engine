@@ -48,9 +48,6 @@ namespace XNAFinalEngine.Graphics
     ///                             if you use position as Vertex3 the coordinates will be in world space.
     /// End(): to finally render the primitives.
     /// 
-    /// This class can be extended by using sprites as alternative to the vertex render. 
-    /// Moreover it could uses different shaders or render techniques (like using planes or spheres).
-    /// 
     /// Helpers:
     /// 
     /// * Draw 2D plane (solid or wireframe).
@@ -59,7 +56,9 @@ namespace XNAFinalEngine.Graphics
     /// 
     /// * Draw bounding box and bounding sphere.
     /// 
-    /// If you want to draw in clipping space you can do it using the screen space methods and multiplying the value (between 0 and 1) by the screen dimensions.
+    /// * Draw curves.
+    /// 
+    /// If you want to draw in clipping space you can do it using the screen space methods (begin2D) and multiplying the value (between 0 and 1) by the screen dimensions.
     /// </summary>
     /// <remarks>
     /// This line manager communicates from the CPU to the GPU the whole list of vertices each frame.
@@ -159,10 +158,7 @@ namespace XNAFinalEngine.Graphics
             basicEffect.World = Matrix.Identity;
             basicEffect.View = Matrix.Identity;
             // Works in screen coordinates.
-            if (RenderTarget.CurrentRenderTarget[0] != null)
-                basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, RenderTarget.CurrentRenderTarget[0].Width, RenderTarget.CurrentRenderTarget[0].Height, 0, 0, 1);
-            else
-                basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, Screen.Width, Screen.Height, 0, 0, 1);
+            basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, EngineManager.Device.Viewport.Width, EngineManager.Device.Viewport.Height, 0, 0, 1);
             basicEffect.CurrentTechnique.Passes[0].Apply();
 
             // Flip the error checking boolean. It's now ok to call AddVertex, Flush, and End.

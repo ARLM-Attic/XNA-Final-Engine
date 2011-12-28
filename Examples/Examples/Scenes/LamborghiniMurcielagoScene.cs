@@ -35,6 +35,7 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
+using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Scenes;
 using XNAFinalEngine.Audio;
 using XNAFinalEngine.UserInterface;
@@ -135,8 +136,8 @@ namespace XNAFinalEngineExamples
                 Radius = 0.005f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 1.5f,
                 Contrast = 1.5f,
-            };*/
-            /*
+            };
+            */
             camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
             camera2 = new GameObject3D();
             camera2.AddComponent<Camera>();
@@ -144,7 +145,7 @@ namespace XNAFinalEngineExamples
             camera2.Camera.ClearColor = Color.Black;
             camera2.Camera.FieldOfView = 180 / 8.0f;
             camera2.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
-            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);*/
+            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);
             
             #endregion
 
@@ -164,6 +165,8 @@ namespace XNAFinalEngineExamples
                                                         ReflectionTexture = new TextureCube("Showroom", false),
                                                         //ReflectionTexture = new Graphics.TextureCube("FactoryCatwalkRGBM", true, 50)
                                                     });
+            murcielagoBody.ModelRenderer.RenderBoundingBox = true;
+            murcielagoBody.ModelRenderer.RenderBoundingSphere = true;
             murcielagoLP640AirTakesEngine = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakesEngine"),
                                                              new BlinnPhong
                                                              {
@@ -593,17 +596,17 @@ namespace XNAFinalEngineExamples
             SoundManager.DistanceScale = 10;
 
             #endregion
-            /*
+            
             hudTextureTest = new GameObject2D();
             hudTextureTest.AddComponent<HudTexture>();
             hudTextureTest.HudTexture.Texture = new Texture("WiimoteSensors");
 
             hudText3DTest = new GameObject3D();
             hudText3DTest.AddComponent<HudText>();
-            hudText3DTest.HudText.Text.Insert(0, "Toto");
+            hudText3DTest.HudText.Text.Insert(0, "Test");
             hudText3DTest.HudText.Color = Color.Red;
-            hudText3DTest.Transform.LocalScale = new Vector3(0.5f, 0.5f, 0.5f);
-            hudText3DTest.HudText.Billboard = true;*/
+            hudText3DTest.Transform.LocalScale = new Vector3(0.2f, 0.2f, 0.2f);
+            hudText3DTest.HudText.Billboard = true;
 
             hudTexture3DTest = new GameObject3D();
             hudTexture3DTest.AddComponent<HudTexture>();
@@ -611,13 +614,13 @@ namespace XNAFinalEngineExamples
             hudTexture3DTest.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
             hudTexture3DTest.HudTexture.Texture = new Texture("WiimoteSensors");
             hudTexture3DTest.HudTexture.Billboard = true;
-            //hudTexture3DTest.HudTexture.PostProcessed = true;
-
-            /*
+            hudTexture3DTest.HudTexture.PostProcessed = true;
+            
             hudTexture3DTest2 = new GameObject3D();
             hudTexture3DTest2.AddComponent<HudTexture>();
             hudTexture3DTest2.Transform.Position = new Vector3(5, 0, 5);
-            hudTexture3DTest2.HudTexture.Texture = new Texture("WiimoteSensors");*/
+            hudTexture3DTest2.HudTexture.Texture = new Texture("WiimoteSensors");
+            hudTexture3DTest2.Transform.LocalScale = new Vector3(0.3f, 0.3f, 0.3f);
 
             videoTest = new GameObject2D();
             videoTest.AddComponent<VideoRenderer>();
@@ -665,16 +668,15 @@ namespace XNAFinalEngineExamples
             soundFrontCenter.SoundEmitter.Play();
 
             if (Keyboard.SpaceJustPressed)
-            {
                 ConstantWindow.Show((Constant)murcielagoWheelBlackContant.ModelRenderer.Material);
-            }
+            UserInterfaceManager.Update();
 
             /*
             for (int i = 0; i < 280; i++)
             {
                 soundArray[i].SoundEmitter.Play();
             }*/
-            UserInterfaceManager.Update();
+            
         } // UpdateTasks
 
         #endregion

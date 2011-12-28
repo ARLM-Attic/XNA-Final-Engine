@@ -337,9 +337,7 @@ namespace XNAFinalEngine.Components
             get
             {
                 if (aspectRatio == 0)
-                {
-                    return Screen.AspectRatio;
-                }
+                    return ((float)Viewport.Width / Viewport.Height);
                 return aspectRatio;
             }
             set

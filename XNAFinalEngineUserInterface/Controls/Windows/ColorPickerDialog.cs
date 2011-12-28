@@ -674,7 +674,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private Point PositionFromColor(Color color)
         {
-            Point position;
+            Point position = new Point();
             float percentage;
             // The higher color tells us the intensity level.
             // The lowest color tells us the position Y, but directly, it has to take the intensity level into consideration.

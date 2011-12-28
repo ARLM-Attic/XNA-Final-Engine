@@ -495,10 +495,10 @@ namespace XNAFinalEngine.UserInterface
         {
             if (controlList != null)
             {
-                foreach (Control control in controlList.Where(control => control.Visible))
+                for (int i = 0; i < controlList.Count; i++)
                 {
-                    OrderList.Add(control);
-                    SortLevel(control.ChildrenControls);
+                    OrderList.Add(controlList[i]);
+                    SortLevel(controlList[i].ChildrenControls);
                 }
             }
         } // SortLevel

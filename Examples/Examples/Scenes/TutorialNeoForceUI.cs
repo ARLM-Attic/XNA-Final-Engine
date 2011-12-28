@@ -32,8 +32,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Threading;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using XNAFinalEngine;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Scenes;
 using XNAFinalEngine.UserInterface;
