@@ -34,7 +34,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
-using XNAFinalEngine.Assets;
 #endregion
 
 namespace XNAFinalEngine.Graphics

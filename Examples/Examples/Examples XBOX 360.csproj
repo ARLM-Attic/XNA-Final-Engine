@@ -67,10 +67,10 @@
     <Compile Include="Scenes\LamborghiniMurcielagoScene.cs" />
     <Compile Include="Scenes\TestScene.cs" />
     <Compile Include="Scenes\TutorialNeoForceUI.cs" />
-    <Compile Include="Scenes\TutotialNewUI\TaskAutoScroll.cs" />
-    <Compile Include="Scenes\TutotialNewUI\TaskControls.cs" />
-    <Compile Include="Scenes\TutotialNewUI\TaskDialog.cs" />
-    <Compile Include="Scenes\TutotialNewUI\TaskEvents.cs" />
+    <Compile Include="Scenes\TutotialUI\TaskAutoScroll.cs" />
+    <Compile Include="Scenes\TutotialUI\TaskControls.cs" />
+    <Compile Include="Scenes\TutotialUI\TaskDialog.cs" />
+    <Compile Include="Scenes\TutotialUI\TaskEvents.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

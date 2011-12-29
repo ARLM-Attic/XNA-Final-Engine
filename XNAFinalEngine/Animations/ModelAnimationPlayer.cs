@@ -21,6 +21,7 @@ namespace XNAFinalEngine.Animations
 {
     /// <summary>
     /// This plays any model animation clip.
+    /// This need to be refactored and extended.
     /// </summary>
     internal class ModelAnimationPlayer
     {
