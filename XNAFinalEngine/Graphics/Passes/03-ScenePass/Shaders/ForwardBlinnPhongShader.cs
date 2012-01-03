@@ -479,7 +479,8 @@ namespace XNAFinalEngine.Graphics
             {
                 // Set Render States.
                 EngineManager.Device.BlendState = BlendState.NonPremultiplied;
-                EngineManager.Device.DepthStencilState = DepthStencilState.Default;
+                EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
+                EngineManager.Device.RasterizerState = RasterizerState.CullNone;
                 // If I set the sampler states here and no texture is set then this could produce exceptions 
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
 
@@ -542,17 +543,14 @@ namespace XNAFinalEngine.Graphics
                     SetHasAmbientSphericalHarmonics(true);
                     SetSphericalHarmonicBase(coeficients);
                 }
-                /*if (SceneManager.DirectionalLightForTransparentObjects != null)
-                {
-                    SetDirectionalLightColor(SceneManager.DirectionalLightForTransparentObjects.DiffuseColor);
-                    SetDirectionalLightDirection(SceneManager.DirectionalLightForTransparentObjects.Direction);
-                    SetDirectionalLightIntensity(SceneManager.DirectionalLightForTransparentObjects.Intensity);
-                }
+                SetDirectionalLightColor(new Color(210, 200, 200));
+                SetDirectionalLightDirection(new Vector3(-0.3f, -0.3f, -0.5f));
+                SetDirectionalLightIntensity(1.7f);
+                /*}
                 else
                 {
                     SetDirectionalLightColor(Color.Black);
                 }*/
-
 
                 Resource.CurrentTechnique.Passes[0].Apply();
                 model.Render();

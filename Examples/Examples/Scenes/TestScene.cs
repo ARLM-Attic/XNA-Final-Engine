@@ -29,13 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.Components;
-using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Helpers;
-using XNAFinalEngine.Input;
 using XNAFinalEngine.Scenes;
 #endregion
 
@@ -62,6 +57,7 @@ namespace XNAFinalEngineExamples
         /// <remarks>Remember to call the base implementation of this method at the end.</remarks>
         public override void Load()
         {
+
             #region Sound Instance Test
 
             // Just a test to see exactly how it works internally.
@@ -103,8 +99,6 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PreRenderTasks()
         {
-
-
 
             #region XBOX Matrix test
             /*

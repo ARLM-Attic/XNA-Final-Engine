@@ -206,6 +206,7 @@
       <Name>Murcielago-FrontTyre02</Name>
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-Glasses.fbx">
       <Name>Murcielago-Glasses</Name>
@@ -270,6 +271,7 @@
       <Name>Murcielago-RearTyre02</Name>
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-WheelBlackConstant.fbx">
       <Name>Murcielago-WheelBlackConstant</Name>
@@ -1300,6 +1302,36 @@
       <Processor>EffectProcessor</Processor>
       <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontLightCian.fbx">
+      <Name>Murcielago-FrontLightCian</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontLightOrange.fbx">
+      <Name>Murcielago-FrontLightOrange</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontLightGlasses.fbx">
+      <Name>Murcielago-FrontLightGlasses</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontLightInteriorGlasses.fbx">
+      <Name>Murcielago-FrontLightInteriorGlasses</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-AirTakes.fbx">
+      <Name>Murcielago-AirTakes</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-AirTakesDark.fbx">
+      <Name>Murcielago-AirTakesDark</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
     <None Include="Shaders\GlobalIllumination\HorizonBasedAmbientOcclusionMiddleQuality.fxh">
       <Name>HorizonBasedAmbientOcclusionMiddleQuality</Name>
       <Importer>EffectImporter</Importer>
@@ -1359,6 +1391,31 @@
       <Name>SpriteEffect</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-FrontLightOrange.dds">
+      <Name>Murcielago-FrontLightOrange</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\XNA Final Engine.dds">
+      <Name>XNA Final Engine</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>DxtCompressed</ProcessorParameters_TextureFormat>
+      <ProcessorParameters_ColorKeyEnabled>False</ProcessorParameters_ColorKeyEnabled>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Tyre-Diffuse.dds">
+      <Name>Murcielago-Tyre-Diffuse</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Tyre-Normal.dds">
+      <Name>Murcielago-Tyre-Normal</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
   </ItemGroup>
   <ItemGroup>

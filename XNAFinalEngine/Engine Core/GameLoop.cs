@@ -563,7 +563,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
             {
                 ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                 {
                     GBufferShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, currentModelRenderer.Material);
                 }
@@ -1013,8 +1013,8 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             return postProcessedSceneTexture;
-            RenderTarget.Release(postProcessedSceneTexture);
-            return gbufferTextures.RenderTargets[1];
+            //RenderTarget.Release(postProcessedSceneTexture);
+            //return gbufferTextures.RenderTargets[1];
             //return sceneTexture;
         } // RenderCamera
 

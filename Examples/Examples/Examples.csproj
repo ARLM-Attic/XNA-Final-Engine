@@ -109,6 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Editor\ConstantWindow.cs" />
+    <Compile Include="Scenes\MiscellaneousScene.cs" />
     <Compile Include="Scenes\LamborghiniMurcielagoScene.cs" />
     <Compile Include="Scenes\EmptyScene.cs" />
     <Compile Include="Scenes\TutorialNeoForceUI.cs" />

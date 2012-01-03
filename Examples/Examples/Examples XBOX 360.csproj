@@ -65,6 +65,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Scenes\EmptyScene.cs" />
     <Compile Include="Scenes\LamborghiniMurcielagoScene.cs" />
+    <Compile Include="Scenes\MiscellaneousScene.cs" />
     <Compile Include="Scenes\TestScene.cs" />
     <Compile Include="Scenes\TutorialNeoForceUI.cs" />
     <Compile Include="Scenes\TutotialUI\TaskAutoScroll.cs" />
