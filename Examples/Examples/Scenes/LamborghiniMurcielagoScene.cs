@@ -35,11 +35,9 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
-using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Scenes;
-using XNAFinalEngine.Audio;
 using XNAFinalEngine.UserInterface;
-using XNAFinalEngineExamples.Editor;
+using XNAFinalEngine.Editor;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Size = XNAFinalEngine.Helpers.Size;
 #endregion
@@ -58,7 +56,7 @@ namespace XNAFinalEngineExamples
 
         // Now every entity is a game object and the entity’s behavior is defined by the components attached to it.
         // There are several types of components, components related to models, to sound, to particles, to physics, etc.
-        private static GameObject3D // Lambo parts
+        private static GameObject3D // Lambo body
                                     murcielagoBody, murcielagoLP640AirTakesEngine, murcielagoLP640AirTakes, murcielagoAirTakesDark,
                                     murcielagoFrontLightBase, murcielagoFrontLightCian, murcielagoFrontLightOrange, murcielagoFrontLightGlasses, murcielagoFrontLightInteriorGlasses,
                                     murcielagoFrontLightWhiteMetal, murcielagoGlasses,
@@ -68,10 +66,18 @@ namespace XNAFinalEngineExamples
                                     murcielagoLP670FrontLeftRim, murcielagoLP640FrontLeftRimBase, murcielagoLP640FrontLeftRimBase02,
                                     murcielagoFrontLeftRimLogo, murcielagoFrontLeftBrakeDisc, murcielagoFrontLeftBrakeCaliper, murcielagoFrontLeftTyre,
                                     murcielagoFrontLeftTyre02, frontLeftRim,
+                                    // Front Right Wheel
+                                    murcielagoLP670FrontRightRim, murcielagoLP640FrontRightRimBase, murcielagoLP640FrontRightRimBase02,
+                                    murcielagoFrontRightRimLogo, murcielagoFrontRightBrakeDisc, murcielagoFrontRightBrakeCaliper, murcielagoFrontRightTyre,
+                                    murcielagoFrontRightTyre02, frontRightRim,
                                     // Rear Left Wheel
                                     murcielagoLP670RearLeftRim, murcielagoLP640RearLeftRimBase, murcielagoLP640RearLeftRimBase02,
                                     murcielagoRearLeftRimLogo, murcielagoRearLeftBrakeDisc, murcielagoRearLeftBrakeCaliper, murcielagoRearLeftTyre,
                                     murcielagoRearLeftTyre02, rearLeftRim,
+                                    // Rear Right Wheel
+                                    murcielagoLP670RearRightRim, murcielagoLP640RearRightRimBase, murcielagoLP640RearRightRimBase02,
+                                    murcielagoRearRightRimLogo, murcielagoRearRightBrakeDisc, murcielagoRearRightBrakeCaliper, murcielagoRearRightTyre,
+                                    murcielagoRearRightTyre02, rearRightRim,
                                     // Test floors
                                     floor,
                                     // Lights
@@ -106,15 +112,14 @@ namespace XNAFinalEngineExamples
             camera.Camera.FieldOfView = 180 / 9.0f;            
             camera.Camera.PostProcess = new PostProcess
             {
-                FilmGrain = new FilmGrain { FilmgrainStrength = 0.3f }, // Don't overuse it. PLEASE!!!
+                FilmGrain = new FilmGrain { FilmgrainStrength = 0.2f }, // Don't overuse it. PLEASE!!!
                 Bloom = new Bloom(),
-                AdjustLevels = new AdjustLevels(),
-                MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Both, BlurRadius = 1f, ThresholdDepth = 0.2f, ThresholdColor = 0.2f },
+                MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Both, BlurRadius = 2f, ThresholdDepth = 0.3f, ThresholdColor = 0.3f },
                 LensExposure = 1.0f,
             };
             camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
                                                             //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
-                                                            Color = new Color(60, 60, 60),
+                                                            Color = new Color(100, 100, 100),
                                                             Intensity = 1.0f,
                                                             AmbientOcclusionStrength = 8};
             //camera.Camera.Sky = new Skybox { CubeTexture = new TextureCube("FactoryCatwalkRGBM", true, 50) };
@@ -347,10 +352,11 @@ namespace XNAFinalEngineExamples
                                                  new BlinnPhong
                                                  {
                                                      DiffuseTexture = new Texture("LamborghiniMurcielago\\LamborghiniBrakeCaliper"),
-                                                     SpecularIntensity = 300.0f,
-                                                     SpecularPower = 5f,
+                                                     SpecularIntensity = 50.0f,
+                                                     SpecularPower = 50f,
                                                      ReflectionTexture = new TextureCube("Showroom", false),
                                                  });
+            murcielagoFrontLeftBrakeCaliper.Transform.Rotate(new Vector3(183, 0, 0), Space.Local);
 
             murcielagoFrontLeftTyre = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-FrontTyre"),
                                      new BlinnPhong
@@ -385,6 +391,106 @@ namespace XNAFinalEngineExamples
             murcielagoFrontLeftBrakeCaliper.Parent = frontLeftRim;
             murcielagoFrontLeftTyre.Parent = frontLeftRim;
             murcielagoFrontLeftTyre02.Parent = frontLeftRim;
+
+            #endregion
+
+            #region Front Right Wheel
+
+            murcielagoLP670FrontRightRim = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP670-FrontRim"),
+                                                 new BlinnPhong
+                                                 {
+                                                     DiffuseColor = new Color(30, 30, 30),
+                                                     SpecularPower = 50,
+                                                     SpecularIntensity = 400f,
+                                                     ReflectionTexture = new TextureCube("Showroom", false),
+                                                 });
+
+            murcielagoLP640FrontRightRimBase = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP640-RimBase"),
+                                                 new BlinnPhong
+                                                 {
+                                                     DiffuseColor = new Color(30, 30, 30),
+                                                     SpecularPower = 1,
+                                                     SpecularIntensity = 10f,
+                                                     ReflectionTexture = new TextureCube("Showroom", false),
+                                                 });
+
+            murcielagoLP640FrontRightRimBase02 = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP640-RimBase02"),
+                                                 new BlinnPhong
+                                                 {
+                                                     DiffuseColor = new Color(80, 80, 80),
+                                                     SpecularPower = 5,
+                                                     SpecularIntensity = 50f,
+                                                     ReflectionTexture = new TextureCube("Showroom", false),
+                                                 });
+
+            murcielagoFrontRightRimLogo = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-FrontRimLogo"),
+                                                 new BlinnPhong
+                                                 {
+                                                     DiffuseTexture = new Texture("LamborghiniMurcielago\\Lamborghini-Logo"),
+                                                     SpecularIntensity = 20f,
+                                                     SpecularPower = 100,
+                                                     ReflectionTexture = new TextureCube("Showroom", false),
+                                                 });
+
+            murcielagoFrontRightBrakeDisc = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-BrakeDisc"),
+                                                 new BlinnPhong
+                                                 {
+                                                     DiffuseTexture = new Texture("LamborghiniMurcielago\\BrakeDisc-Diffuse"),
+                                                     NormalTexture = new Texture("LamborghiniMurcielago\\BrakeDisc-Normal"),
+                                                     SpecularTexture = new Texture("LamborghiniMurcielago\\BrakeDisc-Specular"),
+                                                     SpecularIntensity = 10.0f,
+                                                     SpecularPower = 100,
+                                                     //ReflectionTexture = new Graphics.TextureCube("Showroom", false),
+                                                 });
+
+            murcielagoFrontRightBrakeCaliper = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-BrakeCaliper"),
+                                                 new BlinnPhong
+                                                 {
+                                                     DiffuseTexture = new Texture("LamborghiniMurcielago\\LamborghiniBrakeCaliper"),
+                                                     SpecularIntensity = 50.0f,
+                                                     SpecularPower = 50f,
+                                                     ReflectionTexture = new TextureCube("Showroom", false),
+                                                 });
+            murcielagoFrontRightBrakeCaliper.Transform.Rotate(new Vector3(7, 0, 0), Space.Local);
+
+            murcielagoFrontRightTyre = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-FrontTyre"),
+                                     new BlinnPhong
+                                     {
+                                         DiffuseColor = new Color(10, 10, 10),
+                                         //DiffuseTexture = new Texture("LamborghiniMurcielago\\PirelliPZero-Diffuse"),
+                                         NormalTexture = new Texture("LamborghiniMurcielago\\PirelliPZero-Normal"),
+                                         SpecularIntensity = 0.05f,
+                                         SpecularPower = 10,
+                                         //ReflectionTexture = new Graphics.TextureCube("Showroom", false),
+                                     });
+
+            murcielagoFrontRightTyre02 = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-FrontTyre02"),
+                                     new BlinnPhong
+                                     {
+                                         DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Tyre-Diffuse"),
+                                         NormalTexture = new Texture("LamborghiniMurcielago\\Murcielago-Tyre-Normal"),
+                                         SpecularIntensity = 0.01f,
+                                         SpecularPower = 2,
+                                     });
+
+            frontRightRim = new GameObject3D
+                                {
+                                    Transform =
+                                        {
+                                            LocalScale = new Vector3(1.1f, 1.1f, 1.1f),
+                                            Position = new Vector3(-1.6f, -0.5f, 2.35f)
+                                        }
+                                };
+            frontRightRim.Transform.Rotate(new Vector3(0, -40 + 180, 0), Space.World);
+
+            murcielagoLP670FrontRightRim.Parent = frontRightRim;
+            murcielagoLP640FrontRightRimBase.Parent = frontRightRim;
+            murcielagoLP640FrontRightRimBase02.Parent = frontRightRim;
+            murcielagoFrontRightRimLogo.Parent = frontRightRim;
+            murcielagoFrontRightBrakeDisc.Parent = frontRightRim;
+            murcielagoFrontRightBrakeCaliper.Parent = frontRightRim;
+            murcielagoFrontRightTyre.Parent = frontRightRim;
+            murcielagoFrontRightTyre02.Parent = frontRightRim;
 
             #endregion
 
@@ -446,6 +552,7 @@ namespace XNAFinalEngineExamples
                                                      SpecularPower = 5f,
                                                      ReflectionTexture = new TextureCube("Showroom", false),
                                                  });
+            murcielagoRearLeftBrakeCaliper.Transform.Rotate(new Vector3(4, 0, 0), Space.Local);
 
             murcielagoRearLeftTyre = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RearTyre"),
                                      new BlinnPhong
@@ -479,6 +586,101 @@ namespace XNAFinalEngineExamples
             murcielagoRearLeftBrakeCaliper.Parent = rearLeftRim;
             murcielagoRearLeftTyre.Parent = rearLeftRim;
             murcielagoRearLeftTyre02.Parent = rearLeftRim;
+
+            #endregion
+
+            #region Rear Right Wheel
+
+            murcielagoLP670RearRightRim = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP670-RearRim"),
+                                                 new BlinnPhong
+                                                 {
+                                                     DiffuseColor = new Color(30, 30, 30),
+                                                     SpecularPower = 50,
+                                                     //NormalTexture = new Texture("LamborghiniMurcielago\\Murcielago-LP670-Rim-Normal"),
+                                                     SpecularIntensity = 400f,
+                                                     ReflectionTexture = new TextureCube("Showroom", false),
+                                                 });
+
+            murcielagoLP640RearRightRimBase = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP640-RimBase"),
+                                                 new BlinnPhong
+                                                 {
+                                                     DiffuseColor = new Color(30, 30, 30),
+                                                     SpecularPower = 1,
+                                                     SpecularIntensity = 10f,
+                                                     ReflectionTexture = new TextureCube("Showroom", false),
+                                                 });
+
+            murcielagoLP640RearRightRimBase02 = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP640-RimBase02"),
+                                                 new BlinnPhong
+                                                 {
+                                                     DiffuseColor = new Color(80, 80, 80),
+                                                     SpecularPower = 5,
+                                                     SpecularIntensity = 50f,
+                                                     ReflectionTexture = new TextureCube("Showroom", false),
+                                                 });
+
+            murcielagoRearRightRimLogo = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-FrontRimLogo"),
+                                                 new BlinnPhong
+                                                 {
+                                                     DiffuseTexture = new Texture("LamborghiniMurcielago\\Lamborghini-Logo"),
+                                                     SpecularIntensity = 20f,
+                                                     SpecularPower = 100,
+                                                     ReflectionTexture = new TextureCube("Showroom", false),
+                                                 });
+
+            murcielagoRearRightBrakeDisc = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-BrakeDisc"),
+                                                 new BlinnPhong
+                                                 {
+                                                     DiffuseTexture = new Texture("LamborghiniMurcielago\\BrakeDisc-Diffuse"),
+                                                     NormalTexture = new Texture("LamborghiniMurcielago\\BrakeDisc-Normal"),
+                                                     SpecularTexture = new Texture("LamborghiniMurcielago\\BrakeDisc-Specular"),
+                                                     SpecularIntensity = 10.0f,
+                                                     SpecularPower = 100,
+                                                     //ReflectionTexture = new Graphics.TextureCube("Showroom", false),
+                                                 });
+
+            murcielagoRearRightBrakeCaliper = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-BrakeCaliper"),
+                                                 new BlinnPhong
+                                                 {
+                                                     DiffuseTexture = new Texture("LamborghiniMurcielago\\LamborghiniBrakeCaliper"),
+                                                     SpecularIntensity = 300.0f,
+                                                     SpecularPower = 5f,
+                                                     ReflectionTexture = new TextureCube("Showroom", false),
+                                                 });
+            murcielagoRearRightBrakeCaliper.Transform.Rotate(new Vector3(182, 0, 0), Space.Local);
+
+            murcielagoRearRightTyre = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RearTyre"),
+                                     new BlinnPhong
+                                     {
+                                         DiffuseColor = new Color(10, 10, 10),
+                                         //DiffuseTexture = new Texture("LamborghiniMurcielago\\PirelliPZero-Diffuse"),
+                                         NormalTexture = new Texture("LamborghiniMurcielago\\PirelliPZero-Normal"),
+                                         SpecularIntensity = 0.05f,
+                                         SpecularPower = 10,
+                                     });
+
+            murcielagoRearRightTyre02 = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RearTyre02"),
+                                     new BlinnPhong
+                                     {
+                                         DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Tyre-Diffuse"),
+                                         NormalTexture = new Texture("LamborghiniMurcielago\\Murcielago-Tyre-Normal"),
+                                         SpecularIntensity = 0.01f,
+                                         SpecularPower = 2,
+                                     });
+
+            rearRightRim = new GameObject3D();
+            rearRightRim.Transform.LocalScale = new Vector3(1.1f, 1.1f, 1.1f);
+            rearRightRim.Transform.Rotate(new Vector3(0, 180, 0), Space.World);
+            rearRightRim.Transform.Position = new Vector3(-1.6f, -0.5f, -2.9f);
+
+            murcielagoLP670RearRightRim.Parent = rearRightRim;
+            murcielagoLP640RearRightRimBase.Parent = rearRightRim;
+            murcielagoLP640RearRightRimBase02.Parent = rearRightRim;
+            murcielagoRearRightRimLogo.Parent = rearRightRim;
+            murcielagoRearRightBrakeDisc.Parent = rearRightRim;
+            murcielagoRearRightBrakeCaliper.Parent = rearRightRim;
+            murcielagoRearRightTyre.Parent = rearRightRim;
+            murcielagoRearRightTyre02.Parent = rearRightRim;
 
             #endregion
 
@@ -557,6 +759,7 @@ namespace XNAFinalEngineExamples
             // The user interface is separated and manually called because its GPL license.
             UserInterfaceManager.Initialize();
             //ConstantWindow.Show((Constant)murcielagoWheelBlackContant.ModelRenderer.Material);
+            BlinnPhongWindow.Show((BlinnPhong)murcielagoLP670FrontLeftRim.ModelRenderer.Material);
 
             base.Load();
         } // Load
@@ -573,17 +776,15 @@ namespace XNAFinalEngineExamples
         {
             if (Keyboard.SpaceJustPressed)
                 camera.Camera.AmbientLight.AmbientOcclusion.Enabled = !camera.Camera.AmbientLight.AmbientOcclusion.Enabled;
-            /*if (Keyboard.RightJustPressed)
+            if (Keyboard.RightJustPressed)
                 camera.Camera.PostProcess.MLAA.Enabled = !camera.Camera.PostProcess.MLAA.Enabled;
-            if (Keyboard.UpJustPressed)
+            /*if (Keyboard.UpJustPressed)
                 directionalLight.DirectionalLight.Shadow.Enabled = !directionalLight.DirectionalLight.Shadow.Enabled;*/
             if (Keyboard.KeyJustPressed(Keys.Up))
                 camera.Camera.PostProcess.LensExposure = camera.Camera.PostProcess.LensExposure + 0.1f;
             if (Keyboard.DownJustPressed)
                 camera.Camera.PostProcess.LensExposure = camera.Camera.PostProcess.LensExposure - 0.1f;
             
-            //if (Keyboard.SpaceJustPressed)
-                //ConstantWindow.Show((Constant)murcielagoWheelBlackContant.ModelRenderer.Material);
             UserInterfaceManager.Update();
         } // UpdateTasks
 

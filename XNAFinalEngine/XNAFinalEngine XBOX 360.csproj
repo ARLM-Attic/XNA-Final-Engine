@@ -111,7 +111,6 @@
     <Compile Include="Components\Rendering\Renderer.cs" />
     <Compile Include="Components\Rendering\VideoRenderer.cs" />
     <Compile Include="Components\Script\Script.cs" />
-    <Compile Include="Components\Script\ScriptEditorCamera.cs" />
     <Compile Include="Components\Transform\Transform.cs" />
     <Compile Include="Components\Transform\Transform2D.cs" />
     <Compile Include="Components\Transform\Transform3D.cs" />

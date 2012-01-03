@@ -39,7 +39,7 @@ using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Scenes;
 using XNAFinalEngine.Audio;
 using XNAFinalEngine.UserInterface;
-using XNAFinalEngineExamples.Editor;
+using XNAFinalEngine.Editor;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Size = XNAFinalEngine.Helpers.Size;
 #endregion

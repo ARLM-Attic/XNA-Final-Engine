@@ -60,7 +60,9 @@
   </PropertyGroup>
   <ItemGroup />
   <ItemGroup>
+    <Compile Include="Editor\BlinnPhongWindow.cs" />
     <Compile Include="Editor\ConstantWindow.cs" />
+    <Compile Include="Editor\ScriptEditorCamera.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Scenes\EmptyScene.cs" />

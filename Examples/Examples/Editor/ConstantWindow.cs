@@ -35,15 +35,17 @@ using XNAFinalEngine.UserInterface;
 using Microsoft.Xna.Framework;
 #endregion
 
-namespace XNAFinalEngineExamples.Editor
+namespace XNAFinalEngine.Editor
 {
     public static class ConstantWindow
     {
+
         /// <summary>
         /// Creates and shows the configuration window of this material.
         /// </summary>
         public static void Show(Constant material)
         {
+
             #region Window
 
             var window = new Window
@@ -108,10 +110,10 @@ namespace XNAFinalEngineExamples.Editor
 
             #endregion
             
-            //group.Height = sliderColor.Top + sliderColor.Height + 20;
+            group.Height = sliderColor.Top + sliderColor.Height + 20;
             window.Height = group.Top + group.Height + 40;
 
         } // Show
 
     } // ConstantWindow
-} // XNAFinalEngineExamples.Editor
+} // XNAFinalEngine.Editor
