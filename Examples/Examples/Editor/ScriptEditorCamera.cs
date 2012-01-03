@@ -187,7 +187,7 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public override void Update()
         {
-            //if (UserInterface.UserInterfaceManager.FocusedControl == null) // TODO
+            if (UserInterface.UserInterfaceManager.FocusedControl == null)
             {
                 if (mode == ModeType.Softimage || mode == ModeType.NoManipulationKey)
                 {

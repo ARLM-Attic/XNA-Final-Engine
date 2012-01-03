@@ -497,8 +497,11 @@ namespace XNAFinalEngine.UserInterface
             {
                 for (int i = 0; i < controlList.Count; i++)
                 {
-                    OrderList.Add(controlList[i]);
-                    SortLevel(controlList[i].ChildrenControls);
+                    if (controlList[i].Visible)
+                    {
+                        OrderList.Add(controlList[i]);
+                        SortLevel(controlList[i].ChildrenControls);
+                    }
                 }
             }
         } // SortLevel
@@ -625,7 +628,8 @@ namespace XNAFinalEngine.UserInterface
 
         private static bool CheckOrder(Control control, Point pos)
         {
-            if (!CheckPosition(control, pos)) return false;
+            if (!CheckPosition(control, pos)) 
+                return false;
 
             for (int i = OrderList.Count - 1; i > OrderList.IndexOf(control); i--)
             {

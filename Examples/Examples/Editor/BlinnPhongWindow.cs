@@ -79,7 +79,7 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
-            #region Group Surface Parameters
+            #region Group Diffuse
 
             GroupBox group = new GroupBox
             {
@@ -89,28 +89,58 @@ namespace XNAFinalEngine.Editor
                 Height = 160,
                 Left = 8,
                 Top = materialNameLabel.Top + materialNameLabel.Height + 15,
-                Text = "Surface Parameters",
+                Text = "Diffuse",
                 TextColor = Color.Gray,
             };
 
-            #endregion
-            
             #region Diffuse Color
 
-            var sliderColor = new SliderColor
+            var sliderDiffuseColor = new SliderColor
             {
                 Left = 10,
                 Top = 20,
                 Color = material.DiffuseColor,
                 Text = "Diffuse Color",
             };
-            group.Add(sliderColor);
-            sliderColor.ColorChanged += delegate { material.DiffuseColor = sliderColor.Color; };
-            sliderColor.Draw += delegate { sliderColor.Color = material.DiffuseColor; };
+            group.Add(sliderDiffuseColor);
+            sliderDiffuseColor.ColorChanged += delegate { material.DiffuseColor = sliderDiffuseColor.Color; };
+            sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = material.DiffuseColor; };
 
             #endregion
+
+            #region Diffuse Texture
+
+            string[] colors = new string[] {"Red", "Green", "Blue", "Yellow", "Orange", "Purple", "White", "Black", "Magenta", "Cyan",
+                                      "Brown", "Aqua", "Beige", "Coral", "Crimson", "Gray", "Azure", "Ivory", "Indigo", "Khaki",
+                                      "Orchid", "Plum", "Salmon", "Silver", "Gold", "Pink", "Linen", "Lime", "Olive", "Slate"};
+
+            var labelDiffuseTexture = new Label
+            {
+                Left = 10,
+                Top = 10 + sliderDiffuseColor.Top + sliderDiffuseColor.Height,
+                Width = 150,
+                Text = "Diffuse Texture"
+            };
+            var comboBoxDiffuseTexture = new ComboBox
+            {
+                Left = labelDiffuseTexture.Left + labelDiffuseTexture.Width,
+                Top = 10 + sliderDiffuseColor.Top + sliderDiffuseColor.Height,
+                Height = 20,
+                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
+                ItemIndex = 0
+            };
+            comboBoxDiffuseTexture.Width = group.Width - 10 - comboBoxDiffuseTexture.Left;
+            comboBoxDiffuseTexture.Items.AddRange(colors);
+            group.Add(labelDiffuseTexture);
+            group.Add(comboBoxDiffuseTexture);
+            /*spnMain.ColorChanged += delegate { material.DiffuseColor = sliderColor.Color; };
+            spnMain.Draw += delegate { sliderColor.Color = material.DiffuseColor; };*/
             
-            group.Height = sliderColor.Top + sliderColor.Height + 20;
+            #endregion
+
+            #endregion
+
+            group.Height = comboBoxDiffuseTexture.Top + comboBoxDiffuseTexture.Height + 20;
             window.Height = group.Top + group.Height + 40;
 
         } // Show

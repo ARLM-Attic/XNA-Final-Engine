@@ -96,7 +96,11 @@ namespace XNAFinalEngine.UserInterface
             get { return itemIndex; }
             set
             {
-                if (mode == SpinBoxMode.List)
+                if (value < 0)
+                    value = 0;
+                if (value > items.Count - 1)
+                    value = items.Count - 1;
+                if (mode == SpinBoxMode.List && items.Count != 0)
                 {
                     itemIndex = value;
                     Text = items[itemIndex].ToString();
