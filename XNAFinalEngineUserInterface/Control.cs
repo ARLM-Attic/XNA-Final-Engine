@@ -1278,9 +1278,7 @@ namespace XNAFinalEngine.UserInterface
             // Possibly we added the menu to another parent than this control, 
             // so we dispose it manually, beacause in logic it belongs to this control.        
             if (ContextMenu != null)
-            {
                 ContextMenu.Dispose();
-            }
 
             // Recursively disposing all children controls.
             // The collection might change from its children, so we check it on count greater than zero.
@@ -1298,17 +1296,14 @@ namespace XNAFinalEngine.UserInterface
 
             // Disposes tooltip owned by Manager        
             if (toolTip != null)
-            {
                 toolTip.Dispose();
-            }
 
             // Removing this control from the global stack.
             controlList.Remove(this);
 
             if (renderTarget != null)
-            {
                 renderTarget.Dispose();
-            }
+
         } // DisposeManagedResources
 
         #endregion
@@ -2550,79 +2545,95 @@ namespace XNAFinalEngine.UserInterface
 
         protected virtual void OnMouseUp(MouseEventArgs e)
         {
-            if (MouseUp != null) MouseUp.Invoke(this, e);
+            if (MouseUp != null) 
+                MouseUp.Invoke(this, e);
         } // OnMouseUp
 
         protected virtual void OnMouseDown(MouseEventArgs e)
         {
-            if (MouseDown != null) MouseDown.Invoke(this, e);
+            if (MouseDown != null)
+                MouseDown.Invoke(this, e);
         } // OnMouseDown
 
         protected virtual void OnMouseMove(MouseEventArgs e)
         {
-            if (MouseMove != null) MouseMove.Invoke(this, e);
+            if (MouseMove != null) 
+                MouseMove.Invoke(this, e);
         } // OnMouseMove
 
         protected virtual void OnMouseOver(MouseEventArgs e)
         {
-            if (MouseOver != null) MouseOver.Invoke(this, e);
+            if (MouseOver != null)
+                MouseOver.Invoke(this, e);
         } // OnMouseOver
 
         protected virtual void OnMouseOut(MouseEventArgs e)
         {
-            if (MouseOut != null) MouseOut.Invoke(this, e);
+            if (MouseOut != null) 
+                MouseOut.Invoke(this, e);
         } // OnMouseOut
 
         protected virtual void OnClick(EventArgs e)
         {
-            if (Click != null) Click.Invoke(this, e);
+            if (Click != null) 
+                Click.Invoke(this, e);
         } // OnClick
 
         protected virtual void OnDoubleClick(EventArgs e)
         {
-            if (DoubleClick != null) DoubleClick.Invoke(this, e);
+            if (DoubleClick != null) 
+                DoubleClick.Invoke(this, e);
         } // OnDoubleClick
 
         protected virtual void OnMove(MoveEventArgs e)
         {
-            if (parent != null) parent.Invalidate();
-            if (Move != null) Move.Invoke(this, e);
+            if (parent != null) 
+                parent.Invalidate();
+            if (Move != null)
+                Move.Invoke(this, e);
         } // OnMove
 
         protected virtual void OnResize(ResizeEventArgs e)
         {
             Invalidate();
-            if (Resize != null) Resize.Invoke(this, e);
+            if (Resize != null) 
+                Resize.Invoke(this, e);
         } // OnResize
 
         protected virtual void OnValidateResize(ResizeEventArgs e)
         {
-            if (ValidateResize != null) ValidateResize.Invoke(this, e);
+            if (ValidateResize != null)
+                ValidateResize.Invoke(this, e);
         } // OnValidateResize
 
         protected virtual void OnValidateMove(MoveEventArgs e)
         {
-            if (ValidateMove != null) ValidateMove.Invoke(this, e);
+            if (ValidateMove != null) 
+                ValidateMove.Invoke(this, e);
         } // OnValidateMove
 
         protected virtual void OnMoveBegin(EventArgs e)
         {
-            if (MoveBegin != null) MoveBegin.Invoke(this, e);
+            if (MoveBegin != null) 
+                MoveBegin.Invoke(this, e);
         } // OnMoveBegin
 
         protected virtual void OnMoveEnd(EventArgs e)
         {
-            if (MoveEnd != null) MoveEnd.Invoke(this, e);
+            if (MoveEnd != null) 
+                MoveEnd.Invoke(this, e);
         } // OnMoveEnd
 
         protected virtual void OnResizeBegin(EventArgs e)
         {
-            if (ResizeBegin != null) ResizeBegin.Invoke(this, e);
+            if (ResizeBegin != null) 
+                ResizeBegin.Invoke(this, e);
         } // OnResizeBegin
 
         protected virtual void OnResizeEnd(EventArgs e)
         {
-            if (ResizeEnd != null) ResizeEnd.Invoke(this, e);
+            if (ResizeEnd != null) 
+                ResizeEnd.Invoke(this, e);
         } // OnResizeEnd
 
         protected virtual void OnParentResize(object sender, ResizeEventArgs e)
@@ -2632,87 +2643,104 @@ namespace XNAFinalEngine.UserInterface
 
         protected virtual void OnKeyUp(KeyEventArgs e)
         {
-            if (KeyUp != null) KeyUp.Invoke(this, e);
+            if (KeyUp != null) 
+                KeyUp.Invoke(this, e);
         } // OnKeyUp
 
         protected virtual void OnKeyDown(KeyEventArgs e)
         {
-            if (KeyDown != null) KeyDown.Invoke(this, e);
+            if (KeyDown != null) 
+                KeyDown.Invoke(this, e);
         } // OnKeyDown
 
         protected virtual void OnKeyPress(KeyEventArgs e)
         {
-            if (KeyPress != null) KeyPress.Invoke(this, e);
+            if (KeyPress != null) 
+                KeyPress.Invoke(this, e);
         } // OnKeyPress
 
         protected internal void OnDraw(DrawEventArgs e)
         {
-            if (Draw != null) Draw.Invoke(this, e);
+            if (Draw != null) 
+                Draw.Invoke(this, e);
         } // OnDraw
         
         protected virtual void OnColorChanged(EventArgs e)
         {
-            if (ColorChanged != null) ColorChanged.Invoke(this, e);
+            if (ColorChanged != null) 
+                ColorChanged.Invoke(this, e);
         } // OnColorChanged
 
         protected virtual void OnTextColorChanged(EventArgs e)
         {
-            if (TextColorChanged != null) TextColorChanged.Invoke(this, e);
+            if (TextColorChanged != null) 
+                TextColorChanged.Invoke(this, e);
         } // OnTextColorChanged
 
         protected virtual void OnBackColorChanged(EventArgs e)
         {
-            if (BackColorChanged != null) BackColorChanged.Invoke(this, e);
+            if (BackColorChanged != null) 
+                BackColorChanged.Invoke(this, e);
         } // OnBackColorChanged
 
         protected virtual void OnTextChanged(EventArgs e)
         {
-            if (TextChanged != null) TextChanged.Invoke(this, e);
+            if (TextChanged != null) 
+                TextChanged.Invoke(this, e);
         } // OnTextChanged
 
         protected virtual void OnAnchorChanged(EventArgs e)
         {
-            if (AnchorChanged != null) AnchorChanged.Invoke(this, e);
+            if (AnchorChanged != null) 
+                AnchorChanged.Invoke(this, e);
         } // OnAnchorChanged
 
         protected internal virtual void OnSkinChanged(EventArgs e)
         {
-            if (SkinChanged != null) SkinChanged.Invoke(this, e);
+            if (SkinChanged != null) 
+                SkinChanged.Invoke(this, e);
         } // OnSkinChanged
 
         protected internal virtual void OnSkinChanging(EventArgs e)
         {
-            if (SkinChanging != null) SkinChanging.Invoke(this, e);
+            if (SkinChanging != null) 
+                SkinChanging.Invoke(this, e);
         } // OnSkinChanged
 
         protected virtual void OnParentChanged(EventArgs e)
         {
-            if (ParentChanged != null) ParentChanged.Invoke(this, e);
+            if (ParentChanged != null) 
+                ParentChanged.Invoke(this, e);
         } // OnParentChanged
 
         protected virtual void OnRootChanged(EventArgs e)
         {
-            if (RootChanged != null) RootChanged.Invoke(this, e);
+            if (RootChanged != null)
+                RootChanged.Invoke(this, e);
         } // OnRootChanged
 
         protected virtual void OnVisibleChanged(EventArgs e)
         {
-            if (VisibleChanged != null) VisibleChanged.Invoke(this, e);
+            if (VisibleChanged != null) 
+                VisibleChanged.Invoke(this, e);
         } // OnVisibleChanged
 
         protected virtual void OnEnabledChanged(EventArgs e)
         {
-            if (EnabledChanged != null) EnabledChanged.Invoke(this, e);
+            if (EnabledChanged != null) 
+                EnabledChanged.Invoke(this, e);
         } // OnEnabledChanged
 
         protected virtual void OnAlphaChanged(EventArgs e)
         {
-            if (AlphaChanged != null) AlphaChanged.Invoke(this, e);
+            if (AlphaChanged != null) 
+                AlphaChanged.Invoke(this, e);
         } // OnAlphaChanged
 
         protected virtual void OnMousePress(MouseEventArgs e)
         {
-            if (MousePress != null) MousePress.Invoke(this, e);
+            if (MousePress != null) 
+                MousePress.Invoke(this, e);
         } // OnMousePress
 
         protected virtual void OnFocusLost()

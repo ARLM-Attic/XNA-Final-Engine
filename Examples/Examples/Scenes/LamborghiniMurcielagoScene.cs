@@ -29,6 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
@@ -60,7 +62,7 @@ namespace XNAFinalEngineExamples
                                     murcielagoBody, murcielagoLP640AirTakesEngine, murcielagoLP640AirTakes, murcielagoAirTakesDark,
                                     murcielagoFrontLightBase, murcielagoFrontLightCian, murcielagoFrontLightOrange, murcielagoFrontLightGlasses, murcielagoFrontLightInteriorGlasses,
                                     murcielagoFrontLightWhiteMetal, murcielagoGlasses,
-                                    murcielagoEngineGlasses, murcielagoBlackMetal, murcielagoLogo, murcielagoWheelBlackContant, murcielagoloor,
+                                    murcielagoEngineGlasses, murcielagoBlackMetal, murcielagoLogo, murcielagoWheelBlackContant, murcielagoFloor,
                                     murcielagoLP640Grid, murcielagoLP640RearSpoilerDarkPart, murcielagoLP640Exhaust,
                                     // Front Left Wheel
                                     murcielagoLP670FrontLeftRim, murcielagoLP640FrontLeftRimBase, murcielagoLP640FrontLeftRimBase02,
@@ -158,8 +160,8 @@ namespace XNAFinalEngineExamples
                                                              {
                                                                 DiffuseTexture = new Texture("LamborghiniMurcielago\\LP640-AirTakesEngine-Diffuse"),
                                                                 SpecularTexture = new Texture("LamborghiniMurcielago\\LP640-AirTakesEngine-Specular"),
-                                                                SpecularIntensity = 0.1f,
-                                                                SpecularPower = 300,
+                                                                SpecularIntensity = 30f,
+                                                                SpecularPower = 50,
                                                              });
             murcielagoLP640AirTakes = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakes"),
                                                              new BlinnPhong
@@ -267,7 +269,7 @@ namespace XNAFinalEngineExamples
                                                      DiffuseColor = Color.Black,
                                                  });
 
-            murcielagoloor = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Floor"),
+            murcielagoFloor = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Floor"),
                                                  new BlinnPhong
                                                  {
                                                      DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Floor"),
@@ -759,7 +761,8 @@ namespace XNAFinalEngineExamples
             // The user interface is separated and manually called because its GPL license.
             UserInterfaceManager.Initialize();
             //ConstantWindow.Show((Constant)murcielagoWheelBlackContant.ModelRenderer.Material);
-            BlinnPhongWindow.Show((BlinnPhong)murcielagoLP670FrontLeftRim.ModelRenderer.Material);
+            //BlinnPhongWindow.Show((BlinnPhong)murcielagoLP670FrontLeftRim.ModelRenderer.Material);
+            BlinnPhongWindow.Show((BlinnPhong)murcielagoLP640AirTakesEngine.ModelRenderer.Material);
 
             base.Load();
         } // Load

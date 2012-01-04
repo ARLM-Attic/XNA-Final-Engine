@@ -419,17 +419,11 @@ namespace XNAFinalEngine.UserInterface
         
         #region On Mouse Press, On Resize, On Value Changed, On Range Changed, On Paige Size Changed, On Step Size Changed
 
-        protected override void OnMouseDown(MouseEventArgs e)
+        protected override void OnMousePress(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-
             if (e.Button == MouseButton.Left)
-            {
                 buttonSlider.Left = e.Position.X - buttonSlider.Width / 2;
-                // We try to recreate a mouse click in the button slider. Is not elegant, but it works.
-                //XNAFinalEngine.Input.Mouse.MouseState = new MouseState(); // TODO!!!
-                //UserInterfaceManager.InputSystem.Update();
-            }
         } // OnMousePress
 
         protected override void OnResize(ResizeEventArgs e)
@@ -440,22 +434,26 @@ namespace XNAFinalEngine.UserInterface
 
         protected virtual void OnValueChanged(EventArgs e)
         {
-            if (ValueChanged != null) ValueChanged.Invoke(this, e);
+            if (ValueChanged != null)
+                ValueChanged.Invoke(this, e);
         } // OnValueChanged
 
         protected virtual void OnRangeChanged(EventArgs e)
         {
-            if (RangeChanged != null) RangeChanged.Invoke(this, e);
+            if (RangeChanged != null) 
+                RangeChanged.Invoke(this, e);
         } // OnRangeChanged
 
         protected virtual void OnPageSizeChanged(EventArgs e)
         {
-            if (PageSizeChanged != null) PageSizeChanged.Invoke(this, e);
+            if (PageSizeChanged != null) 
+                PageSizeChanged.Invoke(this, e);
         } // OnPageSizeChanged
 
         protected virtual void OnStepSizeChanged(EventArgs e)
         {
-            if (StepSizeChanged != null) StepSizeChanged.Invoke(this, e);
+            if (StepSizeChanged != null) 
+                StepSizeChanged.Invoke(this, e);
         } // OnStepSizeChanged
 
         #endregion

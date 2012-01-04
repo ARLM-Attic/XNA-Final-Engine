@@ -300,21 +300,15 @@ namespace XNAFinalEngine.UserInterface
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-
             if (e.Button == MouseButton.Left || e.Button == MouseButton.Right)
-            {
                 TrackItem(e.Position.X, e.Position.Y);
-            }
         } // OnMouseDown
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-
             if (hotTrack)
-            {
                 TrackItem(e.Position.X, e.Position.Y);
-            }
         } // OnMouseMove
 
         protected override void OnKeyPress(KeyEventArgs e)

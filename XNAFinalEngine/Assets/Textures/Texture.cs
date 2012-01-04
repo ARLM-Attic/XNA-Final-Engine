@@ -99,6 +99,11 @@ namespace XNAFinalEngine.Assets
         /// This value store information about sizes relative to screen.
         /// </summary>
         public Size Size { get; protected set; }
+
+        /// <summary>
+        ///  A list with all texture' filenames on the texture directory, except cube textures and user interface textures.
+        /// </summary>
+        public static string[] TexturesFilename { get; private set; }
         
         #endregion
 
@@ -148,6 +153,56 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("Failed to load texture: " + filename, e);
             }
 		} // Texture
+
+        /// <summary>
+        /// Search the available texture.
+        /// </summary>
+        static Texture()
+        {
+            string texturesDirectoryPath = ContentManager.GameDataDirectory + "Textures";
+            // Search the texture files //
+            DirectoryInfo texturesDirectory = new DirectoryInfo(texturesDirectoryPath);
+            try
+            {
+                FileInfo[] texturesFileInformation = texturesDirectory.GetFiles("*.xnb", SearchOption.AllDirectories);
+                int count = 0, j = 0;
+                // Count the textures, except cube textures and user interface textures.
+                for (int i = 0; i < texturesFileInformation.Length; i++)
+                {
+                    FileInfo songFileInformation = texturesFileInformation[i];
+                    if (!songFileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\Skin") &&
+                        !songFileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\CubeTextures"))
+                    {
+                        count++;
+                    }
+                }
+                // Create the array of available textures.
+                TexturesFilename = new string[count];
+                for (int i = 0; i < texturesFileInformation.Length; i++)
+                {
+                    FileInfo songFileInformation = texturesFileInformation[i];
+                    if (!songFileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\Skin") &&
+                        !songFileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\CubeTextures"))
+                    {
+                        // Some textures are in a sub directory, in that case we have to know how is called.
+                        string[] splitDirectoryName = songFileInformation.DirectoryName.Split(new[] { texturesDirectoryPath }, StringSplitOptions.None);
+                        string subdirectory = "";
+                        // If is in a sub directory
+                        if (splitDirectoryName[1] != "")
+                        {
+                            subdirectory = splitDirectoryName[1].Substring(1, splitDirectoryName[1].Length - 1) + "\\"; // We delete the start \ and add another \ to the end.
+                        }
+                        TexturesFilename[j] = subdirectory + songFileInformation.Name.Substring(0, songFileInformation.Name.Length - 4);
+                        j++;
+                    }
+                }
+            }
+            // If there was an error then do nothing.
+            catch
+            {
+                TexturesFilename = new string[0];
+            }
+        } // Texture
 
 		#endregion
 

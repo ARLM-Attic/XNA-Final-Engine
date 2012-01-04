@@ -31,7 +31,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.UserInterface;
 #endregion
 
 namespace XNAFinalEngineExamples

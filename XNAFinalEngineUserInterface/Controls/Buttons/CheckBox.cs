@@ -41,15 +41,13 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual bool Checked
         {
-            get
-            {
-                return isChecked;
-            }
+            get { return isChecked; }
             set
             {
                 isChecked = value;
                 Invalidate();
-                if (!Suspended) OnCheckedChanged(new EventArgs());
+                if (!Suspended) 
+                    OnCheckedChanged(new EventArgs());
             }
         } // Checked
 

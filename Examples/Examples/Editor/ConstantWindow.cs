@@ -112,7 +112,6 @@ namespace XNAFinalEngine.Editor
             
             group.Height = sliderColor.Top + sliderColor.Height + 20;
             window.Height = group.Top + group.Height + 40;
-
         } // Show
 
     } // ConstantWindow

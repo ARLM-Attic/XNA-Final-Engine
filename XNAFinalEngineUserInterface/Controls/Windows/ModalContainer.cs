@@ -99,9 +99,7 @@ namespace XNAFinalEngine.UserInterface
                 OnClosed(ev);
 
                 if (ev.Dispose)
-                {
                     Dispose();
-                }
             }
         } // Close
 
@@ -120,12 +118,14 @@ namespace XNAFinalEngine.UserInterface
 
         protected virtual void OnClosing(WindowClosingEventArgs e)
         {
-            if (Closing != null) Closing.Invoke(this, e);
+            if (Closing != null) 
+                Closing.Invoke(this, e);
         } // OnClosing
 
         protected virtual void OnClosed(WindowClosedEventArgs e)
         {
-            if (Closed != null) Closed.Invoke(this, e);
+            if (Closed != null) 
+                Closed.Invoke(this, e);
         } // OnClosed
 
         #endregion

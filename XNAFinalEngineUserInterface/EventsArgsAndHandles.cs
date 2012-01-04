@@ -247,7 +247,7 @@ namespace XNAFinalEngine.UserInterface
     public delegate void WindowClosedEventHandler(object sender, WindowClosedEventArgs e);
     public class WindowClosedEventArgs : EventArgs
     {
-        public bool Dispose;
+        public bool Dispose = true;
     } // WindowClosedEventArgs
 
     #endregion

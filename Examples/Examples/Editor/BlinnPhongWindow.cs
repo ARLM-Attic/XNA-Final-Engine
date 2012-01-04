@@ -81,7 +81,7 @@ namespace XNAFinalEngine.Editor
 
             #region Group Diffuse
 
-            GroupBox group = new GroupBox
+            GroupBox groupDiffuse = new GroupBox
             {
                 Parent = window,
                 Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
@@ -102,17 +102,13 @@ namespace XNAFinalEngine.Editor
                 Color = material.DiffuseColor,
                 Text = "Diffuse Color",
             };
-            group.Add(sliderDiffuseColor);
+            groupDiffuse.Add(sliderDiffuseColor);
             sliderDiffuseColor.ColorChanged += delegate { material.DiffuseColor = sliderDiffuseColor.Color; };
             sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = material.DiffuseColor; };
 
             #endregion
 
             #region Diffuse Texture
-
-            string[] colors = new string[] {"Red", "Green", "Blue", "Yellow", "Orange", "Purple", "White", "Black", "Magenta", "Cyan",
-                                      "Brown", "Aqua", "Beige", "Coral", "Crimson", "Gray", "Azure", "Ivory", "Indigo", "Khaki",
-                                      "Orchid", "Plum", "Salmon", "Silver", "Gold", "Pink", "Linen", "Lime", "Olive", "Slate"};
 
             var labelDiffuseTexture = new Label
             {
@@ -127,21 +123,190 @@ namespace XNAFinalEngine.Editor
                 Top = 10 + sliderDiffuseColor.Top + sliderDiffuseColor.Height,
                 Height = 20,
                 Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                ItemIndex = 0
+                MaxItemsShow = 25,
             };
-            comboBoxDiffuseTexture.Width = group.Width - 10 - comboBoxDiffuseTexture.Left;
-            comboBoxDiffuseTexture.Items.AddRange(colors);
-            group.Add(labelDiffuseTexture);
-            group.Add(comboBoxDiffuseTexture);
-            /*spnMain.ColorChanged += delegate { material.DiffuseColor = sliderColor.Color; };
-            spnMain.Draw += delegate { sliderColor.Color = material.DiffuseColor; };*/
+            comboBoxDiffuseTexture.Width = groupDiffuse.Width - 10 - comboBoxDiffuseTexture.Left;
+            // Add textures name
+            comboBoxDiffuseTexture.Items.Add("No texture");
+            comboBoxDiffuseTexture.Items.AddRange(Texture.TexturesFilename);
+            // Events
+            comboBoxDiffuseTexture.ItemIndexChanged += delegate
+            {
+                if (comboBoxDiffuseTexture.ItemIndex <= 0)
+                    material.DiffuseTexture = null;
+                else
+                {
+                    if (material.DiffuseTexture == null || material.DiffuseTexture.Name != (string)comboBoxDiffuseTexture.Items[comboBoxDiffuseTexture.ItemIndex])
+                        material.DiffuseTexture = new Texture((string)comboBoxDiffuseTexture.Items[comboBoxDiffuseTexture.ItemIndex]);
+                }
+            };
+            comboBoxDiffuseTexture.Draw += delegate
+            {
+                if (comboBoxDiffuseTexture.ListBoxVisible)
+                    return;
+                // Identify current index
+                if (material.DiffuseTexture == null)
+                    comboBoxDiffuseTexture.ItemIndex = 0;
+                else
+                {
+                    for (int i = 0; i < comboBoxDiffuseTexture.Items.Count; i++)
+                        if ((string)comboBoxDiffuseTexture.Items[i] == material.DiffuseTexture.Name)
+                        {
+                            comboBoxDiffuseTexture.ItemIndex = i;
+                            break;
+                        }
+                }
+            };
+            groupDiffuse.Add(labelDiffuseTexture);
+            groupDiffuse.Add(comboBoxDiffuseTexture);
             
             #endregion
 
+            groupDiffuse.Height = comboBoxDiffuseTexture.Top + comboBoxDiffuseTexture.Height + 20;
+
             #endregion
 
-            group.Height = comboBoxDiffuseTexture.Top + comboBoxDiffuseTexture.Height + 20;
-            window.Height = group.Top + group.Height + 40;
+            #region Group Specular
+
+            GroupBox groupSpecular = new GroupBox
+            {
+                Parent = window,
+                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
+                Width = window.ClientWidth - 16,
+                Height = 160,
+                Left = 8,
+                Top = groupDiffuse.Top + groupDiffuse.Height + 15,
+                Text = "Specular",
+                TextColor = Color.Gray,
+            };
+
+            #region Specular Intensity
+
+            var sliderSpecularIntensity = new SliderNumeric
+            {
+                Left = 10,
+                Top = 25,
+                Value = material.SpecularIntensity,
+                Text = "Specular Intensity",
+                IfOutOfRangeRescale = false,
+                ValueCanBeOutOfRange = true,
+                MinimumValue = 0,
+                MaximumValue = 2,
+            };
+            groupSpecular.Add(sliderSpecularIntensity);
+            sliderSpecularIntensity.ValueChanged += delegate
+            {
+                material.SpecularIntensity = sliderSpecularIntensity.Value;
+            };
+            sliderSpecularIntensity.Draw += delegate { sliderSpecularIntensity.Value = material.SpecularIntensity; };
+
+            #endregion
+
+            #region Specular Power
+
+            var sliderSpecularPower = new SliderNumeric
+            {
+                Left = 10,
+                Top = 10 + sliderSpecularIntensity.Top + sliderSpecularIntensity.Height,
+                Value = material.SpecularPower,
+                Text = "Specular Power",
+                IfOutOfRangeRescale = false,
+                ValueCanBeOutOfRange = true,
+                MinimumValue = 0,
+                MaximumValue = 100,
+            };
+            groupSpecular.Add(sliderSpecularPower);
+            sliderSpecularPower.ValueChanged += delegate
+            {
+                material.SpecularPower = sliderSpecularPower.Value;
+            };
+            sliderSpecularPower.Draw += delegate { sliderSpecularPower.Value = material.SpecularPower; };
+
+            #endregion
+
+            #region Specular Texture
+
+            var labelSpecularTexture = new Label
+            {
+                Left = 10,
+                Top = 10 + sliderSpecularPower.Top + sliderSpecularPower.Height,
+                Width = 150,
+                Text = "Specular Texture"
+            };
+            var comboBoxSpecularTexture = new ComboBox
+            {
+                Left = labelSpecularTexture.Left + labelSpecularTexture.Width,
+                Top = 10 + sliderSpecularPower.Top + sliderSpecularPower.Height,
+                Height = 20,
+                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
+                MaxItemsShow = 25,
+            };
+            comboBoxSpecularTexture.Width = groupSpecular.Width - 10 - comboBoxSpecularTexture.Left;
+            // Add textures name
+            comboBoxSpecularTexture.Items.Add("No texture");
+            comboBoxSpecularTexture.Items.AddRange(Texture.TexturesFilename);
+            // Events
+            comboBoxSpecularTexture.ItemIndexChanged += delegate
+            {
+                if (comboBoxSpecularTexture.ItemIndex <= 0)
+                    material.SpecularTexture = null;
+                else
+                {
+                    if (material.SpecularTexture == null || material.SpecularTexture.Name != (string)comboBoxSpecularTexture.Items[comboBoxSpecularTexture.ItemIndex])
+                        material.SpecularTexture = new Texture((string)comboBoxSpecularTexture.Items[comboBoxSpecularTexture.ItemIndex]);
+                }
+            };
+            comboBoxSpecularTexture.Draw += delegate
+            {
+                if (comboBoxSpecularTexture.ListBoxVisible)
+                    return;
+                // Identify current index
+                if (material.SpecularTexture == null)
+                    comboBoxSpecularTexture.ItemIndex = 0;
+                else
+                {
+                    for (int i = 0; i < comboBoxSpecularTexture.Items.Count; i++)
+                        if ((string)comboBoxSpecularTexture.Items[i] == material.SpecularTexture.Name)
+                        {
+                            comboBoxSpecularTexture.ItemIndex = i;
+                            break;
+                        }
+                }
+            };
+            groupSpecular.Add(labelSpecularTexture);
+            groupSpecular.Add(comboBoxSpecularTexture);
+
+            #endregion
+
+            #region Specular Texture Power Enabled
+
+            var checkBoxSpecularTexturePowerEnabled = new CheckBox
+            {
+                Left = 10,
+                Top = 10 + comboBoxSpecularTexture.Top + comboBoxSpecularTexture.Height,
+                Width = window.ClientWidth - 16,
+                Checked = material.SpecularTexturePowerEnabled,
+                Text = " Specular Texture Power Enabled",
+                ToolTip =
+                {
+                    Text = "Indicates if the specular power will be read from the texture (the alpha channel of the specular texture) or from the specular power property."
+                }
+            };
+            checkBoxSpecularTexturePowerEnabled.CheckedChanged += delegate
+            {
+                material.SpecularTexturePowerEnabled = checkBoxSpecularTexturePowerEnabled.Checked;
+            };
+            checkBoxSpecularTexturePowerEnabled.Draw += delegate { checkBoxSpecularTexturePowerEnabled.Checked = material.SpecularTexturePowerEnabled; };
+            groupSpecular.Add(checkBoxSpecularTexturePowerEnabled);
+
+            #endregion
+
+            groupSpecular.Height = checkBoxSpecularTexturePowerEnabled.Top + checkBoxSpecularTexturePowerEnabled.Height + 20;
+            
+            #endregion
+
+            
+            window.Height = groupSpecular.Top + groupSpecular.Height + 40;
 
         } // Show
 

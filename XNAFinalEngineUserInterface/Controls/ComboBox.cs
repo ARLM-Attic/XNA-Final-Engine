@@ -49,6 +49,11 @@ namespace XNAFinalEngine.UserInterface
         #region Properties
 
         /// <summary>
+        /// Indicates if the internal list box is visible or not.
+        /// </summary>
+        public bool ListBoxVisible { get { return listCombo.Visible; } }
+
+        /// <summary>
         /// Read Only?
         /// </summary>
         public override bool ReadOnly
@@ -78,10 +83,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public override string Text
         {
-            get
-            {
-                return base.Text;
-            }
+            get { return base.Text; }
             set
             {
                 base.Text = value;
@@ -111,7 +113,8 @@ namespace XNAFinalEngine.UserInterface
                 if (maxItems != value)
                 {
                     maxItems = value;
-                    if (!Suspended) OnMaxItemsChanged(new EventArgs());
+                    if (!Suspended) 
+                        OnMaxItemsChanged(new EventArgs());
                 }
             }
         } // MaxItems
@@ -124,19 +127,17 @@ namespace XNAFinalEngine.UserInterface
             get { return listCombo.ItemIndex; }
             set
             {
-                if (listCombo != null)
+                if (value >= 0 && value < items.Count)
                 {
-                    if (value >= 0 && value < items.Count)
-                    {
-                        listCombo.ItemIndex = value;
-                        Text = listCombo.Items[value].ToString();
-                    }
-                    else
-                    {
-                        listCombo.ItemIndex = -1;
-                    }
+                    listCombo.ItemIndex = value;
+                    Text = listCombo.Items[value].ToString();
                 }
-                if (!Suspended) OnItemIndexChanged(new EventArgs());
+                else
+                {
+                    listCombo.ItemIndex = -1;
+                }
+                if (!Suspended) 
+                    OnItemIndexChanged(new EventArgs());
             }
         } // ItemIndex
 
