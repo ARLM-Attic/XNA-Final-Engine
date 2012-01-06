@@ -86,6 +86,11 @@ namespace XNAFinalEngine.Assets
         /// RGBM Max Range.
         /// </summary>
         public float RgbmMaxRange { get; set; }
+
+        /// <summary>
+        ///  A list with all texture' filenames on the cube texture directory.
+        /// </summary>
+        public static string[] TexturesFilename { get; private set; }
     
         #endregion
 
@@ -121,6 +126,41 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("Failed to load cube map: " + filename, e);
             }
 		} // TextureCube
+        
+        /// <summary>
+        /// Search the available cube texture.
+        /// </summary>
+        static TextureCube()
+        {
+            string texturesDirectoryPath = ContentManager.GameDataDirectory + "Textures\\CubeTextures";
+            // Search the texture files //
+            DirectoryInfo texturesDirectory = new DirectoryInfo(texturesDirectoryPath);
+            try
+            {
+                FileInfo[] texturesFileInformation = texturesDirectory.GetFiles("*.xnb", SearchOption.AllDirectories);
+                // Count the textures, except cube textures and user interface textures.
+                TexturesFilename = new string[texturesFileInformation.Length];
+                for (int i = 0; i < texturesFileInformation.Length; i++)
+                {
+                    FileInfo songFileInformation = texturesFileInformation[i];
+                    // Some textures are in a sub directory, in that case we have to know how is called.
+                    string[] splitDirectoryName = songFileInformation.DirectoryName.Split(new[] { texturesDirectoryPath }, StringSplitOptions.None);
+                    string subdirectory = "";
+                    // If is in a sub directory
+                    if (splitDirectoryName[1] != "")
+                    {
+                        subdirectory = splitDirectoryName[1].Substring(1, splitDirectoryName[1].Length - 1) + "\\"; // We delete the start \ and add another \ to the end.
+                    }
+                    TexturesFilename[i] = subdirectory + songFileInformation.Name.Substring(0, songFileInformation.Name.Length - 4);
+
+                }
+            }
+            // If there was an error then do nothing.
+            catch
+            {
+                TexturesFilename = new string[0];
+            }
+        } // TextureCube
 
 		#endregion
 

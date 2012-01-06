@@ -111,7 +111,7 @@ namespace XNAFinalEngineExamples
             ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>(); // This script will be moved to the editor namespace.
             script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
-            camera.Camera.FieldOfView = 180 / 9.0f;            
+            camera.Camera.FieldOfView = 180 / 12.0f;
             camera.Camera.PostProcess = new PostProcess
             {
                 FilmGrain = new FilmGrain { FilmgrainStrength = 0.2f }, // Don't overuse it. PLEASE!!!
@@ -146,12 +146,12 @@ namespace XNAFinalEngineExamples
             murcielagoBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"),
                                               new CarPaint
                                                     {
-                                                        SpecularIntensity = 20.5f,
-                                                        SpecularPower = 2,
+                                                        SpecularIntensity = 150f,
+                                                        SpecularPower = 5,
                                                         BasePaintColor = new Color(240, 210, 50),
                                                         SecondBasePaintColor = new Color(100, 100, 50),
                                                         MiddlePaintColor = new Color(150, 100, 100),
-                                                        FlakeLayerColor = new Color(100, 100, 100),
+                                                        FlakeLayerColor = new Color(200, 200, 200),
                                                         ReflectionTexture = new TextureCube("Showroom", false),
                                                         //ReflectionTexture = new Graphics.TextureCube("FactoryCatwalkRGBM", true, 50)
                                                     });
@@ -166,16 +166,16 @@ namespace XNAFinalEngineExamples
             murcielagoLP640AirTakes = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakes"),
                                                              new BlinnPhong
                                                              {
-                                                                 DiffuseColor = new Color(25, 25, 25),
-                                                                 SpecularIntensity = 0.1f,
-                                                                 SpecularPower = 30,
+                                                                 DiffuseColor = new Color(19, 19, 19),
+                                                                 SpecularIntensity = 0.06f,
+                                                                 SpecularPower = 6,
                                                              });
             murcielagoAirTakesDark = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakesDark"),
                                                              new BlinnPhong // Constant
                                                              {
                                                                  DiffuseColor = new Color(10, 10, 10),
                                                                  SpecularIntensity = 0,
-                                                                 AlphaBlending = 1f,
+                                                                 AlphaBlending = 0.85f,
                                                              });
             murcielagoFrontLightBase = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-FrontLightBase"),
                                                         new BlinnPhong
@@ -217,10 +217,10 @@ namespace XNAFinalEngineExamples
             murcielagoFrontLightGlasses = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-FrontLightGlasses"),
                                                     new BlinnPhong
                                                     {
-                                                        DiffuseColor = new Color(50, 50, 50),
-                                                        AlphaBlending = 0.35f,
-                                                        SpecularIntensity = 5000,
-                                                        SpecularPower = 15,
+                                                        DiffuseColor = new Color(30, 30, 30),
+                                                        AlphaBlending = 0.2f,
+                                                        SpecularIntensity = 2000,
+                                                        SpecularPower = 2.5f,
                                                         ReflectionTexture = new TextureCube("Showroom", false),
                                                         //ReflectionTexture = new Graphics.TextureCube("FactoryCatwalkRGBM", true, 50)
                                                     });
@@ -281,7 +281,7 @@ namespace XNAFinalEngineExamples
                                                  new BlinnPhong
                                                  {
                                                      DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-LP640-Grid"),
-                                                     SpecularIntensity = 0.3f,
+                                                     SpecularIntensity = 1.0f,
                                                  });
 
             murcielagoLP640RearSpoilerDarkPart = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP640-RearSpoilerDarkPart"),
@@ -731,7 +731,7 @@ namespace XNAFinalEngineExamples
             pointLight2.PointLight.Intensity = 0.4f;
             pointLight2.PointLight.Range = 100;
             pointLight2.PointLight.SpecularColor = Color.White;
-            pointLight2.Transform.Position = new Vector3(15, 25, -10);
+            pointLight2.Transform.Position = new Vector3(15, 25, -15);
 
             pointLight3 = new GameObject3D();
             pointLight3.AddComponent<PointLight>();
@@ -739,7 +739,7 @@ namespace XNAFinalEngineExamples
             pointLight3.PointLight.Intensity = 0.5f;
             pointLight3.PointLight.Range = 100;
             pointLight3.PointLight.SpecularColor = Color.White;
-            pointLight3.Transform.Position = new Vector3(0.1f, 15, -10);
+            pointLight3.Transform.Position = new Vector3(5f, 15, -20);
 
             pointLight4 = new GameObject3D();
             pointLight4.AddComponent<PointLight>();
@@ -747,7 +747,7 @@ namespace XNAFinalEngineExamples
             pointLight4.PointLight.Intensity = 0.5f;
             pointLight4.PointLight.Range = 1000;
             pointLight4.PointLight.SpecularColor = Color.White;
-            pointLight4.Transform.Position = new Vector3(0, -50, 20);
+            pointLight4.Transform.Position = new Vector3(-20, -2, 20);
            
             #endregion
 
@@ -762,7 +762,7 @@ namespace XNAFinalEngineExamples
             UserInterfaceManager.Initialize();
             //ConstantWindow.Show((Constant)murcielagoWheelBlackContant.ModelRenderer.Material);
             //BlinnPhongWindow.Show((BlinnPhong)murcielagoLP670FrontLeftRim.ModelRenderer.Material);
-            BlinnPhongWindow.Show((BlinnPhong)murcielagoLP640AirTakesEngine.ModelRenderer.Material);
+            //BlinnPhongWindow.Show((BlinnPhong)murcielagoLP640AirTakes.ModelRenderer.Material);
 
             base.Load();
         } // Load

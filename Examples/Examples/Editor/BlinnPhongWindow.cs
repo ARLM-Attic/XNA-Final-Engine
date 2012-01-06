@@ -50,7 +50,7 @@ namespace XNAFinalEngine.Editor
 
             var window = new Window
             {
-                Text = material.Name + " : Constant"
+                Text = material.Name + " : Blinn-Phong"
             };
             UserInterfaceManager.Add(window);
             window.Closed += delegate { };
@@ -301,10 +301,63 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
-            groupSpecular.Height = checkBoxSpecularTexturePowerEnabled.Top + checkBoxSpecularTexturePowerEnabled.Height + 20;
-            
+            #region Reflection Texture
+
+            var labelReflectionTexture = new Label
+            {
+                Left = 10,
+                Top = 10 + checkBoxSpecularTexturePowerEnabled.Top + checkBoxSpecularTexturePowerEnabled.Height,
+                Width = 150,
+                Text = "Reflection Texture"
+            };
+            var comboBoxReflectionTexture = new ComboBox
+            {
+                Left = labelReflectionTexture.Left + labelReflectionTexture.Width,
+                Top = labelReflectionTexture.Top,
+                Height = 20,
+                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
+                MaxItemsShow = 25,
+            };
+            comboBoxReflectionTexture.Width = groupSpecular.Width - 10 - comboBoxReflectionTexture.Left;
+            // Add textures name
+            comboBoxReflectionTexture.Items.Add("No texture");
+            comboBoxReflectionTexture.Items.AddRange(TextureCube.TexturesFilename);
+            // Events
+            comboBoxReflectionTexture.ItemIndexChanged += delegate
+            {
+                if (comboBoxReflectionTexture.ItemIndex <= 0)
+                    material.ReflectionTexture = null;
+                else
+                {
+                    if (material.ReflectionTexture == null || material.ReflectionTexture.Name != (string)comboBoxReflectionTexture.Items[comboBoxReflectionTexture.ItemIndex])
+                        material.ReflectionTexture = new TextureCube((string)comboBoxReflectionTexture.Items[comboBoxReflectionTexture.ItemIndex]);
+                }
+            };
+            comboBoxReflectionTexture.Draw += delegate
+            {
+                if (comboBoxReflectionTexture.ListBoxVisible)
+                    return;
+                // Identify current index
+                if (material.ReflectionTexture == null)
+                    comboBoxReflectionTexture.ItemIndex = 0;
+                else
+                {
+                    for (int i = 0; i < comboBoxReflectionTexture.Items.Count; i++)
+                        if ((string)comboBoxReflectionTexture.Items[i] == material.ReflectionTexture.Name)
+                        {
+                            comboBoxReflectionTexture.ItemIndex = i;
+                            break;
+                        }
+                }
+            };
+            groupSpecular.Add(labelReflectionTexture);
+            groupSpecular.Add(comboBoxReflectionTexture);
+
             #endregion
 
+            groupSpecular.Height = comboBoxReflectionTexture.Top + comboBoxReflectionTexture.Height + 20;
+            
+            #endregion
             
             window.Height = groupSpecular.Top + groupSpecular.Height + 40;
 

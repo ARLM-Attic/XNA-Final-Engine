@@ -485,19 +485,6 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
             
-            #region Screenshot);
-
-            if (ScreenshotCapturer.MakeScreenshot)
-            {
-                screenshotRenderTarget.DisableRenderTarget();
-                ScreenshotCapturer.MakeScreenshot = false;
-                ScreenshotCapturer.SaveScreenshot(screenshotRenderTarget);
-                SpriteManager.DrawTextureToFullScreen(screenshotRenderTarget);
-                screenshotRenderTarget.Dispose();
-            }
-
-            #endregion
-
             #region Scene Post Render Tasks
 
             if (CurrentScene != null && CurrentScene.Loaded)
@@ -515,6 +502,19 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion 
+
+            #region Screenshot);
+
+            if (ScreenshotCapturer.MakeScreenshot)
+            {
+                screenshotRenderTarget.DisableRenderTarget();
+                ScreenshotCapturer.MakeScreenshot = false;
+                ScreenshotCapturer.SaveScreenshot(screenshotRenderTarget);
+                SpriteManager.DrawTextureToFullScreen(screenshotRenderTarget);
+                screenshotRenderTarget.Dispose();
+            }
+
+            #endregion
 
         } // Draw
 
