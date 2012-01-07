@@ -64,6 +64,7 @@ namespace XNAFinalEngineExamples
                                     murcielagoWhiteMetal, murcielagoGrayMetal, murcielagoCarbonFiber, murcielagoGlasses,
                                     murcielagoEngineGlasses, murcielagoBlackMetal, murcielagoLogo, murcielagoWheelBlackContant, murcielagoFloor,
                                     murcielagoLP640Grid, murcielagoLP640RearSpoilerDarkPart, murcielagoLP640Exhaust,
+                                    murcielagoInteriorLeather,
                                     // Front Left Wheel
                                     murcielagoLP670FrontLeftRim, murcielagoLP640FrontLeftRimBase, murcielagoLP640FrontLeftRimBase02,
                                     murcielagoFrontLeftRimLogo, murcielagoFrontLeftBrakeDisc, murcielagoFrontLeftBrakeCaliper, murcielagoFrontLeftTyre,
@@ -165,6 +166,14 @@ namespace XNAFinalEngineExamples
                                                         ReflectionTexture = new TextureCube("Showroom", false),
                                                         //ReflectionTexture = new Graphics.TextureCube("FactoryCatwalkRGBM", true, 50)
                                                     });
+            murcielagoInteriorLeather = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-InteriorLeather"),
+                                                             new BlinnPhong
+                                                             {
+                                                                 DiffuseTexture = new Texture("LamborghiniMurcielago\\Leather-Diffuse"),
+                                                                 NormalTexture = new Texture("LamborghiniMurcielago\\Leather-Normal"),
+                                                                 SpecularIntensity = 0.15f,
+                                                                 SpecularPower = 20,
+                                                             });
             murcielagoLP640AirTakesEngine = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakesEngine"),
                                                              new BlinnPhong
                                                              {
@@ -785,7 +794,7 @@ namespace XNAFinalEngineExamples
             // The user interface is separated and manually called because its GPL license.
             UserInterfaceManager.Initialize();
             //ConstantWindow.Show((Constant)murcielagoWheelBlackContant.ModelRenderer.Material);
-            BlinnPhongWindow.Show((BlinnPhong)murcielagoCarbonFiber.ModelRenderer.Material);
+            BlinnPhongWindow.Show((BlinnPhong)murcielagoInteriorLeather.ModelRenderer.Material);
             //CarPaintWindow.Show((CarPaint)murcielagoBody.ModelRenderer.Material);
 
             base.Load();

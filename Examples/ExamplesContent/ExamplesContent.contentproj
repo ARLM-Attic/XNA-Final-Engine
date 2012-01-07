@@ -1342,6 +1342,12 @@
       <Importer>FbxImporter</Importer>
       <Processor>ModelProcessor</Processor>
     </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-InteriorLeather.fbx">
+      <Name>Murcielago-InteriorLeather</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
+    </Compile>
     <None Include="Shaders\GlobalIllumination\HorizonBasedAmbientOcclusionMiddleQuality.fxh">
       <Name>HorizonBasedAmbientOcclusionMiddleQuality</Name>
       <Importer>EffectImporter</Importer>
@@ -1429,6 +1435,18 @@
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\CarbonFiber.dds">
       <Name>CarbonFiber</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Leather-Diffuse.dds">
+      <Name>Leather-Diffuse</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Leather-Normal.dds">
+      <Name>Leather-Normal</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
