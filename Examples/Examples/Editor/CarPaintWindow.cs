@@ -37,20 +37,20 @@ using Microsoft.Xna.Framework;
 
 namespace XNAFinalEngine.Editor
 {
-    public static class BlinnPhongWindow
+    public static class CarPaintWindow
     {
 
         /// <summary>
         /// Creates and shows the configuration window of this material.
         /// </summary>
-        public static void Show(BlinnPhong material)
+        public static void Show(CarPaint material)
         {
 
             #region Window
 
             var window = new Window
             {
-                Text = material.Name + " : Blinn-Phong"
+                Text = material.Name + " : Car-Paint"
             };
             UserInterfaceManager.Add(window);
             window.Closed += delegate { };
@@ -68,13 +68,13 @@ namespace XNAFinalEngine.Editor
                 if (e.Key == Keys.Enter)
                 {
                     material.Name = materialNameTextBox.Text;
-                    window.Text = material.Name + " : Blinn-Phong";
+                    window.Text = material.Name + " : Car-Paint";
                 }
             };
             materialNameTextBox.FocusLost += delegate
             {
                 material.Name = materialNameTextBox.Text;
-                window.Text = material.Name + " : Blinn-Phong";
+                window.Text = material.Name + " : Car-Paint";
             };
 
             #endregion
@@ -93,76 +93,52 @@ namespace XNAFinalEngine.Editor
                 TextColor = Color.Gray,
             };
 
-            #region Diffuse Color
+            #region Base Paint Color
 
-            var sliderDiffuseColor = new SliderColor
+            var sliderBasePaintColor = new SliderColor
             {
                 Left = 10,
                 Top = 20,
-                Color = material.DiffuseColor,
-                Text = "Diffuse Color",
+                Color = material.BasePaintColor,
+                Text = "Base Paint Color",
             };
-            groupDiffuse.Add(sliderDiffuseColor);
-            sliderDiffuseColor.ColorChanged += delegate { material.DiffuseColor = sliderDiffuseColor.Color; };
-            sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = material.DiffuseColor; };
+            groupDiffuse.Add(sliderBasePaintColor);
+            sliderBasePaintColor.ColorChanged += delegate { material.BasePaintColor = sliderBasePaintColor.Color; };
+            sliderBasePaintColor.Draw += delegate { sliderBasePaintColor.Color = material.BasePaintColor; };
 
             #endregion
 
-            #region Diffuse Texture
+            #region Second Base Paint Color
 
-            var labelDiffuseTexture = new Label
+            var sliderSecondBasePaintColor = new SliderColor
             {
                 Left = 10,
-                Top = 10 + sliderDiffuseColor.Top + sliderDiffuseColor.Height,
-                Width = 150,
-                Text = "Diffuse Texture"
+                Top = sliderBasePaintColor.Top + sliderBasePaintColor.Height + 20,
+                Color = material.SecondBasePaintColor,
+                Text = "Second Base Paint Color",
             };
-            var comboBoxDiffuseTexture = new ComboBox
-            {
-                Left = labelDiffuseTexture.Left + labelDiffuseTexture.Width,
-                Top = 10 + sliderDiffuseColor.Top + sliderDiffuseColor.Height,
-                Height = 20,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                MaxItemsShow = 25,
-            };
-            comboBoxDiffuseTexture.Width = groupDiffuse.Width - 10 - comboBoxDiffuseTexture.Left;
-            // Add textures name
-            comboBoxDiffuseTexture.Items.Add("No texture");
-            comboBoxDiffuseTexture.Items.AddRange(Texture.TexturesFilename);
-            // Events
-            comboBoxDiffuseTexture.ItemIndexChanged += delegate
-            {
-                if (comboBoxDiffuseTexture.ItemIndex <= 0)
-                    material.DiffuseTexture = null;
-                else
-                {
-                    if (material.DiffuseTexture == null || material.DiffuseTexture.Name != (string)comboBoxDiffuseTexture.Items[comboBoxDiffuseTexture.ItemIndex])
-                        material.DiffuseTexture = new Texture((string)comboBoxDiffuseTexture.Items[comboBoxDiffuseTexture.ItemIndex]);
-                }
-            };
-            comboBoxDiffuseTexture.Draw += delegate
-            {
-                if (comboBoxDiffuseTexture.ListBoxVisible)
-                    return;
-                // Identify current index
-                if (material.DiffuseTexture == null)
-                    comboBoxDiffuseTexture.ItemIndex = 0;
-                else
-                {
-                    for (int i = 0; i < comboBoxDiffuseTexture.Items.Count; i++)
-                        if ((string)comboBoxDiffuseTexture.Items[i] == material.DiffuseTexture.Name)
-                        {
-                            comboBoxDiffuseTexture.ItemIndex = i;
-                            break;
-                        }
-                }
-            };
-            groupDiffuse.Add(labelDiffuseTexture);
-            groupDiffuse.Add(comboBoxDiffuseTexture);
-            
+            groupDiffuse.Add(sliderSecondBasePaintColor);
+            sliderSecondBasePaintColor.ColorChanged += delegate { material.SecondBasePaintColor = sliderSecondBasePaintColor.Color; };
+            sliderSecondBasePaintColor.Draw += delegate { sliderSecondBasePaintColor.Color = material.SecondBasePaintColor; };
+
             #endregion
 
-            groupDiffuse.Height = comboBoxDiffuseTexture.Top + comboBoxDiffuseTexture.Height + 20;
+            #region Middle Paint Color
+
+            var sliderMiddlePaintColor = new SliderColor
+            {
+                Left = 10,
+                Top = sliderSecondBasePaintColor.Top + sliderSecondBasePaintColor.Height + 20,
+                Color = material.MiddlePaintColor,
+                Text = "Middle Paint Color",
+            };
+            groupDiffuse.Add(sliderMiddlePaintColor);
+            sliderMiddlePaintColor.ColorChanged += delegate { material.MiddlePaintColor = sliderMiddlePaintColor.Color; };
+            sliderMiddlePaintColor.Draw += delegate { sliderMiddlePaintColor.Color = material.MiddlePaintColor; };
+
+            #endregion
+
+            groupDiffuse.Height = sliderMiddlePaintColor.Top + sliderMiddlePaintColor.Height + 20;
 
             #endregion
 
@@ -363,5 +339,5 @@ namespace XNAFinalEngine.Editor
 
         } // Show
 
-    } // BlinnPhongWindow
+    } // CarPaintWindow
 } // XNAFinalEngine.Editor

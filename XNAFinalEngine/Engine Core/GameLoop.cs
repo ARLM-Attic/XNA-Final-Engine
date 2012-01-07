@@ -1015,7 +1015,7 @@ namespace XNAFinalEngine.EngineCore
             return postProcessedSceneTexture;
             //RenderTarget.Release(postProcessedSceneTexture);
             //return gbufferTextures.RenderTargets[1];
-            //return sceneTexture;
+            //return lightTexture;
         } // RenderCamera
 
         #endregion

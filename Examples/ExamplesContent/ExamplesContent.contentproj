@@ -185,8 +185,8 @@
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
     </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontLightWhiteMetal.fbx">
-      <Name>Murcielago-FrontLightWhiteMetal</Name>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-WhiteMetal.fbx">
+      <Name>Murcielago-WhiteMetal</Name>
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
     </Compile>
@@ -1332,6 +1332,16 @@
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
     </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-GrayMetal.fbx">
+      <Name>Murcielago-GrayMetal</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-CarbonFiber.fbx">
+      <Name>Murcielago-CarbonFiber</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
     <None Include="Shaders\GlobalIllumination\HorizonBasedAmbientOcclusionMiddleQuality.fxh">
       <Name>HorizonBasedAmbientOcclusionMiddleQuality</Name>
       <Importer>EffectImporter</Importer>
@@ -1413,6 +1423,12 @@
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Tyre-Normal.dds">
       <Name>Murcielago-Tyre-Normal</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\CarbonFiber.dds">
+      <Name>CarbonFiber</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>

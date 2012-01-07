@@ -81,6 +81,46 @@ namespace XNAFinalEngine.Assets
         #endregion
 
         #region Properties
+        
+        #region Colors
+
+        /// <summary>
+        /// Base paint color.
+        /// </summary>
+        public Color BasePaintColor
+        {
+            get { return basePaintColor; }
+            set { basePaintColor = value; }
+        } // BasePaintColor
+
+        /// <summary>
+        /// Second base paint color.
+        /// </summary>
+        public Color SecondBasePaintColor
+        {
+            get { return secondBasePaintColor; }
+            set { secondBasePaintColor = value; }
+        } // LightedPaintColor
+
+        /// <summary>
+        /// Middle paint color.
+        /// </summary>
+        public Color MiddlePaintColor
+        {
+            get { return middlePaintColor; }
+            set { middlePaintColor = value; }
+        } // MiddlePaintColor
+
+        /// <summary>
+        /// Flake layer color.
+        /// </summary>
+        public Color FlakeLayerColor
+        {
+            get { return flakeLayerColor; }
+            set { flakeLayerColor = value; }
+        } // FlakeLayerColor
+
+        #endregion
 
         #region Normals
 
@@ -127,46 +167,6 @@ namespace XNAFinalEngine.Assets
         /// Normal map texture.
         /// </summary>
         public Texture NormalTexture { get; set; }
-
-        #endregion
-
-        #region Colors
-
-        /// <summary>
-        /// Base paint color.
-        /// </summary>
-        public Color BasePaintColor
-        {
-            get { return basePaintColor; }
-            set { basePaintColor = value; }
-        } // BasePaintColor
-
-        /// <summary>
-        /// Second base paint color.
-        /// </summary>
-        public Color SecondBasePaintColor
-        {
-            get { return secondBasePaintColor; }
-            set { secondBasePaintColor = value; }
-        } // LightedPaintColor
-
-        /// <summary>
-        /// Middle paint color.
-        /// </summary>
-        public Color MiddlePaintColor
-        {
-            get { return middlePaintColor; }
-            set { middlePaintColor = value; }
-        } // MiddlePaintColor
-
-        /// <summary>
-        /// Flake layer color.
-        /// </summary>
-        public Color FlakeLayerColor
-        {
-            get { return flakeLayerColor; }
-            set { flakeLayerColor = value; }
-        } // FlakeLayerColor
 
         #endregion
 

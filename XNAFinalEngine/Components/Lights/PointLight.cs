@@ -62,6 +62,9 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// The range of the light.
         /// </summary>
+        /// <remarks>
+        /// The light range has to be lower than the camera far plane.
+        /// </remarks>
         public float Range
         {
             get { return range; }

@@ -364,7 +364,6 @@ namespace XNAFinalEngine.Graphics
                 SetLightPosition(Vector3.Transform(position, viewMatrix));
                 SetLightIntensity(intensity);
                 SetLightRadius(radius);
-                
 
                 // Compute the light world matrix.
                 // Scale according to light radius, and translate it to light position.
@@ -378,7 +377,7 @@ namespace XNAFinalEngine.Graphics
                 // Calculate the distance between the camera and light center.
                 float cameraToCenter = Vector3.Distance(Matrix.Invert(viewMatrix).Translation, position) - nearPlane;
                 // If we are inside the light volume, draw the sphere's inside face.
-                if (cameraToCenter < radius)
+                if (cameraToCenter <= radius)
                 {
                     SetInsideBoundingLightObject(true);
                     EngineManager.Device.RasterizerState = RasterizerState.CullClockwise;
