@@ -273,8 +273,8 @@
       <Processor>RigidModelProcessor</Processor>
       <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-WheelBlackConstant.fbx">
-      <Name>Murcielago-WheelBlackConstant</Name>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-BlackConstant.fbx">
+      <Name>Murcielago-BlackConstant</Name>
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
     </Compile>
@@ -1348,6 +1348,12 @@
       <Processor>RigidModelProcessor</Processor>
       <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-SteeringWheel.fbx">
+      <Name>Murcielago-SteeringWheel</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
+    </Compile>
     <None Include="Shaders\GlobalIllumination\HorizonBasedAmbientOcclusionMiddleQuality.fxh">
       <Name>HorizonBasedAmbientOcclusionMiddleQuality</Name>
       <Importer>EffectImporter</Importer>
@@ -1447,6 +1453,24 @@
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\Leather-Normal.dds">
       <Name>Leather-Normal</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\SteeringWheel-Diffuse.dds">
+      <Name>SteeringWheel-Diffuse</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\SteeringWheel-Normal.dds">
+      <Name>SteeringWheel-Normal</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\SteeringWheel-Specular.dds">
+      <Name>SteeringWheel-Specular</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
