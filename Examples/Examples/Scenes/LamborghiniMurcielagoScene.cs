@@ -143,19 +143,9 @@ namespace XNAFinalEngineExamples
             #region Models
             
             #region Body
-
+            
             murcielagoBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"),
                                               new CarPaint
-                                                    /*{
-                                                        SpecularIntensity = 150f,
-                                                        SpecularPower = 5,
-                                                        BasePaintColor = new Color(240, 210, 50),
-                                                        SecondBasePaintColor = new Color(100, 100, 50),
-                                                        MiddlePaintColor = new Color(150, 100, 100),
-                                                        FlakeLayerColor = new Color(200, 200, 200),
-                                                        ReflectionTexture = new TextureCube("Showroom", false),
-                                                        //ReflectionTexture = new Graphics.TextureCube("FactoryCatwalkRGBM", true, 50)
-                                                    });*/
                                                     {
                                                         SpecularIntensity = 400f,
                                                         SpecularPower = 5,
@@ -238,7 +228,7 @@ namespace XNAFinalEngineExamples
                                                     new BlinnPhong
                                                     {
                                                         DiffuseColor = new Color(20, 20, 20),
-                                                        AlphaBlending = 0.4f,
+                                                        AlphaBlending = 0.65f,
                                                         SpecularIntensity = 400,
                                                         SpecularPower = 5,
                                                         ReflectionTexture = new TextureCube("Showroom", false),
@@ -282,10 +272,10 @@ namespace XNAFinalEngineExamples
             murcielagoEngineGlasses = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP640-EngineGlasses"),
                                                     new BlinnPhong
                                                     {
-                                                        DiffuseColor = new Color(40, 40, 40),
-                                                        AlphaBlending = 0.8f,
-                                                        SpecularIntensity = 200,
-                                                        SpecularPower = 5,
+                                                        DiffuseColor = new Color(15, 15, 15),
+                                                        AlphaBlending = 0.9f,
+                                                        SpecularIntensity = 400,
+                                                        SpecularPower = 2,
                                                         ReflectionTexture = new TextureCube("Showroom", false),
                                                         //ReflectionTexture = new Graphics.TextureCube("FactoryCatwalkRGBM", true, 50)
                                                     });
@@ -757,12 +747,12 @@ namespace XNAFinalEngineExamples
             directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 250);
             directionalLight.DirectionalLight.Intensity = 1.5f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.75f, 0.3f), Vector3.Zero, Vector3.Forward);
-            directionalLight.DirectionalLight.Shadow = new CascadedShadow
+            /*directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
                 Filter = Shadow.FilterType.PCF3x3,
                 LightDepthTextureSize = Size.Square512X512,
                 TextureSize = Size.TextureSize.HalfSize
-            };
+            };*/
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
