@@ -1354,6 +1354,28 @@
       <Processor>RigidModelProcessor</Processor>
       <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-InteriorDetails.fbx">
+      <Name>Murcielago-InteriorDetails</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-BlackPlastic.fbx">
+      <Name>Murcielago-BlackPlastic</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-InteriorCostura.fbx">
+      <Name>Murcielago-InteriorCostura</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-Tablero.fbx">
+      <Name>Murcielago-Tablero</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
     <None Include="Shaders\GlobalIllumination\HorizonBasedAmbientOcclusionMiddleQuality.fxh">
       <Name>HorizonBasedAmbientOcclusionMiddleQuality</Name>
       <Importer>EffectImporter</Importer>
@@ -1474,6 +1496,62 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-Dark.dds">
+      <Name>Murcielago-InteriorDetails-Dark</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-Diffuse.dds">
+      <Name>Murcielago-InteriorDetails-Diffuse</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-Normal.dds">
+      <Name>Murcielago-InteriorDetails-Normal</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-Specular.dds">
+      <Name>Murcielago-InteriorDetails-Specular</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Costura-Diffuse.dds">
+      <Name>Costura-Diffuse</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Costura-Normal.dds">
+      <Name>Costura-Normal</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Costura-Specular.dds">
+      <Name>Costura-Specular</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Tablero.dds">
+      <Name>Murcielago-Tablero</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
     </Compile>
   </ItemGroup>
   <ItemGroup>

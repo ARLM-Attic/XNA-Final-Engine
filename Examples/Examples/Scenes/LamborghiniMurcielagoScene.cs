@@ -64,7 +64,8 @@ namespace XNAFinalEngineExamples
                                     murcielagoWhiteMetal, murcielagoGrayMetal, murcielagoCarbonFiber, murcielagoGlasses,
                                     murcielagoEngineGlasses, murcielagoBlackMetal, murcielagoLogo, murcielagoBlackContant, murcielagoFloor,
                                     murcielagoLP640Grid, murcielagoLP640RearSpoilerDarkPart, murcielagoLP640Exhaust,
-                                    murcielagoInteriorLeather, murcielagoSteeringWheel,
+                                    murcielagoInteriorLeather, murcielagoSteeringWheel, murcielagoInteriorDetails, murcielagoBlackPlastic,
+                                    murcielagoInteriorCostura, murcielagoTablero,
                                     // Front Left Wheel
                                     murcielagoLP670FrontLeftRim, murcielagoLP640FrontLeftRimBase, murcielagoLP640FrontLeftRimBase02,
                                     murcielagoFrontLeftRimLogo, murcielagoFrontLeftBrakeDisc, murcielagoFrontLeftBrakeCaliper, murcielagoFrontLeftTyre,
@@ -84,7 +85,7 @@ namespace XNAFinalEngineExamples
                                     // Test floors
                                     floor,
                                     // Lights
-                                    directionalLight, pointLight, pointLight2, pointLight3, pointLight4,
+                                    directionalLight, pointLight, pointLight2, pointLight3, pointLight4, pointLight5, pointLight6,
                                     // Cameras
                                     camera;
 
@@ -112,30 +113,30 @@ namespace XNAFinalEngineExamples
             ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
             script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
-            camera.Camera.FieldOfView = 180 / 12.0f;
+            camera.Camera.FieldOfView = 180 / 10.0f;
             camera.Camera.PostProcess = new PostProcess
             {
                 FilmGrain = new FilmGrain { FilmgrainStrength = 0.2f }, // Don't overuse it. PLEASE!!!
                 Bloom = new Bloom(),
                 MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Both, BlurRadius = 1f, ThresholdDepth = 0.2f, ThresholdColor = 0.2f },
-                LensExposure = 1f,
+                LensExposure = 1.2f,
             };
             camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
                                                             //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
                                                             Color = new Color(50, 50, 50),
                                                             Intensity = 1.5f,
-                                                            AmbientOcclusionStrength = 5 };
-            //camera.Camera.Sky = new Skybox { CubeTexture = new TextureCube("FactoryCatwalkRGBM", true, 50) };
+                                                            AmbientOcclusionStrength = 3 };
+            camera.Camera.Sky = new Skybox { CubeTexture = new TextureCube("FactoryCatwalkRGBM", true, 50) };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
-                Radius = 0.00015f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
-                LineAttenuation = 0.5f,
-                Contrast = 0.9f,
-                AngleBias = 0.25f,
+                Radius = 0.000005f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                LineAttenuation = 0.75f,
+                Contrast = 1.0f,
+                AngleBias = 1.25f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
-                TextureSize = Size.TextureSize.QuarterSize,
+                TextureSize = Size.TextureSize.HalfSize,
             };
             
             #endregion
@@ -156,6 +157,38 @@ namespace XNAFinalEngineExamples
                                                         ReflectionTexture = new TextureCube("Showroom", false),
                                                         //ReflectionTexture = new Graphics.TextureCube("FactoryCatwalkRGBM", true, 50)
                                                     });
+            murcielagoTablero = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Tablero"),
+                                                             new Constant()
+                                                             {
+                                                                 DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Tablero"),
+                                                                 /*SpecularIntensity = 1f,
+                                                                 SpecularPower = 100,*/
+                                                             });
+            murcielagoBlackPlastic = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-BlackPlastic"),
+                                                             new BlinnPhong
+                                                             {
+                                                                 DiffuseColor = new Color(10, 10, 10),
+                                                                 SpecularIntensity = 0.1f,
+                                                                 SpecularPower = 3,
+                                                             });
+            murcielagoInteriorCostura = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-InteriorCostura"),
+                                                             new BlinnPhong
+                                                             {
+                                                                 DiffuseTexture = new Texture("LamborghiniMurcielago\\Costura-Diffuse"),
+                                                                 NormalTexture = new Texture("LamborghiniMurcielago\\Costura-Normal"),
+                                                                 //SpecularTexture = new Texture("LamborghiniMurcielago\\Costura-Specular"),
+                                                                 SpecularIntensity = 0.15f,
+                                                                 SpecularPower = 20,
+                                                             });
+            murcielagoInteriorDetails = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-InteriorDetails"),
+                                                             new BlinnPhong
+                                                             {
+                                                                 DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-InteriorDetails-Diffuse"),
+                                                                 NormalTexture = new Texture("LamborghiniMurcielago\\Murcielago-InteriorDetails-Normal"),
+                                                                 SpecularTexture = new Texture("LamborghiniMurcielago\\Murcielago-InteriorDetails-Specular"),
+                                                                 SpecularIntensity = 1f,
+                                                                 SpecularPower = 20,
+                                                             });
             murcielagoInteriorLeather = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-InteriorLeather"),
                                                              new BlinnPhong
                                                              {
@@ -171,7 +204,7 @@ namespace XNAFinalEngineExamples
                                                                  NormalTexture   = new Texture("LamborghiniMurcielago\\SteeringWheel-Normal"),
                                                                  //SpecularTexture = new Texture("LamborghiniMurcielago\\SteeringWheel-Specular"),
                                                                  SpecularIntensity = 0.15f,
-                                                                 SpecularPower = 20,
+                                                                 SpecularPower = 200,
                                                              });
             murcielagoLP640AirTakesEngine = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakesEngine"),
                                                              new BlinnPhong
@@ -205,17 +238,17 @@ namespace XNAFinalEngineExamples
             murcielagoWhiteMetal = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-WhiteMetal"),
                                                               new BlinnPhong 
                                                                 {
-                                                                    DiffuseColor = new Color(230, 230, 230),
-                                                                    SpecularIntensity = 50,
-                                                                    SpecularPower = 3,
+                                                                    DiffuseColor = new Color(200, 200, 200),
+                                                                    SpecularIntensity = 40,
+                                                                    SpecularPower = 5,
                                                                     ReflectionTexture = new TextureCube("Showroom", false),
                                                                 });
             murcielagoCarbonFiber = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-CarbonFiber"),
                                                               new BlinnPhong
                                                               {
                                                                   DiffuseTexture = new Texture("LamborghiniMurcielago\\CarbonFiber"),
-                                                                  SpecularIntensity = 100f,
-                                                                  SpecularPower = 5,
+                                                                  SpecularIntensity = 50f,
+                                                                  SpecularPower = 7,
                                                                   ReflectionTexture = new TextureCube("Showroom", false),
                                                               });
             murcielagoGrayMetal = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-GrayMetal"),
@@ -744,20 +777,20 @@ namespace XNAFinalEngineExamples
             
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
-            directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 250);
-            directionalLight.DirectionalLight.Intensity = 1.5f;
-            directionalLight.Transform.LookAt(new Vector3(0.3f, 0.75f, 0.3f), Vector3.Zero, Vector3.Forward);
-            /*directionalLight.DirectionalLight.Shadow = new CascadedShadow
+            directionalLight.DirectionalLight.DiffuseColor = new Color(250, 240, 230);
+            directionalLight.DirectionalLight.Intensity = 1.2f;
+            directionalLight.Transform.LookAt(new Vector3(0.3f, 0.75f, 1.3f), Vector3.Zero, Vector3.Forward);
+            directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
                 Filter = Shadow.FilterType.PCF3x3,
                 LightDepthTextureSize = Size.Square512X512,
                 TextureSize = Size.TextureSize.HalfSize
-            };*/
+            };
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
-            pointLight.PointLight.DiffuseColor = new Color(250, 200, 180);
-            pointLight.PointLight.Intensity = 0.34f;
+            pointLight.PointLight.DiffuseColor = new Color(250, 0, 180);
+            pointLight.PointLight.Intensity = 0.24f;
             pointLight.PointLight.Range = 100;
             pointLight.PointLight.SpecularColor = Color.White;
             pointLight.Transform.Position = new Vector3(-15, 50, 5);
@@ -765,15 +798,15 @@ namespace XNAFinalEngineExamples
             pointLight2 = new GameObject3D();
             pointLight2.AddComponent<PointLight>();
             pointLight2.PointLight.DiffuseColor = new Color(170, 150, 255);
-            pointLight2.PointLight.Intensity = 0.34f;
+            pointLight2.PointLight.Intensity = 0.24f;
             pointLight2.PointLight.Range = 100;
             pointLight2.PointLight.SpecularColor = Color.White;
             pointLight2.Transform.Position = new Vector3(15, 25, -15);
 
             pointLight3 = new GameObject3D();
             pointLight3.AddComponent<PointLight>();
-            pointLight3.PointLight.DiffuseColor = new Color(170, 250, 155);
-            pointLight3.PointLight.Intensity = 0.45f;
+            pointLight3.PointLight.DiffuseColor = new Color(70, 250, 55);
+            pointLight3.PointLight.Intensity = 0.35f;
             pointLight3.PointLight.Range = 100;
             pointLight3.PointLight.SpecularColor = Color.White;
             pointLight3.Transform.Position = new Vector3(5f, 15, -20);
@@ -781,10 +814,26 @@ namespace XNAFinalEngineExamples
             pointLight4 = new GameObject3D();
             pointLight4.AddComponent<PointLight>();
             pointLight4.PointLight.DiffuseColor = new Color(150, 150, 150);
-            pointLight4.PointLight.Intensity = 0.45f;
+            pointLight4.PointLight.Intensity = 0.35f;
             pointLight4.PointLight.Range = 100; // I always forget to set the light range lower than the camera far plane.
             pointLight4.PointLight.SpecularColor = Color.White;
             pointLight4.Transform.Position = new Vector3(-20, -2, 20);
+
+            pointLight5 = new GameObject3D();
+            pointLight5.AddComponent<PointLight>();
+            pointLight5.PointLight.DiffuseColor = new Color(220, 150, 155);
+            pointLight5.PointLight.Intensity = 0.25f;
+            pointLight5.PointLight.Range = 200;
+            pointLight5.PointLight.SpecularColor = Color.White;
+            pointLight5.Transform.Position = new Vector3(0f, 0.5f, -50);
+
+            pointLight6 = new GameObject3D();
+            pointLight6.AddComponent<PointLight>();
+            pointLight6.PointLight.DiffuseColor = new Color(240, 70, 110);
+            pointLight6.PointLight.Intensity = 0.25f;
+            pointLight6.PointLight.Range = 150; // I always forget to set the light range lower than the camera far plane.
+            pointLight6.PointLight.SpecularColor = Color.White;
+            pointLight6.Transform.Position = new Vector3(-50, -0.5f, -50);
            
             #endregion
 
