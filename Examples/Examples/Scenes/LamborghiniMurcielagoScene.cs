@@ -125,7 +125,7 @@ namespace XNAFinalEngineExamples
                                                             //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
                                                             Color = new Color(50, 50, 50),
                                                             Intensity = 1.5f,
-                                                            AmbientOcclusionStrength = 3 };
+                                                            AmbientOcclusionStrength = 1.5f };
             camera.Camera.Sky = new Skybox { CubeTexture = new TextureCube("FactoryCatwalkRGBM", true, 50) };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
@@ -204,7 +204,7 @@ namespace XNAFinalEngineExamples
                                                                  NormalTexture   = new Texture("LamborghiniMurcielago\\SteeringWheel-Normal"),
                                                                  //SpecularTexture = new Texture("LamborghiniMurcielago\\SteeringWheel-Specular"),
                                                                  SpecularIntensity = 0.15f,
-                                                                 SpecularPower = 200,
+                                                                 SpecularPower = 20,
                                                              });
             murcielagoLP640AirTakesEngine = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakesEngine"),
                                                              new BlinnPhong
@@ -255,7 +255,9 @@ namespace XNAFinalEngineExamples
                                                   new BlinnPhong
                                                   {
                                                       DiffuseColor = new Color(100, 100, 100),
-                                                      SpecularIntensity = 2.0f,
+                                                      SpecularIntensity = 100.0f,
+                                                      SpecularPower = 100,
+                                                      ReflectionTexture = new TextureCube("Showroom", false),
                                                   });
             murcielagoGlasses = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Glasses"),
                                                     new BlinnPhong
