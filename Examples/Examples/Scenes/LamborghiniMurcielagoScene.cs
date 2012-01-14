@@ -126,7 +126,7 @@ namespace XNAFinalEngineExamples
                                                             Color = new Color(50, 50, 50),
                                                             Intensity = 1.5f,
                                                             AmbientOcclusionStrength = 1.5f };
-            camera.Camera.Sky = new Skybox { CubeTexture = new TextureCube("FactoryCatwalkRGBM", true, 50) };
+            //camera.Camera.Sky = new Skybox { CubeTexture = new TextureCube("FactoryCatwalkRGBM", true, 50) };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
@@ -176,7 +176,7 @@ namespace XNAFinalEngineExamples
                                                              {
                                                                  DiffuseTexture = new Texture("LamborghiniMurcielago\\Costura-Diffuse"),
                                                                  NormalTexture = new Texture("LamborghiniMurcielago\\Costura-Normal"),
-                                                                 //SpecularTexture = new Texture("LamborghiniMurcielago\\Costura-Specular"),
+                                                                 SpecularTexture = new Texture("LamborghiniMurcielago\\Costura-Specular"),
                                                                  SpecularIntensity = 0.15f,
                                                                  SpecularPower = 20,
                                                              });
@@ -185,7 +185,7 @@ namespace XNAFinalEngineExamples
                                                              {
                                                                  DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-InteriorDetails-Diffuse"),
                                                                  NormalTexture = new Texture("LamborghiniMurcielago\\Murcielago-InteriorDetails-Normal"),
-                                                                 SpecularTexture = new Texture("LamborghiniMurcielago\\Murcielago-InteriorDetails-Specular"),
+                                                                 //SpecularTexture = new Texture("LamborghiniMurcielago\\Murcielago-InteriorDetails-Specular"),
                                                                  SpecularIntensity = 1f,
                                                                  SpecularPower = 20,
                                                              });
@@ -832,10 +832,10 @@ namespace XNAFinalEngineExamples
             pointLight6 = new GameObject3D();
             pointLight6.AddComponent<PointLight>();
             pointLight6.PointLight.DiffuseColor = new Color(240, 70, 110);
-            pointLight6.PointLight.Intensity = 0.25f;
+            pointLight6.PointLight.Intensity = 0.35f;
             pointLight6.PointLight.Range = 150; // I always forget to set the light range lower than the camera far plane.
             pointLight6.PointLight.SpecularColor = Color.White;
-            pointLight6.Transform.Position = new Vector3(-50, -0.5f, -50);
+            pointLight6.Transform.Position = new Vector3(0, -30f, -10);
            
             #endregion
 

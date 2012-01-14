@@ -1532,15 +1532,15 @@
       <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
       <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Costura-Normal.dds">
-      <Name>Costura-Normal</Name>
+    <Compile Include="Textures\LamborghiniMurcielago\Costura-Specular.dds">
+      <Name>Costura-Specular</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
       <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Costura-Specular.dds">
-      <Name>Costura-Specular</Name>
+    <Compile Include="Textures\LamborghiniMurcielago\Costura-Normal.dds">
+      <Name>Costura-Normal</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
