@@ -1302,26 +1302,6 @@
       <Processor>EffectProcessor</Processor>
       <ProcessorParameters_DebugMode>Optimize</ProcessorParameters_DebugMode>
     </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontLightCian.fbx">
-      <Name>Murcielago-FrontLightCian</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontLightOrange.fbx">
-      <Name>Murcielago-FrontLightOrange</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontLightGlasses.fbx">
-      <Name>Murcielago-FrontLightGlasses</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontLightInteriorGlasses.fbx">
-      <Name>Murcielago-FrontLightInteriorGlasses</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-AirTakes.fbx">
       <Name>Murcielago-AirTakes</Name>
       <Importer>FbxImporter</Importer>
@@ -1373,6 +1353,70 @@
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-Tablero.fbx">
       <Name>Murcielago-Tablero</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorBlackMetal.fbx">
+      <Name>Murcielago-LeftDoorBlackMetal</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorBody.fbx">
+      <Name>Murcielago-LeftDoorBody</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorGrayMetal.fbx">
+      <Name>Murcielago-LeftDoorGrayMetal</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorLeather.fbx">
+      <Name>Murcielago-LeftDoorLeather</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorSpeakers.fbx">
+      <Name>Murcielago-LeftDoorSpeakers</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RightDoorBlackMetal.fbx">
+      <Name>Murcielago-RightDoorBlackMetal</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RightDoorBody.fbx">
+      <Name>Murcielago-RightDoorBody</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RightDoorGrayMetal.fbx">
+      <Name>Murcielago-RightDoorGrayMetal</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RightDoorLeather.fbx">
+      <Name>Murcielago-RightDoorLeather</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RightDoorSpeakers.fbx">
+      <Name>Murcielago-RightDoorSpeakers</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LightGlasses.fbx">
+      <Name>Murcielago-LightGlasses</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-Lights.fbx">
+      <Name>Murcielago-Lights</Name>
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
     </Compile>
@@ -1435,12 +1479,6 @@
       <Name>SpriteEffect</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-FrontLightOrange.dds">
-      <Name>Murcielago-FrontLightOrange</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\XNA Final Engine.dds">
       <Name>XNA Final Engine</Name>
@@ -1551,6 +1589,19 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Speaker-Diffuse.dds">
+      <Name>Speaker-Diffuse</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Lights.dds">
+      <Name>Murcielago-Lights</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
       <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
     </Compile>
   </ItemGroup>

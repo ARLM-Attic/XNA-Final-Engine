@@ -110,6 +110,8 @@ namespace XNAFinalEngine.Graphics
                                epIsRGBM,
                                epMaxRange,
                                epAlphaBlending,
+                               epDiffuseTexture,
+                               epDiffuseTextured,
                                // Lights //
                                epAmbientIntensity,
                                epSphericalHarmonicBase,
@@ -288,6 +290,36 @@ namespace XNAFinalEngine.Graphics
         } // SetAlphaBlending
 
         #endregion
+        
+        #region Diffuse Texture
+
+        private static Texture2D lastUsedDiffuseTexture;
+        private static void SetDiffuseTexture(Texture _diffuseTexture)
+        {
+            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedDiffuseTexture != _diffuseTexture.Resource)
+            {
+                lastUsedDiffuseTexture = _diffuseTexture.Resource;
+                epDiffuseTexture.SetValue(_diffuseTexture.Resource);
+            }
+        } // SetDiffuseTexture
+
+        #endregion
+
+        #region Diffuse Textured
+
+        private static bool lastUsedDiffuseTextured;
+        private static void SetDiffuseTextured(bool diffuseTextured)
+        {
+            if (lastUsedDiffuseTextured != diffuseTextured)
+            {
+                lastUsedDiffuseTextured = diffuseTextured;
+                epDiffuseTextured.SetValue(diffuseTextured);
+            }
+        } // SetDiffuseTextured
+
+        #endregion
 
         // Lights //
 
@@ -449,6 +481,8 @@ namespace XNAFinalEngine.Graphics
                 epIsRGBM               = Resource.Parameters["isRGBM"];
                 epMaxRange             = Resource.Parameters["maxRange"];
                 epAlphaBlending        = Resource.Parameters["alphaBlending"];
+                epDiffuseTexture = Resource.Parameters["diffuseTexture"];
+                epDiffuseTextured = Resource.Parameters["diffuseTextured"];
                 // Lights //
                 epSphericalHarmonicBase        = Resource.Parameters["sphericalHarmonicBase"];
                 epAmbientIntensity             = Resource.Parameters["ambientIntensity"];
@@ -521,7 +555,19 @@ namespace XNAFinalEngine.Graphics
                 SetSpecularPower(blinnPhongMaterial.SpecularPower);
                 SetDiffuseColor(blinnPhongMaterial.DiffuseColor);
                 SetAlphaBlending(blinnPhongMaterial.AlphaBlending);
-                
+
+                if (blinnPhongMaterial.DiffuseTexture != null)
+                {
+                    SetDiffuseTextured(true);
+                    SetDiffuseTexture(blinnPhongMaterial.DiffuseTexture);
+                    Resource.CurrentTechnique = Resource.Techniques["ForwardBlinnPhongWithTexture"];
+                }
+                else
+                {
+                    SetDiffuseTextured(false);
+                    Resource.CurrentTechnique = Resource.Techniques["ForwardBlinnPhongWithoutTexture"];
+                }
+
                 if (blinnPhongMaterial.ReflectionTexture != null)
                 {
                     SetReflectionTexture(blinnPhongMaterial.ReflectionTexture);

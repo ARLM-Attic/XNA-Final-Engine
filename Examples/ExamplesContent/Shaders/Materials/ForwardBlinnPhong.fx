@@ -54,6 +54,8 @@ float ambientIntensity;
 
 float alphaBlending;
 
+bool diffuseTextured;
+
 //////////////////////////////////////////////
 ///////////////// Lights /////////////////////
 //////////////////////////////////////////////
@@ -61,6 +63,9 @@ float alphaBlending;
 float3 directionalLightDirection;
 float3 directionalLightColor;
 float  directionalLightIntensity;
+float3 pointLightPos = float3(-15, 50, -30);
+float3 pointLightColor = float3(0.9, 0.9, 0.9);
+float  pointLightIntensity = 0.35;
 
 //////////////////////////////////////////////
 ///////////////// Options ////////////////////
@@ -75,6 +80,17 @@ bool hasAmbientSphericalHarmonics;
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
+
+texture diffuseTexture : register(t0);
+sampler2D diffuseSampler : register(s0) = sampler_state
+{
+	Texture = <diffuseTexture>;
+	/*MinFilter = ANISOTROPIC;
+	MagFilter = ANISOTROPIC;
+	MipFilter = Linear;
+	AddressU = WRAP;
+	AddressV = WRAP;*/
+};
 
 texture reflectionTexture : ENVIRONMENT;
 
@@ -107,16 +123,17 @@ struct vertexOutput
     float4 position		: POSITION;
     float4 positionProj : TEXCOORD0;  
     float3 normalWS		: TEXCOORD1;
-    float3 viewWS       : TEXCOORD2;    
-    //float3 pointLightVec: TEXCOORD3;
-    //float3 spotLightVec : TEXCOORD4;
+    float3 viewWS       : TEXCOORD2;
+	float2 uv           : TEXCOORD3;
+    float3 pointLightVec: TEXCOORD4;
+    //float3 spotLightVec : TEXCOORD5;
 };
 
 //////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
-vertexOutput VSBlinn(in float4 position : POSITION, in float3 normal : NORMAL/*, in float2 uv : TEXCOORD0*/)
+vertexOutput vs_mainWithoutTexture(in float4 position : POSITION, in float3 normal : NORMAL)
 {	
     vertexOutput output;
 	
@@ -127,12 +144,36 @@ vertexOutput VSBlinn(in float4 position : POSITION, in float3 normal : NORMAL/*,
 	float3 positionWS = mul(position, world);
 
 	// Light information
-	/*float3 Pw = mul(IN.Position, World).xyz;		    	// world coordinates
-    output.PointLightVec = PointLightPos - Pw;
-    output.SpotLightVec  = SpotLightPos - Pw;*/
+	float3 Pw = mul(position, world).xyz;		    	// world coordinates
+    output.pointLightVec = pointLightPos - Pw;
+    /*output.SpotLightVec  = SpotLightPos - Pw;*/
+
+	// Texture coordinates
+	output.uv = float2(0, 0);
+		
+	// Eye position - P
+    output.viewWS = normalize(cameraPosition - positionWS);
+    
+    return output;
+} // VSBlinn
+
+vertexOutput vs_mainWithTexture(in float4 position : POSITION, in float3 normal : NORMAL, in float2 uv : TEXCOORD0)
+{	
+    vertexOutput output;
+	
+    output.position = mul(position, worldViewProj);
+	output.positionProj = output.position;
+    output.normalWS = mul(normal, worldIT).xyz;
+	
+	float3 positionWS = mul(position, world);
+
+	// Light information
+	float3 Pw = mul(position, world).xyz;		    	// world coordinates
+    output.pointLightVec = pointLightPos - Pw;
+    /*output.SpotLightVec  = SpotLightPos - Pw;*/
 	
     // Texture coordinates
-	//output.uv = uv;
+	output.uv = uv;
 	
 	// Eye position - P
     output.viewWS = normalize(cameraPosition - positionWS);
@@ -144,7 +185,7 @@ vertexOutput VSBlinn(in float4 position : POSITION, in float3 normal : NORMAL/*,
 /////////////// Pixel Shader /////////////////
 //////////////////////////////////////////////
 
-float4 PSBlinn(vertexOutput input) : COLOR
+float4 ps_main(vertexOutput input) : COLOR
 {
 	float3 normalWS  = normalize(input.normalWS);
     float3 viewWS    = normalize(input.viewWS);
@@ -157,7 +198,17 @@ float4 PSBlinn(vertexOutput input) : COLOR
 		diffuse = ambientColor + SampleSH(normalWS) * ambientIntensity;
 	else
 		diffuse = ambientColor;
-
+	// Albedo
+	float3 materialColor;
+	[branch]
+	if (diffuseTextured)
+	{
+    	materialColor = tex2D(diffuseSampler, input.uv).rgb;
+	}
+	else
+	{
+		materialColor = diffuseColor;
+	}
     // Directional Light //		
 	float shadowTerm = 1.0;
 	/*if (hasDirectionalShadow)
@@ -171,14 +222,14 @@ float4 PSBlinn(vertexOutput input) : COLOR
     specular = pow(saturate(dot(normalWS, H)), specularPower) * NL *  directionalLightIntensity * specularIntensity * shadowTerm;
 	
 	// Point Light //
-    /*float3 L       = normalize(IN.PointLightVec);
-    float3 H       = normalize(V + L);
-    float  HdN     = dot(H, N);
-    float  LdN     = dot(L, N);
-    float4 litVec  = lit(LdN, HdN, SpecExponent);
-    diffContrib    = litVec.y * PointLightColor;
-    specContrib    = SpecIntensity * litVec.z * diffContrib;*/
-
+    float3 L       = normalize(input.pointLightVec);
+    H       = normalize(viewWS + L);
+    float  HdN     = dot(H, normalWS);
+    float  LdN     = dot(L, normalWS);
+    float4 litVec  = lit(LdN, HdN, specularPower);
+    diffuse        += litVec.y * GammaToLinear(pointLightColor) * pointLightIntensity;
+    specular       += specularIntensity * litVec.z * pointLightIntensity;
+	/*
     // Spot Light // 
    	/*L			     = normalize(IN.SpotLightVec);    
     float CosSpotAng = cos(SpotLightCone*(float)(3.141592/180.0));
@@ -206,21 +257,30 @@ float4 PSBlinn(vertexOutput input) : COLOR
 			specular *= GammaToLinear(texCUBE(reflectionSampler, reflectionDir).rgb);
 	}
 	// Final color (in linear space)	
-	return float4(GammaToLinear(diffuseColor) * diffuse + specular, alphaBlending);
+	return float4(GammaToLinear(materialColor) * diffuse + specular, alphaBlending);
 } // PSBlinn
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-technique ForwardBlinnPhong
+technique ForwardBlinnPhongWithoutTexture
 {
-	pass P0
-	{
-		VertexShader = compile vs_3_0 VSBlinn();
-		PixelShader  = compile ps_3_0 PSBlinn();
-	}
-}
+    pass P0
+    {
+        VertexShader = compile vs_3_0 vs_mainWithoutTexture();
+        PixelShader  = compile ps_3_0 ps_main();
+    }
+} // BlinnPhongWithoutTexture
+
+technique ForwardBlinnPhongWithTexture
+{
+    pass P0
+    {
+        VertexShader = compile vs_3_0 vs_mainWithTexture();
+        PixelShader  = compile ps_3_0 ps_main();
+    }
+} // BlinnPhongWithTexture
 
 //#include <SkinnedBlinnPhong.fxh>
 
