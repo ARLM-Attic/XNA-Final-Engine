@@ -778,7 +778,11 @@ namespace XNAFinalEngine.EngineCore
             {
                 if (currentCamera.Sky is Skybox && ((Skybox)currentCamera.Sky).CubeTexture != null)
                 {
-                    SkyboxShader.Instance.Render(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, (Skybox)(currentCamera.Sky));
+                    SkyboxShader.Instance.Render(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, (Skybox)(currentCamera.Sky));
+                }
+                if (currentCamera.Sky is Skydome && ((Skydome)currentCamera.Sky).Texture != null)
+                {
+                    SkydomeShader.Instance.Render(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, (Skydome)(currentCamera.Sky));
                 }
             }
 

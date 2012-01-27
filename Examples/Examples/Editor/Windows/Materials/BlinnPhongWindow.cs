@@ -59,10 +59,16 @@ namespace XNAFinalEngine.Editor
 
             #region Name
 
-            var materialNameLabel = new Label {Text = "Name", Left = 10, Top = 10,};
-            window.Add(materialNameLabel);
-            var materialNameTextBox = new TextBox { Text = material.Name, Left = 60, Top = 10 };
-            window.Add(materialNameTextBox);
+            var materialNameLabel = new Label
+            {
+                Parent = window,
+                Text = "Name", Left = 10, Top = 10,
+            };
+            var materialNameTextBox = new TextBox
+            {
+                Parent = window,
+                Text = material.Name, Left = 60, Top = 10
+            };
             materialNameTextBox.KeyDown += delegate(object sender, KeyEventArgs e)
             {
                 if (e.Key == Keys.Enter)
@@ -97,12 +103,12 @@ namespace XNAFinalEngine.Editor
 
             var sliderDiffuseColor = new SliderColor
             {
+                Parent = groupDiffuse,
                 Left = 10,
                 Top = 20,
                 Color = material.DiffuseColor,
                 Text = "Diffuse Color",
             };
-            groupDiffuse.Add(sliderDiffuseColor);
             sliderDiffuseColor.ColorChanged += delegate { material.DiffuseColor = sliderDiffuseColor.Color; };
             sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = material.DiffuseColor; };
 
@@ -112,6 +118,7 @@ namespace XNAFinalEngine.Editor
 
             var labelDiffuseTexture = new Label
             {
+                Parent = groupDiffuse,
                 Left = 10,
                 Top = 10 + sliderDiffuseColor.Top + sliderDiffuseColor.Height,
                 Width = 150,
@@ -119,6 +126,7 @@ namespace XNAFinalEngine.Editor
             };
             var comboBoxDiffuseTexture = new ComboBox
             {
+                Parent = groupDiffuse,
                 Left = labelDiffuseTexture.Left + labelDiffuseTexture.Width,
                 Top = 10 + sliderDiffuseColor.Top + sliderDiffuseColor.Height,
                 Height = 20,
@@ -157,8 +165,6 @@ namespace XNAFinalEngine.Editor
                         }
                 }
             };
-            groupDiffuse.Add(labelDiffuseTexture);
-            groupDiffuse.Add(comboBoxDiffuseTexture);
             
             #endregion
 
@@ -184,6 +190,7 @@ namespace XNAFinalEngine.Editor
 
             var sliderSpecularIntensity = new SliderNumeric
             {
+                Parent = groupSpecular,
                 Left = 10,
                 Top = 25,
                 Value = material.SpecularIntensity,
@@ -193,7 +200,6 @@ namespace XNAFinalEngine.Editor
                 MinimumValue = 0,
                 MaximumValue = 2,
             };
-            groupSpecular.Add(sliderSpecularIntensity);
             sliderSpecularIntensity.ValueChanged += delegate
             {
                 material.SpecularIntensity = sliderSpecularIntensity.Value;
@@ -206,6 +212,7 @@ namespace XNAFinalEngine.Editor
 
             var sliderSpecularPower = new SliderNumeric
             {
+                Parent = groupSpecular,
                 Left = 10,
                 Top = 10 + sliderSpecularIntensity.Top + sliderSpecularIntensity.Height,
                 Value = material.SpecularPower,
@@ -215,7 +222,6 @@ namespace XNAFinalEngine.Editor
                 MinimumValue = 0,
                 MaximumValue = 100,
             };
-            groupSpecular.Add(sliderSpecularPower);
             sliderSpecularPower.ValueChanged += delegate
             {
                 material.SpecularPower = sliderSpecularPower.Value;
@@ -228,6 +234,7 @@ namespace XNAFinalEngine.Editor
 
             var labelSpecularTexture = new Label
             {
+                Parent = groupSpecular,
                 Left = 10,
                 Top = 10 + sliderSpecularPower.Top + sliderSpecularPower.Height,
                 Width = 150,
@@ -235,6 +242,7 @@ namespace XNAFinalEngine.Editor
             };
             var comboBoxSpecularTexture = new ComboBox
             {
+                Parent = groupSpecular,
                 Left = labelSpecularTexture.Left + labelSpecularTexture.Width,
                 Top = 10 + sliderSpecularPower.Top + sliderSpecularPower.Height,
                 Height = 20,
@@ -273,8 +281,6 @@ namespace XNAFinalEngine.Editor
                         }
                 }
             };
-            groupSpecular.Add(labelSpecularTexture);
-            groupSpecular.Add(comboBoxSpecularTexture);
 
             #endregion
 
@@ -282,6 +288,7 @@ namespace XNAFinalEngine.Editor
 
             var checkBoxSpecularTexturePowerEnabled = new CheckBox
             {
+                Parent = groupSpecular,
                 Left = 10,
                 Top = 10 + comboBoxSpecularTexture.Top + comboBoxSpecularTexture.Height,
                 Width = window.ClientWidth - 16,
@@ -297,7 +304,6 @@ namespace XNAFinalEngine.Editor
                 material.SpecularTexturePowerEnabled = checkBoxSpecularTexturePowerEnabled.Checked;
             };
             checkBoxSpecularTexturePowerEnabled.Draw += delegate { checkBoxSpecularTexturePowerEnabled.Checked = material.SpecularTexturePowerEnabled; };
-            groupSpecular.Add(checkBoxSpecularTexturePowerEnabled);
 
             #endregion
 
@@ -305,6 +311,7 @@ namespace XNAFinalEngine.Editor
 
             var labelReflectionTexture = new Label
             {
+                Parent = groupSpecular,
                 Left = 10,
                 Top = 10 + checkBoxSpecularTexturePowerEnabled.Top + checkBoxSpecularTexturePowerEnabled.Height,
                 Width = 150,
@@ -312,6 +319,7 @@ namespace XNAFinalEngine.Editor
             };
             var comboBoxReflectionTexture = new ComboBox
             {
+                Parent = groupSpecular,
                 Left = labelReflectionTexture.Left + labelReflectionTexture.Width,
                 Top = labelReflectionTexture.Top,
                 Height = 20,
@@ -350,8 +358,6 @@ namespace XNAFinalEngine.Editor
                         }
                 }
             };
-            groupSpecular.Add(labelReflectionTexture);
-            groupSpecular.Add(comboBoxReflectionTexture);
 
             #endregion
 

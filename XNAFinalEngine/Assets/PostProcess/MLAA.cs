@@ -49,30 +49,22 @@ namespace XNAFinalEngine.Assets
 
         #region Variables
 
-        /// <summary>
-        /// Threshold Color.
-        /// </summary>
-        private float thresholdColor = 0.1f;
-
-        /// <summary>
-        /// Threshold Depth.
-        /// </summary>
-        private float thresholdDepth = 0.1f;
-
-        /// <summary>
-        /// Enabled?
-        /// </summary>
+        // Enabled?
         private bool enabled = true;
 
-        /// <summary>
-        /// Blur radius.
-        /// </summary>
-        private float blurRadius = 2;
+        // Threshold Color.
+        private float thresholdColor = 0.2f;
+
+        // Threshold Depth.
+        private float thresholdDepth = 0.2f;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// Is it enabled?
+        /// </summary>
         public bool Enabled
         {
             get { return enabled; }
@@ -80,12 +72,28 @@ namespace XNAFinalEngine.Assets
         } // Enabled
 
         /// <summary>
+        /// Edge Detection.
+        /// Color: uses the color information. Good for texture and geometry aliasing.
+        /// Depth: uses the depth buffer. Great for geometry aliasing.
+        /// Both: the two at the same time. A little more costly with slightly better results.
+        /// Normals: not implemented.
+        /// </summary>
+        public EdgeDetectionType EdgeDetection { get; set; } 
+
+        /// <summary>
         /// Threshold Color.
         /// </summary>
         public float ThresholdColor
         {
             get { return thresholdColor; }
-            set { thresholdColor = value; }
+            set
+            {
+                thresholdColor = value;
+                if (thresholdColor < 0)
+                    thresholdColor = 0;
+                if (thresholdColor > 1)
+                    thresholdColor = 1;
+            }
         } // ThresholdColor
 
         /// <summary>
@@ -94,26 +102,15 @@ namespace XNAFinalEngine.Assets
         public float ThresholdDepth
         {
             get { return thresholdDepth; }
-            set { thresholdDepth = value; }
+            set
+            {
+                thresholdDepth = value;
+                if (thresholdDepth < 0)
+                    thresholdDepth = 0;
+                if (thresholdDepth > 1)
+                    thresholdDepth = 1;
+            }
         } // ThresholdDepth
-
-        /// <summary>
-        /// Blur radius.
-        /// </summary>
-        public float BlurRadius
-        {
-            get { return blurRadius; }
-            set { blurRadius = value; }
-        } // BlurRadius
-
-        /// <summary>
-        /// Edge Detection.
-        /// Color: uses the color information.
-        /// Depth: uses the depth buffer.
-        /// Both: the two at the same time. A little more costly with slightly better results.
-        /// Normals: not implemented.
-        /// </summary>
-        public EdgeDetectionType EdgeDetection { get; set; } 
 
         #endregion
                   

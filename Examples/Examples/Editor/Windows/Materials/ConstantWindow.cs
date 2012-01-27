@@ -59,10 +59,16 @@ namespace XNAFinalEngine.Editor
 
             #region Name
 
-            var materialNameLabel = new Label {Text = "Name", Left = 10, Top = 10,};
-            window.Add(materialNameLabel);
-            var materialNameTextBox = new TextBox { Text = material.Name, Left = 60, Top = 10 };
-            window.Add(materialNameTextBox);
+            var materialNameLabel = new Label
+            {
+                Parent = window,
+                Text = "Name", Left = 10, Top = 10,
+            };
+            var materialNameTextBox = new TextBox
+            {
+                Parent = window,
+                Text = material.Name, Left = 60, Top = 10
+            };
             materialNameTextBox.KeyDown += delegate(object sender, KeyEventArgs e)
             {
                 if (e.Key == Keys.Enter)
@@ -99,12 +105,12 @@ namespace XNAFinalEngine.Editor
 
             var sliderColor = new SliderColor
             {
+                Parent = group,
                 Left = 10,
                 Top = 20,
                 Color = material.DiffuseColor,
                 Text = "Diffuse Color",
             };
-            group.Add(sliderColor);
             sliderColor.ColorChanged += delegate { material.DiffuseColor = sliderColor.Color; };
             sliderColor.Draw += delegate { sliderColor.Color = material.DiffuseColor; };
 

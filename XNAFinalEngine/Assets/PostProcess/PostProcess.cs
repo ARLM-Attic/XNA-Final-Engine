@@ -44,6 +44,13 @@ namespace XNAFinalEngine.Assets
 
         // Lens exposure.
         private float lensExposure = 1;
+        
+        private readonly Bloom bloom = new Bloom();
+        private readonly MLAA mlaa = new MLAA();
+        private readonly FilmGrain filmGrain = new FilmGrain();
+        private readonly AdjustLevels adjustLevels = new AdjustLevels();
+        private readonly AdjustLevelsIndividualChannels adjustLevelsIndividualChannels = new AdjustLevelsIndividualChannels();
+        private readonly ColorCorrection colorCorrection = new ColorCorrection();
 
         #endregion
 
@@ -55,38 +62,43 @@ namespace XNAFinalEngine.Assets
         public float LensExposure
         {
             get { return lensExposure; }
-            set { lensExposure = value; }
+            set
+            {
+                lensExposure = value;
+                if (lensExposure < 0)
+                    lensExposure = 0;
+            }
         } // LensExposure
 
         /// <summary>
         /// Bloom.
         /// </summary>
-        public Bloom Bloom { get; set; }
-
-        /// <summary>
-        /// Film Grain.
-        /// </summary>
-        public FilmGrain FilmGrain { get; set; }
-
-        /// <summary>
-        /// Color Correction.
-        /// </summary>
-        public ColorCorrection ColorCorrection { get; set; }
-
-        /// <summary>
-        /// Adjust color levels, just like Photoshop.
-        /// </summary>
-        public AdjustLevels AdjustLevels { get; set; }
-
-        /// <summary>
-        /// Adjust color levels, just like Photoshop. This adjusts each channel individually.
-        /// </summary>
-        public AdjustLevelsIndividualChannels AdjustLevelsIndividualChannels { get; set; }
+        public Bloom Bloom { get { return bloom; } }
 
         /// <summary>
         /// Morphological Antialiasing (MLAA).
         /// </summary>
-        public MLAA MLAA { get; set; }
+        public MLAA MLAA { get { return mlaa; } }
+
+        /// <summary>
+        /// Film Grain.
+        /// </summary>
+        public FilmGrain FilmGrain { get { return filmGrain; } }
+
+        /// <summary>
+        /// Color Correction.
+        /// </summary>
+        public ColorCorrection ColorCorrection { get { return colorCorrection; } }
+
+        /// <summary>
+        /// Adjust color levels, just like Photoshop.
+        /// </summary>
+        public AdjustLevels AdjustLevels { get { return adjustLevels; } }
+
+        /// <summary>
+        /// Adjust color levels, just like Photoshop. This adjusts each channel individually.
+        /// </summary>
+        public AdjustLevelsIndividualChannels AdjustLevelsIndividualChannels { get { return adjustLevelsIndividualChannels; } }
         
         #endregion
 

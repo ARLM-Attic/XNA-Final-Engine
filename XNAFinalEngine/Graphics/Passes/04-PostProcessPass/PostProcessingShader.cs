@@ -642,7 +642,7 @@ namespace XNAFinalEngine.Graphics
                 if (postProcess.Bloom != null && postProcess.Bloom.Enabled)
                 {
                     SetBloomEnabled(true);
-                    SetBloomScale(postProcess.Bloom.BloomScale);
+                    SetBloomScale(postProcess.Bloom.Scale);
                     SetBloomTexture(bloomTexture);
                 }
                 else
@@ -722,10 +722,10 @@ namespace XNAFinalEngine.Graphics
 
                 #region Film Grain
 
-                if (postProcess.FilmGrain != null && postProcess.FilmGrain.Enabled && postProcess.FilmGrain.FilmgrainStrength != 0)
+                if (postProcess.FilmGrain != null && postProcess.FilmGrain.Enabled && postProcess.FilmGrain.Strength != 0)
                 {
                     SetFilmGrainEnabled(true);
-                    SetFilmGrainStrength(postProcess.FilmGrain.FilmgrainStrength);
+                    SetFilmGrainStrength(postProcess.FilmGrain.Strength);
                     SetAccentuateDarkNoisePower(postProcess.FilmGrain.AccentuateDarkNoisePower);
                     SetRandomNoiseStrength(postProcess.FilmGrain.RandomNoiseStrength);
                     SetRandomValue(randomNumber.Next(1, 10000) / 100.0f);

@@ -55,8 +55,6 @@ float thresholdDepth;
 #define MAX_SEARCH_STEPS 6
 //const int maxSearchSteps = 12;
 
-float blurRadius;
-
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
@@ -368,7 +366,7 @@ float4 NeighborhoodBlendingPS(in float2 texcoord : TEXCOORD0) : COLOR0
     [branch]
     if (sum > 0.0)
 	{		
-        float4 o = a * pixelSize.yyxx * blurRadius;
+        float4 o = a * pixelSize.yyxx;
         float4 color = 0.0;
         color = mad(tex2Dlod(sceneLinearSampler, float4(texcoord + float2( 0.0, -o.r), 0, 0)), a.r, color);
         color = mad(tex2Dlod(sceneLinearSampler, float4(texcoord + float2( 0.0,  o.g), 0, 0)), a.g, color);

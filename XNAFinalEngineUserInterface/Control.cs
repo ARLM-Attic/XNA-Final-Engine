@@ -1675,7 +1675,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Add a control as child of this control.
         /// </summary>
-        public virtual void Add(Control control)
+        internal virtual void Add(Control control)
         {
             if (control != null)
             {
@@ -1706,7 +1706,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Remove a control as child of this control.
         /// </summary>
-        public virtual void Remove(Control control)
+        internal virtual void Remove(Control control)
         {
             if (control != null)
             {
@@ -1730,7 +1730,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Search for a control.
         /// </summary>
-        public virtual bool Contains(Control control, bool recursively = true)
+        internal virtual bool Contains(Control control, bool recursively = true)
         {
             if (ChildrenControls != null)
             {
@@ -1749,7 +1749,7 @@ namespace XNAFinalEngine.UserInterface
         /// Search for a children control by its name.
         /// </summary>
         /// <param name="name">Control's name</param>
-        public virtual Control SearchChildControlByName(string name)
+        internal virtual Control SearchChildControlByName(string name)
         {
             Control ret = null;
             foreach (Control c in ChildrenControls)

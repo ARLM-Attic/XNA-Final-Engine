@@ -83,8 +83,7 @@ namespace XNAFinalEngine.Graphics
                                        epSceneTexture,
                                        epEdgeTexture,
                                        epBlendedWeightsTexture,
-                                       epDepthTexture,
-                                       epBlurRadius;
+                                       epDepthTexture;
 
         #endregion
 
@@ -141,20 +140,6 @@ namespace XNAFinalEngine.Graphics
                 epThresholdDepth.SetValue(thresholdDepth);
             }
         } // SetThresholdDepth
-
-        #endregion
-
-        #region Blur Radius
-
-        private static float? lastUsedBlurRadius;
-        private static void SetBlurRadius(float blurRadius)
-        {
-            if (lastUsedBlurRadius != blurRadius)
-            {
-                lastUsedBlurRadius = blurRadius;
-                epBlurRadius.SetValue(blurRadius);
-            }
-        } // SetBlurRadius
 
         #endregion
 
@@ -262,7 +247,6 @@ namespace XNAFinalEngine.Graphics
                 epThresholdDepth = Resource.Parameters["thresholdDepth"];
                 epSceneTexture   = Resource.Parameters["sceneTexture"];
                 epDepthTexture   = Resource.Parameters["depthTexture"];
-                epBlurRadius     = Resource.Parameters["blurRadius"];
                 epEdgeTexture    = Resource.Parameters["edgeTexture"];
                 epBlendedWeightsTexture = Resource.Parameters["blendedWeightsTexture"];
             }
@@ -307,7 +291,6 @@ namespace XNAFinalEngine.Graphics
                 SetDepthTexture(depthTexture);
                 SetThresholdColor(postProcess.MLAA.ThresholdColor);
                 SetThresholdDepth(postProcess.MLAA.ThresholdDepth);
-                SetBlurRadius(postProcess.MLAA.BlurRadius);
 
                 switch (postProcess.MLAA.EdgeDetection)
                 {
@@ -332,6 +315,9 @@ namespace XNAFinalEngine.Graphics
                     }
                     else
                     {
+                        // For testing
+                        //RenderTarget.Release(blendingWeightTexture);
+                        //return destinationTexture;
                         SetBlendedWeightsTexture(blendingWeightTexture);
                         destinationTexture.EnableRenderTarget();
                         destinationTexture.Clear(Color.Black);

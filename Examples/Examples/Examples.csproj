@@ -108,10 +108,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Editor\ConstantWindow.cs" />
-    <Compile Include="Editor\BlinnPhongWindow.cs" />
-    <Compile Include="Editor\CarPaintWindow.cs" />
     <Compile Include="Editor\ScriptEditorCamera.cs" />
+    <Compile Include="Editor\Windows\Materials\BlinnPhongWindow.cs" />
+    <Compile Include="Editor\Windows\Materials\CarPaintWindow.cs" />
+    <Compile Include="Editor\Windows\Materials\ConstantWindow.cs" />
+    <Compile Include="Editor\Windows\PostProcess\PostProcessWindow.cs" />
     <Compile Include="Scenes\MiscellaneousScene.cs" />
     <Compile Include="Scenes\LamborghiniMurcielagoScene.cs" />
     <Compile Include="Scenes\EmptyScene.cs" />

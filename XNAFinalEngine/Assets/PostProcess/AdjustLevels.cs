@@ -56,48 +56,23 @@ namespace XNAFinalEngine.Assets
 
         #region Variables
 
-        /// <summary>
-        /// Darken the shadows by setting a new black point.
-        /// Default value = 0
-        /// Minimum value = 0
-        /// Maximum value = 0.9f
-        /// </summary>
+        // Darken the shadows by setting a new black point.
         private float inputBlack;
 
-        /// <summary>
-        /// Brighten the highlights by setting a new white point.
-        /// Default value = 1
-        /// Minimum value = 0.1f
-        /// Maximum value = 1
-        /// </summary>
+        // Brighten the highlights by setting a new white point.
         private float inputWhite = 1;
 
-        /// <summary>
-        /// Lighten or darken the midtones in the image.
-        /// Default value = 1
-        /// Minimum value = 9.99f
-        /// Maximum value = 0.01f
-        /// </summary>
+        // Lighten or darken the midtones in the image.
         private float inputGamma = 1;
 
-        /// <summary>
-        /// Clamp the darker colors to this value.
-        /// Default value = 0
-        /// Minimum value = 0
-        /// Maximum value = 1
-        /// </summary>
+        // Clamp the darker colors to this value.
         private float outputBlack;
 
-        /// <summary>
-        /// Clamp the brighten colors to this value.
-        /// Default value = 1
-        /// Minimum value = 0
-        /// Maximum value = 1
-        /// </summary>
+        // Clamp the brighten colors to this value.
         private float outputWhite = 1;
 
         // Is it enabled?
-        private bool enabled = true;
+        private bool enabled = false;
 
         #endregion
 
@@ -128,6 +103,8 @@ namespace XNAFinalEngine.Assets
                     inputBlack = 0;
                 if (inputBlack > 0.9f)
                     inputBlack = 0.9f;
+                if (inputBlack > inputWhite)
+                    inputBlack = inputWhite;
             }
         } // InputBlack
 
@@ -147,6 +124,8 @@ namespace XNAFinalEngine.Assets
                     inputWhite = 0.1f;
                 if (inputWhite > 1)
                     inputWhite = 1;
+                if (inputBlack > inputWhite)
+                    inputWhite = inputBlack;
             }
         } // InputWhite
 

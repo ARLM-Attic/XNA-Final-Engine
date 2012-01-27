@@ -59,10 +59,16 @@ namespace XNAFinalEngine.Editor
 
             #region Name
 
-            var materialNameLabel = new Label {Text = "Name", Left = 10, Top = 10,};
-            window.Add(materialNameLabel);
-            var materialNameTextBox = new TextBox { Text = material.Name, Left = 60, Top = 10 };
-            window.Add(materialNameTextBox);
+            var materialNameLabel = new Label
+            {
+                Parent = window,
+                Text = "Name", Left = 10, Top = 10,
+            };
+            var materialNameTextBox = new TextBox
+            {
+                Parent = window,
+                Text = material.Name, Left = 60, Top = 10
+            };
             materialNameTextBox.KeyDown += delegate(object sender, KeyEventArgs e)
             {
                 if (e.Key == Keys.Enter)
@@ -97,12 +103,12 @@ namespace XNAFinalEngine.Editor
 
             var sliderBasePaintColor = new SliderColor
             {
+                Parent = groupDiffuse,
                 Left = 10,
                 Top = 20,
                 Color = material.BasePaintColor,
                 Text = "Base Paint Color",
             };
-            groupDiffuse.Add(sliderBasePaintColor);
             sliderBasePaintColor.ColorChanged += delegate { material.BasePaintColor = sliderBasePaintColor.Color; };
             sliderBasePaintColor.Draw += delegate { sliderBasePaintColor.Color = material.BasePaintColor; };
 
@@ -112,12 +118,12 @@ namespace XNAFinalEngine.Editor
 
             var sliderSecondBasePaintColor = new SliderColor
             {
+                Parent = groupDiffuse,
                 Left = 10,
                 Top = sliderBasePaintColor.Top + sliderBasePaintColor.Height + 20,
                 Color = material.SecondBasePaintColor,
                 Text = "Second Base Paint Color",
             };
-            groupDiffuse.Add(sliderSecondBasePaintColor);
             sliderSecondBasePaintColor.ColorChanged += delegate { material.SecondBasePaintColor = sliderSecondBasePaintColor.Color; };
             sliderSecondBasePaintColor.Draw += delegate { sliderSecondBasePaintColor.Color = material.SecondBasePaintColor; };
 
@@ -127,12 +133,12 @@ namespace XNAFinalEngine.Editor
 
             var sliderMiddlePaintColor = new SliderColor
             {
+                Parent = groupDiffuse,
                 Left = 10,
                 Top = sliderSecondBasePaintColor.Top + sliderSecondBasePaintColor.Height + 20,
                 Color = material.MiddlePaintColor,
                 Text = "Middle Paint Color",
             };
-            groupDiffuse.Add(sliderMiddlePaintColor);
             sliderMiddlePaintColor.ColorChanged += delegate { material.MiddlePaintColor = sliderMiddlePaintColor.Color; };
             sliderMiddlePaintColor.Draw += delegate { sliderMiddlePaintColor.Color = material.MiddlePaintColor; };
 
@@ -160,6 +166,7 @@ namespace XNAFinalEngine.Editor
 
             var sliderSpecularIntensity = new SliderNumeric
             {
+                Parent = groupSpecular,
                 Left = 10,
                 Top = 25,
                 Value = material.SpecularIntensity,
@@ -169,7 +176,6 @@ namespace XNAFinalEngine.Editor
                 MinimumValue = 0,
                 MaximumValue = 2,
             };
-            groupSpecular.Add(sliderSpecularIntensity);
             sliderSpecularIntensity.ValueChanged += delegate
             {
                 material.SpecularIntensity = sliderSpecularIntensity.Value;
@@ -182,6 +188,7 @@ namespace XNAFinalEngine.Editor
 
             var sliderSpecularPower = new SliderNumeric
             {
+                Parent = groupSpecular,
                 Left = 10,
                 Top = 10 + sliderSpecularIntensity.Top + sliderSpecularIntensity.Height,
                 Value = material.SpecularPower,
@@ -191,7 +198,6 @@ namespace XNAFinalEngine.Editor
                 MinimumValue = 0,
                 MaximumValue = 100,
             };
-            groupSpecular.Add(sliderSpecularPower);
             sliderSpecularPower.ValueChanged += delegate
             {
                 material.SpecularPower = sliderSpecularPower.Value;
@@ -204,6 +210,7 @@ namespace XNAFinalEngine.Editor
 
             var labelSpecularTexture = new Label
             {
+                Parent = groupSpecular,
                 Left = 10,
                 Top = 10 + sliderSpecularPower.Top + sliderSpecularPower.Height,
                 Width = 150,
@@ -211,6 +218,7 @@ namespace XNAFinalEngine.Editor
             };
             var comboBoxSpecularTexture = new ComboBox
             {
+                Parent = groupSpecular,
                 Left = labelSpecularTexture.Left + labelSpecularTexture.Width,
                 Top = 10 + sliderSpecularPower.Top + sliderSpecularPower.Height,
                 Height = 20,
@@ -249,8 +257,6 @@ namespace XNAFinalEngine.Editor
                         }
                 }
             };
-            groupSpecular.Add(labelSpecularTexture);
-            groupSpecular.Add(comboBoxSpecularTexture);
 
             #endregion
 
@@ -258,6 +264,7 @@ namespace XNAFinalEngine.Editor
 
             var checkBoxSpecularTexturePowerEnabled = new CheckBox
             {
+                Parent = groupSpecular,
                 Left = 10,
                 Top = 10 + comboBoxSpecularTexture.Top + comboBoxSpecularTexture.Height,
                 Width = window.ClientWidth - 16,
@@ -273,7 +280,6 @@ namespace XNAFinalEngine.Editor
                 material.SpecularTexturePowerEnabled = checkBoxSpecularTexturePowerEnabled.Checked;
             };
             checkBoxSpecularTexturePowerEnabled.Draw += delegate { checkBoxSpecularTexturePowerEnabled.Checked = material.SpecularTexturePowerEnabled; };
-            groupSpecular.Add(checkBoxSpecularTexturePowerEnabled);
 
             #endregion
 
@@ -281,6 +287,7 @@ namespace XNAFinalEngine.Editor
 
             var labelReflectionTexture = new Label
             {
+                Parent = groupSpecular,
                 Left = 10,
                 Top = 10 + checkBoxSpecularTexturePowerEnabled.Top + checkBoxSpecularTexturePowerEnabled.Height,
                 Width = 150,
@@ -288,6 +295,7 @@ namespace XNAFinalEngine.Editor
             };
             var comboBoxReflectionTexture = new ComboBox
             {
+                Parent = groupSpecular,
                 Left = labelReflectionTexture.Left + labelReflectionTexture.Width,
                 Top = labelReflectionTexture.Top,
                 Height = 20,
@@ -326,8 +334,6 @@ namespace XNAFinalEngine.Editor
                         }
                 }
             };
-            groupSpecular.Add(labelReflectionTexture);
-            groupSpecular.Add(comboBoxReflectionTexture);
 
             #endregion
 

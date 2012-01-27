@@ -462,9 +462,9 @@ namespace XNAFinalEngineExamples
 
             tbc.AddPage("Global");
             tbc.AddPage("Private");
-            tbc.TabPages[0].Add(con1);
-            tbc.TabPages[1].Add(con2);
-
+            con1.Parent = tbc.TabPages[0];
+            con2.Parent = tbc.TabPages[1];
+            
             con2.Width = con1.Width = tbc.TabPages[0].ClientWidth;
             con2.Height = con1.Height = tbc.TabPages[0].ClientHeight;
             con2.Anchor = con1.Anchor = Anchors.All;
@@ -561,7 +561,7 @@ namespace XNAFinalEngineExamples
 
             txt.ScrollBars = ScrollBarType.Both;
 
-            win.Add(btn, true);
+            btn.Parent = win; // win.Add(btn, true);
             win.Show();
             UserInterfaceManager.Add(win);
         }
@@ -618,7 +618,7 @@ namespace XNAFinalEngineExamples
                 Window tmp = (Window)Layout.Load("Window");
                 tmp.Closing += WindowClosing;
                 tmp.Closed += WindowClosed;
-                tmp.SearchChildControlByName("btnOk").Click += Central_Click;
+                //tmp.SearchChildControlByName("btnOk").Click += Central_Click;
                 UserInterfaceManager.Add(tmp);
                 tmp.Show();
             }

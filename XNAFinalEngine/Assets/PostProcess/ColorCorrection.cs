@@ -66,7 +66,7 @@ namespace XNAFinalEngine.Assets
         private float lerpOriginalColorAmount = 1;
 
         // Is it enabled?
-        private bool enabled = true;
+        private bool enabled = false;
 
         #endregion
 

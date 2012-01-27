@@ -93,7 +93,8 @@ namespace XNAFinalEngineExamples
                                     // Lights
                                     directionalLight, pointLight, pointLight2, pointLight3, pointLight4, pointLight5, pointLight6, pointLight7,
                                     // Cameras
-                                    camera;
+                                    camera,
+                                    skydome;
 
         private static GameObject2D xnaFinalEngineLogo;
 
@@ -116,23 +117,19 @@ namespace XNAFinalEngineExamples
             camera.Camera.Renderer = Camera.RenderingType.DeferredLighting; // The only option available for the time being.
             camera.Camera.RenderTargetSize = Size.FullScreen;
             camera.Camera.FarPlane = 5000;
+            camera.Camera.NearPlane = 0.1f;
             ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
             script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
-            camera.Camera.FieldOfView = 180 / 10.0f;
-            camera.Camera.PostProcess = new PostProcess
-            {
-                FilmGrain = new FilmGrain { FilmgrainStrength = 0.2f }, // Don't overuse it. PLEASE!!!
-                Bloom = new Bloom(),
-                MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Both, BlurRadius = 1f, ThresholdDepth = 0.2f, ThresholdColor = 0.2f },
-                LensExposure = 1.2f,
-            };
+            camera.Camera.FieldOfView = 180 / 6f;
+            camera.Camera.PostProcess = new PostProcess { LensExposure = 1f, };
+            camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
             camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
                                                             //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
-                                                            Color = new Color(60, 60, 60),
-                                                            Intensity = 0.8f,
+                                                            Color = new Color(100, 100, 100),
+                                                            Intensity = 0.6f,
                                                             AmbientOcclusionStrength = 4f };
-            //camera.Camera.Sky = new Skybox { CubeTexture = new TextureCube("FactoryCatwalkRGBM", true, 50) };
+            camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
@@ -163,7 +160,7 @@ namespace XNAFinalEngineExamples
             #endregion
 
             #region Models
-
+            
             #region Body
 
             murcielagoBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), carPaint);
@@ -178,8 +175,9 @@ namespace XNAFinalEngineExamples
                                                              new BlinnPhong
                                                              {
                                                                  DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Lights"),
-                                                                 SpecularIntensity = 1f,
-                                                                 SpecularPower = 100,
+                                                                 SpecularIntensity = 20f,
+                                                                 SpecularPower = 5,
+                                                                 ReflectionTexture = new TextureCube("Showroom", false),
                                                              });
             murcielagoLightsGlasses = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LightGlasses"),
                                                              new BlinnPhong
@@ -334,8 +332,8 @@ namespace XNAFinalEngineExamples
                                                  new BlinnPhong
                                                  {
                                                      DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Floor"),
-                                                     SpecularIntensity = 0.3f,
-                                                     SpecularPower = 300,
+                                                     SpecularIntensity = 0.05f,
+                                                     SpecularPower = 1000,
                                                  });
 
             murcielagoLP640Grid = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP640-Grid"),
@@ -348,16 +346,17 @@ namespace XNAFinalEngineExamples
             murcielagoLP640RearSpoilerDarkPart = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP640-RearSpoilerDarkPart"),
                                                  new BlinnPhong
                                                  {
-                                                     DiffuseColor = new Color(25, 25, 25),
-                                                     SpecularIntensity = 0.5f,
-                                                     SpecularPower = 100,
+                                                     DiffuseColor = new Color(30, 30, 30),
+                                                     SpecularIntensity = 0.05f,
+                                                     SpecularPower = 1000,
                                                  });
 
             murcielagoLP640Exhaust = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP640-Exhaust"),
                                                  new BlinnPhong
                                                  {
                                                      DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-LP640-Exhaust"),
-                                                     SpecularIntensity = 1f,
+                                                     SpecularIntensity = 0.1f,
+                                                     SpecularPower = 300,
                                                  });
 
             #endregion
@@ -914,10 +913,10 @@ namespace XNAFinalEngineExamples
            
             #endregion
 
-            xnaFinalEngineLogo = new GameObject2D();
+            /*xnaFinalEngineLogo = new GameObject2D();
             xnaFinalEngineLogo.AddComponent<HudTexture>();
             xnaFinalEngineLogo.HudTexture.Texture = new Texture("XNA Final Engine");
-            xnaFinalEngineLogo.Transform.LocalScale = 0.5f;
+            xnaFinalEngineLogo.Transform.LocalScale = 0.5f;*/
 
             GameLoop.ShowFramesPerSecond = true;
 
@@ -926,6 +925,7 @@ namespace XNAFinalEngineExamples
             //ConstantWindow.Show((Constant)murcielagoWheelBlackContant.ModelRenderer.Material);
             //BlinnPhongWindow.Show((BlinnPhong)murcielagoInteriorLeather.ModelRenderer.Material);
             //CarPaintWindow.Show(carPaint);
+            PostProcessWindow.Show(camera.Camera.PostProcess);
 
             base.Load();
         } // Load

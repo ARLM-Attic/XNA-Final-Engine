@@ -101,7 +101,7 @@ namespace XNAFinalEngine.Assets
         private Vector3 outputWhite = new Vector3(1, 1, 1);
 
         // Is it enabled?
-        private bool enabled = true;
+        private bool enabled = false;
 
         #endregion
 

@@ -66,8 +66,8 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
         #region Add and Remove
-        
-        public virtual void Add(Control control, bool client)
+
+        internal virtual void Add(Control control, bool client)
         {
             if (client)
             {
@@ -79,12 +79,12 @@ namespace XNAFinalEngine.UserInterface
             }
         } // Add
 
-        public override void Add(Control control)
+        internal override void Add(Control control)
         {
             Add(control, true);
         } // Add
-      
-        public override void Remove(Control control)
+
+        internal override void Remove(Control control)
         {
             base.Remove(control);
             ClientArea.Remove(control);

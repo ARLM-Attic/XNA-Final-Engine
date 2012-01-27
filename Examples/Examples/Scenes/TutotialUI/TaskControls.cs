@@ -290,19 +290,27 @@ namespace XNAFinalEngine.UserInterface.Central
             ToolBarPanel tlp = new ToolBarPanel();
             ToolBarPanel = tlp;
 
-            ToolBar tlb = new ToolBar() { Movable = true };
-            ToolBar tlbx = new ToolBar() { Movable = true };
+            ToolBar tlb = new ToolBar
+                              {
+                                  Parent = tlp,
+                                  Movable = true
+                              };
+            ToolBar tlbx = new ToolBar
+                               {
+                                   Parent = tlp,
+                                   Movable = true
+                               };
             tlb.FullRow = true;
             tlbx.Row = 1;
             tlbx.FullRow = false;
 
-            tlp.Add(tlb);
-            tlp.Add(tlbx);
-
             StatusBar stb = new StatusBar();
             StatusBar = stb;
-            Label t = new Label { Text = "Status Bar", Left = 5, Top = 5};
-            stb.Add(t);
+            Label t = new Label
+                          {
+                              Parent = stb,
+                              Text = "Status Bar", Left = 5, Top = 5
+                          };
 
             DefaultControl = txtEdit;
 

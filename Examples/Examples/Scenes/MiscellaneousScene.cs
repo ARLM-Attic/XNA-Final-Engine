@@ -112,14 +112,10 @@ namespace XNAFinalEngineExamples
             script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 8.0f;            
-            camera.Camera.PostProcess = new PostProcess
-            {
-                FilmGrain = new FilmGrain { FilmgrainStrength = 0.2f }, // Don't overuse it. PLEASE!!!
-                Bloom = new Bloom(),
-                AdjustLevels = new AdjustLevels(),
-                MLAA = new MLAA { EdgeDetection = MLAA.EdgeDetectionType.Both, BlurRadius = 1f, ThresholdDepth = 0.2f, ThresholdColor = 0.2f },
-                LensExposure = 1.0f,
-            };
+            camera.Camera.PostProcess = new PostProcess { LensExposure = 1.0f, };
+            camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
+            camera.Camera.PostProcess.MLAA.ThresholdDepth = 0.2f;
+            camera.Camera.PostProcess.MLAA.ThresholdColor = 0.2f;
             camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
                                                             //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
                                                             Color = new Color(30, 30, 30),

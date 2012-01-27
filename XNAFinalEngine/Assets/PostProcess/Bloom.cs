@@ -42,13 +42,13 @@ namespace XNAFinalEngine.Assets
         #region Variables
         
         // Bloom Threshold.
-        private float bloomThreshold = 1.5f;
+        private float threshold = 1.5f;
         
         // Is it enabled?
         private bool enabled = true;
         
         // Bloom Scale.
-        private float bloomScale = 1;
+        private float scale = 1;
 
         #endregion
 
@@ -66,16 +66,30 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Bloom Scale.
         /// </summary>
-        public float BloomScale
+        public float Scale
         {
-            get { return bloomScale; }
-            set { bloomScale = value; }
+            get { return scale; }
+            set
+            {
+                scale = value;
+                if (scale < 0)
+                    scale = 0;
+            }
         } // BloomScale
 
         /// <summary>
         /// Bloom Threshold.
         /// </summary>
-        public float BloomThreshold { get { return bloomThreshold; } set { bloomThreshold = value; } }
+        public float Threshold
+        {
+            get { return threshold; } 
+            set
+            {
+                threshold = value;
+                if (threshold < 0)
+                    threshold = 0;
+            }
+        } // Threshold
 
         #endregion
 

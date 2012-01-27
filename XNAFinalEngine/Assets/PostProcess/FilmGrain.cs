@@ -45,25 +45,16 @@ namespace XNAFinalEngine.Assets
 
         #region Variables
 
-        /// <summary>
-        /// Fil grain strength.
-        /// 0 = no effect
-        /// 1 = full effect
-        /// </summary>
-        private float filmgrainStrength = 0.3f;
+        // Fil grain strength.
+        private float filmgrainStrength = 0.2f;
 
-        /// <summary>
-        /// The film grain effect is a phenomenon mostly seen in analog films that is more notorious in dark areas.
-        /// This value accentuates the noise in the dark values.
-        /// Use values greater than 1.
-        /// </summary>
-        private float accentuateDarkNoisePower = 4;
+        // The film grain effect is a phenomenon mostly seen in analog films that is more notorious in dark areas.
+        // This value accentuates the noise in the dark values.
+        private float accentuateDarkNoisePower = 2;
 
-        /// <summary>
-        /// The noise is both, random and static. With this we can accentuate or reduce the random noise.
-        /// 1 is half random and half static, 0 is only static, and more than 1 accentuate the random noise.
-        /// </summary>
-        private float randomNoiseStrength = 1.3f;
+        // The noise is both, random and static. With this we can accentuate or reduce the random noise.
+        // 1 is half random and half static, 0 is only static, and more than 1 accentuate the random noise.
+        private float randomNoiseStrength = 0.5f;
 
         // Is it enabled?
         private bool enabled = true;
@@ -86,7 +77,7 @@ namespace XNAFinalEngine.Assets
         /// 0 = no effect
         /// 1 = full effect
         /// </summary>
-        public float FilmgrainStrength
+        public float Strength
         {
             get { return filmgrainStrength; }
             set
@@ -97,7 +88,7 @@ namespace XNAFinalEngine.Assets
                 if (filmgrainStrength > 1)
                     filmgrainStrength = 1;
             }
-        } // FilmgrainStrength
+        } // Strength
         
         /// <summary>
         /// The film grain effect is a phenomenon mostly seen in analog films that is more notorious in dark areas.

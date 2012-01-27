@@ -283,7 +283,7 @@ namespace XNAFinalEngine.UserInterface
 
         #region Add
 
-        public override void Add(Control control, bool client)
+        internal override void Add(Control control, bool client)
         {
             base.Add(control, client);
             CalculateScrolling();
