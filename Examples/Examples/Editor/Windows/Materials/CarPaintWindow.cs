@@ -48,12 +48,7 @@ namespace XNAFinalEngine.Editor
 
             #region Window
 
-            var window = new Window
-            {
-                Text = material.Name + " : Car-Paint"
-            };
-            UserInterfaceManager.Add(window);
-            window.Closed += delegate { };
+            var window = new Window { Text = material.Name + " : Car-Paint" };
 
             #endregion
 

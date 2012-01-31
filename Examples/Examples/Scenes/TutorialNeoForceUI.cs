@@ -198,13 +198,12 @@ namespace XNAFinalEngineExamples
                 Height = Screen.Height,
                 Anchor = Anchors.Left | Anchors.Top | Anchors.Bottom
             };
-            UserInterfaceManager.Add(sidebar);
 
             InitRes();
             InitTasks();
             InitStats();
-            InitSkins();
-            InitConsole();
+            //InitSkins();
+            //InitConsole();
         } // InitControls
 
         #region Init Res
@@ -365,7 +364,6 @@ namespace XNAFinalEngineExamples
             pnlSkin.CanFocus = false;
 
             rdbDefault = new RadioButton();
-            //rdbDefault.Init();
             rdbDefault.Parent = pnlSkin;
             rdbDefault.Left = 8;
             rdbDefault.Width = pnlSkin.Width - rdbDefault.Left * 2;
@@ -373,10 +371,9 @@ namespace XNAFinalEngineExamples
             rdbDefault.Text = "Default Skin";
             rdbDefault.Top = 8;
             //rdbDefault.Checked = Manager.Skin.Name == "Default";
-            rdbDefault.Click += new XNAFinalEngine.UserInterface.EventHandler(rdbDefault_Click);
+            rdbDefault.Click += rdbDefault_Click;
 
             rdbGreen = new RadioButton();
-            //rdbGreen.Init();
             rdbGreen.Parent = pnlSkin;
             rdbGreen.Left = 8;
             rdbGreen.Width = pnlSkin.Width - rdbGreen.Left * 2;
@@ -384,7 +381,7 @@ namespace XNAFinalEngineExamples
             rdbGreen.Text = "Green Skin";
             rdbGreen.Top = 24;
             //rdbGreen.Checked = Manager.Skin.Name == "Green";
-            rdbGreen.Click += new XNAFinalEngine.UserInterface.EventHandler(rdbGreen_Click);
+            rdbGreen.Click += rdbGreen_Click;
             rdbGreen.Enabled = true;
         }
 
@@ -438,7 +435,7 @@ namespace XNAFinalEngineExamples
         }
 
         #endregion
-
+        
         #region Init Console
 
         private static void InitConsole()
@@ -490,12 +487,10 @@ namespace XNAFinalEngineExamples
 
             // We send initial welcome message to System channel
             con1.MessageBuffer.Add(new ConsoleMessage("Welcome to Neoforce!", 2));
-
-            UserInterfaceManager.Add(tbc);
         }
 
         #endregion
-
+        
         #region Methods
         
         void btnClose_Click(object sender, EventArgs e)
@@ -563,7 +558,6 @@ namespace XNAFinalEngineExamples
 
             btn.Parent = win; // win.Add(btn, true);
             win.Show();
-            UserInterfaceManager.Add(win);
         }
 
         void win_Closed(object sender, WindowClosedEventArgs e)
@@ -583,7 +577,6 @@ namespace XNAFinalEngineExamples
                 TaskDialog tmp = new TaskDialog();
                 tmp.Closing += WindowClosing;
                 tmp.Closed += WindowClosed;
-                UserInterfaceManager.Add(tmp);
 
                 Thread.Sleep(2000); // Sleep to demonstrate animated busy cursor
 
@@ -599,7 +592,6 @@ namespace XNAFinalEngineExamples
                 TaskControls tmp = new TaskControls();
                 tmp.Closing += WindowClosing;
                 tmp.Closed += WindowClosed;
-                UserInterfaceManager.Add(tmp);
                 tmp.ShowModal();
             }
             else if (sender == btnTasks[2])
@@ -608,7 +600,6 @@ namespace XNAFinalEngineExamples
                 TaskAutoScroll tmp = new TaskAutoScroll();
                 tmp.Closing += WindowClosing;
                 tmp.Closed += WindowClosed;
-                UserInterfaceManager.Add(tmp);
                 tmp.Show();
             }
             else if (sender == btnTasks[3])
@@ -619,7 +610,6 @@ namespace XNAFinalEngineExamples
                 tmp.Closing += WindowClosing;
                 tmp.Closed += WindowClosed;
                 //tmp.SearchChildControlByName("btnOk").Click += Central_Click;
-                UserInterfaceManager.Add(tmp);
                 tmp.Show();
             }
             else if (sender == btnTasks[4])
@@ -629,15 +619,13 @@ namespace XNAFinalEngineExamples
                 TaskEvents tmp = new TaskEvents();
                 tmp.Closing += WindowClosing;
                 tmp.Closed += WindowClosed;
-                UserInterfaceManager.Add(tmp);
                 tmp.Show();
             }
         }
 
         void rdbGreen_Click(object sender, EventArgs e)
         {
-            //while (true)
-                UserInterfaceManager.SetSkin("Green");
+            UserInterfaceManager.SetSkin("Green");
         }
 
         void rdbDefault_Click(object sender, EventArgs e)

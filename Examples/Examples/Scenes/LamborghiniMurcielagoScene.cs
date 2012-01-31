@@ -940,7 +940,7 @@ namespace XNAFinalEngineExamples
             LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
 
-            LookupTableWindow.Show(testLookupTable);
+            LookupTableWindow.Show(null);
 
             base.Load();
         } // Load

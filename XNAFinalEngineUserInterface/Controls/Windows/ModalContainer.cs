@@ -23,8 +23,11 @@ namespace XNAFinalEngine.UserInterface
 
         #region Variables
 
-        private ModalResult    modalResult = ModalResult.None;
+        // It stores the previous modal when this modal is activated.
         private ModalContainer lastModal;
+
+        // Default value.
+        private ModalResult modalResult = ModalResult.None;
 
         #endregion
 
@@ -38,7 +41,8 @@ namespace XNAFinalEngine.UserInterface
             get { return base.Visible; }
             set
             {
-                if (value) Focused = true;
+                if (value) 
+                    Focused = true;
                 base.Visible = value;
             }
         } // Visible
@@ -47,7 +51,11 @@ namespace XNAFinalEngine.UserInterface
         /// Is the active modal?
         /// </summary>
         public virtual bool IsTheActiveModal { get { return UserInterfaceManager.ModalWindow == this; } }
-        
+
+        /// <summary>
+        /// When the modal window is closed can give diferent results (None, Ok, Cancel, Yes, No, Abort, Retry, Ignore).
+        /// This stores the result.
+        /// </summary>
         public virtual ModalResult ModalResult
         {
             get { return modalResult; }
@@ -66,12 +74,17 @@ namespace XNAFinalEngine.UserInterface
         #region Show Modal
 
         /// <summary>
-        /// Show Modal.
+        /// Show this container in modal mode.
+        /// That means that prevent user from interacting with the rest of the controls.
         /// </summary>
         public virtual void ShowModal()
         {
+            // You can't activate the modal mode twice at the same time.
+            if (UserInterfaceManager.ModalWindow == this)
+                return;
             lastModal = UserInterfaceManager.ModalWindow;
             UserInterfaceManager.ModalWindow = this;
+            // This allow to close the modal window with the escape key.
             UserInterfaceManager.InputSystem.KeyDown += Input_KeyDown;
         } // ShowModal
 
@@ -84,20 +97,25 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual void Close()
         {
+            // Raise on closing event.
             WindowClosingEventArgs ex = new WindowClosingEventArgs();
             OnClosing(ex);
+            // If an event does not deny the closing...
             if (!ex.Cancel)
             {
+                // Remove the event link to prevent garbage.
                 UserInterfaceManager.InputSystem.KeyDown -= Input_KeyDown;
+                // Restore previous modal window.
                 UserInterfaceManager.ModalWindow = lastModal;
                 if (lastModal != null)
                     lastModal.Focused = true;
                 else
                     UserInterfaceManager.FocusedControl = null;
                 Hide();
+                // Raise on closed event.
                 WindowClosedEventArgs ev = new WindowClosedEventArgs();
                 OnClosed(ev);
-
+                // If an event does not change the dispose property.
                 if (ev.Dispose)
                     Dispose();
             }
@@ -137,11 +155,11 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         void Input_KeyDown(object sender, KeyEventArgs e)
         {
-            if (Visible && (UserInterfaceManager.FocusedControl != null && UserInterfaceManager.FocusedControl.Root == this) && e.Key == Microsoft.Xna.Framework.Input.Keys.Escape)
+            if (Visible &&  UserInterfaceManager.FocusedControl.Root == this && e.Key == Microsoft.Xna.Framework.Input.Keys.Escape)
             {
                 Close(ModalResult.Cancel);
             }
-        }
+        } // Input_KeyDown
 
         #endregion
 

@@ -48,12 +48,7 @@ namespace XNAFinalEngine.Editor
 
             #region Window
 
-            var window = new Window
-            {
-                Text = material.Name + " : Blinn-Phong"
-            };
-            UserInterfaceManager.Add(window);
-            window.Closed += delegate { };
+            var window = new Window { Text = material.Name + " : Blinn-Phong" };
 
             #endregion
 

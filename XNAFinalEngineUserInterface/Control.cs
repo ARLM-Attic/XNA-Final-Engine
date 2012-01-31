@@ -1090,13 +1090,16 @@ namespace XNAFinalEngine.UserInterface
             get { return parent; }
             set
             {
-                if (parent != value)
-                {
-                    if (value != null) 
-                        value.Add(this);
-                    else 
-                        UserInterfaceManager.Add(this);
-                }
+                // Remove from old parent
+                if (parent == null)
+                    UserInterfaceManager.Remove(parent);
+                else
+                    parent.Remove(this);
+                // Add to the new parent
+                if (value != null) 
+                    value.Add(this);
+                else 
+                    UserInterfaceManager.Add(this);
             }
         } // Parent
 
@@ -1180,6 +1183,7 @@ namespace XNAFinalEngine.UserInterface
         public Control()
         {
             Name = "Control";
+            Parent = null;
             text = Utilities.ControlTypeName(this);
             root = this;
             // Load skin information for this control.
@@ -1276,7 +1280,7 @@ namespace XNAFinalEngine.UserInterface
                 UserInterfaceManager.OrderList.Remove(this);
 
             // Possibly we added the menu to another parent than this control, 
-            // so we dispose it manually, beacause in logic it belongs to this control.        
+            // so we dispose it manually, because in logic it belongs to this control.        
             if (ContextMenu != null)
                 ContextMenu.Dispose();
 

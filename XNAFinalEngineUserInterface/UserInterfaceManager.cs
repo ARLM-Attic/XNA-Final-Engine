@@ -138,18 +138,13 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public static ModalContainer ModalWindow
         {
-            get
-            {
-                return modalWindow;
-            }
+            get { return modalWindow; }
             internal set
             {
                 modalWindow = value;
-
                 if (value != null)
                 {
                     value.ModalResult = ModalResult.None;
-
                     value.Visible = true;
                     value.Focused = true;
                 }
@@ -514,7 +509,7 @@ namespace XNAFinalEngine.UserInterface
         /// Adds a control to the manager.
         /// </summary>
         /// <param name="control">The control being added.</param>
-        public static void Add(Control control)
+        internal static void Add(Control control)
         {
             if (control != null)
             {
@@ -537,7 +532,7 @@ namespace XNAFinalEngine.UserInterface
         /// Removes a component or a control from the manager.
         /// </summary>
         /// <param name="control">The control being removed.</param>
-        public static void Remove(Control control)
+        internal static void Remove(Control control)
         {
             if (control != null)
             {

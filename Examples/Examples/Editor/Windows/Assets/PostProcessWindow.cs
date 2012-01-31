@@ -52,8 +52,6 @@ namespace XNAFinalEngine.Editor
             {
                 Text = asset.Name + " : Post Process"
             };
-            UserInterfaceManager.Add(window);
-            window.Closed += delegate { };
 
             #endregion
 

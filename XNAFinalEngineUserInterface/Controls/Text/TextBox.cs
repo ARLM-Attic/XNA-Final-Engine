@@ -206,8 +206,8 @@ namespace XNAFinalEngine.UserInterface
                 positionX = value;
                 if (positionX < 0)
                     positionX = 0;
-                if (positionX > Lines[PositionY].Length) 
-                    positionX = Lines[PositionY].Length;
+                if (positionX > lines[PositionY].Length) 
+                    positionX = lines[PositionY].Length;
             }
         } // positionX
 
@@ -223,10 +223,10 @@ namespace XNAFinalEngine.UserInterface
 
                 if (positionY < 0) 
                     positionY = 0;
-                if (positionY > Lines.Count - 1) 
-                    positionY = Lines.Count - 1;
-                if (positionX > Lines[PositionY].Length)
-                    positionX = Lines[PositionY].Length;
+                if (positionY > lines.Count - 1) 
+                    positionY = lines.Count - 1;
+                if (positionX > lines[PositionY].Length)
+                    positionX = lines[PositionY].Length;
             }
         } // PositionY
 
@@ -422,12 +422,6 @@ namespace XNAFinalEngine.UserInterface
             }
         } // Text
 
-        private List<string> Lines
-        {
-            get { return lines; }
-            set { lines = value; }
-        } // Lines
-
         #endregion
 
         #region Constructor
@@ -440,7 +434,7 @@ namespace XNAFinalEngine.UserInterface
             CheckLayer(SkinInformation, "Cursor");
 
             SetDefaultSize(128, 20);
-            Lines.Add("");
+            lines.Add("");
 
             verticalScrollBar = new ScrollBar(Orientation.Vertical)
             {
@@ -511,7 +505,7 @@ namespace XNAFinalEngine.UserInterface
             {
                 int sizey = font.LineSpacing;
                 linesDrawn = ClientArea.Height / sizey;
-                if (linesDrawn > Lines.Count) linesDrawn = Lines.Count;
+                if (linesDrawn > lines.Count) linesDrawn = lines.Count;
 
                 charsDrawn = ClientArea.Width - 1;
             }
@@ -525,15 +519,15 @@ namespace XNAFinalEngine.UserInterface
             int max = 0;
             int x = 0;
 
-            for (int i = 0; i < Lines.Count; i++)
+            for (int i = 0; i < lines.Count; i++)
             {
-                if (Lines[i].Length > max)
+                if (lines[i].Length > max)
                 {
-                    max = Lines[i].Length;
+                    max = lines[i].Length;
                     x = i;
                 }
             }
-            return Lines.Count > 0 ? Lines[x] : "";
+            return lines.Count > 0 ? lines[x] : "";
         } // GetMaxLine
 
         /// <summary>
@@ -557,7 +551,7 @@ namespace XNAFinalEngine.UserInterface
                 if (mode == TextBoxMode.Multiline)
                 {
                     shownText = Text;
-                    tmpText = Lines[PositionY];
+                    tmpText = lines[PositionY];
                 }
                 else if (mode == TextBoxMode.Password)
                 {
@@ -571,7 +565,7 @@ namespace XNAFinalEngine.UserInterface
                 else
                 {
                     shownText = Text;
-                    tmpText = Lines[PositionY];
+                    tmpText = lines[PositionY];
                 }
 
                 if (TextColor != UndefinedColor && ControlState != ControlState.Disabled)
@@ -620,13 +614,13 @@ namespace XNAFinalEngine.UserInterface
                 for (int i = 0; i < linesDrawn + 1; i++)
                 {
                     int ii = i + verticalScrollBar.Value;
-                    if (ii >= Lines.Count || ii < 0) break;
+                    if (ii >= lines.Count || ii < 0) break;
 
-                    if (Lines[ii] != "")
+                    if (lines[ii] != "")
                     {
                         if (mode == TextBoxMode.Multiline)
                         {
-                            Renderer.DrawString(font.Resource, Lines[ii], r.Left - horizontalScrollBar.Value, r.Top + (i * sizey), col);
+                            Renderer.DrawString(font.Resource, lines[ii], r.Left - horizontalScrollBar.Value, r.Top + (i * sizey), col);
                         }
                         else
                         {
@@ -665,19 +659,19 @@ namespace XNAFinalEngine.UserInterface
                     if (mode == TextBoxMode.Normal)
                     {
                         int m = ClientArea.Height - font.LineSpacing;
-                        r = new Rectangle(rect.Left - horizontalScrollBar.Value + (int)font.MeasureString(Lines[i].Substring(0, sc)).X, rect.Top + m / 2,
-                                         (int)font.MeasureString(Lines[i].Substring(0, ec + 0)).X - (int)font.MeasureString(Lines[i].Substring(0, sc)).X, hgt);
+                        r = new Rectangle(rect.Left - horizontalScrollBar.Value + (int)font.MeasureString(lines[i].Substring(0, sc)).X, rect.Top + m / 2,
+                                         (int)font.MeasureString(lines[i].Substring(0, ec + 0)).X - (int)font.MeasureString(lines[i].Substring(0, sc)).X, hgt);
                     }
                     else if (sl == el)
                     {
-                        r = new Rectangle(rect.Left - horizontalScrollBar.Value + (int)font.MeasureString(Lines[i].Substring(0, sc)).X, rect.Top + (i - verticalScrollBar.Value) * hgt,
-                                          (int)font.MeasureString(Lines[i].Substring(0, ec + 0)).X - (int)font.MeasureString(Lines[i].Substring(0, sc)).X, hgt);
+                        r = new Rectangle(rect.Left - horizontalScrollBar.Value + (int)font.MeasureString(lines[i].Substring(0, sc)).X, rect.Top + (i - verticalScrollBar.Value) * hgt,
+                                          (int)font.MeasureString(lines[i].Substring(0, ec + 0)).X - (int)font.MeasureString(lines[i].Substring(0, sc)).X, hgt);
                     }
                     else
                     {
-                        if (i == sl) r = new Rectangle(rect.Left - horizontalScrollBar.Value + (int)font.MeasureString(Lines[i].Substring(0, sc)).X, rect.Top + (i - verticalScrollBar.Value) * hgt, (int)font.MeasureString(Lines[i]).X - (int)font.MeasureString(Lines[i].Substring(0, sc)).X, hgt);
-                        else if (i == el) r = new Rectangle(rect.Left - horizontalScrollBar.Value, rect.Top + (i - verticalScrollBar.Value) * hgt, (int)font.MeasureString(Lines[i].Substring(0, ec + 0)).X, hgt);
-                        else r = new Rectangle(rect.Left - horizontalScrollBar.Value, rect.Top + (i - verticalScrollBar.Value) * hgt, (int)font.MeasureString(Lines[i]).X, hgt);
+                        if (i == sl) r = new Rectangle(rect.Left - horizontalScrollBar.Value + (int)font.MeasureString(lines[i].Substring(0, sc)).X, rect.Top + (i - verticalScrollBar.Value) * hgt, (int)font.MeasureString(lines[i]).X - (int)font.MeasureString(lines[i].Substring(0, sc)).X, hgt);
+                        else if (i == el) r = new Rectangle(rect.Left - horizontalScrollBar.Value, rect.Top + (i - verticalScrollBar.Value) * hgt, (int)font.MeasureString(lines[i].Substring(0, ec + 0)).X, hgt);
+                        else r = new Rectangle(rect.Left - horizontalScrollBar.Value, rect.Top + (i - verticalScrollBar.Value) * hgt, (int)font.MeasureString(lines[i]).X, hgt);
                     }
 
                     Renderer.Draw(Skin.Images["Control"].Texture.Resource, r, Color.FromNonPremultiplied(160, 160, 160, 128));
@@ -713,13 +707,13 @@ namespace XNAFinalEngine.UserInterface
                     verticalScrollBar.Value = PositionY;
                 }
 
-                if (GetStringWidth(Lines[PositionY], PositionX) >= horizontalScrollBar.Value + horizontalScrollBar.PageSize)
+                if (GetStringWidth(lines[PositionY], PositionX) >= horizontalScrollBar.Value + horizontalScrollBar.PageSize)
                 {
-                    horizontalScrollBar.Value = (GetStringWidth(Lines[PositionY], PositionX) + 1) - horizontalScrollBar.PageSize;
+                    horizontalScrollBar.Value = (GetStringWidth(lines[PositionY], PositionX) + 1) - horizontalScrollBar.PageSize;
                 }
-                else if (GetStringWidth(Lines[PositionY], PositionX) < horizontalScrollBar.Value)
+                else if (GetStringWidth(lines[PositionY], PositionX) < horizontalScrollBar.Value)
                 {
-                    horizontalScrollBar.Value = GetStringWidth(Lines[PositionY], PositionX) - horizontalScrollBar.PageSize;
+                    horizontalScrollBar.Value = GetStringWidth(lines[PositionY], PositionX) - horizontalScrollBar.PageSize;
                 }
             }
         } // ProcessScrolling
@@ -801,12 +795,12 @@ namespace XNAFinalEngine.UserInterface
 
         private int GetPosY(int pos)
         {
-            if (pos >= Text.Length) return Lines.Count - 1;
+            if (pos >= Text.Length) return lines.Count - 1;
 
             int p = pos;
-            for (int i = 0; i < Lines.Count; i++)
+            for (int i = 0; i < lines.Count; i++)
             {
-                p -= Lines[i].Length + Separator.Length;
+                p -= lines[i].Length + Separator.Length;
                 if (p < 0)
                 {
                     return i;
@@ -817,15 +811,15 @@ namespace XNAFinalEngine.UserInterface
 
         private int GetPosX(int pos)
         {
-            if (pos >= Text.Length) return Lines[Lines.Count - 1].Length;
+            if (pos >= Text.Length) return lines[lines.Count - 1].Length;
 
             int p = pos;
-            for (int i = 0; i < Lines.Count; i++)
+            for (int i = 0; i < lines.Count; i++)
             {
-                p -= Lines[i].Length + Separator.Length;
+                p -= lines[i].Length + Separator.Length;
                 if (p < 0)
                 {
-                    p = p + Lines[i].Length + Separator.Length;
+                    p = p + lines[i].Length + Separator.Length;
                     return p;
                 }
             }
@@ -838,7 +832,7 @@ namespace XNAFinalEngine.UserInterface
 
             for (int i = 0; i < y; i++)
             {
-                p += Lines[i].Length + Separator.Length;
+                p += lines[i].Length + Separator.Length;
             }
             p += x;
 
@@ -856,18 +850,18 @@ namespace XNAFinalEngine.UserInterface
             {
                 py = verticalScrollBar.Value + (int)((y - ClientTop) / font.LineSpacing);
                 if (py < 0) py = 0;
-                if (py >= Lines.Count) py = Lines.Count - 1;
+                if (py >= lines.Count) py = lines.Count - 1;
             }
             else
             {
                 py = 0;
             }
 
-            string str = mode == TextBoxMode.Multiline ? Lines[py] : shownText;
+            string str = mode == TextBoxMode.Multiline ? lines[py] : shownText;
 
             if (!string.IsNullOrEmpty(str))
             {
-                for (int i = 1; i <= Lines[py].Length; i++)
+                for (int i = 1; i <= lines[py].Length; i++)
                 {
                     Vector2 v = font.MeasureString(str.Substring(0, i)) - (font.MeasureString(str[i - 1].ToString()) / 3);
                     if (x <= (ClientLeft + (int)v.X) - horizontalScrollBar.Value)
@@ -949,7 +943,8 @@ namespace XNAFinalEngine.UserInterface
             {
                 if (e.Key == Keys.Escape)
                 {
-                    Text = initialText;
+                    if (initialText != null)
+                        Text = initialText;
                     Focused = false;
                 }
                 if (e.Key == Keys.A && e.Control && mode != TextBoxMode.Password)
@@ -1067,7 +1062,7 @@ namespace XNAFinalEngine.UserInterface
                     }
                     if (!e.Control)
                     {
-                        PositionX = Lines[PositionY].Length;
+                        PositionX = lines[PositionY].Length;
                     }
                     if (e.Control)
                     {
@@ -1211,7 +1206,7 @@ namespace XNAFinalEngine.UserInterface
         {
             DeterminePages();
 
-            if (verticalScrollBar != null) verticalScrollBar.Range = Lines.Count;
+            if (verticalScrollBar != null) verticalScrollBar.Range = lines.Count;
             if (horizontalScrollBar != null)
             {
                 horizontalScrollBar.Range = (int)font.MeasureString(GetMaxLine()).X;

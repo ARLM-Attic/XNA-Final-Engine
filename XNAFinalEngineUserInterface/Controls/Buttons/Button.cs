@@ -220,7 +220,7 @@ namespace XNAFinalEngine.UserInterface
             // If the button close the window
             if (ex.Button == MouseButton.Left && Root != null && Root is Window && ModalResult != ModalResult.None)
             {
-                ((Window) Root).Close(ModalResult);
+                ((Window)Root).Close(ModalResult);
             }
         } // OnClick
 

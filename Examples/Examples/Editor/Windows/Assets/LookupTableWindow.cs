@@ -40,30 +40,35 @@ namespace XNAFinalEngine.Editor
     public static class LookupTableWindow
     {
 
-        public static LookupTable CreateAsset()
-        {
-            // If there is no asset to create then return
-            if (LookupTable.LookupTablesFilenames.Length == 0)
-                return null;
-            // Uses a temporal content manager until the user click the accept button.
-            ContentManager temporalContentManager = new ContentManager("Temporal Content Manager");
-            LookupTable asset = new LookupTable(LookupTable.LookupTablesFilenames[0]);
-            return asset;
-        } // Create
-
         /// <summary>
         /// Creates and shows the configuration window of this asset.
         /// </summary>
         public static void Show(LookupTable asset)
         {
+            // If there is no asset to create then return
+            if (asset == null && LookupTable.LookupTablesFilenames.Length == 0)
+                return;
+
+            bool assetCreation = asset == null;
+            
+            if (assetCreation)
+            {
+                // Create a temporal asset with the first resource in the list.
+                asset = new LookupTable(LookupTable.LookupTablesFilenames[0]);
+            }
 
             #region Window
 
             var window = new Window
             {
+                Parent = null,
                 Text = asset.Name + " : Lookup Table"
             };
-            UserInterfaceManager.Add(window);
+            // In creation I don't want that the user mess with other things.
+            if (assetCreation)
+            {
+                window.ShowModal();
+            }
             window.Closed += delegate { };
 
             #endregion
@@ -75,23 +80,23 @@ namespace XNAFinalEngine.Editor
                 Parent = window,
                 Text = "Name", Left = 10, Top = 10,
             };
-            var materialNameTextBox = new TextBox
+            var nameTextBox = new TextBox
             {
                 Parent = window,
                 Width = window.ClientWidth - nameLabel.Width - 25,
                 Text = asset.Name, Left = 60, Top = 10
             };
-            materialNameTextBox.KeyDown += delegate(object sender, KeyEventArgs e)
+            nameTextBox.KeyDown += delegate(object sender, KeyEventArgs e)
             {
                 if (e.Key == Keys.Enter)
                 {
-                    asset.Name = materialNameTextBox.Text;
+                    asset.Name = nameTextBox.Text;
                     window.Text = asset.Name + " : Lookup Table";
                 }
             };
-            materialNameTextBox.FocusLost += delegate
+            nameTextBox.FocusLost += delegate
             {
-                asset.Name = materialNameTextBox.Text;
+                asset.Name = nameTextBox.Text;
                 window.Text = asset.Name + " : Lookup Table";
             };
 
@@ -129,15 +134,34 @@ namespace XNAFinalEngine.Editor
                 Height = 20,
                 Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
                 MaxItemsShow = 25,
-                Enabled = false,
             };
             comboBoxResource.Width = groupResource.Width - 10 - comboBoxResource.Left;
-            // Add resources' names
-            if (asset.Resource.Name == "")
-                comboBoxResource.Items.Add("Custom Resource.");
+            if (assetCreation)
+            {
+                // Add textures name
+                comboBoxResource.Items.AddRange(LookupTable.LookupTablesFilenames);
+                // Events
+                comboBoxResource.ItemIndexChanged += delegate
+                {
+                    // This is a disposable asset so...
+                    asset.Dispose();
+                    asset = new LookupTable(LookupTable.LookupTablesFilenames[comboBoxResource.ItemIndex]);
+                    nameTextBox.Text = asset.Name;
+                };
+                comboBoxResource.Draw += delegate
+                {
+                    if (comboBoxResource.ListBoxVisible)
+                        return;
+                    for (int i = 0; i < comboBoxResource.Items.Count; i++)
+                        if ((string)comboBoxResource.Items[i] == asset.Resource.Name)
+                    {
+                        comboBoxResource.ItemIndex = i;
+                        break;
+                    }
+                };
+            }
             else
-                comboBoxResource.Items.Add(asset.Resource.Name);
-            comboBoxResource.ItemIndex = 0;
+                comboBoxResource.Enabled = false;
 
             #endregion
 
@@ -209,6 +233,7 @@ namespace XNAFinalEngine.Editor
                 Top = 25,
                 Enabled = false,
             };
+            sizeTextBox.Draw += delegate { sizeTextBox.Text = asset.Size.ToString(); };
 
             groupProperties.Height = sizeLabel.Top + sizeLabel.Height + 20;
 
