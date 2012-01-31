@@ -59,7 +59,7 @@ namespace XNAFinalEngine.Editor
 
             #region Name
 
-            var materialNameLabel = new Label
+            var nameLabel = new Label
             {
                 Parent = window,
                 Text = "Name", Left = 10, Top = 10,
@@ -67,6 +67,7 @@ namespace XNAFinalEngine.Editor
             var materialNameTextBox = new TextBox
             {
                 Parent = window,
+                Width = window.ClientWidth - nameLabel.Width - 25,
                 Text = material.Name, Left = 60, Top = 10
             };
             materialNameTextBox.KeyDown += delegate(object sender, KeyEventArgs e)
@@ -94,7 +95,7 @@ namespace XNAFinalEngine.Editor
                 Width = window.ClientWidth - 16,
                 Height = 160,
                 Left = 8,
-                Top = materialNameLabel.Top + materialNameLabel.Height + 15,
+                Top = nameLabel.Top + nameLabel.Height + 15,
                 Text = "Surface Parameters",
                 TextColor = Color.Gray,
             };

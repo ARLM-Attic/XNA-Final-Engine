@@ -125,6 +125,7 @@ namespace XNAFinalEngine.Assets
             try
             {
                 Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SpriteFont>(fullFilename);
+                ContentManager = ContentManager.CurrentContentManager;
             }
             catch (ObjectDisposedException e)
             {

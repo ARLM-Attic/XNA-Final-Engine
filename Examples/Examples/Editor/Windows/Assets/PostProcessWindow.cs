@@ -67,6 +67,7 @@ namespace XNAFinalEngine.Editor
             var nameTextBox = new TextBox
             {
                 Parent = window,
+                Width = window.ClientWidth - nameLabel.Width - 25,
                 Text = asset.Name, Left = 60, Top = 10
             };
             nameTextBox.KeyDown += delegate(object sender, KeyEventArgs e)
@@ -471,17 +472,228 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
-            checkBoxAdjustLevelsEnabled.CheckedChanged += delegate
-            {
-                asset.AdjustLevels.Enabled = checkBoxAdjustLevelsEnabled.Checked;
-                //sliderFilmgrainStrength.Enabled = asset.FilmGrain.Enabled;
-            };
+            #region Input Black
 
-            groupAdjustLevels.Height = checkBoxAdjustLevelsEnabled.Top + checkBoxAdjustLevelsEnabled.Height + 5;
+            var sliderAdjustLevelsInputBlack = new SliderNumeric
+            {
+                Parent = groupAdjustLevels,
+                Left = 10,
+                Top = checkBoxAdjustLevelsEnabled.Top + checkBoxAdjustLevelsEnabled.Height + 5,
+                Value = asset.AdjustLevels.InputBlack,
+                Text = "Input Black",
+                IfOutOfRangeRescale = false,
+                ValueCanBeOutOfRange = false,
+                MinimumValue = 0,
+                MaximumValue = 0.9f,
+            };
+            sliderAdjustLevelsInputBlack.ValueChanged += delegate { asset.AdjustLevels.InputBlack = sliderAdjustLevelsInputBlack.Value; };
+            sliderAdjustLevelsInputBlack.Draw += delegate { sliderAdjustLevelsInputBlack.Value = asset.AdjustLevels.InputBlack; };
 
             #endregion
 
-            window.Height = groupFilmGrain.Top + groupFilmGrain.Height + 40;
+            #region Input White
+
+            var sliderAdjustLevelsInputWhite = new SliderNumeric
+            {
+                Parent = groupAdjustLevels,
+                Left = 10,
+                Top = sliderAdjustLevelsInputBlack.Top + sliderAdjustLevelsInputBlack.Height + 5,
+                Value = asset.AdjustLevels.InputWhite,
+                Text = "Input White",
+                IfOutOfRangeRescale = false,
+                ValueCanBeOutOfRange = false,
+                MinimumValue = 0.1f,
+                MaximumValue = 1f,
+            };
+            sliderAdjustLevelsInputWhite.ValueChanged += delegate { asset.AdjustLevels.InputWhite = sliderAdjustLevelsInputWhite.Value; };
+            sliderAdjustLevelsInputWhite.Draw += delegate { sliderAdjustLevelsInputWhite.Value = asset.AdjustLevels.InputWhite; };
+
+            #endregion
+
+            #region Input Gamma
+
+            var sliderAdjustLevelsInputGamma = new SliderNumeric
+            {
+                Parent = groupAdjustLevels,
+                Left = 10,
+                Top = sliderAdjustLevelsInputWhite.Top + sliderAdjustLevelsInputWhite.Height + 5,
+                Value = asset.AdjustLevels.InputGamma,
+                Text = "Input Gamma",
+                IfOutOfRangeRescale = false,
+                ValueCanBeOutOfRange = false,
+                MinimumValue = 0.01f,
+                MaximumValue = 9.99f,
+            };
+            sliderAdjustLevelsInputGamma.ValueChanged += delegate { asset.AdjustLevels.InputGamma = sliderAdjustLevelsInputGamma.Value; };
+            sliderAdjustLevelsInputGamma.Draw += delegate { sliderAdjustLevelsInputGamma.Value = asset.AdjustLevels.InputGamma; };
+
+            #endregion
+
+            #region Input Black
+
+            var sliderAdjustLevelsOutputBlack = new SliderNumeric
+            {
+                Parent = groupAdjustLevels,
+                Left = 10,
+                Top = sliderAdjustLevelsInputGamma.Top + sliderAdjustLevelsInputGamma.Height + 5,
+                Value = asset.AdjustLevels.OutputBlack,
+                Text = "Output Black",
+                IfOutOfRangeRescale = false,
+                ValueCanBeOutOfRange = false,
+                MinimumValue = 0,
+                MaximumValue = 1f,
+            };
+            sliderAdjustLevelsOutputBlack.ValueChanged += delegate { asset.AdjustLevels.OutputBlack = sliderAdjustLevelsOutputBlack.Value; };
+            sliderAdjustLevelsOutputBlack.Draw += delegate { sliderAdjustLevelsOutputBlack.Value = asset.AdjustLevels.OutputBlack; };
+
+            #endregion
+
+            #region Input White
+
+            var sliderAdjustLevelsOutputWhite = new SliderNumeric
+            {
+                Parent = groupAdjustLevels,
+                Left = 10,
+                Top = sliderAdjustLevelsOutputBlack.Top + sliderAdjustLevelsOutputBlack.Height + 5,
+                Value = asset.AdjustLevels.OutputWhite,
+                Text = "Output White",
+                IfOutOfRangeRescale = false,
+                ValueCanBeOutOfRange = false,
+                MinimumValue = 0f,
+                MaximumValue = 1f,
+            };
+            sliderAdjustLevelsOutputWhite.ValueChanged += delegate { asset.AdjustLevels.OutputWhite = sliderAdjustLevelsOutputWhite.Value; };
+            sliderAdjustLevelsOutputWhite.Draw += delegate { sliderAdjustLevelsOutputWhite.Value = asset.AdjustLevels.OutputWhite; };
+
+            #endregion
+
+            checkBoxAdjustLevelsEnabled.CheckedChanged += delegate
+            {
+                asset.AdjustLevels.Enabled = checkBoxAdjustLevelsEnabled.Checked;
+                sliderAdjustLevelsInputBlack.Enabled = asset.AdjustLevels.Enabled;
+                sliderAdjustLevelsInputWhite.Enabled = asset.AdjustLevels.Enabled;
+                sliderAdjustLevelsInputGamma.Enabled = asset.AdjustLevels.Enabled;
+                sliderAdjustLevelsOutputBlack.Enabled = asset.AdjustLevels.Enabled;
+                sliderAdjustLevelsOutputWhite.Enabled = asset.AdjustLevels.Enabled;
+            };
+
+            groupAdjustLevels.Height = sliderAdjustLevelsOutputWhite.Top + sliderAdjustLevelsOutputWhite.Height + 5;
+
+            #endregion
+
+            #region Group Color Correction
+
+            GroupBox groupColorCorrection = new GroupBox
+            {
+                Parent = window,
+                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
+                Width = window.ClientWidth - 16,
+                Left = 8,
+                Top = groupAdjustLevels.Top + groupAdjustLevels.Height + 15,
+                Text = "Color Correction",
+                TextColor = Color.Gray,
+            };
+
+            #region Enabled
+
+            CheckBox checkBoxColorCorrectionEnabled = new CheckBox
+            {
+                Parent = groupColorCorrection,
+                Left = 8,
+                Top = 25,
+                Width = groupColorCorrection.ClientWidth - 16,
+                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
+                Checked = asset.ColorCorrection.Enabled,
+                Text = " Enabled",
+            };
+            checkBoxColorCorrectionEnabled.Draw += delegate { checkBoxColorCorrectionEnabled.Checked = asset.ColorCorrection.Enabled; };
+
+            #endregion
+
+            #region First Lookup Table
+
+            var labelFirstLookupTable = new Label
+            {
+                Parent = groupColorCorrection,
+                Left = 10,
+                Top = 10 + checkBoxColorCorrectionEnabled.Top + checkBoxColorCorrectionEnabled.Height,
+                Width = 150,
+                Text = "First Lookup Table"
+            };
+            var comboBoxFirstLookupTable = new ComboBox
+            {
+                Parent = groupColorCorrection,
+                Left = labelFirstLookupTable.Left + labelFirstLookupTable.Width,
+                Top = labelFirstLookupTable.Top,
+                Height = 20,
+                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
+                MaxItemsShow = 25,
+            };
+            comboBoxFirstLookupTable.Width = groupColorCorrection.Width - 10 - comboBoxFirstLookupTable.Left;
+            // Events
+            comboBoxFirstLookupTable.ItemIndexChanged += delegate
+            {
+                if (comboBoxFirstLookupTable.ItemIndex <= 0)
+                    asset.ColorCorrection.FirstLookupTable = null;
+                else
+                {
+                    // If we have to change the asset...
+                    if (asset.ColorCorrection.FirstLookupTable == null ||
+                        asset.ColorCorrection.FirstLookupTable.Name != (string)comboBoxFirstLookupTable.Items[comboBoxFirstLookupTable.ItemIndex])
+                    {
+                        asset.ColorCorrection.FirstLookupTable = LookupTable.LoadedLookupTables[comboBoxFirstLookupTable.ItemIndex - 1]; // The first item is the no texture item.
+                    }
+                }
+            };
+            comboBoxFirstLookupTable.Draw += delegate
+            {
+                // Add textures name here because someone could dispose or add new lookup tables.
+                comboBoxFirstLookupTable.Items.Clear();
+                comboBoxFirstLookupTable.Items.Add("No texture");
+                foreach (LookupTable lookupTable in LookupTable.LoadedLookupTables)
+                    comboBoxFirstLookupTable.Items.Add(lookupTable.Name);
+
+                if (comboBoxFirstLookupTable.ListBoxVisible)
+                    return;
+                // Identify current index
+                if (asset.ColorCorrection.FirstLookupTable == null)
+                    comboBoxFirstLookupTable.ItemIndex = 0;
+                else
+                {
+                    for (int i = 0; i < comboBoxFirstLookupTable.Items.Count; i++)
+                        if ((string)comboBoxFirstLookupTable.Items[i] == asset.ColorCorrection.FirstLookupTable.Name)
+                        {
+                            comboBoxFirstLookupTable.ItemIndex = i;
+                            break;
+                        }
+                }
+            };
+            var buttonFirstLookupTable = new Button
+            {
+                Parent = groupColorCorrection,
+                Anchor = Anchors.Left | Anchors.Top,
+                Top = labelFirstLookupTable.Top,
+                Left = 140,
+                Width = 15,
+                Height = 20,
+                Text = "+"
+            };
+
+            #endregion
+
+            checkBoxColorCorrectionEnabled.CheckedChanged += delegate
+            {
+                asset.ColorCorrection.Enabled = checkBoxColorCorrectionEnabled.Checked;
+                labelFirstLookupTable.Enabled = asset.ColorCorrection.Enabled;
+                comboBoxFirstLookupTable.Enabled = asset.ColorCorrection.Enabled;
+                buttonFirstLookupTable.Enabled = asset.ColorCorrection.Enabled;
+            };
+
+            groupColorCorrection.Height = buttonFirstLookupTable.Top + buttonFirstLookupTable.Height + 15; // Use an offset of 15 instead of 5 for the last one.
+
+            #endregion
+
+            window.Height = 500;
 
         } // Show
 

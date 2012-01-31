@@ -539,7 +539,7 @@ namespace XNAFinalEngine.UserInterface
             #endif
 
             if (skinContentManager == null)
-                skinContentManager = new ContentManager();
+                skinContentManager = new ContentManager("Skin Content Manager");
             else
                 skinContentManager.Unload();
             ContentManager.CurrentContentManager = skinContentManager;

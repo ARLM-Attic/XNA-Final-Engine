@@ -86,6 +86,7 @@ namespace XNAFinalEngine.Assets
             try
             {
                 Resource = ContentManager.SystemContentManager.XnaContentManager.Load<Effect>(fullFilename);
+                ContentManager = ContentManager.SystemContentManager;
             }
             catch (ObjectDisposedException)
             {

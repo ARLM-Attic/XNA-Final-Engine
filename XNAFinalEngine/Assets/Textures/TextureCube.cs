@@ -62,15 +62,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// XNA Texture.
         /// </summary>
-        public virtual Microsoft.Xna.Framework.Graphics.TextureCube Resource
-        { 
-            get { return xnaTextureCube; }
-            set
-            {
-                xnaTextureCube = value; 
-                size = value.Size;
-            }
-        } // XnaTextureCube
+        public virtual Microsoft.Xna.Framework.Graphics.TextureCube Resource { get { return xnaTextureCube; } }
 
         /// <summary>
         /// The size of this texture resource, in pixels.
@@ -115,6 +107,7 @@ namespace XNAFinalEngine.Assets
             try
             {
                 xnaTextureCube = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Graphics.TextureCube>(fullFilename);
+                ContentManager = ContentManager.CurrentContentManager;
                 size = xnaTextureCube.Size;
             }
             catch (ObjectDisposedException)
@@ -142,16 +135,16 @@ namespace XNAFinalEngine.Assets
                 TexturesFilename = new string[texturesFileInformation.Length];
                 for (int i = 0; i < texturesFileInformation.Length; i++)
                 {
-                    FileInfo songFileInformation = texturesFileInformation[i];
+                    FileInfo fileInformation = texturesFileInformation[i];
                     // Some textures are in a sub directory, in that case we have to know how is called.
-                    string[] splitDirectoryName = songFileInformation.DirectoryName.Split(new[] { texturesDirectoryPath }, StringSplitOptions.None);
+                    string[] splitDirectoryName = fileInformation.DirectoryName.Split(new[] { texturesDirectoryPath }, StringSplitOptions.None);
                     string subdirectory = "";
                     // If is in a sub directory
                     if (splitDirectoryName[1] != "")
                     {
                         subdirectory = splitDirectoryName[1].Substring(1, splitDirectoryName[1].Length - 1) + "\\"; // We delete the start \ and add another \ to the end.
                     }
-                    TexturesFilename[i] = subdirectory + songFileInformation.Name.Substring(0, songFileInformation.Name.Length - 4);
+                    TexturesFilename[i] = subdirectory + fileInformation.Name.Substring(0, fileInformation.Name.Length - 4);
 
                 }
             }
@@ -163,18 +156,6 @@ namespace XNAFinalEngine.Assets
         } // TextureCube
 
 		#endregion
-
-        #region Dispose
-
-        /// <summary>
-        /// Dispose managed resources.
-        /// </summary>
-        protected override void DisposeManagedResources()
-        {
-            Resource.Dispose();
-        } // DisposeManagedResources
-
-	    #endregion
 
     } // TextureCube
 } // XNAFinalEngine.Assets

@@ -29,6 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -48,6 +50,22 @@ namespace XNAFinalEngine.Assets
         /// The name of the asset.
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// The content manager used to load this asset.
+        /// </summary>
+        public ContentManager ContentManager { get; protected set; }
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            if (ContentManager != null)
+            {
+                throw new InvalidOperationException("Assets loaded with content managers cannot be disposed individually.");
+            }
+        } // DisposeManagedResources
         
     } // Asset
 }  // XNAFinalEngine.Assets

@@ -73,6 +73,7 @@ namespace XNAFinalEngine.Assets
             try
             {
                 Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<ModelAnimationClip>(fullFilename);
+                ContentManager = ContentManager.CurrentContentManager;
             }
             catch (ObjectDisposedException)
             {

@@ -456,18 +456,32 @@ namespace XNAFinalEngine.Graphics
 
         #region First Lookup Table
 
+        private static Texture3D lastUsedFirstLookupTable;
         private static void SetFirstLookupTable(LookupTable firstLookupTable)
         {
-            epFirstlookupTable.SetValue(firstLookupTable.Resource);
+            EngineManager.Device.SamplerStates[5] = SamplerState.LinearClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedFirstLookupTable != firstLookupTable.Resource)
+            {
+                lastUsedFirstLookupTable = firstLookupTable.Resource;
+                epFirstlookupTable.SetValue(firstLookupTable.Resource);
+            }
         } // SetFirstLookupTable
 
         #endregion
 
         #region Second Lookup Table
-        
+
+        private static Texture3D lastUsedSecondLookupTable;
         private static void SetSecondLookupTable(LookupTable secondLookupTable)
         {
-            epSecondlookupTable.SetValue(secondLookupTable.Resource);
+            EngineManager.Device.SamplerStates[6] = SamplerState.LinearClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedSecondLookupTable != secondLookupTable.Resource)
+            {
+                lastUsedSecondLookupTable = secondLookupTable.Resource;
+                epSecondlookupTable.SetValue(secondLookupTable.Resource);
+            }
         } // SetSecondLookupTable
 
         #endregion

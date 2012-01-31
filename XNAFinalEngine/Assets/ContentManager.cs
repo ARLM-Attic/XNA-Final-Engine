@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using System.Collections.Generic;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 #endregion
@@ -84,7 +85,7 @@ namespace XNAFinalEngine.Assets
             get
             {
                 if (systemContentManager == null)
-                    systemContentManager = new ContentManager();
+                    systemContentManager = new ContentManager("System Content Manager");
                 return systemContentManager;
             }
         } // SystemContentManager
@@ -108,9 +109,19 @@ namespace XNAFinalEngine.Assets
         } // CurrentContent
 
         /// <summary>
+        /// The name of the content manager.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
         /// The XNA Content Manager.
         /// </summary>
         internal Microsoft.Xna.Framework.Content.ContentManager XnaContentManager { get; private set; }
+
+        /// <summary>
+        /// Loaded Content Managers
+        /// </summary>
+        public static List<ContentManager> ContentManagers { get; private set; }
 
         #endregion
 
@@ -124,9 +135,13 @@ namespace XNAFinalEngine.Assets
         /// You can unload or dispose it. In any case the loaded assets will be disposed.
         /// By default the system content manager is the current content manager.
         /// </summary>
-        public ContentManager()
+        public ContentManager(string name)
         {
             XnaContentManager = new Microsoft.Xna.Framework.Content.ContentManager(EngineManager.GameServices);
+            Name = name;
+            if (ContentManagers == null)
+                ContentManagers = new List<ContentManager>();
+            ContentManagers.Add(this);
         } // ContentManager
 
         #endregion
@@ -143,6 +158,7 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("Content Manager: System Content Manager can not be disposed.");
             }
             XnaContentManager.Dispose();
+            ContentManagers.Remove(this);
         } // DisposeManagedResources
 
         #endregion

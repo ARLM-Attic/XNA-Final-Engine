@@ -48,26 +48,24 @@ float3 outputWhiteRGB;
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
-texture3D firstlookupTableTexture;
-
-sampler3D firstlookupTableSampler = sampler_state
+texture3D firstlookupTableTexture : register(t5);;
+sampler3D firstlookupTableSampler : register(s5) = sampler_state
 {
 	Texture = <firstlookupTableTexture>;
 	// Trilinear filter is mandatory for this texture. http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter24.html
-	MipFilter = LINEAR;
+	/*MipFilter = LINEAR;
 	MagFilter = LINEAR;
-	MinFilter = LINEAR;
+	MinFilter = LINEAR;*/
 };
 
-texture3D secondlookupTableTexture;
-
-sampler3D secondlookupTableSampler = sampler_state
+texture3D secondlookupTableTexture: register(t6); ;
+sampler3D secondlookupTableSampler: register(s6) = sampler_state
 {
 	Texture = <secondlookupTableTexture>;
 	// Trilinear filter is mandatory for this texture. http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter24.html
-	MipFilter = LINEAR;
+	/*MipFilter = LINEAR;
 	MagFilter = LINEAR;
-	MinFilter = LINEAR;
+	MinFilter = LINEAR;*/
 };
 
 //////////////////////////////////////////////

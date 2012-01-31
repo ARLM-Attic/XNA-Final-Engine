@@ -1272,7 +1272,6 @@
     <Folder Include="Music\" />
     <Folder Include="Shaders\Helpers\" />
     <Folder Include="Shaders\ScreenSpaceAlphaMasking\" />
-    <Folder Include="Textures\LookupTables\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\XNAFinalEngineContentPipelineExtension\XNAFinalEngineContentPipelineExtension.csproj">
@@ -1694,6 +1693,22 @@
       <Name>SkySunset</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\LookupTables\LookupTableHueChanged.png">
+      <Name>LookupTableHueChanged</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+    </Compile>
+    <Compile Include="Textures\LookupTables\LookupTableIdentity.png">
+      <Name>LookupTableIdentity</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
       <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
     </Compile>
   </ItemGroup>

@@ -79,7 +79,6 @@ namespace XNAFinalEngine.Audio
         {
             public string Filename;
             public Song Asset;
-            public ContentManager ContentManager;
         } // LoadedSong
 
         #endregion
@@ -271,7 +270,7 @@ namespace XNAFinalEngine.Audio
             {
                 try
                 {
-                    playlist[i] = new LoadedSong { Filename = songFilename, Asset = preload ? new Song(songFilename) : null, ContentManager = ContentManager.CurrentContentManager };
+                    playlist[i] = new LoadedSong { Filename = songFilename, Asset = preload ? new Song(songFilename) : null };
                     i++;
                 }
                 catch (Exception e)
@@ -306,7 +305,7 @@ namespace XNAFinalEngine.Audio
                         songExist = songExist || playlist[j].Filename == songFilename;
                     }
                     if (!songExist)
-                        playlistTemp.Add(new LoadedSong { Filename = songFilename, Asset = preload ? new Song(songFilename) : null, ContentManager = ContentManager.CurrentContentManager });
+                        playlistTemp.Add(new LoadedSong { Filename = songFilename, Asset = preload ? new Song(songFilename) : null });
                 }
                 catch (Exception e)
                 {
@@ -333,7 +332,7 @@ namespace XNAFinalEngine.Audio
                     musicContentManager.Unload();
                 else
                     // Creates a new content manager and load the new song.
-                    musicContentManager = new ContentManager();
+                    musicContentManager = new ContentManager("Temporal Content Manager");
 
                 ContentManager.CurrentContentManager = musicContentManager;
                 Song song = new Song(_currentSongFilename);
@@ -414,7 +413,7 @@ namespace XNAFinalEngine.Audio
             int elementCount = 0;
             for (int i = 0; i < playlist.Length; i++)
             {
-                if (playlist[i].ContentManager == contentManager)
+                if (playlist[i].Asset.ContentManager == contentManager)
                 {
                     // If we want to remove the current song we have to stop it first.
                     if (currentIndex == i)
@@ -430,7 +429,7 @@ namespace XNAFinalEngine.Audio
             int k = 0;
             for (int i = 0; i < playlist.Length; i++)
             {
-                if (playlist[i].ContentManager != contentManager)
+                if (playlist[i].Asset.ContentManager != contentManager)
                 {
                     newPlaylist[k] = playlist[i];
                     k++;

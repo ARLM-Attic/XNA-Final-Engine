@@ -96,7 +96,7 @@ namespace XNAFinalEngineExamples
                                     camera,
                                     skydome;
 
-        private static GameObject2D xnaFinalEngineLogo;
+        private static GameObject2D xnaFinalEngineLogo, videoTest;
 
         #endregion
 
@@ -913,6 +913,16 @@ namespace XNAFinalEngineExamples
            
             #endregion
 
+            #region Video
+
+            videoTest = new GameObject2D();
+            videoTest.AddComponent<VideoRenderer>();
+            videoTest.VideoRenderer.Video = new Video("LogosIntro");
+            videoTest.VideoRenderer.Play();
+            videoTest.Transform.Position = new Vector3(0, 0, 1);
+
+            #endregion
+
             /*xnaFinalEngineLogo = new GameObject2D();
             xnaFinalEngineLogo.AddComponent<HudTexture>();
             xnaFinalEngineLogo.HudTexture.Texture = new Texture("XNA Final Engine");
@@ -926,6 +936,11 @@ namespace XNAFinalEngineExamples
             //BlinnPhongWindow.Show((BlinnPhong)murcielagoInteriorLeather.ModelRenderer.Material);
             //CarPaintWindow.Show(carPaint);
             PostProcessWindow.Show(camera.Camera.PostProcess);
+
+            LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
+            LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
+
+            LookupTableWindow.Show(testLookupTable);
 
             base.Load();
         } // Load

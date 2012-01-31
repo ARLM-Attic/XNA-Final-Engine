@@ -36,7 +36,8 @@ namespace XNAFinalEngine.UserInterface
         public static Container Load(string filename)
         {
             Container mainContainer = null;
-            ContentManager temporalContent = new ContentManager();
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
+            ContentManager temporalContent = new ContentManager("Temporal Content Manager");
             ContentManager.CurrentContentManager = temporalContent;
             try
             {
@@ -64,8 +65,9 @@ namespace XNAFinalEngine.UserInterface
             }
             finally
             {
+                // Dispose the temporal content manager and restore the user content manager.
                 temporalContent.Dispose();
-                ContentManager.CurrentContentManager = null;
+                ContentManager.CurrentContentManager = userContentManager;
             }
 
             return mainContainer;

@@ -9,6 +9,7 @@
 
 #region Using directives
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -58,6 +59,16 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public int Size { get; private set; }
 
+        /// <summary>
+        /// Loaded Lookup Tables.
+        /// </summary>
+        public static List<LookupTable> LoadedLookupTables { get; private set; }
+
+        /// <summary>
+        ///  A list with all texture' filenames on the lookup table directory.
+        /// </summary>
+        public static string[] LookupTablesFilenames { get; private set; }
+
         #endregion
 
         #region Constructors
@@ -65,7 +76,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Loads lookup table from image file.
         /// </summary>
-        /// <param name="filename">2D texture path.</param>
+        /// <param name="filename">Texture path.</param>
         public LookupTable(string filename)
         {
             Name = filename;
@@ -76,7 +87,12 @@ namespace XNAFinalEngine.Assets
             }
             try
             {
-                Texture lookupTableTexture2D = new Texture(filename);
+                // If I use a create-dispose method, the texture can't be used again, that could mean a potential ObjectDisposedException.
+                ContentManager userContentManager = ContentManager.CurrentContentManager;
+                ContentManager temporalContentManager = new ContentManager("Temporal Content Manager");
+                ContentManager.CurrentContentManager = temporalContentManager;
+
+                Texture lookupTableTexture2D = new Texture("LookupTables\\" + filename);
 
                 // SideSize is inaccurate because Math.Pow is a bad way to calculate cube roots.
                 int sideSize = (int)Math.Pow(lookupTableTexture2D.Width * lookupTableTexture2D.Height, 1 / 3.0);
@@ -88,9 +104,11 @@ namespace XNAFinalEngine.Assets
                 Resource = new Texture3D(EngineManager.Device, Size, Size, Size, false, SurfaceFormat.Color);
                 lookupTableTexture2D.Resource.GetData(colors);
                 Resource.SetData(colors);
+                Resource.Name = filename;
 
-                // Dispose the 2D texture.
-                lookupTableTexture2D.Dispose();
+                // Dispose the temporal content manager and restore the user content manager.
+                temporalContentManager.Dispose();
+                ContentManager.CurrentContentManager = userContentManager;
             }
             catch (ObjectDisposedException)
             {
@@ -100,12 +118,52 @@ namespace XNAFinalEngine.Assets
             {
                 throw new InvalidOperationException("Failed to load lookup texture: " + filename, e);
             }
+            LoadedLookupTables.Add(this);
         } // LookupTable
 
         /// <summary>
         /// Dummy constructor for static methods.
         /// </summary>
-        private LookupTable() {  }
+        private LookupTable()
+        {
+            LoadedLookupTables.Add(this);
+        } // LookupTable
+
+        /// <summary>
+        /// Search the available lookup tables.
+        /// </summary>
+        static LookupTable()
+        {
+            const string texturesDirectoryPath = ContentManager.GameDataDirectory + "Textures\\LookupTables";
+            // Search the texture files //
+            DirectoryInfo texturesDirectory = new DirectoryInfo(texturesDirectoryPath);
+            try
+            {
+                FileInfo[] texturesFileInformation = texturesDirectory.GetFiles("*.xnb", SearchOption.AllDirectories);
+                // Count the textures, except cube textures and user interface textures.
+                LookupTablesFilenames = new string[texturesFileInformation.Length];
+                for (int i = 0; i < texturesFileInformation.Length; i++)
+                {
+                    FileInfo fileInformation = texturesFileInformation[i];
+                    // Some textures are in a sub directory, in that case we have to know how is called.
+                    string[] splitDirectoryName = fileInformation.DirectoryName.Split(new[] { texturesDirectoryPath }, StringSplitOptions.None);
+                    string subdirectory = "";
+                    // If is in a sub directory
+                    if (splitDirectoryName[1] != "")
+                    {
+                        subdirectory = splitDirectoryName[1].Substring(1, splitDirectoryName[1].Length - 1) + "\\"; // We delete the start \ and add another \ to the end.
+                    }
+                    LookupTablesFilenames[i] = subdirectory + fileInformation.Name.Substring(0, fileInformation.Name.Length - 4);
+
+                }
+            }
+            // If there was an error then do nothing.
+            catch
+            {
+                LookupTablesFilenames = new string[0];
+            }
+            LoadedLookupTables = new List<LookupTable>();
+        } // LookupTable
 
         #endregion
 
@@ -178,6 +236,7 @@ namespace XNAFinalEngine.Assets
         protected override void DisposeManagedResources()
         {
             Resource.Dispose();
+            LoadedLookupTables.Remove(this);
         } // DisposeManagedResources
 
         #endregion

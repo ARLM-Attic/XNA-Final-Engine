@@ -244,6 +244,7 @@ namespace XNAFinalEngine.Assets
             try
             {
                 Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<XnaModel>(fullFilename);
+                ContentManager = ContentManager.CurrentContentManager;
                 // Calcuate bounding volumes
                 Vector3[] vectices = Vectices;
                 boundingSphere = BoundingSphere.CreateFromPoints(vectices);

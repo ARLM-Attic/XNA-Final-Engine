@@ -174,7 +174,7 @@ namespace XNAFinalEngine.Components
         {
             if (videoPlayerInstance == null)
             {
-                videoPlayerInstance = new VideoPlayer();// VideoManager.FetchSoundInstance(Video); // TODO
+                videoPlayerInstance = new VideoPlayer();// VideoManager.FetchVideoInstance(Video); // TODO
                 // If the sound instance could not be created then do nothing.
                 if (videoPlayerInstance == null)
                     return;
@@ -250,7 +250,7 @@ namespace XNAFinalEngine.Components
                     videoPlayerInstance.IsMuted = IsMuted;
                     videoPlayerInstance.IsLooped = IsLooped;
                     videoPlayerInstance.Volume = Volume;
-                    texture.Resource = videoPlayerInstance.GetTexture();    
+                    texture.Resource = videoPlayerInstance.GetTexture();
                 }
             }
         } // Update

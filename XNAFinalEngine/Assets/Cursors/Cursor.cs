@@ -70,6 +70,7 @@ namespace XNAFinalEngine.Assets
             try
             {
                 Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<System.Windows.Forms.Cursor>(fullFilename);
+                ContentManager = ContentManager.CurrentContentManager;
             }
             catch (ObjectDisposedException)
             {

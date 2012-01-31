@@ -140,7 +140,7 @@ namespace XNAFinalEngine.Assets
             get { return inputGamma; }
             set
             {
-                inputGamma = 1 / value;
+                inputGamma = value;
                 if (inputGamma < 0.01f)
                     inputGamma = 0.01f;
                 if (inputGamma > 9.99f)

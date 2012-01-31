@@ -70,7 +70,10 @@ namespace XNAFinalEngine.Assets
         public virtual Texture2D Resource
         { 
             get { return xnaTexture; }
-            set
+            // This is only allowed for videos. Doing something to avoid this “set” is unnecessary and probably will make more complex some classes 
+            // just for this special case. Besides, an internal statement elegantly prevents a bad use of this set.
+            // Just don’t dispose this texture because the resource is managed by the video.
+            internal set 
             {
                 if (value == null)
                     throw new ArgumentNullException("value");
@@ -112,7 +115,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Empty texture. 
         /// </summary>
-        public Texture()
+        internal Texture()
         {
             Name = "Empty Texture";
         } // Texture
@@ -142,6 +145,7 @@ namespace XNAFinalEngine.Assets
             try
             {
                 xnaTexture = ContentManager.CurrentContentManager.XnaContentManager.Load<Texture2D>(fullFilename);
+                ContentManager = ContentManager.CurrentContentManager;
                 Size = new Size(xnaTexture.Width, xnaTexture.Height);
             }
             catch (ObjectDisposedException)
@@ -213,6 +217,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected override void DisposeManagedResources()
         {
+            base.DisposeManagedResources();
             Resource.Dispose();
         } // DisposeManagedResources
 

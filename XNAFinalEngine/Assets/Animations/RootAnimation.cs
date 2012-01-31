@@ -69,6 +69,7 @@ namespace XNAFinalEngine.Assets
             try
             {
                 Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<RootAnimationClip>(fullFilename);
+                ContentManager = ContentManager.CurrentContentManager;
             }
             catch (ObjectDisposedException)
             {

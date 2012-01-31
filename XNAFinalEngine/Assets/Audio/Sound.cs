@@ -78,6 +78,7 @@ namespace XNAFinalEngine.Assets
             try
             {
                 Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SoundEffect>(fullFilename);
+                ContentManager = ContentManager.CurrentContentManager;
             }
             catch (ObjectDisposedException e)
             {

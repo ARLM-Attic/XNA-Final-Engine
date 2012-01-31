@@ -109,10 +109,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Editor\ScriptEditorCamera.cs" />
+    <Compile Include="Editor\Windows\Assets\LookupTableWindow.cs" />
     <Compile Include="Editor\Windows\Materials\BlinnPhongWindow.cs" />
     <Compile Include="Editor\Windows\Materials\CarPaintWindow.cs" />
     <Compile Include="Editor\Windows\Materials\ConstantWindow.cs" />
-    <Compile Include="Editor\Windows\PostProcess\PostProcessWindow.cs" />
+    <Compile Include="Editor\Windows\Assets\PostProcessWindow.cs" />
     <Compile Include="Scenes\MiscellaneousScene.cs" />
     <Compile Include="Scenes\LamborghiniMurcielagoScene.cs" />
     <Compile Include="Scenes\EmptyScene.cs" />
