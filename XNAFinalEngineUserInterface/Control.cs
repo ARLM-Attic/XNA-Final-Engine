@@ -1492,17 +1492,41 @@ namespace XNAFinalEngine.UserInterface
             {
                 foreach (Control c in childrenControls)
                 {
-                    // We skip detached controls for first level after root (they are rendered separately in Draw() method)
+                    // We skip detached controls for first level (after root) because they are rendered separately in the Draw method.
                     if (((c.Root == c.Parent && !c.Detached) || c.Root != c.Parent) && ControlRectangle.Intersects(c.ControlRectangle) && c.visible)
                     {
                         EngineManager.Device.ScissorRectangle = ClippingRectangle(c);
 
-                        // The position relative to its parent with its width and height.
+                        // The position relative to its parent plus its width and height.
                         Rectangle rect = new Rectangle(c.ControlAndMarginsLeftAbsoluteCoordinate - root.ControlLeftAbsoluteCoordinate, c.ControlAndMarginsTopAbsoluteCoordinate - root.ControlTopAbsoluteCoordinate, c.ControlAndMarginsWidth, c.ControlAndMarginsHeight);
                         if (c.Root != c.Parent && ((!c.Detached && CheckDetached(c)) || firstDetachedLevel))
                         {
                             rect = new Rectangle(c.ControlAndMarginsLeftAbsoluteCoordinate, c.ControlAndMarginsTopAbsoluteCoordinate, c.ControlAndMarginsWidth, c.ControlAndMarginsHeight);
-                            EngineManager.Device.ScissorRectangle = rect;
+                            // If is off the screen there is not need for a scissor rectangle
+                            if (rect.X < Screen.Width && rect.Y < Screen.Height && rect.X + rect.Width > 0 && rect.Y + rect.Height > 0)
+                            {
+                                // If part of it is off the screen we reduce the rectangle.
+                                if (rect.X + rect.Width > Screen.Width)
+                                {
+                                    rect.Width = rect.Width - (rect.X + rect.Width - Screen.Width);
+                                }
+                                if (rect.Y + rect.Height > Screen.Height)
+                                {
+                                    rect.Height = rect.Height - (rect.Y + rect.Height - Screen.Height);
+                                }
+                                if (rect.X < 0 )
+                                {
+                                    rect.Width = rect.Width + rect.X;
+                                    rect.X = 0;
+                                }
+                                if (rect.Y < 0)
+                                {
+                                    rect.Height = rect.Height + rect.Y;
+                                    rect.Y = 0;
+                                }
+                                // We enable the scissor test.
+                                EngineManager.Device.ScissorRectangle = rect;
+                            }
                         }
 
                         Renderer.Begin();

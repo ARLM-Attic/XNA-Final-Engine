@@ -111,8 +111,7 @@ namespace XNAFinalEngine.UserInterface
         } // SourceRectangle
 
         /// <summary>
-        /// Size Mode (Normal, Streched, Centered and Auto).
-        /// Auto mode changes the control's width and height to the texture's dimentions.
+        /// Size Mode (Normal, Streched, Fit, Centered and Auto).
         /// </summary>
         public SizeMode SizeMode
         {

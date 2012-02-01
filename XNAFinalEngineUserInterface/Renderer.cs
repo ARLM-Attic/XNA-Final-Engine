@@ -598,11 +598,7 @@ namespace XNAFinalEngine.UserInterface
                                      imageSize.Width,
                                      imageSize.Height);
             }
-            else if (glyph.SizeMode == SizeMode.Normal)
-            {
-                rect = new Rectangle(rect.X + glyph.Offset.X, rect.Y + glyph.Offset.Y, imageSize.Width, imageSize.Height);
-            }
-            else if (glyph.SizeMode == SizeMode.Auto)
+            else if (glyph.SizeMode == SizeMode.Normal && glyph.SizeMode == SizeMode.Auto)
             {
                 rect = new Rectangle(rect.X + glyph.Offset.X, rect.Y + glyph.Offset.Y, imageSize.Width, imageSize.Height);
             }
