@@ -21,37 +21,29 @@ namespace XNAFinalEngine.UserInterface
 {
 
     /// <summary>
-    /// Represents an image on a button.
+    /// Represents an image that could be used in buttons, image boxs, etc.
+    /// This container allows so
     /// </summary>
     public class Glyph
     {
 
         #region Variables
 
-        /// <summary>
-        /// Texture.
-        /// </summary>
+        
+        // Texture.
         private Texture texture;
 
-        /// <summary>
-        /// Size Mode (Normal, Streched, Centered and Auto).
-        /// Auto mode changes the control's width and height to the texture's dimentions.
-        /// </summary>
+        // Size Mode (Normal, Streched, Centered and Auto).
+        // Auto mode changes the control's width and height to the texture's dimentions.
         private SizeMode sizeMode = SizeMode.Normal;
 
-        /// <summary>
-        /// Allows to cut the texture.
-        /// </summary>
+        // Allows to cut the texture.
         private Rectangle sourceRectangle = Rectangle.Empty;
 
-        /// <summary>
-        /// Color.
-        /// </summary>
+        // Color.
         private Color color = Color.White;
-
-        /// <summary>
-        /// Offset.
-        /// </summary>
+        
+        // Offset.
         private Point offset = Point.Zero;
 
         #endregion
@@ -96,12 +88,18 @@ namespace XNAFinalEngine.UserInterface
                     int width = value.Width;
                     int height = value.Height;
 
-                    if (left < 0) left = 0;
-                    if (top < 0) top = 0;
-                    if (width > texture.Width) width = texture.Width;
-                    if (height > texture.Height) height = texture.Height;
-                    if (left + width > texture.Width) width = (texture.Width - left);
-                    if (top + height > texture.Height) height = (texture.Height - top);
+                    if (left < 0) 
+                        left = 0;
+                    if (top < 0) 
+                        top = 0;
+                    if (width > texture.Width)
+                        width = texture.Width;
+                    if (height > texture.Height) 
+                        height = texture.Height;
+                    if (left + width > texture.Width)
+                        width = (texture.Width - left);
+                    if (top + height > texture.Height)
+                        height = (texture.Height - top);
 
                     sourceRectangle = new Rectangle(left, top, width, height);
                 }

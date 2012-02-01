@@ -96,9 +96,15 @@ namespace XNAFinalEngine.UserInterface
         } // SourceRectangle
 
         /// <summary>
-        /// Size Mode (Normal, Streched, Centered and Auto).
-        /// Auto mode changes the control's width and height to the texture's dimentions.
+        /// Size Mode (Normal, Streched, Fit, Centered and Auto).
         /// </summary>
+        /// <remarks>
+        /// Normal: It preserves the pixel ratio to 1. If the destination rectangle is smaller than the source rectangle the lower-right part of the texture will be cut.
+        /// Auto: It changes the control's width and height to the texture's dimentions.
+        /// Centered: Same as normal, but the center of the texture is in the same place as the center of the control.
+        /// Stretched: It stretches the texture onto the control.
+        /// Fit: It stretches the texture onto the control but maintaining the texture's aspect ratio.
+        /// </remarks>
         public SizeMode SizeMode
         {
             get { return sizeMode; }
@@ -159,6 +165,21 @@ namespace XNAFinalEngine.UserInterface
                         int x = (rect.Width  / 2) - (texture.Width  / 2);
                         int y = (rect.Height / 2) - (texture.Height / 2);
                         Renderer.Draw(texture.Resource, x, y, sourceRectangle, Color);
+                        break;
+                    case SizeMode.Fit:
+                        Rectangle aspectRatiorectangle = rect;
+                        if (texture.Width / texture.Height > rect.Width / rect.Height)
+                        {
+                            aspectRatiorectangle.Height = rect.Height * (rect.Width / rect.Height) / (texture.Width / texture.Height);
+                            aspectRatiorectangle.Y = rect.Y + (rect.Height - aspectRatiorectangle.Height) / 2;
+                        }
+                        else
+                        {
+                            aspectRatiorectangle.Width = rect.Width * (texture.Width / texture.Height) / (rect.Width / rect.Height);
+                            aspectRatiorectangle.X = rect.X + (rect.Width - aspectRatiorectangle.Width) / 2;
+                        }
+
+                        Renderer.Draw(texture.Resource, aspectRatiorectangle, sourceRectangle, Color);
                         break;
                 }
             }

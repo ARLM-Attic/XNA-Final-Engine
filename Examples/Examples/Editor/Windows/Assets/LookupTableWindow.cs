@@ -40,6 +40,39 @@ namespace XNAFinalEngine.Editor
     public static class LookupTableWindow
     {
 
+        #region Variables
+
+        // This is a copy of the asset in its current state of creation.
+        private static LookupTable currentCreatedAsset;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// This is a copy of the asset in its current state of creation.
+        /// </summary>
+        public static LookupTable CurrentCreatedAsset
+        {
+            get { return currentCreatedAsset; }
+            private set
+            {
+                currentCreatedAsset = value;
+                if (CurrentCreatedAssetChanged != null)
+                    CurrentCreatedAssetChanged.Invoke(null, new EventArgs());
+            }
+        }
+
+        #endregion
+
+        #region Events
+
+        public static event EventHandler CurrentCreatedAssetChanged;
+
+        #endregion
+
+        #region Show
+
         /// <summary>
         /// Creates and shows the configuration window of this asset.
         /// </summary>
@@ -55,6 +88,7 @@ namespace XNAFinalEngine.Editor
             {
                 // Create a temporal asset with the first resource in the list.
                 asset = new LookupTable(LookupTable.LookupTablesFilenames[0]);
+                CurrentCreatedAsset = asset;
             }
 
             #region Window
@@ -136,32 +170,6 @@ namespace XNAFinalEngine.Editor
                 MaxItemsShow = 25,
             };
             comboBoxResource.Width = groupResource.Width - 10 - comboBoxResource.Left;
-            if (assetCreation)
-            {
-                // Add textures name
-                comboBoxResource.Items.AddRange(LookupTable.LookupTablesFilenames);
-                // Events
-                comboBoxResource.ItemIndexChanged += delegate
-                {
-                    // This is a disposable asset so...
-                    asset.Dispose();
-                    asset = new LookupTable(LookupTable.LookupTablesFilenames[comboBoxResource.ItemIndex]);
-                    nameTextBox.Text = asset.Name;
-                };
-                comboBoxResource.Draw += delegate
-                {
-                    if (comboBoxResource.ListBoxVisible)
-                        return;
-                    for (int i = 0; i < comboBoxResource.Items.Count; i++)
-                        if ((string)comboBoxResource.Items[i] == asset.Resource.Name)
-                    {
-                        comboBoxResource.ItemIndex = i;
-                        break;
-                    }
-                };
-            }
-            else
-                comboBoxResource.Enabled = false;
 
             #endregion
 
@@ -201,6 +209,36 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
+            #region Group Image
+
+            GroupBox groupImage = new GroupBox
+            {
+                Parent = window,
+                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
+                Width = window.ClientWidth - 16,
+                Height = 200,
+                Left = 8,
+                Top = groupResource.Top + groupResource.Height + 15,
+                Text = "Image",
+                TextColor = Color.Gray,
+            };
+
+            var imageBoxImage = new ImageBox
+            {
+                Parent = groupImage,
+                Top = 25,
+                Left = 8,
+                Width = groupImage.ClientWidth - 16,
+                Anchor = Anchors.Left | Anchors.Top | Anchors.Right | Anchors.Bottom,
+                SizeMode = SizeMode.Fit,
+                Texture = LookupTable.LookupTableToTexture(asset),
+                Height = 160
+            };
+
+            groupImage.Height = imageBoxImage.Top + imageBoxImage.Height + 20;
+
+            #endregion
+
             #region Group Properties
 
             GroupBox groupProperties = new GroupBox
@@ -210,7 +248,7 @@ namespace XNAFinalEngine.Editor
                 Width = window.ClientWidth - 16,
                 Height = 160,
                 Left = 8,
-                Top = groupResource.Top + groupResource.Height + 15,
+                Top = groupImage.Top + groupImage.Height + 15,
                 Text = "Properties",
                 TextColor = Color.Gray,
             };
@@ -239,8 +277,91 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
-            window.Height = groupProperties.Top + groupProperties.Height + 40;
+            if (assetCreation)
+            {
+                #region Buttons
+
+                var buttonApply = new Button
+                {
+                    Parent = window,
+                    Anchor = Anchors.Top | Anchors.Right,
+                    Top = groupProperties.Top + groupProperties.Height + 10,
+                    Left = window.ClientWidth - 4 - 70 * 2 - 8,
+                    Text = "Create"
+                };
+                buttonApply.Click += delegate
+                {
+                    CurrentCreatedAssetChanged = null;
+                    window.Close();
+                };
+
+                var buttonClose = new Button
+                {
+                    Parent = window,
+                    Anchor = Anchors.Top | Anchors.Right,
+                    Text = "Cancel",
+                    ModalResult = ModalResult.Cancel,
+                    Top = groupProperties.Top + groupProperties.Height + 10,
+                    Left = window.ClientWidth - 70 - 8
+                };
+
+                #endregion
+
+                #region Combo Box Resource
+
+                // Add textures name
+                comboBoxResource.Items.AddRange(LookupTable.LookupTablesFilenames);
+                // Events
+                comboBoxResource.ItemIndexChanged += delegate
+                {
+                    if (LookupTable.LookupTablesFilenames[comboBoxResource.ItemIndex] != asset.Resource.Name)
+                    {
+                        // This is a disposable asset so...
+                        asset.Dispose();
+                        asset = new LookupTable(LookupTable.LookupTablesFilenames[comboBoxResource.ItemIndex]);
+                        CurrentCreatedAsset = asset;
+                        nameTextBox.Text = asset.Name;
+                        imageBoxImage.Texture.Dispose();
+                        imageBoxImage.Texture = LookupTable.LookupTableToTexture(asset);
+                    }
+                };
+                comboBoxResource.Draw += delegate
+                {
+                    if (comboBoxResource.ListBoxVisible)
+                        return;
+                    for (int i = 0; i < comboBoxResource.Items.Count; i++)
+                        if ((string)comboBoxResource.Items[i] == asset.Resource.Name)
+                        {
+                            comboBoxResource.ItemIndex = i;
+                            break;
+                        }
+                };
+
+                #endregion
+
+                #region Window
+
+                window.Height = buttonClose.Top + buttonClose.Height + 40;
+                window.Closed += delegate
+                {
+                    if (window.ModalResult == ModalResult.Cancel)
+                    {
+                        CurrentCreatedAsset = null;
+                        asset.Dispose();
+                    }
+                    CurrentCreatedAssetChanged = null;
+                };
+
+                #endregion
+            }
+            else
+            {
+                comboBoxResource.Enabled = false;
+                window.Height = groupProperties.Top + groupProperties.Height + 40;
+            }
         } // Show
+
+        #endregion
 
     } // LookupTableWindow
 } // XNAFinalEngine.Editor

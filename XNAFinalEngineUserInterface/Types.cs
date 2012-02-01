@@ -102,10 +102,26 @@ namespace XNAFinalEngine.UserInterface
     /// </summary>
     public enum SizeMode
     {
+        /// <summary>
+        /// It preserves the pixel ratio to 1. If the destination rectangle is smaller than the source rectangle the lower-right part of the texture will be cut.
+        /// </summary>
         Normal,
+        /// <summary>
+        /// It changes the control's width and height to the texture's dimentions. 
+        /// </summary>
         Auto,
+        /// <summary>
+        /// It preserves the pixel ratio to 1, but the center of the texture is in the same place as the center of the control. 
+        /// </summary>
         Centered,
-        Stretched
+        /// <summary>
+        /// Stretch the texture onto the control. 
+        /// </summary>
+        Stretched,
+        /// <summary>
+        /// Stretch the texture onto the control but maintaining the texture's aspect ratio. 
+        /// </summary>
+        Fit,
     } // SizeMode
 
     #endregion

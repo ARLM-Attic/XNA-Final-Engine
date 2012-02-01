@@ -85,7 +85,7 @@ namespace XNAFinalEngine.UserInterface
             lastModal = UserInterfaceManager.ModalWindow;
             UserInterfaceManager.ModalWindow = this;
             // This allow to close the modal window with the escape key.
-            UserInterfaceManager.InputSystem.KeyDown += Input_KeyDown;
+            UserInterfaceManager.InputSystem.KeyDown += InputKeyDown;
         } // ShowModal
 
         #endregion
@@ -104,7 +104,7 @@ namespace XNAFinalEngine.UserInterface
             if (!ex.Cancel)
             {
                 // Remove the event link to prevent garbage.
-                UserInterfaceManager.InputSystem.KeyDown -= Input_KeyDown;
+                UserInterfaceManager.InputSystem.KeyDown -= InputKeyDown;
                 // Restore previous modal window.
                 UserInterfaceManager.ModalWindow = lastModal;
                 if (lastModal != null)
@@ -148,18 +148,18 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region Input_KeyDown
+        #region Input KeyDown
 
         /// <summary>
         /// If it's modal then with escape can be closed.
         /// </summary>
-        void Input_KeyDown(object sender, KeyEventArgs e)
+        void InputKeyDown(object sender, KeyEventArgs e)
         {
             if (Visible &&  UserInterfaceManager.FocusedControl.Root == this && e.Key == Microsoft.Xna.Framework.Input.Keys.Escape)
             {
                 Close(ModalResult.Cancel);
             }
-        } // Input_KeyDown
+        } // InputKeyDown
 
         #endregion
 

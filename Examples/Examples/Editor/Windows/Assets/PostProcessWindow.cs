@@ -676,6 +676,15 @@ namespace XNAFinalEngine.Editor
                 Height = 20,
                 Text = "+"
             };
+            buttonFirstLookupTable.Click += delegate
+            {
+                LookupTableWindow.CurrentCreatedAssetChanged += delegate
+                {
+                    asset.ColorCorrection.FirstLookupTable = LookupTableWindow.CurrentCreatedAsset;
+                    window.Invalidate();
+                };
+                LookupTableWindow.Show(null);
+            };
 
             #endregion
 

@@ -154,9 +154,7 @@ namespace XNAFinalEngine.Assets
         protected override void DisposeManagedResources()
         {
             if (systemContentManager == this)
-            {
                 throw new InvalidOperationException("Content Manager: System Content Manager can not be disposed.");
-            }
             XnaContentManager.Dispose();
             ContentManagers.Remove(this);
         } // DisposeManagedResources

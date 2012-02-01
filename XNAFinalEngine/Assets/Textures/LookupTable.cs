@@ -93,7 +93,7 @@ namespace XNAFinalEngine.Assets
                 ContentManager.CurrentContentManager = temporalContentManager;
 
                 Texture lookupTableTexture2D = new Texture("LookupTables\\" + filename);
-
+                
                 // SideSize is inaccurate because Math.Pow is a bad way to calculate cube roots.
                 int sideSize = (int)Math.Pow(lookupTableTexture2D.Width * lookupTableTexture2D.Height, 1 / 3.0);
                 // hence this second step to snap to nearest power of 2.
