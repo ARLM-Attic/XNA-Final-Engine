@@ -61,11 +61,6 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        public void Press()
-        {
-            OnMouseDown(new MouseEventArgs(new MouseState(), MouseButton.Left, new Point()));
-        }
-
         #region On click
 
         protected override void OnClick(EventArgs e)

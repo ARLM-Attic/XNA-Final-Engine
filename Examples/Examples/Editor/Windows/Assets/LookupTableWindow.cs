@@ -61,7 +61,7 @@ namespace XNAFinalEngine.Editor
                 if (CurrentCreatedAssetChanged != null)
                     CurrentCreatedAssetChanged.Invoke(null, new EventArgs());
             }
-        }
+        } // CurrentCreatedAsset
 
         #endregion
 
@@ -80,7 +80,10 @@ namespace XNAFinalEngine.Editor
         {
             // If there is no asset to create then return
             if (asset == null && LookupTable.LookupTablesFilenames.Length == 0)
+            {
+                CurrentCreatedAsset = null; // To avoid unwanted event references.
                 return;
+            }
 
             bool assetCreation = asset == null;
             
@@ -93,110 +96,37 @@ namespace XNAFinalEngine.Editor
 
             #region Window
 
-            var window = new Window
+            var window = new AssetWindow
             {
-                Parent = null,
-                Text = asset.Name + " : Lookup Table"
+                AssetName = asset.Name,
+                AssetType = "Lookup Table"
             };
-            // In creation I don't want that the user mess with other things.
+            window.AssetNameChanged += delegate { asset.Name = window.AssetName; };
+            // In creation I don't want that the user mess with other things.)
             if (assetCreation)
-            {
                 window.ShowModal();
-            }
-            window.Closed += delegate { };
-
-            #endregion
-
-            #region Name
-
-            var nameLabel = new Label
-            {
-                Parent = window,
-                Text = "Name", Left = 10, Top = 10,
-            };
-            var nameTextBox = new TextBox
-            {
-                Parent = window,
-                Width = window.ClientWidth - nameLabel.Width - 25,
-                Text = asset.Name, Left = 60, Top = 10
-            };
-            nameTextBox.KeyDown += delegate(object sender, KeyEventArgs e)
-            {
-                if (e.Key == Keys.Enter)
-                {
-                    asset.Name = nameTextBox.Text;
-                    window.Text = asset.Name + " : Lookup Table";
-                }
-            };
-            nameTextBox.FocusLost += delegate
-            {
-                asset.Name = nameTextBox.Text;
-                window.Text = asset.Name + " : Lookup Table";
-            };
 
             #endregion
 
             #region Group Resource
 
-            GroupBox groupResource = new GroupBox
-            {
-                Parent = window,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                Width = window.ClientWidth - 16,
-                Height = 160,
-                Left = 8,
-                Top = nameLabel.Top + nameLabel.Height + 15,
-                Text = "Resource",
-                TextColor = Color.Gray,
-            };
+            GroupBox groupResource = CommonControls.Group("Resource", window);
 
             #region Resource
 
-            var labelResource = new Label
-            {
-                Parent = groupResource,
-                Left = 10,
-                Top = 25,
-                Width = 150,
-                Text = "Resource"
-            };
-            var comboBoxResource = new ComboBox
-            {
-                Parent = groupResource,
-                Left = labelResource.Left + labelResource.Width,
-                Top = labelResource.Top,
-                Height = 20,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                MaxItemsShow = 25,
-            };
-            comboBoxResource.Width = groupResource.Width - 10 - comboBoxResource.Left;
+            var comboBoxResource = CommonControls.ComboBox("Resource", groupResource);
 
             #endregion
 
             #region Content Manager
 
-            var labelContentManager = new Label
-            {
-                Parent = groupResource,
-                Left = 10,
-                Top = labelResource.Top + labelResource.Height + 10,
-                Width = 150,
-                Text = "Content Manager"
-            };
-            var comboBoxContentManager = new ComboBox
-            {
-                Parent = groupResource,
-                Left = labelContentManager.Left + labelContentManager.Width,
-                Top = labelContentManager.Top,
-                Height = 20,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                MaxItemsShow = 25,
-                Enabled = false,
-            };
-            comboBoxContentManager.Width = groupResource.Width - 10 - comboBoxContentManager.Left;
+            var comboBoxContentManager = CommonControls.ComboBox("Content Manager", groupResource);
             // Add resources' names
             if (asset.ContentManager == null)
+            {
                 comboBoxContentManager.Items.Add("Does not use a content manager.");
+                comboBoxContentManager.Enabled = false;
+            }
             else if (asset.ContentManager.Name == "")
                 comboBoxContentManager.Items.Add("Does not have name.");
             else
@@ -205,75 +135,29 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
-            groupResource.Height = labelContentManager.Top + labelContentManager.Height + 20;
+            groupResource.AdjustHeightFromChildren();
 
             #endregion
 
             #region Group Image
 
-            GroupBox groupImage = new GroupBox
-            {
-                Parent = window,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                Width = window.ClientWidth - 16,
-                Height = 200,
-                Left = 8,
-                Top = groupResource.Top + groupResource.Height + 15,
-                Text = "Image",
-                TextColor = Color.Gray,
-            };
+            var groupImage = CommonControls.Group("Image", window);
 
-            var imageBoxImage = new ImageBox
-            {
-                Parent = groupImage,
-                Top = 25,
-                Left = 8,
-                Width = groupImage.ClientWidth - 16,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right | Anchors.Bottom,
-                SizeMode = SizeMode.Fit,
-                Texture = LookupTable.LookupTableToTexture(asset),
-                Height = 160
-            };
+            var imageBoxImage = CommonControls.ImageBox(LookupTable.LookupTableToTexture(asset), groupImage);
 
-            groupImage.Height = imageBoxImage.Top + imageBoxImage.Height + 20;
+            groupImage.AdjustHeightFromChildren();
 
             #endregion
 
             #region Group Properties
 
-            GroupBox groupProperties = new GroupBox
-            {
-                Parent = window,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                Width = window.ClientWidth - 16,
-                Height = 160,
-                Left = 8,
-                Top = groupImage.Top + groupImage.Height + 15,
-                Text = "Properties",
-                TextColor = Color.Gray,
-            };
+            GroupBox groupProperties = CommonControls.Group("Properties", window);
 
-            var sizeLabel = new Label
-            {
-                Parent = groupProperties,
-                Text = "Size",
-                Left = 10,
-                Top = 25,
-                Width = 150,
-            };
-            var sizeTextBox = new TextBox
-            {
-                Parent = groupProperties,
-                Width = groupProperties.ClientWidth - sizeLabel.Width - 20,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                Text = asset.Size.ToString(),
-                Left = 160,
-                Top = 25,
-                Enabled = false,
-            };
+            var sizeTextBox = CommonControls.TexteBox("Size", groupProperties, asset.Size.ToString());
+            sizeTextBox.Enabled = false;
             sizeTextBox.Draw += delegate { sizeTextBox.Text = asset.Size.ToString(); };
 
-            groupProperties.Height = sizeLabel.Top + sizeLabel.Height + 20;
+            groupProperties.AdjustHeightFromChildren();
 
             #endregion
 
@@ -283,11 +167,11 @@ namespace XNAFinalEngine.Editor
 
                 var buttonApply = new Button
                 {
-                    Parent = window,
                     Anchor = Anchors.Top | Anchors.Right,
-                    Top = groupProperties.Top + groupProperties.Height + 10,
+                    Top = window.AvailablePositionInsideControl + CommonControls.ControlSeparation,
                     Left = window.ClientWidth - 4 - 70 * 2 - 8,
-                    Text = "Create"
+                    Text = "Create",
+                    Parent = window,
                 };
                 buttonApply.Click += delegate
                 {
@@ -297,12 +181,12 @@ namespace XNAFinalEngine.Editor
 
                 var buttonClose = new Button
                 {
-                    Parent = window,
                     Anchor = Anchors.Top | Anchors.Right,
                     Text = "Cancel",
                     ModalResult = ModalResult.Cancel,
-                    Top = groupProperties.Top + groupProperties.Height + 10,
-                    Left = window.ClientWidth - 70 - 8
+                    Top = buttonApply.Top,
+                    Left = window.ClientWidth - 70 - 8,
+                    Parent = window,
                 };
 
                 #endregion
@@ -320,9 +204,10 @@ namespace XNAFinalEngine.Editor
                         asset.Dispose();
                         asset = new LookupTable(LookupTable.LookupTablesFilenames[comboBoxResource.ItemIndex]);
                         CurrentCreatedAsset = asset;
-                        nameTextBox.Text = asset.Name;
+                        //nameTextBox.Text = asset.Name;
                         imageBoxImage.Texture.Dispose();
                         imageBoxImage.Texture = LookupTable.LookupTableToTexture(asset);
+                        window.AssetName = asset.Name;
                     }
                 };
                 comboBoxResource.Draw += delegate
@@ -340,8 +225,7 @@ namespace XNAFinalEngine.Editor
                 #endregion
 
                 #region Window
-
-                window.Height = buttonClose.Top + buttonClose.Height + 40;
+                
                 window.Closed += delegate
                 {
                     if (window.ModalResult == ModalResult.Cancel)
@@ -356,9 +240,11 @@ namespace XNAFinalEngine.Editor
             }
             else
             {
+                comboBoxResource.Items.Add(asset.Resource.Name);
+                comboBoxResource.ItemIndex = 0;
                 comboBoxResource.Enabled = false;
-                window.Height = groupProperties.Top + groupProperties.Height + 40;
             }
+            window.AdjustHeightFromChildren();
         } // Show
 
         #endregion

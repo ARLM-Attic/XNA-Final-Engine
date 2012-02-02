@@ -45,9 +45,7 @@ namespace XNAFinalEngine.UserInterface
         
         #region Variables
 
-        /// <summary>
-        /// Controls
-        /// </summary>
+        // Controls
         private readonly TextBox textBox;
         private readonly TrackBar slider;
 
@@ -61,11 +59,7 @@ namespace XNAFinalEngine.UserInterface
         public virtual float MinimumValue
         {
             get { return slider.MinimumValue; }
-            set
-            {
-                slider.MinimumValue = value;
-                if (!Suspended) OnRangeChanged(new EventArgs());
-            }
+            set { slider.MinimumValue = value; }
         } // MinimumValue
 
         /// <summary>
@@ -74,11 +68,7 @@ namespace XNAFinalEngine.UserInterface
         public virtual float MaximumValue
         {
             get { return slider.MaximumValue; }
-            set
-            {
-                slider.MaximumValue = value;
-                if (!Suspended) OnRangeChanged(new EventArgs());
-            }
+            set { slider.MaximumValue = value; }
         } // MaximumValue
 
         /// <summary>
@@ -104,19 +94,8 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual float Value
         {
-            get
-            {
-                return slider.Value;
-            }
-            set
-            {
-                if (slider.Value != value)
-                {
-                    slider.Value = value;
-                    if (!Suspended)
-                        OnValueChanged(new EventArgs());
-                }
-            }
+            get { return slider.Value; }
+            set { slider.Value = value; }
         } // Value
 
         /// <summary>
@@ -125,11 +104,7 @@ namespace XNAFinalEngine.UserInterface
         public virtual int PageSize
         {
             get { return slider.PageSize; }
-            set
-            {
-                slider.PageSize = value;
-                if (!Suspended) OnPageSizeChanged(new EventArgs());
-            }
+            set { slider.PageSize = value; }
         } // PageSize
 
         /// <summary>
@@ -138,11 +113,7 @@ namespace XNAFinalEngine.UserInterface
         public virtual int StepSize
         {
             get { return slider.StepSize; }
-            set
-            {
-                slider.StepSize = value;
-                if (!Suspended) OnStepSizeChanged(new EventArgs());
-            }
+            set { slider.StepSize = value; }
         } // StepSize
 
         #endregion
@@ -171,8 +142,8 @@ namespace XNAFinalEngine.UserInterface
             var label = new Label
             {
                 Parent = this,
-                //Text = "Alpha Blending",
                 Width = 150,
+                Height = 25,
             };
             TextChanged += delegate { label.Text = Text; };
             textBox = new TextBox
@@ -180,7 +151,7 @@ namespace XNAFinalEngine.UserInterface
                 Parent = this,
                 Width = 60,
                 Left = label.Width + 4,
-                Text = "1"
+                Text = "1",
             };
             slider = new TrackBar
             {
@@ -225,8 +196,13 @@ namespace XNAFinalEngine.UserInterface
                 }
             };
             textBox.Text = Math.Round(slider.Value, 3).ToString();
-
+            
             #endregion
+
+            slider.ValueChanged += delegate { OnValueChanged(new EventArgs()); };
+            slider.RangeChanged += delegate { OnRangeChanged(new EventArgs()); };
+            slider.StepSizeChanged += delegate { OnStepSizeChanged(new EventArgs()); };
+            slider.PageSizeChanged += delegate { OnPageSizeChanged(new EventArgs()); };
 
         } // SliderNumeric
 
@@ -245,22 +221,26 @@ namespace XNAFinalEngine.UserInterface
 
         protected virtual void OnValueChanged(EventArgs e)
         {
-            if (ValueChanged != null) ValueChanged.Invoke(this, e);
+            if (ValueChanged != null) 
+                ValueChanged.Invoke(this, e);
         } // OnValueChanged
 
         protected virtual void OnRangeChanged(EventArgs e)
         {
-            if (RangeChanged != null) RangeChanged.Invoke(this, e);
+            if (RangeChanged != null) 
+                RangeChanged.Invoke(this, e);
         } // OnRangeChanged
 
         protected virtual void OnPageSizeChanged(EventArgs e)
         {
-            if (PageSizeChanged != null) PageSizeChanged.Invoke(this, e);
+            if (PageSizeChanged != null) 
+                PageSizeChanged.Invoke(this, e);
         } // OnPageSizeChanged
 
         protected virtual void OnStepSizeChanged(EventArgs e)
         {
-            if (StepSizeChanged != null) StepSizeChanged.Invoke(this, e);
+            if (StepSizeChanged != null) 
+                StepSizeChanged.Invoke(this, e);
         } // OnStepSizeChanged
 
         #endregion

@@ -170,12 +170,12 @@ namespace XNAFinalEngine.UserInterface
                         Rectangle aspectRatiorectangle = rect;
                         if (texture.Width / texture.Height > rect.Width / rect.Height)
                         {
-                            aspectRatiorectangle.Height = rect.Height * (rect.Width / rect.Height) / (texture.Width / texture.Height);
+                            aspectRatiorectangle.Height = (int)(rect.Height * ((float)rect.Width / rect.Height) / ((float)texture.Width / texture.Height));
                             aspectRatiorectangle.Y = rect.Y + (rect.Height - aspectRatiorectangle.Height) / 2;
                         }
                         else
                         {
-                            aspectRatiorectangle.Width = rect.Width * (texture.Width / texture.Height) / (rect.Width / rect.Height);
+                            aspectRatiorectangle.Width = (int)(rect.Width * ((float)texture.Width / texture.Height) / ((float)rect.Width / rect.Height));
                             aspectRatiorectangle.X = rect.X + (rect.Width - aspectRatiorectangle.Width) / 2;
                         }
 

@@ -21,6 +21,26 @@ namespace XNAFinalEngine.UserInterface
         #region Properties
 
         /// <summary>
+        /// Gives the upper position inside the control that does not have any child control.
+        /// This is useful for placing new controls, but be careful, you have to call it before the parent is set.
+        /// </summary>
+        public int AvailablePositionInsideControl
+        {
+            get
+            {
+                int max = 0;
+                foreach (var childrenControl in ClientArea.ChildrenControls)
+                {
+                    if (childrenControl.Top + childrenControl.Height > max)
+                    {
+                        max = childrenControl.Top + childrenControl.Height + 1;
+                    }
+                }
+                return max;
+            }
+        } // AvailablePositionInsideControl
+        
+        /// <summary>
         /// Client Area.
         /// </summary>
         public virtual ClipBox ClientArea { get; set; }
@@ -70,13 +90,9 @@ namespace XNAFinalEngine.UserInterface
         internal virtual void Add(Control control, bool client)
         {
             if (client)
-            {
                 ClientArea.Add(control);
-            }
             else
-            {
                 base.Add(control);
-            }
         } // Add
 
         internal override void Add(Control control)
@@ -106,6 +122,18 @@ namespace XNAFinalEngine.UserInterface
                 ClientArea.Height = ClientHeight;
             }
         } // OnResize
+
+        #endregion
+
+        #region Adjust Height From Children
+
+        /// <summary>
+        /// Adjust the height to the available position inside the control.
+        /// </summary>
+        public virtual void AdjustHeightFromChildren()
+        {
+            Height = AvailablePositionInsideControl + ClientMargins.Vertical + 5;
+        } // AdjustHeightFromChildren
 
         #endregion
 

@@ -369,12 +369,18 @@ namespace XNAFinalEngine.UserInterface
 
         void ButtonSlider_KeyPress(object sender, KeyEventArgs e)
         {
-            if (e.Key == Keys.Left || e.Key == Keys.Down) InternalValue -= stepSize;
-            else if (e.Key == Keys.Right || e.Key == Keys.Up) InternalValue += stepSize;
-            else if (e.Key == Keys.PageDown) InternalValue -= pageSize;
-            else if (e.Key == Keys.PageUp) InternalValue += pageSize;
-            else if (e.Key == Keys.Home) InternalValue = 0;
-            else if (e.Key == Keys.End) InternalValue = 100;
+            if (e.Key == Keys.Left || e.Key == Keys.Down) 
+                InternalValue -= stepSize;
+            else if (e.Key == Keys.Right || e.Key == Keys.Up)
+                InternalValue += stepSize;
+            else if (e.Key == Keys.PageDown) 
+                InternalValue -= pageSize;
+            else if (e.Key == Keys.PageUp) 
+                InternalValue += pageSize;
+            else if (e.Key == Keys.Home) 
+                InternalValue = 0;
+            else if (e.Key == Keys.End) 
+                InternalValue = 100;
         } // ButtonSlider_KeyPress
 
         #endregion

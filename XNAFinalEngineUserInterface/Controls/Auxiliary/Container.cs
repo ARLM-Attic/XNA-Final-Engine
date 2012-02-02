@@ -388,7 +388,7 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region On Resize, On Click, On Skin Changed
+        #region Raise Events
 
         protected override void OnResize(ResizeEventArgs e)
         {

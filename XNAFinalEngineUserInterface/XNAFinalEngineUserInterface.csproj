@@ -120,6 +120,7 @@
     <Compile Include="Controls\ProgressBar.cs" />
     <Compile Include="Controls\Sidebar.cs" />
     <Compile Include="Controls\SidebarPanel.cs" />
+    <Compile Include="Controls\AssetSelector.cs" />
     <Compile Include="Controls\Sliders\SliderColor.cs" />
     <Compile Include="Controls\Sliders\SliderNumeric.cs" />
     <Compile Include="Controls\Sliders\TrackBar.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="Controls\ToolBar\ToolBarButton.cs" />
     <Compile Include="Controls\ToolBar\ToolBarPanel.cs" />
     <Compile Include="Controls\Windows\ColorPickerDialog.cs" />
+    <Compile Include="Controls\Windows\AssetWindow.cs" />
     <Compile Include="Controls\Windows\Dialog.cs" />
     <Compile Include="Controls\Windows\ExitDialog.cs" />
     <Compile Include="Controls\Windows\ModalContainer.cs" />

@@ -1758,7 +1758,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Search for a control.
         /// </summary>
-        internal virtual bool Contains(Control control, bool recursively = true)
+        public virtual bool Contains(Control control, bool recursively = true)
         {
             if (ChildrenControls != null)
             {
@@ -1777,7 +1777,7 @@ namespace XNAFinalEngine.UserInterface
         /// Search for a children control by its name.
         /// </summary>
         /// <param name="name">Control's name</param>
-        internal virtual Control SearchChildControlByName(string name)
+        public virtual Control SearchChildControlByName(string name)
         {
             Control ret = null;
             foreach (Control c in ChildrenControls)

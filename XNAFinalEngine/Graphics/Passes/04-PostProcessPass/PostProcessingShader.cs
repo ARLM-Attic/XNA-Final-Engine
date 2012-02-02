@@ -708,16 +708,16 @@ namespace XNAFinalEngine.Graphics
                         if (postProcess.ColorCorrection.SecondtLookupTable == null || postProcess.ColorCorrection.LerpLookupTablesAmount == 0) 
                         {
                             // Lerp between two lookup tables
-                            SetColorCorrectOneLutEnabled(false);
-                            SetColorCorrectTwoLutEnabled(true);
+                            SetColorCorrectOneLutEnabled(true);
+                            SetColorCorrectTwoLutEnabled(false);
                             SetFirstLookupTable(postProcess.ColorCorrection.FirstLookupTable);
                             SetLerpOriginalColorAmount(postProcess.ColorCorrection.LerpOriginalColorAmount);
                         }
                         else 
                         {
                             // One lookup table
-                            SetColorCorrectOneLutEnabled(true);
-                            SetColorCorrectTwoLutEnabled(false);
+                            SetColorCorrectOneLutEnabled(false);
+                            SetColorCorrectTwoLutEnabled(true);
                             SetFirstLookupTable(postProcess.ColorCorrection.FirstLookupTable);
                             SetSecondLookupTable(postProcess.ColorCorrection.SecondtLookupTable);
                             SetLerpOriginalColorAmount(postProcess.ColorCorrection.LerpOriginalColorAmount);

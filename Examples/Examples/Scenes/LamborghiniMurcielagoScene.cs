@@ -940,7 +940,7 @@ namespace XNAFinalEngineExamples
             LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
 
-            LookupTableWindow.Show(null);
+            //LookupTableWindow.Show(null);
 
             base.Load();
         } // Load
@@ -955,17 +955,6 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
-            if (Keyboard.SpaceJustPressed)
-                camera.Camera.AmbientLight.AmbientOcclusion.Enabled = !camera.Camera.AmbientLight.AmbientOcclusion.Enabled;
-            if (Keyboard.RightJustPressed)
-                camera.Camera.PostProcess.MLAA.Enabled = !camera.Camera.PostProcess.MLAA.Enabled;
-            /*if (Keyboard.UpJustPressed)
-                directionalLight.DirectionalLight.Shadow.Enabled = !directionalLight.DirectionalLight.Shadow.Enabled;*/
-            if (Keyboard.KeyJustPressed(Keys.Up))
-                camera.Camera.PostProcess.LensExposure = camera.Camera.PostProcess.LensExposure + 0.1f;
-            if (Keyboard.DownJustPressed)
-                camera.Camera.PostProcess.LensExposure = camera.Camera.PostProcess.LensExposure - 0.1f;
-            
             UserInterfaceManager.Update();
         } // UpdateTasks
 

@@ -353,7 +353,7 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region OnKeyDown, OnMouseDown, OnMaxItemsChanged, OnItemIndexChanged
+        #region Raise events
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
@@ -368,21 +368,20 @@ namespace XNAFinalEngine.UserInterface
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-
             if (ReadOnly && e.Button == MouseButton.Left)
-            {
                 ButtonDownClick(this, new MouseEventArgs());
-            }
         } // OnMouseDown
 
         protected virtual void OnMaxItemsChanged(EventArgs e)
         {
-            if (MaxItemsChanged != null) MaxItemsChanged.Invoke(this, e);
+            if (MaxItemsChanged != null) 
+                MaxItemsChanged.Invoke(this, e);
         } // OnMaxItemsChanged
 
         protected virtual void OnItemIndexChanged(EventArgs e)
         {
-            if (ItemIndexChanged != null) ItemIndexChanged.Invoke(this, e);
+            if (ItemIndexChanged != null) 
+                ItemIndexChanged.Invoke(this, e);
         } // OnItemIndexChanged
 
         #endregion
