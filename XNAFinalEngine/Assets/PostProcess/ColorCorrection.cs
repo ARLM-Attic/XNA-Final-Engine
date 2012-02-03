@@ -91,7 +91,7 @@ namespace XNAFinalEngine.Assets
         /// Second lookup table.
         /// If isn't null then the system will lerp the colors by the LerpLookupTablesAmount property value.
         /// </summary>
-        public LookupTable SecondtLookupTable { get; set; }
+        public LookupTable SecondLookupTable { get; set; }
         
         /// <summary>
         /// Indicates how much each of the two lookup table results will affect the final color.

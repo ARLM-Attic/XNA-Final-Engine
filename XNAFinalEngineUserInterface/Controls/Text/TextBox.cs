@@ -741,7 +741,7 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region Auxilliary Methods.
+        #region Auxilliary Methods
 
         /// <summary>
         /// Find previous word from current position.

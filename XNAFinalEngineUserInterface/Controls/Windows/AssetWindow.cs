@@ -29,6 +29,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 #endregion
 
@@ -63,9 +64,12 @@ namespace XNAFinalEngine.UserInterface
             get { return assetName; }
             set
             {
-                assetName = value;
-                nameTextBox.Text = value;
-                OnAssetNameChanged(new EventArgs());
+                if (assetName != value)
+                {
+                    assetName = value;
+                    OnAssetNameChanged(new EventArgs());
+                    nameTextBox.Text = assetName;
+                }
             }
         } // AssetName
 
@@ -112,9 +116,7 @@ namespace XNAFinalEngine.UserInterface
             nameTextBox.KeyDown += delegate(object sender, KeyEventArgs e)
             {
                 if (e.Key == Keys.Enter)
-                {
                     AssetName = nameTextBox.Text;
-                }
             };
             nameTextBox.FocusLost += delegate
             {
@@ -123,7 +125,7 @@ namespace XNAFinalEngine.UserInterface
         } // AssetWindow
 
         #endregion
-
+        
         #region Raise Event
 
         protected virtual void OnAssetNameChanged(EventArgs e)

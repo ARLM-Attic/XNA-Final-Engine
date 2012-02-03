@@ -29,8 +29,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -46,15 +48,28 @@ namespace XNAFinalEngine.Assets
     public abstract class Asset : Disposable
     {
 
+        #region Variables
+
+        // The asset name.
+        protected string name;
+
+        #endregion
+
+        #region Properties
+
         /// <summary>
         /// The name of the asset.
         /// </summary>
-        public string Name { get; set; }
+        public virtual string Name { get; set; } // TODO: change to abstract.
 
         /// <summary>
         /// The content manager used to load this asset.
         /// </summary>
         public ContentManager ContentManager { get; protected set; }
+
+        #endregion
+
+        #region Dispose
 
         /// <summary>
         /// Dispose managed resources.
@@ -66,6 +81,69 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("Assets loaded with content managers cannot be disposed individually.");
             }
         } // DisposeManagedResources
-        
+
+        #endregion
+
+        #region Name Plus One
+
+        /// <summary>
+        /// Return the name plus one.
+        /// For example: name will be returned like name1 and name9 will be returned like name10.
+        /// </summary>
+        protected static string NamePlusOne(string name)
+        {
+            Regex regex = new Regex(@"(\d+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+            Match match = regex.Match(name);
+
+            if (match.Success)
+            {
+                int numberPlusOne = (int) double.Parse(match.Value) + 1;
+                return regex.Replace(name, numberPlusOne.ToString());
+            }
+            return name + "1";
+        } // NamePlusOne
+
+        #endregion
+
+        #region Search Assets Filename
+
+        /// <summary>
+        /// Search for available assets.
+        /// </summary>
+        protected static string[] SearchAssetsFilename(string directoryPath)
+        {
+            string[] filenames;
+            // Search the texture files //
+            DirectoryInfo texturesDirectory = new DirectoryInfo(directoryPath);
+            try
+            {
+                FileInfo[] filesInformation = texturesDirectory.GetFiles("*.xnb", SearchOption.AllDirectories);
+                // Count the textures, except cube textures and user interface textures.
+                filenames = new string[filesInformation.Length];
+                for (int i = 0; i < filesInformation.Length; i++)
+                {
+                    FileInfo fileInformation = filesInformation[i];
+                    // Some textures are in a sub directory, in that case we have to know how is called.
+                    string[] splitDirectoryName = fileInformation.DirectoryName.Split(new[] { directoryPath }, StringSplitOptions.None);
+                    string subdirectory = "";
+                    // If is in a sub directory
+                    if (splitDirectoryName[1] != "")
+                    {
+                        subdirectory = splitDirectoryName[1].Substring(1, splitDirectoryName[1].Length - 1) + "\\"; // We delete the start \ and add another \ to the end.
+                    }
+                    filenames[i] = subdirectory + fileInformation.Name.Substring(0, fileInformation.Name.Length - 4);
+
+                }
+            }
+            // If there was an error then do nothing.
+            catch
+            {
+                filenames = new string[0];
+            }
+            return filenames;
+        } // SearchAssetsFilename
+
+        #endregion
+
     } // Asset
 }  // XNAFinalEngine.Assets

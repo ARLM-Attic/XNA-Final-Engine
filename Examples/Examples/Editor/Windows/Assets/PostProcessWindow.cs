@@ -43,6 +43,7 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static void Show(PostProcess asset)
         {
+
             #region Window
 
             var window = new AssetWindow
@@ -50,7 +51,12 @@ namespace XNAFinalEngine.Editor
                 AssetName = asset.Name,
                 AssetType = "Post Process"
             };
-            window.AssetNameChanged += delegate { asset.Name = window.AssetName; };
+            window.AssetNameChanged += delegate
+            {
+                asset.Name = window.AssetName;
+                window.AssetName = asset.Name; // If the new name is not unique
+            };
+            window.Draw += delegate { window.AssetName = asset.Name; };
 
             #endregion
 
@@ -363,37 +369,40 @@ namespace XNAFinalEngine.Editor
             #region Second Lookup Table
 
             var assetCreatorSecondLookupTable = CommonControls.AssetSelector("Second Lookup Table", groupColorCorrection);
+            // When the add button is pressed.
             assetCreatorSecondLookupTable.AssetAdded += delegate
             {
                 LookupTableWindow.CurrentCreatedAssetChanged += delegate
                 {
-                    asset.ColorCorrection.SecondtLookupTable = LookupTableWindow.CurrentCreatedAsset;
+                    asset.ColorCorrection.SecondLookupTable = LookupTableWindow.CurrentCreatedAsset;
                     window.Invalidate();
                 };
                 LookupTableWindow.Show(null);
             };
+            // When the edit button is pressed.
             assetCreatorSecondLookupTable.AssetEdited += delegate
             {
-                LookupTableWindow.Show(asset.ColorCorrection.SecondtLookupTable);
+                LookupTableWindow.Show(asset.ColorCorrection.SecondLookupTable);
             };
             // Events
             assetCreatorSecondLookupTable.ItemIndexChanged += delegate
             {
                 if (assetCreatorSecondLookupTable.ItemIndex <= 0)
-                    asset.ColorCorrection.SecondtLookupTable = null;
+                    asset.ColorCorrection.SecondLookupTable = null;
                 else
                 {
                     // If we have to change the asset...
-                    if (asset.ColorCorrection.SecondtLookupTable == null ||
-                        asset.ColorCorrection.SecondtLookupTable.Name != (string)assetCreatorSecondLookupTable.Items[assetCreatorSecondLookupTable.ItemIndex])
+                    if (asset.ColorCorrection.SecondLookupTable == null ||
+                        asset.ColorCorrection.SecondLookupTable.Name != (string)assetCreatorSecondLookupTable.Items[assetCreatorSecondLookupTable.ItemIndex])
                     {
-                        asset.ColorCorrection.SecondtLookupTable = LookupTable.LoadedLookupTables[assetCreatorSecondLookupTable.ItemIndex - 1]; // The first item is the no texture item.
+                        asset.ColorCorrection.SecondLookupTable = LookupTable.LoadedLookupTables[assetCreatorSecondLookupTable.ItemIndex - 1]; // The first item is the no texture item.
                     }
                 }
-                assetCreatorSecondLookupTable.EditButtonEnabled = asset.ColorCorrection.SecondtLookupTable != null;
+                assetCreatorSecondLookupTable.EditButtonEnabled = asset.ColorCorrection.SecondLookupTable != null;
             };
             assetCreatorSecondLookupTable.Draw += delegate
             {
+                assetCreatorSecondLookupTable.Enabled = asset.ColorCorrection.FirstLookupTable != null && checkBoxColorCorrectionEnabled.Checked;
                 // Add textures name here because someone could dispose or add new lookup tables.
                 assetCreatorSecondLookupTable.Items.Clear();
                 assetCreatorSecondLookupTable.Items.Add("No texture");
@@ -403,12 +412,12 @@ namespace XNAFinalEngine.Editor
                 if (assetCreatorSecondLookupTable.ListBoxVisible)
                     return;
                 // Identify current index
-                if (asset.ColorCorrection.SecondtLookupTable == null)
+                if (asset.ColorCorrection.SecondLookupTable == null)
                     assetCreatorSecondLookupTable.ItemIndex = 0;
                 else
                 {
                     for (int i = 0; i < assetCreatorSecondLookupTable.Items.Count; i++)
-                        if ((string)assetCreatorSecondLookupTable.Items[i] == asset.ColorCorrection.SecondtLookupTable.Name)
+                        if ((string)assetCreatorSecondLookupTable.Items[i] == asset.ColorCorrection.SecondLookupTable.Name)
                         {
                             assetCreatorSecondLookupTable.ItemIndex = i;
                             break;
@@ -422,7 +431,11 @@ namespace XNAFinalEngine.Editor
 
             var sliderLerpOriginalColorAmount = CommonControls.SliderNumeric("Lerp Original Color", groupColorCorrection, asset.ColorCorrection.LerpOriginalColorAmount, false, false, 0, 1);
             sliderLerpOriginalColorAmount.ValueChanged += delegate { asset.ColorCorrection.LerpOriginalColorAmount = sliderLerpOriginalColorAmount.Value; };
-            sliderLerpOriginalColorAmount.Draw += delegate { sliderLerpOriginalColorAmount.Value = asset.ColorCorrection.LerpOriginalColorAmount; };
+            sliderLerpOriginalColorAmount.Draw += delegate
+            {
+                sliderLerpOriginalColorAmount.Enabled = asset.ColorCorrection.FirstLookupTable != null && checkBoxColorCorrectionEnabled.Checked;
+                sliderLerpOriginalColorAmount.Value = asset.ColorCorrection.LerpOriginalColorAmount;
+            };
 
             #endregion
 
@@ -430,7 +443,11 @@ namespace XNAFinalEngine.Editor
 
             var sliderLerpLookupTablesAmount = CommonControls.SliderNumeric("Lerp Lookup Tables", groupColorCorrection, asset.ColorCorrection.LerpLookupTablesAmount, false, false, 0, 1);
             sliderLerpLookupTablesAmount.ValueChanged += delegate { asset.ColorCorrection.LerpLookupTablesAmount = sliderLerpLookupTablesAmount.Value; };
-            sliderLerpLookupTablesAmount.Draw += delegate { sliderLerpLookupTablesAmount.Value = asset.ColorCorrection.LerpLookupTablesAmount; };
+            sliderLerpLookupTablesAmount.Draw += delegate
+            {
+                sliderLerpLookupTablesAmount.Enabled = asset.ColorCorrection.SecondLookupTable != null && asset.ColorCorrection.FirstLookupTable != null && checkBoxColorCorrectionEnabled.Checked;
+                sliderLerpLookupTablesAmount.Value = asset.ColorCorrection.LerpLookupTablesAmount;
+            };
 
             #endregion
 
@@ -438,9 +455,6 @@ namespace XNAFinalEngine.Editor
             {
                 asset.ColorCorrection.Enabled = checkBoxColorCorrectionEnabled.Checked;
                 assetCreatorFirstLookupTable.Enabled = asset.ColorCorrection.Enabled;
-                assetCreatorSecondLookupTable.Enabled = asset.ColorCorrection.Enabled;
-                sliderLerpOriginalColorAmount.Enabled = asset.ColorCorrection.Enabled;
-                sliderLerpLookupTablesAmount.Enabled = asset.ColorCorrection.Enabled;
             };
 
             groupColorCorrection.AdjustHeightFromChildren();

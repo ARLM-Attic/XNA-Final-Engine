@@ -705,7 +705,7 @@ namespace XNAFinalEngine.Graphics
                     {
                         SetLookupTableScale(((float)(postProcess.ColorCorrection.FirstLookupTable.Size) - 1f) / (float)(postProcess.ColorCorrection.FirstLookupTable.Size));
                         SetLookupTableOffset(1f / (2f * (float)(postProcess.ColorCorrection.FirstLookupTable.Size)));
-                        if (postProcess.ColorCorrection.SecondtLookupTable == null || postProcess.ColorCorrection.LerpLookupTablesAmount == 0) 
+                        if (postProcess.ColorCorrection.SecondLookupTable == null || postProcess.ColorCorrection.LerpLookupTablesAmount == 0) 
                         {
                             // Lerp between two lookup tables
                             SetColorCorrectOneLutEnabled(true);
@@ -719,7 +719,7 @@ namespace XNAFinalEngine.Graphics
                             SetColorCorrectOneLutEnabled(false);
                             SetColorCorrectTwoLutEnabled(true);
                             SetFirstLookupTable(postProcess.ColorCorrection.FirstLookupTable);
-                            SetSecondLookupTable(postProcess.ColorCorrection.SecondtLookupTable);
+                            SetSecondLookupTable(postProcess.ColorCorrection.SecondLookupTable);
                             SetLerpOriginalColorAmount(postProcess.ColorCorrection.LerpOriginalColorAmount);
                             SetLerpLookupTablesAmount(postProcess.ColorCorrection.LerpLookupTablesAmount);
                         }

@@ -101,7 +101,12 @@ namespace XNAFinalEngine.Editor
                 AssetName = asset.Name,
                 AssetType = "Lookup Table"
             };
-            window.AssetNameChanged += delegate { asset.Name = window.AssetName; };
+            window.AssetNameChanged += delegate
+            {
+                asset.Name = window.AssetName;
+                window.AssetName = asset.Name; // If the new name is not unique
+            };
+            window.Draw += delegate { window.AssetName = asset.Name; };
             // In creation I don't want that the user mess with other things.)
             if (assetCreation)
                 window.ShowModal();

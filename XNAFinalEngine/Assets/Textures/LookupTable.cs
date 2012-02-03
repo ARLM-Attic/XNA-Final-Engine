@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.EngineCore;
@@ -48,6 +49,28 @@ namespace XNAFinalEngine.Assets
     {
         
         #region Properties
+        
+        /// <summary>
+        /// The name of the asset.
+        /// If a name already exists then we add one to its name and we call it again.
+        /// </summary>
+        public override string Name
+        {
+            get { return name; }
+            set
+            {
+                if (value != name)
+                {
+                    // Is the name unique?
+                    bool isUnique = LoadedLookupTables.All(assetFromList => assetFromList == this || assetFromList.Name != value);
+                    if (isUnique)
+                        name = value;
+                    // If not then we add one to its name and find out if is unique.
+                    else
+                        Name = NamePlusOne(value);
+                }
+            }
+        } // Name
 
         /// <summary>
         /// Lookup Table Texture.
@@ -63,7 +86,7 @@ namespace XNAFinalEngine.Assets
         /// Loaded Lookup Tables.
         /// </summary>
         public static List<LookupTable> LoadedLookupTables { get; private set; }
-
+        
         /// <summary>
         ///  A list with all texture' filenames on the lookup table directory.
         /// </summary>
@@ -129,39 +152,16 @@ namespace XNAFinalEngine.Assets
             LoadedLookupTables.Add(this);
         } // LookupTable
 
+        #endregion
+
+        #region Static Constructor
+
         /// <summary>
         /// Search the available lookup tables.
         /// </summary>
         static LookupTable()
         {
-            const string texturesDirectoryPath = ContentManager.GameDataDirectory + "Textures\\LookupTables";
-            // Search the texture files //
-            DirectoryInfo texturesDirectory = new DirectoryInfo(texturesDirectoryPath);
-            try
-            {
-                FileInfo[] texturesFileInformation = texturesDirectory.GetFiles("*.xnb", SearchOption.AllDirectories);
-                // Count the textures, except cube textures and user interface textures.
-                LookupTablesFilenames = new string[texturesFileInformation.Length];
-                for (int i = 0; i < texturesFileInformation.Length; i++)
-                {
-                    FileInfo fileInformation = texturesFileInformation[i];
-                    // Some textures are in a sub directory, in that case we have to know how is called.
-                    string[] splitDirectoryName = fileInformation.DirectoryName.Split(new[] { texturesDirectoryPath }, StringSplitOptions.None);
-                    string subdirectory = "";
-                    // If is in a sub directory
-                    if (splitDirectoryName[1] != "")
-                    {
-                        subdirectory = splitDirectoryName[1].Substring(1, splitDirectoryName[1].Length - 1) + "\\"; // We delete the start \ and add another \ to the end.
-                    }
-                    LookupTablesFilenames[i] = subdirectory + fileInformation.Name.Substring(0, fileInformation.Name.Length - 4);
-
-                }
-            }
-            // If there was an error then do nothing.
-            catch
-            {
-                LookupTablesFilenames = new string[0];
-            }
+            LookupTablesFilenames = SearchAssetsFilename(ContentManager.GameDataDirectory + "Textures\\LookupTables");
             LoadedLookupTables = new List<LookupTable>();
         } // LookupTable
 
