@@ -123,6 +123,8 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public static List<ContentManager> ContentManagers { get; private set; }
 
+        internal List<Asset> Assets { get; set; }
+
         #endregion
 
         #region Constructor
@@ -142,6 +144,7 @@ namespace XNAFinalEngine.Assets
             if (ContentManagers == null)
                 ContentManagers = new List<ContentManager>();
             ContentManagers.Add(this);
+            Assets = new List<Asset>();
         } // ContentManager
 
         #endregion
@@ -157,6 +160,13 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("Content Manager: System Content Manager can not be disposed.");
             XnaContentManager.Dispose();
             ContentManagers.Remove(this);
+            // Dispose assets
+            foreach (Asset asset in Assets)
+            {
+                asset.ContentManager = null;
+                asset.Dispose();
+            }
+            Assets.Clear();
         } // DisposeManagedResources
 
         #endregion
@@ -169,10 +179,15 @@ namespace XNAFinalEngine.Assets
         public void Unload()
         {
             if (systemContentManager == this)
-            {
                 throw new InvalidOperationException("Content Manager: System Content Manager can not be unloaded.");
-            }
             XnaContentManager.Unload();
+            // Dispose assets
+            foreach (Asset asset in Assets)
+            {
+                asset.ContentManager = null;
+                asset.Dispose();
+            }
+            Assets.Clear();
         } // Unload
         
         #endregion

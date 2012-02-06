@@ -108,10 +108,11 @@ namespace XNAFinalEngine.UserInterface
             nameTextBox = new TextBox
             {
                 Parent = this,
-                Width = ClientWidth - nameLabel.Width - 25,
+                Width = ClientWidth - nameLabel.Width - 5,
                 Text = Text,
                 Left = 60,
-                Top = 10
+                Top = 10,
+                Anchor = Anchors.Left | Anchors.Top | Anchors.Right
             };
             nameTextBox.KeyDown += delegate(object sender, KeyEventArgs e)
             {

@@ -128,7 +128,6 @@ namespace XNAFinalEngine.UserInterface
                 StayOnTop = true, // To bring it to the second place (first is the main control)
                 Color = new Color(0, 0, 0, 0)
             };
-            background.BringToFront();
             UserInterfaceManager.Add(background);
             // If we click outside the window close it.
             background.MouseDown += delegate(object sender, MouseEventArgs e)
@@ -136,7 +135,7 @@ namespace XNAFinalEngine.UserInterface
                                              if (e.Button == MouseButton.Left)
                                              {
                                                  if (isPicking)
-                                                 {   
+                                                 {
                                                     /*picker.BeginManualRenderPickerTexture();
                                                     //UIManager.BeginDraw(); // Don't want this. It's already do.
                                                     ApplicationLogic.Render();
@@ -144,11 +143,11 @@ namespace XNAFinalEngine.UserInterface
                                                     UserInterfaceManager.EndDraw();
                                                     picker.EndManualRenderPickerTexture();
                                                     Color = picker.ManualPickFromCurrentPickerTexture(1)[0];
-                                                    positionSquareColor = PositionFromColor(Color);
+                                                    positionSquareColor = PositionFromColor(Color);*/
                                                     isPicking = false;
                                                     // The background control takes the first place (z order), now it needs to be in second.
                                                     background.StayOnTop = false;  // We need to change this so that the main control can take first place.
-                                                    BringToFront();*/
+                                                    BringToFront();
                                                  }
                                                  else
                                                      Close();
@@ -163,9 +162,7 @@ namespace XNAFinalEngine.UserInterface
             buttonPick = new Button
             {
                 Top = 8,
-                Glyph = new Glyph(new Texture("Skin\\Default\\Dropper")), // It needs to be store in the skin file, I know.
-                GlyphCentered = true,
-                //Text = "Pick",
+                Glyph = new Glyph(new Texture("Skin\\Default\\Dropper")) { SizeMode = SizeMode.Centered }, // It needs to be store in the skin file, I know.
             };
             buttonPick.Left = (BottomPanel.ClientWidth / 2) - buttonPick.Width - 4;
             BottomPanel.Add(buttonPick);
@@ -282,6 +279,8 @@ namespace XNAFinalEngine.UserInterface
             UpdateRGBFromColor();
 
             #endregion
+
+            background.BringToFront();
 
         } // ColorPickerDialog
 

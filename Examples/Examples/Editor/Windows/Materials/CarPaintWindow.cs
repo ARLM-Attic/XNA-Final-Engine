@@ -224,7 +224,7 @@ namespace XNAFinalEngine.Editor
             comboBoxSpecularTexture.Width = groupSpecular.Width - 10 - comboBoxSpecularTexture.Left;
             // Add textures name
             comboBoxSpecularTexture.Items.Add("No texture");
-            comboBoxSpecularTexture.Items.AddRange(Texture.TexturesFilename);
+            comboBoxSpecularTexture.Items.AddRange(Texture.TexturesFilenames);
             // Events
             comboBoxSpecularTexture.ItemIndexChanged += delegate
             {

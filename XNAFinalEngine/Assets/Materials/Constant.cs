@@ -43,17 +43,12 @@ namespace XNAFinalEngine.Assets
 
         #region Variables
 
-        // The count of materials for naming purposes.
-        private static int nameNumber = 1;
-
         // Surface diffuse color. If a diffuse texture exists this color will be ignored.
         private Color diffuseColor = Color.Gray;
 
         #endregion
 
         #region Properties
-
-        #region Diffuse
 
         /// <summary>
         /// Surface diffuse color. If a diffuse texture exists this color will be ignored.
@@ -70,8 +65,6 @@ namespace XNAFinalEngine.Assets
         public Texture DiffuseTexture { get; set; }
 
         #endregion
-
-        #endregion
         
         #region Constructor
 
@@ -80,8 +73,7 @@ namespace XNAFinalEngine.Assets
 		/// </summary>
         public Constant()
 		{
-            Name = "Constant-" + nameNumber;
-            nameNumber++;
+            Name = "Constant";
         } // Constant
 
 		#endregion

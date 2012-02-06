@@ -1422,7 +1422,8 @@ namespace XNAFinalEngine.UserInterface
                     
                     if (width > 0 && height > 0)
                     {
-                        renderTarget = new RenderTarget(new Helpers.Size(w, h), SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
+                        renderTarget = new RenderTarget(new Helpers.Size(w, h), SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing)
+                                           {Name = "User Interface Render Target"};
                     }
                     else 
                         renderTarget = null;

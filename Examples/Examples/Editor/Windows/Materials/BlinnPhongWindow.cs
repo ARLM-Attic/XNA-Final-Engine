@@ -132,7 +132,7 @@ namespace XNAFinalEngine.Editor
             comboBoxDiffuseTexture.Width = groupDiffuse.Width - 10 - comboBoxDiffuseTexture.Left;
             // Add textures name
             comboBoxDiffuseTexture.Items.Add("No texture");
-            comboBoxDiffuseTexture.Items.AddRange(Texture.TexturesFilename);
+            comboBoxDiffuseTexture.Items.AddRange(Texture.TexturesFilenames);
             // Events
             comboBoxDiffuseTexture.ItemIndexChanged += delegate
             {
@@ -248,7 +248,7 @@ namespace XNAFinalEngine.Editor
             comboBoxSpecularTexture.Width = groupSpecular.Width - 10 - comboBoxSpecularTexture.Left;
             // Add textures name
             comboBoxSpecularTexture.Items.Add("No texture");
-            comboBoxSpecularTexture.Items.AddRange(Texture.TexturesFilename);
+            comboBoxSpecularTexture.Items.AddRange(Texture.TexturesFilenames);
             // Events
             comboBoxSpecularTexture.ItemIndexChanged += delegate
             {

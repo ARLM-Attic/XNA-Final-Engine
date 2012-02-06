@@ -43,77 +43,100 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Creates and shows the configuration window of this material.
         /// </summary>
-        public static void Show(Constant material)
+        public static void Show(Constant asset)
         {
 
             #region Window
 
-            var window = new Window { Text = material.Name + " : Constant" };
+            var window = new AssetWindow
+            {
+                AssetName = asset.Name,
+                AssetType = "Constant"
+            };
+            window.AssetNameChanged += delegate
+            {
+                asset.Name = window.AssetName;
+                window.AssetName = asset.Name; // If the new name is not unique
+            };
+            window.Draw += delegate { window.AssetName = asset.Name; };
 
             #endregion
-
-            #region Name
-
-            var nameLabel = new Label
-            {
-                Parent = window,
-                Text = "Name", Left = 10, Top = 10,
-            };
-            var materialNameTextBox = new TextBox
-            {
-                Parent = window,
-                Width = window.ClientWidth - nameLabel.Width - 25,
-                Text = material.Name, Left = 60, Top = 10
-            };
-            materialNameTextBox.KeyDown += delegate(object sender, KeyEventArgs e)
-            {
-                if (e.Key == Keys.Enter)
-                {
-                    material.Name = materialNameTextBox.Text;
-                    window.Text = material.Name + " : Constant";
-                }
-            };
-            materialNameTextBox.FocusLost += delegate
-            {
-                material.Name = materialNameTextBox.Text;
-                window.Text = material.Name + " : Constant";
-            };
-
-            #endregion
-
+            
             #region Group Surface Parameters
 
-            GroupBox group = new GroupBox
-            {
-                Parent = window,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                Width = window.ClientWidth - 16,
-                Height = 160,
-                Left = 8,
-                Top = nameLabel.Top + nameLabel.Height + 15,
-                Text = "Surface Parameters",
-                TextColor = Color.Gray,
-            };
+            GroupBox group = CommonControls.Group("Surface Parameters", window);
 
             #endregion
             
             #region Diffuse Color
 
-            var sliderColor = new SliderColor
-            {
-                Parent = group,
-                Left = 10,
-                Top = 20,
-                Color = material.DiffuseColor,
-                Text = "Diffuse Color",
-            };
-            sliderColor.ColorChanged += delegate { material.DiffuseColor = sliderColor.Color; };
-            sliderColor.Draw += delegate { sliderColor.Color = material.DiffuseColor; };
+            var sliderColor = CommonControls.SliderColor("Diffuse Color", group, asset.DiffuseColor);
+            sliderColor.ColorChanged += delegate { asset.DiffuseColor = sliderColor.Color; };
+            sliderColor.Draw += delegate { sliderColor.Color = asset.DiffuseColor; };
 
             #endregion
             
-            group.Height = sliderColor.Top + sliderColor.Height + 20;
-            window.Height = group.Top + group.Height + 40;
+            #region Diffuse Texture
+
+            var assetSelectorDiffuseTexture = CommonControls.AssetSelector("Diffuse Texture", group);
+            assetSelectorDiffuseTexture.AssetAdded += delegate
+            {
+                TextureWindow.CurrentCreatedAssetChanged += delegate
+                {
+                    asset.DiffuseTexture = TextureWindow.CurrentCreatedAsset;
+                    window.Invalidate();
+                };
+                TextureWindow.Show(null);
+            };
+            assetSelectorDiffuseTexture.AssetEdited += delegate
+            {
+                TextureWindow.Show(asset.DiffuseTexture);
+            };
+            // Events
+            assetSelectorDiffuseTexture.ItemIndexChanged += delegate
+            {
+                if (assetSelectorDiffuseTexture.ItemIndex <= 0)
+                    asset.DiffuseTexture = null;
+                else
+                {
+                    // If we have to change the asset...
+                    if (asset.DiffuseTexture == null ||
+                        asset.DiffuseTexture.Name != (string)assetSelectorDiffuseTexture.Items[assetSelectorDiffuseTexture.ItemIndex])
+                    {
+                        asset.DiffuseTexture = Texture.LoadedTextures[assetSelectorDiffuseTexture.ItemIndex - 1]; // The first item is the no texture item.
+                    }
+                }
+                assetSelectorDiffuseTexture.EditButtonEnabled = asset.DiffuseTexture != null;
+            };
+            assetSelectorDiffuseTexture.Draw += delegate
+            {
+                // Add textures name here because someone could dispose or add new asset.
+                assetSelectorDiffuseTexture.Items.Clear();
+                assetSelectorDiffuseTexture.Items.Add("No texture");
+                foreach (Texture texture in Texture.LoadedTextures)
+                    assetSelectorDiffuseTexture.Items.Add(texture.Name);
+
+                if (assetSelectorDiffuseTexture.ListBoxVisible)
+                    return;
+                // Identify current index
+                if (asset.DiffuseTexture == null)
+                    assetSelectorDiffuseTexture.ItemIndex = 0;
+                else
+                {
+                    for (int i = 0; i < assetSelectorDiffuseTexture.Items.Count; i++)
+                        if ((string)assetSelectorDiffuseTexture.Items[i] == asset.DiffuseTexture.Name)
+                        {
+                            assetSelectorDiffuseTexture.ItemIndex = i;
+                            break;
+                        }
+                }
+            };
+
+            #endregion
+            
+            group.AdjustHeightFromChildren();
+
+            window.AdjustHeightFromChildren();
         } // Show
 
     } // ConstantWindow

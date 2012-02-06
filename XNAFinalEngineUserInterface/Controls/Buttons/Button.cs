@@ -78,11 +78,6 @@ namespace XNAFinalEngine.UserInterface
         } // Glyph
 
         /// <summary>
-        /// Will the glyph be centered? Default: false.
-        /// </summary>
-        public bool GlyphCentered { get; set; }
-
-        /// <summary>
         /// Modal Result (None, Ok, Cancel, Yes, No, Abort, Retry, Ignore)
         /// </summary>
         public ModalResult ModalResult
@@ -175,16 +170,7 @@ namespace XNAFinalEngine.UserInterface
             {
                 Margins cont = layer.ContentMargins;
                 Rectangle r;
-                if (GlyphCentered)
-                    r = new Rectangle(rect.Left + cont.Left + (rect.Width - cont.Horizontal) / 2 - glyph.Texture.Width / 2,
-                                      rect.Top + cont.Top, 
-                                      rect.Width - cont.Horizontal, 
-                                      rect.Height - cont.Vertical);
-                else
-                    r = new Rectangle(rect.Left + cont.Left,
-                                      rect.Top + cont.Top,
-                                      rect.Width - cont.Horizontal,
-                                      rect.Height - cont.Vertical);
+                r = new Rectangle(rect.Left + cont.Left, rect.Top + cont.Top, rect.Width - cont.Horizontal, rect.Height - cont.Vertical);
                 Renderer.DrawGlyph(glyph, r);
             }
             else

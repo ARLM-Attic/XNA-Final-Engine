@@ -918,7 +918,7 @@ namespace XNAFinalEngineExamples
             videoTest = new GameObject2D();
             videoTest.AddComponent<VideoRenderer>();
             videoTest.VideoRenderer.Video = new Video("LogosIntro");
-            //videoTest.VideoRenderer.Play();
+            videoTest.VideoRenderer.Play();
             videoTest.Transform.Position = new Vector3(0, 0, 1);
 
             #endregion
@@ -932,10 +932,12 @@ namespace XNAFinalEngineExamples
 
             // The user interface is separated and manually called because its GPL license.
             UserInterfaceManager.Initialize();
-            //ConstantWindow.Show((Constant)murcielagoWheelBlackContant.ModelRenderer.Material);
+
+            murcielagoBody.ModelRenderer.Material = new Constant();
+            ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
             //BlinnPhongWindow.Show((BlinnPhong)murcielagoInteriorLeather.ModelRenderer.Material);
             //CarPaintWindow.Show(carPaint);
-            PostProcessWindow.Show(camera.Camera.PostProcess);
+            //PostProcessWindow.Show(camera.Camera.PostProcess);
 
             LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");

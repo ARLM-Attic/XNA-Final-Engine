@@ -130,9 +130,6 @@ namespace XNAFinalEngine.Assets
 
         // Indicates if this render target is currently used and if its information has to be preserved.
         private bool looked;
-
-        // The count of render targets created for naming purposes.
-        private static int nameNumber = 1;
         
         // Remember the last render targets we set. We can enable up to four render targets at once.
         private static readonly RenderTarget[] currentRenderTarget = new RenderTarget[4];
@@ -192,7 +189,7 @@ namespace XNAFinalEngine.Assets
         /// <param name="antialiasingType">Multi sampling type: System value or no antialiasing.</param>
         public RenderTarget(Size size, SurfaceFormat _surfaceFormat, DepthFormat _depthFormat, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
         {
-            Name = "Render Target " + nameNumber++;
+            Name = "Render Target";
             Size = size;
 
             SurfaceFormat = _surfaceFormat;
@@ -212,7 +209,7 @@ namespace XNAFinalEngine.Assets
         /// <param name="antialiasingType">Multi sampling type: System value or no antialiasing.</param>
         public RenderTarget(Size size, SurfaceFormat _surfaceFormat = SurfaceFormat.Color, bool _hasDepthBuffer = true, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
         {
-            Name = "Render Target " + nameNumber++;
+            Name = "Render Target";
             Size = size;
 
             SurfaceFormat = _surfaceFormat;

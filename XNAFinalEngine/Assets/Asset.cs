@@ -30,7 +30,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using XNAFinalEngine.Helpers;
@@ -53,6 +52,9 @@ namespace XNAFinalEngine.Assets
         // The asset name.
         protected string name;
 
+        // The content manager that stores this asset.
+        private ContentManager contentManager;
+
         #endregion
 
         #region Properties
@@ -61,11 +63,20 @@ namespace XNAFinalEngine.Assets
         /// The name of the asset.
         /// </summary>
         public virtual string Name { get; set; } // TODO: change to abstract.
-
+        
         /// <summary>
-        /// The content manager used to load this asset.
+        /// The content manager that stores this asset.
         /// </summary>
-        public ContentManager ContentManager { get; protected set; }
+        public ContentManager ContentManager
+        {
+            get { return contentManager; }
+            internal set
+            {
+                contentManager = value;
+                if (value != null)
+                    value.Assets.Add(this);
+            }
+        } // ContentManager
 
         #endregion
 
@@ -142,6 +153,67 @@ namespace XNAFinalEngine.Assets
             }
             return filenames;
         } // SearchAssetsFilename
+
+        #endregion
+
+        #region Sort
+
+        /// <summary>
+        /// This comparation allows to sort the assets by their names.
+        /// </summary>
+        protected static int CompareAssets(Asset asset1, Asset asset2)
+        {
+            string x = asset1.Name;
+            string y = asset2.Name;
+            if (x == null)
+            {
+                if (y == null)
+                {
+                    // If x is null and y is null, they're
+                    // equal. 
+                    return 0;
+                }
+                else
+                {
+                    // If x is null and y is not null, y
+                    // is greater. 
+                    return -1;
+                }
+            }
+            else
+            {
+                // If x is not null...
+                //
+                if (y == null)
+                // ...and y is null, x is greater.
+                {
+                    return 1;
+                }
+                else
+                {
+                    // ...and y is not null, compare the 
+                    // lengths of the two strings.
+                    //
+                    int retval = x.CompareTo(y);
+                    //int retval = x.Length.CompareTo(y.Length);
+
+                    if (retval != 0)
+                    {
+                        // If the strings are not of equal length,
+                        // the longer string is greater.
+                        //
+                        return retval;
+                    }
+                    else
+                    {
+                        // If the strings are of equal length,
+                        // sort them with ordinary string comparison.
+                        //
+                        return x.CompareTo(y);
+                    }
+                }
+            }
+        } // CompareAssets
 
         #endregion
 

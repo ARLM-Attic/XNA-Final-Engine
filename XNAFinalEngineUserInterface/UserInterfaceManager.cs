@@ -241,8 +241,8 @@ namespace XNAFinalEngine.UserInterface
                 ToolTipsEnabled = true;
             
                 #if (WINDOWS)
-                    MenuDelay = System.Windows.Forms.SystemInformation.MenuShowDelay;
-                    DoubleClickTime = System.Windows.Forms.SystemInformation.DoubleClickTime;
+                    MenuDelay = SystemInformation.MenuShowDelay;
+                    DoubleClickTime = SystemInformation.DoubleClickTime;
                     window = (Form)System.Windows.Forms.Control.FromHandle(EngineManager.GameWindow.Handle);
                     window.FormClosing += FormClosing;
                 #endif
@@ -267,7 +267,8 @@ namespace XNAFinalEngine.UserInterface
                 InputSystem.KeyUp      += KeyUpProcess;
                 InputSystem.KeyPress   += KeyPressProcess;
 
-                renderTarget = new RenderTarget(Helpers.Size.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
+                renderTarget = new RenderTarget(Helpers.Size.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing)
+                                   {Name = "User Interface Render Target"};
             }
             catch (Exception e)
             {

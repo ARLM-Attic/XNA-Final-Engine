@@ -121,6 +121,35 @@ namespace XNAFinalEngine.Editor
 
         #endregion
 
+        #region Slider Color
+
+        /// <summary>
+        /// Returns a color slider control placed in the first free spot.
+        /// You need to update the value manually.
+        /// </summary>
+        /// <param name="name">Label name.</param>
+        /// <param name="parent">Parent.</param>
+        /// <param name="initialValue">Initial value.</param>
+        public static SliderColor SliderColor(string name, ClipControl parent, Color initialValue)
+        {
+            var sliderColor = new SliderColor
+            {
+                Left = 10,
+                Text = name,
+                Color = initialValue,
+                Width = parent.ClientWidth - 25,
+            };
+            if (parent.AvailablePositionInsideControl == 0)
+                sliderColor.Top = 25;
+            else
+                sliderColor.Top = parent.AvailablePositionInsideControl + ControlSeparation;
+            sliderColor.Parent = parent;
+
+            return sliderColor;
+        } // SliderColor
+
+        #endregion
+
         #region Check Box
 
         /// <summary>

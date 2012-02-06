@@ -31,18 +31,17 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.UserInterface;
-
 #endregion
 
 namespace XNAFinalEngine.Editor
 {
-    public static class LookupTableWindow
+    public static class TextureWindow
     {
 
         #region Variables
 
         // This is a copy of the asset in its current state of creation.
-        private static LookupTable currentCreatedAsset;
+        private static Texture currentCreatedAsset;
 
         #endregion
 
@@ -51,7 +50,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// This is a copy of the asset in its current state of creation.
         /// </summary>
-        public static LookupTable CurrentCreatedAsset
+        public static Texture CurrentCreatedAsset
         {
             get { return currentCreatedAsset; }
             private set
@@ -75,10 +74,10 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Creates and shows the configuration window of this asset.
         /// </summary>
-        public static void Show(LookupTable asset)
+        public static void Show(Texture asset)
         {
             // If there is no asset to create then return
-            if (asset == null && LookupTable.LookupTablesFilenames.Length == 0)
+            if (asset == null && Texture.TexturesFilenames.Length == 0)
             {
                 CurrentCreatedAsset = null; // To avoid unwanted event references.
                 return;
@@ -89,7 +88,7 @@ namespace XNAFinalEngine.Editor
             if (assetCreation)
             {
                 // Create a temporal asset with the first resource in the list.
-                asset = new LookupTable(LookupTable.LookupTablesFilenames[0]);
+                asset = new Texture(Texture.TexturesFilenames[0]);
                 CurrentCreatedAsset = asset;
             }
 
@@ -98,7 +97,7 @@ namespace XNAFinalEngine.Editor
             var window = new AssetWindow
             {
                 AssetName = asset.Name,
-                AssetType = "Lookup Table"
+                AssetType = "Texture"
             };
             window.AssetNameChanged += delegate
             {
@@ -147,12 +146,12 @@ namespace XNAFinalEngine.Editor
 
             var groupImage = CommonControls.Group("Image", window);
 
-            var imageBoxImage = CommonControls.ImageBox(LookupTable.LookupTableToTexture(asset), groupImage);
+            var imageBoxImage = CommonControls.ImageBox(asset, groupImage);
 
             groupImage.AdjustHeightFromChildren();
 
             #endregion
-
+            /*
             #region Group Properties
 
             GroupBox groupProperties = CommonControls.Group("Properties", window);
@@ -164,7 +163,7 @@ namespace XNAFinalEngine.Editor
             groupProperties.AdjustHeightFromChildren();
 
             #endregion
-
+            */
             if (assetCreation)
             {
                 #region Buttons
@@ -206,10 +205,11 @@ namespace XNAFinalEngine.Editor
                     {
                         // This is a disposable asset so...
                         asset.Dispose();
-                        asset = new LookupTable(LookupTable.LookupTablesFilenames[comboBoxResource.ItemIndex]);
+                        asset = new Texture(Texture.TexturesFilenames[comboBoxResource.ItemIndex]);
                         CurrentCreatedAsset = asset;
+                        //nameTextBox.Text = asset.Name;
                         imageBoxImage.Texture.Dispose();
-                        imageBoxImage.Texture = LookupTable.LookupTableToTexture(asset);
+                        imageBoxImage.Texture = asset;
                         window.AssetName = asset.Name;
                     }
                 };
@@ -235,7 +235,6 @@ namespace XNAFinalEngine.Editor
                     {
                         CurrentCreatedAsset = null;
                         asset.Dispose();
-                        imageBoxImage.Texture.Dispose();
                     }
                     CurrentCreatedAssetChanged = null;
                 };
@@ -253,5 +252,5 @@ namespace XNAFinalEngine.Editor
 
         #endregion
 
-    } // LookupTableWindow
+    } // TextureWindow
 } // XNAFinalEngine.Editor

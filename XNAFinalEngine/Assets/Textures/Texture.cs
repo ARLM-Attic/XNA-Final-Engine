@@ -30,7 +30,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Helpers;
@@ -49,11 +51,6 @@ namespace XNAFinalEngine.Assets
     {
 
         #region Variables
-
-        /// <summary>
-        /// The count of dummy textures for naming purposes.
-        /// </summary>
-        private static int nameNumber = 1;
                 
         /// <summary>
         /// XNA Texture.
@@ -65,11 +62,41 @@ namespace XNAFinalEngine.Assets
         #region Properties
 
         /// <summary>
+        /// The name of the asset.
+        /// If a name already exists then we add one to its name and we call it again.
+        /// </summary>
+        public override string Name
+        {
+            get { return name; }
+            set
+            {
+                if (value != name)
+                {
+                    // Is the name unique?
+                    bool isUnique = LoadedTextures.All(assetFromList => assetFromList == this || assetFromList.Name != value);
+                    if (isUnique)
+                    {
+                        name = value;
+                        LoadedTextures.Sort(CompareAssets);
+                    }
+                    // If not then we add one to its name and find out if is unique.
+                    else
+                        Name = NamePlusOne(value);
+                }
+            }
+        } // Name
+
+        /// <summary>
         /// XNA Texture.
         /// </summary>
         public virtual Texture2D Resource
         { 
-            get { return xnaTexture; }
+            get
+            {
+                if (xnaTexture.IsDisposed)
+                    return null;
+                return xnaTexture;
+            }
             // This is only allowed for videos. Doing something to avoid this “set” is unnecessary and probably will make more complex some classes 
             // just for this special case. Besides, an internal statement elegantly prevents a bad use of this set.
             // Just don’t dispose this texture because the resource is managed by the video.
@@ -104,9 +131,14 @@ namespace XNAFinalEngine.Assets
         public Size Size { get; protected set; }
 
         /// <summary>
+        /// Loaded Textures.
+        /// </summary>
+        public static List<Texture> LoadedTextures { get; private set; }
+
+        /// <summary>
         ///  A list with all texture' filenames on the texture directory, except cube textures and user interface textures.
         /// </summary>
-        public static string[] TexturesFilename { get; private set; }
+        public static string[] TexturesFilenames { get; private set; }
         
         #endregion
 
@@ -118,6 +150,8 @@ namespace XNAFinalEngine.Assets
         internal Texture()
         {
             Name = "Empty Texture";
+            LoadedTextures.Add(this);
+            LoadedTextures.Sort(CompareAssets);
         } // Texture
 
 	    /// <summary>
@@ -125,9 +159,11 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public Texture(Texture2D xnaTexture)
         {
-            Name = "Texture " + nameNumber++;
+            Name = "Texture";
             this.xnaTexture = xnaTexture;
             Size = new Size(xnaTexture.Width, xnaTexture.Height);
+            LoadedTextures.Add(this);
+            LoadedTextures.Sort(CompareAssets);
         } // Texture
 
 		/// <summary>
@@ -147,6 +183,7 @@ namespace XNAFinalEngine.Assets
                 xnaTexture = ContentManager.CurrentContentManager.XnaContentManager.Load<Texture2D>(fullFilename);
                 ContentManager = ContentManager.CurrentContentManager;
                 Size = new Size(xnaTexture.Width, xnaTexture.Height);
+                Resource.Name = filename;
             }
             catch (ObjectDisposedException)
             {
@@ -156,14 +193,20 @@ namespace XNAFinalEngine.Assets
             {
                 throw new InvalidOperationException("Failed to load texture: " + filename, e);
             }
+            LoadedTextures.Add(this);
+            LoadedTextures.Sort(CompareAssets);
 		} // Texture
 
+		#endregion
+
+        #region Static Constructor
+
         /// <summary>
-        /// Search the available texture.
+        /// Search the available textures.
         /// </summary>
         static Texture()
         {
-            string texturesDirectoryPath = ContentManager.GameDataDirectory + "Textures";
+            const string texturesDirectoryPath = ContentManager.GameDataDirectory + "Textures";
             // Search the texture files //
             DirectoryInfo texturesDirectory = new DirectoryInfo(texturesDirectoryPath);
             try
@@ -175,18 +218,20 @@ namespace XNAFinalEngine.Assets
                 {
                     FileInfo songFileInformation = texturesFileInformation[i];
                     if (!songFileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\Skin") &&
-                        !songFileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\CubeTextures"))
+                        !songFileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\CubeTextures") &&
+                        !songFileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\LookupTables"))
                     {
                         count++;
                     }
                 }
                 // Create the array of available textures.
-                TexturesFilename = new string[count];
+                TexturesFilenames = new string[count];
                 for (int i = 0; i < texturesFileInformation.Length; i++)
                 {
                     FileInfo songFileInformation = texturesFileInformation[i];
                     if (!songFileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\Skin") &&
-                        !songFileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\CubeTextures"))
+                        !songFileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\CubeTextures") &&
+                        !songFileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\LookupTables"))
                     {
                         // Some textures are in a sub directory, in that case we have to know how is called.
                         string[] splitDirectoryName = songFileInformation.DirectoryName.Split(new[] { texturesDirectoryPath }, StringSplitOptions.None);
@@ -196,7 +241,7 @@ namespace XNAFinalEngine.Assets
                         {
                             subdirectory = splitDirectoryName[1].Substring(1, splitDirectoryName[1].Length - 1) + "\\"; // We delete the start \ and add another \ to the end.
                         }
-                        TexturesFilename[j] = subdirectory + songFileInformation.Name.Substring(0, songFileInformation.Name.Length - 4);
+                        TexturesFilenames[j] = subdirectory + songFileInformation.Name.Substring(0, songFileInformation.Name.Length - 4);
                         j++;
                     }
                 }
@@ -204,11 +249,12 @@ namespace XNAFinalEngine.Assets
             // If there was an error then do nothing.
             catch
             {
-                TexturesFilename = new string[0];
+                TexturesFilenames = new string[0];
             }
+            LoadedTextures = new List<Texture>();
         } // Texture
 
-		#endregion
+        #endregion
 
         #region Dispose
 
@@ -218,7 +264,9 @@ namespace XNAFinalEngine.Assets
         protected override void DisposeManagedResources()
         {
             base.DisposeManagedResources();
-            Resource.Dispose();
+            if (Resource != null)
+                Resource.Dispose();
+            LoadedTextures.Remove(this);
         } // DisposeManagedResources
 
 	    #endregion

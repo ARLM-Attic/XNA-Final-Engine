@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Media;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
 using Video = XNAFinalEngine.Assets.Video;
 #endregion
@@ -53,7 +54,7 @@ namespace XNAFinalEngine.Components
         private float volume;
         
         // The current frame.
-        private readonly Assets.Texture texture = new Assets.Texture();
+        private Texture texture;
 
         #endregion
 
@@ -136,7 +137,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Retrieves a texture containing the current frame of video being played.
         /// </summary>
-        public Assets.Texture Texture
+        public Texture Texture
         {
             get
             {
@@ -175,9 +176,10 @@ namespace XNAFinalEngine.Components
             if (videoPlayerInstance == null)
             {
                 videoPlayerInstance = new VideoPlayer();// VideoManager.FetchVideoInstance(Video); // TODO
+                texture = new Texture { Name = Video.Name };
                 // If the sound instance could not be created then do nothing.
-                if (videoPlayerInstance == null)
-                    return;
+                /*if (videoPlayerInstance == null)
+                    return;*/
                 videoPlayerInstance.IsMuted = IsMuted;
                 videoPlayerInstance.IsLooped = IsLooped;
                 videoPlayerInstance.Volume = Volume;
@@ -201,6 +203,8 @@ namespace XNAFinalEngine.Components
                 //VideoManager.ReleaseSoundInstance(videoPlayerInstance);
                 videoPlayerInstance.Dispose(); // TODO!!
                 videoPlayerInstance = null;
+                texture.Dispose();
+                texture = null;
                 // Raise event
                 if (VideoEnded != null)
                     VideoEnded(this, Video);
@@ -265,6 +269,7 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
+            texture = null;
             // Set default values.
             volume = 1;
             IsMuted = false;
@@ -303,7 +308,7 @@ namespace XNAFinalEngine.Components
         #region Pool
 
         // Pool for this type of components.
-        private static readonly Pool<VideoRenderer> componentPool = new Pool<VideoRenderer>(20);
+        private static readonly Pool<VideoRenderer> componentPool = new Pool<VideoRenderer>(1);
 
         /// <summary>
         /// Pool for this type of components.
