@@ -37,7 +37,7 @@ namespace XNAFinalEngine.UserInterface
         {
             Container mainContainer = null;
             ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager temporalContent = new ContentManager("Temporal Content Manager");
+            ContentManager temporalContent = new ContentManager("Temporal Content Manager", true);
             ContentManager.CurrentContentManager = temporalContent;
             try
             {

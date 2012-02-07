@@ -60,7 +60,6 @@
   </PropertyGroup>
   <ItemGroup />
   <ItemGroup>
-    <Compile Include="Editor\Windows\Assets\Copy of LookupTableWindow.cs" />
     <Compile Include="Editor\Windows\Assets\LookupTableWindow.cs" />
     <Compile Include="Editor\Windows\Assets\PostProcessWindow.cs" />
     <Compile Include="Editor\Windows\Assets\TextureWindow.cs" />

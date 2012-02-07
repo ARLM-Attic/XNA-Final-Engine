@@ -918,7 +918,7 @@ namespace XNAFinalEngineExamples
             videoTest = new GameObject2D();
             videoTest.AddComponent<VideoRenderer>();
             videoTest.VideoRenderer.Video = new Video("LogosIntro");
-            videoTest.VideoRenderer.Play();
+            //videoTest.VideoRenderer.Play();
             videoTest.Transform.Position = new Vector3(0, 0, 1);
 
             #endregion
@@ -929,6 +929,9 @@ namespace XNAFinalEngineExamples
             xnaFinalEngineLogo.Transform.LocalScale = 0.5f;*/
 
             GameLoop.ShowFramesPerSecond = true;
+
+            ContentManager testContentManager = new ContentManager("Just for testing", false);
+            ContentManager.CurrentContentManager = testContentManager;
 
             // The user interface is separated and manually called because its GPL license.
             UserInterfaceManager.Initialize();
@@ -943,7 +946,6 @@ namespace XNAFinalEngineExamples
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
 
             //LookupTableWindow.Show(null);
-
             base.Load();
         } // Load
 

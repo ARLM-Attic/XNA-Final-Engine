@@ -217,11 +217,13 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         internal MLAAShader() : base("PostProcessing\\MLAA")
         {
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
             ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
             // IMPORTANT: Be careful of the content processor properties of this texture
             // Pre multiply alpha: false
             // Texture format: No change.
             Texture areaTexture = new Texture("Shaders\\AreaMap32");
+            ContentManager.CurrentContentManager = userContentManager;
             
             EngineManager.Device.SamplerStates[15] = SamplerState.PointWrap;
             Resource.Parameters["areaTexture"].SetValue(areaTexture.Resource);

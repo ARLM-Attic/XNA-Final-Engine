@@ -333,7 +333,11 @@ namespace XNAFinalEngine.Graphics
 
         public CarPaintShader() : base("Materials\\CarPaint")
         {
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
+            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
             Texture sparkleNoiseMap = new Texture("Shaders\\SparkleNoiseMap");
+            ContentManager.CurrentContentManager = userContentManager;
+            
             Resource.Parameters["microflakeMap"].SetValue(sparkleNoiseMap.Resource);
         } // CarPaintShader
 

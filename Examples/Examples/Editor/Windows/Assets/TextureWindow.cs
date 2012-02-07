@@ -76,6 +76,8 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static void Show(Texture asset)
         {
+            ContentManager temporalContentManager = null;
+            ContentManager userContentManager = null;
             // If there is no asset to create then return
             if (asset == null && Texture.TexturesFilenames.Length == 0)
             {
@@ -87,6 +89,9 @@ namespace XNAFinalEngine.Editor
             
             if (assetCreation)
             {
+                userContentManager = ContentManager.CurrentContentManager;
+                temporalContentManager = new ContentManager("Temporal Content Manager", true);
+                ContentManager.CurrentContentManager = temporalContentManager;
                 // Create a temporal asset with the first resource in the list.
                 asset = new Texture(Texture.TexturesFilenames[0]);
                 CurrentCreatedAsset = asset;
@@ -114,30 +119,8 @@ namespace XNAFinalEngine.Editor
             #region Group Resource
 
             GroupBox groupResource = CommonControls.Group("Resource", window);
-
-            #region Resource
-
             var comboBoxResource = CommonControls.ComboBox("Resource", groupResource);
-
-            #endregion
-
-            #region Content Manager
-
             var comboBoxContentManager = CommonControls.ComboBox("Content Manager", groupResource);
-            // Add resources' names
-            if (asset.ContentManager == null)
-            {
-                comboBoxContentManager.Items.Add("Does not use a content manager.");
-                comboBoxContentManager.Enabled = false;
-            }
-            else if (asset.ContentManager.Name == "")
-                comboBoxContentManager.Items.Add("Does not have name.");
-            else
-                comboBoxContentManager.Items.Add(asset.ContentManager.Name);
-            comboBoxContentManager.ItemIndex = 0;
-
-            #endregion
-
             groupResource.AdjustHeightFromChildren();
 
             #endregion
@@ -176,11 +159,7 @@ namespace XNAFinalEngine.Editor
                     Text = "Create",
                     Parent = window,
                 };
-                buttonApply.Click += delegate
-                {
-                    CurrentCreatedAssetChanged = null;
-                    window.Close();
-                };
+                buttonApply.Click += delegate { window.Close(); };
 
                 var buttonClose = new Button
                 {
@@ -197,18 +176,16 @@ namespace XNAFinalEngine.Editor
                 #region Combo Box Resource
 
                 // Add textures name
-                comboBoxResource.Items.AddRange(LookupTable.LookupTablesFilenames);
+                comboBoxResource.Items.AddRange(Texture.TexturesFilenames);
                 // Events
                 comboBoxResource.ItemIndexChanged += delegate
                 {
-                    if (LookupTable.LookupTablesFilenames[comboBoxResource.ItemIndex] != asset.Resource.Name)
+                    if (Texture.TexturesFilenames[comboBoxResource.ItemIndex] != asset.Resource.Name)
                     {
                         // This is a disposable asset so...
-                        asset.Dispose();
+                        temporalContentManager.Unload();
                         asset = new Texture(Texture.TexturesFilenames[comboBoxResource.ItemIndex]);
                         CurrentCreatedAsset = asset;
-                        //nameTextBox.Text = asset.Name;
-                        imageBoxImage.Texture.Dispose();
                         imageBoxImage.Texture = asset;
                         window.AssetName = asset.Name;
                     }
@@ -227,25 +204,79 @@ namespace XNAFinalEngine.Editor
 
                 #endregion
 
-                #region Window
+                #region Combo Box Content Manager
+
+                // The names of the content manager are added here because someone could dispose or add a new one.
+                comboBoxContentManager.Items.Clear();
+                // Add names
+                foreach (ContentManager contentManager in ContentManager.ContentManagers)
+                {
+                    if (!contentManager.Hidden)
+                        comboBoxContentManager.Items.Add(contentManager.Name);
+                }
+                comboBoxContentManager.ItemIndex = 0;
+                for (int i = 0; i < ContentManager.ContentManagers.Count; i++)
+                {
+                    if (!ContentManager.ContentManagers[i].Hidden && ContentManager.ContentManagers[i] == userContentManager)
+                    {
+                        comboBoxContentManager.ItemIndex = i;
+                        break;
+                    }
+                }
+                comboBoxResource.Draw += delegate
+                {
+                    // The names of the content manager are added here because someone could dispose or add a new one.
+                    comboBoxContentManager.Items.Clear();
+                    // Add names
+                    foreach (ContentManager contentManager in ContentManager.ContentManagers)
+                    {
+                        if (!contentManager.Hidden)
+                            comboBoxContentManager.Items.Add(contentManager.Name);
+                    }
+                };
+
+                #endregion
+
+                #region Window Closed
                 
                 window.Closed += delegate
                 {
+                    temporalContentManager.Dispose();
                     if (window.ModalResult == ModalResult.Cancel)
                     {
                         CurrentCreatedAsset = null;
-                        asset.Dispose();
                     }
+                    else
+                    {
+                        // Search the content manager reference using its name.
+                        foreach (ContentManager contenManager in ContentManager.ContentManagers)
+                        {
+                            if (contenManager.Name == (string)(comboBoxContentManager.Items[comboBoxContentManager.ItemIndex]))
+                            {
+                                ContentManager.CurrentContentManager = contenManager;
+                                break;
+                            }
+                        }
+                        CurrentCreatedAsset = new Texture(Texture.TexturesFilenames[comboBoxResource.ItemIndex]) { Name = window.AssetName };
+                    }
+                    // Restore user content manager.
+                    ContentManager.CurrentContentManager = userContentManager;
                     CurrentCreatedAssetChanged = null;
                 };
 
                 #endregion
             }
-            else
+            else // If it is in edit mode...
             {
                 comboBoxResource.Items.Add(asset.Resource.Name);
                 comboBoxResource.ItemIndex = 0;
                 comboBoxResource.Enabled = false;
+                comboBoxContentManager.Enabled = false;
+                if (asset.ContentManager != null)
+                    comboBoxContentManager.Items.Add(asset.ContentManager.Name);
+                else
+                    comboBoxContentManager.Items.Add("Does not have a Content Manager");
+                comboBoxContentManager.ItemIndex = 0;
             }
             window.AdjustHeightFromChildren();
         } // Show

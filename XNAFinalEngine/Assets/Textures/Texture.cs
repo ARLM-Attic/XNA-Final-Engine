@@ -63,7 +63,7 @@ namespace XNAFinalEngine.Assets
 
         /// <summary>
         /// The name of the asset.
-        /// If a name already exists then we add one to its name and we call it again.
+        /// If the name already exists then we add one to its name and we call it again.
         /// </summary>
         public override string Name
         {

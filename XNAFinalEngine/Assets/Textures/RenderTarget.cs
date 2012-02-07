@@ -253,6 +253,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected override void DisposeManagedResources()
         {
+            base.DisposeManagedResources();
             EngineManager.DeviceReset -= OnWindowSizeChanged;
             renderTarget.Dispose();
         } // DisposeManagedResources

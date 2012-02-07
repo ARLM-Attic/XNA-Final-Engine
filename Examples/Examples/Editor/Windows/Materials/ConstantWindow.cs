@@ -114,7 +114,11 @@ namespace XNAFinalEngine.Editor
                 assetSelectorDiffuseTexture.Items.Clear();
                 assetSelectorDiffuseTexture.Items.Add("No texture");
                 foreach (Texture texture in Texture.LoadedTextures)
-                    assetSelectorDiffuseTexture.Items.Add(texture.Name);
+                {
+                    // You can filter some assets here.
+                    if (texture.ContentManager == null || !texture.ContentManager.Hidden)
+                        assetSelectorDiffuseTexture.Items.Add(texture.Name);
+                }
 
                 if (assetSelectorDiffuseTexture.ListBoxVisible)
                     return;
@@ -124,11 +128,13 @@ namespace XNAFinalEngine.Editor
                 else
                 {
                     for (int i = 0; i < assetSelectorDiffuseTexture.Items.Count; i++)
+                    {
                         if ((string)assetSelectorDiffuseTexture.Items[i] == asset.DiffuseTexture.Name)
                         {
                             assetSelectorDiffuseTexture.ItemIndex = i;
                             break;
                         }
+                    }
                 }
             };
 

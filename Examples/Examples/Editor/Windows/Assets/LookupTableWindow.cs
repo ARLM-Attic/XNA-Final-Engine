@@ -179,7 +179,6 @@ namespace XNAFinalEngine.Editor
                 };
                 buttonApply.Click += delegate
                 {
-                    CurrentCreatedAssetChanged = null;
                     window.Close();
                 };
 
@@ -227,7 +226,7 @@ namespace XNAFinalEngine.Editor
 
                 #endregion
 
-                #region Window
+                #region Window Closed
                 
                 window.Closed += delegate
                 {

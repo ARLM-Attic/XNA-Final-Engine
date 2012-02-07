@@ -123,12 +123,16 @@ namespace XNAFinalEngine.Graphics
         internal SkydomeShader() : base("Sky\\Skydome")
         {
             skydomeModel = new FileModel("Skydome");
+
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
+            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
             Texture skyTextureNight = new Texture("Shaders\\SkyNight");
             Resource.Parameters["SkyTextureNight"].SetValue(skyTextureNight.Resource);
             Texture skyTextureSunset = new Texture("Shaders\\SkySunset");
             Resource.Parameters["SkyTextureSunset"].SetValue(skyTextureSunset.Resource);
             Texture skyTextureDay = new Texture("Shaders\\SkyDay");
             Resource.Parameters["SkyTextureDay"].SetValue(skyTextureDay.Resource);
+            ContentManager.CurrentContentManager = userContentManager;
         } // SkyboxShader
 
 		#endregion

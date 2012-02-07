@@ -33,6 +33,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
@@ -158,12 +159,16 @@ namespace XNAFinalEngine.UserInterface
 
             #region Buttons
 
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
+            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
             // Button pick
             buttonPick = new Button
             {
                 Top = 8,
                 Glyph = new Glyph(new Texture("Skin\\Default\\Dropper")) { SizeMode = SizeMode.Centered }, // It needs to be store in the skin file, I know.
             };
+            ContentManager.CurrentContentManager = userContentManager;
+
             buttonPick.Left = (BottomPanel.ClientWidth / 2) - buttonPick.Width - 4;
             BottomPanel.Add(buttonPick);
             buttonPick.Click += delegate

@@ -52,7 +52,7 @@ namespace XNAFinalEngine.Assets
         
         /// <summary>
         /// The name of the asset.
-        /// If a name already exists then we add one to its name and we call it again.
+        /// If the name already exists then we add one to its name and we call it again.
         /// </summary>
         public override string Name
         {
@@ -64,7 +64,10 @@ namespace XNAFinalEngine.Assets
                     // Is the name unique?
                     bool isUnique = LoadedLookupTables.All(assetFromList => assetFromList == this || assetFromList.Name != value);
                     if (isUnique)
+                    {
                         name = value;
+                        LoadedLookupTables.Sort(CompareAssets);
+                    }
                     // If not then we add one to its name and find out if is unique.
                     else
                         Name = NamePlusOne(value);
@@ -112,7 +115,7 @@ namespace XNAFinalEngine.Assets
             {
                 // If I use a create-dispose method, the texture can't be used again, that could mean a potential ObjectDisposedException.
                 ContentManager userContentManager = ContentManager.CurrentContentManager;
-                ContentManager temporalContentManager = new ContentManager("Temporal Content Manager");
+                ContentManager temporalContentManager = new ContentManager("Temporal Content Manager", true);
                 ContentManager.CurrentContentManager = temporalContentManager;
 
                 Texture lookupTableTexture2D = new Texture("LookupTables\\" + filename);
@@ -142,6 +145,7 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("Failed to load lookup texture: " + filename, e);
             }
             LoadedLookupTables.Add(this);
+            LoadedLookupTables.Sort(CompareAssets);
         } // LookupTable
 
         /// <summary>
@@ -150,6 +154,7 @@ namespace XNAFinalEngine.Assets
         private LookupTable()
         {
             LoadedLookupTables.Add(this);
+            LoadedLookupTables.Sort(CompareAssets);
         } // LookupTable
 
         #endregion

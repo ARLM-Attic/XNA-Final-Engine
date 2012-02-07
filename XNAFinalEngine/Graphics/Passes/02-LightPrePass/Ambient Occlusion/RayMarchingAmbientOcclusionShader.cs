@@ -255,8 +255,12 @@ namespace XNAFinalEngine.Graphics
 		/// </summary>
         public RayMarchingAmbientOcclusionShader() : base("GlobalIllumination\\RayMarchingAmbientOcclusionShader")
 		{
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
+            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
             // Set the random normal map. Helps to make the samplers more random.
             Texture randomNormalTexture = new Texture("Shaders\\RandomNormal");
+            ContentManager.CurrentContentManager = userContentManager;
+
             Resource.Parameters["randomTexture"].SetValue(randomNormalTexture.Resource);
         } // RayMarchingAmbientOcclusionShader
 

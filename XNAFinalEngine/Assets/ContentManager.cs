@@ -31,6 +31,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 #endregion
@@ -59,17 +61,16 @@ namespace XNAFinalEngine.Assets
 
         #region Variables
 
-        /// <summary>
-        /// A reference to the content manager that is always loaded. 
-        /// This content manager is used for load certain assets that are persistent like shaders and some other minor assets.
-        /// The user can use it as the current content manager but it can’t be unload or dispose.
-        /// </summary>
+        // A reference to the content manager that is always loaded. 
+        // This content manager is used for load certain assets that are persistent like shaders and some other minor assets.
+        // The user can use it as the current content manager but it can’t be unload or dispose.
         private static ContentManager systemContentManager;
 
-        /// <summary>
-        /// Current content manager.
-        /// </summary>
+        // Current content manager.
         private static ContentManager currentContentManager;
+
+        // Content Manager name.
+        private string name;
 
         #endregion
 
@@ -107,12 +108,32 @@ namespace XNAFinalEngine.Assets
                 currentContentManager = value;
             }
         } // CurrentContent
-
+        
         /// <summary>
         /// The name of the content manager.
+        /// If the name already exists then we add one to its name and we call it again.
         /// </summary>
-        public string Name { get; set; }
-
+        public string Name
+        {
+            get { return name; }
+            set
+            {
+                if (value != name)
+                {
+                    // Is the name unique?
+                    bool isUnique = ContentManagers.All(contentManagerFromList => contentManagerFromList == this || contentManagerFromList.Name != value);
+                    if (isUnique)
+                    {
+                        name = value;
+                        ContentManagers.Sort(CompareContentManagers);
+                    }
+                    // If not then we add one to its name and find out if is unique.
+                    else
+                        Name = NamePlusOne(value);
+                }
+            }
+        } // Name
+        
         /// <summary>
         /// The XNA Content Manager.
         /// </summary>
@@ -123,7 +144,15 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public static List<ContentManager> ContentManagers { get; private set; }
 
-        internal List<Asset> Assets { get; set; }
+        /// <summary>
+        /// The list of loaded assets in this content manager.
+        /// </summary>
+        public List<Asset> Assets { get; private set; }
+
+        /// <summary>
+        /// If the content manager is hidden then the content loaded is inaccessible outside the owner.
+        /// </summary>
+        public bool Hidden { get; private set; }
 
         #endregion
 
@@ -137,14 +166,21 @@ namespace XNAFinalEngine.Assets
         /// You can unload or dispose it. In any case the loaded assets will be disposed.
         /// By default the system content manager is the current content manager.
         /// </summary>
-        public ContentManager(string name)
+        /// <param name="name">Name.</param>
+        /// <param name="hidden">If the content manager is hidden then the content loaded is inaccessible outside the owner.</param>
+        public ContentManager(string name, bool hidden = false)
         {
+            Hidden = hidden;
             XnaContentManager = new Microsoft.Xna.Framework.Content.ContentManager(EngineManager.GameServices);
             Name = name;
-            if (ContentManagers == null)
-                ContentManagers = new List<ContentManager>();
             ContentManagers.Add(this);
+            ContentManagers.Sort(CompareContentManagers);
             Assets = new List<Asset>();
+        } // ContentManager
+
+        static ContentManager()
+        {
+            ContentManagers = new List<ContentManager>();
         } // ContentManager
 
         #endregion
@@ -190,6 +226,88 @@ namespace XNAFinalEngine.Assets
             Assets.Clear();
         } // Unload
         
+        #endregion
+
+        #region Name Plus One
+
+        /// <summary>
+        /// Return the name plus one.
+        /// For example: name will be returned like name1 and name9 will be returned like name10.
+        /// </summary>
+        protected static string NamePlusOne(string name)
+        {
+            Regex regex = new Regex(@"(\d+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+            Match match = regex.Match(name);
+
+            if (match.Success)
+            {
+                int numberPlusOne = (int)double.Parse(match.Value) + 1;
+                return regex.Replace(name, numberPlusOne.ToString());
+            }
+            return name + "1";
+        } // NamePlusOne
+
+        #endregion
+
+        #region Sort
+
+        /// <summary>
+        /// This comparation allows to sort the content managers by their names.
+        /// </summary>
+        protected static int CompareContentManagers(ContentManager contentManager1, ContentManager contentManager2)
+        {
+            string x = contentManager1.Name;
+            string y = contentManager2.Name;
+            if (x == null)
+            {
+                if (y == null)
+                {
+                    // If x is null and y is null, they're
+                    // equal. 
+                    return 0;
+                }
+                else
+                {
+                    // If x is null and y is not null, y
+                    // is greater. 
+                    return -1;
+                }
+            }
+            else
+            {
+                // If x is not null...
+                //
+                if (y == null)
+                // ...and y is null, x is greater.
+                {
+                    return 1;
+                }
+                else
+                {
+                    // ...and y is not null, compare the 
+                    // lengths of the two strings.
+                    //
+                    int retval = x.CompareTo(y);
+                    //int retval = x.Length.CompareTo(y.Length);
+
+                    if (retval != 0)
+                    {
+                        // If the strings are not of equal length,
+                        // the longer string is greater.
+                        //
+                        return retval;
+                    }
+                    else
+                    {
+                        // If the strings are of equal length,
+                        // sort them with ordinary string comparison.
+                        //
+                        return x.CompareTo(y);
+                    }
+                }
+            }
+        } // CompareContentManagers
+
         #endregion
 
     } // ContentManager
