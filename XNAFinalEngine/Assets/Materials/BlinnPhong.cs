@@ -100,7 +100,12 @@ namespace XNAFinalEngine.Assets
         public float SpecularPower
         {
             get { return specularPower; }
-            set { specularPower = value; }
+            set
+            {
+                specularPower = value;
+                if (specularPower < 0)
+                    specularPower = 0;
+            }
         } // SpecularPower
 
         /// <summary>
@@ -109,7 +114,12 @@ namespace XNAFinalEngine.Assets
         public float SpecularIntensity
         {
             get { return specularIntensity; }
-            set { specularIntensity = value; }
+            set
+            {
+                specularIntensity = value;
+                if (specularPower < 0)
+                    specularPower = 0;
+            }
         } // SpecularIntensity
 
         /// <summary>
@@ -123,7 +133,7 @@ namespace XNAFinalEngine.Assets
         /// Indicates if the specular power will be read from the texture (the alpha channel of the specular texture) or from the specular power property.
         /// Default value: false
         /// </summary>
-        public bool SpecularTexturePowerEnabled { get; set; }
+        public bool SpecularPowerFromTexture { get; set; }
 
         /// <summary>
         /// Reflection Texture.
@@ -163,7 +173,14 @@ namespace XNAFinalEngine.Assets
         public int ParallaxMinimumNumberSamples
         {
             get { return parallaxMinimumNumberSamples; }
-            set { parallaxMinimumNumberSamples = value; }
+            set
+            {
+                parallaxMinimumNumberSamples = value;
+                if (parallaxMinimumNumberSamples < 0)
+                    parallaxMinimumNumberSamples = 0;
+                if (parallaxMinimumNumberSamples > parallaxMaximumNumberSamples)
+                    parallaxMinimumNumberSamples = parallaxMaximumNumberSamples;
+            }
         } // ParallaxMinimumNumberSamples
 
         /// <summary>
@@ -172,7 +189,12 @@ namespace XNAFinalEngine.Assets
         public int ParallaxMaximumNumberSamples
         {
             get { return parallaxMaximumNumberSamples; }
-            set { parallaxMaximumNumberSamples = value; }
+            set
+            {
+                parallaxMaximumNumberSamples = value;
+                if (parallaxMaximumNumberSamples < parallaxMinimumNumberSamples)
+                    parallaxMaximumNumberSamples = parallaxMinimumNumberSamples;
+            }
         } // ParallaxMaximumNumberSamples
 
         /// <summary>

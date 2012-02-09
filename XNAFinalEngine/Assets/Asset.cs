@@ -88,9 +88,7 @@ namespace XNAFinalEngine.Assets
         protected override void DisposeManagedResources()
         {
             if (ContentManager != null)
-            {
                 throw new InvalidOperationException("Assets loaded with content managers cannot be disposed individually.");
-            }
         } // DisposeManagedResources
 
         #endregion

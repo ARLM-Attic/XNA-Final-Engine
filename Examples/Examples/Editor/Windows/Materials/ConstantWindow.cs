@@ -70,9 +70,9 @@ namespace XNAFinalEngine.Editor
             
             #region Diffuse Color
 
-            var sliderColor = CommonControls.SliderColor("Diffuse Color", group, asset.DiffuseColor);
-            sliderColor.ColorChanged += delegate { asset.DiffuseColor = sliderColor.Color; };
-            sliderColor.Draw += delegate { sliderColor.Color = asset.DiffuseColor; };
+            var sliderDiffuseColor = CommonControls.SliderColor("Diffuse Color", group, asset.DiffuseColor);
+            sliderDiffuseColor.ColorChanged += delegate { asset.DiffuseColor = sliderDiffuseColor.Color; };
+            sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = asset.DiffuseColor; };
 
             #endregion
             
@@ -107,6 +107,7 @@ namespace XNAFinalEngine.Editor
                     }
                 }
                 assetSelectorDiffuseTexture.EditButtonEnabled = asset.DiffuseTexture != null;
+                sliderDiffuseColor.Enabled = assetSelectorDiffuseTexture.ItemIndex == 0;
             };
             assetSelectorDiffuseTexture.Draw += delegate
             {
@@ -141,7 +142,6 @@ namespace XNAFinalEngine.Editor
             #endregion
             
             group.AdjustHeightFromChildren();
-
             window.AdjustHeightFromChildren();
         } // Show
 

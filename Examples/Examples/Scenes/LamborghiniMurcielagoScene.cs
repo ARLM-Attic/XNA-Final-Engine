@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
@@ -40,8 +41,12 @@ using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Scenes;
 using XNAFinalEngine.UserInterface;
 using XNAFinalEngine.Editor;
+using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Size = XNAFinalEngine.Helpers.Size;
+using Texture = XNAFinalEngine.Assets.Texture;
+using TextureCube = XNAFinalEngine.Assets.TextureCube;
+
 #endregion
 
 namespace XNAFinalEngineExamples
@@ -936,9 +941,9 @@ namespace XNAFinalEngineExamples
             // The user interface is separated and manually called because its GPL license.
             UserInterfaceManager.Initialize();
 
-            murcielagoBody.ModelRenderer.Material = new Constant();
-            ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
-            //BlinnPhongWindow.Show((BlinnPhong)murcielagoInteriorLeather.ModelRenderer.Material);
+            //murcielagoBody.ModelRenderer.Material = new Constant { DiffuseTexture = new Texture("Caption") { PreferredSamplerState = new SamplerState { MaxMipLevel = 2 }}};
+            //ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
+            BlinnPhongWindow.Show((BlinnPhong)murcielagoInteriorLeather.ModelRenderer.Material);
             //CarPaintWindow.Show(carPaint);
             //PostProcessWindow.Show(camera.Camera.PostProcess);
 

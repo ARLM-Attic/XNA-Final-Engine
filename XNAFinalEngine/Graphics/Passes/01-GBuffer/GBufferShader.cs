@@ -481,7 +481,7 @@ namespace XNAFinalEngine.Graphics
                         BlinnPhong blinnPhongMaterial = ((BlinnPhong)material);
                         bool textured = false;
                         // Specular texture
-                        if (blinnPhongMaterial.SpecularTexture != null && blinnPhongMaterial.SpecularTexturePowerEnabled)
+                        if (blinnPhongMaterial.SpecularTexture != null && blinnPhongMaterial.SpecularPowerFromTexture)
                         {
                             SetSpecularTexture(blinnPhongMaterial.SpecularTexture);
                             SetSpecularTextured(true);

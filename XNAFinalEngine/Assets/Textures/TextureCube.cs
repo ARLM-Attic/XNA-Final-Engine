@@ -30,7 +30,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+
 #endregion
 
 namespace XNAFinalEngine.Assets
@@ -45,24 +48,49 @@ namespace XNAFinalEngine.Assets
 
         #region Variables
                 
-        /// <summary>
-        /// XNA Texture.
-        /// </summary>
+        // XNA Texture.
         protected Microsoft.Xna.Framework.Graphics.TextureCube xnaTextureCube;
-
-	    /// <summary>
-        /// The size of this texture resource, in pixels.
-	    /// </summary>
+        
+        // The size of this texture resource, in pixels.
 	    protected int size;
 
         #endregion
 
         #region Properties
 
+        #region Name
+
         /// <summary>
-        /// XNA Texture.
+        /// The name of the asset.
+        /// If the name already exists then we add one to its name and we call it again.
         /// </summary>
-        public virtual Microsoft.Xna.Framework.Graphics.TextureCube Resource { get { return xnaTextureCube; } }
+        public override string Name
+        {
+            get { return name; }
+            set
+            {
+                if (value != name)
+                {
+                    // Is the name unique?
+                    bool isUnique = LoadedTextures.All(assetFromList => assetFromList == this || assetFromList.Name != value);
+                    if (isUnique)
+                    {
+                        name = value;
+                        LoadedTextures.Sort(CompareAssets);
+                    }
+                    // If not then we add one to its name and find out if is unique.
+                    else
+                        Name = NamePlusOne(value);
+                }
+            }
+        } // Name
+
+        #endregion
+
+	    /// <summary>
+	    /// XNA Texture.
+	    /// </summary>
+	    public virtual Microsoft.Xna.Framework.Graphics.TextureCube Resource { get { return xnaTextureCube; } }
 
         /// <summary>
         /// The size of this texture resource, in pixels.
@@ -83,6 +111,16 @@ namespace XNAFinalEngine.Assets
         ///  A list with all texture' filenames on the cube texture directory.
         /// </summary>
         public static string[] TexturesFilename { get; private set; }
+
+        /// <summary>
+        /// Loaded Cube Textures.
+        /// </summary>
+        public static List<TextureCube> LoadedTextures { get; private set; }
+
+        /// <summary>
+        ///  A list with all texture' filenames on the cube texture directory.
+        /// </summary>
+        public static string[] TexturesFilenames { get; private set; }
     
         #endregion
 
@@ -109,6 +147,7 @@ namespace XNAFinalEngine.Assets
                 xnaTextureCube = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Graphics.TextureCube>(fullFilename);
                 ContentManager = ContentManager.CurrentContentManager;
                 size = xnaTextureCube.Size;
+                Resource.Name = filename;
             }
             catch (ObjectDisposedException)
             {
@@ -118,44 +157,39 @@ namespace XNAFinalEngine.Assets
             {
                 throw new InvalidOperationException("Failed to load cube map: " + filename, e);
             }
+            LoadedTextures.Add(this);
+            LoadedTextures.Sort(CompareAssets);
 		} // TextureCube
-        
+
+		#endregion
+
+        #region Static Constructor
+
         /// <summary>
-        /// Search the available cube texture.
+        /// Search the available cube textures.
         /// </summary>
         static TextureCube()
         {
-            string texturesDirectoryPath = ContentManager.GameDataDirectory + "Textures\\CubeTextures";
-            // Search the texture files //
-            DirectoryInfo texturesDirectory = new DirectoryInfo(texturesDirectoryPath);
-            try
-            {
-                FileInfo[] texturesFileInformation = texturesDirectory.GetFiles("*.xnb", SearchOption.AllDirectories);
-                // Count the textures, except cube textures and user interface textures.
-                TexturesFilename = new string[texturesFileInformation.Length];
-                for (int i = 0; i < texturesFileInformation.Length; i++)
-                {
-                    FileInfo fileInformation = texturesFileInformation[i];
-                    // Some textures are in a sub directory, in that case we have to know how is called.
-                    string[] splitDirectoryName = fileInformation.DirectoryName.Split(new[] { texturesDirectoryPath }, StringSplitOptions.None);
-                    string subdirectory = "";
-                    // If is in a sub directory
-                    if (splitDirectoryName[1] != "")
-                    {
-                        subdirectory = splitDirectoryName[1].Substring(1, splitDirectoryName[1].Length - 1) + "\\"; // We delete the start \ and add another \ to the end.
-                    }
-                    TexturesFilename[i] = subdirectory + fileInformation.Name.Substring(0, fileInformation.Name.Length - 4);
+            TexturesFilenames = SearchAssetsFilename(ContentManager.GameDataDirectory + "Textures\\CubeTextures");
+            LoadedTextures = new List<TextureCube>();
+        } // Texture
 
-                }
-            }
-            // If there was an error then do nothing.
-            catch
-            {
-                TexturesFilename = new string[0];
-            }
-        } // TextureCube
+        #endregion
 
-		#endregion
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            base.DisposeManagedResources();
+            if (xnaTextureCube != null && !xnaTextureCube.IsDisposed)
+                Resource.Dispose();
+            LoadedTextures.Remove(this);
+        } // DisposeManagedResources
+
+        #endregion
 
     } // TextureCube
 } // XNAFinalEngine.Assets

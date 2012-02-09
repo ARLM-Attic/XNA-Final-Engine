@@ -167,7 +167,7 @@ namespace XNAFinalEngine.Editor
                 Parent = parent,
                 Left = 10,
                 Height = 25,
-                Width = 150,
+                Width = 250,
                 Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
                 Checked = initialValue,
                 Text = " " + name,

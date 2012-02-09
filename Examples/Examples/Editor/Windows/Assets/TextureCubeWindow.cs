@@ -32,18 +32,18 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.UserInterface;
-using Texture = XNAFinalEngine.Assets.Texture;
+using TextureCube = XNAFinalEngine.Assets.TextureCube;
 #endregion
 
 namespace XNAFinalEngine.Editor
 {
-    public static class TextureWindow
+    public static class TextureCubeWindow
     {
 
         #region Variables
 
         // This is a copy of the asset in its current state of creation.
-        private static Texture currentCreatedAsset;
+        private static TextureCube currentCreatedAsset;
 
         private static SamplerState customSamplerState;
 
@@ -54,7 +54,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// This is a copy of the asset in its current state of creation.
         /// </summary>
-        public static Texture CurrentCreatedAsset
+        public static TextureCube CurrentCreatedAsset
         {
             get { return currentCreatedAsset; }
             private set
@@ -78,25 +78,26 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Creates and shows the configuration window of this asset.
         /// </summary>
-        public static void Show(Texture asset)
+        public static void Show(TextureCube asset)
         {
             ContentManager temporalContentManager = null;
             ContentManager userContentManager = null;
             // If there is no asset to create then return
-            if (asset == null && Texture.TexturesFilenames.Length == 0)
+            if (asset == null && TextureCube.TexturesFilenames.Length == 0)
             {
                 CurrentCreatedAsset = null; // To avoid unwanted event references.
                 return;
             }
 
             bool assetCreation = asset == null;
+            
             if (assetCreation)
             {
                 userContentManager = ContentManager.CurrentContentManager;
                 temporalContentManager = new ContentManager("Temporal Content Manager", true);
                 ContentManager.CurrentContentManager = temporalContentManager;
                 // Create a temporal asset with the first resource in the list.
-                asset = new Texture(Texture.TexturesFilenames[0]);
+                asset = new TextureCube(TextureCube.TexturesFilenames[0]);
                 CurrentCreatedAsset = asset;
             }
 
@@ -105,7 +106,7 @@ namespace XNAFinalEngine.Editor
             var window = new AssetWindow
             {
                 AssetName = asset.Name,
-                AssetType = "Texture"
+                AssetType = "Cube Texture"
             };
             window.AssetNameChanged += delegate
             {
@@ -127,83 +128,15 @@ namespace XNAFinalEngine.Editor
             groupResource.AdjustHeightFromChildren();
 
             #endregion
-
-            #region Group Image
-
-            var groupImage = CommonControls.Group("Image", window);
-
-            var imageBoxImage = CommonControls.ImageBox(asset, groupImage);
-
-            groupImage.AdjustHeightFromChildren();
-
-            #endregion
-            
+           
             #region Group Properties
 
             GroupBox groupProperties = CommonControls.Group("Properties", window);
 
-            var widthTextBox = CommonControls.TexteBox("Width", groupProperties, asset.Width.ToString());
-            widthTextBox.Enabled = false;
-            widthTextBox.Draw += delegate { widthTextBox.Text = asset.Width.ToString(); };
-
-            var heightTextBox = CommonControls.TexteBox("Height", groupProperties, asset.Height.ToString());
-            heightTextBox.Enabled = false;
-            heightTextBox.Draw += delegate { heightTextBox.Text = asset.Height.ToString(); };
-
-            #region Prefered Sampler State
-
-            var comboBoxPreferredSamplerState = CommonControls.ComboBox("Prefered Sampler State", groupProperties);
-            comboBoxPreferredSamplerState.Items.Add("AnisotropicClamp");
-            comboBoxPreferredSamplerState.Items.Add("AnisotropicWrap");
-            comboBoxPreferredSamplerState.Items.Add("LinearClamp");
-            comboBoxPreferredSamplerState.Items.Add("LinearWrap");
-            comboBoxPreferredSamplerState.Items.Add("PointClamp");
-            comboBoxPreferredSamplerState.Items.Add("PointWrap");
-
-            // Events
-            comboBoxPreferredSamplerState.ItemIndexChanged += delegate { asset.PreferredSamplerState = GetSamplerState(comboBoxPreferredSamplerState.ItemIndex); };
-            comboBoxPreferredSamplerState.Draw += delegate
-            {
-                if (comboBoxPreferredSamplerState.ListBoxVisible)
-                    return;
-                // Identify current index
-                if (asset.PreferredSamplerState == SamplerState.AnisotropicClamp)
-                {
-                    comboBoxPreferredSamplerState.ItemIndex = 0;
-                }
-                else if (asset.PreferredSamplerState == SamplerState.AnisotropicWrap)
-                {
-                    comboBoxPreferredSamplerState.ItemIndex = 1;
-                }
-                else if (asset.PreferredSamplerState == SamplerState.LinearClamp)
-                {
-                    comboBoxPreferredSamplerState.ItemIndex = 2;
-                }
-                else if (asset.PreferredSamplerState == SamplerState.LinearWrap)
-                {
-                    comboBoxPreferredSamplerState.ItemIndex = 3;
-                }
-                else if (asset.PreferredSamplerState == SamplerState.PointClamp)
-                {
-                    comboBoxPreferredSamplerState.ItemIndex = 4;
-                }
-                else if (asset.PreferredSamplerState == SamplerState.PointWrap)
-                {
-                    comboBoxPreferredSamplerState.ItemIndex = 5;
-                }
-                else
-                {
-                    if (customSamplerState == null)
-                    {
-                        comboBoxPreferredSamplerState.Items.Add("Custom");
-                        customSamplerState = asset.PreferredSamplerState;
-                    }
-                    comboBoxPreferredSamplerState.ItemIndex = 6;
-                }
-            };
-
-            #endregion
-
+            var sizeTextBox = CommonControls.TexteBox("Size", groupProperties, asset.Size.ToString());
+            sizeTextBox.Enabled = false;
+            sizeTextBox.Draw += delegate { sizeTextBox.Text = asset.Size.ToString(); };
+            
             groupProperties.AdjustHeightFromChildren();
 
             #endregion
@@ -237,20 +170,16 @@ namespace XNAFinalEngine.Editor
                 #region Combo Box Resource
 
                 // Add textures name
-                comboBoxResource.Items.AddRange(Texture.TexturesFilenames);
+                comboBoxResource.Items.AddRange(TextureCube.TexturesFilenames);
                 // Events
                 comboBoxResource.ItemIndexChanged += delegate
                 {
-                    if (Texture.TexturesFilenames[comboBoxResource.ItemIndex] != asset.Resource.Name)
+                    if (TextureCube.TexturesFilenames[comboBoxResource.ItemIndex] != asset.Resource.Name)
                     {
                         // This is a disposable asset so...
                         temporalContentManager.Unload();
-                        asset = new Texture(Texture.TexturesFilenames[comboBoxResource.ItemIndex])
-                        {
-                            PreferredSamplerState = GetSamplerState(comboBoxPreferredSamplerState.ItemIndex)
-                        };
+                        asset = new TextureCube(TextureCube.TexturesFilenames[comboBoxResource.ItemIndex]);
                         CurrentCreatedAsset = asset;
-                        imageBoxImage.Texture = asset;
                         window.AssetName = asset.Name;
                     }
                 };
@@ -325,11 +254,7 @@ namespace XNAFinalEngine.Editor
                             }
                         }
                         // And create the asset with this content manager.
-                        CurrentCreatedAsset = new Texture(Texture.TexturesFilenames[comboBoxResource.ItemIndex])
-                        {
-                            Name = window.AssetName,
-                            PreferredSamplerState = GetSamplerState(comboBoxPreferredSamplerState.ItemIndex)
-                        };
+                        CurrentCreatedAsset = new TextureCube(TextureCube.TexturesFilenames[comboBoxResource.ItemIndex]) { Name = window.AssetName };
                     }
                     // Restore user content manager.
                     ContentManager.CurrentContentManager = userContentManager;
@@ -341,8 +266,6 @@ namespace XNAFinalEngine.Editor
             }
             else // If it is in edit mode...
             {
-                #region Edit Mode
-
                 // Fill Resource Combo Box.
                 comboBoxResource.Items.Add(asset.Resource.Name);
                 comboBoxResource.ItemIndex = 0;
@@ -354,32 +277,11 @@ namespace XNAFinalEngine.Editor
                     comboBoxContentManager.Items.Add("Does not have a Content Manager");
                 comboBoxContentManager.ItemIndex = 0;
                 comboBoxContentManager.Enabled = false;
-
-                #endregion
             }
             window.AdjustHeightFromChildren();
         } // Show
 
         #endregion
 
-        #region Get Sampler State
-
-        private static SamplerState GetSamplerState(int index)
-        {
-            switch (index)
-            {
-                case 0:  return SamplerState.AnisotropicClamp;
-                case 1:  return SamplerState.AnisotropicWrap;
-                case 2:  return SamplerState.LinearClamp;
-                case 3:  return SamplerState.LinearWrap;
-                case 4:  return SamplerState.PointClamp;
-                case 5:  return SamplerState.PointWrap;
-                case 6:  return customSamplerState;
-                default: return SamplerState.AnisotropicWrap;
-            }
-        } // GetSamplerState
-
-        #endregion
-
-    } // TextureWindow
+    } // TextureCubeWindow
 } // XNAFinalEngine.Editor

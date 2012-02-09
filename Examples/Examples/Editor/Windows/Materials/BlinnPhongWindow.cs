@@ -29,10 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.UserInterface;
-using Microsoft.Xna.Framework;
 #endregion
 
 namespace XNAFinalEngine.Editor
@@ -43,325 +41,392 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Creates and shows the configuration window of this material.
         /// </summary>
-        public static void Show(BlinnPhong material)
+        public static void Show(BlinnPhong asset)
         {
 
             #region Window
 
-            var window = new Window { Text = material.Name + " : Blinn-Phong" };
+            var window = new AssetWindow
+            {
+                AssetName = asset.Name,
+                AssetType = "Blinn-Phong"
+            };
+            window.AssetNameChanged += delegate
+            {
+                asset.Name = window.AssetName;
+                window.AssetName = asset.Name; // If the new name is not unique
+            };
+            window.Draw += delegate { window.AssetName = asset.Name; };
 
             #endregion
-
-            #region Name
-
-            var nameLabel = new Label
-            {
-                Parent = window,
-                Text = "Name", Left = 10, Top = 10,
-            };
-            var materialNameTextBox = new TextBox
-            {
-                Parent = window,
-                Width = window.ClientWidth - nameLabel.Width - 25,
-                Text = material.Name, Left = 60, Top = 10
-            };
-            materialNameTextBox.KeyDown += delegate(object sender, KeyEventArgs e)
-            {
-                if (e.Key == Keys.Enter)
-                {
-                    material.Name = materialNameTextBox.Text;
-                    window.Text = material.Name + " : Blinn-Phong";
-                }
-            };
-            materialNameTextBox.FocusLost += delegate
-            {
-                material.Name = materialNameTextBox.Text;
-                window.Text = material.Name + " : Blinn-Phong";
-            };
-
-            #endregion
-
+            
             #region Group Diffuse
 
-            GroupBox groupDiffuse = new GroupBox
-            {
-                Parent = window,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                Width = window.ClientWidth - 16,
-                Height = 160,
-                Left = 8,
-                Top = nameLabel.Top + nameLabel.Height + 15,
-                Text = "Diffuse",
-                TextColor = Color.Gray,
-            };
+            GroupBox groupDiffuse = CommonControls.Group("Diffuse", window);
 
             #region Diffuse Color
 
-            var sliderDiffuseColor = new SliderColor
-            {
-                Parent = groupDiffuse,
-                Left = 10,
-                Top = 20,
-                Color = material.DiffuseColor,
-                Text = "Diffuse Color",
-            };
-            sliderDiffuseColor.ColorChanged += delegate { material.DiffuseColor = sliderDiffuseColor.Color; };
-            sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = material.DiffuseColor; };
+            var sliderDiffuseColor = CommonControls.SliderColor("Diffuse Color", groupDiffuse, asset.DiffuseColor);
+            sliderDiffuseColor.ColorChanged += delegate { asset.DiffuseColor = sliderDiffuseColor.Color; };
+            sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = asset.DiffuseColor; };
 
             #endregion
 
             #region Diffuse Texture
 
-            var labelDiffuseTexture = new Label
+            var assetSelectorDiffuseTexture = CommonControls.AssetSelector("Diffuse Texture", groupDiffuse);
+            assetSelectorDiffuseTexture.AssetAdded += delegate
             {
-                Parent = groupDiffuse,
-                Left = 10,
-                Top = 10 + sliderDiffuseColor.Top + sliderDiffuseColor.Height,
-                Width = 150,
-                Text = "Diffuse Texture"
+                TextureWindow.CurrentCreatedAssetChanged += delegate
+                {
+                    asset.DiffuseTexture = TextureWindow.CurrentCreatedAsset;
+                    window.Invalidate();
+                };
+                TextureWindow.Show(null);
             };
-            var comboBoxDiffuseTexture = new ComboBox
+            assetSelectorDiffuseTexture.AssetEdited += delegate
             {
-                Parent = groupDiffuse,
-                Left = labelDiffuseTexture.Left + labelDiffuseTexture.Width,
-                Top = 10 + sliderDiffuseColor.Top + sliderDiffuseColor.Height,
-                Height = 20,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                MaxItemsShow = 25,
+                TextureWindow.Show(asset.DiffuseTexture);
             };
-            comboBoxDiffuseTexture.Width = groupDiffuse.Width - 10 - comboBoxDiffuseTexture.Left;
-            // Add textures name
-            comboBoxDiffuseTexture.Items.Add("No texture");
-            comboBoxDiffuseTexture.Items.AddRange(Texture.TexturesFilenames);
             // Events
-            comboBoxDiffuseTexture.ItemIndexChanged += delegate
+            assetSelectorDiffuseTexture.ItemIndexChanged += delegate
             {
-                if (comboBoxDiffuseTexture.ItemIndex <= 0)
-                    material.DiffuseTexture = null;
+                if (assetSelectorDiffuseTexture.ItemIndex <= 0)
+                    asset.DiffuseTexture = null;
                 else
                 {
-                    if (material.DiffuseTexture == null || material.DiffuseTexture.Name != (string)comboBoxDiffuseTexture.Items[comboBoxDiffuseTexture.ItemIndex])
-                        material.DiffuseTexture = new Texture((string)comboBoxDiffuseTexture.Items[comboBoxDiffuseTexture.ItemIndex]);
+                    // If we have to change the asset...
+                    if (asset.DiffuseTexture == null ||
+                        asset.DiffuseTexture.Name != (string)assetSelectorDiffuseTexture.Items[assetSelectorDiffuseTexture.ItemIndex])
+                    {
+                        asset.DiffuseTexture = Texture.LoadedTextures[assetSelectorDiffuseTexture.ItemIndex - 1]; // The first item is the no texture item.
+                    }
                 }
+                assetSelectorDiffuseTexture.EditButtonEnabled = asset.DiffuseTexture != null;
+                sliderDiffuseColor.Enabled = assetSelectorDiffuseTexture.ItemIndex == 0;
             };
-            comboBoxDiffuseTexture.Draw += delegate
+            assetSelectorDiffuseTexture.Draw += delegate
             {
-                if (comboBoxDiffuseTexture.ListBoxVisible)
+                // Add textures name here because someone could dispose or add new asset.
+                assetSelectorDiffuseTexture.Items.Clear();
+                assetSelectorDiffuseTexture.Items.Add("No texture");
+                foreach (Texture texture in Texture.LoadedTextures)
+                {
+                    // You can filter some assets here.
+                    if (texture.ContentManager == null || !texture.ContentManager.Hidden)
+                        assetSelectorDiffuseTexture.Items.Add(texture.Name);
+                }
+
+                if (assetSelectorDiffuseTexture.ListBoxVisible)
                     return;
                 // Identify current index
-                if (material.DiffuseTexture == null)
-                    comboBoxDiffuseTexture.ItemIndex = 0;
+                if (asset.DiffuseTexture == null)
+                    assetSelectorDiffuseTexture.ItemIndex = 0;
                 else
                 {
-                    for (int i = 0; i < comboBoxDiffuseTexture.Items.Count; i++)
-                        if ((string)comboBoxDiffuseTexture.Items[i] == material.DiffuseTexture.Name)
+                    for (int i = 0; i < assetSelectorDiffuseTexture.Items.Count; i++)
+                    {
+                        if ((string)assetSelectorDiffuseTexture.Items[i] == asset.DiffuseTexture.Name)
                         {
-                            comboBoxDiffuseTexture.ItemIndex = i;
+                            assetSelectorDiffuseTexture.ItemIndex = i;
                             break;
                         }
+                    }
                 }
             };
-            
+
             #endregion
 
-            groupDiffuse.Height = comboBoxDiffuseTexture.Top + comboBoxDiffuseTexture.Height + 20;
+            groupDiffuse.AdjustHeightFromChildren();
 
             #endregion
 
             #region Group Specular
 
-            GroupBox groupSpecular = new GroupBox
-            {
-                Parent = window,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                Width = window.ClientWidth - 16,
-                Height = 160,
-                Left = 8,
-                Top = groupDiffuse.Top + groupDiffuse.Height + 15,
-                Text = "Specular",
-                TextColor = Color.Gray,
-            };
+            GroupBox groupSpecular = CommonControls.Group("Specular", window);
+
+            CheckBox checkBoxSpecularPowerFromTexture = null;
 
             #region Specular Intensity
 
-            var sliderSpecularIntensity = new SliderNumeric
-            {
-                Parent = groupSpecular,
-                Left = 10,
-                Top = 25,
-                Value = material.SpecularIntensity,
-                Text = "Specular Intensity",
-                IfOutOfRangeRescale = false,
-                ValueCanBeOutOfRange = true,
-                MinimumValue = 0,
-                MaximumValue = 2,
-            };
-            sliderSpecularIntensity.ValueChanged += delegate
-            {
-                material.SpecularIntensity = sliderSpecularIntensity.Value;
-            };
-            sliderSpecularIntensity.Draw += delegate { sliderSpecularIntensity.Value = material.SpecularIntensity; };
+            var sliderSpecularIntensity = CommonControls.SliderNumeric("Specular Intensity", groupSpecular, asset.SpecularIntensity, false, true, 0, 2);
+            sliderSpecularIntensity.ValueChanged += delegate { asset.SpecularIntensity = sliderSpecularIntensity.Value; };
+            sliderSpecularIntensity.Draw += delegate { sliderSpecularIntensity.Value = asset.SpecularIntensity; };
 
             #endregion
 
             #region Specular Power
 
-            var sliderSpecularPower = new SliderNumeric
+            var sliderSpecularPower = CommonControls.SliderNumeric("Specular Power", groupSpecular, asset.SpecularPower, true, true, 0, 100);
+            sliderSpecularPower.ValueChanged += delegate { asset.SpecularPower = sliderSpecularPower.Value; };
+            sliderSpecularPower.Draw += delegate
             {
-                Parent = groupSpecular,
-                Left = 10,
-                Top = 10 + sliderSpecularIntensity.Top + sliderSpecularIntensity.Height,
-                Value = material.SpecularPower,
-                Text = "Specular Power",
-                IfOutOfRangeRescale = false,
-                ValueCanBeOutOfRange = true,
-                MinimumValue = 0,
-                MaximumValue = 100,
+                sliderSpecularPower.Value = asset.SpecularPower;
+                sliderSpecularPower.Enabled = !checkBoxSpecularPowerFromTexture.Enabled || (checkBoxSpecularPowerFromTexture.Enabled && !checkBoxSpecularPowerFromTexture.Checked);
             };
-            sliderSpecularPower.ValueChanged += delegate
-            {
-                material.SpecularPower = sliderSpecularPower.Value;
-            };
-            sliderSpecularPower.Draw += delegate { sliderSpecularPower.Value = material.SpecularPower; };
 
             #endregion
 
             #region Specular Texture
 
-            var labelSpecularTexture = new Label
+            var assetSelectorSpecularTexture = CommonControls.AssetSelector("Specular Texture", groupSpecular);
+            assetSelectorSpecularTexture.AssetAdded += delegate
             {
-                Parent = groupSpecular,
-                Left = 10,
-                Top = 10 + sliderSpecularPower.Top + sliderSpecularPower.Height,
-                Width = 150,
-                Text = "Specular Texture"
+                TextureWindow.CurrentCreatedAssetChanged += delegate
+                {
+                    asset.SpecularTexture = TextureWindow.CurrentCreatedAsset;
+                    window.Invalidate();
+                };
+                TextureWindow.Show(null);
             };
-            var comboBoxSpecularTexture = new ComboBox
+            assetSelectorSpecularTexture.AssetEdited += delegate
             {
-                Parent = groupSpecular,
-                Left = labelSpecularTexture.Left + labelSpecularTexture.Width,
-                Top = 10 + sliderSpecularPower.Top + sliderSpecularPower.Height,
-                Height = 20,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                MaxItemsShow = 25,
+                TextureWindow.Show(asset.SpecularTexture);
             };
-            comboBoxSpecularTexture.Width = groupSpecular.Width - 10 - comboBoxSpecularTexture.Left;
-            // Add textures name
-            comboBoxSpecularTexture.Items.Add("No texture");
-            comboBoxSpecularTexture.Items.AddRange(Texture.TexturesFilenames);
             // Events
-            comboBoxSpecularTexture.ItemIndexChanged += delegate
+            assetSelectorSpecularTexture.ItemIndexChanged += delegate
             {
-                if (comboBoxSpecularTexture.ItemIndex <= 0)
-                    material.SpecularTexture = null;
+                if (assetSelectorSpecularTexture.ItemIndex <= 0)
+                    asset.SpecularTexture = null;
                 else
                 {
-                    if (material.SpecularTexture == null || material.SpecularTexture.Name != (string)comboBoxSpecularTexture.Items[comboBoxSpecularTexture.ItemIndex])
-                        material.SpecularTexture = new Texture((string)comboBoxSpecularTexture.Items[comboBoxSpecularTexture.ItemIndex]);
+                    // If we have to change the asset...
+                    if (asset.SpecularTexture == null ||
+                        asset.SpecularTexture.Name != (string)assetSelectorSpecularTexture.Items[assetSelectorSpecularTexture.ItemIndex])
+                    {
+                        asset.SpecularTexture = Texture.LoadedTextures[assetSelectorSpecularTexture.ItemIndex - 1]; // The first item is the no texture item.
+                    }
                 }
+                assetSelectorSpecularTexture.EditButtonEnabled = asset.SpecularTexture != null;
+                checkBoxSpecularPowerFromTexture.Enabled = asset.SpecularTexture != null;
             };
-            comboBoxSpecularTexture.Draw += delegate
+            assetSelectorSpecularTexture.Draw += delegate
             {
-                if (comboBoxSpecularTexture.ListBoxVisible)
+                // Add textures name here because someone could dispose or add new asset.
+                assetSelectorSpecularTexture.Items.Clear();
+                assetSelectorSpecularTexture.Items.Add("No texture");
+                foreach (Texture texture in Texture.LoadedTextures)
+                {
+                    // You can filter some assets here.
+                    if (texture.ContentManager == null || !texture.ContentManager.Hidden)
+                        assetSelectorSpecularTexture.Items.Add(texture.Name);
+                }
+
+                if (assetSelectorSpecularTexture.ListBoxVisible)
                     return;
                 // Identify current index
-                if (material.SpecularTexture == null)
-                    comboBoxSpecularTexture.ItemIndex = 0;
+                if (asset.SpecularTexture == null)
+                    assetSelectorSpecularTexture.ItemIndex = 0;
                 else
                 {
-                    for (int i = 0; i < comboBoxSpecularTexture.Items.Count; i++)
-                        if ((string)comboBoxSpecularTexture.Items[i] == material.SpecularTexture.Name)
+                    for (int i = 0; i < assetSelectorSpecularTexture.Items.Count; i++)
+                    {
+                        if ((string)assetSelectorSpecularTexture.Items[i] == asset.SpecularTexture.Name)
                         {
-                            comboBoxSpecularTexture.ItemIndex = i;
+                            assetSelectorSpecularTexture.ItemIndex = i;
                             break;
                         }
+                    }
                 }
             };
 
             #endregion
 
             #region Specular Texture Power Enabled
-
-            var checkBoxSpecularTexturePowerEnabled = new CheckBox
-            {
-                Parent = groupSpecular,
-                Left = 10,
-                Top = 10 + comboBoxSpecularTexture.Top + comboBoxSpecularTexture.Height,
-                Width = window.ClientWidth - 16,
-                Checked = material.SpecularTexturePowerEnabled,
-                Text = " Specular Texture Power Enabled",
-                ToolTip =
-                {
-                    Text = "Indicates if the specular power will be read from the texture (the alpha channel of the specular texture) or from the specular power property."
-                }
-            };
-            checkBoxSpecularTexturePowerEnabled.CheckedChanged += delegate
-            {
-                material.SpecularTexturePowerEnabled = checkBoxSpecularTexturePowerEnabled.Checked;
-            };
-            checkBoxSpecularTexturePowerEnabled.Draw += delegate { checkBoxSpecularTexturePowerEnabled.Checked = material.SpecularTexturePowerEnabled; };
-
+            
+            checkBoxSpecularPowerFromTexture = CommonControls.CheckBox("Use specular power from Texture", groupSpecular, asset.SpecularPowerFromTexture,
+                "Indicates if the specular power will be read from the texture (the alpha channel of the specular texture) or from the specular power property.");
+            checkBoxSpecularPowerFromTexture.CheckedChanged += delegate { asset.SpecularPowerFromTexture = checkBoxSpecularPowerFromTexture.Checked; };
+            checkBoxSpecularPowerFromTexture.Draw += delegate {  checkBoxSpecularPowerFromTexture.Checked = asset.SpecularPowerFromTexture; };
+            
             #endregion
 
             #region Reflection Texture
 
-            var labelReflectionTexture = new Label
+            var assetSelectorReflectionTexture = CommonControls.AssetSelector("Reflection Texture", groupSpecular);
+            assetSelectorReflectionTexture.AssetAdded += delegate
             {
-                Parent = groupSpecular,
-                Left = 10,
-                Top = 10 + checkBoxSpecularTexturePowerEnabled.Top + checkBoxSpecularTexturePowerEnabled.Height,
-                Width = 150,
-                Text = "Reflection Texture"
+                TextureCubeWindow.CurrentCreatedAssetChanged += delegate
+                {
+                    asset.ReflectionTexture = TextureCubeWindow.CurrentCreatedAsset;
+                    window.Invalidate();
+                };
+                TextureCubeWindow.Show(null);
             };
-            var comboBoxReflectionTexture = new ComboBox
+            assetSelectorReflectionTexture.AssetEdited += delegate
             {
-                Parent = groupSpecular,
-                Left = labelReflectionTexture.Left + labelReflectionTexture.Width,
-                Top = labelReflectionTexture.Top,
-                Height = 20,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                MaxItemsShow = 25,
+                TextureCubeWindow.Show(asset.ReflectionTexture);
             };
-            comboBoxReflectionTexture.Width = groupSpecular.Width - 10 - comboBoxReflectionTexture.Left;
-            // Add textures name
-            comboBoxReflectionTexture.Items.Add("No texture");
-            comboBoxReflectionTexture.Items.AddRange(TextureCube.TexturesFilename);
             // Events
-            comboBoxReflectionTexture.ItemIndexChanged += delegate
+            assetSelectorReflectionTexture.ItemIndexChanged += delegate
             {
-                if (comboBoxReflectionTexture.ItemIndex <= 0)
-                    material.ReflectionTexture = null;
+                if (assetSelectorReflectionTexture.ItemIndex <= 0)
+                    asset.ReflectionTexture = null;
                 else
                 {
-                    if (material.ReflectionTexture == null || material.ReflectionTexture.Name != (string)comboBoxReflectionTexture.Items[comboBoxReflectionTexture.ItemIndex])
-                        material.ReflectionTexture = new TextureCube((string)comboBoxReflectionTexture.Items[comboBoxReflectionTexture.ItemIndex]);
+                    // If we have to change the asset...
+                    if (asset.ReflectionTexture == null ||
+                        asset.ReflectionTexture.Name != (string)assetSelectorReflectionTexture.Items[assetSelectorReflectionTexture.ItemIndex])
+                    {
+                        asset.ReflectionTexture = TextureCube.LoadedTextures[assetSelectorReflectionTexture.ItemIndex - 1]; // The first item is the no texture item.
+                    }
                 }
+                assetSelectorReflectionTexture.EditButtonEnabled = asset.ReflectionTexture != null;
             };
-            comboBoxReflectionTexture.Draw += delegate
+            assetSelectorReflectionTexture.Draw += delegate
             {
-                if (comboBoxReflectionTexture.ListBoxVisible)
+                // Add textures name here because someone could dispose or add new asset.
+                assetSelectorReflectionTexture.Items.Clear();
+                assetSelectorReflectionTexture.Items.Add("No texture");
+                foreach (TextureCube texture in TextureCube.LoadedTextures)
+                {
+                    // You can filter some assets here.
+                    if (texture.ContentManager == null || !texture.ContentManager.Hidden)
+                        assetSelectorReflectionTexture.Items.Add(texture.Name);
+                }
+
+                if (assetSelectorReflectionTexture.ListBoxVisible)
                     return;
                 // Identify current index
-                if (material.ReflectionTexture == null)
-                    comboBoxReflectionTexture.ItemIndex = 0;
+                if (asset.ReflectionTexture == null)
+                    assetSelectorReflectionTexture.ItemIndex = 0;
                 else
                 {
-                    for (int i = 0; i < comboBoxReflectionTexture.Items.Count; i++)
-                        if ((string)comboBoxReflectionTexture.Items[i] == material.ReflectionTexture.Name)
+                    for (int i = 0; i < assetSelectorReflectionTexture.Items.Count; i++)
+                    {
+                        if ((string)assetSelectorReflectionTexture.Items[i] == asset.ReflectionTexture.Name)
                         {
-                            comboBoxReflectionTexture.ItemIndex = i;
+                            assetSelectorReflectionTexture.ItemIndex = i;
                             break;
                         }
+                    }
+                }
+            };
+            
+            #endregion
+
+            groupSpecular.AdjustHeightFromChildren();
+            
+            #endregion
+
+            #region Normals
+
+            GroupBox groupNormals = CommonControls.Group("Normals", window);
+
+            #region Normal Texture
+
+            var assetSelectorNormalTexture = CommonControls.AssetSelector("Normal Texture", groupNormals);
+            assetSelectorNormalTexture.AssetAdded += delegate
+            {
+                TextureWindow.CurrentCreatedAssetChanged += delegate
+                {
+                    asset.NormalTexture = TextureWindow.CurrentCreatedAsset;
+                    window.Invalidate();
+                };
+                TextureWindow.Show(null);
+            };
+            assetSelectorNormalTexture.AssetEdited += delegate { TextureWindow.Show(asset.NormalTexture); };
+            // Events
+            assetSelectorNormalTexture.ItemIndexChanged += delegate
+            {
+                if (assetSelectorNormalTexture.ItemIndex <= 0)
+                    asset.NormalTexture = null;
+                else
+                {
+                    // If we have to change the asset...
+                    if (asset.NormalTexture == null ||
+                        asset.NormalTexture.Name != (string)assetSelectorNormalTexture.Items[assetSelectorNormalTexture.ItemIndex])
+                    {
+                        asset.NormalTexture = Texture.LoadedTextures[assetSelectorNormalTexture.ItemIndex - 1]; // The first item is the no texture item.
+                    }
+                }
+                assetSelectorNormalTexture.EditButtonEnabled = asset.NormalTexture != null;
+            };
+            assetSelectorNormalTexture.Draw += delegate
+            {
+                // Add textures name here because someone could dispose or add new asset.
+                assetSelectorNormalTexture.Items.Clear();
+                assetSelectorNormalTexture.Items.Add("No texture");
+                foreach (Texture texture in Texture.LoadedTextures)
+                {
+                    // You can filter some assets here.
+                    if (texture.ContentManager == null || !texture.ContentManager.Hidden)
+                        assetSelectorNormalTexture.Items.Add(texture.Name);
+                }
+
+                if (assetSelectorNormalTexture.ListBoxVisible)
+                    return;
+                // Identify current index
+                if (asset.NormalTexture == null)
+                    assetSelectorNormalTexture.ItemIndex = 0;
+                else
+                {
+                    for (int i = 0; i < assetSelectorNormalTexture.Items.Count; i++)
+                    {
+                        if ((string)assetSelectorNormalTexture.Items[i] == asset.NormalTexture.Name)
+                        {
+                            assetSelectorNormalTexture.ItemIndex = i;
+                            break;
+                        }
+                    }
                 }
             };
 
             #endregion
 
-            groupSpecular.Height = comboBoxReflectionTexture.Top + comboBoxReflectionTexture.Height + 20;
-            
+            #region Parallax Enabled
+
+            CheckBox checkBoxParallaxEnabled = CommonControls.CheckBox("Enabled", groupNormals, asset.ParallaxEnabled);
+            checkBoxParallaxEnabled.Draw += delegate { checkBoxParallaxEnabled.Checked = asset.ParallaxEnabled; };
+
             #endregion
+
+            #region Parallax Threshold
+
+            var sliderParallaxLodThreshold = CommonControls.SliderNumeric("Parallax LOD Threshold", groupNormals, asset.ParallaxLodThreshold, false, false, 0, 10);
+            sliderParallaxLodThreshold.ValueChanged += delegate { asset.ParallaxLodThreshold = (int)sliderParallaxLodThreshold.Value; };
+            sliderParallaxLodThreshold.Draw += delegate { sliderParallaxLodThreshold.Value = asset.ParallaxLodThreshold; };
+
+            #endregion
+
+            #region Parallax Minimum Number Samples
+
+            var sliderParallaxMinimumNumberSamples = CommonControls.SliderNumeric("Parallax Minimum Number Samples", groupNormals, asset.ParallaxMinimumNumberSamples, false, false, 0, 50);
+            sliderParallaxMinimumNumberSamples.ValueChanged += delegate { asset.ParallaxMinimumNumberSamples = (int)sliderParallaxMinimumNumberSamples.Value; };
+            sliderParallaxMinimumNumberSamples.Draw += delegate { sliderParallaxMinimumNumberSamples.Value = asset.ParallaxMinimumNumberSamples; };
+
+            #endregion
+
+            #region Parallax Maximum Number Samples
+
+            var sliderParallaxMaximumNumberSamples = CommonControls.SliderNumeric("Parallax Maximum Number Samples", groupNormals, asset.ParallaxMaximumNumberSamples, false, false, 0, 500);
+            sliderParallaxMaximumNumberSamples.ValueChanged += delegate { asset.ParallaxMaximumNumberSamples = (int)sliderParallaxMaximumNumberSamples.Value; };
+            sliderParallaxMaximumNumberSamples.Draw += delegate { sliderParallaxMaximumNumberSamples.Value = asset.ParallaxMaximumNumberSamples; };
+
+            #endregion
+
+            #region Parallax Maximum Number Samples
+
+            var sliderParallaxHeightMapScale = CommonControls.SliderNumeric("Parallax Height Map Scale", groupNormals, asset.ParallaxHeightMapScale, false, false, 0, 1);
+            sliderParallaxHeightMapScale.ValueChanged += delegate { asset.ParallaxHeightMapScale = sliderParallaxHeightMapScale.Value; };
+            sliderParallaxHeightMapScale.Draw += delegate { sliderParallaxHeightMapScale.Value = asset.ParallaxHeightMapScale; };
+
+            #endregion
+
+            checkBoxParallaxEnabled.CheckedChanged += delegate
+            {
+                asset.ParallaxEnabled = checkBoxParallaxEnabled.Checked;
+                sliderParallaxLodThreshold.Enabled = asset.ParallaxEnabled;
+                sliderParallaxMinimumNumberSamples.Enabled = asset.ParallaxEnabled;
+                sliderParallaxMaximumNumberSamples.Enabled = asset.ParallaxEnabled;
+                sliderParallaxHeightMapScale.Enabled = asset.ParallaxEnabled;
+            };
             
-            window.Height = groupSpecular.Top + groupSpecular.Height + 40;
+            groupNormals.AdjustHeightFromChildren();
+
+            #endregion
+
+            window.Height = 500;
 
         } // Show
 

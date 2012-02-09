@@ -57,9 +57,14 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected Texture2D xnaTexture;
 
+        // Default value
+        private SamplerState preferedSamplerState = SamplerState.AnisotropicWrap;
+
         #endregion
 
         #region Properties
+
+        #region Name
 
         /// <summary>
         /// The name of the asset.
@@ -86,6 +91,10 @@ namespace XNAFinalEngine.Assets
             }
         } // Name
 
+        #endregion
+
+        #region Resource
+
         /// <summary>
         /// XNA Texture.
         /// </summary>
@@ -94,7 +103,7 @@ namespace XNAFinalEngine.Assets
             get
             {
                 if (xnaTexture.IsDisposed)
-                    return null;
+                    throw new InvalidOperationException("Texture: the internal resource was disposed.");
                 return xnaTexture;
             }
             // This is only allowed for videos. Doing something to avoid this “set” is unnecessary and probably will make more complex some classes 
@@ -108,6 +117,23 @@ namespace XNAFinalEngine.Assets
                 Size = new Size(xnaTexture.Width, xnaTexture.Height);
             }
         } // Resource
+
+        #endregion
+
+        #region Preferred Sampler State
+
+        /// <summary>
+        /// Some shaders allow us to choose how to sample the texture data.
+        /// </summary>
+        public virtual SamplerState PreferredSamplerState
+	    {
+	        get { return preferedSamplerState; }
+	        set { preferedSamplerState = value; }
+	    } // PreferredSamplerState
+
+	    #endregion
+
+        #region Size
 
         /// <summary>
         /// Texture's width.
@@ -129,6 +155,8 @@ namespace XNAFinalEngine.Assets
         /// This value store information about sizes relative to screen.
         /// </summary>
         public Size Size { get; protected set; }
+
+        #endregion
 
         /// <summary>
         /// Loaded Textures.
@@ -264,7 +292,7 @@ namespace XNAFinalEngine.Assets
         protected override void DisposeManagedResources()
         {
             base.DisposeManagedResources();
-            if (Resource != null)
+            if (xnaTexture != null && !xnaTexture.IsDisposed)
                 Resource.Dispose();
             LoadedTextures.Remove(this);
         } // DisposeManagedResources

@@ -109,6 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Editor\ScriptEditorCamera.cs" />
+    <Compile Include="Editor\Windows\Assets\TextureCubeWindow.cs" />
     <Compile Include="Editor\Windows\Assets\TextureWindow.cs" />
     <Compile Include="Editor\Windows\CommonControls.cs" />
     <Compile Include="Editor\Windows\Assets\LookupTableWindow.cs" />
