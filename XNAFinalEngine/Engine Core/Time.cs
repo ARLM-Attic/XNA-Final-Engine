@@ -18,38 +18,26 @@ namespace XNAFinalEngine.EngineCore
     {
 
         #region Variables
-
-        /// <summary>
-        /// Is the game paused?
-        /// </summary>
+        
+        // Is the game paused?
         private static bool paused;
 
-        /// <summary>
-        /// Delta times.
-        /// </summary>
+        // Delta times.
         private static float gameDeltaTime, frameTime;
 
-        /// <summary>
-        /// The scale at which the time is passing. This can be used for slow motion effects.
-        /// </summary>
+        // The scale at which the time is passing. This can be used for slow motion effects.
         private static float timeScale = 1;
 
-        /// <summary>
-        /// For more accurate frames per second calculations, just count for one second, then frameCountLastSecond is updated.
-        /// Start with 1 to help some tests avoid the devide through zero problem.
-        /// </summary>
+        // For more accurate frames per second calculations, just count for one second, then frameCountLastSecond is updated.
+        // Start with 1 to help some tests avoid the devide through zero problem.
         private static int frameCountThisSecond,
                            totalFrameCount,
                            frameCountLastSecond = 1;
 
-        /// <summary>
-        /// It counts the elapsed time from the last frame per second update. When it reaches 1 second the frames per second value is updated.
-        /// </summary>
+        // It counts the elapsed time from the last frame per second update. When it reaches 1 second the frames per second value is updated.
         private static float framePerSecondTimeHelper;
 
-        /// <summary>
-        /// Previous frame time values. Used for smooth frame time calculations.
-        /// </summary>
+        // Previous frame time values. Used for smooth frame time calculations.
         private static readonly float[] previousFrameTime = new float[] { 0, 0 };
 
         #endregion

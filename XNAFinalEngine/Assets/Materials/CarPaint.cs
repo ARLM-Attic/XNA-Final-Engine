@@ -58,10 +58,10 @@ namespace XNAFinalEngine.Assets
         private Color secondBasePaintColor = new Color(0.2f,  0.2f,  0.3f);
 
         // Middle color.
-        private Color middlePaintColor = new Color(0.35f, 0.35f, 0.3f);
+        private Color flakeLayerColor1 = new Color(0.35f, 0.35f, 0.3f);
         
         // Flake layer color.
-        private Color flakeLayerColor = new Color(0.4f,  0.4f,  0.4f);
+        private Color flakesColor = new Color(0.4f,  0.4f,  0.4f);
         
         // Microflake Perturbation. Value between -1 and 1.
         private float microflakePerturbation = 1.0f;
@@ -103,65 +103,17 @@ namespace XNAFinalEngine.Assets
         } // LightedPaintColor
 
         /// <summary>
-        /// Middle paint color.
-        /// </summary>
-        public Color MiddlePaintColor
-        {
-            get { return middlePaintColor; }
-            set { middlePaintColor = value; }
-        } // MiddlePaintColor
-
-        /// <summary>
         /// Flake layer color.
         /// </summary>
-        public Color FlakeLayerColor
+        public Color FlakeLayerColor1
         {
-            get { return flakeLayerColor; }
-            set { flakeLayerColor = value; }
-        } // FlakeLayerColor
+            get { return flakeLayerColor1; }
+            set { flakeLayerColor1 = value; }
+        } // FlakeLayerColor1
 
         #endregion
 
         #region Normals
-
-        /// <summary>
-        /// Microflake Perturbation. Value between -1 and 1.
-        /// </summary>
-        public float MicroflakePerturbation
-        {
-            get { return microflakePerturbation; }
-            set
-            {
-                if (value >= -1 && value <= 1)
-                    microflakePerturbation = value;
-            }
-        } // MicroflakePerturbation
-
-        /// <summary>
-        /// Microflake Perturbation A. Value between 0 and 1.
-        /// </summary>
-        public float MicroflakePerturbationA
-        {
-            get { return microflakePerturbationA; }
-            set
-            {
-                if (value >= 0 && value <= 1)
-                    microflakePerturbationA = value;
-            }
-        } // MicroflakePerturbationA
-
-        /// <summary>
-        /// Normal Perturbation. Value between -1 and 1.
-        /// </summary>
-        public float NormalPerturbation
-        {
-            get { return normalPerturbation; }
-            set
-            {
-                if (value >= -1 && value <= 1)
-                    normalPerturbation = value;
-            }
-        } // NormalPerturbation
 
         /// <summary>
         /// Normal map texture.
@@ -209,6 +161,78 @@ namespace XNAFinalEngine.Assets
         public TextureCube ReflectionTexture { get; set; }
 
         #endregion
+
+        #region Flakes
+
+        /// <summary>
+        /// Flake layer color.
+        /// </summary>
+        public Color FlakesColor
+        {
+            get { return flakesColor; }
+            set { flakesColor = value; }
+        } // FlakesColor
+
+        #endregion
+
+        private float flakesScale = 50;
+
+        public float FlakesScale
+        {
+            get { return flakesScale; }
+            set { flakesScale = value; }
+        }
+
+        private float flakesExponent = 16;
+
+        public float FlakesExponent
+        {
+            get { return flakesExponent; }
+            set { flakesExponent = value; }
+        }
+
+        /// <summary>
+        /// Microflake Perturbation. Value between -1 and 1.
+        /// </summary>
+        public float MicroflakePerturbation
+        {
+            get { return microflakePerturbation; }
+            set
+            {
+                if (value >= -1 && value <= 1)
+                    microflakePerturbation = value;
+            }
+        } // MicroflakePerturbation
+
+        /// <summary>
+        /// Microflake Perturbation A. Value between 0 and 1.
+        /// </summary>
+        public float MicroflakePerturbationA
+        {
+            get { return microflakePerturbationA; }
+            set
+            {
+                if (value >= 0 && value <= 1)
+                    microflakePerturbationA = value;
+                if (normalPerturbation < microflakePerturbationA)
+                    microflakePerturbationA = normalPerturbation;
+            }
+        } // MicroflakePerturbationA
+
+        /// <summary>
+        /// Normal Perturbation. Value between -1 and 1.
+        /// </summary>
+        public float NormalPerturbation
+        {
+            get { return normalPerturbation; }
+            set
+            {
+                if (value >= -1 && value <= 1)
+                    normalPerturbation = value;
+                if (normalPerturbation < microflakePerturbationA)
+                    normalPerturbation = microflakePerturbationA;
+            }
+        } // NormalPerturbation
 
         #endregion
 

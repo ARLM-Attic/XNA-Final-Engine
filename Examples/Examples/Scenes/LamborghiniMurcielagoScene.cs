@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 
 using System;
+using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -38,6 +39,7 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
+using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Scenes;
 using XNAFinalEngine.UserInterface;
 using XNAFinalEngine.Editor;
@@ -101,7 +103,7 @@ namespace XNAFinalEngineExamples
                                     camera,
                                     skydome;
 
-        private static GameObject2D xnaFinalEngineLogo, videoTest;
+        private static GameObject2D xnaFinalEngineLogo, videoTest, statistics;
 
         #endregion
 
@@ -131,10 +133,11 @@ namespace XNAFinalEngineExamples
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
             camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
                                                             //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
-                                                            Color = new Color(100, 100, 100),
-                                                            Intensity = 0.6f,
-                                                            AmbientOcclusionStrength = 4f };
+                                                            Color = new Color(50, 50, 50),
+                                                            Intensity = 2f,
+                                                            AmbientOcclusionStrength = 2f };
             camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
+            //camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM", true, 50) };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
@@ -146,6 +149,7 @@ namespace XNAFinalEngineExamples
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
             };
+            camera.Camera.PostProcess.FilmGrain.Enabled = false;
             
             #endregion
 
@@ -153,13 +157,14 @@ namespace XNAFinalEngineExamples
 
             CarPaint carPaint = new CarPaint
             {
-                SpecularIntensity = 100f,
-                SpecularPower = 3,
+                SpecularIntensity = 1f,
+                SpecularPower = 2,
                 BasePaintColor = new Color(180, 180, 180),
                 SecondBasePaintColor = new Color(220, 220, 220),
-                MiddlePaintColor = new Color(170, 170, 170),
-                FlakeLayerColor = new Color(100, 100, 100),
-                ReflectionTexture = new TextureCube("Showroom", false),
+                FlakeLayerColor1 = new Color(170, 170, 170),
+                FlakesColor = new Color(100, 100, 100),
+                //ReflectionTexture = new TextureCube("Showroom", false),
+                ReflectionTexture = new TextureCube("FactoryCatwalkRGBM", true, 50),
             };
 
             #endregion
@@ -850,16 +855,16 @@ namespace XNAFinalEngineExamples
             
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
-            directionalLight.DirectionalLight.DiffuseColor = new Color(250, 240, 230);
-            directionalLight.DirectionalLight.Intensity = 1.25f;
-            directionalLight.Transform.LookAt(new Vector3(0.3f, 0.75f, 1.3f), Vector3.Zero, Vector3.Forward);
+            directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 240);
+            directionalLight.DirectionalLight.Intensity = 5f;
+            directionalLight.Transform.LookAt(new Vector3(-0.3f, 0.65f, -1.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
                 Filter = Shadow.FilterType.PCF3x3,
                 LightDepthTextureSize = Size.Square512X512,
                 TextureSize = Size.TextureSize.HalfSize
             };
-            
+            /*
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.DiffuseColor = new Color(250, 0, 180);
@@ -915,7 +920,7 @@ namespace XNAFinalEngineExamples
             pointLight7.PointLight.Range = 250; // I always forget to set the light range lower than the camera far plane.
             pointLight7.PointLight.SpecularColor = Color.White;
             pointLight7.Transform.Position = new Vector3(-15, 50f, -30);
-           
+           */
             #endregion
 
             #region Video
@@ -933,6 +938,10 @@ namespace XNAFinalEngineExamples
             xnaFinalEngineLogo.HudTexture.Texture = new Texture("XNA Final Engine");
             xnaFinalEngineLogo.Transform.LocalScale = 0.5f;*/
 
+            statistics = new GameObject2D();
+            statistics.AddComponent<HudText>();
+            statistics.HudText.Text.Append("Triangles Drawn ");
+
             GameLoop.ShowFramesPerSecond = true;
 
             ContentManager testContentManager = new ContentManager("Just for testing", false);
@@ -943,9 +952,9 @@ namespace XNAFinalEngineExamples
 
             //murcielagoBody.ModelRenderer.Material = new Constant { DiffuseTexture = new Texture("Caption") { PreferredSamplerState = new SamplerState { MaxMipLevel = 2 }}};
             //ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
-            BlinnPhongWindow.Show((BlinnPhong)murcielagoInteriorLeather.ModelRenderer.Material);
+            //BlinnPhongWindow.Show((BlinnPhong)murcielagoInteriorLeather.ModelRenderer.Material);
             //CarPaintWindow.Show(carPaint);
-            //PostProcessWindow.Show(camera.Camera.PostProcess);
+            PostProcessWindow.Show(camera.Camera.PostProcess);
 
             LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
@@ -989,6 +998,8 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PostRenderTasks()
         {
+            statistics.HudText.Text.Length = 16;
+            statistics.HudText.Text.AppendWithoutGarbage(Statistics.TrianglesDrawn);
             UserInterfaceManager.DrawTextureToScreen();
         } // PostRenderTasks
 

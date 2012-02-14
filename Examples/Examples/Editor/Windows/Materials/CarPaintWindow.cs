@@ -43,57 +43,28 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Creates and shows the configuration window of this material.
         /// </summary>
-        public static void Show(CarPaint material)
+        public static void Show(CarPaint asset)
         {
 
             #region Window
 
-            var window = new Window { Text = material.Name + " : Car-Paint" };
-
-            #endregion
-
-            #region Name
-
-            var nameLabel = new Label
+            var window = new AssetWindow
             {
-                Parent = window,
-                Text = "Name", Left = 10, Top = 10,
+                AssetName = asset.Name,
+                AssetType = "Car-Pain"
             };
-            var materialNameTextBox = new TextBox
+            window.AssetNameChanged += delegate
             {
-                Parent = window,
-                Width = window.ClientWidth - nameLabel.Width - 25,
-                Text = material.Name, Left = 60, Top = 10
+                asset.Name = window.AssetName;
+                window.AssetName = asset.Name; // If the new name is not unique
             };
-            materialNameTextBox.KeyDown += delegate(object sender, KeyEventArgs e)
-            {
-                if (e.Key == Keys.Enter)
-                {
-                    material.Name = materialNameTextBox.Text;
-                    window.Text = material.Name + " : Car-Paint";
-                }
-            };
-            materialNameTextBox.FocusLost += delegate
-            {
-                material.Name = materialNameTextBox.Text;
-                window.Text = material.Name + " : Car-Paint";
-            };
+            window.Draw += delegate { window.AssetName = asset.Name; };
 
             #endregion
 
             #region Group Diffuse
 
-            GroupBox groupDiffuse = new GroupBox
-            {
-                Parent = window,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                Width = window.ClientWidth - 16,
-                Height = 160,
-                Left = 8,
-                Top = nameLabel.Top + nameLabel.Height + 15,
-                Text = "Diffuse",
-                TextColor = Color.Gray,
-            };
+            GroupBox groupDiffuse = CommonControls.Group("Diffuse", window);
 
             #region Base Paint Color
 
@@ -102,11 +73,11 @@ namespace XNAFinalEngine.Editor
                 Parent = groupDiffuse,
                 Left = 10,
                 Top = 20,
-                Color = material.BasePaintColor,
+                Color = asset.BasePaintColor,
                 Text = "Base Paint Color",
             };
-            sliderBasePaintColor.ColorChanged += delegate { material.BasePaintColor = sliderBasePaintColor.Color; };
-            sliderBasePaintColor.Draw += delegate { sliderBasePaintColor.Color = material.BasePaintColor; };
+            sliderBasePaintColor.ColorChanged += delegate { asset.BasePaintColor = sliderBasePaintColor.Color; };
+            sliderBasePaintColor.Draw += delegate { sliderBasePaintColor.Color = asset.BasePaintColor; };
 
             #endregion
 
@@ -117,30 +88,23 @@ namespace XNAFinalEngine.Editor
                 Parent = groupDiffuse,
                 Left = 10,
                 Top = sliderBasePaintColor.Top + sliderBasePaintColor.Height + 20,
-                Color = material.SecondBasePaintColor,
+                Color = asset.SecondBasePaintColor,
                 Text = "Second Base Paint Color",
             };
-            sliderSecondBasePaintColor.ColorChanged += delegate { material.SecondBasePaintColor = sliderSecondBasePaintColor.Color; };
-            sliderSecondBasePaintColor.Draw += delegate { sliderSecondBasePaintColor.Color = material.SecondBasePaintColor; };
+            sliderSecondBasePaintColor.ColorChanged += delegate { asset.SecondBasePaintColor = sliderSecondBasePaintColor.Color; };
+            sliderSecondBasePaintColor.Draw += delegate { sliderSecondBasePaintColor.Color = asset.SecondBasePaintColor; };
 
             #endregion
 
-            #region Middle Paint Color
+            #region Flake Layer Color 1
 
-            var sliderMiddlePaintColor = new SliderColor
-            {
-                Parent = groupDiffuse,
-                Left = 10,
-                Top = sliderSecondBasePaintColor.Top + sliderSecondBasePaintColor.Height + 20,
-                Color = material.MiddlePaintColor,
-                Text = "Middle Paint Color",
-            };
-            sliderMiddlePaintColor.ColorChanged += delegate { material.MiddlePaintColor = sliderMiddlePaintColor.Color; };
-            sliderMiddlePaintColor.Draw += delegate { sliderMiddlePaintColor.Color = material.MiddlePaintColor; };
+            var sliderFlakeLayerColor1 = CommonControls.SliderColor("Flake Layer Color 1", groupDiffuse, asset.FlakeLayerColor1);
+            sliderFlakeLayerColor1.ColorChanged += delegate { asset.FlakeLayerColor1 = sliderFlakeLayerColor1.Color; };
+            sliderFlakeLayerColor1.Draw += delegate { sliderFlakeLayerColor1.Color = asset.FlakeLayerColor1; };
 
             #endregion
 
-            groupDiffuse.Height = sliderMiddlePaintColor.Top + sliderMiddlePaintColor.Height + 20;
+            groupDiffuse.AdjustHeightFromChildren();
 
             #endregion
 
@@ -165,7 +129,7 @@ namespace XNAFinalEngine.Editor
                 Parent = groupSpecular,
                 Left = 10,
                 Top = 25,
-                Value = material.SpecularIntensity,
+                Value = asset.SpecularIntensity,
                 Text = "Specular Intensity",
                 IfOutOfRangeRescale = false,
                 ValueCanBeOutOfRange = true,
@@ -174,9 +138,9 @@ namespace XNAFinalEngine.Editor
             };
             sliderSpecularIntensity.ValueChanged += delegate
             {
-                material.SpecularIntensity = sliderSpecularIntensity.Value;
+                asset.SpecularIntensity = sliderSpecularIntensity.Value;
             };
-            sliderSpecularIntensity.Draw += delegate { sliderSpecularIntensity.Value = material.SpecularIntensity; };
+            sliderSpecularIntensity.Draw += delegate { sliderSpecularIntensity.Value = asset.SpecularIntensity; };
 
             #endregion
 
@@ -187,7 +151,7 @@ namespace XNAFinalEngine.Editor
                 Parent = groupSpecular,
                 Left = 10,
                 Top = 10 + sliderSpecularIntensity.Top + sliderSpecularIntensity.Height,
-                Value = material.SpecularPower,
+                Value = asset.SpecularPower,
                 Text = "Specular Power",
                 IfOutOfRangeRescale = false,
                 ValueCanBeOutOfRange = true,
@@ -196,9 +160,9 @@ namespace XNAFinalEngine.Editor
             };
             sliderSpecularPower.ValueChanged += delegate
             {
-                material.SpecularPower = sliderSpecularPower.Value;
+                asset.SpecularPower = sliderSpecularPower.Value;
             };
-            sliderSpecularPower.Draw += delegate { sliderSpecularPower.Value = material.SpecularPower; };
+            sliderSpecularPower.Draw += delegate { sliderSpecularPower.Value = asset.SpecularPower; };
 
             #endregion
 
@@ -229,11 +193,11 @@ namespace XNAFinalEngine.Editor
             comboBoxSpecularTexture.ItemIndexChanged += delegate
             {
                 if (comboBoxSpecularTexture.ItemIndex <= 0)
-                    material.SpecularTexture = null;
+                    asset.SpecularTexture = null;
                 else
                 {
-                    if (material.SpecularTexture == null || material.SpecularTexture.Name != (string)comboBoxSpecularTexture.Items[comboBoxSpecularTexture.ItemIndex])
-                        material.SpecularTexture = new Texture((string)comboBoxSpecularTexture.Items[comboBoxSpecularTexture.ItemIndex]);
+                    if (asset.SpecularTexture == null || asset.SpecularTexture.Name != (string)comboBoxSpecularTexture.Items[comboBoxSpecularTexture.ItemIndex])
+                        asset.SpecularTexture = new Texture((string)comboBoxSpecularTexture.Items[comboBoxSpecularTexture.ItemIndex]);
                 }
             };
             comboBoxSpecularTexture.Draw += delegate
@@ -241,12 +205,12 @@ namespace XNAFinalEngine.Editor
                 if (comboBoxSpecularTexture.ListBoxVisible)
                     return;
                 // Identify current index
-                if (material.SpecularTexture == null)
+                if (asset.SpecularTexture == null)
                     comboBoxSpecularTexture.ItemIndex = 0;
                 else
                 {
                     for (int i = 0; i < comboBoxSpecularTexture.Items.Count; i++)
-                        if ((string)comboBoxSpecularTexture.Items[i] == material.SpecularTexture.Name)
+                        if ((string)comboBoxSpecularTexture.Items[i] == asset.SpecularTexture.Name)
                         {
                             comboBoxSpecularTexture.ItemIndex = i;
                             break;
@@ -264,7 +228,7 @@ namespace XNAFinalEngine.Editor
                 Left = 10,
                 Top = 10 + comboBoxSpecularTexture.Top + comboBoxSpecularTexture.Height,
                 Width = window.ClientWidth - 16,
-                Checked = material.SpecularTexturePowerEnabled,
+                Checked = asset.SpecularTexturePowerEnabled,
                 Text = " Specular Texture Power Enabled",
                 ToolTip =
                 {
@@ -273,71 +237,73 @@ namespace XNAFinalEngine.Editor
             };
             checkBoxSpecularTexturePowerEnabled.CheckedChanged += delegate
             {
-                material.SpecularTexturePowerEnabled = checkBoxSpecularTexturePowerEnabled.Checked;
+                asset.SpecularTexturePowerEnabled = checkBoxSpecularTexturePowerEnabled.Checked;
             };
-            checkBoxSpecularTexturePowerEnabled.Draw += delegate { checkBoxSpecularTexturePowerEnabled.Checked = material.SpecularTexturePowerEnabled; };
+            checkBoxSpecularTexturePowerEnabled.Draw += delegate { checkBoxSpecularTexturePowerEnabled.Checked = asset.SpecularTexturePowerEnabled; };
 
             #endregion
 
-            #region Reflection Texture
-
-            var labelReflectionTexture = new Label
-            {
-                Parent = groupSpecular,
-                Left = 10,
-                Top = 10 + checkBoxSpecularTexturePowerEnabled.Top + checkBoxSpecularTexturePowerEnabled.Height,
-                Width = 150,
-                Text = "Reflection Texture"
-            };
-            var comboBoxReflectionTexture = new ComboBox
-            {
-                Parent = groupSpecular,
-                Left = labelReflectionTexture.Left + labelReflectionTexture.Width,
-                Top = labelReflectionTexture.Top,
-                Height = 20,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                MaxItemsShow = 25,
-            };
-            comboBoxReflectionTexture.Width = groupSpecular.Width - 10 - comboBoxReflectionTexture.Left;
-            // Add textures name
-            comboBoxReflectionTexture.Items.Add("No texture");
-            comboBoxReflectionTexture.Items.AddRange(TextureCube.TexturesFilename);
-            // Events
-            comboBoxReflectionTexture.ItemIndexChanged += delegate
-            {
-                if (comboBoxReflectionTexture.ItemIndex <= 0)
-                    material.ReflectionTexture = null;
-                else
-                {
-                    if (material.ReflectionTexture == null || material.ReflectionTexture.Name != (string)comboBoxReflectionTexture.Items[comboBoxReflectionTexture.ItemIndex])
-                        material.ReflectionTexture = new TextureCube((string)comboBoxReflectionTexture.Items[comboBoxReflectionTexture.ItemIndex]);
-                }
-            };
-            comboBoxReflectionTexture.Draw += delegate
-            {
-                if (comboBoxReflectionTexture.ListBoxVisible)
-                    return;
-                // Identify current index
-                if (material.ReflectionTexture == null)
-                    comboBoxReflectionTexture.ItemIndex = 0;
-                else
-                {
-                    for (int i = 0; i < comboBoxReflectionTexture.Items.Count; i++)
-                        if ((string)comboBoxReflectionTexture.Items[i] == material.ReflectionTexture.Name)
-                        {
-                            comboBoxReflectionTexture.ItemIndex = i;
-                            break;
-                        }
-                }
-            };
-
-            #endregion
-
-            groupSpecular.Height = comboBoxReflectionTexture.Top + comboBoxReflectionTexture.Height + 20;
+            groupSpecular.AdjustHeightFromChildren();
             
             #endregion
+
+            #region Flakes
+
+            var groupFlakes = CommonControls.Group("Flakes", window);
+
+            #region Flakes Color
+
+            var sliderFlakesColor = CommonControls.SliderColor("Flake Color", groupFlakes, asset.FlakesColor);
+            sliderFlakesColor.ColorChanged += delegate { asset.FlakesColor = sliderFlakesColor.Color; };
+            sliderFlakesColor.Draw += delegate { sliderFlakesColor.Color = asset.FlakesColor; };
+
+            #endregion
+
+            #region Flakes Scale
+
+            var sliderFlakesScale = CommonControls.SliderNumeric("Flakes Scale", groupFlakes, asset.FlakesScale, true, true, 0, 500);
+            sliderFlakesScale.ValueChanged += delegate { asset.FlakesScale = sliderFlakesScale.Value; };
+            sliderFlakesScale.Draw += delegate { sliderFlakesScale.Value = asset.FlakesScale; };
+
+            #endregion
+
+            #region Flakes Exponent
+
+            var sliderFlakesExponent = CommonControls.SliderNumeric("Flakes Exponent", groupFlakes, asset.FlakesExponent, true, true, 0, 500);
+            sliderFlakesExponent.ValueChanged += delegate { asset.FlakesExponent = sliderFlakesExponent.Value; };
+            sliderFlakesExponent.Draw += delegate { sliderFlakesExponent.Value = asset.FlakesExponent; };
+
+            #endregion
+
+            #region Flake Perturbation
+
+            var sliderFlakePerturbation = CommonControls.SliderNumeric("Flake Perturbation", groupFlakes, asset.MicroflakePerturbation, false, false, -1, 1);
+            sliderFlakePerturbation.ValueChanged += delegate { asset.MicroflakePerturbation = sliderFlakePerturbation.Value; };
+            sliderFlakePerturbation.Draw += delegate { sliderFlakePerturbation.Value = asset.MicroflakePerturbation; };
+
+            #endregion
+
+            #region Flake Perturbation A
+
+            var sliderFlakePerturbationA = CommonControls.SliderNumeric("Flake Perturbation A", groupFlakes, asset.MicroflakePerturbationA, false, false, 0, 1);
+            sliderFlakePerturbationA.ValueChanged += delegate { asset.MicroflakePerturbationA = sliderFlakePerturbationA.Value; };
+            sliderFlakePerturbationA.Draw += delegate { sliderFlakePerturbationA.Value = asset.MicroflakePerturbationA; };
+
+            #endregion
+
+            #region Normal Perturbation
+
+            var sliderNormalPerturbation = CommonControls.SliderNumeric("Normal Perturbation", groupFlakes, asset.NormalPerturbation, false, false, -1, 1);
+            sliderNormalPerturbation.ValueChanged += delegate { asset.NormalPerturbation = sliderNormalPerturbation.Value; };
+            sliderNormalPerturbation.Draw += delegate { sliderNormalPerturbation.Value = asset.NormalPerturbation; };
+
+            #endregion
+
+            groupFlakes.AdjustHeightFromChildren();
+
+            #endregion
             
-            window.Height = groupSpecular.Top + groupSpecular.Height + 40;
+            window.Height = 500;
 
         } // Show
 

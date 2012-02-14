@@ -28,75 +28,73 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
-namespace XNAFinalEngine.Assets
+#region Using directives
+using System;
+#endregion
+
+namespace XNAFinalEngine.EngineCore
 {
-	/// <summary>
-	/// Skybox.
-	/// </summary>
-    public class Skybox : Sky
-	{
 
-        #region Variables
-
-        // The count of materials for naming purposes.
-        private static int nameNumber = 1;
-
-        // Alpha blending
-        private float alphaBlending = 1.0f;
-
-        // Color intensity.
-        private float colorIntensity = 1.0f;
-
-        #endregion
+    /// <summary>
+    /// Useful statistics to profile the game quickly.
+    /// But when you need to deeply profile your game use a real profiler.
+    /// PIX and Visual Studio’s profiler are powerful tools. You should use them.
+    /// </summary>
+    /// <remarks>
+    /// The time measures (frame per seconds, update time and frame time) were left in the Time class for organization sake.
+    /// </remarks>
+    public static class Statistics
+    {
 
         #region Properties
 
         /// <summary>
-        /// Cube map texture.
+        /// The number of triangles processed in the current frame.
         /// </summary>
-        public TextureCube TextureCube { get; set; }
+        public static int TrianglesDrawn { get; internal set; }
+        
+        /// <summary>
+        /// The number of vertices processed in the current frame.
+        /// </summary>
+        public static int VerticesProcessed { get; internal set; }
 
         /// <summary>
-        /// Alpha blending.
+        /// The number of draw calls performed in the current frame.
         /// </summary>
-        public float AlphaBlending
-        {
-            get { return alphaBlending; }
-            set
-            {
-                alphaBlending = value;
-                if (alphaBlending < 0)
-                    alphaBlending = 0;
-                if (alphaBlending > 1)
-                    alphaBlending = 1;
-            }
-        } // AlphaBlending
+        /// <remarks>
+        /// A draw call occurs every time you call one of the GraphicsDevice.Draw.
+        /// When using Model, you get one draw call per mesh part.
+        /// </remarks>
+        public static int DrawCalls { get; internal set; }
 
         /// <summary>
-        /// Color Intensity.
+        /// The number of garbage collections performed in execution time.
         /// </summary>
-        public float ColorIntensity
-        {
-            get { return colorIntensity; }
-            set
-            {
-                colorIntensity = value;
-                if (colorIntensity < 0)
-                    colorIntensity = 0;
-            }
-        } // ColorIntensity
+        public static int GarbageCollections { get; internal set; }
+
+        /// <summary>
+        /// Currently allocated memory in the managed heap.
+        /// </summary>
+        /// <remarks>
+        /// If no C++ library is used then probably all the memory will be managed except the data allocated in the GPU.
+        /// </remarks>
+        public static long ManagedMemoryUsed { get { return GC.GetTotalMemory(false); } }
 
         #endregion
 
-        #region Constructor
+        #region Reset Frame Statistics
 
-        public Skybox()
+        /// <summary>
+        /// Reset to 0 the values that are measured frame by frame.
+        /// </summary>
+        internal static void ReserFrameStatistics()
         {
-            Name = "Skybox-" + nameNumber;
-            nameNumber++;
-        } // Skybox
+            TrianglesDrawn = 0;
+            VerticesProcessed = 0;
+            DrawCalls = 0;
+        } // ReserFrameStatistics
 
         #endregion
 
-    } // Skybox
-} // XNAFinalEngine.Assets
+    } // Statistics
+} // XNAFinalEngine.EngineCore

@@ -146,6 +146,10 @@ namespace XNAFinalEngine.Assets
             }
             EngineManager.Device.SetVertexBuffer(vertexBufferScreenPlane);
             EngineManager.Device.DrawPrimitives(PrimitiveType.TriangleStrip, 0, 2);
+            // Update statistics
+            Statistics.DrawCalls++;
+            Statistics.TrianglesDrawn += 2;
+            Statistics.VerticesProcessed += 4;
         } // RenderScreenPlane
 
         #endregion

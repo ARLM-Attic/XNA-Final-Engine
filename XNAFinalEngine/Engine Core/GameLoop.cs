@@ -263,9 +263,13 @@ namespace XNAFinalEngine.EngineCore
         {
             // Update frame time
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
+            // Reset Frame Statistics
+            Statistics.ReserFrameStatistics();
             // Update frames per second visibility.
             fpsText.HudText.Visible = ShowFramesPerSecond;
             fpsText.Transform.LocalPosition = new Vector3(Screen.Width - 100, 20, 0);
+            fpsText.HudText.Text.Length = 4;
+            fpsText.HudText.Text.AppendWithoutGarbage(Time.FramesPerSecond);
             
             #region Scene Pre Render Tasks
 
@@ -399,8 +403,6 @@ namespace XNAFinalEngine.EngineCore
                     currentHudText = HudText.ComponentPool2D.Elements[i];
                     if (currentHudText.Visible)
                     {
-                        currentHudText.Text.Length = 4;
-                        currentHudText.Text.AppendWithoutGarbage(Time.FramesPerSecond);
                         SpriteManager.Draw2DText(currentHudText.Font ?? Font.DefaultFont,
                                                currentHudText.Text,
                                                currentHudText.CachedPosition,
@@ -776,7 +778,7 @@ namespace XNAFinalEngine.EngineCore
             // The sky is render latter so that the GPU can avoid fragment processing. But it has to be before the transparent objects.
             if (currentCamera.Sky != null)
             {
-                if (currentCamera.Sky is Skybox && ((Skybox)currentCamera.Sky).CubeTexture != null)
+                if (currentCamera.Sky is Skybox && ((Skybox)currentCamera.Sky).TextureCube != null)
                 {
                     SkyboxShader.Instance.Render(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, (Skybox)(currentCamera.Sky));
                 }

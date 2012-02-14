@@ -48,7 +48,7 @@ namespace XNAFinalEngine.Components
         #region Variables
 
         // The size value is arbitrary.
-        private readonly StringBuilder text = new StringBuilder(20);
+        private readonly StringBuilder text = new StringBuilder(40);
 
         #endregion
 
@@ -81,9 +81,10 @@ namespace XNAFinalEngine.Components
             Font = null;
             #if (XBOX)
                 if (Text.Length > 0)
-                    Text.Remove(0, Text.Length - 1); // Clear is not supported in XBOX.
+                    Text.Lenght = 0;
+                    //Text.Remove(0, Text.Length - 1); // Clear is not supported in XBOX.
             #else
-                Text.Clear();
+            Text.Clear();
             #endif
         } // Initialize
 

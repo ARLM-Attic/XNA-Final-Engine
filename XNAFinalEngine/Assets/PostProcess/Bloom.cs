@@ -42,13 +42,13 @@ namespace XNAFinalEngine.Assets
         #region Variables
         
         // Bloom Threshold.
-        private float threshold = 1.5f;
+        private float threshold = 3f;
         
         // Is it enabled?
         private bool enabled = true;
         
         // Bloom Scale.
-        private float scale = 1;
+        private float scale = 1f;
 
         #endregion
 

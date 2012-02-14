@@ -314,6 +314,10 @@ namespace XNAFinalEngine.Assets
                     EngineManager.Device.Indices = part.IndexBuffer;
                     // And render all primitives
                     EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, part.VertexOffset, 0, part.NumVertices, part.StartIndex, part.PrimitiveCount);
+                    // Update statistics
+                    Statistics.DrawCalls++;
+                    Statistics.TrianglesDrawn += part.PrimitiveCount;
+                    Statistics.VerticesProcessed += part.NumVertices;
                 }
             }
         } // Render

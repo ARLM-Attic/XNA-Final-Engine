@@ -106,6 +106,10 @@ namespace XNAFinalEngine.Assets
             EngineManager.Device.Indices = indexBuffer;
             EngineManager.Device.SetVertexBuffer(vertexBuffer);
             EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, numberVertices, 0, numberIndices / 3);
+            // Update statistics
+            Statistics.DrawCalls++;
+            Statistics.TrianglesDrawn += numberIndices / 3;
+            Statistics.VerticesProcessed += numberVertices;
         } // Render
 
         #endregion

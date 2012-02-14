@@ -37,10 +37,15 @@ float specularIntensity = 6;
 
 float3 cameraPosition;
 
-float3 basePaintColor;
-float3 lightedPaintColor;
+float3 basePaintColor1;
+float3 basePaintColor2;
+float3 basePaintColor3;
+
+// Flakes
 float3 flakeLayerColor;
-float3 middlePaintColor;
+float flakesScale = 20;
+int flakesExponent = 16;
+
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
@@ -77,6 +82,9 @@ sampler2D lightSampler : register(s1) = sampler_state
 	AddressV = CLAMP;*/
 };
 
+texture noise3DTexture;
+
+
 //////////////////////////////////////////////
 ////////////// Data Structs //////////////////
 //////////////////////////////////////////////
@@ -111,7 +119,7 @@ VS_OUT vs_main(in float4 position : POSITION,
     output.tangentToWorld[2] = mul(normal,   worldIT);
 
 	// Compute microflake tiling factor:
-    output.sparkleUv = uv * 100;
+    output.sparkleUv = uv * flakesScale;
 
 	float3 positionWorld = mul(position, world).xyz;	
 	output.view = normalize(cameraPosition - positionWorld);
@@ -140,26 +148,31 @@ float4 ps_main(in float4 positionProj : TEXCOORD0, float2 sparkleUv : TEXCOORD1,
 			
 	// Fetch from the incoming normal map. Scale and bias fetched normal to move into [-1.0, 1.0] range:
     //float3 normal = 2 * tex2D(normalMap, uv) - 1.0;
-	float3 normal = float3(0, 0, 1);
-
+	float3 normal = float3(0, 0, 1); // To me: It is not float3(0, 1, 0). In tangent space normal textures the default value in textures is (0.5, 0.5, 1). 2 * this - 1 is... 0,0,1 Ok?
+		
 	// Microflakes normal map is a high frequency normalized
     // vector noise map which is repeated across all surface. 
     // Fetching the value from it for each pixel allows us to 
     // compute perturbed normal for the surface to simulate
     // appearance of microflakes suspected in the coat of paint.
 	// Don't forget to bias and scale to shift color into [-1.0, 1.0] range:
-    float3 flakesNormal = 2.0 * tex2D(microflakeSampler, sparkleUv) - 1.0;
+    float fleckNoiseFrequency = 2;
+	float3 flakesNormal0 = tex2D(microflakeSampler, sparkleUv);
+	float3 flakesNormal1 = tex2D(microflakeSampler, sparkleUv * fleckNoiseFrequency);
+	float3 flakesNormal2 = tex2D(microflakeSampler, sparkleUv * fleckNoiseFrequency * fleckNoiseFrequency);
+	float3 flakesNormal3 = tex2D(microflakeSampler, sparkleUv * fleckNoiseFrequency * fleckNoiseFrequency * fleckNoiseFrequency);
+	float3 flakesNormal = normalize(flakesNormal2 + flakesNormal1 + flakesNormal3 + flakesNormal0) * 2.0f - 1.0f;
 
 	// This shader simulates two layers of microflakes suspended in 
     // the coat of paint. To compute the surface normal for the first layer,
     // the following formula is used:
     //   Np1 = ( a * Np + b * N ) /  || a * Np + b * N || where a << b    
-    float3 Np1 = microflakePerturbationA * flakesNormal + normalPerturbation * normal;
+    float3 Np1 = normalize(microflakePerturbationA * flakesNormal + normalPerturbation * normal);
 
     // To compute the surface normal for the second layer of microflakes, which
     // is shifted with respect to the first layer of microflakes, we use this formula:
     //    Np2 = ( c * Np + d * N ) / || c * Np + d * N || where c == d
-    float3 Np2 = microflakePerturbation * (flakesNormal + normal);
+    float3 Np2 = normalize(flakesNormal + normal);
 	
 	float3 normalWorld = normalize(mul(normal, tangentToWorld));
 
@@ -172,7 +185,7 @@ float4 ps_main(in float4 positionProj : TEXCOORD0, float2 sparkleUv : TEXCOORD1,
 	
 	// Compute reflection vector resulted from the clear coat of paint on the metallic surface:
     float  NdotV     = saturate(dot(normalWorld, view));
-    float3 reflectionUv = reflect(view, normalWorld); //2 * normalWorld * NdotV - view;
+    float3 reflectionUv = reflect(view, normalWorld);
 
     // Here we just use a constant gloss value to bias reading from the environment
     // map, however, in the real demo we use a gloss map which specifies which 
@@ -201,19 +214,21 @@ float4 ps_main(in float4 positionProj : TEXCOORD0, float2 sparkleUv : TEXCOORD1,
     // microflakes. Again, transform perturbed surface normal for that layer into 
     // world space and then compute dot product of that normal with the view vector:
     float3 Np2World = normalize(mul(Np2, tangentToWorld));
-    float  fresnel2 = saturate(dot(Np2World, view));   
+    float  fresnel2 = saturate(dot(Np2World, view));
 
     // Compute final paint color: combines all layers of paint as well as two layersof microflakes
 
     float  fresnel1Sq = fresnel1 * fresnel1;
-   
-    float3 paintColor = fresnel1 * GammaToLinear(basePaintColor) + fresnel1Sq * GammaToLinear(middlePaintColor) +
-	                    fresnel1Sq * fresnel1Sq * GammaToLinear(lightedPaintColor) + pow(fresnel2, 16) * GammaToLinear(flakeLayerColor);
 
-    // Combine result of environment map reflection with the paint color:
+	float3 flakes =  pow(fresnel2, flakesExponent) * flakeLayerColor;	
+   
+    float3 paintColor = fresnel1 * GammaToLinear(basePaintColor1) + fresnel1Sq * GammaToLinear(basePaintColor2) +
+	                    fresnel1Sq * fresnel1Sq * GammaToLinear(basePaintColor3) + flakes;
+
+    // View depend reflections are more realistic.
     float  envContribution = 1.0 - 0.5 * NdotV;
 	          
-    return float4(reflection * envContribution * light.a + paintColor * light.rgb, 1);
+    return float4(reflection * /*pow(envContribution, 1) */ light.a + paintColor * light.rgb, 1);
 }
 
 //////////////////////////////////////////////

@@ -96,9 +96,9 @@ namespace XNAFinalEngine.Graphics
                                // Parameters //
                                epSpecularIntensity,
                                epBasePaintColor,
-                               epLightedPaintColor,
-                               epMiddlePaintColor,
-                               epFlakeLayerColor,
+                               epBasePaintColor2,
+                               epFlakeLayerColor1,
+                               epFlakeLayerColor2,
                                epMicroflakePerturbation,
                                epMicroflakePerturbationA,
                                epNormalPerturbation,
@@ -228,7 +228,7 @@ namespace XNAFinalEngine.Graphics
             if (lastUsedLightedPaintColor != lightedPaintColor)
             {
                 lastUsedLightedPaintColor = lightedPaintColor;
-                epLightedPaintColor.SetValue(new Vector3(lightedPaintColor.R / 255f, lightedPaintColor.G / 255f, lightedPaintColor.B / 255f));
+                epBasePaintColor2.SetValue(new Vector3(lightedPaintColor.R / 255f, lightedPaintColor.G / 255f, lightedPaintColor.B / 255f));
             }
         } // SetLightedPaintColor
 
@@ -237,12 +237,12 @@ namespace XNAFinalEngine.Graphics
         #region Middle Paint Color
 
         private static Color? lastUsedMiddlePaintColor;
-        private static void SetMiddlePaintColor(Color middlePaintColor)
+        private static void SetFlakeLayerColor1(Color middlePaintColor)
         {
             if (lastUsedMiddlePaintColor != middlePaintColor)
             {
                 lastUsedMiddlePaintColor = middlePaintColor;
-                epMiddlePaintColor.SetValue(new Vector3(middlePaintColor.R / 255f, middlePaintColor.G / 255f, middlePaintColor.B / 255f));
+                epFlakeLayerColor1.SetValue(new Vector3(middlePaintColor.R / 255f, middlePaintColor.G / 255f, middlePaintColor.B / 255f));
             }
         } // SetMiddlePaintColor
 
@@ -251,12 +251,12 @@ namespace XNAFinalEngine.Graphics
         #region Flake Layer Color
 
         private static Color? lastUsedFlakeLayerColor;
-        private static void SetFlakeLayerColor(Color flakeLayerColor)
+        private static void SetFlakeLayerColor2(Color flakeLayerColor)
         {
             if (lastUsedFlakeLayerColor != flakeLayerColor)
             {
                 lastUsedFlakeLayerColor = flakeLayerColor;
-                epFlakeLayerColor.SetValue(new Vector3(flakeLayerColor.R / 255f, flakeLayerColor.G / 255f, flakeLayerColor.B / 255f));
+                epFlakeLayerColor2.SetValue(new Vector3(flakeLayerColor.R / 255f, flakeLayerColor.G / 255f, flakeLayerColor.B / 255f));
             }
         } // SetFlakeLayerColor
 
@@ -364,10 +364,10 @@ namespace XNAFinalEngine.Graphics
                 epWorldIT           = Resource.Parameters["worldIT"];
                 // Parameters
                 epSpecularIntensity       = Resource.Parameters["specularIntensity"];
-                epBasePaintColor          = Resource.Parameters["basePaintColor"];
-                epLightedPaintColor       = Resource.Parameters["lightedPaintColor"];
-                epMiddlePaintColor        = Resource.Parameters["middlePaintColor"];
-                epFlakeLayerColor         = Resource.Parameters["flakeLayerColor"];
+                epBasePaintColor          = Resource.Parameters["basePaintColor1"];
+                epBasePaintColor2         = Resource.Parameters["basePaintColor2"];
+                epFlakeLayerColor1        = Resource.Parameters["basePaintColor3"];
+                epFlakeLayerColor2        = Resource.Parameters["flakeLayerColor"];
                 epMicroflakePerturbation  = Resource.Parameters["microflakePerturbation"];
                 epMicroflakePerturbationA = Resource.Parameters["microflakePerturbationA"];
                 epNormalPerturbation      = Resource.Parameters["normalPerturbation"];
@@ -435,12 +435,14 @@ namespace XNAFinalEngine.Graphics
                 SetSpecularIntensity(carPaintMaterial.SpecularIntensity);
                 SetBasePaintColor(carPaintMaterial.BasePaintColor);
                 SetLightedPaintColor(carPaintMaterial.SecondBasePaintColor);
-                SetMiddlePaintColor(carPaintMaterial.MiddlePaintColor);
-                SetFlakeLayerColor(carPaintMaterial.FlakeLayerColor);
+                SetFlakeLayerColor1(carPaintMaterial.FlakeLayerColor1);
+                SetFlakeLayerColor2(carPaintMaterial.FlakesColor);
                 SetNormalPerturbation(carPaintMaterial.NormalPerturbation);
                 SetMicroflakePerturbation(carPaintMaterial.MicroflakePerturbation);
                 SetMicroflakePerturbationA(carPaintMaterial.MicroflakePerturbationA);
                 SetReflectionTexture(carPaintMaterial.ReflectionTexture);
+                Resource.Parameters["flakesScale"].SetValue(carPaintMaterial.FlakesScale);
+                Resource.Parameters["flakesExponent"].SetValue(carPaintMaterial.FlakesExponent);
 
                 #endregion
 

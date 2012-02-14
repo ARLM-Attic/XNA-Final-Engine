@@ -216,11 +216,11 @@ namespace XNAFinalEngine.Graphics
                 SetViewProjectionMatrix(Matrix.CreateScale(farPlane) * Matrix.Transpose(Matrix.Invert(viewMatrix)) * projectionMatrix); // I remove the translation and scale of the view matrix.
                 SetAlphaBlending(skybox.AlphaBlending);
                 SetIntensity(skybox.ColorIntensity);
-                SetCubeTexture(skybox.CubeTexture);
+                SetCubeTexture(skybox.TextureCube);
 
-                if (skybox.CubeTexture.IsRgbm)
+                if (skybox.TextureCube.IsRgbm)
                 {
-                    SetMaxRange(skybox.CubeTexture.RgbmMaxRange);
+                    SetMaxRange(skybox.TextureCube.RgbmMaxRange);
                     Resource.CurrentTechnique = Resource.Techniques["SkyboxRGBM"];
                 }
                 else

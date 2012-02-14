@@ -121,7 +121,7 @@ namespace XNAFinalEngineExamples
                                                             Color = new Color(30, 30, 30),
                                                             Intensity = 1.0f,
                                                             AmbientOcclusionStrength = 5};
-            camera.Camera.Sky = new Skybox { CubeTexture = new TextureCube("FactoryCatwalkRGBM", true, 50) };
+            camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM", true, 50) };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
@@ -165,8 +165,8 @@ namespace XNAFinalEngineExamples
                                                         SpecularPower = 2,
                                                         BasePaintColor = new Color(240, 210, 50),
                                                         SecondBasePaintColor = new Color(100, 100, 50),
-                                                        MiddlePaintColor = new Color(150, 100, 100),
-                                                        FlakeLayerColor = new Color(100, 100, 100),
+                                                        FlakeLayerColor1 = new Color(150, 100, 100),
+                                                        FlakesColor = new Color(100, 100, 100),
                                                         ReflectionTexture = new TextureCube("Showroom", false),
                                                         //ReflectionTexture = new Graphics.TextureCube("FactoryCatwalkRGBM", true, 50)
                                                     });

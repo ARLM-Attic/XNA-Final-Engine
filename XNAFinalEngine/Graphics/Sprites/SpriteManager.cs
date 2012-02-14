@@ -184,6 +184,7 @@ namespace XNAFinalEngine.Graphics
                 throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
             if (!begin2D)
                 throw new InvalidOperationException("Sprite Manager: Begin was called in 3D mode.");
+
             spriteBatch.DrawString(font.Resource, text, new Vector2(position.X, position.Y), color, rotation, origin, scale, SpriteEffects.None, position.Z);
         } // Draw2DText
 
@@ -218,7 +219,7 @@ namespace XNAFinalEngine.Graphics
                 throw new InvalidOperationException("Sprite Manager: Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
             if (begin2D)
                 throw new InvalidOperationException("Sprite Manager: Begin was called in 2D mode.");
-            
+
             float scale = new Vector3(worldMatrix.M11, worldMatrix.M12, worldMatrix.M13).Length();
             worldMatrix = Matrix.CreateBillboard(worldMatrix.Translation, cameraPosition, cameraUp, null);
             SpriteShader.Instance.SetParameters(Matrix.CreateScale(scale) * Matrix.CreateFromYawPitchRoll(0, 0, 3.1416f) * worldMatrix);

@@ -144,6 +144,7 @@
     <Compile Include="Components\Rendering\LineRenderer.cs" />
     <Compile Include="Components\Rendering\VideoRenderer.cs" />
     <Compile Include="Components\Rendering\ParticleRenderer.cs" />
+    <Compile Include="Engine Core\Statistics.cs" />
     <Compile Include="Engine Core\ScreenshotCapturer.cs" />
     <Compile Include="Assets\AmbientLight\AmbientLight.cs" />
     <Compile Include="Components\Lights\DirectionalLight.cs" />
