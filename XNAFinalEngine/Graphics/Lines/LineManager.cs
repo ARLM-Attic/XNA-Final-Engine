@@ -299,7 +299,7 @@ namespace XNAFinalEngine.Graphics
             basicEffect.CurrentTechnique.Passes[0].Apply();
 
             // Submit the draw call to the graphics card
-            EngineManager.Device.DrawUserPrimitives<VertexPositionColor>(primitiveType, vertices, 0, primitiveCount);
+            EngineManager.Device.DrawUserPrimitives(primitiveType, vertices, 0, primitiveCount);
 
             // Now that we've drawn, it's ok to reset positionInBuffer back to zero, and write over any vertices that may have been set previously.
             positionInBuffer = 0;

@@ -160,6 +160,8 @@ namespace XNAFinalEngine.EngineCore
 
             InputManager.Update();
             MusicManager.Update();
+            // Update the chronometers that work in game delta time space.
+            Chronometer.UpdateGameDeltaTimeChronometers();
             
             #endregion
             
@@ -265,6 +267,8 @@ namespace XNAFinalEngine.EngineCore
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
             // Reset Frame Statistics
             Statistics.ReserFrameStatistics();
+            // Update the chronometers that work in frame time space.
+            Chronometer.UpdateFrameTimeChronometers();
             // Update frames per second visibility.
             fpsText.HudText.Visible = ShowFramesPerSecond;
             fpsText.Transform.LocalPosition = new Vector3(Screen.Width - 100, 20, 0);
@@ -505,7 +509,7 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion 
 
-            #region Screenshot);
+            #region Screenshot
 
             if (ScreenshotCapturer.MakeScreenshot)
             {
@@ -978,11 +982,10 @@ namespace XNAFinalEngine.EngineCore
 
             #region Lines
 
-            #region Opaque Objects
-
             LineManager.Begin3D(PrimitiveType.LineList, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
             
             #region Bounding Volumes
+
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
             {
                 ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
@@ -1000,6 +1003,34 @@ namespace XNAFinalEngine.EngineCore
             }
             #endregion
 
+            #region 3D Lines
+
+            for (int i = 0; i < LineRenderer.ComponentPool3D.Count; i++)
+            {
+                LineRenderer currentLineRenderer = LineRenderer.ComponentPool3D.Elements[i];
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible)
+                {
+                    for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
+                }
+            }
+
+            #endregion
+
+            LineManager.End();
+
+            #region 2D Lines
+
+            LineManager.Begin2D(PrimitiveType.LineList);
+            for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
+            {
+                LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible)
+                {
+                    for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
+                }
+            }
             LineManager.End();
 
             #endregion

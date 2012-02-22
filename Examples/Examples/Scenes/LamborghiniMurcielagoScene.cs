@@ -62,7 +62,7 @@ namespace XNAFinalEngineExamples
     {
 
         #region Variables
-
+        
         // Now every entity is a game object and the entity’s behavior is defined by the components attached to it.
         // There are several types of components, components related to models, to sound, to particles, to physics, etc.
         private static GameObject3D // Lambo body
@@ -103,7 +103,9 @@ namespace XNAFinalEngineExamples
                                     camera,
                                     skydome;
 
-        private static GameObject2D xnaFinalEngineLogo, videoTest, statistics;
+        private static GameObject2D xnaFinalEngineLogo, videoTest, statistics, framePerSecondLines;
+
+        private static Chronometer chronometer;
 
         #endregion
 
@@ -959,7 +961,18 @@ namespace XNAFinalEngineExamples
             LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
 
-            //LookupTableWindow.Show(null);
+            framePerSecondLines = new GameObject2D();
+            framePerSecondLines.AddComponent<LineRenderer>();
+            framePerSecondLines.LineRenderer.Vertices = new VertexPositionColor[60];
+            for (int i = 0; i < 30; i++)
+            {
+                framePerSecondLines.LineRenderer.Vertices[i * 2] = new VertexPositionColor(new Vector3(i * 10, 100, 0), Color.Green);
+                framePerSecondLines.LineRenderer.Vertices[i * 2 + 1] = new VertexPositionColor(new Vector3((i + 1) * 10, 100, 0), Color.Green);
+            }
+            
+            chronometer = new Chronometer(Chronometer.TimeSpaceEnum.FrameTime);
+            chronometer.Start();
+
             base.Load();
         } // Load
 
@@ -990,6 +1003,17 @@ namespace XNAFinalEngineExamples
         public override void PreRenderTasks()
         {
             UserInterfaceManager.DrawToTexture();
+            
+            if (chronometer.ElapsedTime > 1)
+            {
+                chronometer.Reset();
+                for (int i = 0; i < 58; i++)
+                {
+                    framePerSecondLines.LineRenderer.Vertices[i].Position.Y = framePerSecondLines.LineRenderer.Vertices[i + 2].Position.Y;
+                }
+                framePerSecondLines.LineRenderer.Vertices[58].Position.Y = framePerSecondLines.LineRenderer.Vertices[59].Position.Y;
+                framePerSecondLines.LineRenderer.Vertices[59].Position.Y = 100 + Time.FramesPerSecond;
+            }
         } // PreRenderTasks
 
         /// <summary>
@@ -998,6 +1022,9 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PostRenderTasks()
         {
+            
+
+
             statistics.HudText.Text.Length = 16;
             statistics.HudText.Text.AppendWithoutGarbage(Statistics.TrianglesDrawn);
             UserInterfaceManager.DrawTextureToScreen();
