@@ -60,6 +60,7 @@
   </PropertyGroup>
   <ItemGroup />
   <ItemGroup>
+    <Compile Include="Editor\ScriptStatisticsDrawer.cs" />
     <Compile Include="Editor\Windows\Assets\LookupTableWindow.cs" />
     <Compile Include="Editor\Windows\Assets\PostProcessWindow.cs" />
     <Compile Include="Editor\Windows\Assets\TextureCubeWindow.cs" />

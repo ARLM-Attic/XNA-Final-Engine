@@ -29,6 +29,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System;
 using XNAFinalEngine.Helpers;
 using Microsoft.Xna.Framework.Graphics;
 #endregion
@@ -45,15 +46,36 @@ namespace XNAFinalEngine.Components
     public class LineRenderer : Renderer
     {
 
+        #region Variables
+
+        private PrimitiveType primitiveType;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
         /// The array of vertex to connect.
         /// </summary>
         /// <remarks>
-        /// If the component works in 2D the third value of the position indicate the vertex’s depth.
+        /// If the component works in 2D the third value of the position still indicates the vertex’s depth.
         /// </remarks>
         public VertexPositionColor[] Vertices { get; set; }
+
+        public PrimitiveType PrimitiveType
+        {
+            get { return primitiveType; }
+            set
+            {
+                // These three types reuse vertices, so we can't flush properly without more complex logic.
+                // Since that's a bit too complicated for this sample, we'll simply disallow them.
+                if (primitiveType == PrimitiveType.LineStrip || primitiveType == PrimitiveType.TriangleStrip)
+                {
+                    throw new NotSupportedException("Line Renderer: The specified primitiveType is not supported.");
+                }
+                primitiveType = value;
+            }
+        } // PrimitiveType
 
         /// <summary>
         /// If the texture is null then the system will be draw a simple 1 pixel wide line.
@@ -79,6 +101,7 @@ namespace XNAFinalEngine.Components
             Vertices = null;
             Texture = null;
             Width = 10;
+            PrimitiveType = PrimitiveType.LineList;
         } // Initialize
 
         #endregion
@@ -97,6 +120,8 @@ namespace XNAFinalEngine.Components
         #endregion
 
         #region Pool
+
+        // Make new pools for triangle list and line list in both 2D and 3D. TODO!!
 
         // Pool for this type of 2D components.
         private static readonly Pool<LineRenderer> componentPool2D = new Pool<LineRenderer>(20);

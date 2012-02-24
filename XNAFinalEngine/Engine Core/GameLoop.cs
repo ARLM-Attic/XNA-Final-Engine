@@ -1003,12 +1003,30 @@ namespace XNAFinalEngine.EngineCore
             }
             #endregion
 
-            #region 3D Lines
+            #region 3D Lines (Line List)
 
             for (int i = 0; i < LineRenderer.ComponentPool3D.Count; i++)
             {
                 LineRenderer currentLineRenderer = LineRenderer.ComponentPool3D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible)
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.LineList)
+                {
+                    for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
+                }
+            }
+
+            #endregion
+
+            LineManager.End();
+
+            #region 3D Lines (Triangle List)
+
+            LineManager.Begin3D(PrimitiveType.TriangleList, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+
+            for (int i = 0; i < LineRenderer.ComponentPool3D.Count; i++)
+            {
+                LineRenderer currentLineRenderer = LineRenderer.ComponentPool3D.Elements[i];
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList)
                 {
                     for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
                         LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
@@ -1021,11 +1039,23 @@ namespace XNAFinalEngine.EngineCore
 
             #region 2D Lines
 
+            LineManager.Begin2D(PrimitiveType.TriangleList);
+            for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
+            {
+                LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList)
+                {
+                    for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
+                }
+            }
+            LineManager.End();
+
             LineManager.Begin2D(PrimitiveType.LineList);
             for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
             {
                 LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible)
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.LineList)
                 {
                     for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
                         LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);

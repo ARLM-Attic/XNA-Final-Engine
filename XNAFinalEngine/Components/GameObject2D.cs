@@ -307,6 +307,19 @@ namespace XNAFinalEngine.Components
 
             #endregion
 
+            #region Script
+
+            // Hacerlo de otra manera, creo. Algo como add script y remove script. Los script se comportan diferente que el resto de los componentes.
+            if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
+            {
+                Component script = new TComponentType();
+                script.Initialize(this);
+                Script.ScriptList.Add((Script)script);
+                return script;
+            }
+
+            #endregion
+
             throw new ArgumentException("Game Object 2D: Unknown component type.");
         } // AddComponent
 

@@ -103,10 +103,8 @@ namespace XNAFinalEngineExamples
                                     camera,
                                     skydome;
 
-        private static GameObject2D xnaFinalEngineLogo, videoTest, statistics, framePerSecondLines;
-
-        private static Chronometer chronometer;
-
+        private static GameObject2D xnaFinalEngineLogo, videoTest, statistics;
+        
         #endregion
 
         #region Load
@@ -941,8 +939,7 @@ namespace XNAFinalEngineExamples
             xnaFinalEngineLogo.Transform.LocalScale = 0.5f;*/
 
             statistics = new GameObject2D();
-            statistics.AddComponent<HudText>();
-            statistics.HudText.Text.Append("Triangles Drawn ");
+            statistics.AddComponent<ScriptStatisticsDrawer>();
 
             GameLoop.ShowFramesPerSecond = true;
 
@@ -960,18 +957,6 @@ namespace XNAFinalEngineExamples
 
             LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
-
-            framePerSecondLines = new GameObject2D();
-            framePerSecondLines.AddComponent<LineRenderer>();
-            framePerSecondLines.LineRenderer.Vertices = new VertexPositionColor[60];
-            for (int i = 0; i < 30; i++)
-            {
-                framePerSecondLines.LineRenderer.Vertices[i * 2] = new VertexPositionColor(new Vector3(i * 10, 100, 0), Color.Green);
-                framePerSecondLines.LineRenderer.Vertices[i * 2 + 1] = new VertexPositionColor(new Vector3((i + 1) * 10, 100, 0), Color.Green);
-            }
-            
-            chronometer = new Chronometer(Chronometer.TimeSpaceEnum.FrameTime);
-            chronometer.Start();
 
             base.Load();
         } // Load
@@ -1003,17 +988,6 @@ namespace XNAFinalEngineExamples
         public override void PreRenderTasks()
         {
             UserInterfaceManager.DrawToTexture();
-            
-            if (chronometer.ElapsedTime > 1)
-            {
-                chronometer.Reset();
-                for (int i = 0; i < 58; i++)
-                {
-                    framePerSecondLines.LineRenderer.Vertices[i].Position.Y = framePerSecondLines.LineRenderer.Vertices[i + 2].Position.Y;
-                }
-                framePerSecondLines.LineRenderer.Vertices[58].Position.Y = framePerSecondLines.LineRenderer.Vertices[59].Position.Y;
-                framePerSecondLines.LineRenderer.Vertices[59].Position.Y = 100 + Time.FramesPerSecond;
-            }
         } // PreRenderTasks
 
         /// <summary>
@@ -1022,11 +996,6 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PostRenderTasks()
         {
-            
-
-
-            statistics.HudText.Text.Length = 16;
-            statistics.HudText.Text.AppendWithoutGarbage(Statistics.TrianglesDrawn);
             UserInterfaceManager.DrawTextureToScreen();
         } // PostRenderTasks
 

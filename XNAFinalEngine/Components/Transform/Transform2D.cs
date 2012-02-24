@@ -155,7 +155,7 @@ namespace XNAFinalEngine.Components
         #region World Space
         
         /// <summary>
-        /// The position in world space.
+        /// The position in screen space.
         /// </summary>
         public Vector3 Position
         {

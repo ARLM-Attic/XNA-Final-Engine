@@ -146,7 +146,7 @@ namespace XNAFinalEngine.Graphics
 
             EngineManager.Device.DepthStencilState = DepthStencilState.None;
             EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-            EngineManager.Device.BlendState = BlendState.Opaque;
+            EngineManager.Device.BlendState = BlendState.NonPremultiplied;
 
             primitiveType = _primitiveType;
 
@@ -186,7 +186,7 @@ namespace XNAFinalEngine.Graphics
 
             EngineManager.Device.DepthStencilState = DepthStencilState.None;
             EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-            EngineManager.Device.BlendState = BlendState.Opaque;
+            EngineManager.Device.BlendState = BlendState.NonPremultiplied;
 
             primitiveType = _primitiveType;
 
@@ -389,7 +389,7 @@ namespace XNAFinalEngine.Graphics
             planeVertices[3] = new VertexPositionColor(new Vector3(screenRect.X + screenRect.Width, screenRect.Y + screenRect.Height, 0f), bottomRightColor);
             
             // Submit the draw call to the graphics card
-            EngineManager.Device.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.TriangleStrip, planeVertices, 0, 2);
+            EngineManager.Device.DrawUserPrimitives(PrimitiveType.TriangleStrip, planeVertices, 0, 2);
         } // DrawSolid2DPlane
         
         #endregion
