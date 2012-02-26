@@ -103,20 +103,27 @@ namespace XNAFinalEngine.Helpers
 
         private static readonly char[] digits = new[] { '9', '8', '7', '6', '5', '4', '3', '2', '1', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
-        public static StringBuilder AppendWithoutGarbage(this StringBuilder stringBuilder, int number)
+        public static StringBuilder AppendWithoutGarbage(this StringBuilder stringBuilder, int number, bool insertDots = false)
         {
             if (number < 0)
             {
                 stringBuilder.Append('-');
             }
 
+            int i = 0;
             int index = stringBuilder.Length;
             do
             {
+                if (insertDots && i == 3)
+                {
+                    stringBuilder.Insert(index, '.');
+                    i = 0;
+                }
                 // StringBuilder.Insert(Int32, Char) calls ToString() internally
                 // http://www.gavpugh.com/2010/04/01/xnac-avoiding-garbage-when-working-with-stringbuilder/
                 stringBuilder.Insert(index, digits, (number % 10) + 9, 1);
                 number /= 10;
+                i++;
             }
             while (number != 0);
 

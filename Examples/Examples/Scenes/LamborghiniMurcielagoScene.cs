@@ -947,13 +947,13 @@ namespace XNAFinalEngineExamples
             ContentManager.CurrentContentManager = testContentManager;
 
             // The user interface is separated and manually called because its GPL license.
-            UserInterfaceManager.Initialize();
+            //UserInterfaceManager.Initialize();
 
             //murcielagoBody.ModelRenderer.Material = new Constant { DiffuseTexture = new Texture("Caption") { PreferredSamplerState = new SamplerState { MaxMipLevel = 2 }}};
             //ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
             //BlinnPhongWindow.Show((BlinnPhong)murcielagoInteriorLeather.ModelRenderer.Material);
             //CarPaintWindow.Show(carPaint);
-            PostProcessWindow.Show(camera.Camera.PostProcess);
+            //PostProcessWindow.Show(camera.Camera.PostProcess);
 
             LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
@@ -971,7 +971,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
-            UserInterfaceManager.Update();
+            //UserInterfaceManager.Update();
         } // UpdateTasks
 
         #endregion
@@ -987,7 +987,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PreRenderTasks()
         {
-            UserInterfaceManager.DrawToTexture();
+            //UserInterfaceManager.DrawToTexture();
         } // PreRenderTasks
 
         /// <summary>
@@ -996,7 +996,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PostRenderTasks()
         {
-            UserInterfaceManager.DrawTextureToScreen();
+            //UserInterfaceManager.DrawTextureToScreen();
         } // PostRenderTasks
 
         #endregion

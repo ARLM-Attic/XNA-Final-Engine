@@ -31,6 +31,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.Runtime;
+using XNAFinalEngine.EngineCore;
+
 #endregion
 
 namespace XNAFinalEngine.Helpers
@@ -49,7 +51,8 @@ namespace XNAFinalEngine.Helpers
         /// </summary>
         ~GarbageCollector()
         {
-            throw new Exception("Garbage Collection performed.");
+            Statistics.GarbageCollections++;
+            CreateWeakReference();
         } // ~TestGarbageCollection
 
         #endregion

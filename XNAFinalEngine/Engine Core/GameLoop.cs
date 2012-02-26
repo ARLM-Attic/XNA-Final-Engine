@@ -138,8 +138,12 @@ namespace XNAFinalEngine.EngineCore
 
             // Collect all garbage.
             GarbageCollector.CollectGarbage();
-            // Test the garbage collector.
-            //GarbageCollector.CreateWeakReference();
+
+            #endregion
+
+            #region Statistics
+
+            Statistics.InitStatistics();
 
             #endregion
 

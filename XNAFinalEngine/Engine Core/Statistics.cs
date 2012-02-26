@@ -30,6 +30,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using XNAFinalEngine.Helpers;
+
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -79,6 +81,18 @@ namespace XNAFinalEngine.EngineCore
         /// If no C++ library is used then probably all the memory will be managed except the data allocated in the GPU.
         /// </remarks>
         public static long ManagedMemoryUsed { get { return GC.GetTotalMemory(false); } }
+
+        #endregion
+
+        #region Init Statistcis
+
+        /// <summary>
+        /// Init the statistics. Call it after the first garbage collection.
+        /// </summary>
+        internal static void InitStatistics()
+        {
+            GarbageCollector.CreateWeakReference();
+        } // InitStatistics
 
         #endregion
 
