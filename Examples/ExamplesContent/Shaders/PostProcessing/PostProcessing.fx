@@ -24,6 +24,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #include <ColorCorrection.fxh>
 #include <Filmgrain.fxh>
+#include <ToneMapping.fxh>
 
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
@@ -32,29 +33,21 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 float2 halfPixel;
 
 // Lens exposure (fraction of light to display)
-float	lensExposure = 0.1f;
+float lensExposure = 0.1f;
 
 // Bloom scale.
 float bloomScale;
-
 bool bloomEnabled;
-
 bool adjustLevelsEnabled;
-
 bool adjustLevelsIndividualChannelsEnabled;
 
 // Lookup Tables
-
 bool colorCorrectOneLutEnabled;
-
 bool colorCorrectTwoLutEnabled;
-
 float lerpLookupTablesAmount;
-
 float lerpOriginalColorAmount;
 
 // Film grain
-
 bool filmGrainEnabled;
 
 //////////////////////////////////////////////
@@ -93,44 +86,21 @@ struct VS_OUT
 //////////////// Functions ///////////////////
 //////////////////////////////////////////////
 
-float A = 0.15;
-float B = 0.50;
-float C = 0.10;
-float D = 0.20;
-float E = 0.02;
-float F = 0.30;
-float W = 11.2;
-
-float3 Uncharted2Tonemap(float3 x)
-{
-	return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
-}
-
 // This function takes an input colour in linear space, and converts it to a tone mapped gamma corrected color output
-float3 FilmToneMapping(float3 color)
+float3 ToneMapping(float3 color)
 {
 	// Multiply the incomming light by the lens exposure value. Think of this in terms of a camera:
 	// Exposure time on a camera adjusts how long the camera collects light on the main sensor.
 	// This is a simple multiplication factor of the incomming light.	
-	color.rgb *= lensExposure;
-		
-		float ExposureBias = 2.0f;
-	float3 curr = Uncharted2Tonemap(ExposureBias * color);
-	float3 whiteScale = 1.0f / Uncharted2Tonemap(W);	
-	float3 retColor = pow(curr * whiteScale, 1 / 2.0f);
-	return retColor;
-	/*
-	// Run the approximation
-	// Film tonemapping copy from Naughty Dog's Uncharted 2 presentation of HDR.
-	// It only uses ALU operations, and replaces the entire Lin/Log and Texture LUT. In other words is very fast and is the best tone mapping available. 
-	// Moreover, this approximation performs gamma correction.
-	color.rgb = max(0, color.rgb - 0.004);
-	color.rgb = (color.rgb * (0.5 + 6.2 * color.rgb)) / (0.06 + color.rgb * (1.7 + 6.2 * color.rgb));
-	*/
+	color *= lensExposure;		
+
+	// Tone Mapping
+	color = ToneMapFilmicALU(color);
+	
 	// Is already in gamma space.
 	return float3(color);
 
-} // FilmToneMapping
+} // ToneMapping
 
 // Apply the bloom effect.
 float3 Bloom(float3 color, float2 uv)
@@ -174,7 +144,7 @@ float4 ps_main(in float2 uv : TEXCOORD0) : COLOR0
 {
 	float3 color = tex2D(sceneSampler, uv);	// HDR Linear space	
 	
-	color = FilmToneMapping(color); // LDR Gamma space
+	color = ToneMapping(color); // LDR Gamma space
 	
 	// Film grain has to be calculated before bloom to avoid artifacts and after film tone mapping.
 	if (filmGrainEnabled)
