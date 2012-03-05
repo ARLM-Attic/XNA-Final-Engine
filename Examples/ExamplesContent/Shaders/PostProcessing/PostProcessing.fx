@@ -31,6 +31,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 //////////////////////////////////////////////
 
 float2 halfPixel;
+// frame time delta in seconds.
+float timeDelta;
+// Adaptation rate
+float tau = 1.25f;
 
 // Lens exposure (fraction of light to display)
 float lensExposure = 0.1f;
@@ -70,6 +74,15 @@ sampler2D bloomSampler : register(s10) = sampler_state
     /*MipFilter = LINEAR;
 	MagFilter = ANISOTROPIC;
 	MinFilter = ANISOTROPIC;*/
+};
+
+texture lastLumTexture : register(t12);
+sampler2D lastLumSampler : register(s12) = sampler_state
+{
+	Texture = <lastLumTexture>;
+	/*MipFilter = NONE;
+	MagFilter = POINT;
+	MinFilter = POINT;*/
 };
 
 //////////////////////////////////////////////
@@ -139,12 +152,48 @@ VS_OUT vs_main(in float4 position : POSITION, in float2 uv : TEXCOORD)
 /////////////// Pixel Shader /////////////////
 //////////////////////////////////////////////
 
+// Creates the luminance map for the scene
+float4 psLuminanceMap(in float2 uv : TEXCOORD0) : COLOR0
+{
+    // Sample the input
+    float3 color = tex2D(sceneSampler, uv);
+   
+    // calculate the luminance using a weighted average
+    float luminance = max(dot(color, float3(0.299f, 0.587f, 0.114f)), 0.0001f);
+                
+    return float4(luminance, 1.0f, 1.0f, 1.0f);
+} // psLuminanceMap
+
+// Slowly adjusts the scene luminance based on the previous scene luminance
+float4 psAdaptLuminance(in float2 uv : TEXCOORD0) : COLOR0
+{
+    float lastLum = tex2D(lastLumSampler, uv).r;
+    float currentLum = tex2D(sceneSampler, uv).r;	
+		       
+    // Adapt the luminance using Pattanaik's technique    
+    float adaptedLum = lastLum + (currentLum - lastLum) * (1 - exp(-timeDelta * tau));
+    
+    return float4(adaptedLum, 1, 1, 1);
+} // psAdaptLuminance
+
 // An easy optimization consists in make a specific technique without branching.
-float4 ps_main(in float2 uv : TEXCOORD0) : COLOR0
+float4 psPostProcess(in float2 uv : TEXCOORD0) : COLOR0
 {
 	float3 color = tex2D(sceneSampler, uv);	// HDR Linear space	
-	
-	color = ToneMapping(color); // LDR Gamma space
+		
+	float avgLuminance = tex2Dlod(lastLumSampler, float4(uv, 0, 10)).x;	
+		
+	// Use geometric mean        
+    avgLuminance = max(avgLuminance, 0.001f);
+	float exposure;
+
+    float keyValue = 0;
+	keyValue = 1.03f - (2.0f / (2 + log10(avgLuminance + 1)));
+    float linearExposure = (keyValue / avgLuminance);
+    exposure = log2(max(linearExposure, 0.0001f));	
+    exposure = exp2(exposure);	
+
+	color = ToneMapFilmicALU(color * exposure); // LDR Gamma space 
 	
 	// Film grain has to be calculated before bloom to avoid artifacts and after film tone mapping.
 	if (filmGrainEnabled)
@@ -166,17 +215,35 @@ float4 ps_main(in float2 uv : TEXCOORD0) : COLOR0
 		color = lerp(color, lerp(TransformColor(color, firstlookupTableSampler), TransformColor(color, secondlookupTableSampler), lerpLookupTablesAmount), lerpOriginalColorAmount);
 	
 	return float4(color, 1);
-} // ps_main
+} // psPostProcess
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
+
+technique LuminanceMap
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 psLuminanceMap();
+	}
+} // LuminanceMap
+
+technique AdaptLuminance
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 psAdaptLuminance();
+	}
+} // AdaptLuminance
 
 technique PostProcessing
 {
 	pass p0
 	{
 		VertexShader = compile vs_3_0 vs_main();
-		PixelShader  = compile ps_3_0 ps_main();
+		PixelShader  = compile ps_3_0 psPostProcess();
 	}
 } // PostProcessing

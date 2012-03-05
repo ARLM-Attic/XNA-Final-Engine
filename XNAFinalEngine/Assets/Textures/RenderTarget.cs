@@ -172,6 +172,11 @@ namespace XNAFinalEngine.Assets
         public AntialiasingType Antialiasing { get; private set; }
 
         /// <summary>
+        /// True if a full mipmap chain will be generated.
+        /// </summary>
+        public bool MipMap { get; private set; }
+
+        /// <summary>
         /// Currently active render targets.
         /// </summary>
         public static RenderTarget[] CurrentRenderTarget { get { return currentRenderTarget; } }
@@ -187,7 +192,7 @@ namespace XNAFinalEngine.Assets
         /// <param name="_surfaceFormat">Surface format</param>
         /// <param name="_depthFormat">Depth Format</param>
         /// <param name="antialiasingType">Multi sampling type: System value or no antialiasing.</param>
-        public RenderTarget(Size size, SurfaceFormat _surfaceFormat, DepthFormat _depthFormat, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
+        public RenderTarget(Size size, SurfaceFormat _surfaceFormat, DepthFormat _depthFormat, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing, bool mipMap = false)
         {
             Name = "Render Target";
             Size = size;
@@ -195,6 +200,7 @@ namespace XNAFinalEngine.Assets
             SurfaceFormat = _surfaceFormat;
             DepthFormat = _depthFormat;
             Antialiasing = antialiasingType;
+            MipMap = mipMap;
 
             Create();
             EngineManager.DeviceReset += OnWindowSizeChanged;
@@ -207,7 +213,7 @@ namespace XNAFinalEngine.Assets
         /// <param name="_surfaceFormat">Surface format</param>
         /// <param name="_hasDepthBuffer">Has depth buffer?</param>
         /// <param name="antialiasingType">Multi sampling type: System value or no antialiasing.</param>
-        public RenderTarget(Size size, SurfaceFormat _surfaceFormat = SurfaceFormat.Color, bool _hasDepthBuffer = true, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing)
+        public RenderTarget(Size size, SurfaceFormat _surfaceFormat = SurfaceFormat.Color, bool _hasDepthBuffer = true, AntialiasingType antialiasingType = AntialiasingType.NoAntialiasing, bool mipMap = false)
         {
             Name = "Render Target";
             Size = size;
@@ -215,6 +221,7 @@ namespace XNAFinalEngine.Assets
             SurfaceFormat = _surfaceFormat;
             DepthFormat = _hasDepthBuffer ? DepthFormat.Depth24 : DepthFormat.None;
             Antialiasing = antialiasingType;
+            MipMap = mipMap;
 
             Create();
             EngineManager.DeviceReset += OnWindowSizeChanged;
@@ -236,7 +243,7 @@ namespace XNAFinalEngine.Assets
                 // I use RenderTargetUsage.PlatformContents to be little more performance friendly with PC.
                 // But I assume that the system works in DiscardContents mode so that an XBOX 360 implementation works.
                 // What I lose, mostly nothing, because I made my own ZBuffer texture and the stencil buffer is deleted no matter what I do.
-                renderTarget = new RenderTarget2D(EngineManager.Device, Width, Height, false, SurfaceFormat, DepthFormat, CalculateMultiSampleQuality(Antialiasing), RenderTargetUsage.PlatformContents);
+                renderTarget = new RenderTarget2D(EngineManager.Device, Width, Height, MipMap, SurfaceFormat, DepthFormat, CalculateMultiSampleQuality(Antialiasing), RenderTargetUsage.PlatformContents);
             }
             catch (Exception e)
             {
@@ -505,21 +512,21 @@ namespace XNAFinalEngine.Assets
         /// The pool should be used in the filters, shadow maps and similar shaders. Not everything.
         /// Use the Release method to return a render target to the pool.
         /// </summary>
-        public static RenderTarget Fetch(Size size, SurfaceFormat surfaceFormat, DepthFormat depthFormat, AntialiasingType antialiasingType)
+        public static RenderTarget Fetch(Size size, SurfaceFormat surfaceFormat, DepthFormat depthFormat, AntialiasingType antialiasingType, bool mipMap = false)
         {
             RenderTarget renderTarget;
             for (int i = 0; i < renderTargets.Count; i++)
             {
                 renderTarget = renderTargets[i];
                 if (renderTarget.Size == size && renderTarget.SurfaceFormat == surfaceFormat &&
-                    renderTarget.DepthFormat == depthFormat && renderTarget.Antialiasing == antialiasingType && !renderTarget.looked)
+                    renderTarget.DepthFormat == depthFormat && renderTarget.Antialiasing == antialiasingType && renderTarget.MipMap == mipMap && !renderTarget.looked)
                 {
                     renderTarget.looked = true;
                     return renderTarget;
                 }
             }
             // If there is not one unlook or present we create one.
-            renderTarget = new RenderTarget(size, surfaceFormat, depthFormat, antialiasingType);
+            renderTarget = new RenderTarget(size, surfaceFormat, depthFormat, antialiasingType, mipMap);
             renderTargets.Add(renderTarget);
             renderTarget.looked = true;
             return renderTarget;

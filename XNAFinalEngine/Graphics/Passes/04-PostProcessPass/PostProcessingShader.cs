@@ -34,6 +34,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Helpers;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -64,6 +65,7 @@ namespace XNAFinalEngine.Graphics
         private static EffectParameter epHalfPixel,
                                        epLensExposure,
                                        epSceneTexture,
+                                       epLastLumTexture,
                                        // Bloom
                                        epBloomScale,
                                        epBloomTexture,
@@ -141,6 +143,22 @@ namespace XNAFinalEngine.Graphics
                 epSceneTexture.SetValue(sceneTexture.Resource);
             }
         } // SetSceneTexture
+
+        #endregion
+
+        #region Last Lum Texture
+
+        private static Texture2D lastUsedLastLumTexture;
+        private static void SetLastLumTexture(Texture lastLumTexture)
+        {
+            EngineManager.Device.SamplerStates[12] = SamplerState.PointClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedLastLumTexture != lastLumTexture.Resource)
+            {
+                lastUsedLastLumTexture = lastLumTexture.Resource;
+                epLastLumTexture.SetValue(lastLumTexture.Resource);
+            }
+        } // SetLastLumTexture
 
         #endregion
 
@@ -569,7 +587,11 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Über post processing shader.
         /// </summary>
-        internal PostProcessingShader() : base("PostProcessing\\PostProcessing") { }
+        internal PostProcessingShader() : base("PostProcessing\\PostProcessing")
+        {
+            adaptedLuminance1 = new RenderTarget(Size.FullScreen, SurfaceFormat.Single, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing, true);
+            adaptedLuminance2 = new RenderTarget(Size.FullScreen, SurfaceFormat.Single, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing, true);
+        } // PostProcessingShader
 
         #endregion
 
@@ -588,6 +610,7 @@ namespace XNAFinalEngine.Graphics
                 epHalfPixel    = Resource.Parameters["halfPixel"];
                 epLensExposure = Resource.Parameters["lensExposure"];
                 epSceneTexture = Resource.Parameters["sceneTexture"];
+                epLastLumTexture = Resource.Parameters["lastLumTexture"];
                 // Bloom
                 epBloomScale   = Resource.Parameters["bloomScale"];
                 epBloomTexture = Resource.Parameters["bloomTexture"];
@@ -630,6 +653,110 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
+        #region Luminance Map Generation
+
+        /// <summary>
+        /// Luminance Map Generation.
+        /// </summary>
+        public void LuminanceMapGeneration(Texture sceneTexture)
+        {
+            if (sceneTexture == null || sceneTexture.Resource == null)
+                throw new ArgumentNullException("sceneTexture");
+            
+            try
+            {
+                Resource.CurrentTechnique = Resource.Techniques["LuminanceMap"];
+                // Set render states
+                EngineManager.Device.BlendState = BlendState.Opaque;
+                EngineManager.Device.DepthStencilState = DepthStencilState.None;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+
+                // Set parameters
+                SetHalfPixel(new Vector2(-1f / sceneTexture.Width, 1f / sceneTexture.Height));
+                SetSceneTexture(sceneTexture);
+
+                // Render post process effect.
+                Resource.CurrentTechnique.Passes[0].Apply();
+                RenderScreenPlane();
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Post Process Shader: Unable to generate the luminace map.", e);
+            }
+        } // LuminanceMapGeneration
+
+        #endregion
+
+        #region Adapt Luminance
+
+        private bool firstTexture = true;
+        private int i;
+        private readonly RenderTarget adaptedLuminance1, adaptedLuminance2;
+
+        /// <summary>
+        /// Adapt Luminance.
+        /// </summary>
+        public RenderTarget AdaptLuminance(Texture initialLuminanceTexture)
+        {
+            if (initialLuminanceTexture == null || initialLuminanceTexture.Resource == null)
+                throw new ArgumentNullException("initialLuminanceTexture");
+
+            try
+            {
+                Resource.CurrentTechnique = Resource.Techniques["AdaptLuminance"];
+                // Set render states
+                EngineManager.Device.BlendState = BlendState.Opaque;
+                EngineManager.Device.DepthStencilState = DepthStencilState.None;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                EngineManager.Device.SamplerStates[12] = SamplerState.PointClamp;
+
+                // Set parameters
+                SetHalfPixel(new Vector2(-1f / initialLuminanceTexture.Width, 1f / initialLuminanceTexture.Height));
+                if (firstTexture)
+                {
+                    if (i > 1)
+                        SetLastLumTexture(adaptedLuminance1);
+                    else
+                    {
+                        i++;
+                        SetLastLumTexture(initialLuminanceTexture);
+                    }
+                        
+                    adaptedLuminance2.EnableRenderTarget();
+                }
+                else
+                {
+                    SetLastLumTexture(adaptedLuminance2);
+                    adaptedLuminance1.EnableRenderTarget();
+                }
+
+                SetSceneTexture(initialLuminanceTexture);
+                Resource.Parameters["timeDelta"].SetValue(Time.FrameTime);
+
+                // Render post process effect.
+                Resource.CurrentTechnique.Passes[0].Apply();
+                RenderScreenPlane();
+
+                RenderTarget.DisableCurrentRenderTargets();
+
+                if (firstTexture)
+                    SetLastLumTexture(adaptedLuminance2);
+                else
+                    SetLastLumTexture(adaptedLuminance1);
+
+                firstTexture = !firstTexture;
+                if (firstTexture)
+                    return adaptedLuminance1;
+                return adaptedLuminance2;
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Post Process Shader: Unable to generate the luminace map.", e);
+            }
+        } // AdaptLuminance
+
+        #endregion
+
         #region Render
 
         /// <summary>
@@ -644,6 +771,7 @@ namespace XNAFinalEngine.Graphics
 
             try
             {
+                Resource.CurrentTechnique = Resource.Techniques["PostProcessing"];
                 // Set render states
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;

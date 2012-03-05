@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.EngineCore;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -87,13 +88,23 @@ namespace XNAFinalEngine.Graphics
                 if (postProcessingShader == null)
                     postProcessingShader = new PostProcessingShader();
 
+                // Luminance Map Generation
+                RenderTarget initialLuminanceTexture = RenderTarget.Fetch(sceneTexture.Size, SurfaceFormat.Single, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing, false);
+                initialLuminanceTexture.EnableRenderTarget();
+                postProcessingShader.LuminanceMapGeneration(sceneTexture);
+                RenderTarget.DisableCurrentRenderTargets();
+                
+                // Luminance Adaptation
+                RenderTarget lumTexture = postProcessingShader.AdaptLuminance(initialLuminanceTexture);
+
                 postProcessedSceneTexture = RenderTarget.Fetch(sceneTexture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
                 postProcessedSceneTexture.EnableRenderTarget();
-                
                 // Post process the scene texture.
                 postProcessingShader.Render(sceneTexture, postProcess, bloomTexture);
+                // Release textures (they return to the pool).
                 if (bloomTexture != null)
                     RenderTarget.Release(bloomTexture);
+                RenderTarget.Release(initialLuminanceTexture);
             }
             catch (Exception e)
             {
