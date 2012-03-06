@@ -219,7 +219,7 @@ namespace XNAFinalEngine.Graphics
 
                 // Set Parameters.
                 SetHalfPixel(new Vector2(-1f / bloomTexture.Width, 1f / bloomTexture.Height));
-                SetLensExposure(postProcess.LensExposure);
+                SetLensExposure(postProcess.ToneMapping.LensExposure);
                 SetBloomThreshold(postProcess.Bloom.Threshold);
                 SetSceneTexture(sceneTexture);
 

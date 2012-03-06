@@ -47,11 +47,12 @@ namespace XNAFinalEngine.Graphics
     {
 
         #region Variables
-
-        /// <summary>
-        /// Random number for the film grain effect.
-        /// </summary>
+        
+        // Random number for the film grain effect.
         private static readonly Random randomNumber = new Random();
+
+        // Count two frames for the luminance adaptation method.
+        private int frameCount;
 
         #endregion
 
@@ -65,7 +66,7 @@ namespace XNAFinalEngine.Graphics
         private static EffectParameter epHalfPixel,
                                        epLensExposure,
                                        epSceneTexture,
-                                       epLastLumTexture,
+                                       epLastLuminanceTexture,
                                        // Bloom
                                        epBloomScale,
                                        epBloomTexture,
@@ -148,17 +149,17 @@ namespace XNAFinalEngine.Graphics
 
         #region Last Lum Texture
 
-        private static Texture2D lastUsedLastLumTexture;
-        private static void SetLastLumTexture(Texture lastLumTexture)
+        private static Texture2D lastUsedLastLuminanceTexture;
+        private static void SetLuminanceTexture(Texture lastLuminanceTexture)
         {
             EngineManager.Device.SamplerStates[12] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedLastLumTexture != lastLumTexture.Resource)
+            if (lastUsedLastLuminanceTexture != lastLuminanceTexture.Resource)
             {
-                lastUsedLastLumTexture = lastLumTexture.Resource;
-                epLastLumTexture.SetValue(lastLumTexture.Resource);
+                lastUsedLastLuminanceTexture = lastLuminanceTexture.Resource;
+                epLastLuminanceTexture.SetValue(lastLuminanceTexture.Resource);
             }
-        } // SetLastLumTexture
+        } // SetLastLuminanceTexture
 
         #endregion
 
@@ -587,11 +588,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Über post processing shader.
         /// </summary>
-        internal PostProcessingShader() : base("PostProcessing\\PostProcessing")
-        {
-            adaptedLuminance1 = new RenderTarget(Size.FullScreen, SurfaceFormat.Single, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing, true);
-            adaptedLuminance2 = new RenderTarget(Size.FullScreen, SurfaceFormat.Single, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing, true);
-        } // PostProcessingShader
+        internal PostProcessingShader() : base("PostProcessing\\PostProcessing") { }
 
         #endregion
 
@@ -610,7 +607,7 @@ namespace XNAFinalEngine.Graphics
                 epHalfPixel    = Resource.Parameters["halfPixel"];
                 epLensExposure = Resource.Parameters["lensExposure"];
                 epSceneTexture = Resource.Parameters["sceneTexture"];
-                epLastLumTexture = Resource.Parameters["lastLumTexture"];
+                epLastLuminanceTexture = Resource.Parameters["lastLuminanceTexture"];
                 // Bloom
                 epBloomScale   = Resource.Parameters["bloomScale"];
                 epBloomTexture = Resource.Parameters["bloomTexture"];
@@ -653,18 +650,23 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Luminance Map Generation
+        #region Luminance Texture Generation
 
         /// <summary>
-        /// Luminance Map Generation.
+        /// Luminance Texture Generation.
+        /// This pass transforms the color information into luminance information.
+        /// This also clamps the lower and higher values.
         /// </summary>
-        public void LuminanceMapGeneration(Texture sceneTexture)
+        public RenderTarget LuminanceTextureGeneration(Texture sceneTexture)
         {
             if (sceneTexture == null || sceneTexture.Resource == null)
                 throw new ArgumentNullException("sceneTexture");
             
             try
             {
+                // Quarter size is enough
+                RenderTarget initialLuminanceTexture = RenderTarget.Fetch(sceneTexture.Size.HalfSize().HalfSize(), SurfaceFormat.Single, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing, false);
+
                 Resource.CurrentTechnique = Resource.Techniques["LuminanceMap"];
                 // Set render states
                 EngineManager.Device.BlendState = BlendState.Opaque;
@@ -675,85 +677,74 @@ namespace XNAFinalEngine.Graphics
                 SetHalfPixel(new Vector2(-1f / sceneTexture.Width, 1f / sceneTexture.Height));
                 SetSceneTexture(sceneTexture);
 
+                initialLuminanceTexture.EnableRenderTarget();
+
                 // Render post process effect.
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
+
+                initialLuminanceTexture.DisableRenderTarget();
+                return initialLuminanceTexture;
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Post Process Shader: Unable to generate the luminace map.", e);
+                throw new InvalidOperationException("Post Process Shader: Unable to generate the luminace texture.", e);
             }
-        } // LuminanceMapGeneration
+        } // LuminanceTextureGeneration
 
         #endregion
 
-        #region Adapt Luminance
-
-        private bool firstTexture = true;
-        private int i;
-        private readonly RenderTarget adaptedLuminance1, adaptedLuminance2;
-
+        #region Luminance Adaptation
+        
         /// <summary>
-        /// Adapt Luminance.
+        /// Luminance Adaptation.
         /// </summary>
-        public RenderTarget AdaptLuminance(Texture initialLuminanceTexture)
+        public RenderTarget LuminanceAdaptation(Texture currentLuminanceTexture, RenderTarget lastLuminanceTexture)
         {
-            if (initialLuminanceTexture == null || initialLuminanceTexture.Resource == null)
-                throw new ArgumentNullException("initialLuminanceTexture");
+            if (currentLuminanceTexture == null || currentLuminanceTexture.Resource == null)
+                throw new ArgumentNullException("currentLuminanceTexture");
 
             try
             {
-                Resource.CurrentTechnique = Resource.Techniques["AdaptLuminance"];
+                Resource.CurrentTechnique = Resource.Techniques["LuminanceAdaptation"];
                 // Set render states
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                EngineManager.Device.SamplerStates[12] = SamplerState.PointClamp;
+
+                RenderTarget luminanceTexture = RenderTarget.Fetch(currentLuminanceTexture.Size, SurfaceFormat.Single, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing, true);
 
                 // Set parameters
-                SetHalfPixel(new Vector2(-1f / initialLuminanceTexture.Width, 1f / initialLuminanceTexture.Height));
-                if (firstTexture)
-                {
-                    if (i > 1)
-                        SetLastLumTexture(adaptedLuminance1);
-                    else
-                    {
-                        i++;
-                        SetLastLumTexture(initialLuminanceTexture);
-                    }
-                        
-                    adaptedLuminance2.EnableRenderTarget();
-                }
+                SetHalfPixel(new Vector2(-1f / luminanceTexture.Width, 1f / luminanceTexture.Height));
+                SetSceneTexture(currentLuminanceTexture);
+                Resource.Parameters["timeDelta"].SetValue(Time.FrameTime); // It always changes.
+                
+                // The two first frames will use the current luminance texture.
+                // One because there is no last luminance texture, and two because I render a frame in the load content (to reduce garbage).
+                if (frameCount > 1)
+                    SetLuminanceTexture(lastLuminanceTexture);
                 else
                 {
-                    SetLastLumTexture(adaptedLuminance2);
-                    adaptedLuminance1.EnableRenderTarget();
+                    frameCount++;
+                    SetLuminanceTexture(currentLuminanceTexture);
                 }
 
-                SetSceneTexture(initialLuminanceTexture);
-                Resource.Parameters["timeDelta"].SetValue(Time.FrameTime);
+                luminanceTexture.EnableRenderTarget();
 
                 // Render post process effect.
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
 
                 RenderTarget.DisableCurrentRenderTargets();
-
-                if (firstTexture)
-                    SetLastLumTexture(adaptedLuminance2);
-                else
-                    SetLastLumTexture(adaptedLuminance1);
-
-                firstTexture = !firstTexture;
-                if (firstTexture)
-                    return adaptedLuminance1;
-                return adaptedLuminance2;
+                // This luminance texture is not need anymore.
+                RenderTarget.Release(lastLuminanceTexture);
+                return luminanceTexture;
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Post Process Shader: Unable to generate the luminace map.", e);
+                throw new InvalidOperationException("Post Process Shader: Unable to generate the luminace texture.", e);
             }
-        } // AdaptLuminance
+        } // LuminanceAdaptation
 
         #endregion
 
@@ -762,7 +753,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render.
         /// </summary>
-        public void Render(Texture sceneTexture, PostProcess postProcess, RenderTarget bloomTexture)
+        public void Render(Texture sceneTexture, PostProcess postProcess, RenderTarget bloomTexture, RenderTarget luminanceTexture)
         {
             if (sceneTexture == null || sceneTexture.Resource == null)
                 throw new ArgumentNullException("sceneTexture");
@@ -779,8 +770,17 @@ namespace XNAFinalEngine.Graphics
 
                 // Set parameters
                 SetHalfPixel(new Vector2(-1f / sceneTexture.Width, 1f / sceneTexture.Height));
-                SetLensExposure(postProcess.LensExposure);
                 SetSceneTexture(sceneTexture);
+
+                #region Tone Mapping
+
+                SetLensExposure(postProcess.ToneMapping.LensExposure);
+                SetLuminanceTexture(luminanceTexture);
+
+                #endregion
+
+                #region Bloom
+
                 if (postProcess.Bloom != null && postProcess.Bloom.Enabled)
                 {
                     SetBloomEnabled(true);
@@ -789,7 +789,9 @@ namespace XNAFinalEngine.Graphics
                 }
                 else
                     SetBloomEnabled(false);
-                
+
+                #endregion
+
                 #region Levels
 
                 // Adjust Levels

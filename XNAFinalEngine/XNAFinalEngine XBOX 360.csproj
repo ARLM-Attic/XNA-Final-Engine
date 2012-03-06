@@ -73,6 +73,7 @@
     <Compile Include="Assets\PostProcess\FilmGrain.cs" />
     <Compile Include="Assets\PostProcess\MLAA.cs" />
     <Compile Include="Assets\PostProcess\PostProcess.cs" />
+    <Compile Include="Assets\PostProcess\ToneMapping.cs" />
     <Compile Include="Assets\Shaders\Shader.cs" />
     <Compile Include="Assets\Shadows\BasicShadow.cs" />
     <Compile Include="Assets\Shadows\CascadedShadow.cs" />

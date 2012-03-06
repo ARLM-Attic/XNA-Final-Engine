@@ -111,8 +111,8 @@ namespace XNAFinalEngineExamples
             ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>(); // This script will be moved to the editor namespace.
             script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
-            camera.Camera.FieldOfView = 180 / 8.0f;            
-            camera.Camera.PostProcess = new PostProcess { LensExposure = 1.0f, };
+            camera.Camera.FieldOfView = 180 / 8.0f;
+            camera.Camera.PostProcess = new PostProcess();
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
             camera.Camera.PostProcess.MLAA.ThresholdDepth = 0.2f;
             camera.Camera.PostProcess.MLAA.ThresholdColor = 0.2f;
@@ -672,9 +672,9 @@ namespace XNAFinalEngineExamples
             if (Keyboard.RightJustPressed)
                 MusicManager.Next();            
             if (Keyboard.KeyJustPressed(Keys.Up))
-                camera.Camera.PostProcess.LensExposure = camera.Camera.PostProcess.LensExposure + 0.1f;
+                camera.Camera.PostProcess.ToneMapping.LensExposure = camera.Camera.PostProcess.ToneMapping.LensExposure + 0.1f;
             if (Keyboard.DownJustPressed)
-                camera.Camera.PostProcess.LensExposure = camera.Camera.PostProcess.LensExposure - 0.1f;
+                camera.Camera.PostProcess.ToneMapping.LensExposure = camera.Camera.PostProcess.ToneMapping.LensExposure - 0.1f;
             
             soundFrontLeft.SoundEmitter.Play();
             soundFrontRight.SoundEmitter.Play();

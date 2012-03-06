@@ -115,6 +115,7 @@
     <Compile Include="Assets\Models\FileModel.cs" />
     <Compile Include="Assets\Models\Model.cs" />
     <Compile Include="Assets\Models\PrimitiveModel.cs" />
+    <Compile Include="Assets\PostProcess\ToneMapping.cs" />
     <Compile Include="Assets\PostProcess\MLAA.cs" />
     <Compile Include="Assets\PostProcess\PostProcess.cs" />
     <Compile Include="Assets\Shaders\Shader.cs" />

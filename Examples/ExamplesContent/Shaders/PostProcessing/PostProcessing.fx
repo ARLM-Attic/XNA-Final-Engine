@@ -35,9 +35,12 @@ float2 halfPixel;
 float timeDelta;
 // Adaptation rate
 float tau = 1.25f;
-
+bool autoExposure = true;
 // Lens exposure (fraction of light to display)
-float lensExposure = 0.1f;
+float lensExposure;
+
+float luminanceUpThreshold = 10;
+float luminanceDownThreshold = 0.05f;
 
 // Bloom scale.
 float bloomScale;
@@ -76,10 +79,10 @@ sampler2D bloomSampler : register(s10) = sampler_state
 	MinFilter = ANISOTROPIC;*/
 };
 
-texture lastLumTexture : register(t12);
-sampler2D lastLumSampler : register(s12) = sampler_state
+texture lastLuminanceTexture : register(t12);
+sampler2D lastLuminanceSampler : register(s12) = sampler_state
 {
-	Texture = <lastLumTexture>;
+	Texture = <lastLuminanceTexture>;
 	/*MipFilter = NONE;
 	MagFilter = POINT;
 	MinFilter = POINT;*/
@@ -100,15 +103,32 @@ struct VS_OUT
 //////////////////////////////////////////////
 
 // This function takes an input colour in linear space, and converts it to a tone mapped gamma corrected color output
-float3 ToneMapping(float3 color)
+float3 ToneMapping(float3 color, float2 uv)
 {
+	float exposure;
+	[branch]
+	if (autoExposure)
+	{
+		// The mip maps are used to obtain a median luminance value.
+		float avgLuminance = tex2Dlod(lastLuminanceSampler, float4(uv, 0, 10)).x;		
+		// Use geometric mean
+		avgLuminance = max(avgLuminance, 0.001f);		
+		float keyValue = 0;
+		keyValue = 1.03f - (2.0f / (2 + log10(avgLuminance + 1)));
+		float linearExposure = (keyValue / avgLuminance);
+		exposure = log2(max(linearExposure, 0.0001f));
+	}
+    else
+		exposure = lensExposure;
+	
+	exposure = exp2(exposure);
+
 	// Multiply the incomming light by the lens exposure value. Think of this in terms of a camera:
 	// Exposure time on a camera adjusts how long the camera collects light on the main sensor.
 	// This is a simple multiplication factor of the incomming light.	
-	color *= lensExposure;		
+	color *= exposure;
 
-	// Tone Mapping
-	color = ToneMapFilmicALU(color);
+	color = ToneMapFilmicALU(color); // LDR Gamma space 
 	
 	// Is already in gamma space.
 	return float3(color);
@@ -160,6 +180,12 @@ float4 psLuminanceMap(in float2 uv : TEXCOORD0) : COLOR0
    
     // calculate the luminance using a weighted average
     float luminance = max(dot(color, float3(0.299f, 0.587f, 0.114f)), 0.0001f);
+
+	// Don't use [branch]
+	if (luminance > luminanceUpThreshold)
+		luminance = luminanceUpThreshold;
+	else if (luminance < luminanceDownThreshold)
+		luminance = luminanceDownThreshold;
                 
     return float4(luminance, 1.0f, 1.0f, 1.0f);
 } // psLuminanceMap
@@ -167,7 +193,7 @@ float4 psLuminanceMap(in float2 uv : TEXCOORD0) : COLOR0
 // Slowly adjusts the scene luminance based on the previous scene luminance
 float4 psAdaptLuminance(in float2 uv : TEXCOORD0) : COLOR0
 {
-    float lastLum = tex2D(lastLumSampler, uv).r;
+    float lastLum = tex2D(lastLuminanceSampler, uv).r;
     float currentLum = tex2D(sceneSampler, uv).r;	
 		       
     // Adapt the luminance using Pattanaik's technique    
@@ -181,19 +207,7 @@ float4 psPostProcess(in float2 uv : TEXCOORD0) : COLOR0
 {
 	float3 color = tex2D(sceneSampler, uv);	// HDR Linear space	
 		
-	float avgLuminance = tex2Dlod(lastLumSampler, float4(uv, 0, 10)).x;	
-		
-	// Use geometric mean        
-    avgLuminance = max(avgLuminance, 0.001f);
-	float exposure;
-
-    float keyValue = 0;
-	keyValue = 1.03f - (2.0f / (2 + log10(avgLuminance + 1)));
-    float linearExposure = (keyValue / avgLuminance);
-    exposure = log2(max(linearExposure, 0.0001f));	
-    exposure = exp2(exposure);	
-
-	color = ToneMapFilmicALU(color * exposure); // LDR Gamma space 
+	color = ToneMapping(color, uv);
 	
 	// Film grain has to be calculated before bloom to avoid artifacts and after film tone mapping.
 	if (filmGrainEnabled)
@@ -230,7 +244,7 @@ technique LuminanceMap
 	}
 } // LuminanceMap
 
-technique AdaptLuminance
+technique LuminanceAdaptation
 {
 	pass p0
 	{

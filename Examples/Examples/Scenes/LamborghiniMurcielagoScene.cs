@@ -129,7 +129,7 @@ namespace XNAFinalEngineExamples
             script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 6f;
-            camera.Camera.PostProcess = new PostProcess { LensExposure = 1f, };
+            camera.Camera.PostProcess = new PostProcess();
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
             camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
                                                             //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
@@ -947,13 +947,13 @@ namespace XNAFinalEngineExamples
             ContentManager.CurrentContentManager = testContentManager;
 
             // The user interface is separated and manually called because its GPL license.
-            //UserInterfaceManager.Initialize();
+            UserInterfaceManager.Initialize();
 
             //murcielagoBody.ModelRenderer.Material = new Constant { DiffuseTexture = new Texture("Caption") { PreferredSamplerState = new SamplerState { MaxMipLevel = 2 }}};
             //ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
             //BlinnPhongWindow.Show((BlinnPhong)murcielagoInteriorLeather.ModelRenderer.Material);
             //CarPaintWindow.Show(carPaint);
-            //PostProcessWindow.Show(camera.Camera.PostProcess);
+            PostProcessWindow.Show(camera.Camera.PostProcess);
 
             LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
@@ -971,7 +971,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
-            //UserInterfaceManager.Update();
+            UserInterfaceManager.Update();
         } // UpdateTasks
 
         #endregion
@@ -987,7 +987,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PreRenderTasks()
         {
-            //UserInterfaceManager.DrawToTexture();
+            UserInterfaceManager.DrawToTexture();
         } // PreRenderTasks
 
         /// <summary>
@@ -996,7 +996,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PostRenderTasks()
         {
-            //UserInterfaceManager.DrawTextureToScreen();
+            UserInterfaceManager.DrawTextureToScreen();
         } // PostRenderTasks
 
         #endregion

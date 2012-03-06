@@ -88,23 +88,24 @@ namespace XNAFinalEngine.Graphics
                 if (postProcessingShader == null)
                     postProcessingShader = new PostProcessingShader();
 
-                // Luminance Map Generation
-                RenderTarget initialLuminanceTexture = RenderTarget.Fetch(sceneTexture.Size, SurfaceFormat.Single, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing, false);
-                initialLuminanceTexture.EnableRenderTarget();
-                postProcessingShader.LuminanceMapGeneration(sceneTexture);
-                RenderTarget.DisableCurrentRenderTargets();
+                if (postProcess.ToneMapping.AutoExposureEnabled)
+                {
+                    // Luminance Map Generation
+                    
+                    RenderTarget currentLuminanceTexture = postProcessingShader.LuminanceTextureGeneration(sceneTexture);
                 
-                // Luminance Adaptation
-                RenderTarget lumTexture = postProcessingShader.AdaptLuminance(initialLuminanceTexture);
+                    // Luminance Adaptation
+                    postProcess.ToneMapping.LuminanceTexture = postProcessingShader.LuminanceAdaptation(currentLuminanceTexture, postProcess.ToneMapping.LuminanceTexture);
+                    RenderTarget.Release(currentLuminanceTexture);
+                }
 
                 postProcessedSceneTexture = RenderTarget.Fetch(sceneTexture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
                 postProcessedSceneTexture.EnableRenderTarget();
                 // Post process the scene texture.
-                postProcessingShader.Render(sceneTexture, postProcess, bloomTexture);
+                postProcessingShader.Render(sceneTexture, postProcess, bloomTexture, postProcess.ToneMapping.LuminanceTexture);
                 // Release textures (they return to the pool).
                 if (bloomTexture != null)
                     RenderTarget.Release(bloomTexture);
-                RenderTarget.Release(initialLuminanceTexture);
             }
             catch (Exception e)
             {

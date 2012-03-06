@@ -66,9 +66,9 @@ namespace XNAFinalEngine.Editor
 
             #region Lens Exposure
 
-            var sliderLensExposure = CommonControls.SliderNumeric("Lens Exposure", groupLensExposure, asset.LensExposure, false, true, 0, 5);
-            sliderLensExposure.ValueChanged += delegate { asset.LensExposure = sliderLensExposure.Value; };
-            sliderLensExposure.Draw += delegate { sliderLensExposure.Value = asset.LensExposure; };
+            var sliderLensExposure = CommonControls.SliderNumeric("Lens Exposure", groupLensExposure, asset.ToneMapping.LensExposure, false, true, 0, 5);
+            sliderLensExposure.ValueChanged += delegate { asset.ToneMapping.LensExposure = sliderLensExposure.Value; };
+            sliderLensExposure.Draw += delegate { sliderLensExposure.Value = asset.ToneMapping.LensExposure; };
 
             #endregion
 

@@ -41,10 +41,8 @@ namespace XNAFinalEngine.Assets
 
         // The count of materials for naming purposes.
         private static int nameNumber = 1;
-
-        // Lens exposure.
-        private float lensExposure = 1;
         
+        private readonly ToneMapping toneMapping = new ToneMapping();
         private readonly Bloom bloom = new Bloom();
         private readonly MLAA mlaa = new MLAA();
         private readonly FilmGrain filmGrain = new FilmGrain();
@@ -57,18 +55,9 @@ namespace XNAFinalEngine.Assets
         #region Properties
 
         /// <summary>
-        /// Lens exposure. For High Dinamic Range.
+        /// Tone Mapping.
         /// </summary>
-        public float LensExposure
-        {
-            get { return lensExposure; }
-            set
-            {
-                lensExposure = value;
-                if (lensExposure < 0)
-                    lensExposure = 0;
-            }
-        } // LensExposure
+        public ToneMapping ToneMapping { get { return toneMapping; } }
 
         /// <summary>
         /// Bloom.
