@@ -168,7 +168,7 @@ namespace XNAFinalEngine.Editor
                 Left = 10,
                 Height = 25,
                 Width = 250,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
+                Anchor = Anchors.Left | Anchors.Top,
                 Checked = initialValue,
                 Text = " " + name,
                 

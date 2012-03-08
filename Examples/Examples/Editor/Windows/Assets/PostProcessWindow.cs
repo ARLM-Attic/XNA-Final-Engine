@@ -63,12 +63,67 @@ namespace XNAFinalEngine.Editor
             #region Group Lens Exposure
 
             GroupBox groupLensExposure = CommonControls.Group("Lens Exposure", window);
-
+            
             #region Lens Exposure
 
             var sliderLensExposure = CommonControls.SliderNumeric("Lens Exposure", groupLensExposure, asset.ToneMapping.LensExposure, false, true, 0, 5);
             sliderLensExposure.ValueChanged += delegate { asset.ToneMapping.LensExposure = sliderLensExposure.Value; };
             sliderLensExposure.Draw += delegate { sliderLensExposure.Value = asset.ToneMapping.LensExposure; };
+
+            #endregion
+
+            #region Auto Exposure Enabled
+
+            CheckBox checkBoxAutoExposureEnabled = CommonControls.CheckBox("Auto Exposure Enabled", groupLensExposure, asset.ToneMapping.AutoExposureEnabled);
+            checkBoxAutoExposureEnabled.Draw += delegate { checkBoxAutoExposureEnabled.Checked = asset.ToneMapping.AutoExposureEnabled; };
+
+            #endregion
+
+            #region Auto Exposure Adaptation Time Multiplier
+
+            var sliderAutoExposureAdaptationTimeMultiplier = CommonControls.SliderNumeric("Adaptation Time Multiplier", groupLensExposure, asset.ToneMapping.AutoExposureAdaptationTimeMultiplier, false, true, 0, 10);
+            sliderAutoExposureAdaptationTimeMultiplier.ValueChanged += delegate { asset.ToneMapping.AutoExposureAdaptationTimeMultiplier = sliderAutoExposureAdaptationTimeMultiplier.Value; };
+            sliderAutoExposureAdaptationTimeMultiplier.Draw += delegate { sliderAutoExposureAdaptationTimeMultiplier.Value = asset.ToneMapping.AutoExposureAdaptationTimeMultiplier; };
+
+            #endregion
+
+            #region Auto Exposure Luminance Low Threshold
+
+            var sliderAutoExposureLuminanceLowThreshold = CommonControls.SliderNumeric("Luminance Low Threshold", groupLensExposure, asset.ToneMapping.AutoExposureLuminanceLowThreshold, false, true, 0, 0.1f);
+            sliderAutoExposureLuminanceLowThreshold.ValueChanged += delegate { asset.ToneMapping.AutoExposureLuminanceLowThreshold = sliderAutoExposureLuminanceLowThreshold.Value; };
+            sliderAutoExposureLuminanceLowThreshold.Draw += delegate { sliderAutoExposureLuminanceLowThreshold.Value = asset.ToneMapping.AutoExposureLuminanceLowThreshold; };
+
+            #endregion
+
+            #region Auto Exposure Luminance High Threshold
+
+            var sliderAutoExposureLuminanceHighThreshold = CommonControls.SliderNumeric("Luminance High Threshold", groupLensExposure, asset.ToneMapping.AutoExposureLuminanceHighThreshold, false, true, 1, 100f);
+            sliderAutoExposureLuminanceHighThreshold.ValueChanged += delegate { asset.ToneMapping.AutoExposureLuminanceHighThreshold = sliderAutoExposureLuminanceHighThreshold.Value; };
+            sliderAutoExposureLuminanceHighThreshold.Draw += delegate { sliderAutoExposureLuminanceHighThreshold.Value = asset.ToneMapping.AutoExposureLuminanceHighThreshold; };
+
+            #endregion
+
+            checkBoxAutoExposureEnabled.CheckedChanged += delegate
+            {
+                asset.ToneMapping.AutoExposureEnabled = checkBoxAutoExposureEnabled.Checked;
+                sliderLensExposure.Enabled = !asset.ToneMapping.AutoExposureEnabled;
+                sliderAutoExposureAdaptationTimeMultiplier.Enabled = asset.ToneMapping.AutoExposureEnabled;
+                sliderAutoExposureLuminanceLowThreshold.Enabled = asset.ToneMapping.AutoExposureEnabled;
+                sliderAutoExposureLuminanceHighThreshold.Enabled = asset.ToneMapping.AutoExposureEnabled;
+            };
+
+            #region Tone Mapping Curve
+
+            ComboBox comboBoxToneMappingCurve = CommonControls.ComboBox("Tone Mapping Curve", groupLensExposure);
+            comboBoxToneMappingCurve.Items.AddRange(new[] { "Filmic ALU", "Filmic Uncharted 2", "Duiker", "Reinhard", "Reinhard Modified", "Exponential", "Logarithmic", "Drago Logarithmic" });
+            comboBoxToneMappingCurve.ItemIndex = (int)asset.ToneMapping.ToneMappingFunction;
+            comboBoxToneMappingCurve.ItemIndexChanged += delegate { asset.ToneMapping.ToneMappingFunction = (ToneMapping.ToneMappingFunctionEnumerate)comboBoxToneMappingCurve.ItemIndex; };
+            comboBoxToneMappingCurve.Draw += delegate
+            {
+                if (comboBoxToneMappingCurve.ListBoxVisible)
+                    return;
+                comboBoxToneMappingCurve.ItemIndex = (int)asset.ToneMapping.ToneMappingFunction;
+            };
 
             #endregion
 

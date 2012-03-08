@@ -74,14 +74,14 @@ sampler3D secondlookupTableSampler: register(s6) = sampler_state
 
 float3 AdjustLevels(float3 color)
 {
-	float3 inputLevels = pow( saturate(color - inputBlack) / (inputWhite - inputBlack), inputGamma);
+	float3 inputLevels = pow(saturate(color - inputBlack) / (inputWhite - inputBlack), inputGamma);
 	return float3(inputLevels * (outputWhite - outputBlack) + outputBlack);
 } // AdjustLevels
 
 float3 AdjustLevelsIndividualChannels(float3 color)
 {
 	float3 inputLevels = saturate(color - inputBlackRGB) / (inputWhiteRGB - inputBlackRGB);
-	inputLevels = float3(pow(inputLevels.r , inputGammaRGB.r), pow(inputLevels.g , inputGammaRGB.g), pow(inputLevels.b , inputGammaRGB.b));
+	 inputLevels = float3(pow(inputLevels.r, inputGammaRGB.r), pow(inputLevels.g , inputGammaRGB.g), pow(inputLevels.b , inputGammaRGB.b));
 	return float3(inputLevels * (outputWhiteRGB - outputBlackRGB) + outputBlackRGB);
 } // AdjustLevelsIndividualChannels
 

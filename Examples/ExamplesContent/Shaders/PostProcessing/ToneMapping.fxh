@@ -21,17 +21,18 @@ References:
 //////////////////////////////////////////////
 
 // Logarithmic
-float WhiteLevel;
-float LuminanceSaturation;
-float Bias;
+float whiteLevel = 5;
+float luminanceSaturation = 1;
+// Drago
+float bias = 0.5;
 // Uncharted 2 tone mapping
-float ShoulderStrength;
-float LinearStrength;
-float LinearAngle;
-float ToeStrength;
-float ToeNumerator;
-float ToeDenominator;
-float LinearWhite;
+float shoulderStrength = 0.22;
+float linearStrength = 0.3;
+float linearAngle = 0.1;
+float toeStrength = 0.2;
+float toeNumerator = 0.01;
+float toeDenominator = 0.3;
+float linearWhite = 11.2;
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
@@ -60,8 +61,8 @@ float CalcLuminance(float3 color)
 float3 ToneMapLogarithmic(float3 color)
 {
 	float pixelLuminance = CalcLuminance(color);    
-    float toneMappedLuminance = log10(1 + pixelLuminance) / log10(1 + WhiteLevel);
-	return LinearToGamma(toneMappedLuminance * pow(color / pixelLuminance, LuminanceSaturation));
+    float toneMappedLuminance = log10(1 + pixelLuminance) / log10(1 + whiteLevel);
+	return LinearToGamma(toneMappedLuminance * pow(color / pixelLuminance, luminanceSaturation));
 }
 
 // Drago's Logarithmic mapping
@@ -69,17 +70,17 @@ float3 ToneMapDragoLogarithmic(float3 color)
 {
 	float pixelLuminance = CalcLuminance(color);    
     float toneMappedLuminance = log10(1 + pixelLuminance);
-	toneMappedLuminance /= log10(1 + WhiteLevel);
-	toneMappedLuminance /= log10(2 + 8 * ((pixelLuminance / WhiteLevel) * log10(Bias) / log10(0.5f)));
-	return LinearToGamma(toneMappedLuminance * pow(color / pixelLuminance, LuminanceSaturation)); 
+	toneMappedLuminance /= log10(1 + whiteLevel);
+	toneMappedLuminance /= log10(2 + 8 * ((pixelLuminance / whiteLevel) * log10(bias) / log10(0.5f)));
+	return LinearToGamma(toneMappedLuminance * pow(color / pixelLuminance, luminanceSaturation)); 
 }
 
 // Exponential mapping
 float3 ToneMapExponential(float3 color)
 {
 	float pixelLuminance = CalcLuminance(color);    
-    float toneMappedLuminance = 1 - exp(-pixelLuminance / WhiteLevel);
-	return LinearToGamma(toneMappedLuminance * pow(color / pixelLuminance, LuminanceSaturation));
+    float toneMappedLuminance = 1 - exp(-pixelLuminance / whiteLevel);
+	return LinearToGamma(toneMappedLuminance * pow(color / pixelLuminance, luminanceSaturation));
 }
 
 // Applies Reinhard's basic tone mapping operator
@@ -87,15 +88,15 @@ float3 ToneMapReinhard(float3 color)
 {
 	float pixelLuminance = CalcLuminance(color);    
     float toneMappedLuminance = pixelLuminance / (pixelLuminance + 1);
-	return LinearToGamma(toneMappedLuminance * pow(color / pixelLuminance, LuminanceSaturation));
+	return LinearToGamma(toneMappedLuminance * pow(color / pixelLuminance, luminanceSaturation));
 }
 
 // Applies Reinhard's modified tone mapping operator
 float3 ToneMapReinhardModified(float3 color) 
 {    
     float pixelLuminance = CalcLuminance(color);
-	float toneMappedLuminance = pixelLuminance * (1.0f + pixelLuminance / (WhiteLevel * WhiteLevel)) / (1.0f + pixelLuminance);
-	return toneMappedLuminance * pow(color / pixelLuminance, LuminanceSaturation);
+	float toneMappedLuminance = pixelLuminance * (1.0f + pixelLuminance / (whiteLevel * whiteLevel)) / (1.0f + pixelLuminance);
+	return toneMappedLuminance * pow(color / pixelLuminance, luminanceSaturation);
 }
 
 // Applies the filmic curve from John Hable's presentation.
@@ -113,12 +114,12 @@ float3 ToneMapFilmicALU(float3 color)
 // Function used by the Uncharte2D tone mapping curve
 float3 Uncharted2Function(float3 x)
 {
-    float A = ShoulderStrength;
-    float B = LinearStrength;
-    float C = LinearAngle;
-    float D = ToeStrength;
-    float E = ToeNumerator;
-    float F = ToeDenominator;
+    float A = shoulderStrength;
+    float B = linearStrength;
+    float C = linearAngle;
+    float D = toeStrength;
+    float E = toeNumerator;
+    float F = toeDenominator;
     return ((x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F)) - E / F;
 }
 
@@ -126,7 +127,7 @@ float3 Uncharted2Function(float3 x)
 float3 ToneMapFilmicUncharted2(float3 color)
 {
     float3 numerator   = Uncharted2Function(color);        
-    float3 denominator = Uncharted2Function(LinearWhite);
+    float3 denominator = Uncharted2Function(linearWhite);
 
     return LinearToGamma(numerator / denominator);
 }

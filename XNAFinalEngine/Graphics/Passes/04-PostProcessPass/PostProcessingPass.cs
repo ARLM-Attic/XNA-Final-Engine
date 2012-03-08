@@ -92,10 +92,10 @@ namespace XNAFinalEngine.Graphics
                 {
                     // Luminance Map Generation
                     
-                    RenderTarget currentLuminanceTexture = postProcessingShader.LuminanceTextureGeneration(sceneTexture);
+                    RenderTarget currentLuminanceTexture = postProcessingShader.LuminanceTextureGeneration(sceneTexture, postProcess);
                 
                     // Luminance Adaptation
-                    postProcess.ToneMapping.LuminanceTexture = postProcessingShader.LuminanceAdaptation(currentLuminanceTexture, postProcess.ToneMapping.LuminanceTexture);
+                    postProcess.ToneMapping.LuminanceTexture = postProcessingShader.LuminanceAdaptation(currentLuminanceTexture, postProcess.ToneMapping.LuminanceTexture, postProcess);
                     RenderTarget.Release(currentLuminanceTexture);
                 }
 

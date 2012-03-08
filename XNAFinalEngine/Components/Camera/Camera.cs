@@ -199,16 +199,8 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Post process effects applied to this camera.
         /// </summary>
-        public PostProcess PostProcess
-        {
-            get { return postProcess; }
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException("value");
-                postProcess = value;
-            }
-        } // PostProcess
+        /// <remarks>I want a no shared post process variable because there is one luminance texture for each camera.</remarks>
+        public PostProcess PostProcess { get { return postProcess; } }
 
         #endregion
 
@@ -497,8 +489,8 @@ namespace XNAFinalEngine.Components
         {
             base.Initialize(owner);
             // Values //
-            postProcess = new PostProcess();
-            ambientLight = new AmbientLight();
+            postProcess = new PostProcess(); // This produces garbage. TODO!!
+            ambientLight = new AmbientLight(); // This produces garbage. TODO!!
             nearPlane = 0.1f;
             farPlane = 1000.0f;
             fieldOfView = 36;

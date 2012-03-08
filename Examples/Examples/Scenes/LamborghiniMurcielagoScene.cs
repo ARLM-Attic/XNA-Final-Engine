@@ -100,7 +100,7 @@ namespace XNAFinalEngineExamples
                                     // Lights
                                     directionalLight, pointLight, pointLight2, pointLight3, pointLight4, pointLight5, pointLight6, pointLight7,
                                     // Cameras
-                                    camera,
+                                    camera, camera2,
                                     skydome;
 
         private static GameObject2D xnaFinalEngineLogo, videoTest, statistics;
@@ -129,7 +129,6 @@ namespace XNAFinalEngineExamples
             script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 6f;
-            camera.Camera.PostProcess = new PostProcess();
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
             camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
                                                             //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
@@ -150,6 +149,16 @@ namespace XNAFinalEngineExamples
                 TextureSize = Size.TextureSize.HalfSize,
             };
             camera.Camera.PostProcess.FilmGrain.Enabled = false;
+
+            // The second camera
+            camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
+            camera2 = new GameObject3D();
+            camera2.AddComponent<Camera>();
+            camera2.Camera.MasterCamera = camera.Camera;
+            camera2.Camera.ClearColor = Color.Black;
+            camera2.Camera.FieldOfView = 180 / 8.0f;
+            camera2.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
+            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);
             
             #endregion
 
@@ -855,7 +864,7 @@ namespace XNAFinalEngineExamples
             
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
-            directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 240);
+            directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 140);
             directionalLight.DirectionalLight.Intensity = 5f;
             directionalLight.Transform.LookAt(new Vector3(-0.3f, 0.65f, -1.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow

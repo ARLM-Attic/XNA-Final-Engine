@@ -101,5 +101,18 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            if (ToneMapping.LuminanceTexture != null)
+                ToneMapping.LuminanceTexture.Dispose();
+        } // DisposeManagedResources
+
+        #endregion
+
     } // PostProcess
 } // XNAFinalEngine.Assets

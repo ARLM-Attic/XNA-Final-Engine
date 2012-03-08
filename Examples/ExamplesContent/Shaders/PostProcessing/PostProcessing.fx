@@ -31,16 +31,17 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 //////////////////////////////////////////////
 
 float2 halfPixel;
-// frame time delta in seconds.
-float timeDelta;
-// Adaptation rate
-float tau = 1.25f;
-bool autoExposure = true;
-// Lens exposure (fraction of light to display)
-float lensExposure;
 
-float luminanceUpThreshold = 10;
-float luminanceDownThreshold = 0.05f;
+int toneMappingFunction;
+
+// Auto Exposure
+bool autoExposure;
+float tau;
+float timeDelta; // frame time delta in seconds.
+float luminanceLowThreshold;
+float luminanceHighThreshold;
+// Manual exposure 
+float lensExposure; // fraction of light to display
 
 // Bloom scale.
 float bloomScale;
@@ -109,7 +110,8 @@ float3 ToneMapping(float3 color, float2 uv)
 	[branch]
 	if (autoExposure)
 	{
-		// The mip maps are used to obtain a median luminance value.
+		// From MJP http://mynameismjp.wordpress.com/ License: Microsoft_Permissive_License
+	 	// The mip maps are used to obtain a median luminance value.
 		float avgLuminance = tex2Dlod(lastLuminanceSampler, float4(uv, 0, 10)).x;		
 		// Use geometric mean
 		avgLuminance = max(avgLuminance, 0.001f);		
@@ -128,7 +130,40 @@ float3 ToneMapping(float3 color, float2 uv)
 	// This is a simple multiplication factor of the incomming light.	
 	color *= exposure;
 
-	color = ToneMapFilmicALU(color); // LDR Gamma space 
+	// Convert from HDR linear to LDR gamma color.
+	/*[branch]
+	if (toneMappingFunction == 0)
+    {	*/
+		color = ToneMapFilmicALU(color);
+    /*}
+	else if (toneMappingFunction == 1)
+    {
+		color = ToneMapFilmicUncharted2(color);
+    }
+	else if (toneMappingFunction == 2)
+    {
+		color = ToneMapDuiker(color);
+    }
+	else if (toneMappingFunction == 3)
+    {
+		color = ToneMapReinhard(color);
+    }
+	else if (toneMappingFunction == 4)
+    {
+		color = ToneMapReinhardModified(color);
+    }
+	else if (toneMappingFunction == 5)
+    {
+		color = ToneMapExponential(color);
+    }
+	else if (toneMappingFunction == 6)
+    {
+		color = ToneMapLogarithmic(color);
+    }
+	else if (toneMappingFunction == 7)
+    {
+		color = ToneMapDragoLogarithmic(color);
+    }*/
 	
 	// Is already in gamma space.
 	return float3(color);
@@ -138,6 +173,8 @@ float3 ToneMapping(float3 color, float2 uv)
 // Apply the bloom effect.
 float3 Bloom(float3 color, float2 uv)
 {	
+	// From Xen License: Microsoft_Permissive_License
+
 	float4 bloomSample = tex2D(bloomSampler, uv);
 	
 	// Because the bloom texture is 8bit RGBA and is heavily blurred, it's very tricky to store the difference
@@ -181,11 +218,9 @@ float4 psLuminanceMap(in float2 uv : TEXCOORD0) : COLOR0
     // calculate the luminance using a weighted average
     float luminance = max(dot(color, float3(0.299f, 0.587f, 0.114f)), 0.0001f);
 
-	// Don't use [branch]
-	if (luminance > luminanceUpThreshold)
-		luminance = luminanceUpThreshold;
-	else if (luminance < luminanceDownThreshold)
-		luminance = luminanceDownThreshold;
+	// To avoid underexposure or overexposure I use thresholds. Simple but it works.	
+	luminance = max(luminance, luminanceLowThreshold);
+	luminance = min(luminance, luminanceHighThreshold);
                 
     return float4(luminance, 1.0f, 1.0f, 1.0f);
 } // psLuminanceMap

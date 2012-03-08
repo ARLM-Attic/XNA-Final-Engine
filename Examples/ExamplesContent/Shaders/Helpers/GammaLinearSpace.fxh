@@ -25,17 +25,29 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 // Converts from linear RGB space to gamma.
 float3 LinearToGamma(float3 color)
 {
-    return sqrt(color);
+	// pow(x, y) is traduced as exp(log(x) * y). If x is 0 then log(x) will be –inf. So I have to avoid the pow(o, y) situation somehow.
+	color = max(color, 0.0001f);
+	return pow(color, 1 / 2.2);
+    // Faster but a little inaccurate.
+	return sqrt(color);
 }
 
 // Converts from gamma space to linear RGB.
 float3 GammaToLinear(float3 color)
-{
+{	
+    // pow(x, y) is traduced as exp(log(x) * y). If x is 0 then log(x) will be –inf. So I have to avoid the pow(o, y) situation somehow.
+	color = max(color, 0.0001f);
+	return pow(color, 2.2);
+	// Faster but a little inaccurate.
     return color * color;
 }
 
 // Converts from gamma space to linear RGB.
 float4 GammaToLinear(float4 color)
 {
+	// pow(x, y) is traduced as exp(log(x) * y). If x is 0 then log(x) will be –inf. So I have to avoid the pow(o, y) situation somehow.
+	color = max(color, 0.0001f);
+	return pow(color, 2.2);
+	// Faster but a little inaccurate.
     return color * color;
 }

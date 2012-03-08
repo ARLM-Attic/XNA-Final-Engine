@@ -452,6 +452,34 @@ namespace XNAFinalEngine.EngineCore
 
                 #endregion
 
+                #region 2D Lines
+
+                LineManager.Begin2D(PrimitiveType.TriangleList);
+                for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
+                {
+                    LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
+                    if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList)
+                    {
+                        for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
+                            LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
+                    }
+                }
+                LineManager.End();
+
+                LineManager.Begin2D(PrimitiveType.LineList);
+                for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
+                {
+                    LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
+                    if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.LineList)
+                    {
+                        for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
+                            LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
+                    }
+                }
+                LineManager.End();
+
+                #endregion
+
                 #region Videos
 
                 VideoRenderer currentVideo;
@@ -984,7 +1012,7 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            #region Lines
+            #region Lines (Line List)
 
             LineManager.Begin3D(PrimitiveType.LineList, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
             
@@ -1023,6 +1051,8 @@ namespace XNAFinalEngine.EngineCore
 
             LineManager.End();
 
+            #endregion
+
             #region 3D Lines (Triangle List)
 
             LineManager.Begin3D(PrimitiveType.TriangleList, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
@@ -1037,37 +1067,7 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
 
-            #endregion
-
             LineManager.End();
-
-            #region 2D Lines
-
-            LineManager.Begin2D(PrimitiveType.TriangleList);
-            for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
-            {
-                LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList)
-                {
-                    for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
-                        LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
-                }
-            }
-            LineManager.End();
-
-            LineManager.Begin2D(PrimitiveType.LineList);
-            for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
-            {
-                LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.LineList)
-                {
-                    for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
-                        LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
-                }
-            }
-            LineManager.End();
-
-            #endregion
 
             #endregion
 

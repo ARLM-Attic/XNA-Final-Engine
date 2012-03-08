@@ -89,7 +89,8 @@ namespace XNAFinalEngine.Editor
                                     drawCallsLines, drawCallsBackground, drawCallsText,
                                     trianglesDrawnLines, trianglesDrawnBackground, trianglesDrawnText,
                                     managedMemoryUsedLines, managedMemoryUsedBackground, managedMemoryUsedText,
-                                    garbageCollectionsLines, garbageCollectionsBackground, garbageCollectionsText;
+                                    garbageCollectionsLines, garbageCollectionsBackground, garbageCollectionsText,
+                                    userInterfaceGarbageBackground, userInterfaceGarbageText;
 
         #endregion
 
@@ -317,7 +318,30 @@ namespace XNAFinalEngine.Editor
             garbageCollectionsText.Transform.LocalPosition = new Vector3(garbageCollectionsPositionX, positionY + elementsHeight + 5, 0);
 
             #endregion
+
+            #region User Interface Text
+
+            // Black background
+            screenRect = new Rectangle(positionX - 5, positionY + elementsHeight + 25, 520, 15);
+            userInterfaceGarbageBackground = new GameObject2D();
+            userInterfaceGarbageBackground.AddComponent<LineRenderer>();
+            userInterfaceGarbageBackground.LineRenderer.PrimitiveType = PrimitiveType.TriangleList;
+            userInterfaceGarbageBackground.LineRenderer.Vertices = new VertexPositionColor[6];
+            userInterfaceGarbageBackground.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3(screenRect.X, screenRect.Y, -0.1f), backgroundColor);
+            userInterfaceGarbageBackground.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3(screenRect.X, screenRect.Y + screenRect.Height, -0.1f), backgroundColor);
+            userInterfaceGarbageBackground.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3(screenRect.X + screenRect.Width, screenRect.Y, -0.1f), backgroundColor);
+            userInterfaceGarbageBackground.LineRenderer.Vertices[4] = new VertexPositionColor(new Vector3(screenRect.X + screenRect.Width, screenRect.Y, -0.1f), backgroundColor);
+            userInterfaceGarbageBackground.LineRenderer.Vertices[3] = new VertexPositionColor(new Vector3(screenRect.X, screenRect.Y + screenRect.Height, -0.1f), backgroundColor);
+            userInterfaceGarbageBackground.LineRenderer.Vertices[5] = new VertexPositionColor(new Vector3(screenRect.X + screenRect.Width, screenRect.Y + screenRect.Height, -0.1f), backgroundColor);
             
+            userInterfaceGarbageText = new GameObject2D();
+            userInterfaceGarbageText.AddComponent<HudText>();
+            userInterfaceGarbageText.HudText.Text.Append("The User Interface generates a lot of garbage collections. Do not use it in game time.");
+            userInterfaceGarbageText.HudText.Color = Color.Gray;
+            userInterfaceGarbageText.Transform.LocalPosition = new Vector3(positionX, positionY + elementsHeight + 25, 0);
+
+            #endregion
+
         } // Load
 
         #endregion

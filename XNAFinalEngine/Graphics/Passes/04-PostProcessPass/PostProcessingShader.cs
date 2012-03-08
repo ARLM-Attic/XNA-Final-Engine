@@ -51,9 +51,6 @@ namespace XNAFinalEngine.Graphics
         // Random number for the film grain effect.
         private static readonly Random randomNumber = new Random();
 
-        // Count two frames for the luminance adaptation method.
-        private int frameCount;
-
         #endregion
 
         #region Shader Parameters
@@ -67,6 +64,11 @@ namespace XNAFinalEngine.Graphics
                                        epLensExposure,
                                        epSceneTexture,
                                        epLastLuminanceTexture,
+                                       epAutoExposure,
+                                       epTimeDelta,
+                                       epExposureAdjustTimeMultiplier,
+                                       epLuminanceLowThreshold,
+                                       epLuminanceHighThreshold,
                                        // Bloom
                                        epBloomScale,
                                        epBloomTexture,
@@ -147,7 +149,7 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Last Lum Texture
+        #region Last Luminance Texture
 
         private static Texture2D lastUsedLastLuminanceTexture;
         private static void SetLuminanceTexture(Texture lastLuminanceTexture)
@@ -160,6 +162,62 @@ namespace XNAFinalEngine.Graphics
                 epLastLuminanceTexture.SetValue(lastLuminanceTexture.Resource);
             }
         } // SetLastLuminanceTexture
+
+        #endregion
+
+        #region Auto Exposure
+
+        private static bool? lastUsedAutoExposure;
+        private static void SetAutoExposure(bool autoExposure)
+        {
+            if (lastUsedAutoExposure != autoExposure)
+            {
+                lastUsedAutoExposure = autoExposure;
+                epAutoExposure.SetValue(autoExposure);
+            }
+        } // SetAutoExposure
+
+        #endregion
+
+        #region Auto Exposure Adjust Time Multiplier
+
+        private static float? lastUsedAutoExposureAdjustTimeMultiplier;
+        private static void SetAutoExposureAdjustTimeMultiplier(float exposureAdjustTimeMultiplier)
+        {
+            if (lastUsedAutoExposureAdjustTimeMultiplier != exposureAdjustTimeMultiplier)
+            {
+                lastUsedAutoExposureAdjustTimeMultiplier = exposureAdjustTimeMultiplier;
+                epExposureAdjustTimeMultiplier.SetValue(exposureAdjustTimeMultiplier);
+            }
+        } // SetExposureAdjustTimeMultiplier
+
+        #endregion
+
+        #region Auto Exposure Luminance Low Threshold
+
+        private static float? lastUsedAutoExposureLuminanceLowThreshold;
+        private static void SetAutoExposureLuminanceLowThreshold(float autoExposureLuminanceLowThreshold)
+        {
+            if (lastUsedAutoExposureLuminanceLowThreshold != autoExposureLuminanceLowThreshold)
+            {
+                lastUsedAutoExposureLuminanceLowThreshold = autoExposureLuminanceLowThreshold;
+                epLuminanceLowThreshold.SetValue(autoExposureLuminanceLowThreshold);
+            }
+        } // SetAutoExposureLuminanceLowThreshold
+
+        #endregion
+
+        #region Auto Exposure Luminance High Threshold
+
+        private static float? lastUsedAutoExposureLuminanceHighThreshold;
+        private static void SetAutoExposureLuminanceHighThreshold(float autoExposureLuminanceHighThreshold)
+        {
+            if (lastUsedAutoExposureLuminanceHighThreshold != autoExposureLuminanceHighThreshold)
+            {
+                lastUsedAutoExposureLuminanceHighThreshold = autoExposureLuminanceHighThreshold;
+                epLuminanceHighThreshold.SetValue(autoExposureLuminanceHighThreshold);
+            }
+        } // SetAutoExposureLuminanceHighThreshold
 
         #endregion
 
@@ -608,6 +666,11 @@ namespace XNAFinalEngine.Graphics
                 epLensExposure = Resource.Parameters["lensExposure"];
                 epSceneTexture = Resource.Parameters["sceneTexture"];
                 epLastLuminanceTexture = Resource.Parameters["lastLuminanceTexture"];
+                epAutoExposure = Resource.Parameters["autoExposure"];
+                epTimeDelta = Resource.Parameters["timeDelta"];
+                epExposureAdjustTimeMultiplier = Resource.Parameters["tau"];
+                epLuminanceLowThreshold = Resource.Parameters["luminanceLowThreshold"];
+                epLuminanceHighThreshold = Resource.Parameters["luminanceHighThreshold"];
                 // Bloom
                 epBloomScale   = Resource.Parameters["bloomScale"];
                 epBloomTexture = Resource.Parameters["bloomTexture"];
@@ -657,7 +720,7 @@ namespace XNAFinalEngine.Graphics
         /// This pass transforms the color information into luminance information.
         /// This also clamps the lower and higher values.
         /// </summary>
-        public RenderTarget LuminanceTextureGeneration(Texture sceneTexture)
+        public RenderTarget LuminanceTextureGeneration(Texture sceneTexture, PostProcess postProcess)
         {
             if (sceneTexture == null || sceneTexture.Resource == null)
                 throw new ArgumentNullException("sceneTexture");
@@ -676,6 +739,8 @@ namespace XNAFinalEngine.Graphics
                 // Set parameters
                 SetHalfPixel(new Vector2(-1f / sceneTexture.Width, 1f / sceneTexture.Height));
                 SetSceneTexture(sceneTexture);
+                SetAutoExposureLuminanceLowThreshold(postProcess.ToneMapping.AutoExposureLuminanceLowThreshold);
+                SetAutoExposureLuminanceHighThreshold(postProcess.ToneMapping.AutoExposureLuminanceHighThreshold);
 
                 initialLuminanceTexture.EnableRenderTarget();
 
@@ -699,7 +764,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Luminance Adaptation.
         /// </summary>
-        public RenderTarget LuminanceAdaptation(Texture currentLuminanceTexture, RenderTarget lastLuminanceTexture)
+        public RenderTarget LuminanceAdaptation(Texture currentLuminanceTexture, RenderTarget lastLuminanceTexture, PostProcess postProcess)
         {
             if (currentLuminanceTexture == null || currentLuminanceTexture.Resource == null)
                 throw new ArgumentNullException("currentLuminanceTexture");
@@ -717,17 +782,15 @@ namespace XNAFinalEngine.Graphics
                 // Set parameters
                 SetHalfPixel(new Vector2(-1f / luminanceTexture.Width, 1f / luminanceTexture.Height));
                 SetSceneTexture(currentLuminanceTexture);
-                Resource.Parameters["timeDelta"].SetValue(Time.FrameTime); // It always changes.
+                epTimeDelta.SetValue(Time.FrameTime); // It always changes.
+                SetAutoExposureAdjustTimeMultiplier(postProcess.ToneMapping.AutoExposureAdaptationTimeMultiplier);
                 
                 // The two first frames will use the current luminance texture.
                 // One because there is no last luminance texture, and two because I render a frame in the load content (to reduce garbage).
-                if (frameCount > 1)
+                if (lastLuminanceTexture != null)
                     SetLuminanceTexture(lastLuminanceTexture);
                 else
-                {
-                    frameCount++;
                     SetLuminanceTexture(currentLuminanceTexture);
-                }
 
                 luminanceTexture.EnableRenderTarget();
 
@@ -774,8 +837,12 @@ namespace XNAFinalEngine.Graphics
 
                 #region Tone Mapping
 
-                SetLensExposure(postProcess.ToneMapping.LensExposure);
-                SetLuminanceTexture(luminanceTexture);
+                SetAutoExposure(postProcess.ToneMapping.AutoExposureEnabled);
+                EngineManager.Device.SamplerStates[12] = SamplerState.PointClamp; // To avoid an exception. Long story.
+                if (postProcess.ToneMapping.AutoExposureEnabled)
+                    SetLuminanceTexture(luminanceTexture);
+                else
+                    SetLensExposure(postProcess.ToneMapping.LensExposure);
 
                 #endregion
 

@@ -112,7 +112,6 @@ namespace XNAFinalEngineExamples
             script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 8.0f;
-            camera.Camera.PostProcess = new PostProcess();
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
             camera.Camera.PostProcess.MLAA.ThresholdDepth = 0.2f;
             camera.Camera.PostProcess.MLAA.ThresholdColor = 0.2f;

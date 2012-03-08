@@ -43,17 +43,48 @@ namespace XNAFinalEngine.Assets
     public class ToneMapping
     {
 
+        #region Enumerate
+
+        /// <summary>
+        /// The available tone mapping functions.
+        /// </summary>
+        public enum ToneMappingFunctionEnumerate
+        {
+            FilmicALU,
+            FilmicUncharted2,
+            Duiker,
+            Reinhard,
+            ReinhardModified,
+            Exponential,
+            Logarithmic,
+            DragoLogarithmic
+        } // ToneMappingFunctionEnumerate
+
+        #endregion
+
         #region Variables
-        
+
         // Is auto exposure enabled?
         private bool autoExposureEnabled = true;
 
         // Lens exposure.
         private float lensExposure = 1;
+
+        // Controls how faster the camera’s auto exposure adaptation mechanism changes its response.
+        private float exposureAdaptationTimeMultiplier = 0.5f;
+
+        // When auto exposure is enabled, the luminance intensity is clamp using the low and high threshold.
+        private float autoExposureLuminanceLowThreshold = 0.01f;
+        private float autoExposureLuminanceHighThreshold = 20f;
       
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Tone Mapping Function.
+        /// </summary>
+        public ToneMappingFunctionEnumerate ToneMappingFunction { get; set; }
 
         /// <summary>
         /// Lens exposure.
@@ -77,6 +108,50 @@ namespace XNAFinalEngine.Assets
             get { return autoExposureEnabled; }
             set { autoExposureEnabled = value; }
         } // AutoExposureEnabled
+
+        /// <summary>
+        /// Controls how faster the camera’s auto exposure adaptation mechanism changes its response.
+        /// </summary>
+        public float AutoExposureAdaptationTimeMultiplier
+        {
+            get { return exposureAdaptationTimeMultiplier; }
+            set
+            {
+                exposureAdaptationTimeMultiplier = value;
+                if (exposureAdaptationTimeMultiplier <= 0)
+                    exposureAdaptationTimeMultiplier = 0.001f;
+            }
+        } // ExposureAdjustTimeMultiplier
+
+        /// <summary>
+        /// When auto exposure is enabled, the luminance intensity is clamp using a low and high threshold.
+        /// </summary>
+        public float AutoExposureLuminanceLowThreshold
+        {
+            get { return autoExposureLuminanceLowThreshold; }
+            set
+            {
+                autoExposureLuminanceLowThreshold = value;
+                if (autoExposureLuminanceLowThreshold < 0)
+                    autoExposureLuminanceLowThreshold = 0f;
+                if (autoExposureLuminanceLowThreshold > autoExposureLuminanceHighThreshold)
+                    autoExposureLuminanceLowThreshold = autoExposureLuminanceHighThreshold;
+            }
+        } // AutoExposureLuminanceLowThreshold
+
+        /// <summary>
+        /// When auto exposure is enabled, the luminance intensity is clamp using a low and high threshold.
+        /// </summary>
+        public float AutoExposureLuminanceHighThreshold
+        {
+            get { return autoExposureLuminanceHighThreshold; }
+            set
+            {
+                autoExposureLuminanceHighThreshold = value;
+                if (autoExposureLuminanceHighThreshold < autoExposureLuminanceLowThreshold)
+                    autoExposureLuminanceHighThreshold = autoExposureLuminanceLowThreshold;
+            }
+        } // LuminanceHighThreshold
 
         /// <summary>
         /// Luminance texture. Used in the adaptation pass.
