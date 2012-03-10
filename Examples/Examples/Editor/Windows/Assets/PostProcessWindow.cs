@@ -229,6 +229,7 @@ namespace XNAFinalEngine.Editor
                 }
                 else if (asset.ToneMapping.ToneMappingFunction == ToneMapping.ToneMappingFunctionEnumerate.Exponential)
                 {
+                    sliderWhiteLevel.Enabled = true;
                     sliderLuminanceSaturation.Enabled = true;
                 }
                 else if (asset.ToneMapping.ToneMappingFunction == ToneMapping.ToneMappingFunctionEnumerate.FilmicUncharted2)

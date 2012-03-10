@@ -172,7 +172,7 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
-        #region Logarithmic Parameters
+        #region Common Parameters
 
         /// <summary>
         /// Logarithmic White Level.
@@ -183,8 +183,8 @@ namespace XNAFinalEngine.Assets
             set
             {
                 whiteLevel = value;
-                if (whiteLevel < 0)
-                    whiteLevel = 0;
+                if (whiteLevel <= 0)
+                    whiteLevel = 0.01f;
             }
         } // LogarithmicWhiteLevel
 

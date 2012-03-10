@@ -844,7 +844,7 @@ namespace XNAFinalEngineExamples
             #endregion
 
             #region Floor
-            /*
+            
             floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
                            new BlinnPhong
                            {
@@ -854,7 +854,7 @@ namespace XNAFinalEngineExamples
                                //ReflectionTexture = new TextureCube("Showroom", false),
                            });
             floor.Transform.LocalScale = new Vector3(15, 15, 15);
-            floor.Transform.Position = new Vector3(0, -1.17f, 0);*/
+            floor.Transform.Position = new Vector3(0, -1.17f, 0);
 
             #endregion
             

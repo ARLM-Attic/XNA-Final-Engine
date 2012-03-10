@@ -1024,6 +1024,7 @@ namespace XNAFinalEngine.Graphics
                         break;
                     case ToneMapping.ToneMappingFunctionEnumerate.Exponential      : Resource.CurrentTechnique = Resource.Techniques["PostProcessingExponential"];
                         SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
+                        SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
                         break;
                     case ToneMapping.ToneMappingFunctionEnumerate.Logarithmic      : Resource.CurrentTechnique = Resource.Techniques["PostProcessingLogarithmic"]; 
                         SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
