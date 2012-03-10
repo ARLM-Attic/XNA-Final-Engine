@@ -149,7 +149,7 @@ namespace XNAFinalEngineExamples
                 TextureSize = Size.TextureSize.HalfSize,
             };
             camera.Camera.PostProcess.FilmGrain.Enabled = false;
-
+            /*
             // The second camera
             camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
             camera2 = new GameObject3D();
@@ -158,7 +158,7 @@ namespace XNAFinalEngineExamples
             camera2.Camera.ClearColor = Color.Black;
             camera2.Camera.FieldOfView = 180 / 8.0f;
             camera2.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
-            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);
+            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);*/
             
             #endregion
 
@@ -873,7 +873,7 @@ namespace XNAFinalEngineExamples
                 LightDepthTextureSize = Size.Square512X512,
                 TextureSize = Size.TextureSize.HalfSize
             };
-            /*
+            
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.DiffuseColor = new Color(250, 0, 180);
@@ -889,7 +889,7 @@ namespace XNAFinalEngineExamples
             pointLight2.PointLight.Range = 100;
             pointLight2.PointLight.SpecularColor = Color.White;
             pointLight2.Transform.Position = new Vector3(25, 25, -15);
-
+            
             pointLight3 = new GameObject3D();
             pointLight3.AddComponent<PointLight>();
             pointLight3.PointLight.DiffuseColor = new Color(70, 250, 55);
@@ -929,7 +929,7 @@ namespace XNAFinalEngineExamples
             pointLight7.PointLight.Range = 250; // I always forget to set the light range lower than the camera far plane.
             pointLight7.PointLight.SpecularColor = Color.White;
             pointLight7.Transform.Position = new Vector3(-15, 50f, -30);
-           */
+           
             #endregion
 
             #region Video

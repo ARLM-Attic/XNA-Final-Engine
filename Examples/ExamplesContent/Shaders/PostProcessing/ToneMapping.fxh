@@ -21,18 +21,18 @@ References:
 //////////////////////////////////////////////
 
 // Logarithmic
-float whiteLevel = 5;
-float luminanceSaturation = 1;
+float whiteLevel;
+float luminanceSaturation;
 // Drago
-float bias = 0.5;
-// Uncharted 2 tone mapping
-float shoulderStrength = 0.22;
-float linearStrength = 0.3;
-float linearAngle = 0.1;
-float toeStrength = 0.2;
-float toeNumerator = 0.01;
-float toeDenominator = 0.3;
-float linearWhite = 11.2;
+float bias;
+// Uncharted 2
+float shoulderStrength;
+float linearStrength;
+float linearAngle;
+float toeStrength;
+float toeNumerator;
+float toeDenominator;
+float linearWhite;
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////

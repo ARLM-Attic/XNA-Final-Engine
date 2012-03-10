@@ -62,11 +62,11 @@ namespace XNAFinalEngine.Editor
 
             #region Group Lens Exposure
 
-            GroupBox groupLensExposure = CommonControls.Group("Lens Exposure", window);
+            GroupBox groupToneMapping = CommonControls.Group("Tone Mapping", window);
             
             #region Lens Exposure
 
-            var sliderLensExposure = CommonControls.SliderNumeric("Lens Exposure", groupLensExposure, asset.ToneMapping.LensExposure, false, true, 0, 5);
+            var sliderLensExposure = CommonControls.SliderNumeric("Lens Exposure", groupToneMapping, asset.ToneMapping.LensExposure, false, true, 0, 5);
             sliderLensExposure.ValueChanged += delegate { asset.ToneMapping.LensExposure = sliderLensExposure.Value; };
             sliderLensExposure.Draw += delegate { sliderLensExposure.Value = asset.ToneMapping.LensExposure; };
 
@@ -74,14 +74,14 @@ namespace XNAFinalEngine.Editor
 
             #region Auto Exposure Enabled
 
-            CheckBox checkBoxAutoExposureEnabled = CommonControls.CheckBox("Auto Exposure Enabled", groupLensExposure, asset.ToneMapping.AutoExposureEnabled);
+            CheckBox checkBoxAutoExposureEnabled = CommonControls.CheckBox("Auto Exposure Enabled", groupToneMapping, asset.ToneMapping.AutoExposureEnabled);
             checkBoxAutoExposureEnabled.Draw += delegate { checkBoxAutoExposureEnabled.Checked = asset.ToneMapping.AutoExposureEnabled; };
 
             #endregion
 
             #region Auto Exposure Adaptation Time Multiplier
 
-            var sliderAutoExposureAdaptationTimeMultiplier = CommonControls.SliderNumeric("Adaptation Time Multiplier", groupLensExposure, asset.ToneMapping.AutoExposureAdaptationTimeMultiplier, false, true, 0, 10);
+            var sliderAutoExposureAdaptationTimeMultiplier = CommonControls.SliderNumeric("Adaptation Time Multiplier", groupToneMapping, asset.ToneMapping.AutoExposureAdaptationTimeMultiplier, false, true, 0, 10);
             sliderAutoExposureAdaptationTimeMultiplier.ValueChanged += delegate { asset.ToneMapping.AutoExposureAdaptationTimeMultiplier = sliderAutoExposureAdaptationTimeMultiplier.Value; };
             sliderAutoExposureAdaptationTimeMultiplier.Draw += delegate { sliderAutoExposureAdaptationTimeMultiplier.Value = asset.ToneMapping.AutoExposureAdaptationTimeMultiplier; };
 
@@ -89,7 +89,7 @@ namespace XNAFinalEngine.Editor
 
             #region Auto Exposure Luminance Low Threshold
 
-            var sliderAutoExposureLuminanceLowThreshold = CommonControls.SliderNumeric("Luminance Low Threshold", groupLensExposure, asset.ToneMapping.AutoExposureLuminanceLowThreshold, false, true, 0, 0.1f);
+            var sliderAutoExposureLuminanceLowThreshold = CommonControls.SliderNumeric("Luminance Low Threshold", groupToneMapping, asset.ToneMapping.AutoExposureLuminanceLowThreshold, false, true, 0, 0.5f);
             sliderAutoExposureLuminanceLowThreshold.ValueChanged += delegate { asset.ToneMapping.AutoExposureLuminanceLowThreshold = sliderAutoExposureLuminanceLowThreshold.Value; };
             sliderAutoExposureLuminanceLowThreshold.Draw += delegate { sliderAutoExposureLuminanceLowThreshold.Value = asset.ToneMapping.AutoExposureLuminanceLowThreshold; };
 
@@ -97,7 +97,7 @@ namespace XNAFinalEngine.Editor
 
             #region Auto Exposure Luminance High Threshold
 
-            var sliderAutoExposureLuminanceHighThreshold = CommonControls.SliderNumeric("Luminance High Threshold", groupLensExposure, asset.ToneMapping.AutoExposureLuminanceHighThreshold, false, true, 1, 100f);
+            var sliderAutoExposureLuminanceHighThreshold = CommonControls.SliderNumeric("Luminance High Threshold", groupToneMapping, asset.ToneMapping.AutoExposureLuminanceHighThreshold, false, true, 0.5f, 20f);
             sliderAutoExposureLuminanceHighThreshold.ValueChanged += delegate { asset.ToneMapping.AutoExposureLuminanceHighThreshold = sliderAutoExposureLuminanceHighThreshold.Value; };
             sliderAutoExposureLuminanceHighThreshold.Draw += delegate { sliderAutoExposureLuminanceHighThreshold.Value = asset.ToneMapping.AutoExposureLuminanceHighThreshold; };
 
@@ -114,7 +114,7 @@ namespace XNAFinalEngine.Editor
 
             #region Tone Mapping Curve
 
-            ComboBox comboBoxToneMappingCurve = CommonControls.ComboBox("Tone Mapping Curve", groupLensExposure);
+            ComboBox comboBoxToneMappingCurve = CommonControls.ComboBox("Tone Mapping Curve", groupToneMapping);
             comboBoxToneMappingCurve.Items.AddRange(new[] { "Filmic ALU", "Filmic Uncharted 2", "Duiker", "Reinhard", "Reinhard Modified", "Exponential", "Logarithmic", "Drago Logarithmic" });
             comboBoxToneMappingCurve.ItemIndex = (int)asset.ToneMapping.ToneMappingFunction;
             comboBoxToneMappingCurve.ItemIndexChanged += delegate { asset.ToneMapping.ToneMappingFunction = (ToneMapping.ToneMappingFunctionEnumerate)comboBoxToneMappingCurve.ItemIndex; };
@@ -127,7 +127,139 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
-            groupLensExposure.AdjustHeightFromChildren();
+            #region White Level
+
+            var sliderWhiteLevel = CommonControls.SliderNumeric("White Level", groupToneMapping, asset.ToneMapping.ToneMappingWhiteLevel, false, true, 0f, 50f);
+            sliderWhiteLevel.ValueChanged += delegate { asset.ToneMapping.ToneMappingWhiteLevel = sliderWhiteLevel.Value; };
+            sliderWhiteLevel.Draw += delegate { sliderWhiteLevel.Value = asset.ToneMapping.ToneMappingWhiteLevel; };
+
+            #endregion
+
+            #region Luminance Saturation
+
+            var sliderLuminanceSaturation = CommonControls.SliderNumeric("Luminance Saturation", groupToneMapping, asset.ToneMapping.ToneMappingLuminanceSaturation, false, true, 0f, 2f);
+            sliderLuminanceSaturation.ValueChanged += delegate { asset.ToneMapping.ToneMappingLuminanceSaturation = sliderLuminanceSaturation.Value; };
+            sliderLuminanceSaturation.Draw += delegate { sliderLuminanceSaturation.Value = asset.ToneMapping.ToneMappingLuminanceSaturation; };
+
+            #endregion
+
+            #region Drago Bias
+
+            var sliderDragoBias = CommonControls.SliderNumeric("Drago Bias", groupToneMapping, asset.ToneMapping.DragoBias, false, true, 0f, 1f);
+            sliderDragoBias.ValueChanged += delegate { asset.ToneMapping.DragoBias = sliderDragoBias.Value; };
+            sliderDragoBias.Draw += delegate { sliderDragoBias.Value = asset.ToneMapping.DragoBias; };
+
+            #endregion
+
+            #region Shoulder Strength
+
+            var sliderShoulderStrength = CommonControls.SliderNumeric("Shoulder Strength", groupToneMapping, asset.ToneMapping.Uncharted2ShoulderStrength, false, true, 0f, 1f);
+            sliderShoulderStrength.ValueChanged += delegate { asset.ToneMapping.Uncharted2ShoulderStrength = sliderShoulderStrength.Value; };
+            sliderShoulderStrength.Draw += delegate { sliderShoulderStrength.Value = asset.ToneMapping.Uncharted2ShoulderStrength; };
+
+            #endregion
+
+            #region Linear Strength
+
+            var sliderLinearStrength = CommonControls.SliderNumeric("Linear Strength", groupToneMapping, asset.ToneMapping.Uncharted2LinearStrength, false, true, 0f, 1f);
+            sliderLinearStrength.ValueChanged += delegate { asset.ToneMapping.Uncharted2LinearStrength = sliderLinearStrength.Value; };
+            sliderLinearStrength.Draw += delegate { sliderLinearStrength.Value = asset.ToneMapping.Uncharted2LinearStrength; };
+
+            #endregion
+
+            #region Linear Angle
+
+            var sliderLinearAngle = CommonControls.SliderNumeric("Linear Angle", groupToneMapping, asset.ToneMapping.Uncharted2LinearAngle, false, true, 0f, 3f);
+            sliderLinearAngle.ValueChanged += delegate { asset.ToneMapping.Uncharted2LinearAngle = sliderLinearAngle.Value; };
+            sliderLinearAngle.Draw += delegate { sliderLinearAngle.Value = asset.ToneMapping.Uncharted2LinearAngle; };
+
+            #endregion
+
+            #region Toe Strength
+
+            var sliderToeStrength = CommonControls.SliderNumeric("Toe Strength", groupToneMapping, asset.ToneMapping.Uncharted2ToeStrength, false, true, 0f, 1f);
+            sliderToeStrength.ValueChanged += delegate { asset.ToneMapping.Uncharted2ToeStrength = sliderToeStrength.Value; };
+            sliderToeStrength.Draw += delegate { sliderToeStrength.Value = asset.ToneMapping.Uncharted2ToeStrength; };
+
+            #endregion
+
+            #region Toe Numerator
+
+            var sliderToeNumerator = CommonControls.SliderNumeric("Toe Numerator", groupToneMapping, asset.ToneMapping.Uncharted2ToeNumerator, false, true, 0f, 0.1f);
+            sliderToeNumerator.ValueChanged += delegate { asset.ToneMapping.Uncharted2ToeNumerator = sliderToeNumerator.Value; };
+            sliderToeNumerator.Draw += delegate { sliderToeNumerator.Value = asset.ToneMapping.Uncharted2ToeNumerator; };
+
+            #endregion
+
+            #region Toe Denominator
+
+            var sliderToeDenominator = CommonControls.SliderNumeric("Toe Denominator", groupToneMapping, asset.ToneMapping.Uncharted2ToeDenominator, false, true, 0f, 1f);
+            sliderToeDenominator.ValueChanged += delegate { asset.ToneMapping.Uncharted2ToeDenominator = sliderToeDenominator.Value; };
+            sliderToeDenominator.Draw += delegate { sliderToeDenominator.Value = asset.ToneMapping.Uncharted2ToeDenominator; };
+
+            #endregion
+
+            #region Linear White
+
+            var sliderLinearWhite = CommonControls.SliderNumeric("Linear White", groupToneMapping, asset.ToneMapping.Uncharted2LinearWhite, false, true, 0f, 40f);
+            sliderLinearWhite.ValueChanged += delegate { asset.ToneMapping.Uncharted2LinearWhite = sliderLinearWhite.Value; };
+            sliderLinearWhite.Draw += delegate { sliderLinearWhite.Value = asset.ToneMapping.Uncharted2LinearWhite; };
+
+            #endregion
+
+            #region Sliders enabled?
+
+            comboBoxToneMappingCurve.ItemIndexChanged += delegate
+            {
+                sliderWhiteLevel.Enabled = false;
+                sliderLuminanceSaturation.Enabled = false;
+                sliderDragoBias.Enabled = false;
+                sliderShoulderStrength.Enabled = false;
+                sliderLinearStrength.Enabled = false;
+                sliderLinearAngle.Enabled = false;
+                sliderToeStrength.Enabled = false;
+                sliderToeNumerator.Enabled = false;
+                sliderToeDenominator.Enabled = false;
+                sliderLinearWhite.Enabled = false;
+                if (asset.ToneMapping.ToneMappingFunction == ToneMapping.ToneMappingFunctionEnumerate.DragoLogarithmic)
+                {
+                    sliderWhiteLevel.Enabled = true;
+                    sliderLuminanceSaturation.Enabled = true;
+                    sliderDragoBias.Enabled = true;
+                }
+                else if (asset.ToneMapping.ToneMappingFunction == ToneMapping.ToneMappingFunctionEnumerate.Exponential)
+                {
+                    sliderLuminanceSaturation.Enabled = true;
+                }
+                else if (asset.ToneMapping.ToneMappingFunction == ToneMapping.ToneMappingFunctionEnumerate.FilmicUncharted2)
+                {
+                    sliderShoulderStrength.Enabled = true;
+                    sliderLinearStrength.Enabled = true;
+                    sliderLinearAngle.Enabled = true;
+                    sliderToeStrength.Enabled = true;
+                    sliderToeNumerator.Enabled = true;
+                    sliderToeDenominator.Enabled = true;
+                    sliderLinearWhite.Enabled = true;
+                }
+                else if (asset.ToneMapping.ToneMappingFunction == ToneMapping.ToneMappingFunctionEnumerate.Logarithmic)
+                {
+                    sliderWhiteLevel.Enabled = true;
+                    sliderLuminanceSaturation.Enabled = true;
+                }
+                else if (asset.ToneMapping.ToneMappingFunction == ToneMapping.ToneMappingFunctionEnumerate.Reinhard)
+                {
+                    sliderLuminanceSaturation.Enabled = true;
+                }
+                else if (asset.ToneMapping.ToneMappingFunction == ToneMapping.ToneMappingFunctionEnumerate.ReinhardModified)
+                {
+                    sliderWhiteLevel.Enabled = true;
+                    sliderLuminanceSaturation.Enabled = true;
+                }
+            };
+
+            #endregion
+
+            groupToneMapping.AdjustHeightFromChildren();
 
             #endregion
 

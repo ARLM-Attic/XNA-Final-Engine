@@ -76,6 +76,21 @@ namespace XNAFinalEngine.Assets
         // When auto exposure is enabled, the luminance intensity is clamp using the low and high threshold.
         private float autoExposureLuminanceLowThreshold = 0.01f;
         private float autoExposureLuminanceHighThreshold = 20f;
+
+        // Tone Mapping Parameters
+        // Logarithmic
+        float whiteLevel = 5;
+        float luminanceSaturation = 1;
+        // Drago
+        float bias = 0.5f;
+        // Uncharted 2
+        float shoulderStrength = 0.22f;
+        float linearStrength = 0.3f;
+        float linearAngle = 0.1f;
+        float toeStrength = 0.2f;
+        float toeNumerator = 0.01f;
+        float toeDenominator = 0.3f;
+        float linearWhite = 11.2f;
       
         #endregion
 
@@ -99,6 +114,8 @@ namespace XNAFinalEngine.Assets
                     lensExposure = 0;
             }
         } // LensExposure
+
+        #region Auto Exposure
 
         /// <summary>
         /// Is auto exposure enabled?
@@ -152,6 +169,160 @@ namespace XNAFinalEngine.Assets
                     autoExposureLuminanceHighThreshold = autoExposureLuminanceLowThreshold;
             }
         } // LuminanceHighThreshold
+
+        #endregion
+
+        #region Logarithmic Parameters
+
+        /// <summary>
+        /// Logarithmic White Level.
+        /// </summary>
+        public float ToneMappingWhiteLevel
+        {
+            get { return whiteLevel; }
+            set
+            {
+                whiteLevel = value;
+                if (whiteLevel < 0)
+                    whiteLevel = 0;
+            }
+        } // LogarithmicWhiteLevel
+
+        /// <summary>
+        /// Logarithmic luminance saturation.
+        /// </summary>
+        public float ToneMappingLuminanceSaturation
+        {
+            get { return luminanceSaturation; }
+            set
+            {
+                luminanceSaturation = value;
+                if (luminanceSaturation < 0)
+                    luminanceSaturation = 0;
+            }
+        } // LogarithmicLuminanceSaturation
+
+        #endregion
+
+        #region Drago Parameters
+
+        /// <summary>
+        /// Drago Bias.
+        /// </summary>
+        public float DragoBias
+        {
+            get { return bias; }
+            set
+            {
+                bias = value;
+                if (bias < 0)
+                    bias = 0;
+            }
+        } // DragoBias
+
+        #endregion
+
+        #region Uncharted 2 Parameters
+
+        /// <summary>
+        /// Shoulder Strength.
+        /// </summary>
+        public float Uncharted2ShoulderStrength
+        {
+            get { return shoulderStrength; }
+            set
+            {
+                shoulderStrength = value;
+                if (shoulderStrength < 0)
+                    shoulderStrength = 0;
+            }
+        } // Uncharted2ShoulderStrength
+
+        /// <summary>
+        /// Linear Strength.
+        /// </summary>
+        public float Uncharted2LinearStrength
+        {
+            get { return linearStrength; }
+            set
+            {
+                linearStrength = value;
+                if (linearStrength < 0)
+                    linearStrength = 0;
+            }
+        } // Uncharted2LinearStrength
+
+        /// <summary>
+        /// Linear Angle.
+        /// </summary>
+        public float Uncharted2LinearAngle
+        {
+            get { return linearAngle; }
+            set
+            {
+                linearAngle = value;
+                if (linearAngle < 0)
+                    linearAngle = 0;
+            }
+        } // Uncharted2LinearAngle
+
+        /// <summary>
+        /// Toe Strength.
+        /// </summary>
+        public float Uncharted2ToeStrength
+        {
+            get { return toeStrength; }
+            set
+            {
+                toeStrength = value;
+                if (toeStrength < 0)
+                    toeStrength = 0;
+            }
+        } // Uncharted2ToeStrength
+
+        /// <summary>
+        /// Toe Numerator.
+        /// </summary>
+        public float Uncharted2ToeNumerator
+        {
+            get { return toeNumerator; }
+            set
+            {
+                toeNumerator = value;
+                if (toeNumerator < 0)
+                    toeNumerator = 0;
+            }
+        } // Uncharted2ToeNumerator
+
+        /// <summary>
+        /// Toe Denominator.
+        /// </summary>
+        public float Uncharted2ToeDenominator
+        {
+            get { return toeDenominator; }
+            set
+            {
+                toeDenominator = value;
+                if (toeDenominator < 0)
+                    toeDenominator = 0;
+            }
+        } // Uncharted2ToeDenominator
+
+        /// <summary>
+        /// Linear White.
+        /// </summary>
+        public float Uncharted2LinearWhite
+        {
+            get { return linearWhite; }
+            set
+            {
+                linearWhite = value;
+                if (linearWhite < 0)
+                    linearWhite = 0;
+            }
+        } // Uncharted2LinearWhite
+
+        #endregion
 
         /// <summary>
         /// Luminance texture. Used in the adaptation pass.

@@ -69,6 +69,17 @@ namespace XNAFinalEngine.Graphics
                                        epExposureAdjustTimeMultiplier,
                                        epLuminanceLowThreshold,
                                        epLuminanceHighThreshold,
+                                       // Tone Mapping
+                                       epWhiteLevel,
+                                       epLuminanceSaturation,
+                                       epBias,
+                                       epShoulderStrength,
+                                       epLinearStrength,
+                                       epLinearAngle,
+                                       epToeStrength,
+                                       epToeNumerator,
+                                       epToeDenominator,
+                                       epLinearWhite,
                                        // Bloom
                                        epBloomScale,
                                        epBloomTexture,
@@ -119,20 +130,6 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Lens Exposure
-        
-        private static float? lastUsedLensExposure;
-        private static void SetLensExposure(float lensExposure)
-        {
-            if (lastUsedLensExposure != lensExposure)
-            {
-                lastUsedLensExposure = lensExposure;
-                epLensExposure.SetValue(lensExposure);
-            }
-        } // SetLensExposure
-
-        #endregion
-
         #region Scene Texture
 
         private static Texture2D lastUsedSceneTexture;
@@ -162,6 +159,22 @@ namespace XNAFinalEngine.Graphics
                 epLastLuminanceTexture.SetValue(lastLuminanceTexture.Resource);
             }
         } // SetLastLuminanceTexture
+
+        #endregion
+
+        #region Exposure
+
+        #region Lens Exposure
+
+        private static float? lastUsedLensExposure;
+        private static void SetLensExposure(float lensExposure)
+        {
+            if (lastUsedLensExposure != lensExposure)
+            {
+                lastUsedLensExposure = lensExposure;
+                epLensExposure.SetValue(lensExposure);
+            }
+        } // SetLensExposure
 
         #endregion
 
@@ -218,6 +231,152 @@ namespace XNAFinalEngine.Graphics
                 epLuminanceHighThreshold.SetValue(autoExposureLuminanceHighThreshold);
             }
         } // SetAutoExposureLuminanceHighThreshold
+
+        #endregion
+
+        #endregion
+
+        #region Tone Mapping
+
+        #region White Level
+
+        private static float? lastUsedWhiteLevel;
+        private static void SetWhiteLevel(float whiteLevel)
+        {
+            if (lastUsedWhiteLevel != whiteLevel)
+            {
+                lastUsedWhiteLevel = whiteLevel;
+                epWhiteLevel.SetValue(whiteLevel);
+            }
+        } // SetWhiteLevel
+
+        #endregion
+
+        #region Luminance Saturation
+
+        private static float? lastUsedLuminanceSaturation;
+        private static void SetLuminanceSaturation(float luminanceSaturation)
+        {
+            if (lastUsedLuminanceSaturation != luminanceSaturation)
+            {
+                lastUsedLuminanceSaturation = luminanceSaturation;
+                epLuminanceSaturation.SetValue(luminanceSaturation);
+            }
+        } // SetLuminanceSaturation
+
+        #endregion
+
+        #region Bias
+
+        private static float? lastUsedBias;
+        private static void SetBias(float bias)
+        {
+            if (lastUsedBias != bias)
+            {
+                lastUsedBias = bias;
+                epBias.SetValue(bias);
+            }
+        } // SetBias
+
+        #endregion
+
+        #region Shoulder Strength
+
+        private static float? lastUsedShoulderStrength;
+        private static void SetShoulderStrength(float shoulderStrength)
+        {
+            if (lastUsedShoulderStrength != shoulderStrength)
+            {
+                lastUsedShoulderStrength = shoulderStrength;
+                epShoulderStrength.SetValue(shoulderStrength);
+            }
+        } // SetShoulderStrength
+
+        #endregion
+
+        #region Linear Strength
+
+        private static float? lastUsedLinearStrength;
+        private static void SetLinearStrength(float linearStrength)
+        {
+            if (lastUsedLinearStrength != linearStrength)
+            {
+                lastUsedLinearStrength = linearStrength;
+                epLinearStrength.SetValue(linearStrength);
+            }
+        } // SetLinearStrength
+
+        #endregion
+
+        #region Linear Angle
+
+        private static float? lastUsedLinearAngle;
+        private static void SetLinearAngle(float linearAngle)
+        {
+            if (lastUsedLinearAngle != linearAngle)
+            {
+                lastUsedLinearAngle = linearAngle;
+                epLinearAngle.SetValue(linearAngle);
+            }
+        } // SetLinearAngle
+
+        #endregion
+
+        #region Toe Strength
+
+        private static float? lastUsedToeStrength;
+        private static void SetToeStrength(float toeStrength)
+        {
+            if (lastUsedToeStrength != toeStrength)
+            {
+                lastUsedToeStrength = toeStrength;
+                epToeStrength.SetValue(toeStrength);
+            }
+        } // SetToeStrength
+
+        #endregion
+
+        #region Toe Numerator
+
+        private static float? lastUsedToeNumerator;
+        private static void SetToeNumerator(float toeNumerator)
+        {
+            if (lastUsedToeNumerator != toeNumerator)
+            {
+                lastUsedToeNumerator = toeNumerator;
+                epToeNumerator.SetValue(toeNumerator);
+            }
+        } // SetToeNumerator
+
+        #endregion
+
+        #region Toe Denominator
+
+        private static float? lastUsedToeDenominator;
+        private static void SetToeDenominator(float toeDenominator)
+        {
+            if (lastUsedToeDenominator != toeDenominator)
+            {
+                lastUsedToeDenominator = toeDenominator;
+                epToeDenominator.SetValue(toeDenominator);
+            }
+        } // SetToeDenominator
+
+        #endregion
+
+        #region Linear White
+
+        private static float? lastUsedLinearWhite;
+        private static void SetLinearWhite(float linearWhite)
+        {
+            if (lastUsedLinearWhite != linearWhite)
+            {
+                lastUsedLinearWhite = linearWhite;
+                epLinearWhite.SetValue(linearWhite);
+            }
+        } // SetLinearWhite
+
+        #endregion
 
         #endregion
 
@@ -646,7 +805,15 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Über post processing shader.
         /// </summary>
-        internal PostProcessingShader() : base("PostProcessing\\PostProcessing") { }
+        internal PostProcessingShader() : base("PostProcessing\\PostProcessing")
+        {
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
+            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            Texture filmLutTexture = new Texture("Shaders\\FilmLut");
+            ContentManager.CurrentContentManager = userContentManager;
+
+            Resource.Parameters["filmLutTexture"].SetValue(filmLutTexture.Resource);
+        } // PostProcessingShader
 
         #endregion
 
@@ -671,6 +838,17 @@ namespace XNAFinalEngine.Graphics
                 epExposureAdjustTimeMultiplier = Resource.Parameters["tau"];
                 epLuminanceLowThreshold = Resource.Parameters["luminanceLowThreshold"];
                 epLuminanceHighThreshold = Resource.Parameters["luminanceHighThreshold"];
+                // Tone Mapping
+                epWhiteLevel = Resource.Parameters["whiteLevel"];
+                epLuminanceSaturation = Resource.Parameters["luminanceSaturation"];
+                epBias = Resource.Parameters["bias"];
+                epShoulderStrength = Resource.Parameters["shoulderStrength"];
+                epLinearStrength = Resource.Parameters["linearStrength"];
+                epLinearAngle = Resource.Parameters["linearAngle"];
+                epToeStrength = Resource.Parameters["toeStrength"];
+                epToeNumerator = Resource.Parameters["toeNumerator"];
+                epToeDenominator = Resource.Parameters["toeDenominator"];
+                epLinearWhite = Resource.Parameters["linearWhite"];
                 // Bloom
                 epBloomScale   = Resource.Parameters["bloomScale"];
                 epBloomTexture = Resource.Parameters["bloomTexture"];
@@ -825,7 +1003,40 @@ namespace XNAFinalEngine.Graphics
 
             try
             {
-                Resource.CurrentTechnique = Resource.Techniques["PostProcessing"];
+                switch (postProcess.ToneMapping.ToneMappingFunction)
+                {
+                    case ToneMapping.ToneMappingFunctionEnumerate.FilmicALU        : Resource.CurrentTechnique = Resource.Techniques["PostProcessingFilmicALU"]; break;
+                    case ToneMapping.ToneMappingFunctionEnumerate.FilmicUncharted2 : Resource.CurrentTechnique = Resource.Techniques["PostProcessingFilmicUncharted2"];
+                        SetShoulderStrength(postProcess.ToneMapping.Uncharted2ShoulderStrength);
+                        SetLinearStrength(postProcess.ToneMapping.Uncharted2LinearStrength);
+                        SetLinearAngle(postProcess.ToneMapping.Uncharted2LinearAngle);
+                        SetToeStrength(postProcess.ToneMapping.Uncharted2ToeStrength);
+                        SetToeNumerator(postProcess.ToneMapping.Uncharted2ToeNumerator);
+                        SetToeDenominator(postProcess.ToneMapping.Uncharted2ToeDenominator);
+                        SetLinearWhite(postProcess.ToneMapping.Uncharted2LinearWhite);
+                        break;
+                    case ToneMapping.ToneMappingFunctionEnumerate.Reinhard         : Resource.CurrentTechnique = Resource.Techniques["PostProcessingReinhard"]; 
+                        SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
+                        break;
+                    case ToneMapping.ToneMappingFunctionEnumerate.ReinhardModified : Resource.CurrentTechnique = Resource.Techniques["PostProcessingReinhardModified"];
+                        SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
+                        SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
+                        break;
+                    case ToneMapping.ToneMappingFunctionEnumerate.Exponential      : Resource.CurrentTechnique = Resource.Techniques["PostProcessingExponential"];
+                        SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
+                        break;
+                    case ToneMapping.ToneMappingFunctionEnumerate.Logarithmic      : Resource.CurrentTechnique = Resource.Techniques["PostProcessingLogarithmic"]; 
+                        SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
+                        SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
+                        break;
+                    case ToneMapping.ToneMappingFunctionEnumerate.DragoLogarithmic : Resource.CurrentTechnique = Resource.Techniques["PostProcessingDragoLogarithmic"]; 
+                        SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
+                        SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
+                        SetBias(postProcess.ToneMapping.DragoBias);
+                        break;
+                    case ToneMapping.ToneMappingFunctionEnumerate.Duiker           : Resource.CurrentTechnique = Resource.Techniques["PostProcessingDuiker"]; break;
+                }
+
                 // Set render states
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;

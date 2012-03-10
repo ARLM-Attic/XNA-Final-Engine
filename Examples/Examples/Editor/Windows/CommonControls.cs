@@ -201,7 +201,7 @@ namespace XNAFinalEngine.Editor
                 Left = 10,
                 Width = 155,
                 Text = name,
-                Height = 20,
+                Height = 25,
             };
             var comboBox = new ComboBox
             {

@@ -1620,6 +1620,13 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
+    <Compile Include="Textures\Shaders\FilmLut.tga">
+      <Name>FilmLut</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Textures\Stones-Diffuse.bmp">

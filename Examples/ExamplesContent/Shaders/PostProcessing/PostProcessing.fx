@@ -32,8 +32,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 float2 halfPixel;
 
-int toneMappingFunction;
-
 // Auto Exposure
 bool autoExposure;
 float tau;
@@ -103,8 +101,7 @@ struct VS_OUT
 //////////////// Functions ///////////////////
 //////////////////////////////////////////////
 
-// This function takes an input colour in linear space, and converts it to a tone mapped gamma corrected color output
-float3 ToneMapping(float3 color, float2 uv)
+float3 ExposureColor(float3 color, float2 uv)
 {
 	float exposure;
 	[branch]
@@ -128,47 +125,8 @@ float3 ToneMapping(float3 color, float2 uv)
 	// Multiply the incomming light by the lens exposure value. Think of this in terms of a camera:
 	// Exposure time on a camera adjusts how long the camera collects light on the main sensor.
 	// This is a simple multiplication factor of the incomming light.	
-	color *= exposure;
-
-	// Convert from HDR linear to LDR gamma color.
-	/*[branch]
-	if (toneMappingFunction == 0)
-    {	*/
-		color = ToneMapFilmicALU(color);
-    /*}
-	else if (toneMappingFunction == 1)
-    {
-		color = ToneMapFilmicUncharted2(color);
-    }
-	else if (toneMappingFunction == 2)
-    {
-		color = ToneMapDuiker(color);
-    }
-	else if (toneMappingFunction == 3)
-    {
-		color = ToneMapReinhard(color);
-    }
-	else if (toneMappingFunction == 4)
-    {
-		color = ToneMapReinhardModified(color);
-    }
-	else if (toneMappingFunction == 5)
-    {
-		color = ToneMapExponential(color);
-    }
-	else if (toneMappingFunction == 6)
-    {
-		color = ToneMapLogarithmic(color);
-    }
-	else if (toneMappingFunction == 7)
-    {
-		color = ToneMapDragoLogarithmic(color);
-    }*/
-	
-	// Is already in gamma space.
-	return float3(color);
-
-} // ToneMapping
+	return color * exposure;
+} // ExposureColor
 
 // Apply the bloom effect.
 float3 Bloom(float3 color, float2 uv)
@@ -238,28 +196,69 @@ float4 psAdaptLuminance(in float2 uv : TEXCOORD0) : COLOR0
 } // psAdaptLuminance
 
 // An easy optimization consists in make a specific technique without branching.
-float4 psPostProcess(in float2 uv : TEXCOORD0) : COLOR0
+float4 psPostProcess(uniform int toneMappingFunction, in float2 uv : TEXCOORD0) : COLOR0
 {
 	float3 color = tex2D(sceneSampler, uv);	// HDR Linear space	
-		
-	color = ToneMapping(color, uv);
+
+	color = ExposureColor(color, uv);
+
+	// This function takes an input colour in linear space, and converts it to a tone mapped gamma corrected color output		
+	[branch]
+	if (toneMappingFunction == 0)
+    {	
+		color = ToneMapFilmicALU(color);
+    }
+	else if (toneMappingFunction == 1)
+    {
+		color = ToneMapFilmicUncharted2(color);
+    }
+	else if (toneMappingFunction == 2)
+    {
+		color = ToneMapDuiker(color);
+    }
+	else if (toneMappingFunction == 3)
+    {
+		color = ToneMapReinhard(color);
+    }
+	else if (toneMappingFunction == 4)
+    {
+		color = ToneMapReinhardModified(color);
+    }
+	else if (toneMappingFunction == 5)
+    {
+		color = ToneMapExponential(color);
+    }
+	else if (toneMappingFunction == 6)
+    {
+		color = ToneMapLogarithmic(color);
+    }
+	else if (toneMappingFunction == 7)
+    {
+		color = ToneMapDragoLogarithmic(color);
+    }
 	
 	// Film grain has to be calculated before bloom to avoid artifacts and after film tone mapping.
+	[branch]
 	if (filmGrainEnabled)
 		color = FilmGrain(color, uv);	
 
+	[branch]
 	if (bloomEnabled)
 		color = color + Bloom(color, uv);
 	
+	[branch]
 	if (adjustLevelsEnabled)
 		color = AdjustLevels(color);
 
+	[branch]
 	if (adjustLevelsIndividualChannelsEnabled)
 		color = AdjustLevelsIndividualChannels(color);
 
+	[branch]
 	if (colorCorrectOneLutEnabled)
 		color = lerp(color, TransformColor(color, firstlookupTableSampler), lerpOriginalColorAmount);
 
+	[branch]
 	if (colorCorrectTwoLutEnabled)
 		color = lerp(color, lerp(TransformColor(color, firstlookupTableSampler), TransformColor(color, secondlookupTableSampler), lerpLookupTablesAmount), lerpOriginalColorAmount);
 	
@@ -288,11 +287,74 @@ technique LuminanceAdaptation
 	}
 } // AdaptLuminance
 
-technique PostProcessing
+technique PostProcessingFilmicALU
 {
 	pass p0
 	{
 		VertexShader = compile vs_3_0 vs_main();
-		PixelShader  = compile ps_3_0 psPostProcess();
+		PixelShader  = compile ps_3_0 psPostProcess(0);
 	}
-} // PostProcessing
+} // PostProcessingFilmicALU
+
+technique PostProcessingFilmicUncharted2
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 psPostProcess(1);
+	}
+} // PostProcessingFilmicUncharted2
+
+technique PostProcessingDuiker
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 psPostProcess(2);
+	}
+} // PostProcessingDuiker
+
+technique PostProcessingReinhard
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 psPostProcess(3);
+	}
+} // PostProcessingReinhard
+
+technique PostProcessingReinhardModified
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 psPostProcess(4);
+	}
+} // PostProcessingReinhardModified
+
+technique PostProcessingExponential
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 psPostProcess(5);
+	}
+} // PostProcessingExponential
+
+technique PostProcessingLogarithmic
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 psPostProcess(6);
+	}
+} // PostProcessingLogarithmic
+
+technique PostProcessingDragoLogarithmic
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 psPostProcess(7);
+	}
+} // PostProcessingDragoLogarithmic
