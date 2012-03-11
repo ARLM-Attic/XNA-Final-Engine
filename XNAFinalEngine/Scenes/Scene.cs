@@ -67,13 +67,22 @@ namespace XNAFinalEngine.Scenes
         #region Update Tasks
 
         /// <summary>
-        /// Tasks executed during the update.
+        /// Tasks executed during the update before scripts update.
         /// This is the place to put the application logic.
         /// </summary>
         public virtual void UpdateTasks()
         {
             // Overrite it!!
         } // UpdateTasks
+
+        /// <summary>
+        /// Tasks executed during the update, but after the scripts update.
+        /// This is the place to put the application logic.
+        /// </summary>
+        public virtual void LateUpdateTasks()
+        {
+            // Overrite it!!
+        } // LateUpdateTasks
 
         #endregion
 

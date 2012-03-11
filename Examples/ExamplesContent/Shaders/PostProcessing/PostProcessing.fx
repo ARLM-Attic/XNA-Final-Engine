@@ -115,12 +115,10 @@ float3 ExposureColor(float3 color, float2 uv)
 		float keyValue = 0;
 		keyValue = 1.03f - (2.0f / (2 + log10(avgLuminance + 1)));
 		float linearExposure = (keyValue / avgLuminance);
-		exposure = log2(max(linearExposure, 0.0001f));
+		exposure = max(linearExposure, 0.0001f);
 	}
     else
 		exposure = lensExposure;
-	
-	exposure = exp2(exposure);
 
 	// Multiply the incomming light by the lens exposure value. Think of this in terms of a camera:
 	// Exposure time on a camera adjusts how long the camera collects light on the main sensor.

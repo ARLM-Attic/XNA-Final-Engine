@@ -186,6 +186,15 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion 
+
+            #region Scene Late Update Tasks
+
+            if (CurrentScene != null && CurrentScene.Loaded)
+            {
+                CurrentScene.LateUpdateTasks();
+            }
+
+            #endregion
             
             #region Scripts Late Update
 
@@ -269,16 +278,31 @@ namespace XNAFinalEngine.EngineCore
         {
             // Update frame time
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
+
+            #region Reser Frame Statistics
+
             // Reset Frame Statistics
             Statistics.ReserFrameStatistics();
+
+            #endregion
+
+            #region Update Chronometers
+
             // Update the chronometers that work in frame time space.
             Chronometer.UpdateFrameTimeChronometers();
+
+            #endregion
+
+            #region Update Frames Per Second Text
+
             // Update frames per second visibility.
             fpsText.HudText.Visible = ShowFramesPerSecond;
             fpsText.Transform.LocalPosition = new Vector3(Screen.Width - 100, 20, 0);
             fpsText.HudText.Text.Length = 4;
             fpsText.HudText.Text.AppendWithoutGarbage(Time.FramesPerSecond);
-            
+
+            #endregion
+
             #region Scene Pre Render Tasks
 
             if (CurrentScene != null && CurrentScene.Loaded)
@@ -337,7 +361,7 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
             
-            #region Graphics
+            #region Render Each Camera
             
             Camera currentCamera = null;
             // For each camera we render the scene in it
@@ -379,14 +403,14 @@ namespace XNAFinalEngine.EngineCore
             }
             
             #endregion
-
+            
             #region Screenshot Preparations
 
             RenderTarget screenshotRenderTarget = null;
             if (ScreenshotCapturer.MakeScreenshot)
             {
                 // Instead of render into the back buffer we render into a render target.
-                screenshotRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing);
+                screenshotRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false);
                 screenshotRenderTarget.EnableRenderTarget();
             }
 
@@ -562,11 +586,11 @@ namespace XNAFinalEngine.EngineCore
 
         private static RenderTarget RenderCamera(Camera currentCamera)
         {
-
+            
             #region Buffers Declarations
 
             // This is here to allow the rendering of these render targets for testing.
-            RenderTarget.RenderTargetBinding gbufferTextures = new RenderTarget.RenderTargetBinding();
+            RenderTarget.RenderTargetBinding gbufferTextures;
             RenderTarget lightTexture = null;
             RenderTarget sceneTexture = null;
             RenderTarget postProcessedSceneTexture = null;
@@ -607,7 +631,7 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
             gbufferTextures = GBufferPass.End();
-
+            
             #region DownSample GBuffer
 
             halfDepthTexture = DepthDownsamplerShader.Instance.Render(gbufferTextures.RenderTargets[0]);
@@ -642,7 +666,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-
+            
             #endregion
             
             #region Light Pre Pass
@@ -687,7 +711,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Shadow Maps
-
+            
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
                 DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
@@ -712,7 +736,7 @@ namespace XNAFinalEngine.EngineCore
                         // Render all the opaque objects...
                         for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
                         {
-                            ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                            ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[j];
                             if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                             {
                                 CascadedShadowMapShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
@@ -724,7 +748,7 @@ namespace XNAFinalEngine.EngineCore
                 else
                     currentDirectionalLight.ShadowTexture = null;
             }
-
+            
             #endregion
 
             #region Light Texture
@@ -780,7 +804,7 @@ namespace XNAFinalEngine.EngineCore
             #region HDR Linear Space Pass
 
             ScenePass.Begin(destinationSize, currentCamera.ClearColor);
-
+            
             #region Opaque Objects
 
             // Render all the opaque objects...
@@ -808,7 +832,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-
+            
             #region Sky
 
             // The sky is render latter so that the GPU can avoid fragment processing. But it has to be before the transparent objects.
@@ -845,7 +869,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Transparent Objects
-
+            
             // The transparent objects will be render in forward fashion.
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
             {
@@ -869,7 +893,7 @@ namespace XNAFinalEngine.EngineCore
                     }
                 }
             }
-
+            
             #endregion
 
             #region Textures and Text
@@ -941,12 +965,12 @@ namespace XNAFinalEngine.EngineCore
             RenderTarget.Release(lightTexture);
 
             #endregion
-
+            
             #region Post Process Pass
 
             PostProcessingPass.BeginAndProcess(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess);
             // Render in gamma space
-
+            
             #region Textures and Text
 
             if (HudText.ComponentPool3D.Count != 0 || HudTexture.ComponentPool3D.Count != 0)
@@ -1070,7 +1094,7 @@ namespace XNAFinalEngine.EngineCore
             LineManager.End();
 
             #endregion
-
+            
             postProcessedSceneTexture = PostProcessingPass.End();
 
             // They are not needed anymore.
@@ -1084,6 +1108,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             return postProcessedSceneTexture;
+            // For Testing.
             //RenderTarget.Release(postProcessedSceneTexture);
             //return gbufferTextures.RenderTargets[1];
             //return lightTexture;

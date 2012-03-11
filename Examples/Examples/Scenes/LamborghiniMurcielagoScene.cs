@@ -130,6 +130,7 @@ namespace XNAFinalEngineExamples
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 6f;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
+            camera.Camera.PostProcess.Bloom.Threshold = 20;
             camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
                                                             //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
                                                             Color = new Color(50, 50, 50),
@@ -865,8 +866,8 @@ namespace XNAFinalEngineExamples
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 140);
-            directionalLight.DirectionalLight.Intensity = 5f;
-            directionalLight.Transform.LookAt(new Vector3(-0.3f, 0.65f, -1.3f), Vector3.Zero, Vector3.Forward);
+            directionalLight.DirectionalLight.Intensity = 15f;
+            directionalLight.Transform.LookAt(new Vector3(0.3f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
                 Filter = Shadow.FilterType.PCF3x3,
@@ -877,7 +878,7 @@ namespace XNAFinalEngineExamples
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.DiffuseColor = new Color(250, 0, 180);
-            pointLight.PointLight.Intensity = 0.3f;
+            pointLight.PointLight.Intensity = 3f;
             pointLight.PointLight.Range = 100;
             pointLight.PointLight.SpecularColor = Color.White;
             pointLight.Transform.Position = new Vector3(-15, 50, 5);
@@ -885,7 +886,7 @@ namespace XNAFinalEngineExamples
             pointLight2 = new GameObject3D();
             pointLight2.AddComponent<PointLight>();
             pointLight2.PointLight.DiffuseColor = new Color(170, 150, 255);
-            pointLight2.PointLight.Intensity = 0.3f;
+            pointLight2.PointLight.Intensity = 3f;
             pointLight2.PointLight.Range = 100;
             pointLight2.PointLight.SpecularColor = Color.White;
             pointLight2.Transform.Position = new Vector3(25, 25, -15);
@@ -893,7 +894,7 @@ namespace XNAFinalEngineExamples
             pointLight3 = new GameObject3D();
             pointLight3.AddComponent<PointLight>();
             pointLight3.PointLight.DiffuseColor = new Color(70, 250, 55);
-            pointLight3.PointLight.Intensity = 0.3f;
+            pointLight3.PointLight.Intensity = 3f;
             pointLight3.PointLight.Range = 100;
             pointLight3.PointLight.SpecularColor = Color.White;
             pointLight3.Transform.Position = new Vector3(15f, 15, -20);
@@ -901,7 +902,7 @@ namespace XNAFinalEngineExamples
             pointLight4 = new GameObject3D();
             pointLight4.AddComponent<PointLight>();
             pointLight4.PointLight.DiffuseColor = new Color(150, 150, 150);
-            pointLight4.PointLight.Intensity = 0.3f;
+            pointLight4.PointLight.Intensity = 3f;
             pointLight4.PointLight.Range = 100; // I always forget to set the light range lower than the camera far plane.
             pointLight4.PointLight.SpecularColor = Color.White;
             pointLight4.Transform.Position = new Vector3(-20, -5, 20);
@@ -909,7 +910,7 @@ namespace XNAFinalEngineExamples
             pointLight5 = new GameObject3D();
             pointLight5.AddComponent<PointLight>();
             pointLight5.PointLight.DiffuseColor = new Color(220, 150, 155);
-            pointLight5.PointLight.Intensity = 0.35f;
+            pointLight5.PointLight.Intensity = 35f;
             pointLight5.PointLight.Range = 200;
             pointLight5.PointLight.SpecularColor = Color.White;
             pointLight5.Transform.Position = new Vector3(0f, 0.5f, -50);
