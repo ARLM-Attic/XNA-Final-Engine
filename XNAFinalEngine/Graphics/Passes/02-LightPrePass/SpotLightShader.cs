@@ -88,12 +88,16 @@ namespace XNAFinalEngine.Graphics
                                        epDepthTexture,
                                        epNormalTexture,
                                        epMotionVectorSpecularPowerTexture,
-                                       epLightColor,
-                                       epLightPosition,
-                                       epLlightIntensity,
                                        epFarPlane,
                                        epWorldViewProj,
                                        epWorldView,
+                                       // Light
+                                       epLightColor,
+                                       epLightPosition,
+                                       epLlightIntensity,
+                                       epLightDirection,
+                                       epLightOuterConeAngle,
+                                       epLightInnerConeAngle,
                                        epInsideBoundingLightObject;
 
 
@@ -215,6 +219,48 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
+        #region Light Direction
+
+        private static Vector3? lastUsedLightDirection;
+        private static void SetLightDirection(Vector3 lightDirection)
+        {
+            if (lastUsedLightDirection != lightDirection)
+            {
+                lastUsedLightDirection = lightDirection;
+                epLightDirection.SetValue(lightDirection);
+            }
+        } // SetLightDirection
+
+        #endregion
+
+        #region Light Inner Cone Angle
+
+        private static float? lastUsedLightInnerConeAngle;
+        private static void SetLightInnerConeAngle(float lightInnerConeAngle)
+        {
+            if (lastUsedLightInnerConeAngle != lightInnerConeAngle)
+            {
+                lastUsedLightInnerConeAngle = lightInnerConeAngle;
+                epLightInnerConeAngle.SetValue(lightInnerConeAngle / (3.141592f / 180.0f));
+            }
+        } // SetLightInnerConeAngle
+
+        #endregion
+
+        #region Light Outer Cone Angle
+
+        private static float? lastUsedLightOuterConeAngle;
+        private static void SetLightOuterConeAngle(float lightOuterConeAngle)
+        {
+            if (lastUsedLightOuterConeAngle != lightOuterConeAngle)
+            {
+                lastUsedLightOuterConeAngle = lightOuterConeAngle;
+                epLightOuterConeAngle.SetValue(lightOuterConeAngle / (3.141592f / 180.0f));
+            }
+        } // SetLightOuterConeAngle
+
+        #endregion
+
         #region Far Plane
 
         private static float lastUsedFarPlane;
@@ -298,6 +344,9 @@ namespace XNAFinalEngine.Graphics
                 epLightPosition                    = Resource.Parameters["lightPosition"];
                 epLlightIntensity                  = Resource.Parameters["lightIntensity"];
                 epLightRadius                      = Resource.Parameters["lightRadius"];
+                epLightDirection                   = Resource.Parameters["lightDirection"];
+                epLightOuterConeAngle              = Resource.Parameters["lightOuterAngle"];
+                epLightInnerConeAngle              = Resource.Parameters["lightInnerAngle"];
                 epDepthTexture                     = Resource.Parameters["depthTexture"];
                 epNormalTexture                    = Resource.Parameters["normalTexture"];
                 epMotionVectorSpecularPowerTexture = Resource.Parameters["motionVectorSpecularPowerTexture"];
@@ -353,7 +402,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render to the light pre pass texture.
         /// </summary>
-        public void RenderLight(Color diffuseColor, Vector3 position, float intensity, float radius)
+        public void RenderLight(Color diffuseColor, Vector3 position, Vector3 direction, float intensity, float radius, float innerConeAngle, float outerConeAngle)
         {
             try
             {
@@ -363,6 +412,11 @@ namespace XNAFinalEngine.Graphics
                 SetLightPosition(Vector3.Transform(position, viewMatrix));
                 SetLightIntensity(intensity);
                 SetLightRadius(radius);
+                Vector3 directionVS = Vector3.TransformNormal(direction, viewMatrix);
+                directionVS.Normalize();
+                SetLightDirection(directionVS);
+                SetLightInnerConeAngle(innerConeAngle);
+                SetLightOuterConeAngle(outerConeAngle);
 
                 // Compute the light world matrix.
                 // Scale according to light radius, and translate it to light position.

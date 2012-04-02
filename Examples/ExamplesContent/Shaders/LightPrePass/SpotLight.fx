@@ -38,12 +38,12 @@ float2 halfPixel;
 float farPlane;
 
 float3 lightPosition;
-
+float3 lightDirection;
 float3 lightColor;
-
 float lightRadius;
-
 float lightIntensity;
+float lightInnerAngle;
+float lightOuterAngle;	
 
 bool insideBoundingLightObject;
 
@@ -126,18 +126,16 @@ float4 ps_main(VS_OUT input) : COLOR0
     float3 positionVS = depth * frustumRayVS;
 	
     // Surface-to-light vector (in view space)
-    float3 L = lightPosition - positionVS;
-		
+    float3 L = lightPosition - positionVS; // Don't normalize, the attenuation function needs the distance.	
 	float3 N = SampleNormal(uv);
-
+	
+	// Cone attenuation
+	float DL           = dot(-lightDirection, normalize(L));
+	float2 cosAngles = cos(float2(lightOuterAngle, lightInnerAngle) * 0.5f);     
+    DL *= smoothstep(cosAngles[0], cosAngles[1], DL);
+			
     // Compute diffuse light
     float NL = max(dot(N, normalize(L)), 0);
-
-	[branch]
-	if (NL == 0)
-	{
-		Discard();
-	}
 
 	// Compute attenuation
 		// Basic attenuation
@@ -150,20 +148,13 @@ float4 ps_main(VS_OUT input) : COLOR0
 		attenuationFactor = 1/ (attenuationFactor + 1); //att_s contains now the value we have to subtract
 		attenuation = max(attenuation - attenuationFactor, 0); // The max fixes a bug.
 		// Finally we expand the equation along the y-axis so that it starts with a function value of 1 again.
-		attenuation /= 1 - attenuationFactor;		
+		attenuation /= 1 - attenuationFactor;
 
 	// In "Experimental Validation of Analytical BRDF Models" (Siggraph2004) the autors arrive to the conclusion that half vector lobe is better than mirror lobe.
 	float3 V = normalize(-positionVS);
-	float3 H  = normalize(V + L);
+	float3 H  = normalize(V + normalize(L));
 	// Compute specular light
     float specular = pow(saturate(dot(N, H)), DecompressSpecularPower(tex2D(motionVectorSpecularPowerSampler, uv).b));
-
-    /*// Reflexion vector
-    float3 R = normalize(reflect(-L, N));
-    // Camera-to-surface vector
-    float3 V = normalize(-positionVS);
-	// Compute specular light
-    float specular = pow(saturate(dot(R, V)), specularPower);*/
 		
 	// Fill the light buffer:
 	// R: Color.r * N.L // The color need to be in linear space and right now it's in gamma.
@@ -171,8 +162,8 @@ float4 ps_main(VS_OUT input) : COLOR0
 	// B: Color.b * N.L
 	// A: Specular Term * N.L (Look in Shader X7 to know why N * L is necesary in this last channel)
 	// Also in Shader X7 talk about a new channel so that the material shininess could be controled better.
-	// http://diaryofagraphicsprogrammer.blogspot.com/2008/03/light-pre-pass-renderer.html	
-    return float4(GammaToLinear(lightColor), specular) * attenuation * lightIntensity * NL;
+	// http://diaryofagraphicsprogrammer.blogspot.com/2008/03/light-pre-pass-renderer.html	    
+	return float4(GammaToLinear(lightColor), specular) * DL * attenuation * lightIntensity * NL;
 }
 
 //////////////////////////////////////////////

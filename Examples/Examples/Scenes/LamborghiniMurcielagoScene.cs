@@ -922,7 +922,7 @@ namespace XNAFinalEngineExamples
             pointLight6.PointLight.Range = 150; // I always forget to set the light range lower than the camera far plane.
             pointLight6.PointLight.SpecularColor = Color.White;
             pointLight6.Transform.Position = new Vector3(0, -30f, -10);
-            */
+            *//*
             pointLight7 = new GameObject3D();
             pointLight7.AddComponent<PointLight>();
             pointLight7.PointLight.DiffuseColor = Color.Green;// new Color(240, 200, 210);
@@ -930,14 +930,21 @@ namespace XNAFinalEngineExamples
             pointLight7.PointLight.Range = 50; // I always forget to set the light range lower than the camera far plane.
             pointLight7.PointLight.SpecularColor = Color.White;
             pointLight7.Transform.Position = new Vector3(-15, 5f, -30);
-            /*
+            */
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
             spotLight.SpotLight.DiffuseColor = Color.Green;
             spotLight.SpotLight.Intensity = 20f;
-            spotLight.SpotLight.Range = 50; // I always forget to set the light range lower than the camera far plane.
+            spotLight.SpotLight.Range = 150; // I always forget to set the light range lower than the camera far plane.
             spotLight.SpotLight.SpecularColor = Color.White;
-            spotLight.Transform.Position = new Vector3(-15, 50f, -30);*/
+            spotLight.Transform.Position = new Vector3(0, 20f, 0);
+            spotLight.Transform.Rotate(new Vector3(-90, 0, 0));
+            spotLight.SpotLight.Shadow = new BasicShadow
+            {
+                Filter = Shadow.FilterType.PCF3x3,
+                LightDepthTextureSize = Size.Square512X512,
+                TextureSize = Size.TextureSize.HalfSize
+            };
 
             #endregion
 
@@ -965,13 +972,13 @@ namespace XNAFinalEngineExamples
             ContentManager.CurrentContentManager = testContentManager;
 
             // The user interface is separated and manually called because its GPL license.
-            UserInterfaceManager.Initialize();
+            //UserInterfaceManager.Initialize();
 
             //murcielagoBody.ModelRenderer.Material = new Constant { DiffuseTexture = new Texture("Caption") { PreferredSamplerState = new SamplerState { MaxMipLevel = 2 }}};
             //ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
             //BlinnPhongWindow.Show((BlinnPhong)murcielagoInteriorLeather.ModelRenderer.Material);
             //CarPaintWindow.Show(carPaint);
-            PostProcessWindow.Show(camera.Camera.PostProcess);
+            //PostProcessWindow.Show(camera.Camera.PostProcess);
 
             LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
@@ -989,7 +996,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
-            UserInterfaceManager.Update();
+            //UserInterfaceManager.Update();
         } // UpdateTasks
 
         #endregion
@@ -1005,7 +1012,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PreRenderTasks()
         {
-            UserInterfaceManager.DrawToTexture();
+            //UserInterfaceManager.DrawToTexture();
         } // PreRenderTasks
 
         /// <summary>
@@ -1014,7 +1021,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PostRenderTasks()
         {
-            UserInterfaceManager.DrawTextureToScreen();
+            //UserInterfaceManager.DrawTextureToScreen();
         } // PostRenderTasks
 
         #endregion

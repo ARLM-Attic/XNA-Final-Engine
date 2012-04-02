@@ -892,7 +892,9 @@ namespace XNAFinalEngine.EngineCore
                 SpotLight currentSpotLight = SpotLight.ComponentPool.Elements[i];
                 if (currentSpotLight.Visible && currentSpotLight.Intensity > 0)
                 {
-                    SpotLightShader.Instance.RenderLight(currentSpotLight.DiffuseColor, currentSpotLight.cachedPosition, currentSpotLight.Intensity, currentSpotLight.Range);
+                    SpotLightShader.Instance.RenderLight(currentSpotLight.DiffuseColor, currentSpotLight.cachedPosition,
+                                                         currentSpotLight.cachedDirection, currentSpotLight.Intensity,
+                                                         currentSpotLight.Range, currentSpotLight.InnerConeAngle, currentSpotLight.OuterConeAngle);
                 }
             }
 

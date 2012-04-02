@@ -128,7 +128,7 @@ float4 ps_main(VS_OUT input) : COLOR0
     float3 positionVS = depth * frustumRayVS;
 	
     // Surface-to-light vector (in view space)
-    float3 L = lightPosition - positionVS;
+    float3 L = lightPosition - positionVS; // Don't normalize, the attenuation function needs the distance.	
 		
 	float3 N = SampleNormal(uv);
 
@@ -156,7 +156,7 @@ float4 ps_main(VS_OUT input) : COLOR0
 
 	// In "Experimental Validation of Analytical BRDF Models" (Siggraph2004) the autors arrive to the conclusion that half vector lobe is better than mirror lobe.
 	float3 V = normalize(-positionVS);
-	float3 H  = normalize(V + L);
+	float3 H  = normalize(V + normalize(L));
 	// Compute specular light
     float specular = pow(saturate(dot(N, H)), DecompressSpecularPower(tex2D(motionVectorSpecularPowerSampler, uv).b));
 

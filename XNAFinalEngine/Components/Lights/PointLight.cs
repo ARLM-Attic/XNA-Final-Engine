@@ -68,7 +68,12 @@ namespace XNAFinalEngine.Components
         public float Range
         {
             get { return range; }
-            set { range = value; }
+            set
+            {
+                range = value;
+                if (range < 0)
+                    range = 0;
+            }
         } // Range
 
         /// <summary>

@@ -53,11 +53,10 @@ namespace XNAFinalEngine.Components
         // Cached transform's direction.
         internal Vector3 cachedDirection;
 
-        // // The range of the light.
-        private float range = 1;
-
-        // The spot light cone (in degrees)
-        private float apertureCone = 60;
+        // Default values.
+        private float range;
+        private float innerConeAngle;
+        private float outerConeAngle;
 
         // Light specular color.
         private Color specularColor;
@@ -76,13 +75,36 @@ namespace XNAFinalEngine.Components
         } // SpecularColor
 
         /// <summary>
-        /// The spot light cone (in degrees)
+        /// The inner cone angle (in degrees) that controls the spread attenuation.
         /// </summary>
-        public float ApertureCone
+        public float InnerConeAngle
         {
-            get { return apertureCone; }
-            set { apertureCone = value; }
-        } // ApertureCone
+            get { return innerConeAngle; }
+            set
+            {
+                innerConeAngle = value;
+                if (innerConeAngle < 0)
+                    innerConeAngle = 0;
+                if (innerConeAngle >= 85)
+                    innerConeAngle = 85;
+            }
+        } // InnerConeAngle
+
+        /// <summary>
+        /// The outer cone angle (in degrees) that controls the spread attenuation.
+        /// </summary>
+        public float OuterConeAngle
+        {
+            get { return outerConeAngle; }
+            set
+            {
+                outerConeAngle = value;
+                if (outerConeAngle < 0)
+                    outerConeAngle = 0;
+                if (outerConeAngle >= 85)
+                    outerConeAngle = 85;
+            }
+        } // OuterConeAngle
 
         /// <summary>
         /// The range of the light.
@@ -90,7 +112,12 @@ namespace XNAFinalEngine.Components
         public float Range
         {
             get { return range; }
-            set { range = value; }
+            set
+            {
+                range = value;
+                if (range < 0)
+                    range = 0;
+            }
         } // Range
 
         /// <summary>
@@ -118,8 +145,9 @@ namespace XNAFinalEngine.Components
         {
             base.Initialize(owner);
             // Values
-            range = 1;
-            apertureCone = 60;
+            range = 100;
+            innerConeAngle = 20;
+            outerConeAngle = 60;
             specularColor = Color.White;
             cachedPosition = ((GameObject3D)Owner).Transform.Position;
             cachedDirection = ((GameObject3D)Owner).Transform.Forward;
