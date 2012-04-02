@@ -117,8 +117,11 @@ float3 ExposureColor(float3 color, float2 uv)
 		float linearExposure = (keyValue / avgLuminance);
 		exposure = max(linearExposure, 0.0001f);
 	}
-    else
+    else		
 		exposure = lensExposure;
+
+	// http://en.wikipedia.org/wiki/Exposure_value
+	// MJP transform the exposure to base-2 logarithmic scale, like I should.
 
 	// Multiply the incomming light by the lens exposure value. Think of this in terms of a camera:
 	// Exposure time on a camera adjusts how long the camera collects light on the main sensor.

@@ -98,7 +98,7 @@ namespace XNAFinalEngineExamples
                                     // Test floors
                                     floor,
                                     // Lights
-                                    directionalLight, pointLight, pointLight2, pointLight3, pointLight4, pointLight5, pointLight6, pointLight7,
+                                    directionalLight, pointLight, pointLight2, pointLight3, pointLight4, pointLight5, pointLight6, pointLight7, spotLight,
                                     // Cameras
                                     camera, camera2,
                                     skydome;
@@ -188,8 +188,8 @@ namespace XNAFinalEngineExamples
                                                              new Constant
                                                              {
                                                                  DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Tablero"),
-                                                                 /*SpecularIntensity = 1f,
-                                                                 SpecularPower = 100,*/
+                                                                 //SpecularIntensity = 1f,
+                                                                 //SpecularPower = 100,
                                                              });
             murcielagoLights = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Lights"),
                                                              new BlinnPhong
@@ -378,9 +378,9 @@ namespace XNAFinalEngineExamples
                                                      SpecularIntensity = 0.1f,
                                                      SpecularPower = 300,
                                                  });
-
+            
             #endregion
-
+            
             #region Left Door
 
             murcielagoLeftDoorBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorBody"), carPaint);
@@ -843,7 +843,7 @@ namespace XNAFinalEngineExamples
             murcielagoRearRightTyre02.Parent = rearRightRim;
 
             #endregion
-
+            
             #region Floor
             
             floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
@@ -862,10 +862,10 @@ namespace XNAFinalEngineExamples
             #endregion
 
             #region Shadows and Lights
-            
+            /*
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
-            directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 140);
+            directionalLight.DirectionalLight.DiffuseColor = Color.Red;// new Color(250, 250, 140);
             directionalLight.DirectionalLight.Intensity = 15f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
@@ -873,8 +873,8 @@ namespace XNAFinalEngineExamples
                 Filter = Shadow.FilterType.PCF3x3,
                 LightDepthTextureSize = Size.Square512X512,
                 TextureSize = Size.TextureSize.HalfSize
-            };
-            
+            };*/
+            /*
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.DiffuseColor = new Color(250, 0, 180);
@@ -922,15 +922,23 @@ namespace XNAFinalEngineExamples
             pointLight6.PointLight.Range = 150; // I always forget to set the light range lower than the camera far plane.
             pointLight6.PointLight.SpecularColor = Color.White;
             pointLight6.Transform.Position = new Vector3(0, -30f, -10);
-
+            */
             pointLight7 = new GameObject3D();
             pointLight7.AddComponent<PointLight>();
-            pointLight7.PointLight.DiffuseColor = new Color(240, 200, 210);
-            pointLight7.PointLight.Intensity = 0.35f;
-            pointLight7.PointLight.Range = 250; // I always forget to set the light range lower than the camera far plane.
+            pointLight7.PointLight.DiffuseColor = Color.Green;// new Color(240, 200, 210);
+            pointLight7.PointLight.Intensity = 200f;
+            pointLight7.PointLight.Range = 50; // I always forget to set the light range lower than the camera far plane.
             pointLight7.PointLight.SpecularColor = Color.White;
-            pointLight7.Transform.Position = new Vector3(-15, 50f, -30);
-           
+            pointLight7.Transform.Position = new Vector3(-15, 5f, -30);
+            /*
+            spotLight = new GameObject3D();
+            spotLight.AddComponent<SpotLight>();
+            spotLight.SpotLight.DiffuseColor = Color.Green;
+            spotLight.SpotLight.Intensity = 20f;
+            spotLight.SpotLight.Range = 50; // I always forget to set the light range lower than the camera far plane.
+            spotLight.SpotLight.SpecularColor = Color.White;
+            spotLight.Transform.Position = new Vector3(-15, 50f, -30);*/
+
             #endregion
 
             #region Video

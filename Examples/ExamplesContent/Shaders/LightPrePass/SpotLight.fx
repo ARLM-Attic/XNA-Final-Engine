@@ -99,21 +99,19 @@ float4 ps_main(VS_OUT input) : COLOR0
 		Discard();
 	}
 
-	float lightDepth = -input.viewPosition.z / farPlane;
 	// Optimization. We can't implement stencil optimizations, but at least this will allow us to avoid the normal map fetch and some other calculations.
 	if (insideBoundingLightObject)
-	{		
+	{
 		[branch]
-		if (depth > lightDepth)
+		if (depth > -input.viewPosition.z / farPlane)
 		{
 			Discard();
 		}
 	}
 	else
-	{		
+	{
 		[branch]
-		if (depth < lightDepth) 
-		// || depth > lightDepth + (lightRadius / farPlane)) // With this we can discard more fragments, but I have to convert lightRadius/farplane to uniform (global) first.
+		if (depth < -input.viewPosition.z / farPlane)
 		{
 			Discard();
 		}
@@ -152,7 +150,7 @@ float4 ps_main(VS_OUT input) : COLOR0
 		attenuationFactor = 1/ (attenuationFactor + 1); //att_s contains now the value we have to subtract
 		attenuation = max(attenuation - attenuationFactor, 0); // The max fixes a bug.
 		// Finally we expand the equation along the y-axis so that it starts with a function value of 1 again.
-		attenuation /= 1 - attenuationFactor;
+		attenuation /= 1 - attenuationFactor;		
 
 	// In "Experimental Validation of Analytical BRDF Models" (Siggraph2004) the autors arrive to the conclusion that half vector lobe is better than mirror lobe.
 	float3 V = normalize(-positionVS);
@@ -173,19 +171,19 @@ float4 ps_main(VS_OUT input) : COLOR0
 	// B: Color.b * N.L
 	// A: Specular Term * N.L (Look in Shader X7 to know why N * L is necesary in this last channel)
 	// Also in Shader X7 talk about a new channel so that the material shininess could be controled better.
-	// http://diaryofagraphicsprogrammer.blogspot.com/2008/03/light-pre-pass-renderer.html	    
-	return float4(GammaToLinear(lightColor), specular) * attenuation * lightIntensity * NL;
+	// http://diaryofagraphicsprogrammer.blogspot.com/2008/03/light-pre-pass-renderer.html	
+    return float4(GammaToLinear(lightColor), specular) * attenuation * lightIntensity * NL;
 }
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-technique PointLight
+technique SpotLight
 {
 	pass p0
 	{
 		VertexShader = compile vs_3_0 vs_main();
 		PixelShader  = compile ps_3_0 ps_main();
 	}
-} // PointLight
+} // SpotLight

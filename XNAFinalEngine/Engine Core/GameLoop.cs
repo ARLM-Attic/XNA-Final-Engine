@@ -43,14 +43,20 @@ using RootAnimation = XNAFinalEngine.Components.RootAnimations;
 using XNAFinalEngine.Scenes;
 using Camera = XNAFinalEngine.Components.Camera;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
+using System.Collections.Generic;
 #endregion
 
 namespace XNAFinalEngine.EngineCore
 {
 
     /// <summary>
-    /// The manager of all managers.
+    /// The XNA Final Engine pipeline is defined here.
     /// </summary>
+    /// <remarks>
+    /// This class seems complex and in the pass I could agree.
+    /// However to have the engine pipeline code in one class is not that terrible.
+    /// Besides, I don’t put everything in here, just the callers to the specifics tasks.
+    /// </remarks>
     public static class GameLoop
     {
 
@@ -582,7 +588,34 @@ namespace XNAFinalEngine.EngineCore
 
         #endregion
 
+        #region Frustum Culling
+
+        /// <summary>
+        /// Frustum Culling.
+        /// </summary>
+        /// <param name="boundingFrustum">Bounding Frustum.</param>
+        /// <param name="modelsToRender">The result.</param>
+        private static void FrustumCulling(BoundingFrustum boundingFrustum, List<ModelRenderer> modelsToRender)
+        {
+            for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+            {
+                ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                {
+                    if (boundingFrustum.Intersects(currentModelRenderer.BoundingSphere))
+                    {
+                        modelsToRender.Add(currentModelRenderer);
+                    }
+                }
+            }
+        } // FrustumCulling
+
+        #endregion
+
         #region Render Camera
+
+        private static readonly List<ModelRenderer> modelsToRender = new List<ModelRenderer>(50);
+        private static readonly List<ModelRenderer> modelsToRenderShadow = new List<ModelRenderer>(50);
 
         private static RenderTarget RenderCamera(Camera currentCamera)
         {
@@ -617,7 +650,35 @@ namespace XNAFinalEngine.EngineCore
                 destinationSize = currentCamera.RenderTargetSize;
 
             #endregion
-            
+
+            #region Frustum Culling
+
+            // The objective is implementing a culling management in a limited time framework.
+            // In DICE’s presentation (Culling the Battlefield Data Oriented Design in Practice)
+            // they find that a slightly modified simple frustum culling could work better than 
+            // a tree based structure if a data oriented design is followed. 
+            // The question is if C# could bring me the possibility to arrange data the way I need it or not.
+            // Then they apply a software occlusion culling technique, an interesting approach
+            // but unfortunately I don’t think I can make it work in the time that I have.
+
+            // I will try to make a simple version and then optimized.
+            // First I will try to do frustum culling with bounding spheres.
+            // DICE talk about grids, I still do not understand why. It is to separate better the data send to the cores?
+            // DICE also stores in an array only the bounding and entity information. This is something that I already find necessary to do some months before ago.
+            // They also store AABB information to perform the software occlusion culling in the next pass.
+            // They also improve a lot the performance of the intersect operation, however I will relay in the XNA implementation, at least for the time being.
+            // Finally, I should implement a multi frustum culling (cameras and lights) to improve performance. 
+            // Another reference about this: http://blog.selfshadow.com/publications/practical-visibility/
+            // Reading this last link I concluded that probably understood incorrectly some part of the method.
+
+            // CHC++ is a technique very used. In ShaderX7 there are a good article about it (it also includes the source code).
+
+            // First Version (very simple)
+            modelsToRender.Clear();
+            FrustumCulling(new BoundingFrustum(currentCamera.ViewMatrix * currentCamera.ProjectionMatrix), modelsToRender);
+
+            #endregion
+
             #region GBuffer Pass
 
             GBufferPass.Begin(destinationSize);
@@ -711,12 +772,16 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Shadow Maps
+
+            ///////////////////////////////////////////////////////
+            // TODO!!! I'm redoing the shadow maps for each camera.
+            ///////////////////////////////////////////////////////
             
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
                 DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
                 // If there is a shadow map...
-                if (currentDirectionalLight.Shadow != null && currentDirectionalLight.Shadow.Enabled)
+                if (currentDirectionalLight.Shadow != null && currentDirectionalLight.Shadow.Enabled && currentDirectionalLight.Visible && currentDirectionalLight.Intensity > 0)
                 {
                     RenderTarget shadowDepthTexture;
                     if (currentDirectionalLight.Shadow.TextureSize == Size.TextureSize.FullSize)
@@ -733,6 +798,7 @@ namespace XNAFinalEngine.EngineCore
                         CascadedShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, shadowDepthTexture, shadow.DepthBias, shadow.Filter);
                         CascadedShadowMapShader.Instance.SetLight(currentDirectionalLight.cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
                                                                   currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace);
+                        //FrustumCulling(new BoundingFrustum(), modelsToRenderShadow);
                         // Render all the opaque objects...
                         for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
                         {
@@ -754,7 +820,9 @@ namespace XNAFinalEngine.EngineCore
             #region Light Texture
 
             LightPrePass.Begin(destinationSize, currentCamera.AmbientLight.Color);
-            
+
+            #region Ambient Light
+
             // Render ambient light for every camera.
             if (currentCamera.AmbientLight != null)
             {
@@ -764,7 +832,11 @@ namespace XNAFinalEngine.EngineCore
                                                         currentCamera.ViewMatrix);
             }
             RenderTarget.Release(ambientOcclusionTexture);
-            
+
+            #endregion
+
+            #region Directional Lights
+
             // Render directional lights for every camera.
             DirectionalLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                             gbufferTextures.RenderTargets[1], // Normal Texture
@@ -774,11 +846,18 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
                 DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
-                DirectionalLightShader.Instance.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity, currentDirectionalLight.ShadowTexture);
-                if (currentDirectionalLight.ShadowTexture != null)
-                    RenderTarget.Release(currentDirectionalLight.ShadowTexture);
+                if (currentDirectionalLight.Visible && currentDirectionalLight.Intensity > 0)
+                {
+                    DirectionalLightShader.Instance.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity, currentDirectionalLight.ShadowTexture);
+                    if (currentDirectionalLight.ShadowTexture != null)
+                        RenderTarget.Release(currentDirectionalLight.ShadowTexture);
+                }
             }
-            
+
+            #endregion
+
+            #region Point Lights
+
             // Render point lights for every camera.
             PointLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                             gbufferTextures.RenderTargets[1], // Normal Texture
@@ -790,10 +869,34 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < PointLight.ComponentPool.Count; i++)
             {
                 PointLight currentPointLight = PointLight.ComponentPool.Elements[i];
-                PointLightShader.Instance.RenderLight(currentPointLight.DiffuseColor, currentPointLight.cachedPosition, currentPointLight.Intensity, currentPointLight.Range);
+                if (currentPointLight.Visible && currentPointLight.Intensity > 0)
+                {
+                    PointLightShader.Instance.RenderLight(currentPointLight.DiffuseColor, currentPointLight.cachedPosition, currentPointLight.Intensity, currentPointLight.Range);
+                }
             }
-            
+
+            #endregion
+
+            #region Spot Lights
+
             // Render spot lights for every camera.
+            SpotLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
+                                           gbufferTextures.RenderTargets[1], // Normal Texture
+                                           gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
+                                           currentCamera.ViewMatrix,
+                                           currentCamera.ProjectionMatrix,
+                                           currentCamera.NearPlane,
+                                           currentCamera.FarPlane);
+            for (int i = 0; i < SpotLight.ComponentPool.Count; i++)
+            {
+                SpotLight currentSpotLight = SpotLight.ComponentPool.Elements[i];
+                if (currentSpotLight.Visible && currentSpotLight.Intensity > 0)
+                {
+                    SpotLightShader.Instance.RenderLight(currentSpotLight.DiffuseColor, currentSpotLight.cachedPosition, currentSpotLight.Intensity, currentSpotLight.Range);
+                }
+            }
+
+            #endregion
 
             lightTexture = LightPrePass.End();
 
@@ -808,9 +911,9 @@ namespace XNAFinalEngine.EngineCore
             #region Opaque Objects
 
             // Render all the opaque objects...
-            for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+            for (int i = 0; i < modelsToRender.Count; i++)
             {
-                ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                ModelRenderer currentModelRenderer = modelsToRender[i];
                 if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                 {
                     if (currentModelRenderer.Material is Constant)
@@ -871,9 +974,9 @@ namespace XNAFinalEngine.EngineCore
             #region Transparent Objects
             
             // The transparent objects will be render in forward fashion.
-            for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+            for (int i = 0; i < modelsToRender.Count; i++)
             {
-                ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                ModelRenderer currentModelRenderer = modelsToRender[i];
                 if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending != 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                 {
                     if (currentModelRenderer.Material is Constant)
@@ -1108,10 +1211,13 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             return postProcessedSceneTexture;
-            // For Testing.
+
+            #region For Testing
             //RenderTarget.Release(postProcessedSceneTexture);
             //return gbufferTextures.RenderTargets[1];
             //return lightTexture;
+            #endregion
+
         } // RenderCamera
 
         #endregion

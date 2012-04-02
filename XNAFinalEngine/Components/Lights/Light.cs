@@ -63,6 +63,11 @@ namespace XNAFinalEngine.Components
         #region Properties
 
         /// <summary>
+        /// Makes the light visible or not.
+        /// </summary>
+        public bool Visible { get; set; }
+
+        /// <summary>
         /// Light diffuse color.
         /// </summary>
         public Color DiffuseColor
@@ -105,6 +110,7 @@ namespace XNAFinalEngine.Components
         {
             base.Initialize(owner);
             // Values
+            Visible = true;
             intensity = 1;
             diffuseColor = Color.White;
             Shadow = null;

@@ -41,9 +41,9 @@ using Texture = XNAFinalEngine.Assets.Texture;
 namespace XNAFinalEngine.Graphics
 {
     /// <summary>
-    /// Light Pre Pass Point Light Shader.
+    /// Light Pre Pass Spot Light Shader.
     /// </summary>
-    internal class PointLightShader : Shader
+    internal class SpotLightShader : Shader
     {
 
         #region Variables
@@ -57,21 +57,21 @@ namespace XNAFinalEngine.Graphics
         private static Model boundingLightObject;
 
         // Singleton reference.
-        private static PointLightShader instance;
+        private static SpotLightShader instance;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// A singleton of a point light shader.
+        /// A singleton of a spot light shader.
         /// </summary>
-        public static PointLightShader Instance
+        public static SpotLightShader Instance
         {
             get
             {
                 if (instance == null)
-                    instance = new PointLightShader();
+                    instance = new SpotLightShader();
                 return instance;
             }
         } // Instance
@@ -272,12 +272,12 @@ namespace XNAFinalEngine.Graphics
         #region Constructor
 
         /// <summary>
-        /// Light Pre Pass Point Light Shader.
+        /// Light Pre Pass Spot Light Shader.
         /// </summary>
-        internal PointLightShader() : base("LightPrePass\\PointLight")
+        internal SpotLightShader() : base("LightPrePass\\SpotLight")
         {
             boundingLightObject = new Sphere(50, 50, 1);
-        } // PointLightShader
+        } // SpotLightShader
 
         #endregion
 
@@ -317,7 +317,7 @@ namespace XNAFinalEngine.Graphics
         #region Begin
 
         /// <summary>
-        /// Begins the point light rendering.
+        /// Begins the spot light rendering.
         /// </summary>
         /// <param name="depthTexture">Gbuffer's depth buffer.</param>
         /// <param name="normalTexture">Gbuffer's normal map.</param>
@@ -342,7 +342,7 @@ namespace XNAFinalEngine.Graphics
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Light Pre Pass Point Light:: Unable to begin the rendering.", e);
+                throw new InvalidOperationException("Light Pre Pass Spot Light:: Unable to begin the rendering.", e);
             }
         } // Begin
 
@@ -387,17 +387,17 @@ namespace XNAFinalEngine.Graphics
                     EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
                 }
 
-                Resource.CurrentTechnique = Resource.Techniques["PointLight"];
+                Resource.CurrentTechnique = Resource.Techniques["SpotLight"];
                 Resource.CurrentTechnique.Passes[0].Apply();
                 boundingLightObject.Render();
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Light Pre Pass Point Light: Unable to render.", e);
+                throw new InvalidOperationException("Light Pre Pass Spot Light: Unable to render.", e);
             }
         } // RenderLight
 
         #endregion
 
-    } // PointLightShader
+    } // SpotLightShader
 } // XNAFinalEngine.Graphics

@@ -31,13 +31,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 //////////////////////////////////////////////
 
 float2 halfPixel;
-
 float3 frustumCorners[4];
 
 float3 lightColor;
-
 float3 lightDirection;
-
 float  lightIntensity = 1;
 
 //////////////////////////////////////////////
@@ -45,7 +42,6 @@ float  lightIntensity = 1;
 //////////////////////////////////////////////
 
 texture shadowTexture : register(t3);
-
 sampler2D shadowSampler : register(s3) = sampler_state
 {
 	Texture = <shadowTexture>;
@@ -99,9 +95,11 @@ float4 ps_main(uniform bool hasShadows, in float2 uv : TEXCOORD0, in float3 frus
 {
 	// Process the shadow map value.
 	float shadowTerm = 1.0;
-	if (hasShadows)
+	
+	if (hasShadows) // No need for [branch], this is a uniform value.
 	{
 		shadowTerm = tex2D(shadowSampler, uv).r;
+		[branch]
 		if (shadowTerm == 0)
 		{
 			Discard();
@@ -111,6 +109,7 @@ float4 ps_main(uniform bool hasShadows, in float2 uv : TEXCOORD0, in float3 frus
 	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
 	float depth = tex2D(depthSampler, uv).r;
 
+	[branch]
 	if (depth == 1)
 	{
 		Discard();
@@ -124,6 +123,7 @@ float4 ps_main(uniform bool hasShadows, in float2 uv : TEXCOORD0, in float3 frus
 	// N dot L lighting term
 	float NL = max(dot(L, N), 0); // Avoid negative values.
 
+	[branch]
 	if (NL == 0)
 	{
 		Discard();

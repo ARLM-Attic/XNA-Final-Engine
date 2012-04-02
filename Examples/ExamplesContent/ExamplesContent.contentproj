@@ -1449,6 +1449,11 @@
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>
+    <Compile Include="Shaders\LightPrePass\SpotLight.fx">
+      <Name>SpotLight</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>EffectProcessor</Processor>
+    </Compile>
     <None Include="Shaders\Materials\SkinnedBlinnPhong.fxh">
       <Name>SkinnedBlinnPhong</Name>
       <Importer>EffectImporter</Importer>
