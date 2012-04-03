@@ -854,7 +854,7 @@ namespace XNAFinalEngineExamples
                                SpecularIntensity = 0.0f,
                                //ReflectionTexture = new TextureCube("Showroom", false),
                            });
-            floor.Transform.LocalScale = new Vector3(15, 15, 15);
+            floor.Transform.LocalScale = new Vector3(5, 5, 5);
             floor.Transform.Position = new Vector3(0, -1.17f, 0);
 
             #endregion
@@ -862,10 +862,10 @@ namespace XNAFinalEngineExamples
             #endregion
 
             #region Shadows and Lights
-            /*
+            
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
-            directionalLight.DirectionalLight.DiffuseColor = Color.Red;// new Color(250, 250, 140);
+            directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 140);
             directionalLight.DirectionalLight.Intensity = 15f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
@@ -873,7 +873,7 @@ namespace XNAFinalEngineExamples
                 Filter = Shadow.FilterType.PCF3x3,
                 LightDepthTextureSize = Size.Square512X512,
                 TextureSize = Size.TextureSize.HalfSize
-            };*/
+            };
             /*
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
@@ -935,15 +935,15 @@ namespace XNAFinalEngineExamples
             spotLight.AddComponent<SpotLight>();
             spotLight.SpotLight.DiffuseColor = Color.Green;
             spotLight.SpotLight.Intensity = 20f;
-            spotLight.SpotLight.Range = 150; // I always forget to set the light range lower than the camera far plane.
+            spotLight.SpotLight.Range = 50; // I always forget to set the light range lower than the camera far plane.
             spotLight.SpotLight.SpecularColor = Color.White;
-            spotLight.Transform.Position = new Vector3(0, 20f, 0);
-            spotLight.Transform.Rotate(new Vector3(-90, 0, 0));
+            spotLight.Transform.Position = new Vector3(0, 15f, 20);
+            spotLight.Transform.Rotate(new Vector3(-45, 0, 0));
             spotLight.SpotLight.Shadow = new BasicShadow
             {
                 Filter = Shadow.FilterType.PCF3x3,
-                LightDepthTextureSize = Size.Square512X512,
-                TextureSize = Size.TextureSize.HalfSize
+                LightDepthTextureSize = Size.Square1024X1024,
+                TextureSize = Size.TextureSize.FullSize
             };
 
             #endregion

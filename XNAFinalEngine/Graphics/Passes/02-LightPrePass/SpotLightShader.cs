@@ -98,7 +98,8 @@ namespace XNAFinalEngine.Graphics
                                        epLightDirection,
                                        epLightOuterConeAngle,
                                        epLightInnerConeAngle,
-                                       epInsideBoundingLightObject;
+                                       epInsideBoundingLightObject,
+                                       epShadowTexture;
 
 
         #region Half Pixel
@@ -313,6 +314,22 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
+        #region Shadow Texture
+
+        private static Texture2D lastUsedShadowTexture;
+        private static void SetShadowTexture(Texture shadowTexture)
+        {
+            EngineManager.Device.SamplerStates[3] = SamplerState.PointClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedShadowTexture != shadowTexture.Resource)
+            {
+                lastUsedShadowTexture = shadowTexture.Resource;
+                epShadowTexture.SetValue(shadowTexture.Resource);
+            }
+        } // SetNormalTexture
+
+        #endregion
+
         #endregion
 
         #region Constructor
@@ -354,6 +371,7 @@ namespace XNAFinalEngine.Graphics
                 epWorldViewProj                    = Resource.Parameters["worldViewProj"];
                 epWorldView                        = Resource.Parameters["worldView"];
                 epInsideBoundingLightObject        = Resource.Parameters["insideBoundingLightObject"];
+                epShadowTexture                    = Resource.Parameters["shadowTexture"];
             }
             catch
             {
@@ -402,7 +420,8 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render to the light pre pass texture.
         /// </summary>
-        public void RenderLight(Color diffuseColor, Vector3 position, Vector3 direction, float intensity, float radius, float innerConeAngle, float outerConeAngle)
+        public void RenderLight(Color diffuseColor, Vector3 position, Vector3 direction, float intensity,
+                                float radius, float innerConeAngle, float outerConeAngle, Texture shadowTexture)
         {
             try
             {
@@ -425,6 +444,14 @@ namespace XNAFinalEngine.Graphics
                 SetWorldViewProjMatrix(boundingLightObjectWorldMatrix * viewMatrix * projectionMatrix);
                 SetWorldViewMatrix(boundingLightObjectWorldMatrix * viewMatrix);
 
+                if (shadowTexture != null)
+                {
+                    SetShadowTexture(shadowTexture);
+                    Resource.CurrentTechnique = Resource.Techniques["SpotLightWithShadows"];
+                }
+                else
+                    Resource.CurrentTechnique = Resource.Techniques["SpotLight"];
+
                 #endregion
 
                 // Calculate the distance between the camera and light center.
@@ -440,8 +467,7 @@ namespace XNAFinalEngine.Graphics
                     SetInsideBoundingLightObject(false);
                     EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
                 }
-
-                Resource.CurrentTechnique = Resource.Techniques["SpotLight"];
+                
                 Resource.CurrentTechnique.Passes[0].Apply();
                 boundingLightObject.Render();
             }

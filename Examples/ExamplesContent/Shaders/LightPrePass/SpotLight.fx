@@ -48,6 +48,21 @@ float lightOuterAngle;
 bool insideBoundingLightObject;
 
 //////////////////////////////////////////////
+///////////////// Textures ///////////////////
+//////////////////////////////////////////////
+
+texture shadowTexture : register(t3);
+sampler2D shadowSampler : register(s3) = sampler_state
+{
+	Texture = <shadowTexture>;
+    /*ADDRESSU = CLAMP;
+	ADDRESSV = CLAMP;
+	MAGFILTER = POINT;
+	MINFILTER = POINT;
+	MIPFILTER = NONE;*/
+};
+
+//////////////////////////////////////////////
 ////////////// Data Structs //////////////////
 //////////////////////////////////////////////
 
@@ -80,7 +95,7 @@ VS_OUT vs_main(in float4 position : POSITION)
 //////////////////////////////////////////////
 
 // This shader works in view space.
-float4 ps_main(VS_OUT input) : COLOR0
+float4 ps_main(uniform bool hasShadows, VS_OUT input) : COLOR0
 {
     // Obtain screen position
     input.screenPosition.xy /= input.screenPosition.w;
@@ -90,6 +105,20 @@ float4 ps_main(VS_OUT input) : COLOR0
     // The texture coordinates need to be in [0,1]*[0,1]
     float2 uv = 0.5f * (float2(input.screenPosition.x, -input.screenPosition.y) + 1) + halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
     
+	// Process the shadow map value.
+	float shadowTerm = 1.0;
+	
+	if (hasShadows) // No need for [branch], this is a uniform value.
+	{
+		shadowTerm = tex2D(shadowSampler, uv).r;		
+		[branch]
+		if (shadowTerm == 0)
+		{
+			Discard();
+		}
+	}
+
+
 	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
 	float depth = tex2D(depthSampler, uv).r;
 		
@@ -163,7 +192,7 @@ float4 ps_main(VS_OUT input) : COLOR0
 	// A: Specular Term * N.L (Look in Shader X7 to know why N * L is necesary in this last channel)
 	// Also in Shader X7 talk about a new channel so that the material shininess could be controled better.
 	// http://diaryofagraphicsprogrammer.blogspot.com/2008/03/light-pre-pass-renderer.html	    
-	return float4(GammaToLinear(lightColor), specular) * DL * attenuation * lightIntensity * NL;
+	return float4(GammaToLinear(lightColor), specular) * DL * attenuation * lightIntensity * NL * shadowTerm;
 }
 
 //////////////////////////////////////////////
@@ -175,6 +204,15 @@ technique SpotLight
 	pass p0
 	{
 		VertexShader = compile vs_3_0 vs_main();
-		PixelShader  = compile ps_3_0 ps_main();
+		PixelShader  = compile ps_3_0 ps_main(false);
+	}
+} // SpotLight
+
+technique SpotLightWithShadows
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 ps_main(true);
 	}
 } // SpotLight

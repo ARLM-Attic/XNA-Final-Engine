@@ -409,7 +409,7 @@ namespace XNAFinalEngine.EngineCore
             }
             
             #endregion
-            
+
             #region Screenshot Preparations
 
             RenderTarget screenshotRenderTarget = null;
@@ -580,6 +580,36 @@ namespace XNAFinalEngine.EngineCore
                 ScreenshotCapturer.SaveScreenshot(screenshotRenderTarget);
                 SpriteManager.DrawTextureToFullScreen(screenshotRenderTarget);
                 screenshotRenderTarget.Dispose();
+            }
+
+            #endregion
+
+            #region Release Shadow Textures
+
+            // We can do this from time to time to reduce calculations.
+            for (int i = 0; i < SpotLight.ComponentPool.Count; i++)
+            {
+                if (SpotLight.ComponentPool.Elements[i].ShadowTexture != null)
+                {
+                    RenderTarget.Release(SpotLight.ComponentPool.Elements[i].ShadowTexture);
+                    SpotLight.ComponentPool.Elements[i].ShadowTexture = null;
+                }
+            }
+            for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
+            {
+                if (DirectionalLight.ComponentPool.Elements[i].ShadowTexture != null)
+                {
+                    RenderTarget.Release(DirectionalLight.ComponentPool.Elements[i].ShadowTexture);
+                    DirectionalLight.ComponentPool.Elements[i].ShadowTexture = null;
+                }
+            }
+            for (int i = 0; i < PointLight.ComponentPool.Count; i++)
+            {
+                if (PointLight.ComponentPool.Elements[i].ShadowTexture != null)
+                {
+                    RenderTarget.Release(PointLight.ComponentPool.Elements[i].ShadowTexture);
+                    PointLight.ComponentPool.Elements[i].ShadowTexture = null;
+                }
             }
 
             #endregion
@@ -773,15 +803,14 @@ namespace XNAFinalEngine.EngineCore
 
             #region Shadow Maps
 
-            ///////////////////////////////////////////////////////
-            // TODO!!! I'm redoing the shadow maps for each camera.
-            ///////////////////////////////////////////////////////
-            
+            #region Directional Light Shadows
+
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
                 DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
                 // If there is a shadow map...
-                if (currentDirectionalLight.Shadow != null && currentDirectionalLight.Shadow.Enabled && currentDirectionalLight.Visible && currentDirectionalLight.Intensity > 0)
+                if (currentDirectionalLight.Shadow != null && currentDirectionalLight.Shadow.Enabled && currentDirectionalLight.Visible &&
+                    currentDirectionalLight.Intensity > 0 && currentDirectionalLight.ShadowTexture == null)
                 {
                     RenderTarget shadowDepthTexture;
                     if (currentDirectionalLight.Shadow.TextureSize == Size.TextureSize.FullSize)
@@ -814,7 +843,52 @@ namespace XNAFinalEngine.EngineCore
                 else
                     currentDirectionalLight.ShadowTexture = null;
             }
-            
+
+            #endregion
+
+            #region Spot Light Shadows
+
+            for (int i = 0; i < SpotLight.ComponentPool.Count; i++)
+            {
+                SpotLight currentSpotLight = SpotLight.ComponentPool.Elements[i];
+                // If there is a shadow map...
+                if (currentSpotLight.Shadow != null && currentSpotLight.Shadow.Enabled && currentSpotLight.Visible &&
+                    currentSpotLight.Intensity > 0 && currentSpotLight.ShadowTexture == null)
+                {
+                    RenderTarget shadowDepthTexture;
+                    if (currentSpotLight.Shadow.TextureSize == Size.TextureSize.FullSize)
+                        shadowDepthTexture = gbufferTextures.RenderTargets[0];
+                    else if (currentSpotLight.Shadow.TextureSize == Size.TextureSize.HalfSize)
+                        shadowDepthTexture = halfDepthTexture;
+                    else
+                        shadowDepthTexture = quarterDepthTexture;
+
+                    // If the shadow map is a cascaded shadow map...
+                    if (currentSpotLight.Shadow is BasicShadow)
+                    {
+                        BasicShadow shadow = (BasicShadow)currentSpotLight.Shadow;
+                        BasicShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, shadowDepthTexture, shadow.DepthBias, shadow.Filter);
+                        BasicShadowMapShader.Instance.SetLight(currentSpotLight.cachedPosition, currentSpotLight.cachedDirection, currentSpotLight.OuterConeAngle,
+                                                               currentSpotLight.Range, currentCamera.ViewMatrix, cornersViewSpace);
+                        //FrustumCulling(new BoundingFrustum(), modelsToRenderShadow);
+                        // Render all the opaque objects...
+                        for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
+                        {
+                            ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[j];
+                            if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                            {
+                                BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                            }
+                        }
+                        currentSpotLight.ShadowTexture = BasicShadowMapShader.Instance.End();
+                    }
+                }
+                else
+                    currentSpotLight.ShadowTexture = null;
+            }
+
+            #endregion
+
             #endregion
 
             #region Light Texture
@@ -848,9 +922,8 @@ namespace XNAFinalEngine.EngineCore
                 DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
                 if (currentDirectionalLight.Visible && currentDirectionalLight.Intensity > 0)
                 {
-                    DirectionalLightShader.Instance.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection, currentDirectionalLight.Intensity, currentDirectionalLight.ShadowTexture);
-                    if (currentDirectionalLight.ShadowTexture != null)
-                        RenderTarget.Release(currentDirectionalLight.ShadowTexture);
+                    DirectionalLightShader.Instance.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection,
+                                                                currentDirectionalLight.Intensity, currentDirectionalLight.ShadowTexture);
                 }
             }
 
@@ -894,7 +967,8 @@ namespace XNAFinalEngine.EngineCore
                 {
                     SpotLightShader.Instance.RenderLight(currentSpotLight.DiffuseColor, currentSpotLight.cachedPosition,
                                                          currentSpotLight.cachedDirection, currentSpotLight.Intensity,
-                                                         currentSpotLight.Range, currentSpotLight.InnerConeAngle, currentSpotLight.OuterConeAngle);
+                                                         currentSpotLight.Range, currentSpotLight.InnerConeAngle,
+                                                         currentSpotLight.OuterConeAngle, currentSpotLight.ShadowTexture); ;
                 }
             }
 

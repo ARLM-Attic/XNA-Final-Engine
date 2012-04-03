@@ -59,7 +59,7 @@ namespace XNAFinalEngine.Graphics
         
 	    private Shadow.FilterType filterType;
 
-	    private RenderTarget shadowMapTexture, deferredShadowResult;
+	    private RenderTarget lightDepthTexture, deferredShadowResult;
 
         // Singleton reference.
         private static BasicShadowMapShader instance;
@@ -270,17 +270,17 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the G-Buffer render.
         /// </summary>
-        internal void Begin(Size shadowMapSize, Size shadowResultSize, RenderTarget depthTexture, float depthBias, Shadow.FilterType filterType)
+        internal void Begin(Size lightDepthTextureSize, RenderTarget depthTexture, float depthBias, Shadow.FilterType filterType)
         {
             try
             {
                 // Creates the render target textures
-                shadowMapTexture = RenderTarget.Fetch(shadowMapSize, SurfaceFormat.HalfSingle, DepthFormat.Depth16, RenderTarget.AntialiasingType.NoAntialiasing);
+                lightDepthTexture = RenderTarget.Fetch(lightDepthTextureSize, SurfaceFormat.HalfSingle, DepthFormat.Depth16, RenderTarget.AntialiasingType.NoAntialiasing);
                 // Alpha8 doesn't work in my old G92 GPU processor and I opt to work with half single. Color is another good choice because support texture filtering.
                 // XBOX 360 Xbox does not support 16 bit render targets (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
                 // Color would be the better choice for the XBOX 360.
                 // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.
-                deferredShadowResult = RenderTarget.Fetch(shadowResultSize, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                deferredShadowResult = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
 
                 // Set Render States.
                 EngineManager.Device.BlendState = BlendState.Opaque;
@@ -290,15 +290,15 @@ namespace XNAFinalEngine.Graphics
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
 
                 // Set parameters.
-                SetHalfPixel(new Vector2(-1f / shadowResultSize.Width, 1f / shadowResultSize.Height));
-                SetShadowMapTexelSize(new Vector2(shadowMapSize.Width, shadowMapSize.Height));
+                SetHalfPixel(new Vector2(-1f / depthTexture.Size.Width, 1f / depthTexture.Size.Height));
+                SetShadowMapTexelSize(new Vector2(lightDepthTextureSize.Width, lightDepthTextureSize.Height));
                 SetDepthBias(depthBias);
                 SetDepthTexture(depthTexture);
                 this.filterType = filterType;
 
                 // Enable first render target.
-                shadowMapTexture.EnableRenderTarget();
-                shadowMapTexture.Clear(Color.White);
+                lightDepthTexture.EnableRenderTarget();
+                lightDepthTexture.Clear(Color.White);
                 Resource.CurrentTechnique = Resource.Techniques["GenerateShadowMap"];
             }
             catch (Exception e)
@@ -319,11 +319,11 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 // Resolve shadow map.
-                shadowMapTexture.DisableRenderTarget();
+                lightDepthTexture.DisableRenderTarget();
 
                 // Render deferred shadow result
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                SetShadowMapTexture(shadowMapTexture);
+                SetShadowMapTexture(lightDepthTexture);
 
                 deferredShadowResult.EnableRenderTarget();
                 deferredShadowResult.Clear(Color.White);
@@ -340,11 +340,12 @@ namespace XNAFinalEngine.Graphics
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
                 deferredShadowResult.DisableRenderTarget();
-                
-                //RenderTarget.Release(deferredShadowResult);
-                //return shadowMapTexture;
 
-                RenderTarget.Release(shadowMapTexture);
+                /*RenderTarget.Release(deferredShadowResult);
+                return lightDepthTexture;*/
+                
+                RenderTarget.Release(lightDepthTexture);
+                BlurShader.Instance.Filter(deferredShadowResult, true, 1);
                 return deferredShadowResult;
             }
             catch (Exception e)
@@ -368,12 +369,12 @@ namespace XNAFinalEngine.Graphics
         internal void SetLight(Vector3 position, Vector3 direction, float apertureCone, float range, Matrix viewMatrix, Vector3[] boundingFrustum)
 		{
 
-            lightViewMatrix = Matrix.CreateLookAt(position, position + direction, new Vector3(0, 1, 0));
+            lightViewMatrix = Matrix.CreateLookAt(position, position + direction, Vector3.Up);
             lightProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(apertureCone * (float)Math.PI / 180.0f, // field of view
-                                                                        1.0f, // Aspect ratio
-                                                                        0.1f, // Near plane
+                                                                        1.0f,   // Aspect ratio
+                                                                        1f,   // Near plane
                                                                         range); // Far plane
-            SetViewToLightViewProjMatrix(viewMatrix * lightViewMatrix * lightProjectionMatrix);
+            SetViewToLightViewProjMatrix(Matrix.Invert(viewMatrix) * lightViewMatrix * lightProjectionMatrix);
             SetFrustumCorners(boundingFrustum);
 		} // SetLight
 
@@ -382,6 +383,7 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         internal void SetLight(Vector3 direction, Matrix viewMatrix, Matrix projectionMatrix, float nearPlane, float farPlane, Vector3[] boundingFrustum)
         {
+
             #region Far Frustum Corner in View Space
 
             boundingFrustumTemp.Matrix = viewMatrix * projectionMatrix;
