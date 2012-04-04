@@ -39,7 +39,7 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
         
     // Offset the coordinate by half a texel so we sample it correctly
     shadowTexCoord += (0.5f / shadowMapSize);
-	
+			
 	// Get the shadow occlusion factor and output it
 	float shadowTerm;
 	if (iFilterSize == 0)
@@ -49,8 +49,10 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
 	else
 		shadowTerm = CalculateShadowTermSoftPCF(depthLightSpace, shadowTexCoord, iFilterSize);
 		
-	return float4(shadowTerm, 1, 1, 1);
-	
+	// Attenuate over distance.
+	depthLightSpace = pow(depthLightSpace, 20);
+	return float4(shadowTerm + 1 * depthLightSpace, 1, 1, 1);
+
 } // ps_main
 
 //////////////////////////////////////////////

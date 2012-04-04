@@ -839,6 +839,24 @@ namespace XNAFinalEngine.EngineCore
                         }
                         currentDirectionalLight.ShadowTexture = CascadedShadowMapShader.Instance.End();
                     }
+                    // If the shadow map is a basic shadow map...
+                    else if (currentDirectionalLight.Shadow is BasicShadow)
+                    {
+                        BasicShadow shadow = (BasicShadow)currentDirectionalLight.Shadow;
+                        BasicShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, shadowDepthTexture, shadow.DepthBias, shadow.Filter);
+                        BasicShadowMapShader.Instance.SetLight(currentDirectionalLight.cachedDirection, currentCamera.ViewMatrix, shadow.Range, cornersViewSpace);
+                        //FrustumCulling(new BoundingFrustum(), modelsToRenderShadow);
+                        // Render all the opaque objects...
+                        for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
+                        {
+                            ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[j];
+                            if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                            {
+                                BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                            }
+                        }
+                        currentDirectionalLight.ShadowTexture = BasicShadowMapShader.Instance.End();
+                    }
                 }
                 else
                     currentDirectionalLight.ShadowTexture = null;
@@ -868,8 +886,8 @@ namespace XNAFinalEngine.EngineCore
                     {
                         BasicShadow shadow = (BasicShadow)currentSpotLight.Shadow;
                         BasicShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, shadowDepthTexture, shadow.DepthBias, shadow.Filter);
-                        BasicShadowMapShader.Instance.SetLight(currentSpotLight.cachedPosition, currentSpotLight.cachedDirection, currentSpotLight.OuterConeAngle,
-                                                               currentSpotLight.Range, currentCamera.ViewMatrix, cornersViewSpace);
+                        BasicShadowMapShader.Instance.SetLight(currentSpotLight.cachedPosition, currentSpotLight.cachedDirection, currentCamera.ViewMatrix, currentSpotLight.OuterConeAngle,
+                                                               currentSpotLight.Range, cornersViewSpace);
                         //FrustumCulling(new BoundingFrustum(), modelsToRenderShadow);
                         // Render all the opaque objects...
                         for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
@@ -968,7 +986,7 @@ namespace XNAFinalEngine.EngineCore
                     SpotLightShader.Instance.RenderLight(currentSpotLight.DiffuseColor, currentSpotLight.cachedPosition,
                                                          currentSpotLight.cachedDirection, currentSpotLight.Intensity,
                                                          currentSpotLight.Range, currentSpotLight.InnerConeAngle,
-                                                         currentSpotLight.OuterConeAngle, currentSpotLight.ShadowTexture); ;
+                                                         currentSpotLight.OuterConeAngle, currentSpotLight.ShadowTexture);
                 }
             }
 

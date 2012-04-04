@@ -261,7 +261,7 @@ namespace XNAFinalEngine.Graphics
         #region Shadow Map Size
 
         private static Vector2? lastUsedShadowMapSize;
-        private static void SetShadowMapTexelSize(Vector2 shadowMapSize)
+        private static void SetShadowMapSize(Vector2 shadowMapSize)
         {
             if (lastUsedShadowMapSize != shadowMapSize)
             {
@@ -346,7 +346,7 @@ namespace XNAFinalEngine.Graphics
 
                 // Set parameters.
                 SetHalfPixel(new Vector2(-1f / depthTexture.Width, 1f / depthTexture.Height));
-                SetShadowMapTexelSize(new Vector2(lightDepthTexture.Width, lightDepthTexture.Height));
+                SetShadowMapSize(new Vector2(lightDepthTexture.Width, lightDepthTexture.Height));
                 SetDepthBias(depthBias);
                 SetDepthTexture(depthTexture);
                 this.filterType = filterType;

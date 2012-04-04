@@ -66,6 +66,7 @@ namespace XNAFinalEngine.Assets
         private FilterType filter = FilterType.PCF5x5;
         private float depthBias = 0.0025f;
         private Size.TextureSize textureSize = Size.TextureSize.HalfSize;
+	    private float range = 50;
 
         // Is it enabled?
         private bool enabled = true;
@@ -136,6 +137,21 @@ namespace XNAFinalEngine.Assets
 	        get { return textureSize; }
 	        set { textureSize = value; }
         } // TextureSize
+
+        /// <summary>
+        /// Shadow's far plane.
+        /// </summary>
+        /// <remarks>This value is ignored when the shadow is associated with a spot light.</remarks>
+        public float Range
+        {
+            get { return range; }
+            set
+            {
+                range = value;
+                if (range < 0.0f)
+                    range = 0;
+            }
+        } // Range
 
 	    #endregion
 

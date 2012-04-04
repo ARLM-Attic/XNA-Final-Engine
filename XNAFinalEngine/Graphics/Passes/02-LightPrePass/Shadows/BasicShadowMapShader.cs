@@ -366,7 +366,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
 		/// Calculate light matrices.
 		/// </summary>
-        internal void SetLight(Vector3 position, Vector3 direction, float apertureCone, float range, Matrix viewMatrix, Vector3[] boundingFrustum)
+        internal void SetLight(Vector3 position, Vector3 direction, Matrix viewMatrix, float apertureCone, float range, Vector3[] boundingFrustum)
 		{
 
             lightViewMatrix = Matrix.CreateLookAt(position, position + direction, Vector3.Up);
@@ -381,12 +381,13 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Determines the size of the frustum needed to cover the viewable area, then creates the light view matrix and an appropriate orthographic projection.
         /// </summary>
-        internal void SetLight(Vector3 direction, Matrix viewMatrix, Matrix projectionMatrix, float nearPlane, float farPlane, Vector3[] boundingFrustum)
+        internal void SetLight(Vector3 direction, Matrix viewMatrix, float range, Vector3[] boundingFrustum)
         {
+            const float nearPlane = 1f;
 
             #region Far Frustum Corner in View Space
 
-            boundingFrustumTemp.Matrix = viewMatrix * projectionMatrix;
+            boundingFrustumTemp.Matrix = viewMatrix * Matrix.CreatePerspectiveFieldOfView(3.1416f * 45 / 180.0f, 1, nearPlane, range);
             boundingFrustumTemp.GetCorners(cornersWorldSpace);
             Vector3 frustumCornersViewSpace4 = Vector3.Transform(cornersWorldSpace[4], viewMatrix);
             Vector3 frustumCornersViewSpace5 = Vector3.Transform(cornersWorldSpace[5], viewMatrix);
@@ -400,8 +401,8 @@ namespace XNAFinalEngine.Graphics
             frustumCentroid /= 8;
 
             // Position the shadow-caster camera so that it's looking at the centroid, and backed up in the direction of the sunlight
-            float distFromCentroid = MathHelper.Max((farPlane - nearPlane), Vector3.Distance(frustumCornersViewSpace4, frustumCornersViewSpace5)) + 50.0f;
-            lightViewMatrix = Matrix.CreateLookAt(frustumCentroid - (direction * distFromCentroid), frustumCentroid, new Vector3(0, 1, 0));
+            float distFromCentroid = MathHelper.Max((range - nearPlane), Vector3.Distance(frustumCornersViewSpace4, frustumCornersViewSpace5)) + 50.0f;
+            lightViewMatrix = Matrix.CreateLookAt(frustumCentroid - (direction * distFromCentroid), frustumCentroid, Vector3.Up);
 
             // Determine the position of the frustum corners in light space
             Vector3.Transform(cornersWorldSpace, ref lightViewMatrix, frustumCornersLightSpace);
@@ -426,8 +427,7 @@ namespace XNAFinalEngine.Graphics
             }
 
             // Create an orthographic camera for use as a shadow caster
-            const float nearClipOffset = 100.0f;
-            lightProjectionMatrix = Matrix.CreateOrthographicOffCenter(mins.X, maxes.X, mins.Y, maxes.Y, -maxes.Z - nearClipOffset, -mins.Z);
+            lightProjectionMatrix = Matrix.CreateOrthographicOffCenter(mins.X, maxes.X, mins.Y, maxes.Y, -maxes.Z - range, -mins.Z);
 
             SetViewToLightViewProjMatrix(Matrix.Invert(viewMatrix) * lightViewMatrix * lightProjectionMatrix);
             SetFrustumCorners(boundingFrustum);

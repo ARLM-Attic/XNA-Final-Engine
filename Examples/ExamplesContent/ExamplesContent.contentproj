@@ -511,11 +511,6 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Textures\Shaders\ScreenBorderFadeout.dds">
-      <Name>ScreenBorderFadeout</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
     <Compile Include="Textures\Shaders\SparkleNoiseMap.dds">
       <Name>SparkleNoiseMap</Name>
       <Importer>TextureImporter</Importer>

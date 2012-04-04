@@ -866,13 +866,14 @@ namespace XNAFinalEngineExamples
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 140);
-            directionalLight.DirectionalLight.Intensity = 15f;
+            directionalLight.DirectionalLight.Intensity = 5f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
                 Filter = Shadow.FilterType.PCF3x3,
-                LightDepthTextureSize = Size.Square512X512,
-                TextureSize = Size.TextureSize.HalfSize
+                LightDepthTextureSize = Size.Square1024X1024,
+                TextureSize = Size.TextureSize.HalfSize,
+                Range = 50,
             };
             /*
             pointLight = new GameObject3D();
@@ -934,10 +935,10 @@ namespace XNAFinalEngineExamples
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
             spotLight.SpotLight.DiffuseColor = Color.Green;
-            spotLight.SpotLight.Intensity = 20f;
-            spotLight.SpotLight.Range = 50; // I always forget to set the light range lower than the camera far plane.
+            spotLight.SpotLight.Intensity = 50f;
+            spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
             spotLight.SpotLight.SpecularColor = Color.White;
-            spotLight.Transform.Position = new Vector3(0, 15f, 20);
+            spotLight.Transform.Position = new Vector3(0, 15f, 10);
             spotLight.Transform.Rotate(new Vector3(-45, 0, 0));
             spotLight.SpotLight.Shadow = new BasicShadow
             {
