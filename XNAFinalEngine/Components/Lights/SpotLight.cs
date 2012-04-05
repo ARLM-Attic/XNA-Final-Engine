@@ -121,6 +121,11 @@ namespace XNAFinalEngine.Components
         } // Range
 
         /// <summary>
+        /// This texture will be projected from the light onto the scene, acting like a mask that occludes the emitted light.
+        /// </summary>
+        public Texture LightMaskTexture { get; set; }
+
+        /// <summary>
         /// Associated shadow.
         /// </summary>
         public override Shadow Shadow
@@ -149,6 +154,7 @@ namespace XNAFinalEngine.Components
             innerConeAngle = 20;
             outerConeAngle = 60;
             specularColor = Color.White;
+            LightMaskTexture = null;
             cachedPosition = ((GameObject3D)Owner).Transform.Position;
             cachedDirection = ((GameObject3D)Owner).Transform.Forward;
         } // Initialize

@@ -91,6 +91,9 @@ namespace XNAFinalEngine.Graphics
                                        epFarPlane,
                                        epWorldViewProj,
                                        epWorldView,
+                                       epViewToLightViewProj,
+                                       epHasLightMask,
+                                       epLightMaskTexture,
                                        // Light
                                        epLightColor,
                                        epLightPosition,
@@ -145,6 +148,22 @@ namespace XNAFinalEngine.Graphics
                 epNormalTexture.SetValue(normalTexture.Resource);
             }
         } // SetNormalTexture
+
+        #endregion
+
+        #region Light Mask Texture
+
+        private static Texture2D lastUsedLightMaskTexture;
+        private static void SetLightMaskTexture(Texture lightMaskTexture)
+        {
+            EngineManager.Device.SamplerStates[4] = SamplerState.LinearClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedLightMaskTexture != lightMaskTexture.Resource)
+            {
+                lastUsedLightMaskTexture = lightMaskTexture.Resource;
+                epLightMaskTexture.SetValue(lightMaskTexture.Resource);
+            }
+        } // SetLightMaskTexture
 
         #endregion
 
@@ -312,6 +331,16 @@ namespace XNAFinalEngine.Graphics
             }
         } // SetWorldViewProjMatrix
 
+        private static Matrix? lastUsedViewToLightViewProjMatrix;
+        private static void SetViewToLightViewProjMatrix(Matrix viewToLightViewProjMatrix)
+        {
+            if (lastUsedViewToLightViewProjMatrix != viewToLightViewProjMatrix)
+            {
+                lastUsedViewToLightViewProjMatrix = viewToLightViewProjMatrix;
+                epViewToLightViewProj.SetValue(viewToLightViewProjMatrix);
+            }
+        } // SetViewToLightViewProjMatrix
+
         #endregion
 
         #region Shadow Texture
@@ -327,6 +356,20 @@ namespace XNAFinalEngine.Graphics
                 epShadowTexture.SetValue(shadowTexture.Resource);
             }
         } // SetNormalTexture
+
+        #endregion
+
+        #region Has Light Mask
+
+        private static bool lastUsedHasLightMask;
+        private static void SetHasLightMask(bool hasLightMask)
+        {
+            if (lastUsedHasLightMask != hasLightMask)
+            {
+                lastUsedHasLightMask = hasLightMask;
+                epHasLightMask.SetValue(hasLightMask);
+            }
+        } // SetHasLightMask
 
         #endregion
 
@@ -372,6 +415,9 @@ namespace XNAFinalEngine.Graphics
                 epWorldView                        = Resource.Parameters["worldView"];
                 epInsideBoundingLightObject        = Resource.Parameters["insideBoundingLightObject"];
                 epShadowTexture                    = Resource.Parameters["shadowTexture"];
+                epViewToLightViewProj              = Resource.Parameters["viewToLightViewProj"];
+                epHasLightMask                     = Resource.Parameters["hasLightMask"];
+                epLightMaskTexture                 = Resource.Parameters["lightMaskTexture"];
             }
             catch
             {
@@ -421,7 +467,7 @@ namespace XNAFinalEngine.Graphics
         /// Render to the light pre pass texture.
         /// </summary>
         public void RenderLight(Color diffuseColor, Vector3 position, Vector3 direction, float intensity,
-                                float radius, float innerConeAngle, float outerConeAngle, Texture shadowTexture)
+                                float range, float innerConeAngle, float outerConeAngle, Texture shadowTexture, Texture lightMaskTexture)
         {
             try
             {
@@ -430,16 +476,30 @@ namespace XNAFinalEngine.Graphics
                 SetLightColor(diffuseColor);
                 SetLightPosition(Vector3.Transform(position, viewMatrix));
                 SetLightIntensity(intensity);
-                SetLightRadius(radius);
+                SetLightRadius(range);
                 Vector3 directionVS = Vector3.TransformNormal(direction, viewMatrix);
                 directionVS.Normalize();
                 SetLightDirection(directionVS);
                 SetLightInnerConeAngle(innerConeAngle);
                 SetLightOuterConeAngle(outerConeAngle);
 
+                if (lightMaskTexture != null)
+                {
+                    Matrix lightViewMatrix = Matrix.CreateLookAt(position, position + direction, Vector3.Up);
+                    Matrix lightProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(outerConeAngle * (float)Math.PI / 180.0f, // field of view
+                                                                                1.0f,   // Aspect ratio
+                                                                                1f,   // Near plane
+                                                                                range); // Far plane
+                    SetViewToLightViewProjMatrix(Matrix.Invert(viewMatrix) * lightViewMatrix * lightProjectionMatrix);
+                    SetLightMaskTexture(lightMaskTexture);
+                    SetHasLightMask(true);
+                }
+                else
+                    SetHasLightMask(false);
+
                 // Compute the light world matrix.
                 // Scale according to light radius, and translate it to light position.
-                Matrix boundingLightObjectWorldMatrix = Matrix.CreateScale(radius) * Matrix.CreateTranslation(position);
+                Matrix boundingLightObjectWorldMatrix = Matrix.CreateScale(range) * Matrix.CreateTranslation(position);
 
                 SetWorldViewProjMatrix(boundingLightObjectWorldMatrix * viewMatrix * projectionMatrix);
                 SetWorldViewMatrix(boundingLightObjectWorldMatrix * viewMatrix);
@@ -457,7 +517,7 @@ namespace XNAFinalEngine.Graphics
                 // Calculate the distance between the camera and light center.
                 float cameraToCenter = Vector3.Distance(Matrix.Invert(viewMatrix).Translation, position) - nearPlane;
                 // If we are inside the light volume, draw the sphere's inside face.
-                if (cameraToCenter <= radius)
+                if (cameraToCenter <= range)
                 {
                     SetInsideBoundingLightObject(true);
                     EngineManager.Device.RasterizerState = RasterizerState.CullClockwise;

@@ -32,10 +32,11 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 float4x4 worldViewProj;
 float4x4 worldView;
+float4x4 viewToLightViewProj;
 
 float2 halfPixel;
-
 float farPlane;
+bool hasLightMask;
 
 float3 lightPosition;
 float3 lightDirection;
@@ -50,6 +51,17 @@ bool insideBoundingLightObject;
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
+
+texture lightMaskTexture : register(t4);
+sampler2D lightMaskSampler : register(s4) = sampler_state
+{
+	Texture = <lightMaskTexture>;
+    /*ADDRESSU = CLAMP;
+	ADDRESSV = CLAMP;
+	MAGFILTER = LINEAR;
+	MINFILTER = LINEAR;
+	MIPFILTER = NONE;*/
+};
 
 texture shadowTexture : register(t3);
 sampler2D shadowSampler : register(s3) = sampler_state
@@ -184,7 +196,23 @@ float4 ps_main(uniform bool hasShadows, VS_OUT input) : COLOR0
 	float3 H  = normalize(V + normalize(L));
 	// Compute specular light
     float specular = pow(saturate(dot(N, H)), DecompressSpecularPower(tex2D(motionVectorSpecularPowerSampler, uv).b));
+	
+	[branch]
+	if (hasLightMask)
+	{
+		// Determine the depth of the pixel with respect to the light
+		float4 positionLightCS = mul(float4(positionVS, 1), viewToLightViewProj);
 		
+		float depthLightSpace = positionLightCS.z / positionLightCS.w; // range 0 to 1
+	
+		// Transform from light space to shadow map texture space.
+		float2 shadowTexCoord = 0.5 * positionLightCS.xy / positionLightCS.w + float2(0.5f, 0.5f);
+		shadowTexCoord.y = 1.0f - shadowTexCoord.y;
+
+		shadowTerm *= tex2D(lightMaskSampler, shadowTexCoord).r;
+		// This could be easily modified to support color texture projection.
+	}
+
 	// Fill the light buffer:
 	// R: Color.r * N.L // The color need to be in linear space and right now it's in gamma.
 	// G: Color.g * N.L

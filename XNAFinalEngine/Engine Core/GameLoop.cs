@@ -986,7 +986,7 @@ namespace XNAFinalEngine.EngineCore
                     SpotLightShader.Instance.RenderLight(currentSpotLight.DiffuseColor, currentSpotLight.cachedPosition,
                                                          currentSpotLight.cachedDirection, currentSpotLight.Intensity,
                                                          currentSpotLight.Range, currentSpotLight.InnerConeAngle,
-                                                         currentSpotLight.OuterConeAngle, currentSpotLight.ShadowTexture);
+                                                         currentSpotLight.OuterConeAngle, currentSpotLight.ShadowTexture, currentSpotLight.LightMaskTexture);
                 }
             }
 
