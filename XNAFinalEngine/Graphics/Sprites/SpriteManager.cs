@@ -351,6 +351,12 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Flushes the sprite batch and restores the device state to how it was before Begin was called.
         /// </summary>
+        /// <remarks>
+        /// SpriteBatch lazily grows its buffers, so it will allocate whenever a single batch draws more sprites 
+        /// than any previous batch has seen, but it does not allocate anything once you reach a steady state and
+        /// are no longer increasing your sprite count.
+        /// Unfortunately the pre draw is not enough to avoid a garbage collection. 
+        /// </remarks>
         public static void End()
         {
             if (!begined)

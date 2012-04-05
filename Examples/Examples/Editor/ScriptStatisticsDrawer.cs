@@ -231,7 +231,7 @@ namespace XNAFinalEngine.Editor
             // Text
             trianglesDrawnText = new GameObject2D();
             trianglesDrawnText.AddComponent<HudText>();
-            trianglesDrawnText.HudText.Text.Append("Triangles Drawn ");
+            trianglesDrawnText.HudText.Text.Append("Triangles Proceeded ");
             trianglesDrawnText.Transform.LocalPosition = new Vector3(trianglesDrawnPositionX, positionY + elementsHeight + 5, 0);
 
             #endregion
@@ -513,7 +513,7 @@ namespace XNAFinalEngine.Editor
                             trianglesDrawnGoodThreshold, trianglesDrawnBadThreshold, new Color(100, 255, 100), Color.Yellow, Color.Red);
             }
             // Update Text
-            trianglesDrawnText.HudText.Text.Length = 16;
+            trianglesDrawnText.HudText.Text.Length = 20;
             trianglesDrawnText.HudText.Text.AppendWithoutGarbage(Statistics.TrianglesDrawn, true);
             // Threshold Lines
             trianglesDrawnLines.LineRenderer.Vertices[trianglesDrawnNumberOfElements * 2 + 2].Position.Y = positionY + elementsHeight - (int)(elementsHeight * ((float)trianglesDrawnBadThreshold  / trianglesDrawnMaxValue));

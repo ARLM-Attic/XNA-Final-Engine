@@ -70,6 +70,11 @@ namespace XNAFinalEngine.EngineCore
         // It's an auxiliary value that helps avoiding garbage.
         private static Vector3[] cornersViewSpace = new Vector3[4];
 
+        private static readonly List<ModelRenderer> modelsToRender = new List<ModelRenderer>(50);
+        private static readonly List<ModelRenderer> modelsToRenderShadow = new List<ModelRenderer>(50);
+
+        private static readonly BoundingFrustum cameraBoundingFrustum = new BoundingFrustum(Matrix.Identity);
+
         private static AudioListener oneAudioListener;
         private static AudioListener[] twoAudioListener = new AudioListener[2];
         private static AudioListener[] threeAudioListener = new AudioListener[3];
@@ -644,9 +649,6 @@ namespace XNAFinalEngine.EngineCore
 
         #region Render Camera
 
-        private static readonly List<ModelRenderer> modelsToRender = new List<ModelRenderer>(50);
-        private static readonly List<ModelRenderer> modelsToRenderShadow = new List<ModelRenderer>(50);
-
         private static RenderTarget RenderCamera(Camera currentCamera)
         {
             
@@ -704,8 +706,9 @@ namespace XNAFinalEngine.EngineCore
             // CHC++ is a technique very used. In ShaderX7 there are a good article about it (it also includes the source code).
 
             // First Version (very simple)
+            cameraBoundingFrustum.Matrix = currentCamera.ViewMatrix*currentCamera.ProjectionMatrix;
             modelsToRender.Clear();
-            FrustumCulling(new BoundingFrustum(currentCamera.ViewMatrix * currentCamera.ProjectionMatrix), modelsToRender);
+            FrustumCulling(cameraBoundingFrustum, modelsToRender);
 
             #endregion
 
