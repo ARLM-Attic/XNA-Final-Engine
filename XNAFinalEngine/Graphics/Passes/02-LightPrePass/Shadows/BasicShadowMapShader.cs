@@ -227,7 +227,7 @@ namespace XNAFinalEngine.Graphics
         /// Only works with directional lights and spot lights.
         /// If performance is not an issue, use cascaded shadow maps for directional lights.
         /// </summary>
-        public BasicShadowMapShader() : base("Shadows\\ShadowMap") { }
+        private BasicShadowMapShader() : base("Shadows\\ShadowMap") { }
 
 		#endregion
 

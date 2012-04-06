@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Editor\EditorManager.cs" />
     <Compile Include="Editor\Pickers\Picker.cs" />
+    <Compile Include="Editor\EditableScene.cs" />
     <Compile Include="Editor\ScriptStatisticsDrawer.cs" />
     <Compile Include="Editor\Windows\Assets\LookupTableWindow.cs" />
     <Compile Include="Editor\Windows\Assets\PostProcessWindow.cs" />

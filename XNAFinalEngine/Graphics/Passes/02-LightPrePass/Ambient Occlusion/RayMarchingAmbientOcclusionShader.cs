@@ -46,7 +46,7 @@ namespace XNAFinalEngine.Graphics
     /// Horizon Based is similar in performance but better in results.
     /// However this is good example of how to make raymarching shaders and the results are not bad either.
     /// </summary>
-    public class RayMarchingAmbientOcclusionShader : Shader
+    internal class RayMarchingAmbientOcclusionShader : Shader
     {
 
         #region Variables
@@ -253,7 +253,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Ray Marching Screen Space Ambient Occlusion.
 		/// </summary>
-        public RayMarchingAmbientOcclusionShader() : base("GlobalIllumination\\RayMarchingAmbientOcclusionShader")
+        private RayMarchingAmbientOcclusionShader() : base("GlobalIllumination\\RayMarchingAmbientOcclusionShader")
 		{
             ContentManager userContentManager = ContentManager.CurrentContentManager;
             ContentManager.CurrentContentManager = ContentManager.SystemContentManager;

@@ -180,7 +180,7 @@ namespace XNAFinalEngine.Graphics
         /// <param name="texture">The texture to blur. The result will be placed here.</param>
         /// <param name="pointFilter">Use point filter or linear filter.</param>
         /// <param name="width">Blur Width. A value of 1 gives normally the better results and the better performance.</param>
-        internal void Filter(RenderTarget texture, bool pointFilter = true, float width = 1.0f)
+        public void Filter(RenderTarget texture, bool pointFilter = true, float width = 1.0f)
 		{
             if (texture == null || texture.Resource == null)
                 throw new ArgumentNullException("texture");

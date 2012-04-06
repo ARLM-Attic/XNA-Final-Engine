@@ -50,7 +50,7 @@ namespace XNAFinalEngine.Graphics
     /// The paint looks like one color when you're looking straight at the surface and another color when 
     /// the surface is parallel to your view. This shader imitates that effect.
     /// </summary>
-    public class CarPaintShader : Shader
+    internal class CarPaintShader : Shader
     {
 
         #region Variables
@@ -331,7 +331,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Constructor
 
-        public CarPaintShader() : base("Materials\\CarPaint")
+        private CarPaintShader() : base("Materials\\CarPaint")
         {
             ContentManager userContentManager = ContentManager.CurrentContentManager;
             ContentManager.CurrentContentManager = ContentManager.SystemContentManager;

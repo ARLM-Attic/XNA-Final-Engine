@@ -90,7 +90,6 @@ namespace XNAFinalEngine.Editor
             // No antialiasing because the colors can change.
             pickerTexture = new RenderTarget(size);
             constantShader = new Shader("Materials\\Constant");
-
         } // Picker
 
         #endregion

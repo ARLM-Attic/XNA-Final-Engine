@@ -164,7 +164,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Skybox Shader.
 		/// </summary>
-        internal SkyboxShader() : base("Sky\\Skybox")
+        private SkyboxShader() : base("Sky\\Skybox")
         {
             skyboxModel = new Box(1);
         } // SkyboxShader

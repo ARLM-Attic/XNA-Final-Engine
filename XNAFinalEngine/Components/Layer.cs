@@ -109,7 +109,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Init the layer array and base layer information.
         /// </summary>
-        internal static void InitLayers()
+        internal static void Initialize()
         {
             for (int i = 0; i < 32; i++)
             {
@@ -121,7 +121,7 @@ namespace XNAFinalEngine.Components
                 layerList[i].Number = i;
                 layerList[i].Mask = (int)(Math.Pow(2, i));
             }
-        } // InitLayers
+        } // Initialize
 
         #endregion
 

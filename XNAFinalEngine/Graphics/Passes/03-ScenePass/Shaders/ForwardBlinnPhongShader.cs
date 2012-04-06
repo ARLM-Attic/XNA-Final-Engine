@@ -450,7 +450,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Forward Blinn Phong Shader.
 		/// </summary>
-        internal ForwardBlinnPhongShader() : base("Materials\\ForwardBlinnPhong") { }
+        private ForwardBlinnPhongShader() : base("Materials\\ForwardBlinnPhong") { }
 
 		#endregion
         
@@ -609,6 +609,6 @@ namespace XNAFinalEngine.Graphics
 
 		#endregion        
         
-    } // BlinnPhongShader
+    } // ForwardBlinnPhongShader
 } // XNAFinalEngine.Graphics
 

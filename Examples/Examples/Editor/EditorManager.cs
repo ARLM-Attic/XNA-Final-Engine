@@ -29,12 +29,17 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Input;
+using XNAFinalEngine.UserInterface;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
+using Size = XNAFinalEngine.Helpers.Size;
+
 #endregion
 
 namespace XNAFinalEngine.Editor
@@ -47,7 +52,7 @@ namespace XNAFinalEngine.Editor
     /// The user interface was heavily modified and improved but the garbage was not removed.
     /// Moreover the editor uses the texture picking method that stall the CPU but brings the best accuracy.
     /// </remarks>
-    public class EditorManager : Disposable
+    public static class EditorManager
     {
 
         #region Enumerates
@@ -87,36 +92,45 @@ namespace XNAFinalEngine.Editor
 
         #region Variables
 
+        private static readonly GameObject3D camera;
+
         // The picker to select an object from the screen.
-        private readonly Picker picker;
+        private static Picker picker;
 
         // The active manipulator
-        private Manipulator activeManipulator = Manipulator.None;
+        private static Manipulator activeManipulator = Manipulator.None;
 
-        private GameObject selectedObject;
+        private static GameObject selectedObject;
 
         /// <summary>
         /// Calculos y guardamos en esta variable si es posible activar un manipulador. 
         /// Con esto evitamos el recalculo de esta situacion.
         /// </summary>
-        private bool isPosibleToSwich = false;
+        private static bool isPosibleToSwich = false;
         
         /// <summary>
         /// Almacena las operaciones anteriormente realizadas
         /// </summary>
-        private Stack<UndoStruct> undoStack = new Stack<UndoStruct>();
+        private static Stack<UndoStruct> undoStack = new Stack<UndoStruct>();
 
         #endregion
-        /*
-        #region Constructor
+
+        #region Initialize
 
         /// <summary>
         /// This put all the editor pieces together.
         /// </summary>
-        public EditorManager(Camera cameraComponent)
+        public static void Initialize(/*GameObject3D camera*/)
         {
-            picker = new Picker(cameraComponent.RenderTargetSize);
-        } // EditorManager
+            picker = new Picker(Size.FullScreen);
+            /*this.camera = camera;
+            // We add the editor script to the camera to manipulate in our own way.
+            ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
+            // Create a picker to select object from the screen.
+            picker = new Picker(camera.Camera.RenderTargetSize);
+            // The user interface is initialized.
+            UserInterfaceManager.Initialize();*/
+        } // Initialize
 
         #endregion
 
@@ -125,34 +139,42 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Adds the object from the list of objects that can be selected.
         /// </summary>
-        public void AddObject(GameObject obj)
+        public static void AddObject(GameObject obj)
         {
+            if (obj == null)
+                throw new ArgumentNullException("obj", "Editor Manager: object is null.");
+            if (picker == null)
+                throw new InvalidOperationException("Editor Manager: The editor was not initialized. If you use an Editable Scene call base.Load before adding or removing elements.");
             picker.AddObject(obj);
         } // AddObject
 
         /// <summary>
         /// Removes the object from the list of objects that can be selected.
         /// </summary>
-        public void RemoveObject(GameObject obj)
+        public static void RemoveObject(GameObject obj)
         {
+            if (obj == null)
+                throw new ArgumentNullException("obj", "Editor Manager: object is null.");
+            if (picker == null)
+                throw new InvalidOperationException("Editor Manager: The editor was not initialized. If you use an Editable Scene call base.Load before adding or removing elements.");
             picker.RemoveObject(obj);
         } // RemoveObject
 
         #endregion
-
+        
         #region Manipulate Scene
 
         /// <summary>
         /// Manipula la escena. Pero no renderiza nada en la pantalla.
         /// </summary>
-        public void ManipulateScene()
+        public static void ManipulateScene()
         {
-
+            
             #region Frame Object and Reset Camera
-
+            /*
             if (selectedObject != null && Keyboard.KeyJustPressed(Keys.F))
             {
-                ((XSICamera)ApplicationLogic.Camera).LookAtPosition = selectedObject.CenterPoint;
+                (camera.Camera).LookAtPosition = selectedObject.CenterPoint;
                 ((XSICamera)ApplicationLogic.Camera).Distance = selectedObject.BoundingSphereOptimized.Radius * 3;
             }
             if (Keyboard.KeyJustPressed(Keys.R))
@@ -160,9 +182,9 @@ namespace XNAFinalEngine.Editor
                 ((XSICamera)ApplicationLogic.Camera).LookAtPosition = new Vector3(0, 0.5f, 0);
                 ((XSICamera)ApplicationLogic.Camera).Distance = 15;
             }
-
+            */
             #endregion
-
+            /*
             // Si el manipulador no esta activo //
             if (activeManipulator == Manipulator.None)
             {
@@ -233,11 +255,11 @@ namespace XNAFinalEngine.Editor
                         case Manipulator.Translation: GizmoTranslation.InitializeManipulator(selectedObject); break;
                     }
                 }
-            }
+            }*/
         } // ManipulateScene
 
         #endregion
-
+        /*
         #region Render Feedback
 
         /// <summary>

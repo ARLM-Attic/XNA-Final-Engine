@@ -156,7 +156,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
 		/// Constant shader.
 		/// </summary>
-        internal ConstantShader() : base("Materials\\Constant") { }
+        private ConstantShader() : base("Materials\\Constant") { }
 
 		#endregion
         

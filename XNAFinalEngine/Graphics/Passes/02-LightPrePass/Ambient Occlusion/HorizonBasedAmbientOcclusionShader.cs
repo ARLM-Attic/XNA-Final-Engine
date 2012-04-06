@@ -340,7 +340,7 @@ namespace XNAFinalEngine.Graphics
         /// Important: I have to put constants in the shader's for.
         /// If you want to change the number of steps and the number of directions will need to change the properties and the shader code.
 		/// </summary>
-        public HorizonBasedAmbientOcclusionShader() : base("GlobalIllumination\\HorizonBasedAmbientOcclusion")
+        private HorizonBasedAmbientOcclusionShader() : base("GlobalIllumination\\HorizonBasedAmbientOcclusion")
 		{
             ContentManager userContentManager = ContentManager.CurrentContentManager;
             ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
@@ -396,7 +396,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Generate ambient occlusion texture.
 		/// </summary>
-        public RenderTarget Render(RenderTarget depthTexture, RenderTarget normalTexture, HorizonBasedAmbientOcclusion hbao, float fieldOfView)
+        internal RenderTarget Render(RenderTarget depthTexture, RenderTarget normalTexture, HorizonBasedAmbientOcclusion hbao, float fieldOfView)
         {
             try
             {

@@ -85,8 +85,7 @@ namespace XNAFinalEngine.Graphics
                     bloomTexture = BloomShader.Instance.Render(sceneTexture, postProcess);
 
                 // If the shader was not created...
-                if (postProcessingShader == null)
-                    postProcessingShader = new PostProcessingShader();
+                postProcessingShader = PostProcessingShader.Instance;
 
                 if (postProcess.ToneMapping.AutoExposureEnabled)
                 {

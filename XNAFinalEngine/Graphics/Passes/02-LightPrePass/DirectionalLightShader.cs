@@ -235,7 +235,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Light Pre Pass Directional Light Shader.
         /// </summary>
-        internal DirectionalLightShader() : base("LightPrePass\\DirectionalLight") { }
+        private DirectionalLightShader() : base("LightPrePass\\DirectionalLight") { }
 
         #endregion
 

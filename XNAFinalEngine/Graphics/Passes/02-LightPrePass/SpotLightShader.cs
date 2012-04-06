@@ -380,7 +380,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Light Pre Pass Spot Light Shader.
         /// </summary>
-        internal SpotLightShader() : base("LightPrePass\\SpotLight")
+        private SpotLightShader() : base("LightPrePass\\SpotLight")
         {
             boundingLightObject = new Sphere(50, 50, 1);
         } // SpotLightShader

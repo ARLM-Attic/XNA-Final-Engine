@@ -415,7 +415,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Blinn Phong Shader.
 		/// </summary>
-        internal BlinnPhongShader() : base("Materials\\BlinnPhong") { }
+        private BlinnPhongShader() : base("Materials\\BlinnPhong") { }
 
 		#endregion
         

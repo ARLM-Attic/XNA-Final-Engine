@@ -44,7 +44,7 @@ namespace XNAFinalEngine.Graphics
     /// <remarks>
     /// This version was not tested.
     /// </remarks>
-    public class CombineDepthAndNormalsShader : Shader
+    internal class CombineDepthAndNormalsShader : Shader
     {
 
         #region Variables
@@ -167,7 +167,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Combine depth and normals (foliage and opaque) for shadows (locals and global)
         /// </summary>
-        public CombineDepthAndNormalsShader() : base("GBuffer\\CombineDepthAndNormals") { }
+        private CombineDepthAndNormalsShader() : base("GBuffer\\CombineDepthAndNormals") { }
 
         #endregion
 
@@ -202,7 +202,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Combine depth and normals (foliage and opaque) for shadows (locals and global)
         /// </summary>
-        public RenderTarget.RenderTargetBinding Render(RenderTarget depthOpaqueTexture, RenderTarget depthFoliageTexture,
+        internal RenderTarget.RenderTargetBinding Render(RenderTarget depthOpaqueTexture, RenderTarget depthFoliageTexture,
                                                        RenderTarget normalOpaqueTexture, RenderTarget normalFoliageTexture)
         {
             try

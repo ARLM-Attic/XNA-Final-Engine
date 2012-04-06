@@ -79,7 +79,7 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// Initialize Input Devices.
         /// </summary>
-        public static void Initialize()
+        internal static void Initialize()
         {
             #if (!XBOX)
                 if (keyboardHook == null)

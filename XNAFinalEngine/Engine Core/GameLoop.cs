@@ -107,13 +107,15 @@ namespace XNAFinalEngine.EngineCore
             #region Load Managers
 
             // Create the 32 layers.
-            Layer.InitLayers();
+            Layer.Initialize();
             // Graphics
-            SpriteManager.Init();
+            SpriteManager.Initialize();
             // Input
             InputManager.Initialize();
             // Music
             MusicManager.Initialize();
+            // Lines
+            LineManager.Initialize();
 
             #endregion
 

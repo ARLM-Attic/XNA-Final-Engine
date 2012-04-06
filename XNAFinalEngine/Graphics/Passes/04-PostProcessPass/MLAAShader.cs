@@ -215,7 +215,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Morphological Antialiasing (MLAA).
         /// </summary>
-        internal MLAAShader() : base("PostProcessing\\MLAA")
+        private MLAAShader() : base("PostProcessing\\MLAA")
         {
             ContentManager userContentManager = ContentManager.CurrentContentManager;
             ContentManager.CurrentContentManager = ContentManager.SystemContentManager;

@@ -47,7 +47,7 @@ namespace XNAFinalEngine.Graphics
     /// Only works with directional lights.
     /// If you need point light shadows use the cubic shadow map or if you need spot light use the basic shadow map.
 	/// </summary>
-    public class CascadedShadowMapShader : Shader
+    internal class CascadedShadowMapShader : Shader
     {
 
         #region Constants
@@ -282,7 +282,7 @@ namespace XNAFinalEngine.Graphics
 	    /// Only works with directional lights.
 	    /// If you need point light shadows use the cubic shadow map or if you need spot light use the basic shadow map.
 	    /// </summary>
-	    public CascadedShadowMapShader() : base("Shadows\\CascadedShadowMap") { }
+	    private CascadedShadowMapShader() : base("Shadows\\CascadedShadowMap") { }
 
 		#endregion
 

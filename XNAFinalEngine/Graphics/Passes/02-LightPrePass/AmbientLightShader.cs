@@ -199,7 +199,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Light Pre Pass Directional Light Shader.
         /// </summary>
-        internal AmbientLightShader() : base("LightPrePass\\AmbientLight") { }
+        private AmbientLightShader() : base("LightPrePass\\AmbientLight") { }
 
         #endregion
 

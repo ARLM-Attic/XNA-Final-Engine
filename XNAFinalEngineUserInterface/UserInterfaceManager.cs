@@ -61,14 +61,14 @@ namespace XNAFinalEngine.UserInterface
             private static Form window;
         #endif
 
-        /// <summary>
-        /// Main render target, when the UI will be render.
-        /// </summary>
+        // Main render target, when the UI will be render.
         private static RenderTarget renderTarget;
 
         private static Control focusedControl;
         private static ModalContainer modalWindow;
         private static ControlStates states;
+
+        private static bool initialized;
 
         #endregion
 
@@ -232,8 +232,11 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public static void Initialize()
         {
+            if (initialized)
+                return;
             try
             {
+                initialized = true;
                 // Set some public parameters.
                 TextureResizeIncrement = 32;
                 ToolTipDelay = 500;

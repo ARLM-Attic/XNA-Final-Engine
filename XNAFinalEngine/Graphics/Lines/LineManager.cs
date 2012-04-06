@@ -87,11 +87,11 @@ namespace XNAFinalEngine.Graphics
         #region Variables
 
         // XNA basic shader. We use it to render simple lines.
-        private static readonly BasicEffect basicEffect;
+        private static BasicEffect basicEffect;
 
         // A block of vertices that calling AddVertex will fill. 
         // Flush will draw using this array, and will determine how many primitives to draw from positionInBuffer.
-        private static readonly VertexPositionColor[] vertices = new VertexPositionColor[defaultBufferSize]; 
+        private static VertexPositionColor[] vertices; 
         
         // Keeps track of how many vertices have been added. this value increases until we run out of space in the buffer, at which time Flush is automatically called.
         private static int positionInBuffer;
@@ -106,20 +106,22 @@ namespace XNAFinalEngine.Graphics
         private static bool hasBegun, begin2D;
 
         // Used by the inefficient DrawSolid2DPlane.
-        private static readonly VertexPositionColor[] planeVertices = new VertexPositionColor[4];
+        private static VertexPositionColor[] planeVertices;
 
         #endregion
 
-        #region Constructor
+        #region Initialize
 
         /// <summary>
         /// Starts the primitive system. This operation is called automatically.
         /// </summary>
-        static LineManager()
+        internal static void Initialize()
         {
             // Set up a new basic effect, and enable vertex colors.
             basicEffect = new BasicEffect(EngineManager.Device) { VertexColorEnabled = true };
-        } // LineManager
+            vertices = new VertexPositionColor[defaultBufferSize];
+            planeVertices = new VertexPositionColor[4];
+        } // Initialize
 
         #endregion
 

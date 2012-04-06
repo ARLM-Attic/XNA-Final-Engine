@@ -51,7 +51,7 @@ namespace XNAFinalEngineExamples
     /// This was used to test most of the new version's features.
     /// It’s a mess, really, but it’s the best start point to understand the new version.
     /// </summary>
-    public class LamborghiniMurcielagoScene : Scene
+    public class LamborghiniMurcielagoScene : EditableScene
     {
 
         #region Variables
@@ -97,9 +97,7 @@ namespace XNAFinalEngineExamples
                                     skydome;
 
         private static GameObject2D xnaFinalEngineLogo, videoTest, statistics;
-
-        private static Picker picker;
-
+        
         #endregion
 
         #region Load
@@ -110,6 +108,8 @@ namespace XNAFinalEngineExamples
         /// <remarks>Remember to call the base implementation of this method at the end.</remarks>
         public override void Load()
         {
+            // Call it before anything.
+            base.Load();
 
             #region Camera
 
@@ -120,8 +120,9 @@ namespace XNAFinalEngineExamples
             camera.Camera.RenderTargetSize = Size.FullScreen;
             camera.Camera.FarPlane = 5000;
             camera.Camera.NearPlane = 0.1f;
-            ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
-            script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
+            camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
+            //ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
+            //script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 6f;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
@@ -979,11 +980,10 @@ namespace XNAFinalEngineExamples
 
             LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
+            
+            EditorManager.AddObject(murcielagoBody);
 
-            picker = new Picker(Size.FullScreen);
-            picker.AddObject(murcielagoBody);
-
-            base.Load();
+            
         } // Load
 
         #endregion
@@ -1012,12 +1012,13 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PreRenderTasks()
         {
+            /*
             if (Mouse.LeftButtonJustPressed)
             {
                 GameObject gameObject = picker.Pick(camera.Camera.ViewMatrix, camera.Camera.ProjectionMatrix);
                 if (gameObject is GameObject3D)
                     ((GameObject3D) gameObject).ModelRenderer.RenderBoundingBox = true;
-            }
+            }*/
             //UserInterfaceManager.DrawToTexture();
         } // PreRenderTasks
 

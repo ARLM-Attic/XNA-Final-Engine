@@ -45,7 +45,7 @@ namespace XNAFinalEngine.Graphics
     /// Instead is better to take the maximum depth value of the four samples. This has the effect of shrinking the object silhouettes.
     /// Of course this isn’t perfect, but normally a depth downsampled buffer is used for low frequency effects.
     /// </summary>
-    public class DepthDownsamplerShader : Shader
+    internal class DepthDownsamplerShader : Shader
     {
 
         #region Variables
@@ -125,7 +125,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Depth Downsampler Shader
         /// </summary>
-        public DepthDownsamplerShader() : base("GBuffer\\DownsampleDepth") { }
+        private DepthDownsamplerShader() : base("GBuffer\\DownsampleDepth") { }
 
         #endregion
 
@@ -158,7 +158,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Downsample depth map.
         /// </summary>
-        public RenderTarget Render(RenderTarget depthTexture)
+        internal RenderTarget Render(RenderTarget depthTexture)
         {
             try
             {

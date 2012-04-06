@@ -44,7 +44,7 @@ namespace XNAFinalEngine.Graphics
     /// <summary>
     /// Particle System.
     /// </summary>
-    public class ParticleShader : Shader
+    internal class ParticleShader : Shader
     {
 
         #region Variables

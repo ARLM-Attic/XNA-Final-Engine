@@ -120,7 +120,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Skybox Shader.
 		/// </summary>
-        internal SkydomeShader() : base("Sky\\Skydome")
+        private SkydomeShader() : base("Sky\\Skydome")
         {
             skydomeModel = new FileModel("Skydome");
 

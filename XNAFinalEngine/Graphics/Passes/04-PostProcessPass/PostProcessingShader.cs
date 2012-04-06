@@ -47,9 +47,29 @@ namespace XNAFinalEngine.Graphics
     {
 
         #region Variables
+
+        // Singleton reference.
+        private static PostProcessingShader instance;
         
         // Random number for the film grain effect.
         private static readonly Random randomNumber = new Random();
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// A singleton of this shader.
+        /// </summary>
+        public static PostProcessingShader Instance
+        {
+            get
+            {
+                if (instance == null)
+                    instance = new PostProcessingShader();
+                return instance;
+            }
+        } // Instance
 
         #endregion
 
@@ -805,7 +825,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Über post processing shader.
         /// </summary>
-        internal PostProcessingShader() : base("PostProcessing\\PostProcessing")
+        private PostProcessingShader() : base("PostProcessing\\PostProcessing")
         {
             ContentManager userContentManager = ContentManager.CurrentContentManager;
             ContentManager.CurrentContentManager = ContentManager.SystemContentManager;

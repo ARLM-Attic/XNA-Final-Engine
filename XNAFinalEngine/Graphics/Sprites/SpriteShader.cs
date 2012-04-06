@@ -157,7 +157,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
 		/// Sprite shader.
 		/// </summary>
-        internal SpriteShader() : base("Sprites\\SpriteEffect") { }
+        private SpriteShader() : base("Sprites\\SpriteEffect") { }
 
 		#endregion
         

@@ -179,7 +179,7 @@ namespace XNAFinalEngine.Graphics
 		/// </summary>
         /// <param name="texture">The texture to dilate. The result will be placed here.</param>
         /// <param name="width">Dilate Width.</param>
-        internal void Filter(RenderTarget texture, float width = 1.0f)
+        public void Filter(RenderTarget texture, float width = 1.0f)
 		{   
             // Only apply if the texture is valid.
 			if (texture == null || texture.Resource == null)

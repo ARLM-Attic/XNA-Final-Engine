@@ -28,7 +28,7 @@ namespace XNAFinalEngine.Graphics
     /// <summary>
     /// Particle System.
     /// </summary>
-    public class ParticleSystem : Disposable
+    internal class ParticleSystem : Disposable
     {
 
         #region Variables

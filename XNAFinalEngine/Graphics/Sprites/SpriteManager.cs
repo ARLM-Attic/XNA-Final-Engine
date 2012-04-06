@@ -92,15 +92,15 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Init
+        #region Initialize
 
         /// <summary>
-        /// Init Sprite Manager subsystem.
+        /// Initialize the Sprite Manager subsystem.
         /// </summary>
-        public static void Init()
+        internal static void Initialize()
         {            
             spriteBatch = new SpriteBatch(EngineManager.Device);
-        } // Init
+        } // Initialize
 
         #endregion
 
