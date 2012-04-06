@@ -22,6 +22,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 #endregion
 
@@ -35,6 +36,48 @@ namespace XNAFinalEngine.UserInterface
     /// </summary>
     public static class UserInterfaceManager
     {
+
+        #region Script Class
+
+        /// <summary>
+        /// Used to call the UI's update and render methods in the correct order without explicit calls. 
+        /// </summary>
+        /// <remarks>
+        /// Most XNA Final Engine managers don’t work this way because the GameLoop class controls their functionality.
+        /// This manager is in a higher level because of the GPL license (the code is based in Neo Force Controls) and because is not garbage free.
+        /// I do baste improvement in the code and functionality of this UI but I’m not disposed to waste more time in this endeavor.
+        /// The UI has a purpose and in its current state can accomplished.
+        /// </remarks>
+        private sealed class ScripUserInterface : Script
+        {
+
+            /// <summary>
+            /// Update.
+            /// </summary>
+            public override void Update()
+            {
+                UserInterfaceManager.Update();
+            }
+
+            /// <summary>
+            /// Tasks executed during the first stage of the scene render.
+            /// </summary>
+            public override void PreRenderUpdate()
+            {
+                UserInterfaceManager.DrawToTexture();
+            }
+
+            /// <summary>
+            /// Tasks executed during the last stage of the scene render.
+            /// </summary>
+            public override void PostRenderUpdate()
+            {
+                UserInterfaceManager.DrawTextureToScreen();
+            }
+
+        } // ScripUserInterface
+
+        #endregion
 
         #region Structs
 
@@ -69,6 +112,9 @@ namespace XNAFinalEngine.UserInterface
         private static ControlStates states;
 
         private static bool initialized;
+
+        // Used to call the update and render method in the correct order without explicit calls..
+        private static GameObject userInterfaceGameObject;
 
         #endregion
 
@@ -271,7 +317,12 @@ namespace XNAFinalEngine.UserInterface
                 InputSystem.KeyPress   += KeyPressProcess;
 
                 renderTarget = new RenderTarget(Helpers.Size.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing)
-                                   {Name = "User Interface Render Target"};
+                {
+                    Name = "User Interface Render Target"
+                };
+
+                userInterfaceGameObject = new GameObject2D();
+                userInterfaceGameObject.AddComponent<ScripUserInterface>();
             }
             catch (Exception e)
             {
@@ -462,7 +513,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Update.
         /// </summary>
-        public static void Update()
+        private static void Update()
         {
             try
             {
@@ -556,7 +607,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Renders all controls added to the manager to a render target.
         /// </summary>
-        public static void DrawToTexture()
+        private static void DrawToTexture()
         {
             if ((RootControls != null))
             {
@@ -579,7 +630,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Draws User Interface's render target to screen.
         /// </summary>
-        public static void DrawTextureToScreen()
+        private static void DrawTextureToScreen()
         {
             if ((RootControls != null))
             {

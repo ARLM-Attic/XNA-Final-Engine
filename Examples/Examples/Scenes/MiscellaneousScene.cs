@@ -683,7 +683,6 @@ namespace XNAFinalEngineExamples
 
             if (Keyboard.SpaceJustPressed)
                 ConstantWindow.Show((Constant)murcielagoWheelBlackContant.ModelRenderer.Material);
-            UserInterfaceManager.Update();
 
             /*
             for (int i = 0; i < 280; i++)
@@ -706,7 +705,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PreRenderTasks()
         {
-            UserInterfaceManager.DrawToTexture();
+            
         } // PreRenderTasks
 
         /// <summary>
@@ -715,7 +714,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PostRenderTasks()
         {
-            UserInterfaceManager.DrawTextureToScreen();
+            
         } // PostRenderTasks
 
         #endregion

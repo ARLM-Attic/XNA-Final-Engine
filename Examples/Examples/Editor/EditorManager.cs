@@ -55,6 +55,31 @@ namespace XNAFinalEngine.Editor
     public static class EditorManager
     {
 
+        #region Script Class
+
+        /// <summary>
+        /// Used to call the manager's update and render methods in the correct order without explicit calls. 
+        /// </summary>
+        /// <remarks>
+        /// Most XNA Final Engine managers don’t work this way because the GameLoop class controls their functionality.
+        /// But this manager is in a higher level because the user interface dependency and
+        /// because I consider that it is the best for the organization.
+        /// </remarks>
+        private sealed class ScripEditorManager : Script
+        {
+
+            /// <summary>
+            /// Update camera.
+            /// </summary>
+            public override void Update()
+            {
+                EditorManager.Update();
+            }
+
+        } // ScripEditorManager
+
+        #endregion
+
         #region Enumerates
 
         /// <summary>
@@ -92,7 +117,7 @@ namespace XNAFinalEngine.Editor
 
         #region Variables
 
-        private static readonly GameObject3D camera;
+        private static GameObject3D camera;
 
         // The picker to select an object from the screen.
         private static Picker picker;
@@ -134,6 +159,20 @@ namespace XNAFinalEngine.Editor
 
         #endregion
 
+        #region Set Camera
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="camera"></param>
+        public static void SetCamera(GameObject3D camera)
+        {
+            EditorManager.camera = camera;
+            ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
+        }
+
+        #endregion
+
         #region Add or remove objects for picking
 
         /// <summary>
@@ -167,7 +206,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Manipula la escena. Pero no renderiza nada en la pantalla.
         /// </summary>
-        public static void ManipulateScene()
+        public static void Update()
         {
             
             #region Frame Object and Reset Camera

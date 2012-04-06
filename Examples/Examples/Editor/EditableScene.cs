@@ -29,9 +29,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
+using System;
+using XNAFinalEngine.Components;
 using XNAFinalEngine.Editor;
-using XNAFinalEngine.Helpers;
+using XNAFinalEngine.UserInterface;
 #endregion
 
 namespace XNAFinalEngine.Scenes
@@ -44,6 +45,31 @@ namespace XNAFinalEngine.Scenes
     public abstract class EditableScene : Scene
     {
 
+        #region Variables
+
+        private GameObject3D camera;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// TODO: La pongo aca o la main camara se destaca en otro lado? Como lo hice en el pasado. Ya se vera.
+        /// </summary>
+        public GameObject3D MainCamera
+        {
+            get { return camera; }
+            set
+            {
+                if (value != null && value.Camera == null)
+                    throw new ArgumentException("Scene: the camera object does not have a camera component attached.", "value");
+                camera = value;
+
+            }
+        } // MainCamera
+
+        #endregion
+
         #region Load
 
         /// <summary>
@@ -53,6 +79,7 @@ namespace XNAFinalEngine.Scenes
         public override void Load()
         {
             EditorManager.Initialize();
+            UserInterfaceManager.Initialize();
             base.Load();
         } // Load
 

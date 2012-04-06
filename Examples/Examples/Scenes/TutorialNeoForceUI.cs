@@ -112,45 +112,7 @@ namespace XNAFinalEngineExamples
         } // Load
 
         #endregion
-
-        #region Update Tasks
-
-        /// <summary>
-        /// Tasks executed during the update.
-        /// This is the place to put the application logic.
-        /// </summary>
-        public override void UpdateTasks()
-        {
-            UserInterfaceManager.Update();
-        } // UpdateTasks
-
-        #endregion
-
-        #region Render Tasks
-
-        /// <summary>
-        /// Tasks before the engine render.
-        /// Some tasks are more related to the frame rendering than the update,
-        /// or maybe the update frequency is too high to waste time in this kind of tasks,
-        /// for that reason the pre render task exists.
-        /// For example, is more correct to update the HUD information here because is related with the rendering.
-        /// </summary>
-        public override void PreRenderTasks()
-        {
-            UserInterfaceManager.DrawToTexture();
-        } // Render
-
-        /// <summary>
-        /// Tasks after the engine render.
-        /// Probably you won’t need to place any task here.
-        /// </summary>
-        public override void PostRenderTasks()
-        {
-            UserInterfaceManager.DrawTextureToScreen();
-        } // PostRenderTasks
-
-        #endregion
-
+        
         #region Neo Force Methods
 
         #region Closing
