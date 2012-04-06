@@ -302,7 +302,11 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Render the model.
         /// </summary>
-        internal override void Render()
+        /// <remarks>
+        /// Don't call it excepting see the model on the screen.
+        /// This is public to allow doing some specific tasks not implemented in the engine.
+        /// </remarks>
+        public override void Render()
         {
             // Go through all meshes in the model
             foreach (ModelMesh mesh in Resource.Meshes) // foreach is faster than for because no range checking is performed.

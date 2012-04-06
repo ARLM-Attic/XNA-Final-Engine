@@ -108,6 +108,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Editor\EditorManager.cs" />
+    <Compile Include="Editor\Pickers\Picker.cs" />
     <Compile Include="Editor\ScriptStatisticsDrawer.cs" />
     <Compile Include="Editor\ScriptEditorCamera.cs" />
     <Compile Include="Editor\Windows\Assets\TextureCubeWindow.cs" />

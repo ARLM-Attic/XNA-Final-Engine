@@ -101,7 +101,11 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Render the model.
         /// </summary>
-        internal override void Render()
+        /// <remarks>
+        /// Don't call it excepting see the model on the screen.
+        /// This is public to allow doing some specific tasks not implemented in the engine.
+        /// </remarks>
+        public override void Render()
         {
             EngineManager.Device.Indices = indexBuffer;
             EngineManager.Device.SetVertexBuffer(vertexBuffer);

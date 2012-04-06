@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,10 +32,13 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using XNAFinalEngine.Assets;
+using XNAFinalEngine.Components;
+using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Input;
 #endregion
 
-namespace XNAFinalEngine.Pickers
+namespace XNAFinalEngine.Editor
 {
 
     /// <summary>
@@ -44,36 +47,28 @@ namespace XNAFinalEngine.Pickers
     /// <remarks>
     /// It utilizes a texture method. This method produces better results that its alternative, the bounding volume method.
     /// One disadvantage is the the time that consumes the texture memory access.
-    /// Possible addition: render in a viewport of only one pixel. The difficult part is to do this viewport. Maybe it isn’t a good option.
+    /// Possible addition: render in a render target of only one pixel.  Maybe it isn’t a good option.
+    /// Besides, the picker efficiency is not critical.
     /// </remarks>
     public class Picker
     {
 
         #region Variables
+        
+        // The objects that can be selected.
+        private readonly List<GameObject> objectsToPick;
 
-        /// <summary>
-        /// The objects that can be selected.
-        /// </summary>
-        private readonly List<Graphics.Object> objects;
+        // It’s the texture where the scene is render.
+        public readonly RenderTarget pickerTexture;
 
-        /// <summary>
-        /// The material used to render the objects in the picker texture.
-        /// </summary>
-        private readonly Constant constantMaterial;
-
-        /// <summary>
-        /// It’s the texture where the scene is render.
-        /// </summary>
-        private readonly RenderTarget pickerMapTexture;
-
-        #region For Manual Picking
-
+        // I need a constant shader to render the picker.
+        private readonly Shader constantShader;
+        
+        /*
         /// <summary>
         /// Store the texture in an array (if it search a region, not a pixel).
         /// </summary>
-        private static Color[] colorArray;
-
-        #endregion
+        private static Color[] colorArray;*/
 
         #endregion
 
@@ -81,15 +76,21 @@ namespace XNAFinalEngine.Pickers
 
         /// <summary>
         /// A picker allows selecting an object from the screen.
-        /// It utilizes a texture method, this method produces better results that its alternative, the bounding volume method.
-        /// One disadvantage is the limit in the amount of objects to track, the other its the time that consumes.
         /// </summary>
-        public Picker()
+        /// <remarks>
+        /// It utilizes a texture method. This method produces better results that its alternative, the bounding volume method.
+        /// One disadvantage is the the time that consumes the texture memory access.
+        /// Possible addition: render in a render target of only one pixel. 
+        /// Maybe it isn’t a good option.
+        /// Besides, the picker efficiency is not critical.
+        /// </remarks>
+        public Picker(Size size)
         {            
-            objects = new List<Graphics.Object>();
-            constantMaterial = new Constant();
+            objectsToPick = new List<GameObject>();
             // No antialiasing because the colors can change.
-            pickerMapTexture = new RenderTarget(RenderTarget.SizeType.FullScreen);
+            pickerTexture = new RenderTarget(size);
+            constantShader = new Shader("Materials\\Constant");
+
         } // Picker
 
         #endregion
@@ -99,17 +100,17 @@ namespace XNAFinalEngine.Pickers
         /// <summary>
         /// Adds the object from the list of objects that can be selected.
         /// </summary>
-        public void AddObject(Graphics.Object obj)
+        public void AddObject(GameObject obj)
         {
-            objects.Add(obj);
+            objectsToPick.Add(obj);
         } // AddObject
 
         /// <summary>
         /// Removes the object from the list of objects that can be selected.
         /// </summary>
-        public void RemoveObject(Graphics.Object obj)
+        public void RemoveObject(GameObject obj)
         {
-            objects.Remove(obj);
+            objectsToPick.Remove(obj);
         } // RemoveObject
 
         #endregion
@@ -120,18 +121,18 @@ namespace XNAFinalEngine.Pickers
         /// Pick the object that is on the mouse pointer.
         /// If no object was found the result is a null pointer.
         /// </summary>
-        public Graphics.Object Pick()
+        public GameObject Pick(Matrix viewMatrix, Matrix projectionMatrix)
         {
-            return Pick(Mouse.Position.X, Mouse.Position.Y);
+            return Pick(Mouse.Position.X, Mouse.Position.Y, viewMatrix, projectionMatrix);
         } // Pick
 
         /// <summary>
         /// Pick the object that is on the X Y coordinates.
         /// If no object was found the result is a null pointer.
         /// </summary>
-        public Graphics.Object Pick(int x, int y)
+        public GameObject Pick(int x, int y, Matrix viewMatrix, Matrix projectionMatrix)
         {
-            byte r = 0, g = 0, b = 0;
+            byte red = 0, green = 0, blue = 0;
             Color colorMaterial = new Color(0,0,0);
             
             try
@@ -140,84 +141,94 @@ namespace XNAFinalEngine.Pickers
                 #region Render the objects to the picker texture
 
                 // Start rendering onto the picker map
-                pickerMapTexture.EnableRenderTarget();
+                pickerTexture.EnableRenderTarget();
                                 
                 // Clear render target
-                pickerMapTexture.Clear(Color.Black);
-                
+                pickerTexture.Clear(Color.Black);
+
+                constantShader.Resource.CurrentTechnique = constantShader.Resource.Techniques["ConstantsRGB"];
+
                 // Render every object, one at a time
-                foreach (Graphics.Object obj in objects)
+                foreach (GameObject obj in objectsToPick)
                 {
                     // Select the next color
                     if (colorMaterial.R < 255)
                     {
-                        r++;
+                        red++;
                     }
                     else
                     {
-                        r = 0;
+                        red = 0;
                         if (colorMaterial.G < 255)
                         {
-                            g++;
+                            green++;
                         }
                         else
                         {
-                            g = 0;
-                            if (b == 255)
+                            green = 0;
+                            if (blue == 255)
                                 throw new Exception("Color out of range.");
-                            b++;
+                            blue++;
                         }
                     }
-                    colorMaterial = new Color(r, g, b);
-                    // Set the material with the corresponded color.
-                    constantMaterial.DiffuseColor = colorMaterial;
+                    colorMaterial = new Color(red, green, blue);
                     // Render the object with the picker material
-                    obj.Render(/*constantMaterial*/);
+                    if (obj is GameObject3D)
+                    {
+                        GameObject3D gameObject3D = (GameObject3D) obj;
+                        if (gameObject3D.ModelFilter != null && gameObject3D.ModelFilter.Model != null)
+                        {
+                            constantShader.Resource.Parameters["diffuseColor"].SetValue(new Vector3(colorMaterial.R / 255f, colorMaterial.G / 255f, colorMaterial.B / 255f));
+                            constantShader.Resource.Parameters["worldViewProj"].SetValue(gameObject3D.Transform.WorldMatrix * viewMatrix * projectionMatrix);
+                            constantShader.Resource.CurrentTechnique.Passes[0].Apply();
+                            gameObject3D.ModelFilter.Model.Render();
+                        }
+                    }
                 }
                     
                 // Activate the frame buffer again.
-                pickerMapTexture.DisableRenderTarget();
+                pickerTexture.DisableRenderTarget();
 
                 #endregion
                 
                 #region Get the pixel from the texture
                 
                 Color[] color = new Color[1];
-                pickerMapTexture.XnaTexture.GetData(0, new Rectangle(x, y, 1, 1), color, 0, 1);
+                pickerTexture.Resource.GetData(0, new Rectangle(x, y, 1, 1), color, 0, 1);
                 Color pixel = color[0];
 
                 #endregion
 
                 #region Search the object
 
-                r = 0; g = 0; b = 0;
-                foreach (Graphics.Object obj in objects)
+                red = 0; green = 0; blue = 0;
+                foreach (GameObject obj in objectsToPick)
                 {
                     // Select the next color
                     if (colorMaterial.R < 255)
-                        r++;
+                        red++;
                     else
                     {
-                        r = 0;
+                        red = 0;
                         if (colorMaterial.G < 255)
-                            g++;
+                            green++;
                         else
                         {
-                            g = 0;
-                            b++;
+                            green = 0;
+                            blue++;
                         }
                     }
-                    if (pixel == new Color(r,g,b))
+                    if (pixel == new Color(red,green,blue))
                         return obj;
                 }
 
                 #endregion
 
-            } // try
-            catch (Exception ex)
+            }
+            catch (Exception e)
             {
-                throw new Exception("The picker failed: " + ex);
-            } // catch
+                throw new InvalidOperationException("Picker: operation failed: ", e);
+            }
             return null;
         } // Pick
 

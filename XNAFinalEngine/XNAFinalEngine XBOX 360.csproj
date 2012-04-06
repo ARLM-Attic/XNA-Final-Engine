@@ -41,9 +41,7 @@
     <XnaCompressContent>true</XnaCompressContent>
     <LangVersion>default</LangVersion>
   </PropertyGroup>
-  <ItemGroup>
-    <Folder Include="Pickers\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Compile Include="Animations\ModelAnimationPlayer.cs" />
     <Compile Include="Assets\AmbientLight\AmbientLight.cs" />

@@ -29,26 +29,19 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
-using System;
-using System.Text;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
-using XNAFinalEngine.Helpers;
+using XNAFinalEngine.Input;
 using XNAFinalEngine.Scenes;
 using XNAFinalEngine.UserInterface;
 using XNAFinalEngine.Editor;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
-using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Size = XNAFinalEngine.Helpers.Size;
 using Texture = XNAFinalEngine.Assets.Texture;
 using TextureCube = XNAFinalEngine.Assets.TextureCube;
-
 #endregion
 
 namespace XNAFinalEngineExamples
@@ -104,7 +97,9 @@ namespace XNAFinalEngineExamples
                                     skydome;
 
         private static GameObject2D xnaFinalEngineLogo, videoTest, statistics;
-        
+
+        private static Picker picker;
+
         #endregion
 
         #region Load
@@ -985,6 +980,9 @@ namespace XNAFinalEngineExamples
             LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
 
+            picker = new Picker(Size.FullScreen);
+            picker.AddObject(murcielagoBody);
+
             base.Load();
         } // Load
 
@@ -1014,6 +1012,12 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PreRenderTasks()
         {
+            if (Mouse.LeftButtonJustPressed)
+            {
+                GameObject gameObject = picker.Pick(camera.Camera.ViewMatrix, camera.Camera.ProjectionMatrix);
+                if (gameObject is GameObject3D)
+                    ((GameObject3D) gameObject).ModelRenderer.RenderBoundingBox = true;
+            }
             //UserInterfaceManager.DrawToTexture();
         } // PreRenderTasks
 

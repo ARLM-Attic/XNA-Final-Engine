@@ -29,6 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNABoundingBox    = Microsoft.Xna.Framework.BoundingBox;
@@ -80,7 +82,11 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Render the model.
         /// </summary>
-        internal abstract void Render();
+        /// <remarks>
+        /// Don't call it excepting see the model on the screen.
+        /// This is public to allow doing some specific tasks not implemented in the engine.
+        /// </remarks>
+        public abstract void Render();
 
         #endregion
 

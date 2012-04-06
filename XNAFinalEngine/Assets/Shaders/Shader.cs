@@ -46,7 +46,7 @@ namespace XNAFinalEngine.Assets
     /// We could easily do a version that does not load the shader twice if the shader is already loaded, just like the XNA Final Engine old versions.
     /// But now the shaders are managed internally by the Graphic System and few creations are need.
     /// </remarks>    
-    public abstract class Shader : Asset
+    public class Shader : Asset
     {
 
         #region Variables
@@ -75,7 +75,7 @@ namespace XNAFinalEngine.Assets
         /// <remarks>
         /// All shaders are loaded only once and into the System Component Manager.
         /// </remarks>
-        protected Shader(string filename)
+        public Shader(string filename)
         {            
             Name = filename;
             string fullFilename = ContentManager.GameDataDirectory + "Shaders\\" + filename;

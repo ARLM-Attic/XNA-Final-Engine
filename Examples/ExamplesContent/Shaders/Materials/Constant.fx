@@ -106,6 +106,11 @@ float4 PSConstantWithTexture(vertexOutputWT input) : COLOR
     return float4(GammaToLinear(tex2D(diffuseSampler, input.uv).rgb), alphaBlending);
 }
 
+float4 PSConstantsRGB() : COLOR
+{
+    return float4(diffuseColor, 1);
+}
+
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
@@ -125,5 +130,14 @@ technique ConstantWithTexture
 	{
 		VertexShader = compile vs_3_0 VSConstantWithTexture();
 		PixelShader = compile ps_3_0 PSConstantWithTexture();
+	}
+}
+
+technique ConstantsRGB
+{
+	pass P0
+	{
+		VertexShader = compile vs_3_0 VSConstantWithoutTexture();
+		PixelShader = compile ps_3_0 PSConstantsRGB();
 	}
 }
