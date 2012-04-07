@@ -159,7 +159,7 @@ namespace XNAFinalEngine.Helpers
         {
             if (Count >= Capacity)
             {
-                ResizePool(Capacity + 25);
+                ResizePool(Capacity + 25); // This could be a relative number.
             }
             Count++;
             return accessors[Count - 1];
@@ -232,6 +232,20 @@ namespace XNAFinalEngine.Helpers
 
             Count--;
         } // Release
+
+        #endregion
+
+        #region Swap
+
+        /// <summary>
+        /// Swap elements.
+        /// </summary>
+        public void Swap(int i, int j)
+        {
+            T temp = Elements[i];
+            Elements[i] = Elements[j];
+            Elements[j] = temp;
+        } // Swap
 
         #endregion
 

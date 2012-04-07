@@ -116,13 +116,12 @@ namespace XNAFinalEngineExamples
             camera = new GameObject3D();
             camera.AddComponent<Camera>();
             camera.AddComponent<SoundListener>();
-            camera.Camera.Renderer = Camera.RenderingType.DeferredLighting; // The only option available for the time being.
             camera.Camera.RenderTargetSize = Size.FullScreen;
             camera.Camera.FarPlane = 5000;
             camera.Camera.NearPlane = 0.1f;
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
-            //ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
-            //script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
+            ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
+            script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 6f;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
@@ -982,8 +981,8 @@ namespace XNAFinalEngineExamples
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
             
             EditorManager.AddObject(murcielagoBody);
-
-            
+            murcielagoBody.Layer = Layer.GetLayerByNumber(1);
+            Layer.GetLayerByNumber(1).Enabled = false;
         } // Load
 
         #endregion

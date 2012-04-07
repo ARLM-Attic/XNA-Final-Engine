@@ -284,13 +284,13 @@ namespace XNAFinalEngine.Components
                 {
                     maxScale = scale.Y >= scale.Z ? scale.Y : scale.Z;
                 }
-                Vector3 center = Vector3.Transform(modelBoundingSphere.Center, cachedWorldMatrix); // Don't use this: boundingSphere.Value.Center + position;
+                Vector3 center = Vector3.Transform(modelBoundingSphere.Center, CachedWorldMatrix); // Don't use this: boundingSphere.Value.Center + position;
                 float radius = modelBoundingSphere.Radius * maxScale;
                 boundingSphere = new BoundingSphere(center, radius);
 
                 // Bounding Box
                 BoundingBox modelBoudingBox = ((GameObject3D) Owner).ModelFilter.Model.BoundingBox;
-                boundingBox = new BoundingBox(Vector3.Transform(modelBoudingBox.Min, cachedWorldMatrix), Vector3.Transform(modelBoudingBox.Max, cachedWorldMatrix));
+                boundingBox = new BoundingBox(Vector3.Transform(modelBoudingBox.Min, CachedWorldMatrix), Vector3.Transform(modelBoudingBox.Max, CachedWorldMatrix));
             }
         } // CalculateBoundingVolumes
 

@@ -111,6 +111,7 @@ namespace XNAFinalEngine.UserInterface
         private static ModalContainer modalWindow;
         private static ControlStates states;
 
+        // To avoid more than one initialization.
         private static bool initialized;
 
         // Used to call the update and render method in the correct order without explicit calls..

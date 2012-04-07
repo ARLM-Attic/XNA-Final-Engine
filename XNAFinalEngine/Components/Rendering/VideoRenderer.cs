@@ -298,9 +298,9 @@ namespace XNAFinalEngine.Components
         /// </summary>
         protected override void OnWorldMatrixChanged(Matrix worldMatrix)
         {
-            cachedWorldMatrix = worldMatrix;
+            CachedWorldMatrix = worldMatrix;
             // We could pass directly the calculated values. In this case there are calculated using the world matrix.
-            CachedPosition = cachedWorldMatrix.Translation;
+            CachedPosition = CachedWorldMatrix.Translation;
         } // OnWorldMatrixChanged
 
         #endregion

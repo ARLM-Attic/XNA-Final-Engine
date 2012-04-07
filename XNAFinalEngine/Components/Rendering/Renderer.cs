@@ -47,12 +47,12 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Chaded transform's world matrix value.
         /// </summary>
-        internal Matrix cachedWorldMatrix;
+        internal Matrix CachedWorldMatrix;
 
         /// <summary>
         /// Chaded game object's layer mask value.
         /// </summary>
-        internal int cachedLayerMask;
+        internal uint CachedLayerMask;
 
         #endregion
 
@@ -75,7 +75,7 @@ namespace XNAFinalEngine.Components
             base.Initialize(owner);
             Visible = true;
             // Set Layer
-            cachedLayerMask = Owner.Layer.Mask;
+            CachedLayerMask = Owner.Layer.Mask;
             Owner.LayerChanged += OnLayerChanged;
             // Set World Matrix
             if (Owner is GameObject2D)
@@ -119,9 +119,9 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// On game object's layer changed.
         /// </summary>
-        private void OnLayerChanged(object sender, int layerMask)
+        private void OnLayerChanged(object sender, uint layerMask)
         {
-            cachedLayerMask = layerMask;
+            CachedLayerMask = layerMask;
         } // OnLayerChanged
 
         #endregion
@@ -133,7 +133,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         protected virtual void OnWorldMatrixChanged(Matrix worldMatrix)
         {
-            cachedWorldMatrix = worldMatrix;
+            CachedWorldMatrix = worldMatrix;
         } // OnWorldMatrixChanged
 
         #endregion

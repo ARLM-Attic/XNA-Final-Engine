@@ -117,7 +117,7 @@ namespace XNAFinalEngine.Editor
 
         #region Variables
 
-        private static GameObject3D camera;
+        private static GameObject3D editorCamera;
 
         // The picker to select an object from the screen.
         private static Picker picker;
@@ -138,6 +138,9 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         private static Stack<UndoStruct> undoStack = new Stack<UndoStruct>();
 
+        // To avoid more than one initialization.
+        private static bool initialized;
+
         #endregion
 
         #region Initialize
@@ -145,31 +148,16 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// This put all the editor pieces together.
         /// </summary>
-        public static void Initialize(/*GameObject3D camera*/)
+        public static void Initialize()
         {
+            if (initialized)
+                return;
+            initialized = true;
+            // If it already initialize don't worry.
+            UserInterfaceManager.Initialize();
             picker = new Picker(Size.FullScreen);
-            /*this.camera = camera;
-            // We add the editor script to the camera to manipulate in our own way.
-            ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
-            // Create a picker to select object from the screen.
-            picker = new Picker(camera.Camera.RenderTargetSize);
-            // The user interface is initialized.
-            UserInterfaceManager.Initialize();*/
+            editorCamera = new GameObject3D();
         } // Initialize
-
-        #endregion
-
-        #region Set Camera
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="camera"></param>
-        public static void SetCamera(GameObject3D camera)
-        {
-            EditorManager.camera = camera;
-            ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
-        }
 
         #endregion
 
@@ -208,6 +196,16 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static void Update()
         {
+            /*
+            if (Camera.MainCamera == null)
+                return; // No camera, no editor. (for know at least)
+            if (camera.Camera != Camera.MainCamera)
+            {
+                if (camera != null)
+                    camera.RemoveComponent<ScriptEditorCamera>();
+                ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
+            }
+            */
             
             #region Frame Object and Reset Camera
             /*

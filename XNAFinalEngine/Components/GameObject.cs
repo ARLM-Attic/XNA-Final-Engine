@@ -14,26 +14,20 @@ namespace XNAFinalEngine.Components
     {
 
         #region Variables
-
-        /// <summary>
-        /// A simple but effective way of having unique ids.
-        /// We can have 18.446.744.073.709.551.616 game object creations before the system "collapse". Almost infinite in practice. 
-        /// If a more robust system is needed (networking/threading) then you can use the guid structure: http://msdn.microsoft.com/en-us/library/system.guid.aspx
-        /// However this method is slightly simpler, slightly faster and has slightly lower memory requirements.
-        /// If performance is critical consider the int type (4.294.967.294 unique values).
-        /// </summary>
+        
+        // A simple but effective way of having unique ids.
+        // We can have 18.446.744.073.709.551.616 game object creations before the system "collapse". Almost infinite in practice. 
+        // If a more robust system is needed (networking/threading) then you can use the guid structure: http://msdn.microsoft.com/en-us/library/system.guid.aspx
+        // However this method is slightly simpler, slightly faster and has slightly lower memory requirements.
+        // If performance is critical consider the int type (4.294.967.294 unique values).
         private static long uniqueIdCounter = long.MinValue;
-
-        /// <summary>
-        /// If an object is disabled their components are not processed. 
-        /// I.e. the game object will not be updated or draw.
-        /// </summary>
+        
+        // If an object is disabled their components are not processed. 
+        // I.e. the game object will not be updated or draw.
         private bool enabled = true;
-
-        /// <summary>
-        /// Default layer mask = 1 (the default layer).
-        /// </summary>
-        private int layerMask = 1;
+        
+        // Default layer mask = 1 (the default layer).
+        private uint layerMask = 1;
 
         #endregion
 
@@ -87,7 +81,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
         /// </summary>
-        public delegate void LayerEventHandler(object sender, int layerMask);
+        public delegate void LayerEventHandler(object sender, uint layerMask);
 
         /// <summary>
         /// Raised when the game object's layer changes.

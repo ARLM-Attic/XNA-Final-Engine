@@ -101,8 +101,7 @@ namespace XNAFinalEngine.Components
         // Destination render texture.
         private RenderTarget renderTarget;
 
-        // Deferred lighting or forward rendering?
-        private RenderingType renderer;
+        private int renderingOrder;
         
         #region Projection
 
@@ -150,8 +149,6 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public Color ClearColor { get; set; }
 
-        // ClearColor
-
         #endregion
 
         #region Ambient Light
@@ -169,19 +166,6 @@ namespace XNAFinalEngine.Components
                 ambientLight = value;
             }
         } // AmbientLight
-
-        #endregion
-
-        #region Renderer
-
-        /// <summary>
-        /// Deferred lighting or forward rendering?
-        /// </summary>
-        public RenderingType Renderer
-        {
-            get { return renderer; }
-            set  { renderer = value; }
-        } // Renderer
 
         #endregion
 
@@ -225,12 +209,18 @@ namespace XNAFinalEngine.Components
         } // RenderTarget
 
         /// <summary>
-        /// 
+        /// Stores the render of the camera when there are multiples cameras to render.
+        /// This helps reduce the memory consumption (GBuffer, Light Pass, HDR pass) 
+        /// at the expense of a pass that copy this texture to a bigger render target
+        /// and a last pass that copy the cameras’ render target to the back buffer.
+        /// If the performance is critical and there is more memory you should change this behavior.
+        /// It also simplified the render of one camera. 
         /// </summary>
         internal RenderTarget PartialRenderTarget { get; set; }
 
         /// <summary>
-        /// Render Target Size.
+        /// Destination render target size. 
+        /// If you need the viewport's dimensions use the Viewport property.
         /// </summary>
         public Size RenderTargetSize
         {
@@ -477,7 +467,49 @@ namespace XNAFinalEngine.Components
         public bool NeedViewport { get { return NormalizedViewport != new RectangleF(0, 0, 1, 1); } }
 
         #endregion
-        
+
+        #region Rendering Order
+
+        /// <summary>
+        /// Cameras with lower values are rendered before cameras with higher values.
+        /// </summary>
+        public int RenderingOrder
+        {
+            get { return renderingOrder; }
+            set
+            {
+                renderingOrder = value;
+                // Order pool.
+                for (int i = 0; i < componentPool.Count; i++)
+                {
+                    if (componentPool.Elements[i].RenderingOrder > componentPool.Elements[componentPool.Count - 1].RenderingOrder)
+                    {
+                        componentPool.Swap(i, componentPool.Count - 1);
+                    }
+                }
+            }
+        } // RenderingOrder
+
+        /// <summary>
+        /// The current camera that renders to the back buffer.
+        /// </summary>
+        public static Camera MainCamera
+        {
+            get
+            {
+                for (int i = componentPool.Count - 1; i >= 0; i--)
+                {
+                    // A slave camera could have a bigger value than its master
+                    if (componentPool.Elements[i].MasterCamera == null)
+                        return componentPool.Elements[i];
+                }
+                // The only posible scenerio is a scene with no camera.
+                return null;
+            }
+        } // MainCamera
+
+        #endregion
+
         #endregion
 
         #region Initialize
@@ -496,7 +528,6 @@ namespace XNAFinalEngine.Components
             fieldOfView = 36;
             aspectRatio = 0;
             useUserProjectionMatrix = false;
-            renderer = RenderingType.DeferredLighting;
             Sky = null;
             masterCamera = null;
             normalizedViewport = new RectangleF(0, 0, 1, 1);
@@ -506,6 +537,7 @@ namespace XNAFinalEngine.Components
             renderTargetSize = Size.FullScreen;
             ClearColor = new Color(20, 20, 20, 255);
             orthographicVerticalSize = 10;
+            RenderingOrder = 0;
             // Generate the projection matrix.
             CalculateProjectionMatrix();
             Screen.AspectRatioChanged += OnAspectRatioChanged;
@@ -622,7 +654,7 @@ namespace XNAFinalEngine.Components
         #region Pool
 
         // Pool for this type of components.
-        private static readonly Pool<Camera> componentPool = new Pool<Camera>(20);
+        private static readonly Pool<Camera> componentPool = new Pool<Camera>(2);
 
         /// <summary>
         /// Pool for this type of components.

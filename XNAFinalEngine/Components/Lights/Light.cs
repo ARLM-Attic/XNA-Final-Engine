@@ -54,7 +54,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Chaded game object's layer mask value.
         /// </summary>
-        internal int cachedLayerMask;
+        internal uint cachedLayerMask;
 
         protected Shadow shadow;
 
@@ -156,7 +156,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// On game object's layer changed.
         /// </summary>
-        private void OnLayerChanged(object sender, int layerMask)
+        private void OnLayerChanged(object sender, uint layerMask)
         {
             cachedLayerMask = layerMask;
         } // OnLayerChanged

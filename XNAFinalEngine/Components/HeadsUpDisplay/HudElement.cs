@@ -99,14 +99,14 @@ namespace XNAFinalEngine.Components
         /// </summary>
         protected override void OnWorldMatrixChanged(Matrix worldMatrix)
         {
-            cachedWorldMatrix = worldMatrix;
+            CachedWorldMatrix = worldMatrix;
             // We could pass directly the calculated values. In this case there are calculated using the world matrix.
             if (Owner is GameObject2D)
             {
                 // Decompose in position, rotation and scale.
                 Quaternion quaternion;
                 Vector3 scale;
-                cachedWorldMatrix.Decompose(out scale, out quaternion, out CachedPosition);
+                CachedWorldMatrix.Decompose(out scale, out quaternion, out CachedPosition);
                 CachedScale = scale.X;
                 // Quaternion to rotation angle.
                 Vector2 direction = Vector2.Transform(Vector2.UnitX, quaternion);

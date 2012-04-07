@@ -1,4 +1,33 @@
 ﻿
+#region License
+/*
+Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+                         Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
+All rights reserved.
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+•	Redistributions of source code must retain the above copyright, this list of conditions and the following disclaimer.
+
+•	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
+    in the documentation and/or other materials provided with the distribution.
+
+•	Neither the name of the Universidad Nacional del Sur nor the names of its contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+*/
+#endregion
+
 #region Using directives
 using System;
 #endregion
@@ -6,17 +35,18 @@ using System;
 namespace XNAFinalEngine.Components
 {
     /// <summary>
-    /// Layers can be used for selective rendering from cameras
+    /// Layers can be used for selective rendering.
     /// </summary>
     public class Layer
     {
 
         #region Variables
-
-        /// <summary>
-        /// Layer list.
-        /// </summary>
+        
+        // Layer list.
         private static readonly Layer[] layerList = new Layer[32];
+
+        // Enabled?
+        private bool enabled = true;
                                
         #endregion
 
@@ -37,7 +67,29 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Layer Mask.
         /// </summary>
-        public int Mask { get; private set; }
+        public uint Mask { get; private set; }
+
+        /// <summary>
+        /// Is it enabled?
+        /// </summary>
+        public bool Enabled
+        {
+            get { return enabled; }
+            set
+            {
+                enabled = value;
+                // Update the active layers mask.
+                if (value)
+                    ActiveLayers = ActiveLayers | Mask;
+                else
+                    ActiveLayers = ActiveLayers & ~Mask;
+            }
+        } // Enabled
+
+        /// <summary>
+        /// Indicates the active layers in a mask format.
+        /// </summary>
+        public static uint ActiveLayers { get; private set; }
 
         #endregion
 
@@ -55,6 +107,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Get layer by number.
         /// </summary>
+        /// <param name="layerNumber">In the range [0, 31]</param>
         public static Layer GetLayerByNumber(int layerNumber)
         {
             if (layerNumber < 0 || layerNumber > 31)
@@ -65,19 +118,20 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Get layer by mask.
         /// </summary>
-        public static Layer GetLayerByMask(int layerMask)
+        public static Layer GetLayerByMask(uint layerMask)
         {
-            // I have to try which is faster.
-            /*for (int i = 0; i < 32; i++)
+            
+            for (int i = 0; i < 32; i++)
             {
                 if (layerList[i].Mask == layerMask)
                     return layerList[i];
             }
             throw new Exception("Layer System: Unable to return layer from layer mask. The mask does not exist.");
-            */           
+            /*        
+            // I should have to implement a faster version. // TODO!!!
             try
             {
-                double doubleLayerNumber = Math.Sqrt(layerMask);
+                double doubleLayerNumber = ?????
                 int layerNumber = (int)doubleLayerNumber;
                 if (doubleLayerNumber - layerNumber != 0)
                     throw new Exception();
@@ -86,7 +140,7 @@ namespace XNAFinalEngine.Components
             catch
             {                
                 throw new Exception("Layer System: Unable to return layer from layer mask. The mask does not exist.");
-            }
+            }*/
         } // GetLayerByNumber
 
         /// <summary>
@@ -104,7 +158,21 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
-        #region Init Layers
+        #region Is Active
+
+        /// <summary>
+        /// Indicates if the layer is active.
+        /// </summary>
+        /// <param name="layerMask"></param>
+        /// <returns></returns>
+        public static bool IsActive(uint layerMask)
+        {
+            return (layerMask & ActiveLayers) != 0;
+        } // IsActive
+
+        #endregion
+
+        #region Initialize Layers
 
         /// <summary>
         /// Init the layer array and base layer information.
@@ -116,10 +184,13 @@ namespace XNAFinalEngine.Components
                 layerList[i] = new Layer();
                 if (i == 0)
                     layerList[0].Name = "Default Layer";
+                else if (i == 31)
+                    layerList[i].Name = "Editor Layer";
                 else
                     layerList[i].Name = "Layer-" + i;
                 layerList[i].Number = i;
-                layerList[i].Mask = (int)(Math.Pow(2, i));
+                layerList[i].Mask = (uint)(Math.Pow(2, i));
+                layerList[i].Enabled = true;
             }
         } // Initialize
 

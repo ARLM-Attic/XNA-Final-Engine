@@ -105,7 +105,6 @@ namespace XNAFinalEngineExamples
             camera = new GameObject3D();
             camera.AddComponent<Camera>();
             camera.AddComponent<SoundListener>();
-            camera.Camera.Renderer = Camera.RenderingType.DeferredLighting; // The only option available for the time being.
             camera.Camera.RenderTargetSize = Size.FullScreen;
             camera.Camera.FarPlane = 1000;
             ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>(); // This script will be moved to the editor namespace.

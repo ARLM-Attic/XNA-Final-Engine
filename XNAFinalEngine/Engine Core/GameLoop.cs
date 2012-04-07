@@ -395,6 +395,12 @@ namespace XNAFinalEngine.EngineCore
                         currentCamera.PartialRenderTarget = RenderCamera(currentCamera);
                         for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
                         {
+                            // I store the render of the camera to a partial render target.
+                            // This helps reduce the memory consumption (GBuffer, Light Pass, HDR pass)
+                            // at the expense of a pass that copy this texture to a bigger render target
+                            // and a last pass that copy the cameras’ render target to the back buffer.
+                            // If the performance is critical and there is more memory you should change this behavior.
+                            // It also simplified the render of one camera. 
                             currentCamera.slavesCameras[i].PartialRenderTarget = RenderCamera(currentCamera.slavesCameras[i]);
                         }
                         // Composite cameras
@@ -429,10 +435,14 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            #region Render Main Camera to Back Buffer
+
             EngineManager.Device.Clear(Color.Black);
             // Render onto back buffer the main camera and the HUD.
             if (currentCamera != null)
                 SpriteManager.DrawTextureToFullScreen(currentCamera.RenderTarget);
+
+            #endregion
 
             #region Heads Up Display
 
@@ -446,7 +456,7 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < HudText.ComponentPool2D.Count; i++)
                 {
                     currentHudText = HudText.ComponentPool2D.Elements[i];
-                    if (currentHudText.Visible)
+                    if (currentHudText.Visible && Layer.IsActive(currentHudText.CachedLayerMask))
                     {
                         SpriteManager.Draw2DText(currentHudText.Font ?? Font.DefaultFont,
                                                currentHudText.Text,
@@ -466,7 +476,7 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < HudTexture.ComponentPool2D.Count; i++)
                 {
                     currentHudTexture = HudTexture.ComponentPool2D.Elements[i];
-                    if (currentHudTexture.Visible && currentHudTexture.Texture != null)
+                    if (currentHudTexture.Visible && currentHudTexture.Texture != null && Layer.IsActive(currentHudTexture.CachedLayerMask))
                     {
                         if (currentHudTexture.DestinationRectangle != null)
                             SpriteManager.Draw2DTexture(currentHudTexture.Texture,
@@ -495,7 +505,8 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
                 {
                     LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
-                    if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList)
+                    if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible &&
+                        currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
                     {
                         for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
                             LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
@@ -507,7 +518,8 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
                 {
                     LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
-                    if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.LineList)
+                    if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible &&
+                        currentLineRenderer.PrimitiveType == PrimitiveType.LineList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
                     {
                         for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
                             LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
@@ -524,7 +536,7 @@ namespace XNAFinalEngine.EngineCore
                 {
                     currentVideo = VideoRenderer.ComponentPool.Elements[i];
                     currentVideo.Update();
-                    if (currentVideo.Visible && currentVideo.Texture != null)
+                    if (currentVideo.Visible && currentVideo.Texture != null && Layer.IsActive(currentVideo.CachedLayerMask))
                     {
                         // Aspect ratio
                         Rectangle screenRectangle;
@@ -723,7 +735,7 @@ namespace XNAFinalEngine.EngineCore
                 ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
                 if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                 {
-                    GBufferShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, currentModelRenderer.Material);
+                    GBufferShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, currentModelRenderer.Material);
                 }
             }
             gbufferTextures = GBufferPass.End();
@@ -839,7 +851,7 @@ namespace XNAFinalEngine.EngineCore
                             ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[j];
                             if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                             {
-                                CascadedShadowMapShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                                CascadedShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
                             }
                         }
                         currentDirectionalLight.ShadowTexture = CascadedShadowMapShader.Instance.End();
@@ -857,7 +869,7 @@ namespace XNAFinalEngine.EngineCore
                             ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[j];
                             if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                             {
-                                BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                                BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
                             }
                         }
                         currentDirectionalLight.ShadowTexture = BasicShadowMapShader.Instance.End();
@@ -900,7 +912,7 @@ namespace XNAFinalEngine.EngineCore
                             ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[j];
                             if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                             {
-                                BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                                BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
                             }
                         }
                         currentSpotLight.ShadowTexture = BasicShadowMapShader.Instance.End();
@@ -1013,22 +1025,22 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < modelsToRender.Count; i++)
             {
                 ModelRenderer currentModelRenderer = modelsToRender[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible && Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
                     if (currentModelRenderer.Material is Constant)
                     {
                         ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
-                        ConstantShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (Constant)currentModelRenderer.Material);
+                        ConstantShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (Constant)currentModelRenderer.Material);
                     }
                     else if (currentModelRenderer.Material is BlinnPhong)
                     {
                         BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                        BlinnPhongShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, (BlinnPhong)currentModelRenderer.Material);
+                        BlinnPhongShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, (BlinnPhong)currentModelRenderer.Material);
                     }
                     else if (currentModelRenderer.Material is CarPaint)
                     {
                         CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                        CarPaintShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint)currentModelRenderer.Material);
+                        CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint)currentModelRenderer.Material);
                     }
                 }
             }
@@ -1037,7 +1049,7 @@ namespace XNAFinalEngine.EngineCore
             
             #region Sky
 
-            // The sky is render latter so that the GPU can avoid fragment processing. But it has to be before the transparent objects.
+            // The sky is render latter so that the GPU can avoid fragment processing. But it has to be done before the transparent objects.
             if (currentCamera.Sky != null)
             {
                 if (currentCamera.Sky is Skybox && ((Skybox)currentCamera.Sky).TextureCube != null)
@@ -1053,14 +1065,14 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Particles
-
-            // The particle systems
+            
             ParticleShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.AspectRatio, currentCamera.FarPlane,
                                           new Size(currentCamera.Viewport.Width, currentCamera.Viewport.Height), gbufferTextures.RenderTargets[0]);
             for (int i = 0; i < ParticleRenderer.ComponentPool.Count; i++)
             {
                 ParticleRenderer currentParticleRenderer = ParticleRenderer.ComponentPool.Elements[i];
-                if (currentParticleRenderer.cachedParticleSystem != null && currentParticleRenderer.Texture != null && currentParticleRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                if (currentParticleRenderer.cachedParticleSystem != null && currentParticleRenderer.Texture != null && 
+                    currentParticleRenderer.Visible && Layer.IsActive(currentParticleRenderer.CachedLayerMask))
                     ParticleShader.Instance.Render(currentParticleRenderer.cachedParticleSystem, currentParticleRenderer.Duration,
                                                    currentParticleRenderer.BlendState, currentParticleRenderer.DurationRandomness, currentParticleRenderer.Gravity,
                                                    currentParticleRenderer.EndVelocity, currentParticleRenderer.MinimumColor, currentParticleRenderer.MaximumColor,
@@ -1076,22 +1088,24 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < modelsToRender.Count; i++)
             {
                 ModelRenderer currentModelRenderer = modelsToRender[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending != 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null &&
+                    currentModelRenderer.Material.AlphaBlending != 1 && currentModelRenderer.Visible &&
+                    Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
                     if (currentModelRenderer.Material is Constant)
                     {
                         ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
-                        ConstantShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (Constant)currentModelRenderer.Material);
+                        ConstantShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (Constant)currentModelRenderer.Material);
                     }
                     else if (currentModelRenderer.Material is BlinnPhong)
                     {
                         ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                        ForwardBlinnPhongShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, (BlinnPhong)currentModelRenderer.Material, currentCamera.AmbientLight);
+                        ForwardBlinnPhongShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, (BlinnPhong)currentModelRenderer.Material, currentCamera.AmbientLight);
                     }
                     else if (currentModelRenderer.Material is CarPaint)
                     {
                         CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                        CarPaintShader.Instance.RenderModel(currentModelRenderer.cachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint)currentModelRenderer.Material);
+                        CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint)currentModelRenderer.Material);
                     }
                 }
             }
@@ -1106,20 +1120,20 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < HudTexture.ComponentPool3D.Count; i++)
                 {
                     HudTexture currentHudTexture = HudTexture.ComponentPool3D.Elements[i];
-                    if (currentHudTexture.Visible && currentHudTexture.Texture != null && currentHudTexture.PostProcessed)
+                    if (currentHudTexture.Visible && currentHudTexture.Texture != null && currentHudTexture.PostProcessed && Layer.IsActive(currentHudTexture.CachedLayerMask))
                     {
                         if (currentHudTexture.Billboard)
                         {
                             if (currentHudTexture.DestinationRectangle != null)
                                 SpriteManager.Draw3DBillboardTexture(currentHudTexture.Texture,
-                                                                     currentHudTexture.cachedWorldMatrix,
+                                                                     currentHudTexture.CachedWorldMatrix,
                                                                      currentHudTexture.Color,
                                                                      currentCamera.Position,
                                                                      currentCamera.Up,
                                                                      currentCamera.Forward);
                             else
                                 SpriteManager.Draw3DBillboardTexture(currentHudTexture.Texture,
-                                                                     currentHudTexture.cachedWorldMatrix,
+                                                                     currentHudTexture.CachedWorldMatrix,
                                                                      currentHudTexture.SourceRectangle,
                                                                      currentHudTexture.Color,
                                                                      currentCamera.Position,
@@ -1130,12 +1144,12 @@ namespace XNAFinalEngine.EngineCore
                         {
                             if (currentHudTexture.DestinationRectangle != null)
                                 SpriteManager.Draw3DTexture(currentHudTexture.Texture,
-                                                          currentHudTexture.cachedWorldMatrix,
+                                                          currentHudTexture.CachedWorldMatrix,
                                                           currentHudTexture.SourceRectangle,
                                                           currentHudTexture.Color);
                             else
                                 SpriteManager.Draw3DTexture(currentHudTexture.Texture,
-                                                          currentHudTexture.cachedWorldMatrix,
+                                                          currentHudTexture.CachedWorldMatrix,
                                                           currentHudTexture.Color);    
                         }
                     }
@@ -1143,18 +1157,18 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < HudText.ComponentPool3D.Count; i++)
                 {
                     HudText currentHudText = HudText.ComponentPool3D.Elements[i];
-                    if (currentHudText.Visible && currentHudText.PostProcessed)
+                    if (currentHudText.Visible && currentHudText.PostProcessed && Layer.IsActive(currentHudText.CachedLayerMask))
                     {
                         if (currentHudText.Billboard)
                             SpriteManager.Draw3DBillboardText(currentHudText.Font ?? Font.DefaultFont,
                                                               currentHudText.Text,
-                                                              currentHudText.cachedWorldMatrix,
+                                                              currentHudText.CachedWorldMatrix,
                                                               currentHudText.Color,
                                                               currentCamera.Position,
                                                               currentCamera.Up,
                                                               currentCamera.Forward);
                         else
-                            SpriteManager.Draw3DText(currentHudText.Font ?? Font.DefaultFont, currentHudText.Text, currentHudText.cachedWorldMatrix, currentHudText.Color);
+                            SpriteManager.Draw3DText(currentHudText.Font ?? Font.DefaultFont, currentHudText.Text, currentHudText.CachedWorldMatrix, currentHudText.Color);
                         
                     }
                 }
@@ -1181,20 +1195,20 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < HudTexture.ComponentPool3D.Count; i++)
                 {
                     HudTexture currentHudTexture = HudTexture.ComponentPool3D.Elements[i];
-                    if (currentHudTexture.Visible && currentHudTexture.Texture != null && !currentHudTexture.PostProcessed)
+                    if (currentHudTexture.Visible && currentHudTexture.Texture != null && !currentHudTexture.PostProcessed && Layer.IsActive(currentHudTexture.CachedLayerMask))
                     {
                         if (currentHudTexture.Billboard)
                         {
                             if (currentHudTexture.DestinationRectangle != null)
                                 SpriteManager.Draw3DBillboardTexture(currentHudTexture.Texture,
-                                                                     currentHudTexture.cachedWorldMatrix,
+                                                                     currentHudTexture.CachedWorldMatrix,
                                                                      currentHudTexture.Color,
                                                                      currentCamera.Position,
                                                                      currentCamera.Up,
                                                                      currentCamera.Forward);
                             else
                                 SpriteManager.Draw3DBillboardTexture(currentHudTexture.Texture,
-                                                                     currentHudTexture.cachedWorldMatrix,
+                                                                     currentHudTexture.CachedWorldMatrix,
                                                                      currentHudTexture.SourceRectangle,
                                                                      currentHudTexture.Color,
                                                                      currentCamera.Position,
@@ -1205,12 +1219,12 @@ namespace XNAFinalEngine.EngineCore
                         {
                             if (currentHudTexture.DestinationRectangle != null)
                                 SpriteManager.Draw3DTexture(currentHudTexture.Texture,
-                                                          currentHudTexture.cachedWorldMatrix,
+                                                          currentHudTexture.CachedWorldMatrix,
                                                           currentHudTexture.SourceRectangle,
                                                           currentHudTexture.Color);
                             else
                                 SpriteManager.Draw3DTexture(currentHudTexture.Texture,
-                                                          currentHudTexture.cachedWorldMatrix,
+                                                          currentHudTexture.CachedWorldMatrix,
                                                           currentHudTexture.Color);
                         }
                     }
@@ -1218,18 +1232,18 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < HudText.ComponentPool3D.Count; i++)
                 {
                     HudText currentHudText = HudText.ComponentPool3D.Elements[i];
-                    if (currentHudText.Visible && !currentHudText.PostProcessed)
+                    if (currentHudText.Visible && !currentHudText.PostProcessed && Layer.IsActive(currentHudText.CachedLayerMask))
                     {
                         if (currentHudText.Billboard)
                             SpriteManager.Draw3DBillboardText(currentHudText.Font ?? Font.DefaultFont,
                                                               currentHudText.Text,
-                                                              currentHudText.cachedWorldMatrix,
+                                                              currentHudText.CachedWorldMatrix,
                                                               currentHudText.Color,
                                                               currentCamera.Position,
                                                               currentCamera.Up,
                                                               currentCamera.Forward);
                         else
-                            SpriteManager.Draw3DText(currentHudText.Font ?? Font.DefaultFont, currentHudText.Text, currentHudText.cachedWorldMatrix, currentHudText.Color);
+                            SpriteManager.Draw3DText(currentHudText.Font ?? Font.DefaultFont, currentHudText.Text, currentHudText.CachedWorldMatrix, currentHudText.Color);
 
                     }
                 }
@@ -1247,7 +1261,8 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
             {
                 ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                if (currentModelRenderer.CachedModel != null && (currentModelRenderer.RenderBoundingBox || currentModelRenderer.RenderBoundingSphere))
+                if (currentModelRenderer.CachedModel != null && (currentModelRenderer.RenderBoundingBox || currentModelRenderer.RenderBoundingSphere) &&
+                    Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
                     if (currentModelRenderer.RenderBoundingBox)
                     {
@@ -1259,6 +1274,7 @@ namespace XNAFinalEngine.EngineCore
                     }
                 }
             }
+
             #endregion
 
             #region 3D Lines (Line List)
@@ -1266,7 +1282,8 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < LineRenderer.ComponentPool3D.Count; i++)
             {
                 LineRenderer currentLineRenderer = LineRenderer.ComponentPool3D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.LineList)
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.LineList &&
+                    Layer.IsActive(currentLineRenderer.CachedLayerMask))
                 {
                     for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
                         LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
@@ -1286,7 +1303,8 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < LineRenderer.ComponentPool3D.Count; i++)
             {
                 LineRenderer currentLineRenderer = LineRenderer.ComponentPool3D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList)
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible &&
+                    currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
                 {
                     for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
                         LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
