@@ -99,6 +99,7 @@
     <Compile Include="Components\HeadsUpDisplay\HudText.cs" />
     <Compile Include="Components\HeadsUpDisplay\HudTexture.cs" />
     <Compile Include="Components\Layer.cs" />
+    <Compile Include="Components\LayeredComponent.cs" />
     <Compile Include="Components\Lights\DirectionalLight.cs" />
     <Compile Include="Components\Lights\Light.cs" />
     <Compile Include="Components\Lights\PointLight.cs" />

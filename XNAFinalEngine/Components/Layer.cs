@@ -91,6 +91,11 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public static uint ActiveLayers { get; private set; }
 
+        /// <summary>
+        /// The culling mask of the current camera.
+        /// </summary>
+        public static uint CurrentCameraCullingMask { get; internal set; }
+
         #endregion
 
         #region Constructor
@@ -167,7 +172,7 @@ namespace XNAFinalEngine.Components
         /// <returns></returns>
         public static bool IsActive(uint layerMask)
         {
-            return (layerMask & ActiveLayers) != 0;
+            return (layerMask & CurrentCameraCullingMask & ActiveLayers) != 0;
         } // IsActive
 
         #endregion
@@ -192,6 +197,7 @@ namespace XNAFinalEngine.Components
                 layerList[i].Mask = (uint)(Math.Pow(2, i));
                 layerList[i].Enabled = true;
             }
+            CurrentCameraCullingMask = uint.MaxValue;
         } // Initialize
 
         #endregion

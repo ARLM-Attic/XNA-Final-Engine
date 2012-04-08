@@ -39,7 +39,7 @@ namespace XNAFinalEngine.Components
     /// Base class for renderers.
     /// A renderer is what makes an object appear on the screen.
     /// </summary>
-    public abstract class Renderer : Component
+    public abstract class Renderer : LayeredComponent
     {
 
         #region Variables
@@ -48,20 +48,6 @@ namespace XNAFinalEngine.Components
         /// Chaded transform's world matrix value.
         /// </summary>
         internal Matrix CachedWorldMatrix;
-
-        /// <summary>
-        /// Chaded game object's layer mask value.
-        /// </summary>
-        internal uint CachedLayerMask;
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Makes the game object visible or not.
-        /// </summary>
-        public bool Visible { get; set; }
 
         #endregion
 
@@ -73,10 +59,6 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
-            Visible = true;
-            // Set Layer
-            CachedLayerMask = Owner.Layer.Mask;
-            Owner.LayerChanged += OnLayerChanged;
             // Set World Matrix
             if (Owner is GameObject2D)
             {
@@ -101,7 +83,6 @@ namespace XNAFinalEngine.Components
         internal override void Uninitialize()
         {
             base.Uninitialize();
-            Owner.LayerChanged -= OnLayerChanged;
             if (Owner is GameObject2D)
             {
                 ((GameObject2D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
@@ -111,18 +92,6 @@ namespace XNAFinalEngine.Components
                 ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
             }
         } // Uninitialize
-
-        #endregion
-
-        #region On Layer Changed
-
-        /// <summary>
-        /// On game object's layer changed.
-        /// </summary>
-        private void OnLayerChanged(object sender, uint layerMask)
-        {
-            CachedLayerMask = layerMask;
-        } // OnLayerChanged
 
         #endregion
 

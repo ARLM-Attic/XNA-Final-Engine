@@ -308,43 +308,50 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
+        #region Process
+
+        /// <summary>
+        /// The last pass of the shadow calculations.
+        /// </summary>
+        private void Process()
+        {
+            // Render deferred shadow result
+            EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+            SetShadowMapTexture(lightDepthTexture);
+
+            deferredShadowResult.EnableRenderTarget();
+            deferredShadowResult.Clear(Color.White);
+
+            switch (filterType)
+            {
+                case Shadow.FilterType.PCF2x2: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap2x2PCF"]; break;
+                case Shadow.FilterType.PCF3x3: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap3x3PCF"]; break;
+                case Shadow.FilterType.PCF5x5: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap5x5PCF"]; break;
+                case Shadow.FilterType.PCF7x7: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap7x7PCF"]; break;
+                default: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMapPoisonPCF"]; break;
+            }
+
+            Resource.CurrentTechnique.Passes[0].Apply();
+            RenderScreenPlane();
+            deferredShadowResult.DisableRenderTarget();
+            BlurShader.Instance.Filter(deferredShadowResult, true, 1);
+        } // Process
+
+        #endregion
+
         #region End
 
         /// <summary>
         /// Resolve render targets and return the deferred shadow map.
         /// </summary>
-        internal RenderTarget End()
+        internal RenderTarget End(ref RenderTarget _lightDepthTexture)
         {
             try
             {
                 // Resolve shadow map.
                 lightDepthTexture.DisableRenderTarget();
-
-                // Render deferred shadow result
-                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                SetShadowMapTexture(lightDepthTexture);
-
-                deferredShadowResult.EnableRenderTarget();
-                deferredShadowResult.Clear(Color.White);
-
-                switch (filterType)
-                {
-                    case Shadow.FilterType.PCF2x2: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap2x2PCF"]; break;
-                    case Shadow.FilterType.PCF3x3: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap3x3PCF"]; break;
-                    case Shadow.FilterType.PCF5x5: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap5x5PCF"]; break;
-                    case Shadow.FilterType.PCF7x7: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap7x7PCF"]; break;
-                    default: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMapPoisonPCF"]; break;
-                }
-
-                Resource.CurrentTechnique.Passes[0].Apply();
-                RenderScreenPlane();
-                deferredShadowResult.DisableRenderTarget();
-
-                /*RenderTarget.Release(deferredShadowResult);
-                return lightDepthTexture;*/
-                
-                RenderTarget.Release(lightDepthTexture);
-                BlurShader.Instance.Filter(deferredShadowResult, true, 1);
+                _lightDepthTexture = lightDepthTexture;
+                Process();
                 return deferredShadowResult;
             }
             catch (Exception e)
@@ -352,6 +359,24 @@ namespace XNAFinalEngine.Graphics
                 throw new InvalidOperationException("Shadow Map Shader: Unable to end the rendering.", e);
             }
         } // End
+
+        /// <summary>
+        /// Resolve render targets and return the deferred shadow map.
+        /// </summary>
+        internal RenderTarget ProcessWithPrecalculedLightDepthTexture(RenderTarget lightDepthTexture)
+        {
+            try
+            {
+                // Use parameter.
+                this.lightDepthTexture = lightDepthTexture;
+                Process();
+                return deferredShadowResult;
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Shadow Map Shader: Unable to end the rendering.", e);
+            }
+        } // ProcessWithPrecalculedLightDepthTexture
 
         #endregion
         

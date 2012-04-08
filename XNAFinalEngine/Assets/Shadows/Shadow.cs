@@ -71,6 +71,11 @@ namespace XNAFinalEngine.Assets
         // Is it enabled?
         private bool enabled = true;
 
+	    /// <summary>
+	    /// Light Depth Texture
+	    /// </summary>
+        internal RenderTarget LightDepthTexture;
+
         #endregion
 
         #region Properties

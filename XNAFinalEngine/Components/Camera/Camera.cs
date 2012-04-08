@@ -52,7 +52,7 @@ namespace XNAFinalEngine.Components
     /// The viewport approach has its advantages thought. If you want that the viewport changes its size over time
     /// the viewport approach does not have any performance penalty, but maybe the penalty could be absorbed in the render target approach. 
     /// </remarks>
-    public class Camera : Component
+    public class Camera : LayeredComponent
     {
 
         #region Enumerates
@@ -468,6 +468,15 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
+        #region Culling Mask
+        
+        /// <summary>
+        /// Include or omit layers of objects to be rendered by the camera.
+        /// </summary>
+        public uint CullingMask { get; set; }
+
+        #endregion
+
         #region Rendering Order
 
         /// <summary>
@@ -538,6 +547,7 @@ namespace XNAFinalEngine.Components
             ClearColor = new Color(20, 20, 20, 255);
             orthographicVerticalSize = 10;
             RenderingOrder = 0;
+            CullingMask = uint.MaxValue;
             // Generate the projection matrix.
             CalculateProjectionMatrix();
             Screen.AspectRatioChanged += OnAspectRatioChanged;
@@ -561,6 +571,44 @@ namespace XNAFinalEngine.Components
                 Screen.AspectRatioChanged -= OnAspectRatioChanged;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
         } // Uninitialize
+
+        #endregion
+
+        #region Culling Mask
+
+        /// <summary>
+        /// Include a layer of objects to be rendered by the camera.
+        /// </summary>
+        /// <param name="layer"></param>
+        public void AddLayer(Layer layer)
+        {
+            CullingMask = CullingMask | layer.Mask;
+        } // AddLayer
+
+        /// <summary>
+        /// Omit a layer of objects to be rendered by the camera.
+        /// </summary>
+        /// <param name="layer"></param>
+        public void RemoveLayer(Layer layer)
+        {
+            CullingMask = CullingMask & ~layer.Mask;
+        } // RemoveLayer
+
+        /// <summary>
+        /// Includes all layers of objects to be rendered by the camera.
+        /// </summary>
+        public void AddAllLayers()
+        {
+            CullingMask = uint.MaxValue;
+        } // AddAllLayers
+
+        /// <summary>
+        /// Omit all layers of objects to be rendered by the camera.
+        /// </summary>
+        public void RemoveAllLayers()
+        {
+            CullingMask = 0;
+        } // RemoveAllLayers
 
         #endregion
 

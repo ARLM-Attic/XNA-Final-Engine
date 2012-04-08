@@ -40,7 +40,7 @@ namespace XNAFinalEngine.Components
     /// <summary>
     /// Base class for lights.
     /// </summary>
-    public abstract class Light : Component
+    public abstract class Light : LayeredComponent
     {
 
         #region Variables
@@ -51,21 +51,11 @@ namespace XNAFinalEngine.Components
         // The Intensity of a light is multiplied with the Light color.
         private float intensity;
 
-        /// <summary>
-        /// Chaded game object's layer mask value.
-        /// </summary>
-        internal uint cachedLayerMask;
-
         protected Shadow shadow;
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Makes the light visible or not.
-        /// </summary>
-        public bool Visible { get; set; }
 
         /// <summary>
         /// Light diffuse color.
@@ -110,13 +100,9 @@ namespace XNAFinalEngine.Components
         {
             base.Initialize(owner);
             // Values
-            Visible = true;
             intensity = 1;
             diffuseColor = Color.White;
             Shadow = null;
-            // Layer
-            cachedLayerMask = Owner.Layer.Mask;
-            Owner.LayerChanged += OnLayerChanged;
             // Transformation
             if (Owner is GameObject2D)
             {
@@ -136,7 +122,6 @@ namespace XNAFinalEngine.Components
         internal override void Uninitialize()
         {
             base.Uninitialize();
-            Owner.LayerChanged -= OnLayerChanged;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
         } // Uninitialize
 
@@ -148,18 +133,6 @@ namespace XNAFinalEngine.Components
         /// On transform's world matrix changed.
         /// </summary>
         protected abstract void OnWorldMatrixChanged(Matrix worldMatrix);
-
-        #endregion
-
-        #region On Layer Changed
-
-        /// <summary>
-        /// On game object's layer changed.
-        /// </summary>
-        private void OnLayerChanged(object sender, uint layerMask)
-        {
-            cachedLayerMask = layerMask;
-        } // OnLayerChanged
 
         #endregion
         

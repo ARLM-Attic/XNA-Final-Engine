@@ -147,7 +147,7 @@ namespace XNAFinalEngine.Components
             }
         } // MaximumNumberParticles
 
-                /// <summary>
+        /// <summary>
         /// Time between particles.
         /// </summary>
         protected float TimeBetweenParticles
