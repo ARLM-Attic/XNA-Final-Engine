@@ -199,71 +199,71 @@ float4 psAdaptLuminance(in float2 uv : TEXCOORD0) : COLOR0
 // An easy optimization consists in make a specific technique without branching.
 float4 psPostProcess(uniform int toneMappingFunction, in float2 uv : TEXCOORD0) : COLOR0
 {
-	float3 color = tex2D(sceneSampler, uv);	// HDR Linear space	
-
-	color = ExposureColor(color, uv);
+	float4 color = tex2D(sceneSampler, uv).rgba;	// HDR Linear space	
+	
+	color.rgb = ExposureColor(color.rgb, uv);
 
 	// This function takes an input colour in linear space, and converts it to a tone mapped gamma corrected color output		
 	[branch]
 	if (toneMappingFunction == 0)
     {	
-		color = ToneMapFilmicALU(color);
+		color.rgb = ToneMapFilmicALU(color.rgb);
     }
 	else if (toneMappingFunction == 1)
     {
-		color = ToneMapFilmicUncharted2(color);
+		color.rgb = ToneMapFilmicUncharted2(color.rgb);
     }
 	else if (toneMappingFunction == 2)
     {
-		color = ToneMapDuiker(color);
+		color.rgb = ToneMapDuiker(color.rgb);
     }
 	else if (toneMappingFunction == 3)
     {
-		color = ToneMapReinhard(color);
+		color.rgb = ToneMapReinhard(color.rgb);
     }
 	else if (toneMappingFunction == 4)
     {
-		color = ToneMapReinhardModified(color);
+		color.rgb = ToneMapReinhardModified(color.rgb);
     }
 	else if (toneMappingFunction == 5)
     {
-		color = ToneMapExponential(color);
+		color.rgb = ToneMapExponential(color.rgb);
     }
 	else if (toneMappingFunction == 6)
     {
-		color = ToneMapLogarithmic(color);
+		color.rgb = ToneMapLogarithmic(color.rgb);
     }
 	else if (toneMappingFunction == 7)
     {
-		color = ToneMapDragoLogarithmic(color);
+		color.rgb = ToneMapDragoLogarithmic(color.rgb);
     }
 	
 	// Film grain has to be calculated before bloom to avoid artifacts and after film tone mapping.
 	[branch]
 	if (filmGrainEnabled)
-		color = FilmGrain(color, uv);	
+		color.rgb = FilmGrain(color.rgb, uv);	
 
 	[branch]
 	if (bloomEnabled)
-		color = color + Bloom(color, uv);
+		color.rgb = color.rgb + Bloom(color.rgb, uv);
 	
 	[branch]
 	if (adjustLevelsEnabled)
-		color = AdjustLevels(color);
+		color.rgb = AdjustLevels(color.rgb);
 
 	[branch]
 	if (adjustLevelsIndividualChannelsEnabled)
-		color = AdjustLevelsIndividualChannels(color);
+		color.rgb = AdjustLevelsIndividualChannels(color.rgb);
 
 	[branch]
 	if (colorCorrectOneLutEnabled)
-		color = lerp(color, TransformColor(color, firstlookupTableSampler), lerpOriginalColorAmount);
+		color.rgb = lerp(color, TransformColor(color.rgb, firstlookupTableSampler), lerpOriginalColorAmount);
 
 	[branch]
 	if (colorCorrectTwoLutEnabled)
-		color = lerp(color, lerp(TransformColor(color, firstlookupTableSampler), TransformColor(color, secondlookupTableSampler), lerpLookupTablesAmount), lerpOriginalColorAmount);
+		color.rgb = lerp(color.rgb, lerp(TransformColor(color.rgb, firstlookupTableSampler), TransformColor(color.rgb, secondlookupTableSampler), lerpLookupTablesAmount), lerpOriginalColorAmount);
 	
-	return float4(color, 1);
+	return color;
 } // psPostProcess
 
 //////////////////////////////////////////////

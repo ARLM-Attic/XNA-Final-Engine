@@ -419,7 +419,7 @@ namespace XNAFinalEngine.EngineCore
                             {
                                 EngineManager.Device.Viewport = new Viewport(currentCamera.slavesCameras[i].Viewport.X, currentCamera.slavesCameras[i].Viewport.Y,
                                                                              currentCamera.slavesCameras[i].Viewport.Width, currentCamera.slavesCameras[i].Viewport.Height);
-                                SpriteManager.DrawTextureToFullScreen(currentCamera.slavesCameras[i].PartialRenderTarget);
+                                SpriteManager.DrawTextureToFullScreen(currentCamera.slavesCameras[i].PartialRenderTarget, true);
                                 RenderTarget.Release(currentCamera.slavesCameras[i].PartialRenderTarget);
                             }
                         }

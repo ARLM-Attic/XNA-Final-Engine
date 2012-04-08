@@ -52,7 +52,7 @@ namespace XNAFinalEngineExamples
     /// This was used to test most of the new version's features.
     /// It’s a mess, really, but it’s the best start point to understand the new version.
     /// </summary>
-    public class LamborghiniMurcielagoScene : EditableScene
+    public class LamborghiniMurcielagoScene : Scene
     {
 
         #region Variables
@@ -148,14 +148,21 @@ namespace XNAFinalEngineExamples
             camera.Camera.PostProcess.FilmGrain.Enabled = false;
             
             // The second camera
-            camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
-            camera.Camera.RemoveAllLayers();
+            /*camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
             camera2 = new GameObject3D();
             camera2.AddComponent<Camera>();
             camera2.Camera.MasterCamera = camera.Camera;
             camera2.Camera.ClearColor = Color.Black;
             camera2.Camera.FieldOfView = 180 / 8.0f;
             camera2.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
+            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);*/
+
+            // Superpose cameras testing.
+            camera2 = new GameObject3D();
+            camera2.AddComponent<Camera>();
+            camera2.Camera.MasterCamera = camera.Camera;
+            camera2.Camera.ClearColor = Color.Transparent;
+            camera2.Camera.FieldOfView = 180 / 8.0f;
             camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);
             
             #endregion
@@ -971,18 +978,18 @@ namespace XNAFinalEngineExamples
             ContentManager.CurrentContentManager = testContentManager;
 
             // The user interface is separated and manually called because its GPL license.
-            UserInterfaceManager.Initialize();
+            //UserInterfaceManager.Initialize();
 
             //murcielagoBody.ModelRenderer.Material = new Constant { DiffuseTexture = new Texture("Caption") { PreferredSamplerState = new SamplerState { MaxMipLevel = 2 }}};
             //ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
             //BlinnPhongWindow.Show((BlinnPhong)murcielagoInteriorLeather.ModelRenderer.Material);
             //CarPaintWindow.Show(carPaint);
-            PostProcessWindow.Show(camera.Camera.PostProcess);
+            //PostProcessWindow.Show(camera.Camera.PostProcess);
 
             LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
             
-            EditorManager.AddObject(murcielagoBody);
+            //EditorManager.AddObject(murcielagoBody);
             murcielagoBody.Layer = Layer.GetLayerByNumber(1);
             //Layer.GetLayerByNumber(1).Enabled = false;
         } // Load

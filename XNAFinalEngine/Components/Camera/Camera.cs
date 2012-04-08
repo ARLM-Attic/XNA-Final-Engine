@@ -183,7 +183,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Post process effects applied to this camera.
         /// </summary>
-        /// <remarks>I want a no shared post process variable because there is one luminance texture for each camera.</remarks>
+        /// <remarks>I want a no shared post process variable because the post process shader needs one luminance texture for each camera.</remarks>
         public PostProcess PostProcess { get { return postProcess; } }
 
         #endregion

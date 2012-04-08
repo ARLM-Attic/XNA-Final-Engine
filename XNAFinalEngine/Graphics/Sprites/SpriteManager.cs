@@ -373,7 +373,9 @@ namespace XNAFinalEngine.Graphics
         /// Draw textures onto fullscreen.
         /// This is useful for quick tests related to render targets.
         /// </summary>
-        public static void DrawTextureToFullScreen(Assets.Texture renderTarget)
+        /// <param name="texture">Texture.</param>
+        /// <param name="alphaBlend">Some surface formats do not allow alpha blending, but in some scenarios alpha blending is need.</param>
+        public static void DrawTextureToFullScreen(Texture texture, bool alphaBlend = false)
         {
             if (spriteBatch == null)
                 throw new Exception("The Sprite Manager is not initialized.");
@@ -382,15 +384,15 @@ namespace XNAFinalEngine.Graphics
             // Floating point textures only works in point filtering.
             // Besides, we don’t need more than this because the render target will match the screen resolution.
             // Also there is no need for alpha blending.
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
-            
-            spriteBatch.Draw(renderTarget.Resource,
-                                 new Rectangle(0, 0, 
-                                               EngineManager.Device.Viewport.Width, EngineManager.Device.Viewport.Height),
-                                 Color.White);
+            spriteBatch.Begin(SpriteSortMode.Immediate, alphaBlend ? BlendState.AlphaBlend : BlendState.Opaque,
+                              SamplerState.PointClamp, DepthStencilState.None, RasterizerState.CullCounterClockwise);
+
+            spriteBatch.Draw(texture.Resource,
+                             new Rectangle(0, 0, EngineManager.Device.Viewport.Width, EngineManager.Device.Viewport.Height),
+                             Color.White);
 
             spriteBatch.End();
-        } // DrawRenderTarget
+        } // DrawTextureToFullScreen
 
         #endregion
 

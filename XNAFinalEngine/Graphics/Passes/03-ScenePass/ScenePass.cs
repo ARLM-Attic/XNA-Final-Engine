@@ -81,8 +81,8 @@ namespace XNAFinalEngine.Graphics
                 
                 sceneTexture.EnableRenderTarget();
                 
-                RenderTarget.ClearCurrentRenderTargets(new Color(clearColor.R, clearColor.G, clearColor.B, 255));
-            } // try
+                RenderTarget.ClearCurrentRenderTargets(clearColor);
+            }
             catch (Exception e)
             {
                 throw new InvalidOperationException("Scene Pass: Unable to begin the rendering.", e);
