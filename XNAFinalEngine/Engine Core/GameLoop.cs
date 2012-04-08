@@ -408,10 +408,10 @@ namespace XNAFinalEngine.EngineCore
                         currentCamera.RenderTarget = RenderTarget.Fetch(currentCamera.RenderTargetSize, SurfaceFormat.Color, DepthFormat.None,
                                                                         RenderTarget.AntialiasingType.NoAntialiasing);
                         currentCamera.RenderTarget.EnableRenderTarget();
-                        currentCamera.RenderTarget.Clear(Color.Black);
+                        currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
                         EngineManager.Device.Viewport = new Viewport(currentCamera.Viewport.X, currentCamera.Viewport.Y,
                                                                      currentCamera.Viewport.Width, currentCamera.Viewport.Height);
-                        SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget);
+                        SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget, true);
                         RenderTarget.Release(currentCamera.PartialRenderTarget);
                         for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
                         {
