@@ -168,9 +168,9 @@ namespace XNAFinalEngine.Components
             set
             {
                 if (Parent != null)
-                    localPosition = Vector3.Transform(value, Matrix.Invert(parent.WorldMatrix));
+                    LocalPosition = Vector3.Transform(value, Matrix.Invert(parent.WorldMatrix));
                 else
-                    localPosition = value;
+                    LocalPosition = value;
             }
         } // Position
 
@@ -204,9 +204,9 @@ namespace XNAFinalEngine.Components
             set
             {
                 if (Parent != null)
-                    localRotation = value - parent.Rotation;
+                    LocalRotation = value - parent.Rotation;
                 else
-                    localRotation = value;
+                    LocalRotation = value;
             }
         } // Rotation
 

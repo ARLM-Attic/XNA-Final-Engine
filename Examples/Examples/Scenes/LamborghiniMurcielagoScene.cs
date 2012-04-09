@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -147,8 +147,9 @@ namespace XNAFinalEngineExamples
                 TextureSize = Size.TextureSize.HalfSize,
             };
             camera.Camera.PostProcess.FilmGrain.Enabled = false;
-            
-            // Test split screen
+
+            #region Test Split Screen
+
             /*camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
             camera2 = new GameObject3D();
             camera2.AddComponent<Camera>();
@@ -158,14 +159,20 @@ namespace XNAFinalEngineExamples
             camera2.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
             camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);*/
 
-            // Superpose cameras testing.
+            #endregion
+
+            #region Test Superposing cameras
+
+            // Both has the same viewport setting.
             /*camera2 = new GameObject3D();
             camera2.AddComponent<Camera>();
             camera2.Camera.MasterCamera = camera.Camera;
-            camera2.Camera.ClearColor = Color.Transparent;
+            camera2.Camera.ClearColor = Color.Transparent; // This is important
             camera2.Camera.FieldOfView = 180 / 8.0f;
             camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);*/
-            
+
+            #endregion
+
             #endregion
 
             #region Materials
@@ -965,34 +972,46 @@ namespace XNAFinalEngineExamples
 
             #endregion
 
+            #region Statistics
+
+            statistics = new GameObject2D();
+            statistics.AddComponent<ScriptStatisticsDrawer>();
+            GameLoop.ShowFramesPerSecond = true;
+
+            #endregion
+
+            #region Engine Logo
+
             /*xnaFinalEngineLogo = new GameObject2D();
             xnaFinalEngineLogo.AddComponent<HudTexture>();
             xnaFinalEngineLogo.HudTexture.Texture = new Texture("XNA Final Engine");
             xnaFinalEngineLogo.Transform.LocalScale = 0.5f;*/
 
-            statistics = new GameObject2D();
-            statistics.AddComponent<ScriptStatisticsDrawer>();
+            #endregion
 
-            GameLoop.ShowFramesPerSecond = true;
+            #region Testing
 
             ContentManager testContentManager = new ContentManager("Just for testing", false);
             ContentManager.CurrentContentManager = testContentManager;
 
             // The user interface is separated and manually called because its GPL license.
             //UserInterfaceManager.Initialize();
-
             //murcielagoBody.ModelRenderer.Material = new Constant { DiffuseTexture = new Texture("Caption") { PreferredSamplerState = new SamplerState { MaxMipLevel = 2 }}};
             //ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
             //BlinnPhongWindow.Show((BlinnPhong)murcielagoInteriorLeather.ModelRenderer.Material);
             //CarPaintWindow.Show(carPaint);
-            //PostProcessWindow.Show(camera.Camera.PostProcess);
+            PostProcessWindow.Show(camera.Camera.PostProcess);
 
             LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
-            
-            EditorManager.AddObject(murcielagoBody);
+
             murcielagoBody.Layer = Layer.GetLayerByNumber(1);
             //Layer.GetLayerByNumber(1).Enabled = false;
+
+            #endregion
+
+            EditorManager.AddObject(murcielagoBody);
+            
         } // Load
 
         #endregion
@@ -1005,6 +1024,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
+            base.UpdateTasks();
             if (Keyboard.KeyJustPressed(Keys.E) && Keyboard.KeyPressed(Keys.LeftControl))
             {
                 if (EditorManager.EditorModeEnabled)
@@ -1027,13 +1047,6 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PreRenderTasks()
         {
-            /*
-            if (Mouse.LeftButtonJustPressed)
-            {
-                GameObject gameObject = picker.Pick(camera.Camera.ViewMatrix, camera.Camera.ProjectionMatrix);
-                if (gameObject is GameObject3D)
-                    ((GameObject3D) gameObject).ModelRenderer.RenderBoundingBox = true;
-            }*/
             
         } // PreRenderTasks
 

@@ -259,16 +259,13 @@ namespace XNAFinalEngine.Editor
         {
             if (!editorModeEnabled)
                 return;
-            /*
-            if (Camera.MainCamera == null)
-                return; // No camera, no editor. (for know at least)
-            if (camera.Camera != Camera.MainCamera)
+            
+            if (Mouse.LeftButtonJustPressed && UserInterfaceManager.FocusedControl == null)
             {
-                if (camera != null)
-                    camera.RemoveComponent<ScriptEditorCamera>();
-                ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
+                GameObject gameObject = picker.Pick(editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix);
+                if (gameObject is GameObject3D)
+                    ((GameObject3D)gameObject).ModelRenderer.RenderBoundingBox = true;
             }
-            */
             
             #region Frame Object and Reset Camera
             /*

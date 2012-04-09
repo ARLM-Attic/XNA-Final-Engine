@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -29,10 +29,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using System;
+using Microsoft.Xna.Framework;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Editor;
-using XNAFinalEngine.UserInterface;
+using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.Scenes
@@ -45,6 +45,12 @@ namespace XNAFinalEngine.Scenes
     public abstract class EditableScene : Scene
     {
 
+        #region Variables
+
+        private GameObject2D editorText;
+
+        #endregion
+
         #region Load
 
         /// <summary>
@@ -54,8 +60,24 @@ namespace XNAFinalEngine.Scenes
         public override void Load()
         {
             EditorManager.Initialize();
+            editorText = new GameObject2D();
+            editorText.AddComponent<HudText>();
+            editorText.HudText.Text.Append("Press CTRL+E to toggle to Edit Mode");
             base.Load();
         } // Load
+
+        #endregion
+
+        #region Update Tasks
+
+        /// <summary>
+        /// Tasks executed during the update.
+        /// This is the place to put the application logic.
+        /// </summary>
+        public override void UpdateTasks()
+        {
+            editorText.Transform.Position = new Vector3(10, Screen.Height - 20, 0);
+        } // UpdateTasks
 
         #endregion
 

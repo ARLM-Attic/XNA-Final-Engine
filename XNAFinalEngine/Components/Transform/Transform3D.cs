@@ -219,7 +219,7 @@ namespace XNAFinalEngine.Components
             set
             {
                 if (Parent != null)
-                    localPosition = Vector3.Transform(value, Matrix.Invert(parent.WorldMatrix));
+                    LocalPosition = Vector3.Transform(value, Matrix.Invert(parent.WorldMatrix));
                 else
                     LocalPosition = value;
             }
@@ -255,7 +255,7 @@ namespace XNAFinalEngine.Components
             set
             {
                 if (Parent != null)
-                    localRotation = Quaternion.CreateFromRotationMatrix(Matrix.CreateFromQuaternion(value) * Matrix.Invert(parent.WorldMatrix));
+                    LocalRotation = Quaternion.CreateFromRotationMatrix(Matrix.CreateFromQuaternion(value) * Matrix.Invert(parent.WorldMatrix));
                 else
                     LocalRotation = value;
             }
