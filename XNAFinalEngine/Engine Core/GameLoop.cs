@@ -376,11 +376,10 @@ namespace XNAFinalEngine.EngineCore
             
             #region Render Each Camera
             
-            Camera currentCamera = null;
             // For each camera we render the scene in it
             for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
             {
-                currentCamera = Camera.ComponentPool.Elements[cameraIndex];
+                Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
                 // If is a master camera
                 if (currentCamera.MasterCamera == null && currentCamera.Visible && Layer.IsActive(currentCamera.CachedLayerMask))
                 {
@@ -446,7 +445,7 @@ namespace XNAFinalEngine.EngineCore
 
             EngineManager.Device.Clear(Color.Black);
             // Render onto back buffer the main camera and the HUD.
-            if (currentCamera != null)
+            if (Camera.MainCamera != null && Camera.MainCamera.RenderTarget != null)
                 SpriteManager.DrawTextureToFullScreen(Camera.MainCamera.RenderTarget);
 
             #endregion

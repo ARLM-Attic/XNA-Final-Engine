@@ -30,16 +30,17 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
-using XNAFinalEngine.Input;
 using XNAFinalEngine.Scenes;
 using XNAFinalEngine.UserInterface;
 using XNAFinalEngine.Editor;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
+using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Size = XNAFinalEngine.Helpers.Size;
 using Texture = XNAFinalEngine.Assets.Texture;
 using TextureCube = XNAFinalEngine.Assets.TextureCube;
@@ -52,7 +53,7 @@ namespace XNAFinalEngineExamples
     /// This was used to test most of the new version's features.
     /// It’s a mess, really, but it’s the best start point to understand the new version.
     /// </summary>
-    public class LamborghiniMurcielagoScene : Scene
+    public class LamborghiniMurcielagoScene : EditableScene
     {
 
         #region Variables
@@ -113,7 +114,7 @@ namespace XNAFinalEngineExamples
             base.Load();
 
             #region Camera
-
+            
             camera = new GameObject3D();
             camera.AddComponent<Camera>();
             camera.AddComponent<SoundListener>();
@@ -147,7 +148,7 @@ namespace XNAFinalEngineExamples
             };
             camera.Camera.PostProcess.FilmGrain.Enabled = false;
             
-            // The second camera
+            // Test split screen
             /*camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
             camera2 = new GameObject3D();
             camera2.AddComponent<Camera>();
@@ -158,12 +159,12 @@ namespace XNAFinalEngineExamples
             camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);*/
 
             // Superpose cameras testing.
-            camera2 = new GameObject3D();
+            /*camera2 = new GameObject3D();
             camera2.AddComponent<Camera>();
             camera2.Camera.MasterCamera = camera.Camera;
             camera2.Camera.ClearColor = Color.Transparent;
             camera2.Camera.FieldOfView = 180 / 8.0f;
-            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);
+            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);*/
             
             #endregion
 
@@ -989,7 +990,7 @@ namespace XNAFinalEngineExamples
             LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
             
-            //EditorManager.AddObject(murcielagoBody);
+            EditorManager.AddObject(murcielagoBody);
             murcielagoBody.Layer = Layer.GetLayerByNumber(1);
             //Layer.GetLayerByNumber(1).Enabled = false;
         } // Load
@@ -1004,7 +1005,13 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
-            
+            if (Keyboard.KeyJustPressed(Keys.E) && Keyboard.KeyPressed(Keys.LeftControl))
+            {
+                if (EditorManager.EditorModeEnabled)
+                    EditorManager.DisableEditorMode();
+                else
+                    EnableEditorMode(camera);
+            }
         } // UpdateTasks
 
         #endregion

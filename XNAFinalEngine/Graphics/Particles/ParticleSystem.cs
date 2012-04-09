@@ -300,6 +300,10 @@ namespace XNAFinalEngine.Graphics
                         EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
                                                                    firstActiveParticle * 4, (firstFreeParticle - firstActiveParticle) * 4,
                                                                    firstActiveParticle * 6, (firstFreeParticle - firstActiveParticle) * 2);
+                        // Update statistics
+                        Statistics.DrawCalls++;
+                        Statistics.TrianglesDrawn += (firstFreeParticle - firstActiveParticle) * 2;
+                        Statistics.VerticesProcessed += (firstFreeParticle - firstActiveParticle) * 4;
                     }
                     else
                     {
@@ -307,10 +311,17 @@ namespace XNAFinalEngine.Graphics
                         EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0,
                                                                    firstActiveParticle * 4, (maximumNumberParticles - firstActiveParticle) * 4,
                                                                    firstActiveParticle * 6, (maximumNumberParticles - firstActiveParticle) * 2);
-
+                        // Update statistics
+                        Statistics.DrawCalls++;
+                        Statistics.TrianglesDrawn += (maximumNumberParticles - firstActiveParticle) * 2;
+                        Statistics.VerticesProcessed += (maximumNumberParticles - firstActiveParticle) * 4;
                         if (firstFreeParticle > 0)
                         {
                             EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, firstFreeParticle * 4, 0, firstFreeParticle * 2);
+                            // Update statistics
+                            Statistics.DrawCalls++;
+                            Statistics.TrianglesDrawn += firstFreeParticle * 2;
+                            Statistics.VerticesProcessed += firstFreeParticle * 4;
                         }
                     }
                 }

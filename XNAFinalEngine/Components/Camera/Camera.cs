@@ -509,7 +509,7 @@ namespace XNAFinalEngine.Components
                 for (int i = componentPool.Count - 1; i >= 0; i--)
                 {
                     // A slave camera could have a bigger value than its master
-                    if (componentPool.Elements[i].MasterCamera == null)
+                    if (componentPool.Elements[i].MasterCamera == null && componentPool.Elements[i].Visible)
                         return componentPool.Elements[i];
                 }
                 // The only posible scenerio is a scene with no camera.

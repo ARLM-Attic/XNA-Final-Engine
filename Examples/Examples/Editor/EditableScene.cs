@@ -59,50 +59,16 @@ namespace XNAFinalEngine.Scenes
 
         #endregion
 
-        #region Update Tasks
+        #region Enable Editor Mode
 
         /// <summary>
-        /// Tasks executed during the update before scripts update.
-        /// This is the place to put the application logic.
+        /// Enable editor mode
         /// </summary>
-        public virtual void UpdateTasks()
+        /// <param name="mainCamera">The main camera it is needed.</param>
+        public void EnableEditorMode(GameObject3D mainCamera)
         {
-            // Overrite it!!
-        } // UpdateTasks
-
-        /// <summary>
-        /// Tasks executed during the update, but after the scripts update.
-        /// This is the place to put the application logic.
-        /// </summary>
-        public virtual void LateUpdateTasks()
-        {
-            // Overrite it!!
-        } // LateUpdateTasks
-
-        #endregion
-
-        #region Render Tasks
-        
-        /// <summary>
-        /// Tasks before the engine render.
-        /// Some tasks are more related to the frame rendering than the update,
-        /// or maybe the update frequency is too high to waste time in this kind of tasks,
-        /// for that reason the pre render task exists.
-        /// For example, is more correct to update the HUD information here because is related with the rendering.
-        /// </summary>
-        public virtual void PreRenderTasks()
-        {
-            // Overrite it!!
-        } // PreRenderTasks
-
-        /// <summary>
-        /// Tasks after the engine render.
-        /// Probably you won’t need to place any task here.
-        /// </summary>
-        public virtual void PostRenderTasks()
-        {
-            // Overrite it!!
-        } // PostRenderTasks
+            EditorManager.EnableEditorMode(mainCamera);
+        } // EnableEditorMode
 
         #endregion
 

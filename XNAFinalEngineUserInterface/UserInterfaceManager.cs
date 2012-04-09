@@ -114,7 +114,7 @@ namespace XNAFinalEngine.UserInterface
         // To avoid more than one initialization.
         private static bool initialized;
 
-        // Used to call the update and render method in the correct order without explicit calls..
+        // Used to call the update and render method in the correct order without explicit calls.
         private static GameObject userInterfaceGameObject;
 
         #endregion

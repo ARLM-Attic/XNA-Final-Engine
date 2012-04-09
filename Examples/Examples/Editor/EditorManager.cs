@@ -117,12 +117,16 @@ namespace XNAFinalEngine.Editor
 
         #region Variables
 
+        // The editor camera.
         private static GameObject3D editorCamera;
+
+        // The game main camera.
+        private static GameObject3D gameMainCamera;
 
         // The picker to select an object from the screen.
         private static Picker picker;
 
-        // The active manipulator
+        // The active manipulator.
         private static Manipulator activeManipulator = Manipulator.None;
 
         private static GameObject selectedObject;
@@ -141,6 +145,20 @@ namespace XNAFinalEngine.Editor
         // To avoid more than one initialization.
         private static bool initialized;
 
+        // Used to call the update and render method in the correct order without explicit calls.
+        private static GameObject editorManagerGameObject;
+
+        private static bool editorModeEnabled;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Is the editor mode enabled?
+        /// </summary>
+        public static bool EditorModeEnabled { get { return editorModeEnabled; } }
+
         #endregion
 
         #region Initialize
@@ -157,6 +175,14 @@ namespace XNAFinalEngine.Editor
             UserInterfaceManager.Initialize();
             picker = new Picker(Size.FullScreen);
             editorCamera = new GameObject3D();
+            editorCamera.AddComponent<Camera>();
+            ScriptEditorCamera script = (ScriptEditorCamera)editorCamera.AddComponent<ScriptEditorCamera>();
+            script.SetPosition(new Vector3(0, 20, 15), Vector3.Zero);
+            editorCamera.Camera.Visible = false;
+            editorCamera.Camera.RenderingOrder = int.MaxValue;
+
+            editorManagerGameObject = new GameObject2D();
+            editorManagerGameObject.AddComponent<ScripEditorManager>();
         } // Initialize
 
         #endregion
@@ -188,14 +214,51 @@ namespace XNAFinalEngine.Editor
         } // RemoveObject
 
         #endregion
+
+        #region Enable Disable Editor Mode
+
+        /// <summary>
+        /// Enable editor mode
+        /// </summary>
+        /// <param name="mainCamera">The main camera it is needed.</param>
+        public static void EnableEditorMode(GameObject3D mainCamera)
+        {
+            if (mainCamera == null)
+                throw new ArgumentNullException("mainCamera");
+            if (mainCamera.Camera == null)
+                throw new ArgumentException("Editor Manager: Unable to activate editor mode. The game object passed does not have a camera component", "mainCamera");
+            if (editorModeEnabled)
+                return;
+            editorModeEnabled = true;
+            gameMainCamera = mainCamera;
+            gameMainCamera.Camera.Visible = false;
+            editorCamera.Camera.Visible = true;
+        } // EnableEditorMode
+
+        /// <summary>
+        /// Disable editor mode
+        /// </summary>
+        public static void DisableEditorMode()
+        {
+            if (!editorModeEnabled)
+                return;
+            editorModeEnabled = false;
+            gameMainCamera.Camera.Visible = true;
+            editorCamera.Camera.Visible = false;
+            gameMainCamera = null;
+        } // DisableEditorMode
+
+        #endregion
         
-        #region Manipulate Scene
+        #region Update
 
         /// <summary>
         /// Manipula la escena. Pero no renderiza nada en la pantalla.
         /// </summary>
         public static void Update()
         {
+            if (!editorModeEnabled)
+                return;
             /*
             if (Camera.MainCamera == null)
                 return; // No camera, no editor. (for know at least)

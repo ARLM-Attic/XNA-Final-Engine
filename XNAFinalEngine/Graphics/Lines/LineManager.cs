@@ -302,6 +302,11 @@ namespace XNAFinalEngine.Graphics
 
             // Submit the draw call to the graphics card
             EngineManager.Device.DrawUserPrimitives(primitiveType, vertices, 0, primitiveCount);
+            // Update statistics
+            Statistics.DrawCalls++;
+            if (numVertsPerPrimitive == 3)
+                Statistics.TrianglesDrawn += positionInBuffer / numVertsPerPrimitive;
+            Statistics.VerticesProcessed += positionInBuffer;
 
             // Now that we've drawn, it's ok to reset positionInBuffer back to zero, and write over any vertices that may have been set previously.
             positionInBuffer = 0;

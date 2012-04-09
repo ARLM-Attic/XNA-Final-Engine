@@ -186,6 +186,9 @@ namespace XNAFinalEngine.Graphics
                 throw new InvalidOperationException("Sprite Manager: Begin was called in 3D mode.");
 
             spriteBatch.DrawString(font.Resource, text, new Vector2(position.X, position.Y), color, rotation, origin, scale, SpriteEffects.None, position.Z);
+            // Update statistics
+            Statistics.TrianglesDrawn += 2 * text.Length;
+            Statistics.VerticesProcessed += 4 * text.Length;
         } // Draw2DText
 
         /// <summary>
@@ -204,6 +207,9 @@ namespace XNAFinalEngine.Graphics
 
             SpriteShader.Instance.SetParameters(Matrix.CreateFromYawPitchRoll(0, 3.1416f, 0) * worldMatrix);
             spriteBatch.DrawString(font.Resource, text, Vector2.Zero, color);
+            // Update statistics
+            Statistics.TrianglesDrawn += 2 * text.Length;
+            Statistics.VerticesProcessed += 4 * text.Length;
         } // Draw3DText
 
         /// <summary>
@@ -224,6 +230,9 @@ namespace XNAFinalEngine.Graphics
             worldMatrix = Matrix.CreateBillboard(worldMatrix.Translation, cameraPosition, cameraUp, null);
             SpriteShader.Instance.SetParameters(Matrix.CreateScale(scale) * Matrix.CreateFromYawPitchRoll(0, 0, 3.1416f) * worldMatrix);
             spriteBatch.DrawString(font.Resource, text, Vector2.Zero, color);
+            // Update statistics
+            Statistics.TrianglesDrawn += 2 * text.Length;
+            Statistics.VerticesProcessed += 4 * text.Length;
         } // Draw3DBillboardText
 
         #endregion
@@ -248,6 +257,9 @@ namespace XNAFinalEngine.Graphics
                 throw new InvalidOperationException("Sprite Manager: Begin was called in 3D mode.");
 
             spriteBatch.Draw(texture.Resource, new Vector2(position.X, position.Y), sourceRectangle, color, rotation, origin, scale, SpriteEffects.None, position.Z);
+            // Update statistics
+            Statistics.TrianglesDrawn += 2;
+            Statistics.VerticesProcessed += 4;
         } // Draw2DTexture
 
         /// <summary>
@@ -268,6 +280,9 @@ namespace XNAFinalEngine.Graphics
                 throw new InvalidOperationException("Sprite Manager: Begin was called in 3D mode.");
 
             spriteBatch.Draw(texture.Resource, destinationRectangle, sourceRectangle, color, rotation, origin, SpriteEffects.None, depth);
+            // Update statistics
+            Statistics.TrianglesDrawn += 2;
+            Statistics.VerticesProcessed += 4;
         } // Draw2DTexture
 
         /// <summary>
@@ -286,6 +301,9 @@ namespace XNAFinalEngine.Graphics
 
             SpriteShader.Instance.SetParameters(worldMatrix * Matrix.CreateFromYawPitchRoll(0, 3.1416f, 0));
             spriteBatch.Draw(texture.Resource, Vector2.Zero, sourceRectangle, color);
+            // Update statistics
+            Statistics.TrianglesDrawn += 2;
+            Statistics.VerticesProcessed += 4;
         } // Draw3DTexture
 
         /// <summary>
@@ -303,6 +321,9 @@ namespace XNAFinalEngine.Graphics
 
             SpriteShader.Instance.SetParameters(worldMatrix * Matrix.CreateFromYawPitchRoll(0, 3.1416f, 0));
             spriteBatch.Draw(texture.Resource, Vector2.Zero, color);
+            // Update statistics
+            Statistics.TrianglesDrawn += 2;
+            Statistics.VerticesProcessed += 4;
         } // Draw3DTexture
 
         /// <summary>
@@ -323,6 +344,9 @@ namespace XNAFinalEngine.Graphics
             worldMatrix = Matrix.CreateBillboard(worldMatrix.Translation, cameraPosition, cameraUp, cameraForward);
             SpriteShader.Instance.SetParameters(Matrix.CreateScale(scale) * Matrix.CreateFromYawPitchRoll(0, 0, 3.1416f) * worldMatrix);
             spriteBatch.Draw(texture.Resource, Vector2.Zero, sourceRectangle, color);
+            // Update statistics
+            Statistics.TrianglesDrawn += 2;
+            Statistics.VerticesProcessed += 4;
         } // Draw3DBillboardTexture
 
         /// <summary>
@@ -342,6 +366,9 @@ namespace XNAFinalEngine.Graphics
             worldMatrix = Matrix.CreateBillboard(worldMatrix.Translation, cameraPosition, cameraUp, cameraForward);
             SpriteShader.Instance.SetParameters(Matrix.CreateScale(scale) * Matrix.CreateFromYawPitchRoll(0, 0, 3.1416f) * worldMatrix);
             spriteBatch.Draw(texture.Resource, Vector2.Zero, color);
+            // Update statistics
+            Statistics.TrianglesDrawn += 2;
+            Statistics.VerticesProcessed += 4;
         } // Draw3DBillboardTexture
 
         #endregion
@@ -363,6 +390,8 @@ namespace XNAFinalEngine.Graphics
                 throw new InvalidOperationException("Sprite Manager: End was called, but Begin has not yet been called. You must call Begin successfully before you can call End.");
             spriteBatch.End();
             begined = false;
+            // Update statistics
+            Statistics.DrawCalls++;
         } // End
 
         #endregion
@@ -390,6 +419,10 @@ namespace XNAFinalEngine.Graphics
             spriteBatch.Draw(texture.Resource,
                              new Rectangle(0, 0, EngineManager.Device.Viewport.Width, EngineManager.Device.Viewport.Height),
                              Color.White);
+            // Update statistics
+            Statistics.DrawCalls++;
+            Statistics.TrianglesDrawn += 2;
+            Statistics.VerticesProcessed += 4;
 
             spriteBatch.End();
         } // DrawTextureToFullScreen
