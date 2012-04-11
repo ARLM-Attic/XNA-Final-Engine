@@ -38,17 +38,20 @@ using XNAFinalEngine.UserInterface;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Mouse = XNAFinalEngine.Input.Mouse;
 using Size = XNAFinalEngine.Helpers.Size;
+using Microsoft.Xna.Framework.Graphics;
 #endregion
 
 namespace XNAFinalEngine.Editor
 {
     /// <summary>
     /// This put all the editor pieces together.
+    /// The editor is inspired by Unity3D and Softimage XSI.
     /// </summary>
     /// <remarks>
     /// The editor is not garbage free because the editor uses the user interface (based in Neo Force Control).
     /// The user interface was heavily modified and improved but the garbage was not removed.
     /// Moreover the editor uses the texture picking method that stall the CPU but brings the best accuracy.
+    /// The editor is not a good place to do any optimizations. I even use LinQ.
     /// </remarks>
     public static class EditorManager
     {
@@ -129,7 +132,7 @@ namespace XNAFinalEngine.Editor
         private static Gizmo activeGizmo = Gizmo.None;
 
         // The selected object.
-        private static List<GameObject> selectedObject = new List<GameObject>();
+        private static List<GameObject> selectedObjects = new List<GameObject>();
 
         /// <summary>
         /// Calculos y guardamos en esta variable si es posible activar un manipulador. 
@@ -148,7 +151,13 @@ namespace XNAFinalEngine.Editor
         // Used to call the update and render method in the correct order without explicit calls.
         private static GameObject editorManagerGameObject;
 
+        // Indicates if the editor is active.
         private static bool editorModeEnabled;
+
+        // An easy way to avoid a mouse click in the scene world when a control is closed.
+        private static Control previousFocusedControl;
+
+        private static GameObject2D selectionRectangle, selectionRectangleBackground;
 
         #endregion
 
@@ -181,11 +190,20 @@ namespace XNAFinalEngine.Editor
             editorCameraScript = (ScriptEditorCamera)editorCamera.AddComponent<ScriptEditorCamera>();
             editorCameraScript.Mode = ScriptEditorCamera.ModeType.Maya;
             // Reset camera to default position and orientation.
-            editorCameraScript.LookAtPosition = new Vector3(0, 0.5f, 0);
-            editorCameraScript.Distance = 30;
-            editorCameraScript.Pitch = 0;
-            editorCameraScript.Yaw = 0;
-            editorCameraScript.Roll = 0;
+            ResetEditorCamera();
+
+            // Selection game objects.
+            selectionRectangle = new GameObject2D();
+            selectionRectangle.AddComponent<LineRenderer>();
+            selectionRectangle.LineRenderer.Vertices = new VertexPositionColor[4 * 2];
+            selectionRectangle.LineRenderer.Visible = false;
+            selectionRectangle.Layer = Layer.GetLayerByNumber(31);
+            selectionRectangleBackground = new GameObject2D();
+            selectionRectangleBackground.AddComponent<LineRenderer>();
+            selectionRectangleBackground.LineRenderer.PrimitiveType = PrimitiveType.TriangleList;
+            selectionRectangleBackground.LineRenderer.Vertices = new VertexPositionColor[6];
+            selectionRectangleBackground.LineRenderer.Visible = false;
+            selectionRectangleBackground.Layer = Layer.GetLayerByNumber(31);
 
             // Call the manager's update and render methods in the correct order without explicit calls. 
             editorManagerGameObject = new GameObject2D();
@@ -257,37 +275,69 @@ namespace XNAFinalEngine.Editor
         } // DisableEditorMode
 
         #endregion
+
+        #region Reset Editor Camera
+
+        /// <summary>
+        /// Reset camera to default position and orientation.
+        /// </summary>
+        private static void ResetEditorCamera()
+        {
+            editorCameraScript.LookAtPosition = new Vector3(0, 0.5f, 0);
+            editorCameraScript.Distance = 30;
+            editorCameraScript.Pitch = 0;
+            editorCameraScript.Yaw = 0;
+            editorCameraScript.Roll = 0;
+        } // ResetEditorCamera
+
+        #endregion
         
         #region Update
 
         /// <summary>
-        /// Manipula la escena. Pero no renderiza nada en la pantalla.
+        /// Update.
         /// </summary>
         public static void Update()
         {
-            if (!editorModeEnabled)
-                return;
 
-            // Keyboard shortcuts, camera movement and similar should be ignored when the text box is active.
-            if (UserInterfaceManager.FocusedControl != null && UserInterfaceManager.FocusedControl is TextBox)
-                return;
+            #region If no update is need it...
 
-            // If the camera is being manipulated…
-            if (editorCameraScript.Manipulating)
-                return;
-            
-            #region Frame Object
-            
-            // Adjust the look at position and distance to frame the selected object.
-            // The orientation is not afected.
-            /*if (selectedObject != null && Keyboard.KeyJustPressed(Keys.F))
+            if (!editorModeEnabled || 
+                // Keyboard shortcuts, camera movement and similar should be ignored when the text box is active.
+                (UserInterfaceManager.FocusedControl != null && UserInterfaceManager.FocusedControl is TextBox) ||
+                // If the camera is being manipulated…
+                (editorCameraScript.Manipulating))
             {
-                if (selectedObject is GameObject3D && ((GameObject3D)selectedObject).ModelRenderer != null)
+                previousFocusedControl = UserInterfaceManager.FocusedControl;
+                return;
+            }
+
+            #endregion
+
+            #region Frame Object
+
+            // Adjust the look at position and distance to frame the selected objects.
+            // The orientation is not afected.
+            if (Keyboard.KeyJustPressed(Keys.F))
+            {
+                BoundingSphere? frameBoundingSphere = null; // Gabage is not an issue in the editor.
+                foreach (var gameObject in selectedObjects)
                 {
-                    editorCameraScript.LookAtPosition = ((GameObject3D)selectedObject).ModelRenderer.BoundingSphere.Center;
-                    editorCameraScript.Distance = ((GameObject3D)selectedObject).ModelRenderer.BoundingSphere.Radius * 3;
+                    if (gameObject is GameObject3D && ((GameObject3D)gameObject).ModelRenderer != null)
+                    {
+                        if (frameBoundingSphere == null)
+                            frameBoundingSphere = ((GameObject3D)gameObject).ModelRenderer.BoundingSphere;
+                        else
+                            frameBoundingSphere = BoundingSphere.CreateMerged(frameBoundingSphere.Value, ((GameObject3D)gameObject).ModelRenderer.BoundingSphere);
+                    }
+                    // The rest of objects TODO!!!
                 }
-            }*/
+                if (frameBoundingSphere != null)
+                {
+                    editorCameraScript.LookAtPosition = frameBoundingSphere.Value.Center;
+                    editorCameraScript.Distance = frameBoundingSphere.Value.Radius * 3;
+                }
+            }
 
             #endregion
 
@@ -296,11 +346,17 @@ namespace XNAFinalEngine.Editor
             // Reset camera to default position and orientation.
             if (Keyboard.KeyJustPressed(Keys.R))
             {
-                editorCameraScript.LookAtPosition = new Vector3(0, 0.5f, 0);
-                editorCameraScript.Distance = 30;
-                editorCameraScript.Pitch = 0;
-                editorCameraScript.Yaw = 0;
-                editorCameraScript.Roll = 0;
+                ResetEditorCamera();
+            }
+
+            #endregion
+
+            #region If no update is need it...
+
+            if (UserInterfaceManager.FocusedControl != null || previousFocusedControl != null)
+            {
+                previousFocusedControl = UserInterfaceManager.FocusedControl;
+                return;
             }
 
             #endregion
@@ -308,42 +364,136 @@ namespace XNAFinalEngine.Editor
             // If no gizmo is active…
             if (activeGizmo == Gizmo.None)
             {
+
+                #region Selection Rectangle
+
+                if (Mouse.LeftButtonPressed)
+                {
+                    Color lineColor = new Color(0.3f, 0.3f, 0.3f, 1f);
+                    Color backgroundColor = new Color(0.3f, 0.3f, 0.3f, 0.2f);
+                    selectionRectangle.LineRenderer.Visible = true;
+                    selectionRectangle.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[3] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[4] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[5] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[6] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[7] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y, 0), lineColor);
+                    selectionRectangleBackground.LineRenderer.Visible = true;
+                    selectionRectangleBackground.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y, -0.1f), backgroundColor);
+                    selectionRectangleBackground.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, -0.1f), backgroundColor);
+                    selectionRectangleBackground.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y, -0.1f), backgroundColor);
+                    selectionRectangleBackground.LineRenderer.Vertices[4] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y, -0.1f), backgroundColor);
+                    selectionRectangleBackground.LineRenderer.Vertices[3] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, -0.1f), backgroundColor);
+                    selectionRectangleBackground.LineRenderer.Vertices[5] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, -0.1f), backgroundColor);
+                }
+                else
+                {
+                    selectionRectangleBackground.LineRenderer.Visible = false;
+                    selectionRectangle.LineRenderer.Visible = false;
+                }
+
+                #endregion
+
+                #region Selection of objects
+
                 if (Mouse.LeftButtonJustReleased)
                 {
-                    // Remove bounding box off the screen.
-                    foreach (var gameObject in selectedObject)
+
+                    #region Clear selection list when control keys and shift keys are not pressed
+
+                    if (!Keyboard.KeyPressed(Keys.LeftControl) && !Keyboard.KeyPressed(Keys.LeftShift) &&
+                        !Keyboard.KeyPressed(Keys.RightControl) && !Keyboard.KeyPressed(Keys.RightShift))
                     {
-                        // If it is a model.
-                        if (gameObject is GameObject3D && ((GameObject3D)gameObject).ModelRenderer != null)
-                            ((GameObject3D)gameObject).ModelRenderer.RenderBoundingBox = false;
-                        // ...
+                        // Remove bounding box off the screen.
+                        foreach (var gameObject in selectedObjects)
+                        {
+                            // If it is a model.
+                            if (gameObject is GameObject3D && ((GameObject3D)gameObject).ModelRenderer != null)
+                                ((GameObject3D)gameObject).ModelRenderer.RenderBoundingBox = false;
+                            // ... TODO!!!!
+                        }
+                        selectedObjects.Clear();
                     }
-                    selectedObject.Clear();
+
+                    #endregion
+
+                    #region Pick objects
+
+                    List<GameObject> newSelectedObjects = new List<GameObject>();
                     if (Mouse.NoDragging)
-                        selectedObject.Add(picker.Pick(editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix));
+                        newSelectedObjects.Add(picker.Pick(editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix));
                     else
-                        selectedObject = picker.Pick(Mouse.DraggingRectangle, editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix);
+                        newSelectedObjects = picker.Pick(Mouse.DraggingRectangle, editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix);
+
+                    #endregion
+
+                    #region Add or Remove objects
+
                     // Add the bounding box on the screen.
-                    foreach (var gameObject in selectedObject)
+                    foreach (var gameObject in newSelectedObjects)
                     {
-                        // If it is a model.
-                        if (gameObject is GameObject3D && ((GameObject3D)gameObject).ModelRenderer != null)
-                            ((GameObject3D)gameObject).ModelRenderer.RenderBoundingBox = true;
-                        // ...
+                        if (!Keyboard.KeyPressed(Keys.LeftControl) && !Keyboard.KeyPressed(Keys.LeftShift) &&
+                            !Keyboard.KeyPressed(Keys.RightControl) && !Keyboard.KeyPressed(Keys.RightShift))
+                        {
+                            selectedObjects.Add(gameObject);
+                            ChangeGameObjectBoundingBoxVisibility(gameObject, true);
+                        }
+                        else if ((Keyboard.KeyPressed(Keys.LeftControl) || Keyboard.KeyPressed(Keys.RightControl)) &&
+                                 (!Keyboard.KeyPressed(Keys.LeftShift) && !Keyboard.KeyPressed(Keys.RightShift)))
+                        {
+                            if (selectedObjects.Contains(gameObject))
+                            {
+                                selectedObjects.Remove(gameObject);
+                                ChangeGameObjectBoundingBoxVisibility(gameObject, false);
+                            }
+                            else
+                            {
+                                selectedObjects.Add(gameObject);
+                                ChangeGameObjectBoundingBoxVisibility(gameObject, true);
+                            }
+                        }
+                        else if ((Keyboard.KeyPressed(Keys.LeftControl) || Keyboard.KeyPressed(Keys.RightControl)) &&
+                                 (Keyboard.KeyPressed(Keys.LeftShift) || Keyboard.KeyPressed(Keys.RightShift)))
+                        {
+                            if (selectedObjects.Contains(gameObject))
+                            {
+                                selectedObjects.Remove(gameObject);
+                                ChangeGameObjectBoundingBoxVisibility(gameObject, false);
+                            }
+                        }
+                        else if ((!Keyboard.KeyPressed(Keys.LeftControl) && !Keyboard.KeyPressed(Keys.RightControl)) &&
+                                 (Keyboard.KeyPressed(Keys.LeftShift) || Keyboard.KeyPressed(Keys.RightShift)))
+                        {
+                            if (!selectedObjects.Contains(gameObject))
+                            {
+                                selectedObjects.Add(gameObject);
+                                ChangeGameObjectBoundingBoxVisibility(gameObject, true);
+                            }
+                        }
                     }
+
+                    #endregion
+
                 }
-                if (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed)
+
+                #endregion
+
+                #region Deselect selected objects
+
+                if (Keyboard.EscapeJustPressed /*|| Keyboard.SpaceJustPressed*/)
                 {
                     // Remove bounding box off the screen.
-                    foreach (var gameObject in selectedObject)
+                    foreach (var gameObject in selectedObjects)
                     {
-                        // If it is a model.
-                        if (gameObject is GameObject3D && ((GameObject3D)gameObject).ModelRenderer != null)
-                            ((GameObject3D)gameObject).ModelRenderer.RenderBoundingBox = false;
-                        // ...
+                        ChangeGameObjectBoundingBoxVisibility(gameObject, false);
                     }
-                    selectedObject.Clear();
+                    selectedObjects.Clear();
                 }
+
+                #endregion
+
             }
 
 
@@ -408,28 +558,15 @@ namespace XNAFinalEngine.Editor
             }*/
         } // Update
 
-        #endregion
-        /*
-        #region Render Feedback
-
-        /// <summary>
-        /// Nos muestra en pantalla los elementos de la manipulacion.
-        /// </summary>
-        public void Render()
+        private static void ChangeGameObjectBoundingBoxVisibility(GameObject gameObject, bool boundingBoxVisibility)
         {
-            if (selectedObject != null)
-            {
-                Primitives.DrawBoundingBox(selectedObject.BoundingBox, new Color(100,150,250));
-                switch (activeManipulator)
-                {
-                    case Manipulator.Scale: GizmoScale.RenderManipulator(); break;
-                    case Manipulator.Rotation: GizmoRotation.RenderManipulator(); break;
-                    case Manipulator.Translation: GizmoTranslation.RenderManipulator(); break;
-                }
-            }
-        } // Render
+            // If it is a model.
+            if (gameObject is GameObject3D && ((GameObject3D)gameObject).ModelRenderer != null)
+                ((GameObject3D)gameObject).ModelRenderer.RenderBoundingBox = boundingBoxVisibility;
+            // ... TODO!!!
+        } // ChangeGameObjectBoundingBoxVisibility
 
         #endregion
-        */
+
     } // EditorManager
 } // XNAFinalEngine.Editor

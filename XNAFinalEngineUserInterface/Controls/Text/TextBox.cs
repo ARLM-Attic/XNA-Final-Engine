@@ -945,7 +945,7 @@ namespace XNAFinalEngine.UserInterface
                 {
                     if (initialText != null)
                         Text = initialText;
-                    Focused = false;
+                    selection = new Selection(-1, -1);
                 }
                 if (e.Key == Keys.A && e.Control && mode != TextBoxMode.Password)
                 {

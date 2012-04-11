@@ -1012,6 +1012,60 @@ namespace XNAFinalEngineExamples
 
             EditorManager.AddObject(murcielagoBody);
             EditorManager.AddObject(murcielagoSteeringWheel);
+            EditorManager.AddObject(murcielagoLP640AirTakesEngine);
+            EditorManager.AddObject(murcielagoLP640AirTakes);
+            EditorManager.AddObject(murcielagoAirTakesDark);
+            EditorManager.AddObject(murcielagoFrontLightBase);
+            EditorManager.AddObject(murcielagoLights);
+            EditorManager.AddObject(murcielagoWhiteMetal);
+            EditorManager.AddObject(murcielagoGrayMetal);
+            EditorManager.AddObject(murcielagoCarbonFiber);
+            EditorManager.AddObject(murcielagoGlasses);
+            EditorManager.AddObject(murcielagoEngineGlasses);
+            EditorManager.AddObject(murcielagoBlackMetal);
+            EditorManager.AddObject(murcielagoLogo);
+            EditorManager.AddObject(murcielagoBlackContant);
+            EditorManager.AddObject(murcielagoFloor);
+            EditorManager.AddObject(murcielagoLP640Grid);
+            EditorManager.AddObject(murcielagoLP640RearSpoilerDarkPart);
+            EditorManager.AddObject(murcielagoLP640Exhaust);
+            EditorManager.AddObject(murcielagoInteriorLeather);
+            EditorManager.AddObject(murcielagoInteriorDetails);
+            EditorManager.AddObject(murcielagoBlackPlastic);
+            EditorManager.AddObject(murcielagoInteriorCostura);
+            EditorManager.AddObject(murcielagoTablero);
+
+
+            /*
+                                    // Left Door
+                                    murcielagoLeftDoorBody, murcielagoLeftDoorBlackMetal, murcielagoLeftDoorGrayMetal, murcielagoLeftDoorLeather,
+                                    murcielagoLeftDoorSpeakers,
+                                    // Right Door
+                                    murcielagoRightDoorBody, murcielagoRightDoorBlackMetal, murcielagoRightDoorGrayMetal, murcielagoRightDoorLeather,
+                                    murcielagoRightDoorSpeakers,
+                                    // Front Left Wheel
+                                    murcielagoLP670FrontLeftRim, murcielagoLP640FrontLeftRimBase, murcielagoLP640FrontLeftRimBase02,
+                                    murcielagoFrontLeftRimLogo, murcielagoFrontLeftBrakeDisc, murcielagoFrontLeftBrakeCaliper, murcielagoFrontLeftTyre,
+                                    murcielagoFrontLeftTyre02, frontLeftRim,
+                                    // Front Right Wheel
+                                    murcielagoLP670FrontRightRim, murcielagoLP640FrontRightRimBase, murcielagoLP640FrontRightRimBase02,
+                                    murcielagoFrontRightRimLogo, murcielagoFrontRightBrakeDisc, murcielagoFrontRightBrakeCaliper, murcielagoFrontRightTyre,
+                                    murcielagoFrontRightTyre02, frontRightRim,
+                                    // Rear Left Wheel
+                                    murcielagoLP670RearLeftRim, murcielagoLP640RearLeftRimBase, murcielagoLP640RearLeftRimBase02,
+                                    murcielagoRearLeftRimLogo, murcielagoRearLeftBrakeDisc, murcielagoRearLeftBrakeCaliper, murcielagoRearLeftTyre,
+                                    murcielagoRearLeftTyre02, rearLeftRim,
+                                    // Rear Right Wheel
+                                    murcielagoLP670RearRightRim, murcielagoLP640RearRightRimBase, murcielagoLP640RearRightRimBase02,
+                                    murcielagoRearRightRimLogo, murcielagoRearRightBrakeDisc, murcielagoRearRightBrakeCaliper, murcielagoRearRightTyre,
+                                    murcielagoRearRightTyre02, rearRightRim,
+                                    // Test floors
+                                    floor,
+                                    // Lights
+                                    directionalLight, pointLight, pointLight2, pointLight3, pointLight4, pointLight5, pointLight6, pointLight7, spotLight,
+                                    // Cameras
+                                    camera, camera2,
+                                    skydome;*/
             
         } // Load
 

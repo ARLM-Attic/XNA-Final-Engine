@@ -1313,11 +1313,11 @@ namespace XNAFinalEngine.EngineCore
                 {
                     if (currentModelRenderer.RenderBoundingBox)
                     {
-                        LineManager.DrawBoundingBox(currentModelRenderer.BoundingBox, Color.Red);
+                        LineManager.DrawBoundingBox(currentModelRenderer.BoundingBox, Color.Gray);
                     }
                     if (currentModelRenderer.RenderBoundingSphere)
                     {
-                        LineManager.DrawBoundingSphere(currentModelRenderer.BoundingSphere, Color.Green);
+                        LineManager.DrawBoundingSphere(currentModelRenderer.BoundingSphere, Color.Gray);
                     }
                 }
             }

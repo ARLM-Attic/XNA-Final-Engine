@@ -931,10 +931,10 @@ namespace XNAFinalEngine.UserInterface
 
             for (int i = controlList.Count - 1; i >= 0; i--)
             {
-                bool chpos = CheckPosition(controlList[i], e.Position);
-                bool chsta = CheckState(controlList[i]);
+                bool checkPosition = CheckPosition(controlList[i], e.Position);
+                bool checkState = CheckState(controlList[i]);
 
-                if (chsta && ((chpos && states.Over == controlList[i]) || (states.Buttons[(int)e.Button] == controlList[i])))
+                if (checkState && ((checkPosition && states.Over == controlList[i]) || (states.Buttons[(int)e.Button] == controlList[i])))
                 {
                     controlList[i].SendMessage(Message.MouseMove, e);
                     break;
@@ -943,10 +943,10 @@ namespace XNAFinalEngine.UserInterface
 
             for (int i = controlList.Count - 1; i >= 0; i--)
             {
-                bool chpos = CheckPosition(controlList[i], e.Position);
-                bool chsta = CheckState(controlList[i]) || (!string.IsNullOrEmpty(controlList[i].ToolTip.Text) && controlList[i].Visible);
+                bool checkPosition = CheckPosition(controlList[i], e.Position);
+                bool checkState = CheckState(controlList[i]) || (!string.IsNullOrEmpty(controlList[i].ToolTip.Text) && controlList[i].Visible);
 
-                if (chsta && !chpos && states.Over == controlList[i] && states.Buttons[(int)e.Button] == null)
+                if (checkState && !checkPosition && states.Over == controlList[i] && states.Buttons[(int)e.Button] == null)
                 {
                     states.Over = null;
                     controlList[i].SendMessage(Message.MouseOut, e);
@@ -956,10 +956,10 @@ namespace XNAFinalEngine.UserInterface
 
             for (int i = controlList.Count - 1; i >= 0; i--)
             {
-                bool chpos = CheckPosition(controlList[i], e.Position);
-                bool chsta = CheckState(controlList[i]) || (!string.IsNullOrEmpty(controlList[i].ToolTip.Text) && controlList[i].Visible);
+                bool checkPosition = CheckPosition(controlList[i], e.Position);
+                bool checkState = CheckState(controlList[i]) || (!string.IsNullOrEmpty(controlList[i].ToolTip.Text) && controlList[i].Visible);
 
-                if (chsta && chpos && states.Over != controlList[i] && states.Buttons[(int)e.Button] == null)
+                if (checkState && checkPosition && states.Over != controlList[i] && states.Buttons[(int)e.Button] == null)
                 {
                     if (states.Over != null)
                     {
