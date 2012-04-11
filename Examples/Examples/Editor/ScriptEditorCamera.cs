@@ -142,6 +142,19 @@ namespace XNAFinalEngine.Editor
             }
         } // Mode
 
+        /// <summary>
+        /// Is it the camera being manipulated?
+        /// </summary>
+        public bool Manipulating
+        {
+            get
+            {
+                if (mode == ModeType.Maya)
+                    return Keyboard.KeyPressed(Keys.LeftAlt) || Keyboard.KeyPressed(Keys.RightAlt);
+                return manipulationMode || Keyboard.KeyPressed(Keys.S) || mode == ModeType.NoManipulationKey;
+            }
+        } // Manipulating
+
         #endregion
 
         #region Load
@@ -187,6 +200,8 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public override void Update()
         {
+            if (!((GameObject3D)Owner).Camera.Visible)
+                return;
             if (UserInterface.UserInterfaceManager.FocusedControl == null)
             {
                 if (mode == ModeType.Softimage || mode == ModeType.NoManipulationKey)
@@ -279,7 +294,6 @@ namespace XNAFinalEngine.Editor
                     
                     #endregion
                 }
-
                 #region Gamepad
 
                 LookAtPosition -= ((GameObject3D)Owner).Transform.Right * -GamePad.PlayerOne.LeftStickXMovement * Distance / 1000;
@@ -292,6 +306,8 @@ namespace XNAFinalEngine.Editor
 
                 #endregion
             }
+            else
+                manipulationMode = false;
 
             #region Bounds
 

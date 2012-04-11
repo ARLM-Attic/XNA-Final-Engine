@@ -29,17 +29,15 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Components;
-using XNAFinalEngine.Helpers;
-using XNAFinalEngine.Input;
 using XNAFinalEngine.UserInterface;
-using Keys = Microsoft.Xna.Framework.Input.Keys;
+using Keyboard = XNAFinalEngine.Input.Keyboard;
+using Mouse = XNAFinalEngine.Input.Mouse;
 using Size = XNAFinalEngine.Helpers.Size;
-
 #endregion
 
 namespace XNAFinalEngine.Editor
@@ -83,15 +81,15 @@ namespace XNAFinalEngine.Editor
         #region Enumerates
 
         /// <summary>
-        /// The active manipulator.
+        /// The different gizmos.
         /// </summary>
-        private enum Manipulator
+        private enum Gizmo
         {
             None,
             Scale,
             Rotation,
             Translation
-        };
+        }; // Gizmo
 
         #endregion
 
@@ -119,6 +117,7 @@ namespace XNAFinalEngine.Editor
 
         // The editor camera.
         private static GameObject3D editorCamera;
+        private static ScriptEditorCamera editorCameraScript;
 
         // The game main camera.
         private static GameObject3D gameMainCamera;
@@ -126,10 +125,11 @@ namespace XNAFinalEngine.Editor
         // The picker to select an object from the screen.
         private static Picker picker;
 
-        // The active manipulator.
-        private static Manipulator activeManipulator = Manipulator.None;
+        // The active gizmo.
+        private static Gizmo activeGizmo = Gizmo.None;
 
-        private static GameObject selectedObject;
+        // The selected object.
+        private static List<GameObject> selectedObject = new List<GameObject>();
 
         /// <summary>
         /// Calculos y guardamos en esta variable si es posible activar un manipulador. 
@@ -176,11 +176,18 @@ namespace XNAFinalEngine.Editor
             picker = new Picker(Size.FullScreen);
             editorCamera = new GameObject3D();
             editorCamera.AddComponent<Camera>();
-            ScriptEditorCamera script = (ScriptEditorCamera)editorCamera.AddComponent<ScriptEditorCamera>();
-            script.SetPosition(new Vector3(0, 20, 15), Vector3.Zero);
             editorCamera.Camera.Visible = false;
             editorCamera.Camera.RenderingOrder = int.MaxValue;
+            editorCameraScript = (ScriptEditorCamera)editorCamera.AddComponent<ScriptEditorCamera>();
+            editorCameraScript.Mode = ScriptEditorCamera.ModeType.Maya;
+            // Reset camera to default position and orientation.
+            editorCameraScript.LookAtPosition = new Vector3(0, 0.5f, 0);
+            editorCameraScript.Distance = 30;
+            editorCameraScript.Pitch = 0;
+            editorCameraScript.Yaw = 0;
+            editorCameraScript.Roll = 0;
 
+            // Call the manager's update and render methods in the correct order without explicit calls. 
             editorManagerGameObject = new GameObject2D();
             editorManagerGameObject.AddComponent<ScripEditorManager>();
         } // Initialize
@@ -233,6 +240,7 @@ namespace XNAFinalEngine.Editor
             gameMainCamera = mainCamera;
             gameMainCamera.Camera.Visible = false;
             editorCamera.Camera.Visible = true;
+            // Copy camera parameters to editor camera TODO!!
         } // EnableEditorMode
 
         /// <summary>
@@ -259,76 +267,121 @@ namespace XNAFinalEngine.Editor
         {
             if (!editorModeEnabled)
                 return;
+
+            // Keyboard shortcuts, camera movement and similar should be ignored when the text box is active.
+            if (UserInterfaceManager.FocusedControl != null && UserInterfaceManager.FocusedControl is TextBox)
+                return;
+
+            // If the camera is being manipulated…
+            if (editorCameraScript.Manipulating)
+                return;
             
-            if (Mouse.LeftButtonJustPressed && UserInterfaceManager.FocusedControl == null)
-            {
-                GameObject gameObject = picker.Pick(editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix);
-                if (gameObject is GameObject3D)
-                    ((GameObject3D)gameObject).ModelRenderer.RenderBoundingBox = true;
-            }
+            #region Frame Object
             
-            #region Frame Object and Reset Camera
-            /*
-            if (selectedObject != null && Keyboard.KeyJustPressed(Keys.F))
+            // Adjust the look at position and distance to frame the selected object.
+            // The orientation is not afected.
+            /*if (selectedObject != null && Keyboard.KeyJustPressed(Keys.F))
             {
-                (camera.Camera).LookAtPosition = selectedObject.CenterPoint;
-                ((XSICamera)ApplicationLogic.Camera).Distance = selectedObject.BoundingSphereOptimized.Radius * 3;
-            }
+                if (selectedObject is GameObject3D && ((GameObject3D)selectedObject).ModelRenderer != null)
+                {
+                    editorCameraScript.LookAtPosition = ((GameObject3D)selectedObject).ModelRenderer.BoundingSphere.Center;
+                    editorCameraScript.Distance = ((GameObject3D)selectedObject).ModelRenderer.BoundingSphere.Radius * 3;
+                }
+            }*/
+
+            #endregion
+
+            #region Reset Camera
+
+            // Reset camera to default position and orientation.
             if (Keyboard.KeyJustPressed(Keys.R))
             {
-                ((XSICamera)ApplicationLogic.Camera).LookAtPosition = new Vector3(0, 0.5f, 0);
-                ((XSICamera)ApplicationLogic.Camera).Distance = 15;
+                editorCameraScript.LookAtPosition = new Vector3(0, 0.5f, 0);
+                editorCameraScript.Distance = 30;
+                editorCameraScript.Pitch = 0;
+                editorCameraScript.Yaw = 0;
+                editorCameraScript.Roll = 0;
             }
-            */
+
             #endregion
-            /*
-            // Si el manipulador no esta activo //
-            if (activeManipulator == Manipulator.None)
+
+            // If no gizmo is active…
+            if (activeGizmo == Gizmo.None)
             {
+                if (Mouse.LeftButtonJustReleased)
+                {
+                    // Remove bounding box off the screen.
+                    foreach (var gameObject in selectedObject)
+                    {
+                        // If it is a model.
+                        if (gameObject is GameObject3D && ((GameObject3D)gameObject).ModelRenderer != null)
+                            ((GameObject3D)gameObject).ModelRenderer.RenderBoundingBox = false;
+                        // ...
+                    }
+                    selectedObject.Clear();
+                    if (Mouse.NoDragging)
+                        selectedObject.Add(picker.Pick(editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix));
+                    else
+                        selectedObject = picker.Pick(Mouse.DraggingRectangle, editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix);
+                    // Add the bounding box on the screen.
+                    foreach (var gameObject in selectedObject)
+                    {
+                        // If it is a model.
+                        if (gameObject is GameObject3D && ((GameObject3D)gameObject).ModelRenderer != null)
+                            ((GameObject3D)gameObject).ModelRenderer.RenderBoundingBox = true;
+                        // ...
+                    }
+                }
                 if (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed)
                 {
-                    selectedObject = null;
-                }
-                if (Mouse.LeftButtonJustPressed)
-                {
-                    selectedObject = picker.Pick();
+                    // Remove bounding box off the screen.
+                    foreach (var gameObject in selectedObject)
+                    {
+                        // If it is a model.
+                        if (gameObject is GameObject3D && ((GameObject3D)gameObject).ModelRenderer != null)
+                            ((GameObject3D)gameObject).ModelRenderer.RenderBoundingBox = false;
+                        // ...
+                    }
+                    selectedObject.Clear();
                 }
             }
-            // Si se apreta escape o espacio y un manipulador esta activo
+
+
+            /*// Si se apreta escape o espacio y un manipulador esta activo
             else
             {
                 if ((Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed) && !(Gizmo.Active))
                 {
-                    activeManipulator = Manipulator.None;
+                    activeGizmo = Gizmo.None;
                     MousePointer.ManipulatorMode = false;
                 }
             }
             // Habilitamos manipuladores, si es posible.
-            isPosibleToSwich = selectedObject != null && ((activeManipulator == Manipulator.None) || !(Gizmo.Active));
+            isPosibleToSwich = selectedObject != null && ((activeGizmo == Gizmo.None) || !(Gizmo.Active));
             if (Keyboard.KeyJustPressed(Keys.X) && isPosibleToSwich)
             {
-                activeManipulator = Manipulator.Scale;
+                activeGizmo = Gizmo.Scale;
                 MousePointer.ManipulatorMode = true;
                 GizmoScale.InitializeManipulator(selectedObject);
             }
             if (Keyboard.KeyJustPressed(Keys.C) && isPosibleToSwich)
             {
-                activeManipulator = Manipulator.Rotation;
+                activeGizmo = Gizmo.Rotation;
                 MousePointer.ManipulatorMode = true;
                 GizmoRotation.InitializeManipulator(selectedObject);
             }
             if (Keyboard.KeyJustPressed(Keys.V) && isPosibleToSwich)
             {
-                activeManipulator = Manipulator.Translation;
+                activeGizmo = Gizmo.Translation;
                 MousePointer.ManipulatorMode = true;
                 GizmoTranslation.InitializeManipulator(selectedObject);
             }
             // Trabajamos con el manipulador activo
-            switch (activeManipulator)
+            switch (activeGizmo)
             {
-                case Manipulator.Scale: GizmoScale.ManipulateObject(); break;
-                case Manipulator.Rotation: GizmoRotation.ManipulateObject(); break;
-                case Manipulator.Translation: GizmoTranslation.ManipulateObject(); break;
+                case Gizmo.Scale: GizmoScale.ManipulateObject(); break;
+                case Gizmo.Rotation: GizmoRotation.ManipulateObject(); break;
+                case Gizmo.Translation: GizmoTranslation.ManipulateObject(); break;
             }
             // Si el manipulador produjo un resultado
             if (Gizmo.ProduceTransformation)
@@ -338,22 +391,22 @@ namespace XNAFinalEngine.Editor
             // Undo y Redo (// TODO!!!)
             if (Keyboard.KeyPressed(Keys.LeftControl) &&
                 Keyboard.KeyJustPressed(Keys.Z) &&
-                (activeManipulator == Manipulator.None || !(Gizmo.Active)))
+                (activeGizmo == Gizmo.None || !(Gizmo.Active)))
             {
                 if (undoStack.Count > 0)
                 {
                     undoStack.Peek().obj.LocalMatrix = undoStack.Peek().localMatrix;
                     undoStack.Pop();
                     // Reiniciamos el manipulador
-                    switch (activeManipulator)
+                    switch (activeGizmo)
                     {
-                        case Manipulator.Scale: GizmoScale.InitializeManipulator(selectedObject); break;
-                        case Manipulator.Rotation: GizmoRotation.InitializeManipulator(selectedObject); break;
-                        case Manipulator.Translation: GizmoTranslation.InitializeManipulator(selectedObject); break;
+                        case Gizmo.Scale: GizmoScale.InitializeManipulator(selectedObject); break;
+                        case Gizmo.Rotation: GizmoRotation.InitializeManipulator(selectedObject); break;
+                        case Gizmo.Translation: GizmoTranslation.InitializeManipulator(selectedObject); break;
                     }
                 }
             }*/
-        } // ManipulateScene
+        } // Update
 
         #endregion
         /*

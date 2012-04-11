@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -29,6 +29,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.EngineCore;
@@ -182,29 +183,90 @@ namespace XNAFinalEngine.Input
         public static bool MiddleButtonJustPressed { get { return currentMouseState.MiddleButton == ButtonState.Pressed && previousMouseState.MiddleButton == ButtonState.Released; } }
 
         /// <summary>
-        /// X button 1 pressed.
+        /// X button 1 just pressed.
         /// </summary>
         public static bool XButton1JustPressed { get { return currentMouseState.XButton1 == ButtonState.Pressed && previousMouseState.XButton1 == ButtonState.Released; } }
 
         /// <summary>
-        /// X button 2 pressed.
+        /// X button 2 just pressed.
         /// </summary>
         public static bool XButton2JustPressed { get { return currentMouseState.XButton2 == ButtonState.Pressed && previousMouseState.XButton2 == ButtonState.Released; } }
+        
+        /// <summary>
+        /// Mouse left button just released.
+        /// </summary>
+        public static bool LeftButtonJustReleased { get { return currentMouseState.LeftButton == ButtonState.Released && previousMouseState.LeftButton == ButtonState.Pressed; } }
+
+        /// <summary>
+        /// Mouse right button just released.
+        /// </summary>
+        public static bool RightButtonJustReleased { get { return currentMouseState.RightButton == ButtonState.Released && previousMouseState.RightButton == ButtonState.Pressed; } }
+
+        /// <summary>
+        /// Mouse middle button just released.
+        /// </summary>
+        public static bool MiddleButtonJustReleased { get { return currentMouseState.MiddleButton == ButtonState.Released && previousMouseState.MiddleButton == ButtonState.Pressed; } }
+
+        /// <summary>
+        /// X button 1 just released.
+        /// </summary>
+        public static bool XButton1JustReleased { get { return currentMouseState.XButton1 == ButtonState.Released && previousMouseState.XButton1 == ButtonState.Pressed; } }
+
+        /// <summary>
+        /// X button 2 just released.
+        /// </summary>
+        public static bool XButton2JustReleased { get { return currentMouseState.XButton2 == ButtonState.Released && previousMouseState.XButton2 == ButtonState.Pressed; } }
 
         #endregion
 
         #region Dragging
 
-        /// <summary>
-		/// Mouse dragging amount.
+	    /// <summary>
+        /// Mouse dragging rectangle.
+        /// The information is rearranged so that the X value will be the left side and Y the top side.
+	    /// </summary>
+	    /// <remarks>
         /// It can be extended to allow dragging off the screen when Relative Mode is on.
-		/// </summary>
-		public static Point DraggingAmount { get { return new Point(-startDraggingPosition.X + Position.X, -startDraggingPosition.Y + Position.Y); } }
+        /// </remarks>
+	    public static Rectangle DraggingRectangle
+	    {
+	        get
+	        {
+	            int x, y, width, height;
+                if (startDraggingPosition.X <= Position.X)
+                {
+                    x = startDraggingPosition.X;
+                    width = Position.X - startDraggingPosition.X;
+                }
+                else
+                {
+                    x = Position.X;
+                    width = startDraggingPosition.X - Position.X;
+                }
+                if (startDraggingPosition.Y <= Position.Y)
+                {
+                    y = startDraggingPosition.Y;
+                    height = Position.Y - startDraggingPosition.Y;
+                }
+                else
+                {
+                    y = Position.Y;
+                    height = startDraggingPosition.Y - Position.Y;
+                }
+                return new Rectangle(x, y, width, height);
+	        }
+	    } // DraggingRectangle
 
         /// <summary>
-        /// Start Dragging Position.
+        /// Return true when the surface of the dragging rectangle is 0.
         /// </summary>
-        public static Point StartDraggingPosition { get { return startDraggingPosition; } }
+	    public static bool NoDragging
+	    {
+            get
+            {
+                return Math.Abs(Position.X - startDraggingPosition.X) + Math.Abs(Position.Y - startDraggingPosition.Y) == 0;
+            }
+	    } // NoDragging
 
         #endregion
 
@@ -290,10 +352,11 @@ namespace XNAFinalEngine.Input
             }
             
             // Dragging
-            if (LeftButtonJustPressed)
+            if (LeftButtonJustPressed || (!LeftButtonPressed && !LeftButtonJustReleased))
             {
                 startDraggingPosition = Position;
             }
+
             // Wheel
 			wheelDelta = currentMouseState.ScrollWheelValue - wheelValue;
 			wheelValue = currentMouseState.ScrollWheelValue;

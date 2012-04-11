@@ -1011,6 +1011,7 @@ namespace XNAFinalEngineExamples
             #endregion
 
             EditorManager.AddObject(murcielagoBody);
+            EditorManager.AddObject(murcielagoSteeringWheel);
             
         } // Load
 

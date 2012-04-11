@@ -31,9 +31,12 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Input;
 #endregion
@@ -131,64 +134,10 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public GameObject Pick(int x, int y, Matrix viewMatrix, Matrix projectionMatrix)
         {
-            byte red = 0, green = 0, blue = 0;
-            Color colorMaterial = new Color(0,0,0);
-            
             try
             {
 
-                #region Render the objects to the picker texture
-
-                // Start rendering onto the picker map
-                pickerTexture.EnableRenderTarget();
-                                
-                // Clear render target
-                pickerTexture.Clear(Color.Black);
-
-                constantShader.Resource.CurrentTechnique = constantShader.Resource.Techniques["ConstantsRGB"];
-
-                // Render every object, one at a time
-                foreach (GameObject obj in objectsToPick)
-                {
-                    // Select the next color
-                    if (colorMaterial.R < 255)
-                    {
-                        red++;
-                    }
-                    else
-                    {
-                        red = 0;
-                        if (colorMaterial.G < 255)
-                        {
-                            green++;
-                        }
-                        else
-                        {
-                            green = 0;
-                            if (blue == 255)
-                                throw new Exception("Color out of range.");
-                            blue++;
-                        }
-                    }
-                    colorMaterial = new Color(red, green, blue);
-                    // Render the object with the picker material
-                    if (obj is GameObject3D)
-                    {
-                        GameObject3D gameObject3D = (GameObject3D) obj;
-                        if (gameObject3D.ModelFilter != null && gameObject3D.ModelFilter.Model != null)
-                        {
-                            constantShader.Resource.Parameters["diffuseColor"].SetValue(new Vector3(colorMaterial.R / 255f, colorMaterial.G / 255f, colorMaterial.B / 255f));
-                            constantShader.Resource.Parameters["worldViewProj"].SetValue(gameObject3D.Transform.WorldMatrix * viewMatrix * projectionMatrix);
-                            constantShader.Resource.CurrentTechnique.Passes[0].Apply();
-                            gameObject3D.ModelFilter.Model.Render();
-                        }
-                    }
-                }
-                    
-                // Activate the frame buffer again.
-                pickerTexture.DisableRenderTarget();
-
-                #endregion
+                RenderObjectToPickerTexture(viewMatrix, projectionMatrix);
                 
                 #region Get the pixel from the texture
                 
@@ -200,16 +149,16 @@ namespace XNAFinalEngine.Editor
 
                 #region Search the object
 
-                red = 0; green = 0; blue = 0;
+                byte red = 0, green = 0, blue = 0;
                 foreach (GameObject obj in objectsToPick)
                 {
                     // Select the next color
-                    if (colorMaterial.R < 255)
+                    if (red < 255)
                         red++;
                     else
                     {
                         red = 0;
-                        if (colorMaterial.G < 255)
+                        if (green < 255)
                             green++;
                         else
                         {
@@ -217,7 +166,7 @@ namespace XNAFinalEngine.Editor
                             blue++;
                         }
                     }
-                    if (pixel == new Color(red,green,blue))
+                    if (pixel == new Color(red, green, blue))
                         return obj;
                 }
 
@@ -230,6 +179,130 @@ namespace XNAFinalEngine.Editor
             }
             return null;
         } // Pick
+
+        /// <summary>
+        /// Pick the object that is on the X Y coordinates.
+        /// If no object was found the result is a null pointer.
+        /// </summary>
+        public List<GameObject> Pick(Rectangle region, Matrix viewMatrix, Matrix projectionMatrix)
+        {
+            List<GameObject> pickedObjects = new List<GameObject>();
+
+            try
+            {
+
+                RenderObjectToPickerTexture(viewMatrix, projectionMatrix);
+
+                #region Get the pixel from the texture
+
+                if (region.Width == 0)
+                    region.Width = 1;
+                if (region.Height == 0)
+                    region.Height = 1;
+                Color[] colors = new Color[region.Width * region.Height];
+                pickerTexture.Resource.GetData(0, region, colors, 0, region.Width * region.Height);
+
+                #endregion
+
+                #region Search the object
+
+                byte red = 0, green = 0, blue = 0;
+                foreach (GameObject obj in objectsToPick)
+                {
+                    // Select the next color
+                    if (red < 255)
+                        red++;
+                    else
+                    {
+                        red = 0;
+                        if (green < 255)
+                            green++;
+                        else
+                        {
+                            green = 0;
+                            blue++;
+                        }
+                    }
+                    if (colors.Any(color => color == new Color(red, green, blue)))
+                    {
+                        pickedObjects.Add(obj);
+                    }
+                }
+
+                #endregion
+
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Picker: operation failed: ", e);
+            }
+            return pickedObjects;
+        } // Pick
+
+        /// <summary>
+        /// Render the object using a constant shasder to picker texture.
+        /// Each object will be render using a unique color.
+        /// </summary>
+        private void RenderObjectToPickerTexture(Matrix viewMatrix, Matrix projectionMatrix)
+        {
+            byte red = 0, green = 0, blue = 0;
+            Color colorMaterial = new Color(0, 0, 0);
+
+            // Set Render States.
+            EngineManager.Device.BlendState = BlendState.NonPremultiplied;
+            EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+            EngineManager.Device.DepthStencilState = DepthStencilState.Default;
+
+            // Start rendering onto the picker map
+            pickerTexture.EnableRenderTarget();
+
+            // Clear render target
+            pickerTexture.Clear(Color.Black);
+
+            constantShader.Resource.CurrentTechnique = constantShader.Resource.Techniques["ConstantsRGB"];
+
+            // Render every object, one at a time
+            foreach (GameObject obj in objectsToPick)
+            {
+                // Select the next color
+                if (colorMaterial.R < 255)
+                {
+                    red++;
+                }
+                else
+                {
+                    red = 0;
+                    if (colorMaterial.G < 255)
+                    {
+                        green++;
+                    }
+                    else
+                    {
+                        green = 0;
+                        if (blue == 255)
+                            throw new Exception("Color out of range.");
+                        blue++;
+                    }
+                }
+                colorMaterial = new Color(red, green, blue);
+                // Render the object with the picker material
+                if (obj is GameObject3D)
+                {
+                    GameObject3D gameObject3D = (GameObject3D)obj;
+                    if (gameObject3D.ModelFilter != null && gameObject3D.ModelFilter.Model != null)
+                    {
+                        constantShader.Resource.Parameters["diffuseColor"].SetValue(new Vector3(colorMaterial.R / 255f, colorMaterial.G / 255f, colorMaterial.B / 255f));
+                        constantShader.Resource.Parameters["worldViewProj"].SetValue(gameObject3D.Transform.WorldMatrix * viewMatrix * projectionMatrix);
+                        constantShader.Resource.CurrentTechnique.Passes[0].Apply();
+                        gameObject3D.ModelFilter.Model.Render();
+                    }
+                }
+            }
+
+            // Activate the frame buffer again.
+            pickerTexture.DisableRenderTarget();
+
+        } // RenderObjectToPickerTexture
 
         #endregion
 
