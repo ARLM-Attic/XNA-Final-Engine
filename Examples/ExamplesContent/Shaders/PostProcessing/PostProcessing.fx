@@ -22,6 +22,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
+// References:
+// http://content.gpwiki.org/index.php/D3DBook:High-Dynamic_Range_Rendering
+// http://pixelstoomany.wordpress.com/2008/07/05/another-day-another-hdr-rendering-trick-and-some-hope-for-the-future/
+// http://mynameismjp.wordpress.com/2010/04/30/a-closer-look-at-tone-mapping/
+// High Dynamic Range Imaging - Acquisition, Display, and Image-Based Lighting (Reinhard, Ward, Pattanaik)
+
 #include <ColorCorrection.fxh>
 #include <Filmgrain.fxh>
 #include <ToneMapping.fxh>
@@ -109,7 +115,7 @@ float3 ExposureColor(float3 color, float2 uv)
 	{
 		// From MJP http://mynameismjp.wordpress.com/ License: Microsoft_Permissive_License
 	 	// The mip maps are used to obtain a median luminance value.
-		float avgLuminance = tex2Dlod(lastLuminanceSampler, float4(uv, 0, 10)).x;		
+		float avgLuminance = exp(tex2Dlod(lastLuminanceSampler, float4(uv, 0, 10)).x); // This could be used to convert this global operator to local.
 		// Use geometric mean
 		avgLuminance = max(avgLuminance, 0.001f);		
 		float keyValue = 1.03f - (2.0f / (2 + log10(avgLuminance + 1)));
@@ -117,10 +123,7 @@ float3 ExposureColor(float3 color, float2 uv)
 		exposure = max(linearExposure, 0.0001f);
 	}
     else		
-		exposure = lensExposure;
-
-	// http://en.wikipedia.org/wiki/Exposure_value
-	// MJP transform the exposure to base-2 logarithmic scale, like I should.
+		exposure = exp2(lensExposure);
 
 	// Multiply the incomming light by the lens exposure value. Think of this in terms of a camera:
 	// Exposure time on a camera adjusts how long the camera collects light on the main sensor.
@@ -186,13 +189,13 @@ float4 psLuminanceMap(in float2 uv : TEXCOORD0) : COLOR0
 // Slowly adjusts the scene luminance based on the previous scene luminance
 float4 psAdaptLuminance(in float2 uv : TEXCOORD0) : COLOR0
 {
-    float lastLum = tex2D(lastLuminanceSampler, uv).r;
+    float lastLum = exp(tex2D(lastLuminanceSampler, uv).r);
     float currentLum = tex2D(sceneSampler, uv).r;	
 		       
     // Adapt the luminance using Pattanaik's technique    
     float adaptedLum = lastLum + (currentLum - lastLum) * (1 - exp(-timeDelta * tau));
     
-    return float4(adaptedLum, 1, 1, 1);
+    return float4(log(adaptedLum), 1, 1, 1);
 } // psAdaptLuminance
 
 // An easy optimization consists in make a specific technique without branching.

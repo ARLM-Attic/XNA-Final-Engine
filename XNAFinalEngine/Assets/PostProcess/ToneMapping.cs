@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -68,7 +68,7 @@ namespace XNAFinalEngine.Assets
         private bool autoExposureEnabled = true;
 
         // Lens exposure.
-        private float lensExposure = 1;
+        private float lensExposure = 0;
 
         // Controls how faster the camera’s auto exposure adaptation mechanism changes its response.
         private float exposureAdaptationTimeMultiplier = 0.5f;
@@ -107,12 +107,7 @@ namespace XNAFinalEngine.Assets
         public float LensExposure
         {
             get { return lensExposure; }
-            set
-            {
-                lensExposure = value;
-                if (lensExposure < 0)
-                    lensExposure = 0;
-            }
+            set { lensExposure = value; }
         } // LensExposure
 
         #region Auto Exposure
