@@ -221,6 +221,19 @@ namespace XNAFinalEngine.Input
 
         #region Dragging
 
+        /// <summary>
+        /// Mouse dragging amount.
+        /// It can be extended to allow dragging off the screen when OutOfBounds is true.
+        /// </summary>
+        public static Point DraggingAmount
+        {
+            get
+            {
+                return new Point(-startDraggingPosition.X + Position.X,
+                                 -startDraggingPosition.Y + Position.Y);
+            }
+        } // DraggingAmount
+
 	    /// <summary>
         /// Mouse dragging rectangle.
         /// The information is rearranged so that the X value will be the left side and Y the top side.
@@ -287,15 +300,15 @@ namespace XNAFinalEngine.Input
 
         #endregion
 
-        #region Reset Mouse Dragging Amount
+        #region Reset Mouse Dragging
 
         /// <summary>
 		/// Reset mouse dragging amount.
 		/// </summary>
-		public static void ResetDraggingAmount()
+		public static void ResetDragging()
 		{
 			startDraggingPosition = Position;
-		} // ResetMouseDraggingAmount
+		} // ResetDragging
 
         #endregion
 

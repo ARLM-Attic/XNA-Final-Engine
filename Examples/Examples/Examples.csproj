@@ -110,9 +110,13 @@
   <ItemGroup>
     <Compile Include="Editor\EditableScene.cs" />
     <Compile Include="Editor\EditorManager.cs" />
+    <Compile Include="Editor\Gizmos\Gizmo.cs" />
+    <Compile Include="Editor\Gizmos\GizmoTranslation.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Editor\Pickers\Picker.cs" />
-    <Compile Include="Editor\ScriptStatisticsDrawer.cs" />
-    <Compile Include="Editor\ScriptEditorCamera.cs" />
+    <Compile Include="Editor\Scripts\ScriptStatisticsDrawer.cs" />
+    <Compile Include="Editor\Scripts\ScriptEditorCamera.cs" />
     <Compile Include="Editor\Windows\Assets\TextureCubeWindow.cs" />
     <Compile Include="Editor\Windows\Assets\TextureWindow.cs" />
     <Compile Include="Editor\Windows\CommonControls.cs" />

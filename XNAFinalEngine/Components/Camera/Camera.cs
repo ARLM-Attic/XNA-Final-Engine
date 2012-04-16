@@ -547,7 +547,7 @@ namespace XNAFinalEngine.Components
             ClearColor = new Color(20, 20, 20, 255);
             orthographicVerticalSize = 10;
             RenderingOrder = 0;
-            CullingMask = uint.MaxValue;
+            CullingMask = uint.MaxValue & ~(uint)(Math.Pow(2, 31)); // All layers minus the last because it's a reserved layer.
             // Generate the projection matrix.
             CalculateProjectionMatrix();
             Screen.AspectRatioChanged += OnAspectRatioChanged;

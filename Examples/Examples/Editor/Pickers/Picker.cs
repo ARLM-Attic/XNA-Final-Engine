@@ -37,6 +37,7 @@ using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Input;
 #endregion
@@ -66,12 +67,10 @@ namespace XNAFinalEngine.Editor
 
         // I need a constant shader to render the picker.
         private readonly Shader constantShader;
-        
-        /*
-        /// <summary>
-        /// Store the texture in an array (if it search a region, not a pixel).
-        /// </summary>
-        private static Color[] colorArray;*/
+
+        // For manual picking.
+        private bool hasBegun;
+        private Matrix viewMatrix, projectionMatrix;
 
         #endregion
 
@@ -137,7 +136,7 @@ namespace XNAFinalEngine.Editor
             try
             {
 
-                RenderObjectToPickerTexture(viewMatrix, projectionMatrix);
+                RenderObjectsToPickerTexture(viewMatrix, projectionMatrix);
                 
                 #region Get the pixel from the texture
                 
@@ -191,7 +190,7 @@ namespace XNAFinalEngine.Editor
             try
             {
 
-                RenderObjectToPickerTexture(viewMatrix, projectionMatrix);
+                RenderObjectsToPickerTexture(viewMatrix, projectionMatrix);
 
                 #region Get the pixel from the texture
 
@@ -243,7 +242,7 @@ namespace XNAFinalEngine.Editor
         /// Render the object using a constant shasder to picker texture.
         /// Each object will be render using a unique color.
         /// </summary>
-        private void RenderObjectToPickerTexture(Matrix viewMatrix, Matrix projectionMatrix)
+        private void RenderObjectsToPickerTexture(Matrix viewMatrix, Matrix projectionMatrix)
         {
             byte red = 0, green = 0, blue = 0;
             Color colorMaterial = new Color(0, 0, 0);
@@ -302,7 +301,7 @@ namespace XNAFinalEngine.Editor
             // Activate the frame buffer again.
             pickerTexture.DisableRenderTarget();
 
-        } // RenderObjectToPickerTexture
+        } // RenderObjectsToPickerTexture
 
         #endregion
 
@@ -332,75 +331,98 @@ namespace XNAFinalEngine.Editor
         #endregion
 
         #region Manual Pick
-        /*
+        
         /// <summary>
         /// Manualy render the picker texture.
         /// This allow us to search a color in a specified region that we render in the next step.
-        /// With this we can pick mostly lines (that aren't graphic objects).
         /// The black color is reserved.
         /// </summary>
-        public void BeginManualRenderPickerTexture()
-        {   
+        public void BeginManualPicking(Matrix viewMatrix, Matrix projectionMatrix)
+        {
+            if (hasBegun)
+            {
+                throw new InvalidOperationException("Picker: Begin has been called before calling End after the last call to Begin. Begin cannot be called again until End has been successfully called.");
+            }
+            hasBegun = true;
             try
             {
-                if (colorArray == null)
-                    colorArray = new Color[pickerMapTexture.Width * pickerMapTexture.Height];
+                this.viewMatrix = viewMatrix;
+                this.projectionMatrix = projectionMatrix;
+                // Set Render States.
+                EngineManager.Device.BlendState = BlendState.NonPremultiplied;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                EngineManager.Device.DepthStencilState = DepthStencilState.Default;
 
                 // Start rendering onto the picker map
-                pickerMapTexture.EnableRenderTarget();
+                pickerTexture.EnableRenderTarget();
 
                 // Clear render target
-                pickerMapTexture.Clear(Color.Black);
+                pickerTexture.Clear(Color.Black);
 
-            } // try
-            catch (Exception ex)
+                constantShader.Resource.CurrentTechnique = constantShader.Resource.Techniques["ConstantsRGB"];
+            }
+            catch (Exception e)
             {
-                throw new Exception("The picker failed: " + ex);
-            } // catch
-        } // BeginManualRenderPickerTexture
+                throw new InvalidOperationException("Picker: operation failed: ", e);
+            }
+        } // BeginManualPicking
+
+        public void RenderObjectToManualPicker(GameObject gameObject, Color color)
+        {
+            if (gameObject is GameObject3D)
+            {
+                GameObject3D gameObject3D = (GameObject3D)gameObject;
+                if (gameObject3D.ModelFilter != null && gameObject3D.ModelFilter.Model != null)
+                {
+                    constantShader.Resource.Parameters["diffuseColor"].SetValue(new Vector3(color.R / 255f, color.G / 255f, color.B / 255f));
+                    constantShader.Resource.Parameters["worldViewProj"].SetValue(gameObject3D.Transform.WorldMatrix * viewMatrix * projectionMatrix);
+                    constantShader.Resource.CurrentTechnique.Passes[0].Apply();
+                    gameObject3D.ModelFilter.Model.Render();
+                }
+                else if (gameObject3D.LineRenderer != null)
+                {
+                    LineManager.Begin3D(gameObject3D.LineRenderer.PrimitiveType, viewMatrix, projectionMatrix);
+                    for (int j = 0; j < gameObject3D.LineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(gameObject3D.LineRenderer.Vertices[j].Position, gameObject3D.LineRenderer.Vertices[j].Color);
+                    LineManager.End();
+                }
+            }
+        } // RenderObjectToManualPicker
 
         /// <summary>
         /// End manual render of the picker texture.
         /// </summary>
-        public void EndManualRenderPickerTexture()
+        public Color[] EndManualPicking(Rectangle region)
         {
-            // Comeback to the frame buffer.
-            pickerMapTexture.DisableRenderTarget();
-        } // EndManualRenderPickerTexture
-
-        /// <summary>
-        /// Returns a color set from the current picker texture that was created manually.
-        /// This method is prepared to work with gizmos.
-        /// </summary>
-        public Color[] ManualPickFromCurrentPickerTexture(int regionSize)
-        {   
-            Color[] colorArrayResult = new Color[regionSize * regionSize];
+            if (!hasBegun)
+                throw new InvalidOperationException("Line Manager: End was called, but Begin has not yet been called. You must call Begin successfully before you can call End.");
+            hasBegun = false;
             try
             {
-                // If the region is off the screen
-                if (Mouse.Position.X + regionSize > pickerMapTexture.Width)
+                // Activate the frame buffer again.
+                pickerTexture.DisableRenderTarget();
+
+                Color[] colors = new Color[region.Width * region.Height];
+
+                if (Mouse.Position.X + region.Width > pickerTexture.Width)
                 {
-                    regionSize = pickerMapTexture.Width - Mouse.Position.X;
+                    region.Width = pickerTexture.Width - Mouse.Position.X;
                 }
-                if (Mouse.Position.Y + regionSize > pickerMapTexture.Height)
+                if (Mouse.Position.Y + region.Height > pickerTexture.Height)
                 {
-                    if (pickerMapTexture.Height - Mouse.Position.Y < regionSize)
-                        regionSize = pickerMapTexture.Height - Mouse.Position.Y;
+                    region.Height = pickerTexture.Height - Mouse.Position.Y;
                 }
-                pickerMapTexture.XnaTexture.GetData<Color>(colorArray);
-                for (int i = 0; i < regionSize; i++)
-                    for (int j = 0; j < regionSize; j++)
-                    {
-                        colorArrayResult[i*regionSize + j] = colorArray[(Mouse.Position.X + i) + (Mouse.Position.Y + j)*EngineManager.Width];
-                    }
-                return colorArrayResult;
-            } // try
-            catch (Exception ex)
+                
+                pickerTexture.Resource.GetData(0, region, colors, 0, region.Width * region.Height);
+            
+                return colors;
+            }
+            catch (Exception e)
             {
-                throw new Exception("The picker failed: " + ex);
-            } // catch
-        } // ManualPickFromCurrentPickerTexture
-        */
+                throw new InvalidOperationException("Picker: operation failed: ", e);
+            }
+        } // EndManualRenderPickerTexture
+
         #endregion
 
     } // Picker

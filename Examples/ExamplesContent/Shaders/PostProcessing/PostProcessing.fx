@@ -112,8 +112,7 @@ float3 ExposureColor(float3 color, float2 uv)
 		float avgLuminance = tex2Dlod(lastLuminanceSampler, float4(uv, 0, 10)).x;		
 		// Use geometric mean
 		avgLuminance = max(avgLuminance, 0.001f);		
-		float keyValue = 0;
-		keyValue = 1.03f - (2.0f / (2 + log10(avgLuminance + 1)));
+		float keyValue = 1.03f - (2.0f / (2 + log10(avgLuminance + 1)));
 		float linearExposure = (keyValue / avgLuminance);
 		exposure = max(linearExposure, 0.0001f);
 	}

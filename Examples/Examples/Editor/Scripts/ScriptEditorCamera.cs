@@ -206,6 +206,7 @@ namespace XNAFinalEngine.Editor
             {
                 if (mode == ModeType.Softimage || mode == ModeType.NoManipulationKey)
                 {
+
                     #region Softimage mode
 
                     #region Is it in manipulation mode?
@@ -264,6 +265,7 @@ namespace XNAFinalEngine.Editor
                     #endregion
 
                     #endregion
+
                 }
                 else
                 {
@@ -294,6 +296,7 @@ namespace XNAFinalEngine.Editor
                     
                     #endregion
                 }
+
                 #region Gamepad
 
                 LookAtPosition -= ((GameObject3D)Owner).Transform.Right * -GamePad.PlayerOne.LeftStickXMovement * Distance / 1000;
@@ -305,6 +308,7 @@ namespace XNAFinalEngine.Editor
                 Distance -= (GamePad.PlayerOne.RightTriggerMovement - GamePad.PlayerOne.LeftTriggerMovement) * Distance / 300;
 
                 #endregion
+
             }
             else
                 manipulationMode = false;
