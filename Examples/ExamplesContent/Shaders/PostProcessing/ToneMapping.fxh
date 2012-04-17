@@ -96,7 +96,7 @@ float3 ToneMapReinhardModified(float3 color)
 {    
     float pixelLuminance = CalcLuminance(color);
 	float toneMappedLuminance = pixelLuminance * (1.0f + pixelLuminance / (whiteLevel * whiteLevel)) / (1.0f + pixelLuminance);
-	return toneMappedLuminance * pow(color / pixelLuminance, luminanceSaturation);
+	return LinearToGamma(toneMappedLuminance * pow(color / pixelLuminance, luminanceSaturation));
 }
 
 // Applies the filmic curve from John Hable's presentation.

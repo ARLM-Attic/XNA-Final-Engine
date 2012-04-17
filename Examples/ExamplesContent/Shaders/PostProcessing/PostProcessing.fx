@@ -27,6 +27,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 // http://pixelstoomany.wordpress.com/2008/07/05/another-day-another-hdr-rendering-trick-and-some-hope-for-the-future/
 // http://mynameismjp.wordpress.com/2010/04/30/a-closer-look-at-tone-mapping/
 // High Dynamic Range Imaging - Acquisition, Display, and Image-Based Lighting (Reinhard, Ward, Pattanaik)
+// http://www.mpi-inf.mpg.de/resources/hdr/lightness/krawczyk05eg.pdf
 
 #include <ColorCorrection.fxh>
 #include <Filmgrain.fxh>
