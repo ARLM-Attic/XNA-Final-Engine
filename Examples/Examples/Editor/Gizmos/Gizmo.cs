@@ -59,7 +59,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// The size of the cursor region that affects the selection of the different gizmos.
         /// </summary>
-        protected const int RegionSize = 15;
+        protected const int RegionSize = 20;
 
         #endregion
 
@@ -84,12 +84,7 @@ namespace XNAFinalEngine.Editor
         
         // Indica si el manipulador efectivamente movio al objeto.
         protected static bool produceTransformation;
-        /*
-        /// <summary>
-        /// La matrix del objeto seleccionado antes de la manipulacion.
-        /// </summary>
-        protected static Matrix oldLocalMatrix;
-        */
+
         #endregion
 
         #region Properties
@@ -108,26 +103,6 @@ namespace XNAFinalEngine.Editor
         /// Local or World Space.
         /// </summary>
         public static SpaceMode Space { get; set; }
-
-        /*
-        /// <summary>
-        /// Indica si el manipulador efectivamente movio al objeto.
-        /// </summary>
-        public static bool ProduceTransformation
-        {
-            get
-            {
-                bool aux = produceTransformation;
-                produceTransformation = false;
-                return aux;
-            }
-        } // ProduceTransformation
-
-        /// <summary>
-        /// La matrix del objeto seleccionado antes de la manipulacion.
-        /// </summary>
-        public static Matrix OldLocalMatrix { get { return oldLocalMatrix; } }
-        */
 
         #endregion
 

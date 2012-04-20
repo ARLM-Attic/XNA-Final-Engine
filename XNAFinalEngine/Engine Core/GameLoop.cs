@@ -857,7 +857,7 @@ namespace XNAFinalEngine.EngineCore
                         CascadedShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, shadowDepthTexture, shadow.DepthBias, shadow.Filter);
                         CascadedShadowMapShader.Instance.SetLight(currentDirectionalLight.cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
                                                                     currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace);
-                        //FrustumCulling(new BoundingFrustum(), modelsToRenderShadow);
+                        // FrustumCulling(new BoundingFrustum(), modelsToRenderShadow);
                         // Render all the opaque objects...
                         for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
                         {

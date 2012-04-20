@@ -151,11 +151,6 @@ namespace XNAFinalEngine.Editor
         // The gizmos.
         private static TranslationGizmo translationGizmo;
 
-        /// <summary>
-        /// Almacena las operaciones anteriormente realizadas
-        /// </summary>
-        private static readonly Stack<UndoStruct> undoStack = new Stack<UndoStruct>();
-
         #endregion
 
         #region Properties
@@ -328,19 +323,28 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static void Update()
         {
-            gizmoCamera.Transform.WorldMatrix = editorCamera.Transform.WorldMatrix;
-            gizmoCamera.Camera.ProjectionMatrix = editorCamera.Camera.ProjectionMatrix;
-            
+
             #region If no update is needed...
 
             if (!editorModeEnabled || 
                 // Keyboard shortcuts, camera movement and similar should be ignored when the text box is active.
-                (UserInterfaceManager.FocusedControl != null && UserInterfaceManager.FocusedControl is TextBox) ||
-                // If the camera is being manipulated…
-                (editorCameraScript.Manipulating))
+                (UserInterfaceManager.FocusedControl != null && UserInterfaceManager.FocusedControl is TextBox))
             {
                 previousFocusedControl = UserInterfaceManager.FocusedControl;
                 return;
+            }
+
+            #endregion
+
+            #region Update Gizmo Rendering Information
+
+            gizmoCamera.Transform.WorldMatrix = editorCamera.Transform.WorldMatrix;
+            gizmoCamera.Camera.ProjectionMatrix = editorCamera.Camera.ProjectionMatrix;
+            switch (activeGizmo)
+            {
+                //case GizmoType.Scale: GizmoScale.ManipulateObject(); break;
+                //case GizmoType.Rotation: GizmoRotation.ManipulateObject(); break;
+                case GizmoType.Translation: translationGizmo.UpdateRenderingInformation(); break;
             }
 
             #endregion
@@ -382,15 +386,17 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
-            #region If no update is needed...
+            #region If no update is needed... (besides gizmo feedback, frame object and reset camera)
 
-            if (UserInterfaceManager.FocusedControl != null || previousFocusedControl != null)
+            if (editorCameraScript.Manipulating || (UserInterfaceManager.FocusedControl != null || previousFocusedControl != null))
             {
                 previousFocusedControl = UserInterfaceManager.FocusedControl;
                 return;
             }
 
             #endregion
+
+            #region No Gizmo Active
 
             // If no gizmo is active…
             if (activeGizmo == GizmoType.None)
@@ -449,9 +455,14 @@ namespace XNAFinalEngine.Editor
 
                     #region Pick objects
 
-                    List<GameObject> newSelectedObjects = new List<GameObject>();
+                    List<GameObject> newSelectedObjects;
                     if (Mouse.NoDragging)
-                        newSelectedObjects.Add(picker.Pick(editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix));
+                    {
+                        newSelectedObjects = new List<GameObject>();
+                        GameObject gameObject = picker.Pick(editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix);
+                        if (gameObject != null)
+                            newSelectedObjects.Add(gameObject);
+                    }
                     else
                         newSelectedObjects = picker.Pick(Mouse.DraggingRectangle, editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix);
 
@@ -523,7 +534,9 @@ namespace XNAFinalEngine.Editor
                 #endregion
 
             }
-            
+
+            #endregion
+
             if (activeGizmo != GizmoType.None && (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed) && !(Gizmo.Active))
             {
                 switch (activeGizmo)
@@ -535,6 +548,8 @@ namespace XNAFinalEngine.Editor
             // Si esta activo es distino
             // El espacio no hace nada y el escape vuelvo la transformacion para atras.
 
+            #region Active Gizmo
+
             bool isPosibleToSwich = selectedObjects.Count > 0 && ((activeGizmo == GizmoType.None) || !(Gizmo.Active));
             if (Keyboard.KeyJustPressed(Keys.V) && isPosibleToSwich)
             {
@@ -545,37 +560,21 @@ namespace XNAFinalEngine.Editor
                 activeGizmo = GizmoType.Translation;
                 translationGizmo.EnableGizmo(selectedObjects[0], picker);
             }
+
+            #endregion
+
+            #region Update Gizmo
+
             switch (activeGizmo)
             {
                 //case GizmoType.Scale: GizmoScale.ManipulateObject(); break;
                 //case GizmoType.Rotation: GizmoRotation.ManipulateObject(); break;
                 case GizmoType.Translation: translationGizmo.Update(); break;
             }
-            /*// Si el manipulador produjo un resultado
-            if (Gizmo.ProduceTransformation)
-            {
-                undoStack.Push(new UndoStruct(selectedObject, Gizmo.OldLocalMatrix));
-            }*/
 
+            #endregion
 
-            // Undo y Redo (// TODO!!!)
-            /*if (Keyboard.KeyPressed(Keys.LeftControl) &&
-                Keyboard.KeyJustPressed(Keys.Z) &&
-                (activeGizmo == Gizmo.None || !(Gizmo.Active)))
-            {
-                if (undoStack.Count > 0)
-                {
-                    undoStack.Peek().obj.LocalMatrix = undoStack.Peek().localMatrix;
-                    undoStack.Pop();
-                    // Reiniciamos el manipulador
-                    switch (activeGizmo)
-                    {
-                        case Gizmo.Scale: GizmoScale.InitializeManipulator(selectedObject); break;
-                        case Gizmo.Rotation: GizmoRotation.InitializeManipulator(selectedObject); break;
-                        case Gizmo.Translation: GizmoTranslation.InitializeManipulator(selectedObject); break;
-                    }
-                }
-            }*/
+            previousFocusedControl = UserInterfaceManager.FocusedControl;
         } // Update
 
         private static void ChangeGameObjectBoundingBoxVisibility(GameObject gameObject, bool boundingBoxVisibility)

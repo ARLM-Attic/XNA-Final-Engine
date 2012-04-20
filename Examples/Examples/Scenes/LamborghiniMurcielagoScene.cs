@@ -872,7 +872,7 @@ namespace XNAFinalEngineExamples
             #endregion
             
             #endregion
-
+            
             #region Shadows and Lights
             
             directionalLight = new GameObject3D();
@@ -961,7 +961,7 @@ namespace XNAFinalEngineExamples
             };
 
             #endregion
-
+            
             #region Video
 
             videoTest = new GameObject2D();
