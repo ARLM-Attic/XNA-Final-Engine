@@ -132,7 +132,7 @@ namespace XNAFinalEngine.Editor
         private static GizmoType activeGizmo = GizmoType.None;
 
         // The selected object.
-        private static readonly List<GameObject> selectedObjects = new List<GameObject>();
+        private static readonly List<GameObject3D> selectedObjects = new List<GameObject3D>();
 
         // To avoid more than one initialization.
         private static bool initialized;
@@ -197,8 +197,7 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
-            translationGizmo = new TranslationGizmo();
-            Gizmo.GizmoCamera = gizmoCamera;
+            translationGizmo = new TranslationGizmo(gizmoCamera);
 
             #region Selection Rectangle
 
@@ -358,12 +357,12 @@ namespace XNAFinalEngine.Editor
                 BoundingSphere? frameBoundingSphere = null; // Gabage is not an issue in the editor.
                 foreach (var gameObject in selectedObjects)
                 {
-                    if (gameObject is GameObject3D && ((GameObject3D)gameObject).ModelRenderer != null)
+                    if (gameObject.ModelRenderer != null)
                     {
                         if (frameBoundingSphere == null)
-                            frameBoundingSphere = ((GameObject3D)gameObject).ModelRenderer.BoundingSphere;
+                            frameBoundingSphere = gameObject.ModelRenderer.BoundingSphere;
                         else
-                            frameBoundingSphere = BoundingSphere.CreateMerged(frameBoundingSphere.Value, ((GameObject3D)gameObject).ModelRenderer.BoundingSphere);
+                            frameBoundingSphere = BoundingSphere.CreateMerged(frameBoundingSphere.Value, gameObject.ModelRenderer.BoundingSphere);
                     }
                     // The rest of objects TODO!!!
                 }
@@ -455,16 +454,24 @@ namespace XNAFinalEngine.Editor
 
                     #region Pick objects
 
-                    List<GameObject> newSelectedObjects;
+                    List<GameObject3D> newSelectedObjects = new List<GameObject3D>();
                     if (Mouse.NoDragging)
                     {
-                        newSelectedObjects = new List<GameObject>();
                         GameObject gameObject = picker.Pick(editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix);
-                        if (gameObject != null)
-                            newSelectedObjects.Add(gameObject);
+                        if (gameObject != null && gameObject is GameObject3D)
+                            newSelectedObjects.Add((GameObject3D)gameObject);
                     }
                     else
-                        newSelectedObjects = picker.Pick(Mouse.DraggingRectangle, editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix);
+                    {
+                        List<GameObject> pickedObjects = picker.Pick(Mouse.DraggingRectangle, editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix);
+                        foreach (GameObject pickedObject in pickedObjects)
+                        {
+                            if (pickedObject is GameObject3D)
+                            {
+                                newSelectedObjects.Add((GameObject3D)pickedObject);
+                            }
+                        }
+                    }
 
                     #endregion
 
@@ -545,10 +552,8 @@ namespace XNAFinalEngine.Editor
                 }
                 activeGizmo = GizmoType.None;
             }
-            // Si esta activo es distino
-            // El espacio no hace nada y el escape vuelvo la transformacion para atras.
 
-            #region Active Gizmo
+            #region Activate Gizmo
 
             bool isPosibleToSwich = selectedObjects.Count > 0 && ((activeGizmo == GizmoType.None) || !(Gizmo.Active));
             if (Keyboard.KeyJustPressed(Keys.V) && isPosibleToSwich)
@@ -558,7 +563,7 @@ namespace XNAFinalEngine.Editor
                     case GizmoType.Translation: translationGizmo.DisableGizmo(); break;
                 }
                 activeGizmo = GizmoType.Translation;
-                translationGizmo.EnableGizmo(selectedObjects[0], picker);
+                translationGizmo.EnableGizmo(selectedObjects, picker);
             }
 
             #endregion

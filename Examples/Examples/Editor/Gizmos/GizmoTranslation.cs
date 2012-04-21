@@ -29,6 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
@@ -52,25 +54,20 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// The gizmo's cones.
         /// </summary>
-        private static GameObject3D redCone,
-                                    greenCone,
-                                    blueCone,
-                                    lines;
+        private readonly GameObject3D redCone,
+                                      greenCone,
+                                      blueCone,
+                                      lines;
 
         
         /// <summary>
-        /// Los planos que marcan la conjuncion de dos ejes. Son invisibles en el renderizado.
-        /// Pero visibles para el picker (aunque con menor prioridad que el resto, por eso se borra el zbuffer cuando se los renderiza)
+        /// This planes are not rendered to the screen.
+        /// They are used by the picker to select two axis.
         /// </summary>
-        private static GameObject3D planeRedGreen,
-                                    planeGreenBlue,
-                                    planeBlueRed;
-        private static GameObject2D planeAll;
-         
-        /// <summary>
-        /// Store the position previous to the manipulation.
-        /// </summary>
-        private static Vector3 previousTranslation = Vector3.Zero;
+        private readonly GameObject3D planeRedGreen,
+                                      planeGreenBlue,
+                                      planeBlueRed;
+        private readonly GameObject2D planeAll;
         
         #endregion
 
@@ -79,10 +76,15 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Translation gizmo based in Softimage XSI.
         /// </summary>
-        internal TranslationGizmo()
+        internal TranslationGizmo(GameObject3D camera)
         {
-            if (redCone != null)
-                return;
+            if (camera == null)
+                throw new ArgumentNullException("camera");
+            if (camera.Camera == null)
+                throw new ArgumentException("Translation Gizmo: The game object has not a camera component.", "camera");
+            gizmoCamera = camera;
+
+            // Create the gizmo parts.
             Cone cone = new Cone(0.1f, 0.2f, 10);
             redCone   = new GameObject3D(cone, new Constant()) { Layer = Layer.GetLayerByNumber(31) };
             greenCone = new GameObject3D(cone, new Constant()) { Layer = Layer.GetLayerByNumber(31) };
@@ -96,7 +98,7 @@ namespace XNAFinalEngine.Editor
             planeAll = new GameObject2D { Layer = Layer.GetLayerByNumber(31), };
             planeAll.AddComponent<LineRenderer>();
             planeAll.LineRenderer.Vertices = new VertexPositionColor[8];
-
+            
             redCone.ModelRenderer.Visible = false;
             greenCone.ModelRenderer.Visible = false;
             blueCone.ModelRenderer.Visible = false;
@@ -105,7 +107,7 @@ namespace XNAFinalEngine.Editor
             planeGreenBlue.ModelRenderer.Visible = false;
             planeBlueRed.ModelRenderer.Visible = false;
             planeAll.LineRenderer.Visible = false;
-        } // GizmoTranslation
+        } // TranslationGizmo
 
         #endregion
 
@@ -114,7 +116,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Enable the gizmo for manipulation.
         /// </summary>
-        public void EnableGizmo(GameObject _selectedObject, Picker picker)
+        public void EnableGizmo(List<GameObject3D> _selectedObjects, Picker picker)
         {
             Active = false;
 
@@ -126,7 +128,13 @@ namespace XNAFinalEngine.Editor
 
             Gizmo.picker = picker;
 
-            selectedObject = _selectedObject;
+            selectedObject = _selectedObjects[0];
+            selectedObjects = _selectedObjects;
+            selectedObjectsLocalMatrix = new List<Matrix>(_selectedObjects.Count);
+            foreach (GameObject3D selectedObj in _selectedObjects)
+            {
+                selectedObjectsLocalMatrix.Add(selectedObj.Transform.LocalMatrix);
+            }
         } // EnableGizmo
 
         /// <summary>
@@ -141,6 +149,8 @@ namespace XNAFinalEngine.Editor
             blueCone.ModelRenderer.Visible = false;
             lines.LineRenderer.Visible = false;
             planeAll.LineRenderer.Visible = false;
+
+            selectedObjectsLocalMatrix.Clear();
         } // DisableGizmo
 
         #endregion
@@ -152,57 +162,64 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         internal void Update()
         {
-            Vector3 translation = new Vector3(0, 0, 0);            
-
             #region Active
 
             if (Active)
             {   
                 
-                // Si se termino de manipular
+                // If the manipulation is over...
                 if (!Mouse.LeftButtonPressed)
                 {
                     Active = false;
-                    if (previousTranslation != ((GameObject3D)selectedObject).Transform.LocalPosition)
-                        produceTransformation = true;
-                    previousTranslation = ((GameObject3D)selectedObject).Transform.LocalPosition;
+                    // Store new previous matrix.
+                    for (int i = 0; i < selectedObjects.Count; i++)
+                    {
+                        selectedObjectsLocalMatrix[i] = selectedObjects[i].Transform.LocalMatrix;
+                    }
                 }
-                // Si lo manipulamos actualizamos el escalado segun el desplazamaiento del mouse
+                // Transformate object...
                 else
                 {
+                    Vector2 transformationAmount;
+                    Vector3 translation = Vector3.Zero;
                     if (redAxisSelected)
                     {
-                        Calculate2DMouseDirection(new Vector3(1, 0, 0));
-                        translation.X = (Mouse.DraggingAmount.X * transformationAmount.X / 100.0f);
-                        translation.X += (Mouse.DraggingAmount.Y * transformationAmount.Y / 100.0f);
+                        Calculate2DMouseDirection(gizmoCamera, new Vector3(1, 0, 0), out transformationAmount);
+                        translation.X = (Mouse.XMovement * transformationAmount.X / 100.0f);
+                        translation.X += (Mouse.YMovement * transformationAmount.Y / 100.0f);
                     }
                     if (greenAxisSelected)
                     {
-                        Calculate2DMouseDirection(new Vector3(0, 1, 0));
-                        translation.Y = (Mouse.DraggingAmount.X * transformationAmount.X / 100.0f);
-                        translation.Y += (Mouse.DraggingAmount.Y * transformationAmount.Y / 100.0f);
+                        Calculate2DMouseDirection(gizmoCamera, new Vector3(0, 1, 0), out transformationAmount);
+                        translation.Y = (Mouse.XMovement * transformationAmount.X / 100.0f);
+                        translation.Y += (Mouse.YMovement * transformationAmount.Y / 100.0f);
                     }
                     if (blueAxisSelected)
                     {
-                        Calculate2DMouseDirection(new Vector3(0, 0, 1));
-                        translation.Z = (Mouse.DraggingAmount.X * transformationAmount.X / 100.0f);
-                        translation.Z += (Mouse.DraggingAmount.Y * transformationAmount.Y / 100.0f);
+                        Calculate2DMouseDirection(gizmoCamera, new Vector3(0, 0, 1), out transformationAmount);
+                        translation.Z = (Mouse.XMovement * transformationAmount.X / 100.0f);
+                        translation.Z += (Mouse.YMovement * transformationAmount.Y / 100.0f);
                     }
-                    ((GameObject3D)selectedObject).Transform.LocalPosition = previousTranslation;
-                    // Calculate the distance from the object to camera position.
+                    // Calculate the center, scale and orientation of the gizmo.
                     Vector3 center;
                     Quaternion orientation;
-                    GizmoCenterAndOrientation(out center, out orientation);
-                    Vector3 cameraToCenter = GizmoCamera.Camera.Position - center;
-                    float distanceToCamera = cameraToCenter.Length();
-                    float scale = distanceToCamera / 14;
-                    // Transform object.
-                    ((GameObject3D)selectedObject).Transform.Translate(translation * scale);
+                    float scale;
+                    GizmoScaleCenterOrientation(selectedObject, gizmoCamera, out scale, out center, out orientation);
+                    foreach (GameObject3D gameObject3D in selectedObjects)
+                    {
+                        // Transform object.
+                        gameObject3D.Transform.Translate(translation * scale);
+                    }
                 }
                 if (Keyboard.EscapeJustPressed)
                 {
                     Active = false;
-                    ((GameObject3D)selectedObject).Transform.LocalPosition = previousTranslation;
+                    // Revert transformation to all selected objects.
+                    for (int i = 0; i < selectedObjects.Count; i++)
+                    {
+                        selectedObjects[i].Transform.LocalMatrix = selectedObjectsLocalMatrix[i];
+                    }
+                    
                 }
             }
 
@@ -212,15 +229,16 @@ namespace XNAFinalEngine.Editor
             
             else            
             {
-                // Si apretamos el boton del mouse el manipulador se activa
+                // If we press the left mouse button the manipulator activates.
                 if (Mouse.LeftButtonJustPressed)
                 {
                     Active = true;
-                    //oldLocalMatrix = obj.LocalMatrix;
                 }
-                picker.BeginManualPicking(GizmoCamera.Camera.ViewMatrix, GizmoCamera.Camera.ProjectionMatrix);
+
+                // Perform a pick around the mouse pointer.
+                picker.BeginManualPicking(gizmoCamera.Camera.ViewMatrix, gizmoCamera.Camera.ProjectionMatrix);
                     RenderGizmoForPicker();
-                    Color[] colorArray = picker.EndManualPicking(new Rectangle(Mouse.Position.X - RegionSize / 2, Mouse.Position.Y - RegionSize / 2, RegionSize, RegionSize));
+                Color[] colorArray = picker.EndManualPicking(new Rectangle(Mouse.Position.X - RegionSize / 2, Mouse.Position.Y - RegionSize / 2, RegionSize, RegionSize));
 
                 #region Find Axis
 
@@ -295,64 +313,22 @@ namespace XNAFinalEngine.Editor
             
             #endregion
 
-        } // ManipulateObject
-
-        #endregion
-
-        #region Calculate2DMouseDirection
-
-        /// <summary>
-        /// Calculamos como va a afectar el movimiento vertical y horizontal del mouse al manipulador.
-        /// </summary>
-        protected static void Calculate2DMouseDirection(Vector3 direction)
-        {
-            // Calculate gizmo center and orientation.
-            Vector3 center;
-            Quaternion orientation;
-            GizmoCenterAndOrientation(out center, out orientation);
-
-            // Calculate the distance from the object to camera position.
-            Vector3 cameraToCenter = GizmoCamera.Camera.Position - center;
-            float distanceToCamera = cameraToCenter.Length();
-            float scale = distanceToCamera / 14;
-
-            // Calculate the gizmo matrix.
-            Matrix transformationMatrix = Matrix.CreateScale(scale);
-            transformationMatrix *= Matrix.CreateFromQuaternion(orientation);
-            transformationMatrix *= Matrix.CreateTranslation(center);
-
-            // Calculate the direction of movement for every possible combination.
-            vertices[0] = Vector3.Transform(new Vector3(0, 0, 0), transformationMatrix);
-            vertices[1] = Vector3.Transform(direction, transformationMatrix);
-
-            Vector3[] screenPositions = new Vector3[2];
-            screenPositions[0] = EngineManager.Device.Viewport.Project(vertices[0], GizmoCamera.Camera.ProjectionMatrix, GizmoCamera.Camera.ViewMatrix, Matrix.Identity);
-            screenPositions[1] = EngineManager.Device.Viewport.Project(vertices[1], GizmoCamera.Camera.ProjectionMatrix, GizmoCamera.Camera.ViewMatrix, Matrix.Identity);
-
-            Vector3 aux = screenPositions[1] - screenPositions[0];
-            transformationAmount.X = aux.X / aux.Length();
-            transformationAmount.Y = aux.Y / aux.Length();
-
-        } // Calculate2DMouseDirection
+        } // Update
 
         #endregion
         
-        #region Render Manipulator For Picker
+        #region Render Gizmo For Picker
         
         /// <summary>
-        /// Renderizado del manipulador para el picking. Va desde el de menor prioridad al de mayor.
+        /// Render the gizmo to the picker.
         /// </summary>
         private void RenderGizmoForPicker()
         {
-            // Calculate gizmo center and orientation.
+            // Calculate the center, scale and orientation of the gizmo.
             Vector3 center;
             Quaternion orientation;
-            GizmoCenterAndOrientation(out center, out orientation);
-
-            // Calculate the distance from the object to camera position.
-            Vector3 cameraToCenter = GizmoCamera.Camera.Position - center;
-            float distanceToCamera = cameraToCenter.Length();
-            float scale = distanceToCamera / 14;
+            float scale;
+            GizmoScaleCenterOrientation(selectedObject, gizmoCamera, out scale, out center, out orientation);
 
             // Calculate the gizmo matrix.
             Matrix transformationMatrix = Matrix.CreateScale(scale);
@@ -411,7 +387,7 @@ namespace XNAFinalEngine.Editor
             
             // The plane used to select all axis.
             LineManager.Begin2D(PrimitiveType.LineList);
-                Vector3 screenPositions = EngineManager.Device.Viewport.Project(vertices[0], GizmoCamera.Camera.ProjectionMatrix, GizmoCamera.Camera.ViewMatrix, Matrix.Identity);
+                Vector3 screenPositions = EngineManager.Device.Viewport.Project(vertices[0], gizmoCamera.Camera.ProjectionMatrix, gizmoCamera.Camera.ViewMatrix, Matrix.Identity);
                 LineManager.DrawSolid2DPlane(new Rectangle((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, RegionSize, RegionSize), Color.White);
             LineManager.End();
 
@@ -445,15 +421,11 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
-            // Calculate gizmo center and orientation.
+            // Calculate the center, scale and orientation of the gizmo.
             Vector3 center;
             Quaternion orientation;
-            GizmoCenterAndOrientation(out center, out orientation);
-
-            // Calculate the distance from the object to camera position.
-            Vector3 cameraToCenter = GizmoCamera.Camera.Position - center;
-            float distanceToCamera = cameraToCenter.Length();
-            float scale = distanceToCamera / 14;
+            float scale;
+            GizmoScaleCenterOrientation(selectedObject, gizmoCamera, out scale, out center, out orientation);
             
             // Calculate the gizmo matrix.
             Matrix transformationMatrix = Matrix.CreateScale(scale);
@@ -475,7 +447,7 @@ namespace XNAFinalEngine.Editor
             else
                 planeColor = Color.Gray;
 
-            Vector3 screenPositions = EngineManager.Device.Viewport.Project(vertices[0], GizmoCamera.Camera.ProjectionMatrix, GizmoCamera.Camera.ViewMatrix, Matrix.Identity);
+            Vector3 screenPositions = EngineManager.Device.Viewport.Project(vertices[0], gizmoCamera.Camera.ProjectionMatrix, gizmoCamera.Camera.ViewMatrix, Matrix.Identity);
             planeAll.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), planeColor);
             planeAll.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), planeColor);
             planeAll.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), planeColor);

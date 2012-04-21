@@ -243,7 +243,6 @@ namespace XNAFinalEngine.UserInterface.Central
             lstMain.Width = ClientWidth - lstMain.Left - 8;
             lstMain.Items.AddRange(colors);
             
-
             prgMain = new ProgressBar
             {
                 Parent = BottomPanel,
@@ -285,8 +284,9 @@ namespace XNAFinalEngine.UserInterface.Central
             mnuMain.Items.Add(i13);
             mnuMain.Items.Add(i3);
             mnuMain.Items.Add(i4);
-            //Add(mnuMain);
 
+            MainMenu = mnuMain;
+            
             ToolBarPanel tlp = new ToolBarPanel();
             ToolBarPanel = tlp;
 
@@ -303,7 +303,7 @@ namespace XNAFinalEngine.UserInterface.Central
             tlb.FullRow = true;
             tlbx.Row = 1;
             tlbx.FullRow = false;
-
+            
             StatusBar stb = new StatusBar();
             StatusBar = stb;
             Label t = new Label
@@ -321,6 +321,8 @@ namespace XNAFinalEngine.UserInterface.Central
 
             SkinChanged += TaskControls_SkinChanged;
             TaskControls_SkinChanged(null, null);
+
+            
         }
 
 

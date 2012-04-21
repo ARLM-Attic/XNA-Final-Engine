@@ -36,6 +36,7 @@ namespace XNAFinalEngine.UserInterface
         private readonly ScrollBar scrollBarVertical;
         private readonly ScrollBar scrollBarHorizontal;
         private ToolBarPanel toolBarPanel;
+        private MainMenu mainMenu;
         private StatusBar statusBar;
 
         /// <summary>
@@ -99,6 +100,30 @@ namespace XNAFinalEngine.UserInterface
         /// Auto Scroll?
         /// </summary>
         public virtual bool AutoScroll { get; set; }
+
+        /// <summary>
+        /// Control's Main Menu.
+        /// </summary>
+        public virtual MainMenu MainMenu
+        {
+            get { return mainMenu; }
+            set
+            {
+                if (mainMenu != null)
+                {
+                    mainMenu.Resize -= Bars_Resize;
+                    Remove(mainMenu);
+                }
+                mainMenu = value;
+
+                if (mainMenu != null)
+                {
+                    Add(mainMenu, false);
+                    mainMenu.Resize += Bars_Resize;
+                }
+                AdjustMargins();
+            }
+        } // MainMenu
 
         /// <summary>
         /// Control's Tool Bar Panel.
@@ -207,6 +232,15 @@ namespace XNAFinalEngine.UserInterface
                 m = ClientMargins;
             }
 
+            if (mainMenu != null && mainMenu.Visible)
+            {
+                mainMenu.Left = m.Left;
+                mainMenu.Top = m.Top;
+                mainMenu.Width = Width - m.Horizontal;
+                mainMenu.Anchor = Anchors.Left | Anchors.Top | Anchors.Right;
+
+                m.Top += mainMenu.Height;
+            }
             if (toolBarPanel != null && toolBarPanel.Visible)
             {
                 toolBarPanel.Left = m.Left;

@@ -29,14 +29,16 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Components;
+using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.Editor
 {
     /// <summary>
-    /// 
+    /// Base class for gizmos.
     /// </summary>
     internal abstract class Gizmo
     {
@@ -67,7 +69,16 @@ namespace XNAFinalEngine.Editor
         
         // The selected object.
         // If there are more then the first is used to place the gizmo.
-        protected static GameObject selectedObject;
+        protected static GameObject3D selectedObject;
+
+        // The selected object.
+        // If there are more then the first is used to place the gizmo.
+        protected static List<GameObject3D> selectedObjects;
+
+        protected static List<Matrix> selectedObjectsLocalMatrix;
+        
+        // The camera used for render the gizmo.
+        protected GameObject3D gizmoCamera;
         
         // Indicates what axis is selected.
         protected static bool redAxisSelected,
@@ -77,27 +88,17 @@ namespace XNAFinalEngine.Editor
         // Auxiliary structure.
         protected static Vector3[] vertices = new Vector3[7];
 
+        // Picker to select gizmo axis.
         protected static Picker picker;
-        
-        // Indica en que proporcion el moviemiento del mouse vertical o horizontal afecta el movimiento del manipulador.
-        protected static Vector2 transformationAmount;
-        
-        // Indica si el manipulador efectivamente movio al objeto.
-        protected static bool produceTransformation;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Indicates if the current gizmo is active or not.
+        /// Indicates if a gizmo is being manipulated or not.
         /// </summary>
         public static bool Active { get; protected set; }
-
-        /// <summary>
-        /// The camera used for render the gizmos.
-        /// </summary>
-        internal static GameObject3D GizmoCamera { get; set; }
 
         /// <summary>
         /// Local or World Space.
@@ -106,32 +107,76 @@ namespace XNAFinalEngine.Editor
 
         #endregion
 
-        #region Gizmo Center And Orientation
+        #region Gizmo Scale Center Orientation
 
         /// <summary>
-        ///  Calculate the center and orientation of the gizmo. 
+        /// Calculate the center, scale and orientation of the gizmo.
         /// </summary>
-        protected static void GizmoCenterAndOrientation(out Vector3 center, out Quaternion orientation)
+        protected static void GizmoScaleCenterOrientation(GameObject3D selectedObject, GameObject3D gizmoCamera, out float scale, out Vector3 center, out Quaternion orientation)
         {
             center = Vector3.Zero;
             orientation = new Quaternion();
             if (Space == SpaceMode.Local)
             {
-                if (selectedObject is GameObject3D && ((GameObject3D)selectedObject).ModelRenderer != null)
+                // Model
+                if (selectedObject.ModelRenderer != null)
                 {
-                    center = ((GameObject3D)selectedObject).ModelRenderer.BoundingSphere.Center;
-                    orientation = ((GameObject3D)selectedObject).Transform.LocalRotation;
+                    center = selectedObject.ModelRenderer.BoundingSphere.Center;
+                    orientation = selectedObject.Transform.LocalRotation;
                 }
             }
             else
             {
-                if (selectedObject is GameObject3D && ((GameObject3D)selectedObject).ModelRenderer != null)
+                // Model
+                if (selectedObject.ModelRenderer != null)
                 {
-                    center = ((GameObject3D)selectedObject).ModelRenderer.BoundingSphere.Center;
+                    center = selectedObject.ModelRenderer.BoundingSphere.Center;
                     orientation = Quaternion.CreateFromRotationMatrix(Matrix.Identity);
                 }
             }
-        } // GizmoCenterAndOrientation
+
+            // Calculate the distance from the object to camera position.
+            Vector3 cameraToCenter = gizmoCamera.Camera.Position - center;
+            float distanceToCamera = cameraToCenter.Length();
+            scale = distanceToCamera / 14; // Arbitrary number.
+        } // GizmoScaleCenterOrientation
+
+        #endregion
+
+        #region Calculate 2D Mouse Direction
+
+        /// <summary>
+        /// Calculate how the mouse movement will affect the transformation amount.
+        /// </summary>
+        /// <param name="gizmoCamera">The camera.</param>
+        /// <param name="direction">The direction indicates the axis.</param>
+        /// <param name="transformationAmount">This value will be multiplied by the mouse position to calculate the transformation amount.</param>
+        protected static void Calculate2DMouseDirection(GameObject3D gizmoCamera, Vector3 direction, out Vector2 transformationAmount)
+        {
+            // Calculate the center, scale and orientation of the gizmo.
+            Vector3 center;
+            Quaternion orientation;
+            float scale;
+            GizmoScaleCenterOrientation(selectedObject, gizmoCamera, out scale, out center, out orientation);
+
+            // Calculate the gizmo matrix.
+            Matrix transformationMatrix = Matrix.CreateScale(scale);
+            transformationMatrix *= Matrix.CreateFromQuaternion(orientation);
+            transformationMatrix *= Matrix.CreateTranslation(center);
+
+            // Calculate the direction of movement for every possible combination.
+            vertices[0] = Vector3.Transform(new Vector3(0, 0, 0), transformationMatrix);
+            vertices[1] = Vector3.Transform(direction, transformationMatrix);
+
+            Vector3[] screenPositions = new Vector3[2];
+            screenPositions[0] = EngineManager.Device.Viewport.Project(vertices[0], gizmoCamera.Camera.ProjectionMatrix, gizmoCamera.Camera.ViewMatrix, Matrix.Identity);
+            screenPositions[1] = EngineManager.Device.Viewport.Project(vertices[1], gizmoCamera.Camera.ProjectionMatrix, gizmoCamera.Camera.ViewMatrix, Matrix.Identity);
+
+            Vector3 aux = screenPositions[1] - screenPositions[0];
+            transformationAmount.X = aux.X / aux.Length();
+            transformationAmount.Y = aux.Y / aux.Length();
+
+        } // Calculate2DMouseDirection
 
         #endregion
 

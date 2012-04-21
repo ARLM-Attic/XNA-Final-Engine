@@ -28,7 +28,8 @@ namespace XNAFinalEngine.UserInterface
         #region Properties
 
         /// <summary>
-        /// Top panel. Stores the caption and description.
+        /// Top panel. 
+        /// It also stores the caption and description.
         /// </summary>
         public Panel TopPanel { get; private set; }
 
