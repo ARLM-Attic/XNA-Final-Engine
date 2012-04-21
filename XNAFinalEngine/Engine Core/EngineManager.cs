@@ -153,6 +153,10 @@ namespace XNAFinalEngine.EngineCore
             
             Window.Title = mainSettings.WindowName;
             Window.AllowUserResizing = mainSettings.ChangeWindowSize;
+
+            #if (WINDOWS)
+                Control.FromHandle(Window.Handle).MinimumSize = new System.Drawing.Size(64, 64);
+            #endif
             
             IsMouseVisible = mainSettings.IsMouseVisible;
 

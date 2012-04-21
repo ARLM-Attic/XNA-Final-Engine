@@ -76,7 +76,7 @@ namespace XNAFinalEngine.UserInterface
         {
             spriteBatch.Begin(SpriteSortMode.Immediate,
                               BlendState.AlphaBlend,
-                              SamplerState.LinearClamp,
+                              SamplerState.PointClamp,
                               DepthStencilState.None,
                               rasterizerState);
         } // Begin
@@ -381,7 +381,8 @@ namespace XNAFinalEngine.UserInterface
                 }
             }
 
-            if (control.Color != Control.UndefinedColor) color = control.Color * (control.Color.A / 255f);
+            if (control.Color != Control.UndefinedColor) 
+                color = control.Color * (control.Color.A / 255f);
             DrawLayer(layer, rect, color, index);
 
             if (overlayIndex != -1)

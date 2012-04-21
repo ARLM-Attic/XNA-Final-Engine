@@ -24,6 +24,8 @@ using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
+using Screen = XNAFinalEngine.EngineCore.Screen;
+
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -116,6 +118,9 @@ namespace XNAFinalEngine.UserInterface
 
         // Used to call the update and render method in the correct order without explicit calls.
         private static GameObject userInterfaceGameObject;
+
+        // Used to generate the resize event.
+        private static int oldScreenWidth, oldScreenHeight;
 
         #endregion
 
@@ -270,6 +275,11 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public static event WindowClosingEventHandler WindowClosing;
 
+        /// <summary>
+        /// Occurs with the window change its size.
+        /// </summary>
+        public static event ResizeEventHandler WindowResize;
+
         #endregion
 
         #region Initialize
@@ -306,37 +316,41 @@ namespace XNAFinalEngine.UserInterface
                 states.Click = -1;
                 states.Over = null;
 
+                // Input events
                 InputSystem = new Input();
-
                 InputSystem.MouseDown  += MouseDownProcess;
                 InputSystem.MouseUp    += MouseUpProcess;
                 InputSystem.MousePress += MousePressProcess;
                 InputSystem.MouseMove  += MouseMoveProcess;
-
                 InputSystem.KeyDown    += KeyDownProcess;
                 InputSystem.KeyUp      += KeyUpProcess;
                 InputSystem.KeyPress   += KeyPressProcess;
 
+                // Final render target.
                 renderTarget = new RenderTarget(Helpers.Size.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing)
                 {
                     Name = "User Interface Render Target"
                 };
 
+                // Init User Interface Renderer.
+                Renderer.Init();
+
+                // Set Default skin.
+                SetSkin("Default");
+
+                // Window resize.
+                oldScreenWidth = Screen.Width;
+                oldScreenHeight = Screen.Height;
+                Screen.ScreenSizeChanged += OnScreenSizeChanged;
+
+                // To automatically update and render.
                 userInterfaceGameObject = new GameObject2D();
                 userInterfaceGameObject.AddComponent<ScripUserInterface>();
             }
             catch (Exception e)
             {
-
                 throw new InvalidOperationException("User Interface Manager: Error occurred during initialization. Was the engine started?", e);
             }
-
-            // Init User Interface Renderer.
-            Renderer.Init();
-            
-            // Set Default skin.
-            SetSkin("Default");
-
         } // Initialize
 
         #endregion
@@ -351,6 +365,23 @@ namespace XNAFinalEngine.UserInterface
             if (DeviceSettingsChanged != null)
                 DeviceSettingsChanged.Invoke(new DeviceEventArgs(e));
         } // OnPrepareGraphicsDevice
+
+        #endregion
+
+        #region On Screen Size Changed
+
+        /// <summary>
+        /// Raised when the window size changes.
+        /// </summary>
+        private static void OnScreenSizeChanged(object sender, System.EventArgs e)
+        {
+            if (WindowResize != null)
+                WindowResize.Invoke(null, new ResizeEventArgs(EngineManager.Device.PresentationParameters.BackBufferWidth,
+                                                              EngineManager.Device.PresentationParameters.BackBufferHeight,
+                                                              oldScreenWidth, oldScreenHeight));
+            oldScreenWidth = EngineManager.Device.PresentationParameters.BackBufferWidth;
+            oldScreenHeight = EngineManager.Device.PresentationParameters.BackBufferHeight;
+        } // OnScreenSizeChanged
 
         #endregion
 
@@ -447,7 +478,7 @@ namespace XNAFinalEngine.UserInterface
         /// Brings the control to the front (z-order).
         /// </summary>
         /// <param name="control">The control being brought to the front.</param>
-        public static void BringToFront(Control control)
+        internal static void BringToFront(Control control)
         {
             if (control != null && !control.StayOnBack)
             {
@@ -480,7 +511,7 @@ namespace XNAFinalEngine.UserInterface
         /// Sends the control to the back (z-order).
         /// </summary>
         /// <param name="control">The control being sent back.</param>
-        public static void SendToBack(Control control)
+        internal static void SendToBack(Control control)
         {
             if (control != null && !control.StayOnTop)
             {
@@ -580,6 +611,7 @@ namespace XNAFinalEngine.UserInterface
                     DeviceSettingsChanged += control.OnDeviceSettingsChanged;
                     SkinChanging += control.OnSkinChanging;
                     SkinChanged += control.OnSkinChanged;
+                    WindowResize += control.OnParentResize;
                 }
             }
         } // Add
@@ -595,6 +627,7 @@ namespace XNAFinalEngine.UserInterface
                 SkinChanging -= control.OnSkinChanging;
                 SkinChanged -= control.OnSkinChanged;
                 DeviceSettingsChanged -= control.OnDeviceSettingsChanged;
+                WindowResize -= control.OnParentResize;
                 if (control.Focused) 
                     control.Focused = false;
                 RootControls.Remove(control);

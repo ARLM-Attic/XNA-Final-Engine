@@ -76,7 +76,6 @@ namespace XNAFinalEngine.UserInterface
                 {
                     if (DefaultControl != null)
                         DefaultControl.Focused = true;
-
                 }
                 base.Visible = value;
             }
@@ -102,7 +101,7 @@ namespace XNAFinalEngine.UserInterface
         public virtual bool AutoScroll { get; set; }
 
         /// <summary>
-        /// Control's Main Menu.
+        /// If we want to add a menu, this is the place.
         /// </summary>
         public virtual MainMenu MainMenu
         {
@@ -126,7 +125,7 @@ namespace XNAFinalEngine.UserInterface
         } // MainMenu
 
         /// <summary>
-        /// Control's Tool Bar Panel.
+        /// If we want to add a tool bar panel, this is the place.
         /// </summary>
         public virtual ToolBarPanel ToolBarPanel
         {
@@ -154,17 +153,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual StatusBar StatusBar
         {
-            get
-            {
-                if (statusBar == null)
-                {
-                    statusBar = new StatusBar();
-                    Add(statusBar, false);
-                    statusBar.Resize += Bars_Resize;
-                    AdjustMargins();
-                }
-                return statusBar;
-            }
+            get { return statusBar; }
             set
             {
                 if (statusBar != null)
@@ -225,13 +214,14 @@ namespace XNAFinalEngine.UserInterface
 
         protected override void AdjustMargins()
         {
+            // We get the size of the client area.
             Margins m = SkinInformation.ClientMargins;
 
             if (GetType() != typeof(Container))
             {
                 m = ClientMargins;
             }
-
+            // We add space to the menu in the client area is there is one.
             if (mainMenu != null && mainMenu.Visible)
             {
                 mainMenu.Left = m.Left;
@@ -241,6 +231,7 @@ namespace XNAFinalEngine.UserInterface
 
                 m.Top += mainMenu.Height;
             }
+            // We add space to the tool bar panel in the client area is there is one.
             if (toolBarPanel != null && toolBarPanel.Visible)
             {
                 toolBarPanel.Left = m.Left;
@@ -250,6 +241,7 @@ namespace XNAFinalEngine.UserInterface
 
                 m.Top += toolBarPanel.Height;
             }
+            // We add space to the status bar panel in the client area is there is one.
             if (statusBar != null && statusBar.Visible)
             {
                 statusBar.Left = m.Left;
@@ -259,6 +251,7 @@ namespace XNAFinalEngine.UserInterface
 
                 m.Bottom += statusBar.Height;
             }
+            // We do the same for the scroll bars.
             if (scrollBarVertical != null) // The null check is for property assigment in the new sentence.
             {
                 if (scrollBarVertical.Visible) 
@@ -270,6 +263,7 @@ namespace XNAFinalEngine.UserInterface
                     m.Bottom += (scrollBarHorizontal.Height + 2);
                 }
             }
+            // Update client margins
             ClientMargins = m;
 
             PositionScrollBars();

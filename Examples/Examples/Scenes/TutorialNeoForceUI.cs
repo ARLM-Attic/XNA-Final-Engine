@@ -152,14 +152,33 @@ namespace XNAFinalEngineExamples
 
         private void InitControls()
         {
+            Container canvas = new Container();
+            canvas.Top = 0;
+            canvas.Left = 0;
+            canvas.Width = Screen.Width;
+            canvas.Height = Screen.Height;
+            canvas.Anchor = Anchors.All;
+            canvas.AutoScroll = false;
+            canvas.BackgroundColor = Color.Transparent;
+
             sidebar = new Panel
             {
                 StayOnBack = true,
                 Passive = true,
                 Width = 200,
                 Height = Screen.Height,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Bottom
+                Anchor = Anchors.Left | Anchors.Top | Anchors.Bottom,
+                Parent = canvas,
             };
+
+            MainMenu mnuMain = new MainMenu { Width = Screen.Width, Anchor = Anchors.Left | Anchors.Top };
+
+            /*mnuMain.Items.Add(i2);
+            mnuMain.Items.Add(i13);
+            mnuMain.Items.Add(i3);
+            mnuMain.Items.Add(i4);*/
+
+            canvas.MainMenu = mnuMain;
 
             InitRes();
             InitTasks();

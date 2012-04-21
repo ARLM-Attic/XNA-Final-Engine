@@ -963,7 +963,8 @@ namespace XNAFinalEngine.UserInterface
             {
                 text = value;
                 Invalidate();
-                if (!Suspended) OnTextChanged(new EventArgs());
+                if (!Suspended) 
+                    OnTextChanged(new EventArgs());
             }
         } // Text
 
@@ -972,14 +973,12 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual byte Alpha
         {
-            get
-            {
-                return alpha;
-            }
+            get { return alpha; }
             set
             {
                 alpha = value;
-                if (!Suspended) OnAlphaChanged(new EventArgs());
+                if (!Suspended) 
+                    OnAlphaChanged(new EventArgs());
             }
         } // Alpha
 
@@ -988,15 +987,13 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual Color BackgroundColor
         {
-            get
-            {
-                return backgroundColor;
-            }
+            get { return backgroundColor; }
             set
             {
                 backgroundColor = value;
                 Invalidate();
-                if (!Suspended) OnBackColorChanged(new EventArgs());
+                if (!Suspended) 
+                    OnBackColorChanged(new EventArgs());
             }
         } // BackgroundColor
 
@@ -1005,17 +1002,15 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual Color Color
         {
-            get
-            {
-                return color;
-            }
+            get { return color; }
             set
             {
                 if (value != color)
                 {
                     color = value;
                     Invalidate();
-                    if (!Suspended) OnColorChanged(new EventArgs());
+                    if (!Suspended) 
+                        OnColorChanged(new EventArgs());
                 }
             }
         } // Color
@@ -1025,10 +1020,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual Color TextColor
         {
-            get
-            {
-                return textColor;
-            }
+            get { return textColor; }
             set
             {
                 if (value != textColor)
@@ -1045,10 +1037,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual bool Enabled
         {
-            get
-            {
-                return enabled;
-            }
+            get { return enabled; }
             set
             {
                 if (Root != null && Root != this && !Root.Enabled && value) 
@@ -1069,10 +1058,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual bool Visible
         {
-            get
-            {
-                return (visible && (parent == null || parent.Visible));
-            }
+            get { return (visible && (parent == null || parent.Visible)); }
             set
             {
                 visible = value;
@@ -1431,7 +1417,7 @@ namespace XNAFinalEngine.UserInterface
                 if (renderTarget != null)
                 {
                     renderTarget.EnableRenderTarget();
-                    renderTarget.Clear(backgroundColor); // Transparent.
+                    renderTarget.Clear(backgroundColor);
 
                     Rectangle rect = new Rectangle(0, 0, ControlAndMarginsWidth, ControlAndMarginsHeight);
                 
@@ -1630,7 +1616,7 @@ namespace XNAFinalEngine.UserInterface
         {
             if (backgroundColor != UndefinedColor && backgroundColor != Color.Transparent)
             {
-                Renderer.Draw(Skin.Images["Control"].Texture.Resource, rect, backgroundColor);
+               Renderer.Draw(Skin.Images["Control"].Texture.Resource, rect, backgroundColor);
             }
             Renderer.DrawLayer(this, skinControl.Layers[0], rect);
         } // DrawControl
@@ -2282,15 +2268,28 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private void ProcessAnchor(ResizeEventArgs e)
         {
+            int parentVirtualWidth, parentVirtualHeight;
+            // If the user Interface is the father...
+            if (Parent == null)
+            {
+                parentVirtualWidth = Screen.Width;
+                parentVirtualHeight = Screen.Height;
+            }
+            else // If it is a control...
+            {
+                parentVirtualWidth = Parent.VirtualWidth;
+                parentVirtualHeight = Parent.VirtualHeight;
+            }
+
             // Right (but not left)
             if (((Anchor & Anchors.Right) == Anchors.Right) && ((Anchor & Anchors.Left) != Anchors.Left))
             {
-                Left = Parent.VirtualWidth - Width - anchorMargins.Right;
+                Left = parentVirtualWidth - Width - anchorMargins.Right;
             }
             // Left and Right
             else if (((Anchor & Anchors.Right) == Anchors.Right) && ((Anchor & Anchors.Left) == Anchors.Left))
             {
-                Width = Parent.VirtualWidth - Left - anchorMargins.Right;
+                Width = parentVirtualWidth - Left - anchorMargins.Right;
             }
             // No left nor right
             else if (((Anchor & Anchors.Right) != Anchors.Right) && ((Anchor & Anchors.Left) != Anchors.Left))
@@ -2305,12 +2304,12 @@ namespace XNAFinalEngine.UserInterface
             // Bottom (but not top)
             if (((Anchor & Anchors.Bottom) == Anchors.Bottom) && ((Anchor & Anchors.Top) != Anchors.Top))
             {
-                Top = Parent.VirtualHeight - Height - anchorMargins.Bottom;
+                Top = parentVirtualHeight - Height - anchorMargins.Bottom;
             }
-            // Bittom and top
+            // Bottom and top
             else if (((Anchor & Anchors.Bottom) == Anchors.Bottom) && ((Anchor & Anchors.Top) == Anchors.Top))
             {
-                Height = Parent.VirtualHeight - Top - anchorMargins.Bottom;
+                Height = parentVirtualHeight - Top - anchorMargins.Bottom;
             }
             // No bottom nor top
             else if (((Anchor & Anchors.Bottom) != Anchors.Bottom) && ((Anchor & Anchors.Top) != Anchors.Top))
@@ -2665,7 +2664,7 @@ namespace XNAFinalEngine.UserInterface
                 ResizeEnd.Invoke(this, e);
         } // OnResizeEnd
 
-        protected virtual void OnParentResize(object sender, ResizeEventArgs e)
+        internal virtual void OnParentResize(object sender, ResizeEventArgs e)
         {
             ProcessAnchor(e);
         } // OnParentResize
