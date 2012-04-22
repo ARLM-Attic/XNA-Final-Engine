@@ -887,11 +887,11 @@ namespace XNAFinalEngineExamples
                 TextureSize = Size.TextureSize.HalfSize,
                 Range = 50,
             };
-            /*
+            
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.DiffuseColor = new Color(250, 0, 180);
-            pointLight.PointLight.Intensity = 3f;
+            pointLight.PointLight.Intensity = 1f;
             pointLight.PointLight.Range = 100;
             pointLight.PointLight.SpecularColor = Color.White;
             pointLight.Transform.Position = new Vector3(-15, 50, 5);
@@ -899,7 +899,7 @@ namespace XNAFinalEngineExamples
             pointLight2 = new GameObject3D();
             pointLight2.AddComponent<PointLight>();
             pointLight2.PointLight.DiffuseColor = new Color(170, 150, 255);
-            pointLight2.PointLight.Intensity = 3f;
+            pointLight2.PointLight.Intensity = 1f;
             pointLight2.PointLight.Range = 100;
             pointLight2.PointLight.SpecularColor = Color.White;
             pointLight2.Transform.Position = new Vector3(25, 25, -15);
@@ -907,7 +907,7 @@ namespace XNAFinalEngineExamples
             pointLight3 = new GameObject3D();
             pointLight3.AddComponent<PointLight>();
             pointLight3.PointLight.DiffuseColor = new Color(70, 250, 55);
-            pointLight3.PointLight.Intensity = 3f;
+            pointLight3.PointLight.Intensity = 1f;
             pointLight3.PointLight.Range = 100;
             pointLight3.PointLight.SpecularColor = Color.White;
             pointLight3.Transform.Position = new Vector3(15f, 15, -20);
@@ -915,7 +915,7 @@ namespace XNAFinalEngineExamples
             pointLight4 = new GameObject3D();
             pointLight4.AddComponent<PointLight>();
             pointLight4.PointLight.DiffuseColor = new Color(150, 150, 150);
-            pointLight4.PointLight.Intensity = 3f;
+            pointLight4.PointLight.Intensity = 1f;
             pointLight4.PointLight.Range = 100; // I always forget to set the light range lower than the camera far plane.
             pointLight4.PointLight.SpecularColor = Color.White;
             pointLight4.Transform.Position = new Vector3(-20, -5, 20);
@@ -923,7 +923,7 @@ namespace XNAFinalEngineExamples
             pointLight5 = new GameObject3D();
             pointLight5.AddComponent<PointLight>();
             pointLight5.PointLight.DiffuseColor = new Color(220, 150, 155);
-            pointLight5.PointLight.Intensity = 35f;
+            pointLight5.PointLight.Intensity = 0.35f;
             pointLight5.PointLight.Range = 200;
             pointLight5.PointLight.SpecularColor = Color.White;
             pointLight5.Transform.Position = new Vector3(0f, 0.5f, -50);
@@ -935,15 +935,15 @@ namespace XNAFinalEngineExamples
             pointLight6.PointLight.Range = 150; // I always forget to set the light range lower than the camera far plane.
             pointLight6.PointLight.SpecularColor = Color.White;
             pointLight6.Transform.Position = new Vector3(0, -30f, -10);
-            *//*
+            /*
             pointLight7 = new GameObject3D();
             pointLight7.AddComponent<PointLight>();
             pointLight7.PointLight.DiffuseColor = Color.Green;// new Color(240, 200, 210);
             pointLight7.PointLight.Intensity = 200f;
             pointLight7.PointLight.Range = 50; // I always forget to set the light range lower than the camera far plane.
             pointLight7.PointLight.SpecularColor = Color.White;
-            pointLight7.Transform.Position = new Vector3(-15, 5f, -30);
-            */
+            pointLight7.Transform.Position = new Vector3(-15, 5f, -30);*/
+            
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
             spotLight.SpotLight.DiffuseColor = Color.Green;
@@ -973,10 +973,10 @@ namespace XNAFinalEngineExamples
             #endregion
 
             #region Statistics
-
+            /*
             statistics = new GameObject2D();
             statistics.AddComponent<ScriptStatisticsDrawer>();
-            GameLoop.ShowFramesPerSecond = true;
+            GameLoop.ShowFramesPerSecond = true;*/
 
             #endregion
 
@@ -1034,37 +1034,46 @@ namespace XNAFinalEngineExamples
             EditorManager.AddObject(murcielagoBlackPlastic);
             EditorManager.AddObject(murcielagoInteriorCostura);
             EditorManager.AddObject(murcielagoTablero);
-            
+            // Front Left Wheel
+            EditorManager.AddObject(murcielagoLP670FrontLeftRim);
+            EditorManager.AddObject(murcielagoLP640FrontLeftRimBase);
+            EditorManager.AddObject(murcielagoLP640FrontLeftRimBase02);
+            EditorManager.AddObject(murcielagoFrontLeftRimLogo);
+            EditorManager.AddObject(murcielagoFrontLeftBrakeDisc);
+            EditorManager.AddObject(murcielagoFrontLeftBrakeCaliper);
+            EditorManager.AddObject(murcielagoFrontLeftTyre);
+            EditorManager.AddObject(murcielagoFrontLeftTyre02);
+            EditorManager.AddObject(frontLeftRim);
             /*
-                                    // Left Door
-                                    murcielagoLeftDoorBody, murcielagoLeftDoorBlackMetal, murcielagoLeftDoorGrayMetal, murcielagoLeftDoorLeather,
-                                    murcielagoLeftDoorSpeakers,
-                                    // Right Door
-                                    murcielagoRightDoorBody, murcielagoRightDoorBlackMetal, murcielagoRightDoorGrayMetal, murcielagoRightDoorLeather,
-                                    murcielagoRightDoorSpeakers,
-                                    // Front Left Wheel
-                                    murcielagoLP670FrontLeftRim, murcielagoLP640FrontLeftRimBase, murcielagoLP640FrontLeftRimBase02,
-                                    murcielagoFrontLeftRimLogo, murcielagoFrontLeftBrakeDisc, murcielagoFrontLeftBrakeCaliper, murcielagoFrontLeftTyre,
-                                    murcielagoFrontLeftTyre02, frontLeftRim,
-                                    // Front Right Wheel
-                                    murcielagoLP670FrontRightRim, murcielagoLP640FrontRightRimBase, murcielagoLP640FrontRightRimBase02,
-                                    murcielagoFrontRightRimLogo, murcielagoFrontRightBrakeDisc, murcielagoFrontRightBrakeCaliper, murcielagoFrontRightTyre,
-                                    murcielagoFrontRightTyre02, frontRightRim,
-                                    // Rear Left Wheel
-                                    murcielagoLP670RearLeftRim, murcielagoLP640RearLeftRimBase, murcielagoLP640RearLeftRimBase02,
-                                    murcielagoRearLeftRimLogo, murcielagoRearLeftBrakeDisc, murcielagoRearLeftBrakeCaliper, murcielagoRearLeftTyre,
-                                    murcielagoRearLeftTyre02, rearLeftRim,
-                                    // Rear Right Wheel
-                                    murcielagoLP670RearRightRim, murcielagoLP640RearRightRimBase, murcielagoLP640RearRightRimBase02,
-                                    murcielagoRearRightRimLogo, murcielagoRearRightBrakeDisc, murcielagoRearRightBrakeCaliper, murcielagoRearRightTyre,
-                                    murcielagoRearRightTyre02, rearRightRim,
-                                    // Test floors
-                                    floor,
-                                    // Lights
-                                    directionalLight, pointLight, pointLight2, pointLight3, pointLight4, pointLight5, pointLight6, pointLight7, spotLight,
-                                    // Cameras
-                                    camera, camera2,
-                                    skydome;*/
+            // Left Door
+            murcielagoLeftDoorBody, murcielagoLeftDoorBlackMetal, murcielagoLeftDoorGrayMetal, murcielagoLeftDoorLeather,
+            murcielagoLeftDoorSpeakers,
+            // Right Door
+            murcielagoRightDoorBody, murcielagoRightDoorBlackMetal, murcielagoRightDoorGrayMetal, murcielagoRightDoorLeather,
+            murcielagoRightDoorSpeakers,
+                                    
+                                    
+            // Front Right Wheel
+            murcielagoLP670FrontRightRim, murcielagoLP640FrontRightRimBase, murcielagoLP640FrontRightRimBase02,
+            murcielagoFrontRightRimLogo, murcielagoFrontRightBrakeDisc, murcielagoFrontRightBrakeCaliper, murcielagoFrontRightTyre,
+            murcielagoFrontRightTyre02, frontRightRim,
+            // Rear Left Wheel
+            murcielagoLP670RearLeftRim, murcielagoLP640RearLeftRimBase, murcielagoLP640RearLeftRimBase02,
+            murcielagoRearLeftRimLogo, murcielagoRearLeftBrakeDisc, murcielagoRearLeftBrakeCaliper, murcielagoRearLeftTyre,
+            murcielagoRearLeftTyre02, rearLeftRim,
+            // Rear Right Wheel
+            murcielagoLP670RearRightRim, murcielagoLP640RearRightRimBase, murcielagoLP640RearRightRimBase02,
+            murcielagoRearRightRimLogo, murcielagoRearRightBrakeDisc, murcielagoRearRightBrakeCaliper, murcielagoRearRightTyre,
+            murcielagoRearRightTyre02, rearRightRim,
+            // Test floors
+            floor,
+            // Lights
+            directionalLight, pointLight, pointLight2, pointLight3, pointLight4, pointLight5, pointLight6, pointLight7, spotLight,
+            // Cameras
+            camera, camera2,
+            skydome;*/
+
+            EnableEditorMode(camera);
             
         } // Load
 

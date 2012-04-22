@@ -804,10 +804,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual bool Focused
         {
-            get
-            {
-                return (UserInterfaceManager.FocusedControl == this);
-            }
+            get { return (UserInterfaceManager.FocusedControl == this); }
             set
             {
                 Invalidate();
@@ -1618,7 +1615,10 @@ namespace XNAFinalEngine.UserInterface
             {
                Renderer.Draw(Skin.Images["Control"].Texture.Resource, rect, backgroundColor);
             }
-            Renderer.DrawLayer(this, skinControl.Layers[0], rect);
+            // This is a little concession that I did.
+            // If the control is a container then it is not renderer, except its children.
+            if (Utilities.ControlTypeName(this) != "Container")
+                Renderer.DrawLayer(this, skinControl.Layers[0], rect);
         } // DrawControl
 
         /// <summary>
@@ -1978,20 +1978,25 @@ namespace XNAFinalEngine.UserInterface
                     pressDiff[3] = Height - pressSpot.Y;
 
                     IsResizing = true;
-                    if (outlineResizing) OutlineRectangle = ControlRectangleRelativeToParent;
-                    if (!Suspended) OnResizeBegin(e);
+                    if (outlineResizing) 
+                        OutlineRectangle = ControlRectangleRelativeToParent;
+                    if (!Suspended) 
+                        OnResizeBegin(e);
                 }
                 else if (CheckMovableArea(e.Position))
                 {
                     IsMoving = true;
-                    if (outlineMoving) OutlineRectangle = ControlRectangleRelativeToParent;
-                    if (!Suspended) OnMoveBegin(e);
+                    if (outlineMoving) 
+                        OutlineRectangle = ControlRectangleRelativeToParent;
+                    if (!Suspended) 
+                        OnMoveBegin(e);
                 }
             }
 
             ToolTipOut();
 
-            if (!Suspended) OnMouseDown(TransformPosition(e));
+            if (!Suspended) 
+                OnMouseDown(TransformPosition(e));
         } // MouseDownProcess
 
         /// <summary>

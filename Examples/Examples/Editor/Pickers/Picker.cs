@@ -91,7 +91,7 @@ namespace XNAFinalEngine.Editor
             objectsToPick = new List<GameObject>();
             // No antialiasing because the colors can change.
             pickerTexture = new RenderTarget(size);
-            constantShader = new Shader("Materials\\Constant");
+            constantShader = new Shader("Materials\\PickerConstant");
         } // Picker
 
         #endregion

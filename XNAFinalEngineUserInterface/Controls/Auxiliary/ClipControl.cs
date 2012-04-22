@@ -12,8 +12,6 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
-using Microsoft.Xna.Framework;
-
 namespace XNAFinalEngine.UserInterface
 {
 

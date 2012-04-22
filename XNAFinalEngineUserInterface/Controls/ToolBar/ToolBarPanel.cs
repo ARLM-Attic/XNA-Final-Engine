@@ -54,28 +54,30 @@ namespace XNAFinalEngine.UserInterface
 
         private void AlignBars()
         {
-            int[] rx = new int[8];
-            int h = 0;
-            int rm = -1;
+            int[] rowOffset = new int[8];
+            int height = 0;
+            int rowMax = -1;
 
-            foreach (Control c in ChildrenControls)
+            foreach (Control childControl in ChildrenControls)
             {
-                if (c is ToolBar)
+                if (childControl is ToolBar)
                 {
-                    ToolBar t = c as ToolBar;
-                    if (t.FullRow) t.Width = Width;
-                    t.Left = rx[t.Row];
-                    t.Top = (t.Row * t.Height) + (t.Row > 0 ? 1 : 0);
-                    rx[t.Row] += t.Width + 1;
+                    ToolBar toolBar = childControl as ToolBar;
+                    if (toolBar.FullRow)
+                        toolBar.Width = Width;
 
-                    if (t.Row > rm)
+                    toolBar.Left = rowOffset[toolBar.Row];
+                    toolBar.Top = (toolBar.Row * toolBar.Height) + (toolBar.Row > 0 ? 1 : 0);
+                    rowOffset[toolBar.Row] += toolBar.Width + 1;
+
+                    if (toolBar.Row > rowMax)
                     {
-                        rm = t.Row;
-                        h = t.Top + t.Height + 1;
+                        rowMax = toolBar.Row;
+                        height = toolBar.Top + toolBar.Height + 1;
                     }
                 }
             }
-            Height = h;
+            Height = height;
         } // AlignBars
 
         #endregion

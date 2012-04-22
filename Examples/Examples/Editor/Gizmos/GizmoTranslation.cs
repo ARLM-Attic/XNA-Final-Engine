@@ -92,9 +92,9 @@ namespace XNAFinalEngine.Editor
             lines = new GameObject3D { Layer = Layer.GetLayerByNumber(31), };
             lines.AddComponent<LineRenderer>();
             lines.LineRenderer.Vertices = new VertexPositionColor[6];
-            planeRedGreen = new GameObject3D(null, new Constant { DiffuseColor = new Color(255, 255, 0) }) { Layer = Layer.GetLayerByNumber(31), }; ;
-            planeGreenBlue = new GameObject3D(null, new Constant { DiffuseColor = new Color(0, 255, 255) }) { Layer = Layer.GetLayerByNumber(31), }; ;
-            planeBlueRed = new GameObject3D(null, new Constant { DiffuseColor = new Color(255, 0, 255) }) { Layer = Layer.GetLayerByNumber(31), }; ;
+            planeRedGreen = new GameObject3D(null, new Constant { DiffuseColor = new Color(255, 255, 0) }) { Layer = Layer.GetLayerByNumber(31), };
+            planeGreenBlue = new GameObject3D(null, new Constant { DiffuseColor = new Color(0, 255, 255) }) { Layer = Layer.GetLayerByNumber(31), };
+            planeBlueRed = new GameObject3D(null, new Constant { DiffuseColor = new Color(255, 0, 255) }) { Layer = Layer.GetLayerByNumber(31), };
             planeAll = new GameObject2D { Layer = Layer.GetLayerByNumber(31), };
             planeAll.AddComponent<LineRenderer>();
             planeAll.LineRenderer.Vertices = new VertexPositionColor[8];

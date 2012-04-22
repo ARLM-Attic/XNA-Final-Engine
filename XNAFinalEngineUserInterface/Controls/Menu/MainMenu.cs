@@ -144,13 +144,14 @@ namespace XNAFinalEngine.UserInterface
                     {
                         if (i >= 0 && i != ItemIndex)
                         {
-                            Items[i].SelectedInvoke(new EventArgs());
+                            Items[i].OnSelected(new EventArgs());
                         }
                         ItemIndex = i;
                         return;
                     }
                 }
-                if (ChildMenu == null) ItemIndex = -1;
+                if (ChildMenu == null)
+                    ItemIndex = -1;
             }
         } // TrackItem
 
@@ -227,7 +228,7 @@ namespace XNAFinalEngine.UserInterface
                     {
                         if (ItemIndex >= 0)
                         {
-                            Items[ItemIndex].ClickInvoke(ex);
+                            Items[ItemIndex].OnClick(ex);
                         }
                     }
                 }

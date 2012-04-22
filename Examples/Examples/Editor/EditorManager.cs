@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Components;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.UserInterface;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Mouse = XNAFinalEngine.Input.Mouse;
@@ -213,6 +214,77 @@ namespace XNAFinalEngine.Editor
             selectionRectangleBackground.LineRenderer.Vertices = new VertexPositionColor[6];
             selectionRectangleBackground.LineRenderer.Visible = false;
             selectionRectangleBackground.Layer = Layer.GetLayerByNumber(31);
+
+            #endregion
+
+            #region User Interface Controls
+
+            #region Canvas
+
+            // The canvas cover the whole window. I will place the static controls there.
+            // I don’t place the controls directly to the manager to allow having some functionality
+            // provided by the canvas like the automatic placing of menu items, status bar, etc.
+            Container canvas = new Container
+            {
+                Top = 0,
+                Left = 0,
+                Width = Screen.Width,
+                Height = Screen.Height,
+                Anchor = Anchors.All,
+                AutoScroll = false,
+                BackgroundColor = Color.Transparent,
+                StayOnBack = true,
+                Passive = true
+            };
+
+            #endregion
+
+            #region Main Menu
+
+            canvas.MainMenu = new MainMenu { Width = Screen.Width, Anchor = Anchors.Left | Anchors.Top };
+            MenuItem menuItemFile = new MenuItem("File", true);
+            canvas.MainMenu.Items.Add(menuItemFile);
+            menuItemFile.ChildrenItems.AddRange(new[] { new MenuItem("New Scene"), new MenuItem("Open Scene"), new MenuItem("Exit", true) });
+            MenuItem menuItemEdit = new MenuItem("Edit", true);
+            canvas.MainMenu.Items.Add(menuItemEdit);
+            menuItemEdit.ChildrenItems.AddRange(new[] { new MenuItem("Undo"), new MenuItem("Redo") });
+
+            #endregion
+
+            #region Top Panel
+
+            ToolBarPanel topPanel = new ToolBarPanel();
+            canvas.ToolBarPanel = topPanel;
+
+            ToolBar toolBarTopPanel = new ToolBar
+            {
+                Parent = topPanel,
+                Movable = true,
+                FullRow = true
+            };
+            Button buttonSpace = new Button
+            {
+                Text = "Global",
+                Left = 10,
+                Top = 5,
+                Height = 15,
+                Parent = toolBarTopPanel
+            };
+            buttonSpace.Click += delegate
+            {
+                if (Gizmo.Space == Gizmo.SpaceMode.Local)
+                {
+                    Gizmo.Space = Gizmo.SpaceMode.Global;
+                    buttonSpace.Text = "Global";
+                }
+                else
+                {
+                    Gizmo.Space = Gizmo.SpaceMode.Local;
+                    buttonSpace.Text = "Local";
+                }
+            };
+
+            #endregion
 
             #endregion
 
@@ -400,7 +472,7 @@ namespace XNAFinalEngine.Editor
             // If no gizmo is active…
             if (activeGizmo == GizmoType.None)
             {
-
+                
                 #region Selection Rectangle
 
                 if (Mouse.LeftButtonPressed)
@@ -431,7 +503,7 @@ namespace XNAFinalEngine.Editor
                 }
 
                 #endregion
-
+                
                 #region Selection of objects
 
                 if (Mouse.LeftButtonJustReleased)
@@ -539,10 +611,12 @@ namespace XNAFinalEngine.Editor
                 }
 
                 #endregion
-
+                
             }
 
             #endregion
+
+            #region Gizmo Active
 
             if (activeGizmo != GizmoType.None && (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed) && !(Gizmo.Active))
             {
@@ -552,6 +626,8 @@ namespace XNAFinalEngine.Editor
                 }
                 activeGizmo = GizmoType.None;
             }
+
+            #endregion
 
             #region Activate Gizmo
 

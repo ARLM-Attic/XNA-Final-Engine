@@ -17,7 +17,6 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.EngineCore;
-
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -26,6 +25,9 @@ namespace XNAFinalEngine.UserInterface
     /// <summary>
     /// Context Menu. (right click over control)
     /// </summary>
+    /// <remarks>
+    /// Internally the context menu is also used to draw the main menu.
+    /// </remarks>
     public class ContextMenu : MenuBase
     {
 
@@ -51,7 +53,7 @@ namespace XNAFinalEngine.UserInterface
         {
             Visible = false;
             Detached = true;
-            StayOnBack = true;
+            StayOnTop = true;
 
             UserInterfaceManager.InputSystem.MouseDown += InputMouseDown;
         } // ContextMenu
@@ -245,7 +247,7 @@ namespace XNAFinalEngine.UserInterface
 
                         if (i >= 0 && i != ItemIndex)
                         {
-                            Items[i].SelectedInvoke(new EventArgs());
+                            Items[i].OnSelected(new EventArgs());
                         }
 
                         Focused = true;
@@ -333,7 +335,7 @@ namespace XNAFinalEngine.UserInterface
                     {
                         if (ItemIndex >= 0)
                         {
-                            Items[ItemIndex].ClickInvoke(ex);
+                            Items[ItemIndex].OnClick(ex);
                         }
                         if (RootMenu is ContextMenu) (RootMenu as ContextMenu).HideMenu(true);
                         else if (RootMenu is MainMenu)
@@ -467,6 +469,8 @@ namespace XNAFinalEngine.UserInterface
                 }
             }
 
+            // I do this to render over everything.
+            Parent = null;
             Focused = true;
         } // Show
 

@@ -50,8 +50,8 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public enum SpaceMode
         {
-            Local,
             Global,
+            Local,
         };
 
         #endregion
@@ -122,7 +122,7 @@ namespace XNAFinalEngine.Editor
                 if (selectedObject.ModelRenderer != null)
                 {
                     center = selectedObject.ModelRenderer.BoundingSphere.Center;
-                    orientation = selectedObject.Transform.LocalRotation;
+                    orientation = selectedObject.Transform.Rotation;
                 }
             }
             else

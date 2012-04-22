@@ -22,26 +22,18 @@ namespace XNAFinalEngine.UserInterface
 
     /// <summary>
     /// Menu Item.
+    /// This items are placed in the menu control.
     /// </summary>
     public class MenuItem
     {
 
         #region Variables
 
-        /// <summary>
-        /// Showing text.
-        /// </summary>
-        private string text = "MenuItem";
-
-        /// <summary>
-        /// Children Items.
-        /// </summary>
-        public List<MenuItem> childrenItems = new List<MenuItem>();
-
-        /// <summary>
-        /// Enabled?
-        /// </summary>
+        // Default values.
         private bool enabled = true;
+
+        // Children Items.
+        public List<MenuItem> childrenItems = new List<MenuItem>();
 
         #endregion
 
@@ -50,7 +42,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Showing text.
         /// </summary>
-        public string Text { get { return text; } set { text = value; } }
+        public string Text { get; set; }
 
         /// <summary>
         /// Icon that can be placed to the left of the text.
@@ -58,7 +50,7 @@ namespace XNAFinalEngine.UserInterface
         public Texture2D Icon { get; set; }
 
         /// <summary>
-        /// Separated?
+        /// A separeted item has a line over it.
         /// </summary>
         public bool Separated { get; set; }
 
@@ -78,22 +70,13 @@ namespace XNAFinalEngine.UserInterface
 
         /// <summary>
         /// Menu Item.
+        /// This items are placed in the menu control.
         /// </summary>
-        public MenuItem() { }
-
-        /// <summary>
-        /// Menu Item.
-        /// </summary>
-        public MenuItem(string text) : this()
+        /// <param name="text">Item name.</param>
+        /// <param name="separated">A separeted item has a line over it.</param>
+        public MenuItem(string text = "Menu Item", bool separated = false)
         {
             Text = text;
-        } // MenuItem
-
-        /// <summary>
-        /// Menu Item.
-        /// </summary>
-        public MenuItem(string text, bool separated) : this(text)
-        {
             Separated = separated;
         } // MenuItem
 
@@ -101,22 +84,31 @@ namespace XNAFinalEngine.UserInterface
 
         #region Events
 
+        /// <summary>
+        ///  Was the menu item clicked.
+        /// </summary>
         public event EventHandler Click;
+
+        /// <summary>
+        /// Was the menu item selected. I.e. is the mouse over the item.
+        /// </summary>
         public event EventHandler Selected;
 
         #endregion
 
-        #region Invoke
-
-        internal void ClickInvoke(EventArgs e)
+        #region Raise Events
+        
+        internal void OnClick(EventArgs e)
         {
-            if (Click != null) Click.Invoke(this, e);
-        } // ClickInvoke
+            if (Click != null) 
+                Click.Invoke(this, e);
+        } // OnClick
 
-        internal void SelectedInvoke(EventArgs e)
+        internal void OnSelected(EventArgs e)
         {
-            if (Selected != null) Selected.Invoke(this, e);
-        } // SelectedInvoke
+            if (Selected != null) 
+                Selected.Invoke(this, e);
+        } // OnSelected
 
         #endregion
 

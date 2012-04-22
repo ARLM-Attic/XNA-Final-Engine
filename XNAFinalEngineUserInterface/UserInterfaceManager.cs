@@ -25,7 +25,6 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using Screen = XNAFinalEngine.EngineCore.Screen;
-
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -208,10 +207,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public static Control FocusedControl
         {
-            get
-            {
-                return focusedControl;
-            }
+            get { return focusedControl; }
             internal set
             {
                 if (value != null && value.Visible && value.Enabled)

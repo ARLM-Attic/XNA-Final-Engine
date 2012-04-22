@@ -35,22 +35,6 @@ float4x4 worldViewProj : WorldViewProjection;
 //////////////////////////////////////////////
 
 float3 diffuseColor;
-float alphaBlending;
-
-//////////////////////////////////////////////
-///////////////// Textures ///////////////////
-//////////////////////////////////////////////
-
-texture diffuseTexture : register(t0);
-sampler2D diffuseSampler : register(s0) = sampler_state
-{
-	Texture = <diffuseTexture>;
-	/*MinFilter = ANISOTROPIC;
-	MagFilter = ANISOTROPIC;
-	MipFilter = Linear;
-	AddressU = WRAP;
-	AddressV = WRAP;*/
-};
 
 //////////////////////////////////////////////
 ////////////// Data Structs //////////////////
@@ -67,12 +51,6 @@ struct vertexOutput
     float4 position	: POSITION;
 };
 
-struct vertexOutputWT
-{
-    float4 position	: POSITION;
-	float2 uv		: TEXCOORD0;
-};
-
 //////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
@@ -84,46 +62,24 @@ vertexOutput VSConstantWithoutTexture(float4 position : POSITION)
     return output;
 }
 
-vertexOutputWT VSConstantWithTexture(vertexInput input)
-{	
-    vertexOutputWT output;
-    output.position = mul(input.position, worldViewProj);	
-	output.uv = input.uv;
-    return output;
-}
-
 //////////////////////////////////////////////
 /////////////// Pixel Shader /////////////////
 //////////////////////////////////////////////
 
-float4 PSConstantWithoutTexture() : COLOR
+float4 PSConstantsRGB() : COLOR
 {
-    return float4(GammaToLinear(diffuseColor), alphaBlending);
-}
-
-float4 PSConstantWithTexture(vertexOutputWT input) : COLOR
-{
-    return float4(GammaToLinear(tex2D(diffuseSampler, input.uv).rgb), alphaBlending);
+    return float4(diffuseColor, 1);
 }
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-technique ConstantWithoutTexture
+technique ConstantsRGB
 {
 	pass P0
 	{
 		VertexShader = compile vs_3_0 VSConstantWithoutTexture();
-		PixelShader = compile ps_3_0 PSConstantWithoutTexture();
-	}
-}
-
-technique ConstantWithTexture
-{
-	pass P0
-	{
-		VertexShader = compile vs_3_0 VSConstantWithTexture();
-		PixelShader = compile ps_3_0 PSConstantWithTexture();
+		PixelShader = compile ps_3_0 PSConstantsRGB();
 	}
 }
