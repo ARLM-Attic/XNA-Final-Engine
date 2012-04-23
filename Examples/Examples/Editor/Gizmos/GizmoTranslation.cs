@@ -162,6 +162,7 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         internal void Update()
         {
+
             #region Active
 
             if (Active)
@@ -182,33 +183,35 @@ namespace XNAFinalEngine.Editor
                 {
                     Vector2 transformationAmount;
                     Vector3 translation = Vector3.Zero;
+                    // First we have to know how much to move the object in each axis.
                     if (redAxisSelected)
                     {
                         Calculate2DMouseDirection(gizmoCamera, new Vector3(1, 0, 0), out transformationAmount);
-                        translation.X = (Mouse.XMovement * transformationAmount.X / 100.0f);
+                        translation.X =  (Mouse.XMovement * transformationAmount.X / 100.0f);
                         translation.X += (Mouse.YMovement * transformationAmount.Y / 100.0f);
                     }
                     if (greenAxisSelected)
                     {
                         Calculate2DMouseDirection(gizmoCamera, new Vector3(0, 1, 0), out transformationAmount);
-                        translation.Y = (Mouse.XMovement * transformationAmount.X / 100.0f);
+                        translation.Y =  (Mouse.XMovement * transformationAmount.X / 100.0f);
                         translation.Y += (Mouse.YMovement * transformationAmount.Y / 100.0f);
                     }
                     if (blueAxisSelected)
                     {
                         Calculate2DMouseDirection(gizmoCamera, new Vector3(0, 0, 1), out transformationAmount);
-                        translation.Z = (Mouse.XMovement * transformationAmount.X / 100.0f);
+                        translation.Z =  (Mouse.XMovement * transformationAmount.X / 100.0f);
                         translation.Z += (Mouse.YMovement * transformationAmount.Y / 100.0f);
                     }
-                    // Calculate the center, scale and orientation of the gizmo.
+                    // Calculate the scale to do transformation proportional to the camera distance to the object.
+                    // The calculations are doing once from only one object to move everything at the same rate.
                     Vector3 center;
                     Quaternion orientation;
                     float scale;
                     GizmoScaleCenterOrientation(selectedObject, gizmoCamera, out scale, out center, out orientation);
+                    // Transform each object.
                     foreach (GameObject3D gameObject3D in selectedObjects)
                     {
-                        // Transform object.
-                        gameObject3D.Transform.Translate(translation * scale);
+                        gameObject3D.Transform.Translate(translation * scale, Space == SpaceMode.Local ? Components.Space.Local : Components.Space.World);
                     }
                 }
                 if (Keyboard.EscapeJustPressed)
@@ -240,7 +243,7 @@ namespace XNAFinalEngine.Editor
                     RenderGizmoForPicker();
                 Color[] colorArray = picker.EndManualPicking(new Rectangle(Mouse.Position.X - RegionSize / 2, Mouse.Position.Y - RegionSize / 2, RegionSize, RegionSize));
 
-                #region Find Axis
+                #region Find Selected Axis
 
                 redAxisSelected   = true;
                 greenAxisSelected = true;
@@ -377,7 +380,7 @@ namespace XNAFinalEngine.Editor
             greenCone.Transform.LocalScale = new Vector3(scale);
             greenCone.Transform.LocalRotation = orientation;
             greenCone.Transform.LocalPosition = vertices[2];
-            picker.RenderObjectToPicker(greenCone, new Color(0, 255, 0)); // Color.Green is not 0,255,0
+            picker.RenderObjectToPicker(greenCone, new Color(0, 255, 0)); // Color.Green is not 0, 255, 0
 
             blueCone.Transform.LocalScale = new Vector3(scale);
             blueCone.Transform.LocalRotation = orientation;

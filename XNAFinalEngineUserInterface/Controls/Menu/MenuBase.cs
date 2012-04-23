@@ -14,12 +14,14 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System.Collections.Generic;
-using Microsoft.Xna.Framework.Graphics;
 #endregion
 
 namespace XNAFinalEngine.UserInterface
 {
 
+    /// <summary>
+    /// Base class for menus.
+    /// </summary>
     public abstract class MenuBase : Control
     {
 
@@ -32,10 +34,26 @@ namespace XNAFinalEngine.UserInterface
 
         #region Properties
 
+        /// <summary>
+        /// Selected item.
+        /// </summary>
         protected internal int ItemIndex { get { return itemIndex; } set { itemIndex = value; } }
+        
         protected internal MenuBase ChildMenu { get; set; }
+
+        /// <summary>
+        /// The root of this menu.
+        /// </summary>
         protected internal MenuBase RootMenu { get; set; }
+
+        /// <summary>
+        /// The father of this menu.
+        /// </summary>
         protected internal MenuBase ParentMenu { get; set; }
+
+        /// <summary>
+        /// The items of the menu.
+        /// </summary>
         public List<MenuItem> Items { get { return items; } }
 
         #endregion

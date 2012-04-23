@@ -422,7 +422,7 @@ namespace XNAFinalEngine.UserInterface
         {
             AutoSize();
             base.Show();
-            if (sender != null && sender.Root != null && sender.Root is Container)
+            if (sender != null && sender.Root != null && sender.Root is Window)
             {
                 (sender.Root as Container).Add(this, false);
             }
@@ -430,9 +430,9 @@ namespace XNAFinalEngine.UserInterface
             {
                 UserInterfaceManager.Add(this);
             }
-
+            
             this.sender = sender;
-
+            
             if (sender != null && sender.Root != null && sender.Root is Container)
             {
                 Left = x - Root.ControlLeftAbsoluteCoordinate;
@@ -443,7 +443,7 @@ namespace XNAFinalEngine.UserInterface
                 Left = x;
                 Top = y;
             }
-
+            
             if (ControlLeftAbsoluteCoordinate + Width > Screen.Width)
             {
                 Left = Left - Width;
@@ -469,8 +469,6 @@ namespace XNAFinalEngine.UserInterface
                 }
             }
 
-            // I do this to render over everything.
-            Parent = null;
             Focused = true;
         } // Show
 

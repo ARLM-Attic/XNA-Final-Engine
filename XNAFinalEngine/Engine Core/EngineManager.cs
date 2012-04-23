@@ -46,6 +46,7 @@ using XNAFinalEngine.Scenes;
     using System.Windows.Forms;
     using System.Windows.Forms.VisualStyles;
     using MessageBoxIcon = System.Windows.Forms.MessageBoxIcon;
+using Point = System.Drawing.Point;
 #endif
 #endregion
 
@@ -154,6 +155,7 @@ namespace XNAFinalEngine.EngineCore
             Window.Title = mainSettings.WindowName;
             Window.AllowUserResizing = mainSettings.ChangeWindowSize;
 
+            // Window minimum size.
             #if (WINDOWS)
                 Control.FromHandle(Window.Handle).MinimumSize = new System.Drawing.Size(64, 64);
             #endif
@@ -167,7 +169,9 @@ namespace XNAFinalEngine.EngineCore
             // Set resolution
             int width  = mainSettings.WindowWidth;
             int height = mainSettings.WindowHeight;
-            // Use current desktop resolution if autodetect is selected.
+            oldScreenWidth = width;
+            oldScreenHeight = height;
+            // This is needed to avoid exceptions.
             if (width <= 0 || height <= 0)
             {
                 width = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
@@ -175,8 +179,6 @@ namespace XNAFinalEngine.EngineCore
             }
             graphicsDeviceManager.PreferredBackBufferWidth = width;
             graphicsDeviceManager.PreferredBackBufferHeight = height;
-            oldScreenWidth = width;
-            oldScreenHeight = height;
 
             #endregion
 
@@ -247,6 +249,22 @@ namespace XNAFinalEngine.EngineCore
             // In classes that derive from Game, you need to call base.Initialize in Initialize,
             // which will automatically enumerate through any game components that have been added to Game.Components and call their Initialize methods.
             base.Initialize();
+
+            #region Maximize
+
+            // If we put 0,0 to window size then we need to maximize and this is done after base.Initialize();
+            #if (WINDOWS)
+                if (oldScreenWidth <= 0 || oldScreenHeight <= 0)
+                {
+                    Form form = (Form)Control.FromHandle(Window.Handle);
+                    form.Location = new Point(0, 0);
+                    form.Size = System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Size;
+                    form.WindowState = FormWindowState.Maximized;
+                }
+            #endif
+
+            #endregion
+
         } // Initialize
 
         #endregion

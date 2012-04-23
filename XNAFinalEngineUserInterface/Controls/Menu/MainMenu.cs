@@ -45,7 +45,7 @@ namespace XNAFinalEngine.UserInterface
             Height = 24;
             Detached = false;
             DoubleClicks = false;
-            StayOnBack = true;
+            StayOnTop = true;
         } // MainMenu
 
         #endregion
@@ -222,7 +222,8 @@ namespace XNAFinalEngine.UserInterface
 
                         int y = Root.ControlTopAbsoluteCoordinate + rs[ItemIndex].Bottom + 1;
                         (ChildMenu as ContextMenu).Show(Root, Root.ControlLeftAbsoluteCoordinate + rs[ItemIndex].Left, y);
-                        if (ex.Button == MouseButton.None) (ChildMenu as ContextMenu).ItemIndex = 0;
+                        if (ex.Button == MouseButton.None) 
+                            (ChildMenu as ContextMenu).ItemIndex = 0;
                     }
                     else
                     {

@@ -2,8 +2,8 @@
 <XnaContent>
   <Asset Type="XNAFinalEngineContentPipelineExtensionRuntime.Settings.MainSettings">
     <WindowName>XNA FINAL ENGINE</WindowName>
-    <WindowWidth>1280</WindowWidth>
-    <WindowHeight>800</WindowHeight>
+    <WindowWidth>0</WindowWidth>
+    <WindowHeight>0</WindowHeight>
     <AspectRatio>0</AspectRatio>
     <Fullscreen>false</Fullscreen>
     <VSync>false</VSync>

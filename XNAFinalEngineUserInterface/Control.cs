@@ -1474,18 +1474,18 @@ namespace XNAFinalEngine.UserInterface
         {
             if (childrenControls != null)
             {
-                foreach (Control c in childrenControls)
+                foreach (Control childControl in childrenControls)
                 {
                     // We skip detached controls for first level (after root) because they are rendered separately in the Draw method.
-                    if (((c.Root == c.Parent && !c.Detached) || c.Root != c.Parent) && ControlRectangle.Intersects(c.ControlRectangle) && c.visible)
+                    if (((childControl.Root == childControl.Parent && !childControl.Detached) || childControl.Root != childControl.Parent) && ControlRectangle.Intersects(childControl.ControlRectangle) && childControl.visible)
                     {
-                        EngineManager.Device.ScissorRectangle = ClippingRectangle(c);
+                        EngineManager.Device.ScissorRectangle = ClippingRectangle(childControl);
 
                         // The position relative to its parent plus its width and height.
-                        Rectangle rect = new Rectangle(c.ControlAndMarginsLeftAbsoluteCoordinate - root.ControlLeftAbsoluteCoordinate, c.ControlAndMarginsTopAbsoluteCoordinate - root.ControlTopAbsoluteCoordinate, c.ControlAndMarginsWidth, c.ControlAndMarginsHeight);
-                        if (c.Root != c.Parent && ((!c.Detached && CheckDetached(c)) || firstDetachedLevel))
+                        Rectangle rect = new Rectangle(childControl.ControlAndMarginsLeftAbsoluteCoordinate - root.ControlLeftAbsoluteCoordinate, childControl.ControlAndMarginsTopAbsoluteCoordinate - root.ControlTopAbsoluteCoordinate, childControl.ControlAndMarginsWidth, childControl.ControlAndMarginsHeight);
+                        if (childControl.Root != childControl.Parent && ((!childControl.Detached && CheckDetached(childControl)) || firstDetachedLevel))
                         {
-                            rect = new Rectangle(c.ControlAndMarginsLeftAbsoluteCoordinate, c.ControlAndMarginsTopAbsoluteCoordinate, c.ControlAndMarginsWidth, c.ControlAndMarginsHeight);
+                            rect = new Rectangle(childControl.ControlAndMarginsLeftAbsoluteCoordinate, childControl.ControlAndMarginsTopAbsoluteCoordinate, childControl.ControlAndMarginsWidth, childControl.ControlAndMarginsHeight);
                             // If is off the screen there is not need for a scissor rectangle
                             if (rect.X < Screen.Width && rect.Y < Screen.Height && rect.X + rect.Width > 0 && rect.Y + rect.Height > 0)
                             {
@@ -1514,19 +1514,19 @@ namespace XNAFinalEngine.UserInterface
                         }
 
                         Renderer.Begin();
-                        c.DrawingRectangle = rect;
-                        c.DrawControl(rect);
+                        childControl.DrawingRectangle = rect;
+                        childControl.DrawControl(rect);
 
                         DrawEventArgs args = new DrawEventArgs
                         {
                             Rectangle = rect,
                         };
-                        c.OnDraw(args);
+                        childControl.OnDraw(args);
                         Renderer.End();
 
-                        c.DrawChildControls(firstDetachedLevel);
+                        childControl.DrawChildControls(firstDetachedLevel);
 
-                        c.DrawOutline(true);
+                        childControl.DrawOutline(true);
                     }
                 }
             }

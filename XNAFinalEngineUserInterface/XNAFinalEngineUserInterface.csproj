@@ -107,6 +107,7 @@
     <Compile Include="Controls\Buttons\CheckBox.cs" />
     <Compile Include="Controls\Buttons\RadioButton.cs" />
     <Compile Include="Controls\ComboBox.cs" />
+    <Compile Include="Controls\Group\GroupCollapsible.cs" />
     <Compile Include="Controls\Group\GroupBox.cs" />
     <Compile Include="Controls\Group\GroupPanel.cs" />
     <Compile Include="Controls\ImageBox.cs" />

@@ -236,7 +236,7 @@ namespace XNAFinalEngine.Editor
                 StayOnBack = true,
                 Passive = true
             };
-
+            
             #endregion
 
             #region Main Menu
@@ -248,7 +248,7 @@ namespace XNAFinalEngine.Editor
             MenuItem menuItemEdit = new MenuItem("Edit", true);
             canvas.MainMenu.Items.Add(menuItemEdit);
             menuItemEdit.ChildrenItems.AddRange(new[] { new MenuItem("Undo"), new MenuItem("Redo") });
-
+            
             #endregion
 
             #region Top Panel
@@ -282,9 +282,72 @@ namespace XNAFinalEngine.Editor
                     Gizmo.Space = Gizmo.SpaceMode.Local;
                     buttonSpace.Text = "Local";
                 }
+                buttonSpace.Focused = false;
             };
 
             #endregion
+
+            #region Right Panel
+
+            Panel rightPanel = new Panel
+            {
+                StayOnBack = true,
+                Passive = true,
+                Width = 400,
+                Left = Screen.Width - 400,
+                Height = Screen.Height,
+                Anchor = Anchors.Right | Anchors.Top | Anchors.Bottom,
+                Parent = canvas,
+                Color = new Color(64, 64, 64),
+            };
+
+            TabControl tabControl = new TabControl
+            {
+                Parent = rightPanel,
+                Left = 4,
+                Top = 4,
+                Width = rightPanel.ClientArea.Width - 8,
+                Height = rightPanel.ClientArea.Height - 8,
+                Anchor = Anchors.All
+            };
+            tabControl.AddPage();
+            tabControl.TabPages[0].Text = "Inspector";
+            tabControl.AddPage();
+            tabControl.TabPages[1].Text = "La segunda pestaña loco!!!";
+            /*
+            GroupPanel panel = new GroupPanel();
+            panel.Parent = tabControl.TabPages[0];
+            panel.Width = tabControl.ClientArea.Width;
+            panel.Height = 100;*/
+            GroupCollapsible panel = new GroupCollapsible();
+            panel.Parent = tabControl.TabPages[0];
+            panel.Width = tabControl.ClientArea.Width;
+            panel.Height = 100;
+            panel.Text = "Transform";
+
+            #endregion
+
+            ContextMenu mnuListBox = new ContextMenu();
+
+            MenuItem i1 = new MenuItem("This is very long text");
+            MenuItem i2 = new MenuItem("Menu", true);
+            MenuItem i3 = new MenuItem("Item", false);
+            MenuItem i4 = new MenuItem("Separated", true);
+
+            MenuItem i11 = new MenuItem();
+            MenuItem i12 = new MenuItem();
+            MenuItem i13 = new MenuItem();
+            MenuItem i14 = new MenuItem();
+
+            MenuItem i111 = new MenuItem();
+            MenuItem i112 = new MenuItem();
+            MenuItem i113 = new MenuItem();
+
+            mnuListBox.Items.AddRange(new MenuItem[] { i1, i2, i3, i4 });
+            i2.ChildrenItems.AddRange(new MenuItem[] { i11, i12, i13, i14 });
+            i13.ChildrenItems.AddRange(new MenuItem[] { i111, i112, i113 });
+
+            canvas.ContextMenu = mnuListBox;
 
             #endregion
 
@@ -632,7 +695,7 @@ namespace XNAFinalEngine.Editor
             #region Activate Gizmo
 
             bool isPosibleToSwich = selectedObjects.Count > 0 && ((activeGizmo == GizmoType.None) || !(Gizmo.Active));
-            if (Keyboard.KeyJustPressed(Keys.V) && isPosibleToSwich)
+            if (Keyboard.KeyJustPressed(Keys.W) && isPosibleToSwich)
             {
                 switch (activeGizmo)
                 {

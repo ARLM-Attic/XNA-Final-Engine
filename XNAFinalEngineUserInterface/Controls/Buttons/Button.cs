@@ -169,9 +169,9 @@ namespace XNAFinalEngine.UserInterface
             if (glyph != null)
             {
                 Margins cont = layer.ContentMargins;
-                Rectangle r;
-                r = new Rectangle(rect.Left + cont.Left, rect.Top + cont.Top, rect.Width - cont.Horizontal, rect.Height - cont.Vertical);
+                Rectangle r = new Rectangle(rect.Left + cont.Left, rect.Top + cont.Top, rect.Width - cont.Horizontal, rect.Height - cont.Vertical);
                 Renderer.DrawGlyph(glyph, r);
+                Renderer.DrawString(this, layer, Text, rect, true, ox, oy);
             }
             else
             {

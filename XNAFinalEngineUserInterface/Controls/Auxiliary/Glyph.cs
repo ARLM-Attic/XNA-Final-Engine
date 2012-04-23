@@ -22,13 +22,11 @@ namespace XNAFinalEngine.UserInterface
 
     /// <summary>
     /// Represents an image that could be used in buttons, image boxs, etc.
-    /// This container allows so
     /// </summary>
     public class Glyph
     {
 
         #region Variables
-
         
         // Texture.
         private Texture texture;
@@ -129,11 +127,6 @@ namespace XNAFinalEngine.UserInterface
         public Glyph(Texture _texture)
         {
             Texture = _texture;
-        } // Glyph
-
-        public Glyph(Texture _texture, Rectangle _sourceRectangle) : this(_texture)
-        {
-            SourceRectangle = _sourceRectangle;
         } // Glyph
 
         #endregion
