@@ -22,7 +22,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace XNAFinalEngine.UserInterface
 {
 
-    public class TabPage : Control
+    public class TabPage : ClipControl
     {
 
         #region Variables

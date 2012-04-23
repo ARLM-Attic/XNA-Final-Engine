@@ -137,6 +137,54 @@
     </Control>
     ////////////////////////////////////////////////////////////////////////////
 
+    //// TreeButton //////////////////////////////////////////////////////////////
+    <Control Name="TreeButton" Inherits="Button">
+      <Layers>
+        <Layer Name="Control" Image="TreeView" Width="13" Height="18" Alignment="MiddleLeft" OffsetX="0" OffsetY="0" >
+          <SizingMargins Left="0" Top="0" Right="0" Bottom="0"/>
+          <ContentMatgins Left="0" Top="0" Right="0" Bottom="0"/>
+          <States>
+            <Enabled Index="0" Color="255;255;255;255" Overlay="false"/>
+            <Hovered Index="0" Color="255;255;255;255" Overlay="false"/>
+            <Pressed Index="0" Color="255;255;255;255" Overlay="false"/>
+            <Focused Index="0" Color="255;255;255;255" Overlay="false"/>
+            <Disabled Index="0" Color="255;255;255;255" Overlay="false"/>
+          </States>          
+          <Text Font="Default" Alignment="MiddleLeft" OffsetX="0" OffsetY="0">
+            <Colors>
+              <Enabled Color="0;0;0;255"/>
+              <Focused Color="0;0;0;255"/>
+              <Pressed Color="0;0;0;255"/>
+              <Hovered Color="0;0;0;255"/>
+              <Disabled Color="0;0;0;255"/>
+            </Colors>
+          </Text>
+        </Layer>      
+        <Layer Name="Checked" Image="TreeView" Width="13" Height="18" Alignment="MiddleLeft" OffsetX="0" OffsetY="0" >
+          <SizingMargins Left="0" Top="0" Right="0" Bottom="0"/>
+          <ContentMatgins Left="0" Top="0" Right="0" Bottom="0"/>
+          <States>
+            <Enabled Index="1" Color="255;255;255;255" Overlay="false"/>
+            <Hovered Index="1" Color="255;255;255;255" Overlay="false"/>
+            <Pressed Index="1" Color="255;255;255;255" Overlay="false"/>
+            <Focused Index="1" Color="255;255;255;255" Overlay="false"/>
+            <Disabled Index="1" Color="255;255;255;255" Overlay="false"/>
+          </States>          
+          <Text Font="Default" Alignment="MiddleLeft" OffsetX="0" OffsetY="0">
+            <Colors>
+              <Enabled Color="0;0;0;255"/>
+              <Focused Color="0;0;0;255"/>
+              <Pressed Color="0;0;0;255"/>
+              <Hovered Color="0;0;0;255"/>
+              <Disabled Color="0;0;0;255"/>
+            </Colors>
+          </Text>
+        </Layer>    
+      </Layers>
+    </Control>
+    ////////////////////////////////////////////////////////////////////////////
+
+
     //// RadioButton ///////////////////////////////////////////////////////////
     <Control Name="RadioButton" Inherits="CheckBox">
       <Layers>
@@ -1036,6 +1084,7 @@
     <Image Name="TextBox.Cursor" Asset="TextBox.Cursor"></Image>
     <Image Name="CheckBox" Asset="CheckBox"></Image>
     <Image Name="CheckBox.Checked" Asset="CheckBox.Checked"></Image>
+    <Image Name="TreeView" Asset="TreeView"></Image>
     <Image Name="RadioButton" Asset="RadioButton"></Image>
     <Image Name="RadioButton.Checked" Asset="RadioButton.Checked"></Image>
     <Image Name="ListBox" Asset="ListBox"></Image>

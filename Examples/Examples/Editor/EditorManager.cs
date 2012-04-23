@@ -314,40 +314,29 @@ namespace XNAFinalEngine.Editor
             tabControl.TabPages[0].Text = "Inspector";
             tabControl.AddPage();
             tabControl.TabPages[1].Text = "La segunda pestaña loco!!!";
-            /*
-            GroupPanel panel = new GroupPanel();
+
+            PanelCollapsible panel = new PanelCollapsible();
             panel.Parent = tabControl.TabPages[0];
             panel.Width = tabControl.ClientArea.Width;
-            panel.Height = 100;*/
-            GroupCollapsible panel = new GroupCollapsible();
-            panel.Parent = tabControl.TabPages[0];
-            panel.Width = tabControl.ClientArea.Width;
-            panel.Height = 100;
             panel.Text = "Transform";
+            Label label = new Label();
+            label.Parent = panel;
+            label.Text = "toto";
+            
+            PanelCollapsible panel2 = new PanelCollapsible
+            {
+                Width = tabControl.ClientArea.Width,
+                Text = "Otro tema",
+                Anchor = Anchors.Top,
+                Height = 20,
+            };
+            panel2.Top = tabControl.TabPages[0].AvailablePositionInsideControl + 5;
+            panel2.Parent = tabControl.TabPages[0];
+            Label label2 = new Label();
+            label2.Parent = panel2;
+            label2.Text = "toto";
 
             #endregion
-
-            ContextMenu mnuListBox = new ContextMenu();
-
-            MenuItem i1 = new MenuItem("This is very long text");
-            MenuItem i2 = new MenuItem("Menu", true);
-            MenuItem i3 = new MenuItem("Item", false);
-            MenuItem i4 = new MenuItem("Separated", true);
-
-            MenuItem i11 = new MenuItem();
-            MenuItem i12 = new MenuItem();
-            MenuItem i13 = new MenuItem();
-            MenuItem i14 = new MenuItem();
-
-            MenuItem i111 = new MenuItem();
-            MenuItem i112 = new MenuItem();
-            MenuItem i113 = new MenuItem();
-
-            mnuListBox.Items.AddRange(new MenuItem[] { i1, i2, i3, i4 });
-            i2.ChildrenItems.AddRange(new MenuItem[] { i11, i12, i13, i14 });
-            i13.ChildrenItems.AddRange(new MenuItem[] { i111, i112, i113 });
-
-            canvas.ContextMenu = mnuListBox;
 
             #endregion
 

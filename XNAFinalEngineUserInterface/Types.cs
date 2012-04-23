@@ -139,7 +139,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Top + Bottom.
         /// </summary>
-        public int Vertical   { get { return (Top + Bottom); } }
+        public int Vertical { get { return (Top + Bottom); } }
 
         /// <summary>
         /// Left + Right.

@@ -66,9 +66,9 @@
     <Compile Include="Controls\Buttons\ButtonBase.cs" />
     <Compile Include="Controls\Buttons\CheckBox.cs" />
     <Compile Include="Controls\Buttons\RadioButton.cs" />
+    <Compile Include="Controls\Buttons\TreeButton.cs" />
     <Compile Include="Controls\ComboBox.cs" />
     <Compile Include="Controls\Group\GroupBox.cs" />
-    <Compile Include="Controls\Group\GroupCollapsible.cs" />
     <Compile Include="Controls\Group\GroupPanel.cs" />
     <Compile Include="Controls\ImageBox.cs" />
     <Compile Include="Controls\Label.cs" />
@@ -77,7 +77,8 @@
     <Compile Include="Controls\Menu\MainMenu.cs" />
     <Compile Include="Controls\Menu\MenuBase.cs" />
     <Compile Include="Controls\Menu\MenuItem.cs" />
-    <Compile Include="Controls\Panel.cs" />
+    <Compile Include="Controls\Panel\Panel.cs" />
+    <Compile Include="Controls\Panel\PanelCollapsible.cs" />
     <Compile Include="Controls\ProgressBar.cs" />
     <Compile Include="Controls\Sidebar.cs" />
     <Compile Include="Controls\SidebarPanel.cs" />

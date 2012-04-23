@@ -171,7 +171,6 @@ namespace XNAFinalEngine.UserInterface
                 Margins cont = layer.ContentMargins;
                 Rectangle r = new Rectangle(rect.Left + cont.Left, rect.Top + cont.Top, rect.Width - cont.Horizontal, rect.Height - cont.Vertical);
                 Renderer.DrawGlyph(glyph, r);
-                Renderer.DrawString(this, layer, Text, rect, true, ox, oy);
             }
             else
             {
