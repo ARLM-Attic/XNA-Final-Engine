@@ -63,6 +63,7 @@ namespace XNAFinalEngine.Scenes
             editorText = new GameObject2D();
             editorText.AddComponent<HudText>();
             editorText.HudText.Text.Append("Press CTRL+E to toggle to Edit Mode");
+            editorText.HudText.Visible = false;
             base.Load();
         } // Load
 

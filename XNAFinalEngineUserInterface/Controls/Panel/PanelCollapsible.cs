@@ -94,7 +94,7 @@ namespace XNAFinalEngine.UserInterface
                     // Move up or down the controls that are below this control
                     foreach (var childControl in Parent.ChildrenControls)
                     {
-                        if (childControl.Top > Top || childControl.Anchor == Anchors.Top)
+                        if (childControl.Top > Top && childControl.Anchor == Anchors.Top)
                         {
                             childControl.Top += differencial; 
                         }
