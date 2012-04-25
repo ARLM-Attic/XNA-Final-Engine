@@ -99,8 +99,8 @@ float3 ToneMapReinhardModified(float3 color)
 	return LinearToGamma(toneMappedLuminance * pow(color / pixelLuminance, luminanceSaturation));
 }
 
-// Applies the filmic curve from John Hable's presentation.
-// It only uses ALU operations, and replaces the entire Lin/Log and Texture LUT.
+// Applies the filmic curve developed by Jim Hejl.
+// This is almost equivalent to the Duiker operator, but it only uses ALU operations, and replaces the entire Lin/Log and Texture LUT.
 // Moreover, this approximation performs gamma correction.
 // In other words is very fast and is one of the best tone mapping function available. 
 float3 ToneMapFilmicALU(float3 color)

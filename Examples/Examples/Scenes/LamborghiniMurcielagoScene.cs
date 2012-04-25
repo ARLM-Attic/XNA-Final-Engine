@@ -29,6 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
@@ -1010,6 +1012,8 @@ namespace XNAFinalEngineExamples
 
             #endregion
 
+            #region Editor
+
             EditorManager.AddObject(murcielagoBody);
             EditorManager.AddObject(murcielagoSteeringWheel);
             EditorManager.AddObject(murcielagoLP640AirTakesEngine);
@@ -1072,9 +1076,11 @@ namespace XNAFinalEngineExamples
             // Cameras
             camera, camera2,
             skydome;*/
-
+            
             EnableEditorMode(camera);
             
+            #endregion
+
         } // Load
 
         #endregion

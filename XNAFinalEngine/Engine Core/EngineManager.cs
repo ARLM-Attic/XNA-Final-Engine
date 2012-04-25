@@ -69,6 +69,8 @@ namespace XNAFinalEngine.EngineCore
 
         private static int oldScreenWidth, oldScreenHeight;
 
+        private static bool showExceptionsWithGuide;
+
         #endregion
 
         #region Properties
@@ -77,11 +79,6 @@ namespace XNAFinalEngine.EngineCore
         /// Singleton reference for specific task like the exit method.
         /// </summary>
         internal static EngineManager EngineManagerReference { get; private set; }
-
-        /// <summary>
-        /// Show exceptions message with Games for Windows/XBOX Guide?
-        /// </summary>
-        private static bool ShowExceptionsWithGuide { get; set; }
 
         /// <summary>
         /// XNA graphic device.
@@ -102,12 +99,30 @@ namespace XNAFinalEngine.EngineCore
         /// Services.
         /// </summary>
         public static GameServiceContainer GameServices { get; private set; }
-
+        
         /// <summary>
         /// Is application currently active (focused)?
         /// Some operations like input reading could be disabled.
         /// </summary>
         public static bool IsApplicationActive { get; private set; }
+
+        /// <summary>
+        /// The GamerServices namespace provides functionality for working with Xbox LIVE, including querying for Xbox LIVE accounts,
+        /// working with gamer avatars, retrieving player preferences for local accounts, and showing various Xbox LIVE user interface screens programmatically.
+        /// The gamer services are automatically enable in XBOX 360.
+        /// </summary>
+        public static bool UseGamerServices { get; private set; }
+
+        /// <summary>
+        /// Show exceptions message with Games for Windows/XBOX Guide?
+        /// In XBOX 360 it's always true except in debug mode.
+        /// If the Gamer Services is not active or there is an active debug then the guide will not show exceptions.
+        /// </summary>
+        public static bool ShowExceptionsWithGuide
+        {
+            get { return showExceptionsWithGuide && UseGamerServices && !Debugger.IsAttached; }
+            set { showExceptionsWithGuide = value; }
+        } // ShowExceptionsWithGuide
 
         #endregion
 
@@ -240,12 +255,22 @@ namespace XNAFinalEngine.EngineCore
             // Reset to take new parameters //
             GraphicsDevice.Reset(GraphicsDevice.PresentationParameters);
 
-            // Initialize Gamer Services Dispatcher
-            if (!GamerServicesDispatcher.IsInitialized)
+            if (UseGamerServices)
             {
-                GamerServicesDispatcher.Initialize(Services);                
+                try
+                {
+                    // Initialize Gamer Services Dispatcher
+                    if (!GamerServicesDispatcher.IsInitialized)
+                    {
+                        GamerServicesDispatcher.Initialize(Services);
+                    }
+                    GamerServicesDispatcher.WindowHandle = Window.Handle;
+                }
+                catch (GamerServicesNotAvailableException)
+                {
+                    throw new InvalidOperationException("Engine Manager: Games for Windows - LIVE is unavailable. Please install it and try again.");
+                }
             }
-            GamerServicesDispatcher.WindowHandle = Window.Handle;
             // In classes that derive from Game, you need to call base.Initialize in Initialize,
             // which will automatically enumerate through any game components that have been added to Game.Components and call their Initialize methods.
             base.Initialize();
@@ -376,13 +401,18 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
-            GamerServicesDispatcher.Update();
+            if (UseGamerServices)
+                GamerServicesDispatcher.Update();
+
             if (ShowExceptionsWithGuide) // If we want to show exception in the Guide.
             {
                 // If no exception was raised.
                 if (exception == null)
                 {
-                    try { GameLoop.Update(gameTime); }
+                    try
+                    {
+                        GameLoop.Update(gameTime);
+                    }
                     catch (Exception e)
                     {
                         if (!(e is NoAudioHardwareException) || SoundManager.CatchNoAudioHardwareException)
@@ -429,10 +459,10 @@ namespace XNAFinalEngine.EngineCore
                     if (!Guide.IsVisible)
                     {
                         Guide.BeginShowMessageBox("XNA Final Engine",
-                                                    "There was a critical error.\n\n" + exception.Message,
-                                                    new List<string> {"Try to continue", "Exit"}, 0,
-                                                    Microsoft.Xna.Framework.GamerServices.MessageBoxIcon.Error,
-                                                    MessageBoxExceptionEnd, null);
+                                                  "There was a critical error.\n\n" + exception.Message,
+                                                  new List<string> {"Try to continue", "Exit"}, 0,
+                                                  Microsoft.Xna.Framework.GamerServices.MessageBoxIcon.Error,
+                                                  MessageBoxExceptionEnd, null);
                     }
                 }
             }
@@ -491,9 +521,27 @@ namespace XNAFinalEngine.EngineCore
         /// Start the engine and the aplication's logic.
         /// But first, the initial tasks are performed and the exceptions are managed.
         /// </summary>
-        public static void StarEngine(Scene scene)
+        /// <param name="scene"></param>
+        /// <param name="useGamerServices">
+        /// The GamerServices namespace provides functionality for working with Xbox LIVE, including querying for Xbox LIVE accounts,
+        /// working with gamer avatars, retrieving player preferences for local accounts, and showing various Xbox LIVE user interface screens programmatically.
+        /// The gamer services are automatically enable in XBOX 360.
+        /// </param>
+        /// <param name="showExceptionsWithGuide">
+        /// Show exceptions message with Games for Windows/XBOX Guide?
+        /// In XBOX 360 it's always true except in debug mode.
+        /// </param>
+        public static void StarEngine(Scene scene, bool useGamerServices = false, bool showExceptionsWithGuide = false)
         {
             GameLoop.CurrentScene = scene;
+
+            UseGamerServices = useGamerServices;
+            ShowExceptionsWithGuide = showExceptionsWithGuide;
+            #if (XBOX)
+                // The gamer services are always active in XBOX 360.
+                useGamerServices = true;
+            #endif
+
             if (Debugger.IsAttached)
             {
                 // We want to know where the exceptions were raised. So it does not show any system message.
@@ -523,7 +571,6 @@ namespace XNAFinalEngine.EngineCore
                     #endif
                 }
             }
-
         } // StarEngine
 
         private static void StartupCommonCode()
