@@ -608,7 +608,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-
+            
             #region Release Shadow Light Depth Textures
 
             // We can do this from time to time to reduce calculations.

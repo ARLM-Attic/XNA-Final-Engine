@@ -78,7 +78,7 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         private static string ScreenshotNameBuilder(int num)
         {
-            return "Content\\Screenshots" + "\\" + screenshotFileName + "-" + num.ToString("0000") + ".png";
+            return "Content\\Screenshots" + "\\" + screenshotFileName + "-" + num.ToString("0000") + ".jpg";
         } // ScreenshotNameBuilder
 
         #endregion
@@ -156,7 +156,7 @@ namespace XNAFinalEngine.EngineCore
                 screenshotNumber++;
 
                 var stream = new FileStream(ScreenshotNameBuilder(screenshotNumber), FileMode.OpenOrCreate);
-                texture.Resource.SaveAsPng(stream, texture.Width, texture.Height);
+                texture.Resource.SaveAsJpeg(stream, texture.Width, texture.Height);
             } // try
             catch (Exception e)
             {

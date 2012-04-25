@@ -71,7 +71,7 @@ float3 ToneMapDragoLogarithmic(float3 color)
 	float pixelLuminance = CalcLuminance(color);    
     float toneMappedLuminance = log10(1 + pixelLuminance);
 	toneMappedLuminance /= log10(1 + whiteLevel);
-	toneMappedLuminance /= log10(2 + 8 * ((pixelLuminance / whiteLevel) * log10(bias) / log10(0.5f)));
+	toneMappedLuminance /= log10(2 + 8 * (pow((pixelLuminance / whiteLevel), log10(bias) / log10(0.5f))));
 	return LinearToGamma(toneMappedLuminance * pow(color / pixelLuminance, luminanceSaturation)); 
 }
 
@@ -79,7 +79,7 @@ float3 ToneMapDragoLogarithmic(float3 color)
 float3 ToneMapExponential(float3 color)
 {
 	float pixelLuminance = CalcLuminance(color);    
-    float toneMappedLuminance = 1 - exp(-pixelLuminance / whiteLevel);
+    float toneMappedLuminance = 1 - exp(-pixelLuminance / whiteLevel); // The original is calculated with average luminance.
 	return LinearToGamma(toneMappedLuminance * pow(color / pixelLuminance, luminanceSaturation));
 }
 

@@ -194,7 +194,7 @@ float4 psAdaptLuminance(in float2 uv : TEXCOORD0) : COLOR0
     float currentLum = tex2D(sceneSampler, uv).r;	
 		       
     // Adapt the luminance using Pattanaik's technique    
-    float adaptedLum = lastLum + (currentLum - lastLum) * (1 - exp(-timeDelta * tau));
+    float adaptedLum = lastLum + (currentLum - lastLum) * (1 - exp(-timeDelta * tau));	
     
     return float4(log(adaptedLum), 1, 1, 1);
 } // psAdaptLuminance
