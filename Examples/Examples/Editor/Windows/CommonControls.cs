@@ -81,6 +81,43 @@ namespace XNAFinalEngine.Editor
 
         #endregion
 
+        #region Vector3 Box
+
+        /// <summary>
+        /// Returns a vector3 box control placed in the first free spot.
+        /// You need to update the value manually.
+        /// </summary>
+        /// <param name="name">Label name.</param>
+        /// <param name="parent">Parent.</param>
+        /// <param name="initialValue">Initial value.</param>
+        public static Vector3Box Vector3Box(string name, ClipControl parent, Vector3 initialValue)
+        {
+            var label = new Label
+            {
+                Left = 10,
+                Width = 155,
+                Text = name,
+                Height = 10,
+            };
+            if (parent.AvailablePositionInsideControl == 0)
+                label.Top = 10;
+            else
+                label.Top = parent.AvailablePositionInsideControl + ControlSeparation;
+            label.Parent = parent;
+            var vector3Box = new Vector3Box
+            {
+                Left = 10,
+                Value = initialValue,
+                Width = parent.ClientWidth - 25,
+                Top = label.Top + label.Height + 5,
+                Parent = parent,
+            };
+
+            return vector3Box;
+        } // Vector3Box
+
+        #endregion
+
         #region Slider Numeric
 
         /// <summary>

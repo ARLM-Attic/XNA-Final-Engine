@@ -79,13 +79,13 @@
     <Compile Include="Controls\Menu\MenuItem.cs" />
     <Compile Include="Controls\Panel\Panel.cs" />
     <Compile Include="Controls\Panel\PanelCollapsible.cs" />
+    <Compile Include="Controls\Panel\Sidebar.cs" />
+    <Compile Include="Controls\Panel\SidebarPanel.cs" />
+    <Compile Include="Controls\Panel\StackPanel.cs" />
     <Compile Include="Controls\ProgressBar.cs" />
-    <Compile Include="Controls\Sidebar.cs" />
-    <Compile Include="Controls\SidebarPanel.cs" />
     <Compile Include="Controls\Sliders\SliderColor.cs" />
     <Compile Include="Controls\Sliders\SliderNumeric.cs" />
     <Compile Include="Controls\Sliders\TrackBar.cs" />
-    <Compile Include="Controls\StackPanel.cs" />
     <Compile Include="Controls\TabControl.cs" />
     <Compile Include="Controls\Text\Console.cs" />
     <Compile Include="Controls\Text\SpinBox.cs" />
@@ -93,6 +93,7 @@
     <Compile Include="Controls\ToolBar\ToolBar.cs" />
     <Compile Include="Controls\ToolBar\ToolBarButton.cs" />
     <Compile Include="Controls\ToolBar\ToolBarPanel.cs" />
+    <Compile Include="Controls\Vector3Box.cs" />
     <Compile Include="Controls\Windows\AssetWindow.cs" />
     <Compile Include="Controls\Windows\ColorPickerDialog.cs" />
     <Compile Include="Controls\Windows\Dialog.cs" />

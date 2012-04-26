@@ -284,7 +284,7 @@ namespace XNAFinalEngine.UserInterface
                 scrollBarVertical.Height   = ClientArea.Height - ((scrollBarHorizontal.Visible) ? 0 : 2);
                 scrollBarVertical.Range    = ClientArea.VirtualHeight;
                 scrollBarVertical.PageSize = ClientArea.ClientHeight;
-
+                
                 scrollBarHorizontal.Left     = ClientLeft + 1;
                 scrollBarHorizontal.Top      = ClientTop + ClientHeight + 1;
                 scrollBarHorizontal.Width    = ClientArea.Width - ((scrollBarVertical.Visible) ? 0 : 2);
@@ -353,7 +353,7 @@ namespace XNAFinalEngine.UserInterface
                 }
 
                 #endregion
-
+                
                 #region Horizontal
 
                 scrollBarVisible = scrollBarHorizontal.Visible;
@@ -383,7 +383,7 @@ namespace XNAFinalEngine.UserInterface
                 }
 
                 #endregion
-
+                
             }
         } // CalculateScrolling
 

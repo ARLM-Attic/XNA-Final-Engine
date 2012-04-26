@@ -38,7 +38,7 @@ namespace XNAFinalEngine.UserInterface
     /// <summary>
     /// Panel collapsible.
     /// </summary>
-    public class PanelCollapsible : Panel
+    public class PanelCollapsible : ClipControl
     {
 
         #region Variables
@@ -57,7 +57,7 @@ namespace XNAFinalEngine.UserInterface
             CanFocus = false;
             Passive = false;
             BackgroundColor = Color.Transparent;
-
+            
             // This is the control that manages the collapse functionality.
             treeButton = new TreeButton();
             Add(treeButton, false);

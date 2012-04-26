@@ -22,7 +22,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace XNAFinalEngine.UserInterface
 {
 
-    public class TabPage : ClipControl
+    public class TabPage : Container
     {
 
         #region Variables
@@ -76,10 +76,7 @@ namespace XNAFinalEngine.UserInterface
 
         #region Properties
 
-        public TabPage[] TabPages
-        {
-            get { return tabPages.ToArray(); }
-        } // TabPages
+        public TabPage[] TabPages { get { return tabPages.ToArray(); } }
 
         public virtual int SelectedIndex
         {
@@ -144,7 +141,7 @@ namespace XNAFinalEngine.UserInterface
             SkinLayer l1 = SkinInformation.Layers["Control"];
             SkinLayer l2 = SkinInformation.Layers["Header"];
             Color col = Color != UndefinedColor ? Color : Color.White;
-
+            
             Rectangle r1 = new Rectangle(rect.Left, rect.Top + l1.OffsetY, rect.Width, rect.Height - l1.OffsetY);
             if (tabPages.Count <= 0)
             {
@@ -218,7 +215,8 @@ namespace XNAFinalEngine.UserInterface
                 Height = ClientHeight,
                 Anchor = Anchors.All,
                 Text = "Tab " + (tabPages.Count + 1),
-                Visible = false
+                Visible = false,
+                AutoScroll = true,
             };
             Add(page, true);
             tabPages.Add(page);

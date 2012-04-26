@@ -293,11 +293,12 @@ namespace XNAFinalEngine.Editor
             {
                 StayOnBack = true,
                 Passive = true,
-                Width = 400,
-                Left = Screen.Width - 400,
-                Height = Screen.Height,
-                Anchor = Anchors.Right | Anchors.Top | Anchors.Bottom,
                 Parent = canvas,
+                Width = 420,
+                Left = canvas.ClientWidth - 420,
+                Height = canvas.ClientHeight,
+                Anchor = Anchors.Right | Anchors.Top | Anchors.Bottom,
+                
                 Color = new Color(64, 64, 64),
             };
 
@@ -306,35 +307,58 @@ namespace XNAFinalEngine.Editor
                 Parent = rightPanel,
                 Left = 4,
                 Top = 4,
-                Width = rightPanel.ClientArea.Width - 8,
-                Height = rightPanel.ClientArea.Height - 8,
+                Width = rightPanel.ClientArea.Width - 4,
+                Height = rightPanel.ClientArea.Height - 4,
                 Anchor = Anchors.All
             };
             tabControl.AddPage();
             tabControl.TabPages[0].Text = "Inspector";
             tabControl.AddPage();
-            tabControl.TabPages[1].Text = "La segunda pestaña loco!!!";
+            tabControl.TabPages[1].Text = "Testing";
 
-            PanelCollapsible panel = new PanelCollapsible();
+            var panel = new PanelCollapsible();
+            panel.Top = 0;
             panel.Parent = tabControl.TabPages[0];
-            panel.Width = tabControl.ClientArea.Width;
+            panel.Width = tabControl.TabPages[0].ClientWidth - 20;
             panel.Text = "Transform";
-            Label label = new Label();
-            label.Parent = panel;
-            label.Text = "toto";
-            
-            PanelCollapsible panel2 = new PanelCollapsible
-            {
-                Width = tabControl.ClientArea.Width,
-                Text = "Otro tema",
-                Anchor = Anchors.Top,
-                Height = 20,
-            };
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+
+
+            var panel2 = new PanelCollapsible();
             panel2.Top = tabControl.TabPages[0].AvailablePositionInsideControl + 5;
             panel2.Parent = tabControl.TabPages[0];
+            panel2.Width = tabControl.TabPages[0].ClientWidth - 20;
+            panel2.Text = "Transform";
+
             Label label2 = new Label();
             label2.Parent = panel2;
-            label2.Text = "toto";
+            label2.Text = "Testing";
+            CommonControls.Vector3Box("Rotation", panel2, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel2, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel2, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel2, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel2, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel2, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel2, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel2, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel2, new Vector3(2, 1, 4));
+
+
 
             #endregion
 
