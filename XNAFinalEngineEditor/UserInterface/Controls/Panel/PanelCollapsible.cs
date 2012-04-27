@@ -100,6 +100,16 @@ namespace XNAFinalEngine.UserInterface
                         }
                     }
                 }
+                // Adjust the scrolling of all parents.
+                Control parent = Parent;
+                while (parent != null)
+                {
+                    if (parent is Container)
+                    {
+                        ((Container)parent).CalculateScrolling();
+                    }
+                    parent = parent.Parent;
+                }
             };
             treeButton.Checked = false;
         } // PanelCollapsible

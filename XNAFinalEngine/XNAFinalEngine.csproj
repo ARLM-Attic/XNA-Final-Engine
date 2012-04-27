@@ -92,9 +92,6 @@
     <Reference Include="System.Net">
       <Private>False</Private>
     </Reference>
-    <Reference Include="WiimoteLib">
-      <HintPath>References\WiimoteLib.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animations\ModelAnimationPlayer.cs" />

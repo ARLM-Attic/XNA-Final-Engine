@@ -108,34 +108,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Editor\EditableScene.cs" />
-    <Compile Include="Editor\EditorManager.cs" />
-    <Compile Include="Editor\Gizmos\Gizmo.cs" />
-    <Compile Include="Editor\Gizmos\GizmoTranslation.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Editor\Pickers\Picker.cs" />
-    <Compile Include="Editor\Scripts\ScriptStatisticsDrawer.cs" />
-    <Compile Include="Editor\Scripts\ScriptEditorCamera.cs" />
-    <Compile Include="Editor\Windows\Assets\TextureCubeWindow.cs" />
-    <Compile Include="Editor\Windows\Assets\TextureWindow.cs" />
-    <Compile Include="Editor\Windows\CommonControls.cs" />
-    <Compile Include="Editor\Windows\Assets\LookupTableWindow.cs" />
-    <Compile Include="Editor\Windows\Materials\BlinnPhongWindow.cs" />
-    <Compile Include="Editor\Windows\Materials\CarPaintWindow.cs" />
-    <Compile Include="Editor\Windows\Materials\ConstantWindow.cs" />
-    <Compile Include="Editor\Windows\Assets\PostProcessWindow.cs" />
-    <Compile Include="Scenes\MiscellaneousScene.cs" />
     <Compile Include="Scenes\LamborghiniMurcielagoScene.cs" />
     <Compile Include="Scenes\EmptyScene.cs" />
-    <Compile Include="Scenes\TutorialNeoForceUI.cs" />
+    <Compile Include="Scenes\NeoForceTestScene.cs" />
     <Compile Include="Scenes\TestScene.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Scenes\TutotialUI\TaskAutoScroll.cs" />
-    <Compile Include="Scenes\TutotialUI\TaskControls.cs" />
-    <Compile Include="Scenes\TutotialUI\TaskDialog.cs" />
-    <Compile Include="Scenes\TutotialUI\TaskEvents.cs" />
+    <Compile Include="Scenes\NeoForceScene\TaskAutoScroll.cs" />
+    <Compile Include="Scenes\NeoForceScene\TaskControls.cs" />
+    <Compile Include="Scenes\NeoForceScene\TaskDialog.cs" />
+    <Compile Include="Scenes\NeoForceScene\TaskEvents.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
@@ -145,9 +127,9 @@
       <Project>{E3A98759-8C7F-4660-8D70-1B89C1F04235}</Project>
       <Name>XNAFinalEngineContentPipelineExtensionRuntime</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\XNAFinalEngineUserInterface\XNAFinalEngineUserInterface.csproj">
-      <Project>{325E066A-2186-4FA6-A8DB-31A578C0CCDA}</Project>
-      <Name>XNAFinalEngineUserInterface</Name>
+    <ProjectReference Include="..\..\XNAFinalEngineEditor\XNAFinalEngineEditor.csproj">
+      <Project>{AD41E75E-4492-416C-B8BC-2DA3BAE1648B}</Project>
+      <Name>XNAFinalEngineEditor</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\XNAFinalEngine\XNAFinalEngine.csproj">
       <Project>{5AE97C4B-A27B-4C92-9D18-078227F41DE3}</Project>

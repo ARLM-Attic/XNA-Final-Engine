@@ -326,16 +326,7 @@ namespace XNAFinalEngine.UserInterface
         {
             base.Add(control, client);
             CalculateScrolling();
-            control.Resize += OnChildMoveOrResize;
-            control.Move += OnChildMoveOrResize;
         } // Add
-
-        internal override void Remove(Control control)
-        {
-            control.Resize -= OnChildMoveOrResize;
-            control.Move -= OnChildMoveOrResize;
-            base.Remove(control);
-        } // Remove
 
         #endregion
 
@@ -371,8 +362,7 @@ namespace XNAFinalEngine.UserInterface
                     }
                     AdjustMargins();
                 }
-                else
-                    PositionScrollBars();
+                PositionScrollBars();
 
                 foreach (Control childControl in ClientArea.ChildrenControls)
                 {
@@ -401,8 +391,7 @@ namespace XNAFinalEngine.UserInterface
                     }
                     AdjustMargins();
                 }
-                else
-                    PositionScrollBars();
+                PositionScrollBars();
 
                 foreach (Control childControl in ClientArea.ChildrenControls)
                 {
@@ -416,18 +405,6 @@ namespace XNAFinalEngine.UserInterface
             }
             adjustingScrolling = false;
         } // CalculateScrolling
-
-        #endregion
-        
-        #region On Child Move or Resize
-
-        /// <summary>
-        /// If a child move or changes its size then the scrolling could change.
-        /// </summary>
-        private void OnChildMoveOrResize(object sender, EventArgs e)
-        {
-            CalculateScrolling();
-        } // OnChildMoveOrResize
 
         #endregion
 

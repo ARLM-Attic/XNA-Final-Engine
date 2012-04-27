@@ -28,6 +28,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public ToolBarPanel()
         {
+            CanFocus = false;
             Width = 64;
             Height = 25;
         } // ToolBarPanel

@@ -44,15 +44,12 @@ namespace XNAFinalEngineExamples
 {
 
     /// <summary>
-    /// User Interface Tutorial.
-    /// This is the Neo Force UI exampled extended to show the new features like the color dialog.
+    /// This is the Neo Force UI example that I use to check that all controls still work.
     /// </summary>
-    public class TutorialNeoForceUIScene : Scene
+    public class NeoForceTestScene : Scene
     {
 
         #region Variables
-
-        #region Neo Force Variables
 
         private bool exit;
         private ExitDialog exitDialog;
@@ -85,8 +82,6 @@ namespace XNAFinalEngineExamples
         public Label lblObjects;
         public Label lblAvgFps;
         public Label lblFps;
-
-        #endregion
 
         #endregion
 
@@ -152,6 +147,7 @@ namespace XNAFinalEngineExamples
 
         private void InitControls()
         {
+            /*
             Container canvas = new Container();
             canvas.Top = 0;
             canvas.Left = 0;
@@ -159,7 +155,7 @@ namespace XNAFinalEngineExamples
             canvas.Height = Screen.Height;
             canvas.Anchor = Anchors.All;
             canvas.AutoScroll = false;
-            canvas.BackgroundColor = Color.Transparent;
+            canvas.BackgroundColor = Color.Transparent;*/
 
             sidebar = new Panel
             {
@@ -168,7 +164,7 @@ namespace XNAFinalEngineExamples
                 Width = 200,
                 Height = Screen.Height,
                 Anchor = Anchors.Left | Anchors.Top | Anchors.Bottom,
-                Parent = canvas,
+                //Parent = canvas,
             };
 
             MainMenu mnuMain = new MainMenu { Width = Screen.Width, Anchor = Anchors.Left | Anchors.Top };
@@ -178,13 +174,13 @@ namespace XNAFinalEngineExamples
             mnuMain.Items.Add(i3);
             mnuMain.Items.Add(i4);*/
 
-            canvas.MainMenu = mnuMain;
+            //canvas.MainMenu = mnuMain;
 
             InitRes();
             InitTasks();
             InitStats();
-            //InitSkins();
-            //InitConsole();
+            InitSkins();
+            InitConsole();
         } // InitControls
 
         #region Init Res
@@ -558,7 +554,6 @@ namespace XNAFinalEngineExamples
                 TaskDialog tmp = new TaskDialog();
                 tmp.Closing += WindowClosing;
                 tmp.Closed += WindowClosed;
-                tmp.BorderVisible = false;
 
                 Thread.Sleep(2000); // Sleep to demonstrate animated busy cursor
 

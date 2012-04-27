@@ -234,14 +234,20 @@ namespace XNAFinalEngine.Editor
                 AutoScroll = false,
                 BackgroundColor = Color.Transparent,
                 StayOnBack = true,
-                Passive = true
+                Passive = true,
+                CanFocus = false,
             };
             
             #endregion
 
             #region Main Menu
 
-            canvas.MainMenu = new MainMenu { Width = Screen.Width, Anchor = Anchors.Left | Anchors.Top };
+            canvas.MainMenu = new MainMenu
+            {
+                Width = Screen.Width,
+                Anchor = Anchors.Left | Anchors.Top,
+                CanFocus = false
+            };
             MenuItem menuItemFile = new MenuItem("File", true);
             canvas.MainMenu.Items.Add(menuItemFile);
             menuItemFile.ChildrenItems.AddRange(new[] { new MenuItem("New Scene"), new MenuItem("Open Scene"), new MenuItem("Exit", true) });
@@ -268,7 +274,8 @@ namespace XNAFinalEngine.Editor
                 Left = 10,
                 Top = 5,
                 Height = 15,
-                Parent = toolBarTopPanel
+                Parent = toolBarTopPanel,
+                CanFocus = false,
             };
             buttonSpace.Click += delegate
             {
