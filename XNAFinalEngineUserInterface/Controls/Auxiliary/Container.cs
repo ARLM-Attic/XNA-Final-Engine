@@ -33,15 +33,17 @@ namespace XNAFinalEngine.UserInterface
 
         #region Variables
 
+        // Controls
         private readonly ScrollBar scrollBarVertical;
         private readonly ScrollBar scrollBarHorizontal;
         private ToolBarPanel toolBarPanel;
         private MainMenu mainMenu;
         private StatusBar statusBar;
 
-        /// <summary>
-        /// The control that has inmediate focus. For example a button for closing a dialog.
-        /// </summary>
+        // To avoid infinite recursion.
+        private bool adjustingScrolling;
+
+        // The control that has inmediate focus. For example a button for closing a dialog.
         private Control defaultControl;
 
         #endregion
@@ -193,7 +195,7 @@ namespace XNAFinalEngine.UserInterface
                 Visible = false
             };
             scrollBarVertical.ValueChanged += ScrollBarValueChanged;
-            Add(scrollBarVertical, false);
+            base.Add(scrollBarVertical, false);
 
             scrollBarHorizontal = new ScrollBar(Orientation.Horizontal)
             {
@@ -205,18 +207,27 @@ namespace XNAFinalEngine.UserInterface
                 Visible = false
             };
             scrollBarHorizontal.ValueChanged += ScrollBarValueChanged;
-            Add(scrollBarHorizontal, false);
+            base.Add(scrollBarHorizontal, false);
+
+            AdjustMargins();
         } // Container
 
         #endregion
 
         #region Adjust Margins
 
+        /// <summary>
+        /// Adjust the controls margin.
+        /// </summary>
+        /// <remarks>
+        /// This implementation requires that the know margins are set before the base method is called because the base method use this modified information.
+        /// </remarks>
         protected override void AdjustMargins()
         {
-            // We get the size of the client area.
+            // We get the default size of the client area.
             Margins m = SkinInformation.ClientMargins;
 
+            // But probably this was changed in a upper AdjustMargins version.
             if (GetType() != typeof(Container))
             {
                 m = ClientMargins;
@@ -254,7 +265,7 @@ namespace XNAFinalEngine.UserInterface
             // We do the same for the scroll bars.
             if (scrollBarVertical != null) // The null check is for property assigment in the new sentence.
             {
-                if (scrollBarVertical.Visible) 
+                if (scrollBarVertical.Visible)
                 {
                     m.Right += (scrollBarVertical.Width + 2);
                 }
@@ -315,14 +326,28 @@ namespace XNAFinalEngine.UserInterface
         {
             base.Add(control, client);
             CalculateScrolling();
+            control.Resize += OnChildMoveOrResize;
+            control.Move += OnChildMoveOrResize;
         } // Add
+
+        internal override void Remove(Control control)
+        {
+            control.Resize -= OnChildMoveOrResize;
+            control.Move -= OnChildMoveOrResize;
+            base.Remove(control);
+        } // Remove
 
         #endregion
 
         #region Calculate Scrolling
 
-        private void CalculateScrolling()
+        internal void CalculateScrolling()
         {
+            // To avoid infinite recursion.
+            if (adjustingScrolling)
+                return;
+            adjustingScrolling = true;
+
             if (AutoScroll)
             {
 
@@ -330,8 +355,10 @@ namespace XNAFinalEngine.UserInterface
 
                 bool scrollBarVisible = scrollBarVertical.Visible;
                 scrollBarVertical.Visible = ClientArea.VirtualHeight > ClientArea.ClientHeight;
-                if (ClientArea.VirtualHeight <= ClientArea.ClientHeight) scrollBarVertical.Value = 0;
+                if (ClientArea.VirtualHeight <= ClientArea.ClientHeight) 
+                    scrollBarVertical.Value = 0;
 
+                // If visibility changes...
                 if (scrollBarVisible != scrollBarVertical.Visible)
                 {
                     if (!scrollBarVertical.Visible)
@@ -344,12 +371,13 @@ namespace XNAFinalEngine.UserInterface
                     }
                     AdjustMargins();
                 }
+                else
+                    PositionScrollBars();
 
-                PositionScrollBars();
-                foreach (Control c in ClientArea.ChildrenControls)
+                foreach (Control childControl in ClientArea.ChildrenControls)
                 {
-                    c.VerticalScrollingAmount = -scrollBarVertical.Value;
-                    c.Invalidate();
+                    childControl.VerticalScrollingAmount = -scrollBarVertical.Value;
+                    childControl.Invalidate();
                 }
 
                 #endregion
@@ -373,19 +401,33 @@ namespace XNAFinalEngine.UserInterface
                     }
                     AdjustMargins();
                 }
+                else
+                    PositionScrollBars();
 
-                PositionScrollBars();
-                foreach (Control c in ClientArea.ChildrenControls)
+                foreach (Control childControl in ClientArea.ChildrenControls)
                 {
-                    c.HorizontalScrollingAmount = -scrollBarHorizontal.Value;
+                    childControl.HorizontalScrollingAmount = -scrollBarHorizontal.Value;
                     scrollBarHorizontal.Refresh();
-                    c.Invalidate();
+                    childControl.Invalidate();
                 }
 
                 #endregion
                 
             }
+            adjustingScrolling = false;
         } // CalculateScrolling
+
+        #endregion
+        
+        #region On Child Move or Resize
+
+        /// <summary>
+        /// If a child move or changes its size then the scrolling could change.
+        /// </summary>
+        private void OnChildMoveOrResize(object sender, EventArgs e)
+        {
+            CalculateScrolling();
+        } // OnChildMoveOrResize
 
         #endregion
 

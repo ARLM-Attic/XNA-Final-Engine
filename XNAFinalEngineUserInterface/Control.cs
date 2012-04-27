@@ -194,7 +194,9 @@ namespace XNAFinalEngine.UserInterface
         #region Virtual Height, Virtual Width
 
         /// <summary>
-        /// Get the virtual height of this control, calculated between this control and its children and some other conditions.
+        /// Get the virtual height of this control. 
+        /// I.e. the height that is established by the children controls.
+        /// Sometimes the control is smaller so a scroll bar is needed.
         /// </summary>
         internal virtual int VirtualHeight
         {
@@ -202,14 +204,14 @@ namespace XNAFinalEngine.UserInterface
             {
                 if (Parent is Container && (Parent as Container).AutoScroll)
                 {
+                    // So it is a client area...
                     int maxHeight = 0;
-
-                    foreach (Control c in ChildrenControls)
+                    foreach (Control childControl in ChildrenControls)
                     {
-                        if ((c.Anchor & Anchors.Bottom) != Anchors.Bottom && c.Visible)
+                        if ((childControl.Anchor & Anchors.Bottom) != Anchors.Bottom && childControl.Visible)
                         {
-                            if (c.Top + c.Height > maxHeight)
-                                maxHeight = c.Top + c.Height;
+                            if (childControl.Top + childControl.Height > maxHeight)
+                                maxHeight = childControl.Top + childControl.Height;
                         }
                     }
                     if (maxHeight < Height)
@@ -222,7 +224,9 @@ namespace XNAFinalEngine.UserInterface
         } // VirtualHeight
 
         /// <summary>
-        /// Get the virtual width of this control, calculated between this control and its children and some other conditions.
+        /// Get the virtual width of this control. 
+        /// I.e. the width that is established by the children controls.
+        /// Sometimes the control is smaller so a scroll bar is needed.
         /// </summary>
         internal virtual int VirtualWidth
         {
@@ -230,6 +234,7 @@ namespace XNAFinalEngine.UserInterface
             {
                 if (Parent is Container && (Parent as Container).AutoScroll)
                 {
+                    // So it is a client area...
                     int maxWidth = 0;
 
                     foreach (Control c in ChildrenControls)
@@ -268,7 +273,8 @@ namespace XNAFinalEngine.UserInterface
 
                     SetAnchorMargins();
 
-                    if (!Suspended) OnMove(new MoveEventArgs(left, top, old, top));
+                    if (!Suspended)
+                        OnMove(new MoveEventArgs(left, top, old, top));
                 }
             }
         } // Left
@@ -288,7 +294,8 @@ namespace XNAFinalEngine.UserInterface
 
                     SetAnchorMargins();
 
-                    if (!Suspended) OnMove(new MoveEventArgs(left, top, left, old));
+                    if (!Suspended) 
+                        OnMove(new MoveEventArgs(left, top, left, old));
                 }
             }
         } // Top
@@ -311,17 +318,22 @@ namespace XNAFinalEngine.UserInterface
 
                     if (skinControl != null)
                     {
-                        if (width + skinControl.OriginMargins.Horizontal > MaximumWidth) width = MaximumWidth - skinControl.OriginMargins.Horizontal;
+                        if (width + skinControl.OriginMargins.Horizontal > MaximumWidth) 
+                            width = MaximumWidth - skinControl.OriginMargins.Horizontal;
                     }
                     else
                     {
-                        if (width > MaximumWidth) width = MaximumWidth;
+                        if (width > MaximumWidth) 
+                            width = MaximumWidth;
                     }
-                    if (width < MinimumWidth) width = MinimumWidth;
+                    if (width < MinimumWidth)
+                        width = MinimumWidth;
 
-                    if (width > MinimumWidth) SetAnchorMargins();
+                    if (width > MinimumWidth) 
+                        SetAnchorMargins();
 
-                    if (!Suspended) OnResize(new ResizeEventArgs(width, height, old, height));
+                    if (!Suspended) 
+                        OnResize(new ResizeEventArgs(width, height, old, height));
                 }
             }
         } // Width
@@ -356,7 +368,8 @@ namespace XNAFinalEngine.UserInterface
 
                     if (height > MinimumHeight) SetAnchorMargins();
 
-                    if (!Suspended) OnResize(new ResizeEventArgs(width, height, width, old));
+                    if (!Suspended) 
+                        OnResize(new ResizeEventArgs(width, height, width, old));
                 }
 
             }
@@ -371,16 +384,16 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual int MinimumWidth
         {
-            get
-            {
-                return minimumWidth;
-            }
+            get { return minimumWidth; }
             set
             {
                 minimumWidth = value;
-                if (minimumWidth < 0) minimumWidth = 0;
-                if (minimumWidth > maximumWidth) minimumWidth = maximumWidth;
-                if (width < MinimumWidth) Width = MinimumWidth;
+                if (minimumWidth < 0)
+                    minimumWidth = 0;
+                if (minimumWidth > maximumWidth)
+                    minimumWidth = maximumWidth;
+                if (width < MinimumWidth)
+                    Width = MinimumWidth;
             }
         } // MinimumWidth
 
@@ -389,16 +402,16 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual int MinimumHeight
         {
-            get
-            {
-                return minimumHeight;
-            }
+            get { return minimumHeight; }
             set
             {
                 minimumHeight = value;
-                if (minimumHeight < 0) minimumHeight = 0;
-                if (minimumHeight > maximumHeight) minimumHeight = maximumHeight;
-                if (height < MinimumHeight) Height = MinimumHeight;
+                if (minimumHeight < 0) 
+                    minimumHeight = 0;
+                if (minimumHeight > maximumHeight) 
+                    minimumHeight = maximumHeight;
+                if (height < MinimumHeight) 
+                    Height = MinimumHeight;
             }
         } // MinimumHeight
 
@@ -410,14 +423,17 @@ namespace XNAFinalEngine.UserInterface
             get
             {
                 int max = maximumWidth;
-                if (max > Screen.Width) max = Screen.Width;
+                if (max > Screen.Width)
+                    max = Screen.Width;
                 return max;
             }
             set
             {
                 maximumWidth = value;
-                if (maximumWidth < minimumWidth) maximumWidth = minimumWidth;
-                if (width > MaximumWidth) Width = MaximumWidth;
+                if (maximumWidth < minimumWidth) 
+                    maximumWidth = minimumWidth;
+                if (width > MaximumWidth) 
+                    Width = MaximumWidth;
             }
         } // MaximumWidth
 
@@ -429,14 +445,17 @@ namespace XNAFinalEngine.UserInterface
             get
             {
                 int max = maximumHeight;
-                if (max > Screen.Height) max = Screen.Height;
+                if (max > Screen.Height) 
+                    max = Screen.Height;
                 return max;
             }
             set
             {
                 maximumHeight = value;
-                if (maximumHeight < minimumHeight) maximumHeight = minimumHeight;
-                if (height > MaximumHeight) Height = MaximumHeight;
+                if (maximumHeight < minimumHeight)
+                    maximumHeight = minimumHeight;
+                if (height > MaximumHeight)
+                    Height = MaximumHeight;
             }
         } // MaximumHeight
 
@@ -658,9 +677,9 @@ namespace XNAFinalEngine.UserInterface
         internal virtual Margins DefaultDistanceFromAnotherControl { get { return margins; } set { margins = value; } }
 
         /// <summary>
-        /// Set control position.
+        /// Set control position without adjusting margins.
         /// </summary>
-        public void SetPosition(int _left, int _top)
+        internal void SetPosition(int _left, int _top)
         {
             left = _left;
             top = _top;

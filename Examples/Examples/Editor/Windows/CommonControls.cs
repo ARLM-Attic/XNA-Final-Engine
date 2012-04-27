@@ -108,9 +108,9 @@ namespace XNAFinalEngine.Editor
             {
                 Left = 10,
                 Value = initialValue,
-                Width = parent.ClientWidth - 25,
                 Top = label.Top + label.Height + 5,
                 Parent = parent,
+                Width = parent.ClientWidth - 25,
             };
 
             return vector3Box;

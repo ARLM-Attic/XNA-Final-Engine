@@ -60,10 +60,10 @@ namespace XNAFinalEngine.UserInterface
             
             // This is the control that manages the collapse functionality.
             treeButton = new TreeButton();
-            Add(treeButton, false);
-            treeButton.Width = Width;
-            TextChanged += delegate { treeButton.Text = Text; };
             treeButton.Anchor = Anchors.Left | Anchors.Right | Anchors.Top;
+            Add(treeButton, false);
+            treeButton.Width = ClientWidth;
+            TextChanged += delegate { treeButton.Text = Text; };
             treeButton.CanFocus = false;
 
             // The client area is lowered to make place to the previous control.
@@ -94,7 +94,7 @@ namespace XNAFinalEngine.UserInterface
                     // Move up or down the controls that are below this control
                     foreach (var childControl in Parent.ChildrenControls)
                     {
-                        if (childControl.Top > Top && childControl.Anchor == Anchors.Top)
+                        if (childControl.Top > Top && (childControl.Anchor & Anchors.Top) == Anchors.Top)
                         {
                             childControl.Top += differencial; 
                         }

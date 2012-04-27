@@ -558,6 +558,7 @@ namespace XNAFinalEngineExamples
                 TaskDialog tmp = new TaskDialog();
                 tmp.Closing += WindowClosing;
                 tmp.Closed += WindowClosed;
+                tmp.BorderVisible = false;
 
                 Thread.Sleep(2000); // Sleep to demonstrate animated busy cursor
 

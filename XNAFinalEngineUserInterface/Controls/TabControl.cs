@@ -61,6 +61,23 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
+        #region Adjust Margins
+
+        /// <summary>
+        /// Adjust the controls margin.
+        /// </summary>
+        /// <remarks>
+        /// This implementation requires that the know margins are set before the base method is called because the base method use this modified information.
+        /// </remarks>
+        protected override void AdjustMargins()
+        {
+            ClientMargins = new Margins(0, 0, 0, 0);
+
+            base.AdjustMargins();
+        } // AdjustMargins
+
+        #endregion
+
     } // TabPage
 
     public class TabControl : Container

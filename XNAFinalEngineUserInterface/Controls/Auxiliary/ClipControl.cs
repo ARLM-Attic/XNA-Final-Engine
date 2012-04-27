@@ -53,6 +53,16 @@ namespace XNAFinalEngine.UserInterface
             get { return base.ClientMargins; }
             set
             {
+                // Fix the range
+                if (value.Left < 0)
+                    value.Left = 0;
+                if (value.Right < 0)
+                    value.Right = 0;
+                if (value.Top < 0)
+                    value.Top = 0;
+                if (value.Bottom < 0)
+                    value.Bottom = 0;
+
                 base.ClientMargins = value;
                 if (ClientArea != null)
                 {
@@ -139,6 +149,9 @@ namespace XNAFinalEngine.UserInterface
 
         #region Adjust Margins
 
+        /// <summary>
+        /// Adjust the controls margin.
+        /// </summary>
         protected virtual void AdjustMargins()
         {
             // Overrite it!!

@@ -430,9 +430,14 @@ namespace XNAFinalEngine.UserInterface
 
         #region Adjust Margins
 
+        /// <summary>
+        /// Adjust the controls margin.
+        /// </summary>
+        /// <remarks>
+        /// This implementation requires that the know margins are set before the base method is called because the base method use this modified information.
+        /// </remarks>
         protected override void AdjustMargins()
         {
-
             if (captionVisible && borderVisible)
             {
                 ClientMargins = new Margins(SkinInformation.ClientMargins.Left,  SkinInformation.Layers[layerCaption].Height, 
