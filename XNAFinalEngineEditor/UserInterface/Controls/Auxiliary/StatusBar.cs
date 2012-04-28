@@ -42,7 +42,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinInformation = new SkinControl(Skin.Controls["StatusBar"]);
+            SkinInformation = new SkinControlInformation(Skin.Controls["StatusBar"]);
         } // InitSkin
 
         #endregion

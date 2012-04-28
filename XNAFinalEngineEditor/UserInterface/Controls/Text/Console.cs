@@ -297,7 +297,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinInformation = new SkinControl(Skin.Controls["Console"]);
+            SkinInformation = new SkinControlInformation(Skin.Controls["Console"]);
             PositionControls();
         } // InitSkin
 

@@ -181,7 +181,7 @@ namespace XNAFinalEngine.UserInterface
 
             buttonClose = new Button
             {
-                SkinInformation = new SkinControl(Skin.Controls[skinButton]),
+                SkinInformation = new SkinControlInformation(Skin.Controls[skinButton]),
                 Detached = true,
                 CanFocus = false,
                 Text = null,
@@ -219,7 +219,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinInformation = new SkinControl(Skin.Controls[skinWindow]);
+            SkinInformation = new SkinControlInformation(Skin.Controls[skinWindow]);
             AdjustMargins();
 
             CheckLayer(SkinInformation, layerWindow);
@@ -241,7 +241,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private void ButtonClose_SkinChanged(object sender, EventArgs e)
         {
-            buttonClose.SkinInformation = new SkinControl(Skin.Controls[skinButton]);
+            buttonClose.SkinInformation = new SkinControlInformation(Skin.Controls[skinButton]);
         } // ButtonClose_SkinChanged
 
         /// <summary>
@@ -266,7 +266,7 @@ namespace XNAFinalEngine.UserInterface
 
             if (Visible && Shadow)
             {
-                SkinControl skinControlShadow = Skin.Controls[skinShadow];
+                SkinControlInformation skinControlShadow = Skin.Controls[skinShadow];
                 SkinLayer   skinLayerShadow   = skinControlShadow.Layers[layerShadow];
 
                 Color shadowColor = Color.FromNonPremultiplied(skinLayerShadow.States.Enabled.Color.R, skinLayerShadow.States.Enabled.Color.G, skinLayerShadow.States.Enabled.Color.B, Alpha);

@@ -319,59 +319,21 @@ namespace XNAFinalEngine.Editor
             };
             tabControl.AddPage();
             tabControl.TabPages[0].Text = "Inspector";
-            tabControl.AddPage();
-            tabControl.TabPages[1].Text = "Testing";
-
             var panel = new PanelCollapsible();
             panel.Anchor = Anchors.Left | Anchors.Right | Anchors.Top;
-            panel.Top = 0;
             panel.Parent = tabControl.TabPages[0];
             panel.Width = tabControl.TabPages[0].ClientWidth;
             panel.Text = "Transform";
             CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
             CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
             CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            
-            var panel2 = new PanelCollapsible();
-            panel2.Anchor = Anchors.Left | Anchors.Right | Anchors.Top;
-            panel2.Top = tabControl.TabPages[0].AvailablePositionInsideControl + 5;
-            panel2.Parent = tabControl.TabPages[0];
-            panel2.Width = tabControl.TabPages[0].ClientWidth;
-            panel2.Text = "Transform";
-            
-            /*
-            Label label2 = new Label();
-            label2.Parent = panel2;
-            label2.Text = "Testing";*/
-            CommonControls.Vector3Box("Rotation", panel2, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel2, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel2, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel2, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel2, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel2, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel2, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel2, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel2, new Vector3(2, 1, 4));
 
             #endregion
 
             #endregion
 
-            // Call the manager's update and render methods in the correct order without explicit calls. 
-            editorManagerGameObject = new GameObject2D();
+                // Call the manager's update and render methods in the correct order without explicit calls. 
+                editorManagerGameObject = new GameObject2D();
             editorManagerGameObject.AddComponent<ScripEditorManager>();
         } // Initialize
 

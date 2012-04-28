@@ -95,7 +95,8 @@ namespace XNAFinalEngine.UserInterface
                 for (int i = 0; i < Count; i++)
                 {
                     SkinBase s = (SkinBase)(object)this[i];
-                    if (s.Name.ToLower() == index.ToLower())
+                    //if (s.Name.ToLower() == index.ToLower())
+                    if (s.Name == index)
                     {
                         this[i] = value;
                     }
@@ -406,7 +407,7 @@ namespace XNAFinalEngine.UserInterface
 
     #region SkinControl
 
-    public class SkinControl : SkinBase
+    public class SkinControlInformation : SkinBase
     {
 
         #region Variables
@@ -423,9 +424,9 @@ namespace XNAFinalEngine.UserInterface
 
         #region Constructors
 
-        public SkinControl() { }
+        public SkinControlInformation() { }
 
-        public SkinControl(SkinControl source) : base(source)
+        public SkinControlInformation(SkinControlInformation source) : base(source)
         {
             DefaultSize = source.DefaultSize;
             MinimumSize = source.MinimumSize;
@@ -499,7 +500,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Skin information for controls.
         /// </summary>
-        public static SkinList<SkinControl> Controls { get; private set; }
+        public static SkinList<SkinControlInformation> Controls { get; private set; }
 
         /// <summary>
         /// Skin information for fonts.
@@ -531,7 +532,7 @@ namespace XNAFinalEngine.UserInterface
 
             #region Unload previous skin
             
-            Controls = new SkinList<SkinControl>();
+            Controls = new SkinList<SkinControlInformation>();
             Fonts = new SkinList<SkinFont>();
             Images = new SkinList<SkinImage>();
             #if (WINDOWS)
@@ -593,7 +594,7 @@ namespace XNAFinalEngine.UserInterface
                 {
                     skinImage.Texture = new Texture("Skin\\" + skinName + "\\" + skinImage.Filename);
                 }
-                foreach (SkinControl skinControl in Controls)
+                foreach (SkinControlInformation skinControl in Controls)
                 {
                     foreach (SkinLayer skinLayer in skinControl.Layers)
                     {
@@ -635,17 +636,17 @@ namespace XNAFinalEngine.UserInterface
 
             foreach (XElement control in skinDescription.Resource.Descendants("Control"))
             {
-                SkinControl skinControl;
+                SkinControlInformation skinControl;
                 // Create skin control
                 string parent = ReadAttribute(control, "Inherits", null, false);
                 bool inherit = false;
                 if (parent != null) // If there is a parent then it loads the information from it.
                 {
-                    skinControl = new SkinControl(Controls[parent]);
+                    skinControl = new SkinControlInformation(Controls[parent]);
                     inherit = true;
                 }
                 else
-                    skinControl = new SkinControl();
+                    skinControl = new SkinControlInformation();
 
                 // Load general information
                 ReadAttribute(ref skinControl.Name, inherit, control, "Name", null, true);
@@ -689,7 +690,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Load layers information.
         /// </summary>
-        private static void LoadLayer(SkinControl skinControl, XElement layerNode)
+        private static void LoadLayer(SkinControlInformation skinControl, XElement layerNode)
         {
             string name = ReadAttribute(layerNode, "Name", null, true);
             bool over = ReadAttribute(layerNode, "Override", false, false);

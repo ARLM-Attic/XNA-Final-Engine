@@ -39,7 +39,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinInformation = new SkinControl(Skin.Controls["ToolBarButton"]);
+            SkinInformation = new SkinControlInformation(Skin.Controls["ToolBarButton"]);
         } // InitSkin
 
         #endregion

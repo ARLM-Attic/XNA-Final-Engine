@@ -77,7 +77,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinInformation = new SkinControl(Skin.Controls["ContextMenu"]);
+            SkinInformation = new SkinControlInformation(Skin.Controls["ContextMenu"]);
         } // InitSkin
 
         #endregion

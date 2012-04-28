@@ -117,11 +117,11 @@ namespace XNAFinalEngine.UserInterface
             TopPanel.BevelMargin = int.Parse(Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["BevelMargin"].Value);
             TopPanel.BevelStyle = ParseBevelStyle(Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["BevelStyle"].Value);
 
-            Caption.SkinInformation = new SkinControl(Caption.SkinInformation);
+            Caption.SkinInformation = new SkinControlInformation(Caption.SkinInformation);
             Caption.SkinInformation.Layers[0] = lc;
             Caption.Height = Skin.Fonts[Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["CaptFont"].Value].Height;
 
-            Description.SkinInformation = new SkinControl(Description.SkinInformation);
+            Description.SkinInformation = new SkinControlInformation(Description.SkinInformation);
             Description.SkinInformation.Layers[0] = ld;
             Description.Height = Skin.Fonts[Skin.Controls["Dialog"].Layers["TopPanel"].Attributes["DescFont"].Value].Height;
             Description.Top = Caption.Top + Caption.Height + 4;

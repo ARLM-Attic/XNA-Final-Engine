@@ -163,7 +163,7 @@ namespace XNAFinalEngine.UserInterface
 
             buttonDown = new Button
             {
-                SkinInformation = new SkinControl(Skin.Controls["ComboBox.Button"]),
+                SkinInformation = new SkinControlInformation(Skin.Controls["ComboBox.Button"]),
                 CanFocus = false
             };
             buttonDown.Click += ButtonDownClick;
@@ -207,7 +207,7 @@ namespace XNAFinalEngine.UserInterface
             listCombo.FocusLost += ListComboFocusLost;
             UserInterfaceManager.InputSystem.MouseDown += InputMouseDown;
 
-            listCombo.SkinInformation = new SkinControl(Skin.Controls["ComboBox.ListBox"]);
+            listCombo.SkinInformation = new SkinControlInformation(Skin.Controls["ComboBox.ListBox"]);
             buttonDown.Glyph = new Glyph(Skin.Images["Shared.ArrowDown"].Texture)
             {
                 Color =
@@ -220,7 +220,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinInformation = new SkinControl(Skin.Controls["ComboBox"]);
+            SkinInformation = new SkinControlInformation(Skin.Controls["ComboBox"]);
             AdjustMargins();
             ReadOnly = ReadOnly; // To init the right cursor
         } // InitSkin

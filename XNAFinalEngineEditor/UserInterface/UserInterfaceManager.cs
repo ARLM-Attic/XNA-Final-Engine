@@ -596,6 +596,7 @@ namespace XNAFinalEngine.UserInterface
         {
             if (control != null)
             {
+                // If the control father is the manager...
                 if (!RootControls.Contains(control))
                 {
                     if (control.Parent != null) 
@@ -604,9 +605,6 @@ namespace XNAFinalEngine.UserInterface
                     control.Parent = null;
                     if (focusedControl == null) 
                         control.Focused = true;
-                    DeviceSettingsChanged += control.OnDeviceSettingsChanged;
-                    SkinChanging += control.OnSkinChanging;
-                    SkinChanged += control.OnSkinChanged;
                     WindowResize += control.OnParentResize;
                 }
             }
@@ -620,13 +618,11 @@ namespace XNAFinalEngine.UserInterface
         {
             if (control != null)
             {
-                SkinChanging -= control.OnSkinChanging;
-                SkinChanged -= control.OnSkinChanged;
-                DeviceSettingsChanged -= control.OnDeviceSettingsChanged;
-                WindowResize -= control.OnParentResize;
                 if (control.Focused) 
                     control.Focused = false;
                 RootControls.Remove(control);
+                // Remove event
+                WindowResize -= control.OnParentResize;
             }
         } // Remove
 

@@ -133,7 +133,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinInformation = new SkinControl(Skin.Controls["Button"]);
+            SkinInformation = new SkinControlInformation(Skin.Controls["Button"]);
         } // InitSkin
 
         #endregion

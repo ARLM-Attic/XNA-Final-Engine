@@ -472,7 +472,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinInformation = new SkinControl(Skin.Controls["TextBox"]);
+            SkinInformation = new SkinControlInformation(Skin.Controls["TextBox"]);
 
             #if (WINDOWS)
                 Cursor = Skin.Cursors["Text"].Cursor;

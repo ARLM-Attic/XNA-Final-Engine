@@ -146,7 +146,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinInformation = new SkinControl(Skin.Controls["Panel"]);
+            SkinInformation = new SkinControlInformation(Skin.Controls["Panel"]);
         } // InitSkin
 
         #endregion

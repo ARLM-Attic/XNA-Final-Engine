@@ -270,7 +270,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void Init()
         {
             base.Init();
-            buttonSlider.SkinInformation = new SkinControl(Skin.Controls["TrackBar.Button"]);
+            buttonSlider.SkinInformation = new SkinControlInformation(Skin.Controls["TrackBar.Button"]);
             buttonSlider.Move += ButtonSlider_Move;
             buttonSlider.KeyPress += ButtonSlider_KeyPress;
         } // Init
@@ -278,7 +278,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinInformation = new SkinControl(Skin.Controls["TrackBar"]);
+            SkinInformation = new SkinControlInformation(Skin.Controls["TrackBar"]);
         } // InitSkin
 
         #endregion

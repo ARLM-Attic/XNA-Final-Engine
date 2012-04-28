@@ -211,12 +211,12 @@ namespace XNAFinalEngine.UserInterface
         {
             base.Init();
 
-            SkinControl sc = new SkinControl(buttonPlus.SkinInformation);
+            SkinControlInformation sc = new SkinControlInformation(buttonPlus.SkinInformation);
             sc.Layers["Control"] = new SkinLayer(SkinInformation.Layers[skinButton]);
             sc.Layers[skinButton].Name = "Control";
             buttonPlus.SkinInformation = buttonMinus.SkinInformation = sc;
 
-            SkinControl ss = new SkinControl(buttonSlider.SkinInformation);
+            SkinControlInformation ss = new SkinControlInformation(buttonSlider.SkinInformation);
             ss.Layers["Control"] = new SkinLayer(SkinInformation.Layers[skinSlider]);
             ss.Layers[skinSlider].Name = "Control";
             buttonSlider.SkinInformation = ss;
@@ -239,7 +239,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal override void InitSkin()
         {
             base.InitSkin();
-            SkinInformation = new SkinControl(Skin.Controls["ScrollBar"]);
+            SkinInformation = new SkinControlInformation(Skin.Controls["ScrollBar"]);
         } // InitSkin
 
         #endregion

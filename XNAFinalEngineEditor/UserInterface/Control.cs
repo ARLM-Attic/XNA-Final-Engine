@@ -114,7 +114,7 @@ namespace XNAFinalEngine.UserInterface
         private Rectangle drawingRect = Rectangle.Empty;
 
         // The skin parameters used for rendering the control.
-        private SkinControl skinControl;
+        private SkinControlInformation skinControl;
 
         // Indicates whether the control can respond to user interaction.
         private bool enabled = true;
@@ -162,7 +162,7 @@ namespace XNAFinalEngine.UserInterface
         private int maximumHeight = 4096;
 
         // Stack that stores new controls.
-        private static readonly Stack<Control> newControls = new Stack<Control>();
+        private static readonly Queue<Control> newControls = new Queue<Control>();
 
         private Anchors resizeEdge = Anchors.All;
         private string text = "Control";
@@ -959,7 +959,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Gets or sets the skin parameters used for rendering the control.
         /// </summary>
-        internal virtual SkinControl SkinInformation
+        internal virtual SkinControlInformation SkinInformation
         {
             get { return skinControl; }
             set
@@ -1192,14 +1192,19 @@ namespace XNAFinalEngine.UserInterface
             InitSkin();
             // Check skin layer existance.
             CheckLayer(skinControl, "Control");
-
+            
             SetDefaultSize(width, height);
             SetMinimumSize(MinimumWidth, MinimumHeight);
             ResizerSize = skinControl.ResizerSize;
 
             // Add control to the list of all controls.
             controlList.Add(this);
-            newControls.Push(this);
+            newControls.Enqueue(this);
+
+            // Events.
+            UserInterfaceManager.DeviceSettingsChanged += OnDeviceSettingsChanged;
+            UserInterfaceManager.SkinChanging += OnSkinChanging;
+            UserInterfaceManager.SkinChanged += OnSkinChanged;
         } // Control
 
         #endregion
@@ -1209,7 +1214,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Check that the skin layer exist.
         /// </summary>
-        protected void CheckLayer(SkinControl skinControl, string layer)
+        protected void CheckLayer(SkinControlInformation skinControl, string layer)
         {
             if (!(skinControl != null && skinControl.Layers != null && skinControl.Layers.Count > 0 && skinControl.Layers[layer] != null))
             {
@@ -1234,11 +1239,11 @@ namespace XNAFinalEngine.UserInterface
         {
             if (Skin.Controls != null)
             {
-                SkinControl _skinControl = Skin.Controls[Utilities.ControlTypeName(this)];
+                SkinControlInformation _skinControl = Skin.Controls[Utilities.ControlTypeName(this)];
                 if (_skinControl != null)
-                    SkinInformation = new SkinControl(_skinControl);
+                    SkinInformation = _skinControl;
                 else
-                    SkinInformation = new SkinControl(Skin.Controls["Control"]);
+                    SkinInformation = new SkinControlInformation(Skin.Controls["Control"]);
             }
             else
             {
@@ -1273,6 +1278,11 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected override void DisposeManagedResources()
         {
+            // Remove events.
+            UserInterfaceManager.DeviceSettingsChanged -= OnDeviceSettingsChanged;
+            UserInterfaceManager.SkinChanging -= OnSkinChanging;
+            UserInterfaceManager.SkinChanged -= OnSkinChanged;
+
             if (parent != null)
                 parent.Remove(this);
             else
@@ -1290,13 +1300,10 @@ namespace XNAFinalEngine.UserInterface
             // The collection might change from its children, so we check it on count greater than zero.
             if (childrenControls != null)
             {
-                int c = childrenControls.Count;
-                for (int i = 0; i < c; i++)
+                int childrenControlsCount = childrenControls.Count;
+                for (int i = childrenControlsCount - 1; i >= 0; i--)
                 {
-                    if (childrenControls.Count > 0)
-                    {
-                        childrenControls[0].Dispose();
-                    }
+                    childrenControls[i].Dispose();
                 }
             }
 
@@ -1306,10 +1313,23 @@ namespace XNAFinalEngine.UserInterface
 
             // Removing this control from the global stack.
             controlList.Remove(this);
+            // Remove object from queue to avoid a memory leak.
+            if (newControls.Contains(this))
+            {
+                while(true)
+                {
+                    if (newControls.Peek() == this)
+                    {
+                        newControls.Dequeue();
+                        break;
+                    }
+                    newControls.Enqueue(newControls.Peek());
+                    newControls.Dequeue();
+                }
+            }
 
             if (renderTarget != null)
                 renderTarget.Dispose();
-
         } // DisposeManagedResources
 
         #endregion
@@ -1725,14 +1745,12 @@ namespace XNAFinalEngine.UserInterface
                     control.Enabled = (Enabled ? control.Enabled : Enabled);
                     childrenControls.Add(control);
 
-                    UserInterfaceManager.DeviceSettingsChanged += control.OnDeviceSettingsChanged;
-                    UserInterfaceManager.SkinChanging += control.OnSkinChanging;
-                    UserInterfaceManager.SkinChanged += control.OnSkinChanged;
                     Resize += control.OnParentResize;
 
                     control.SetAnchorMargins();
 
-                    if (!Suspended) OnParentChanged(new EventArgs());
+                    if (!Suspended) 
+                        OnParentChanged(new EventArgs());
                 }
             }
         } // Add
@@ -1744,20 +1762,20 @@ namespace XNAFinalEngine.UserInterface
         {
             if (control != null)
             {
-                if (control.Focused && control.Root != null) control.Root.Focused = true;
-                else if (control.Focused) control.Focused = false;
+                if (control.Focused && control.Root != null) 
+                    control.Root.Focused = true;
+                else if (control.Focused) 
+                    control.Focused = false;
 
                 childrenControls.Remove(control);
 
                 control.parent = null;
                 control.Root = control;
-
+                
                 Resize -= control.OnParentResize;
-                UserInterfaceManager.DeviceSettingsChanged -= control.OnDeviceSettingsChanged;
-                UserInterfaceManager.SkinChanging -= control.OnSkinChanging;
-                UserInterfaceManager.SkinChanged -= control.OnSkinChanged;
 
-                if (!Suspended) OnParentChanged(new EventArgs());
+                if (!Suspended) 
+                    OnParentChanged(new EventArgs());
             }
         } // Remove
 
@@ -2590,9 +2608,7 @@ namespace XNAFinalEngine.UserInterface
         protected internal void OnDeviceSettingsChanged(DeviceEventArgs e)
         {
             if (!e.Handled)
-            {
                 Invalidate();
-            }
         } // OnDeviceSettingsChanged
 
         protected virtual void OnMouseUp(MouseEventArgs e)
@@ -2822,7 +2838,7 @@ namespace XNAFinalEngine.UserInterface
             while (newControls.Count > 0)
             {
                 newControls.Peek().Init();
-                newControls.Pop();
+                newControls.Dequeue();
             }
         } // InitializeNewControls
 

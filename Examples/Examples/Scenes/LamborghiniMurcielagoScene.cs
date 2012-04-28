@@ -975,10 +975,10 @@ namespace XNAFinalEngineExamples
             #endregion
 
             #region Statistics
-            /*
+            
             statistics = new GameObject2D();
             statistics.AddComponent<ScriptStatisticsDrawer>();
-            GameLoop.ShowFramesPerSecond = true;*/
+            GameLoop.ShowFramesPerSecond = true;
 
             #endregion
 
