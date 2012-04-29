@@ -344,6 +344,10 @@ namespace XNAFinalEngine.EngineCore
             
             #region Render Each Camera
             
+            if (Camera.OnlyRendereableCamera != null)
+            {
+                RenderMasterCamera(Camera.OnlyRendereableCamera);
+            }
             // For each camera we render the scene in it
             for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
             {
@@ -351,47 +355,7 @@ namespace XNAFinalEngine.EngineCore
                 // If is a master camera
                 if (currentCamera.MasterCamera == null && currentCamera.Visible && Layer.IsActive(currentCamera.CachedLayerMask))
                 {
-                    if (currentCamera.RenderTarget != null)
-                        RenderTarget.Release(currentCamera.RenderTarget);
-                    // If it does not have slaves cameras and it occupied the whole render target...
-                    if (currentCamera.slavesCameras.Count == 0 && currentCamera.NormalizedViewport == new RectangleF(0, 0, 1, 1))
-                        currentCamera.RenderTarget = RenderCamera(currentCamera);
-                    else
-                    {
-                        // Render each camera to a render target and then merge.
-                        currentCamera.PartialRenderTarget = RenderCamera(currentCamera);
-                        for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
-                        {
-                            if (currentCamera.slavesCameras[i].Visible && Layer.IsActive(currentCamera.slavesCameras[i].CachedLayerMask))
-                                // I store the render of the camera to a partial render target.
-                                // This helps reduce the memory consumption (GBuffer, Light Pass, HDR pass)
-                                // at the expense of a pass that copy this texture to a bigger render target
-                                // and a last pass that copy the cameras’ render target to the back buffer.
-                                // If the performance is critical and there is more memory you should change this behavior.
-                                // It also simplified the render of one camera. 
-                                currentCamera.slavesCameras[i].PartialRenderTarget = RenderCamera(currentCamera.slavesCameras[i]);
-                        }
-                        // Composite cameras
-                        currentCamera.RenderTarget = RenderTarget.Fetch(currentCamera.RenderTargetSize, SurfaceFormat.Color, DepthFormat.None,
-                                                                        RenderTarget.AntialiasingType.NoAntialiasing);
-                        currentCamera.RenderTarget.EnableRenderTarget();
-                        currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
-                        EngineManager.Device.Viewport = new Viewport(currentCamera.Viewport.X, currentCamera.Viewport.Y,
-                                                                     currentCamera.Viewport.Width, currentCamera.Viewport.Height);
-                        SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget, true);
-                        RenderTarget.Release(currentCamera.PartialRenderTarget);
-                        for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
-                        {
-                            if (currentCamera.slavesCameras[i].Visible && Layer.IsActive(currentCamera.slavesCameras[i].CachedLayerMask))
-                            {
-                                EngineManager.Device.Viewport = new Viewport(currentCamera.slavesCameras[i].Viewport.X, currentCamera.slavesCameras[i].Viewport.Y,
-                                                                             currentCamera.slavesCameras[i].Viewport.Width, currentCamera.slavesCameras[i].Viewport.Height);
-                                SpriteManager.DrawTextureToFullScreen(currentCamera.slavesCameras[i].PartialRenderTarget, true);
-                                RenderTarget.Release(currentCamera.slavesCameras[i].PartialRenderTarget);
-                            }
-                        }
-                        currentCamera.RenderTarget.DisableRenderTarget();
-                    }
+                    RenderMasterCamera(currentCamera);
                 }
             }
             
@@ -413,7 +377,7 @@ namespace XNAFinalEngine.EngineCore
 
             EngineManager.Device.Clear(Color.Black);
             // Render onto back buffer the main camera and the HUD.
-            if (Camera.MainCamera != null && Camera.MainCamera.RenderTarget != null)
+            if (Camera.MainCamera != null)
                 SpriteManager.DrawTextureToFullScreen(Camera.MainCamera.RenderTarget);
 
             #endregion
@@ -631,6 +595,57 @@ namespace XNAFinalEngine.EngineCore
 
         #region Render Camera
 
+        /// <summary>
+        /// Render a master camera and its slaves.
+        /// </summary>
+        private static void RenderMasterCamera(Camera currentCamera)
+        {
+            if (currentCamera.RenderTarget != null)
+                RenderTarget.Release(currentCamera.RenderTarget);
+            // If it does not have slaves cameras and it occupied the whole render target...
+            if (currentCamera.slavesCameras.Count == 0 && currentCamera.NormalizedViewport == new RectangleF(0, 0, 1, 1))
+                currentCamera.RenderTarget = RenderCamera(currentCamera);
+            else
+            {
+                // Render each camera to a render target and then merge.
+                currentCamera.PartialRenderTarget = RenderCamera(currentCamera);
+                for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
+                {
+                    if (currentCamera.slavesCameras[i].Visible && Layer.IsActive(currentCamera.slavesCameras[i].CachedLayerMask))
+                        // I store the render of the camera to a partial render target.
+                        // This helps reduce the memory consumption (GBuffer, Light Pass, HDR pass)
+                        // at the expense of a pass that copy this texture to a bigger render target
+                        // and a last pass that copy the cameras’ render target to the back buffer.
+                        // If the performance is critical and there is more memory you should change this behavior.
+                        // It also simplified the render of one camera. 
+                        currentCamera.slavesCameras[i].PartialRenderTarget = RenderCamera(currentCamera.slavesCameras[i]);
+                }
+                // Composite cameras
+                currentCamera.RenderTarget = RenderTarget.Fetch(currentCamera.RenderTargetSize, SurfaceFormat.Color, DepthFormat.None,
+                                                                RenderTarget.AntialiasingType.NoAntialiasing);
+                currentCamera.RenderTarget.EnableRenderTarget();
+                currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
+                EngineManager.Device.Viewport = new Viewport(currentCamera.Viewport.X, currentCamera.Viewport.Y,
+                                                             currentCamera.Viewport.Width, currentCamera.Viewport.Height);
+                SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget, true);
+                RenderTarget.Release(currentCamera.PartialRenderTarget);
+                for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
+                {
+                    if (currentCamera.slavesCameras[i].Visible && Layer.IsActive(currentCamera.slavesCameras[i].CachedLayerMask))
+                    {
+                        EngineManager.Device.Viewport = new Viewport(currentCamera.slavesCameras[i].Viewport.X, currentCamera.slavesCameras[i].Viewport.Y,
+                                                                     currentCamera.slavesCameras[i].Viewport.Width, currentCamera.slavesCameras[i].Viewport.Height);
+                        SpriteManager.DrawTextureToFullScreen(currentCamera.slavesCameras[i].PartialRenderTarget, true);
+                        RenderTarget.Release(currentCamera.slavesCameras[i].PartialRenderTarget);
+                    }
+                }
+                currentCamera.RenderTarget.DisableRenderTarget();
+            }
+        } // RenderMainCamera
+
+        /// <summary>
+        /// Deferred lighting pipeline for one camera.
+        /// </summary>
         private static RenderTarget RenderCamera(Camera currentCamera)
         {
             

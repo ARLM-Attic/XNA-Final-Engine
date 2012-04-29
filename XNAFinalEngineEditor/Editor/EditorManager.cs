@@ -126,10 +126,7 @@ namespace XNAFinalEngine.Editor
         // The editor camera.
         private static GameObject3D editorCamera, gizmoCamera;
         private static ScriptEditorCamera editorCameraScript;
-
-        // The game main camera.
-        private static Camera gameMainCamera;
-
+        
         // The picker to select an object from the screen.
         private static Picker picker;
 
@@ -446,9 +443,7 @@ namespace XNAFinalEngine.Editor
                 return;
             UserInterfaceManager.Visible = false;
             editorModeEnabled = false;
-            if (gameMainCamera != null)
-                gameMainCamera.Visible = true;
-            gameMainCamera = null;
+            Camera.OnlyRendereableCamera = null;
             editorCamera.Camera.Visible = false;
             gizmoCamera.Camera.Visible = false;
             // Remove bounding box off the screen.
@@ -483,7 +478,6 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static void Update()
         {
-            //UserInterfaceManager.Visible = false;
 
             #region If no update is needed...
 
@@ -497,24 +491,9 @@ namespace XNAFinalEngine.Editor
 
             #region Prepare viewport mode
 
-            // Find Current Camera
-            Camera currentCamera;
-            if (Camera.MainCamera != null)
-                currentCamera = Camera.MainCamera;
-            else
-                currentCamera = null;
-            // If the main camera changes then restore the visibility of the old main camera.
-            if (currentCamera != gameMainCamera)
-            {
-                if (gameMainCamera != null)
-                    gameMainCamera.Visible = true;
-                gameMainCamera = currentCamera;
-            }
-
             if (ViewportMode == ViewportModeType.Scene)
             {
-                if (gameMainCamera != null)
-                    gameMainCamera.Visible = false;
+                Camera.OnlyRendereableCamera = editorCamera.Camera;
                 editorCamera.Camera.Visible = true;
                 gizmoCamera.Camera.Visible = true;
                 // Restore bounding box to the current selected objects.
@@ -532,8 +511,7 @@ namespace XNAFinalEngine.Editor
             }
             else
             {
-                if (gameMainCamera != null)
-                    gameMainCamera.Visible = true;
+                Camera.OnlyRendereableCamera = null;
                 editorCamera.Camera.Visible = false;
                 gizmoCamera.Camera.Visible = false;
                 // Remove the bounding box in game mode.

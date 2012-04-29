@@ -508,6 +508,8 @@ namespace XNAFinalEngine.Components
         {
             get
             {
+                if (OnlyRendereableCamera != null)
+                    return OnlyRendereableCamera;
                 for (int i = componentPool.Count - 1; i >= 0; i--)
                 {
                     // A slave camera could have a bigger value than its master
@@ -518,6 +520,14 @@ namespace XNAFinalEngine.Components
                 return null;
             }
         } // MainCamera
+
+        /// <summary>
+        /// If this is different than null the system will render only this camera.
+        /// </summary>
+        /// <remarks>
+        /// The visibility property will be ignored in the camera. 
+        /// </remarks>
+        public static Camera OnlyRendereableCamera { get; set; }
 
         #endregion
 
