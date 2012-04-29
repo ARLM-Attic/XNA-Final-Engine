@@ -61,11 +61,6 @@ namespace XNAFinalEngine.EngineCore
     {
 
         #region Variables
-        
-        /// <summary>
-        /// This game object will show the frames per second onto screen.
-        /// </summary>
-        private static GameObject2D fpsText;
 
         // It's an auxiliary value that helps avoiding garbage.
         private static Vector3[] cornersViewSpace = new Vector3[4];
@@ -89,11 +84,6 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static Scene CurrentScene { get; set; }
 
-        /// <summary>
-        /// Show frames per second onto screen.
-        /// </summary>
-        public static bool ShowFramesPerSecond { get; set; }
-
         #endregion
 
         #region Load Content
@@ -116,18 +106,6 @@ namespace XNAFinalEngine.EngineCore
             MusicManager.Initialize();
             // Lines
             LineManager.Initialize();
-
-            #endregion
-
-            #region FPS
-
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
-            fpsText = new GameObject2D();
-            fpsText.AddComponent<HudText>();
-            fpsText.HudText.Font = new Font("Arial12");
-            fpsText.HudText.Color = Color.Yellow;
-            fpsText.HudText.Text.Insert(0, "FPS ");
-            fpsText.Transform.LocalRotation = 0f;
 
             #endregion
 
@@ -306,16 +284,6 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            #region Update Frames Per Second Text
-
-            // Update frames per second visibility.
-            fpsText.HudText.Visible = ShowFramesPerSecond;
-            fpsText.Transform.LocalPosition = new Vector3(Screen.Width - 100, 20, 0);
-            fpsText.HudText.Text.Length = 4;
-            fpsText.HudText.Text.AppendWithoutGarbage(Time.FramesPerSecond);
-
-            #endregion
-
             #region Scene Pre Render Tasks
 
             if (CurrentScene != null && CurrentScene.Loaded)
@@ -385,7 +353,7 @@ namespace XNAFinalEngine.EngineCore
                 {
                     if (currentCamera.RenderTarget != null)
                         RenderTarget.Release(currentCamera.RenderTarget);
-                    // If it does not have slaves cameras...
+                    // If it does not have slaves cameras and it occupied the whole render target...
                     if (currentCamera.slavesCameras.Count == 0 && currentCamera.NormalizedViewport == new RectangleF(0, 0, 1, 1))
                         currentCamera.RenderTarget = RenderCamera(currentCamera);
                     else

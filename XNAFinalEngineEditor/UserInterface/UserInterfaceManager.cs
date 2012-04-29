@@ -142,6 +142,15 @@ namespace XNAFinalEngine.UserInterface
 
         #endif  
 
+        #region Visible
+
+        /// <summary>
+        /// Are the controls visible?
+        /// </summary>
+        public static bool Visible { get; set; }
+        
+        #endregion
+
         /// <summary>
         /// Returns InputSystem instance responsible for managing user input.
         /// </summary>
@@ -207,7 +216,12 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public static Control FocusedControl
         {
-            get { return focusedControl; }
+            get
+            {
+                if (Visible)
+                    return focusedControl;
+                return null;
+            }
             internal set
             {
                 if (value != null && value.Visible && value.Enabled)
@@ -289,6 +303,7 @@ namespace XNAFinalEngine.UserInterface
                 return;
             try
             {
+                Visible = true;
                 initialized = true;
                 // Set some public parameters.
                 TextureResizeIncrement = 32;
@@ -543,6 +558,8 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private static void Update()
         {
+            if (!Visible)
+                return;
             try
             {
                 // Init new controls.
@@ -635,6 +652,8 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private static void DrawToTexture()
         {
+            if (!Visible)
+                return;
             if ((RootControls != null))
             {
                 // Render each control in its own render target.
@@ -658,6 +677,8 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private static void DrawTextureToScreen()
         {
+            if (!Visible)
+                return;
             if ((RootControls != null))
             {
                 Renderer.Begin();

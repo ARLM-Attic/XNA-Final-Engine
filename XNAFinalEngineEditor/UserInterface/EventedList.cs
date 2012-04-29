@@ -15,7 +15,6 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.Collections.Generic;
-using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XNAFinalEngine.UserInterface

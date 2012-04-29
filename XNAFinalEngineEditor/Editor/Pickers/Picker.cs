@@ -122,21 +122,21 @@ namespace XNAFinalEngine.Editor
         /// Pick the object that is on the mouse pointer.
         /// If no object was found the result is a null pointer.
         /// </summary>
-        public GameObject Pick(Matrix viewMatrix, Matrix projectionMatrix)
+        public GameObject Pick(Matrix viewMatrix, Matrix projectionMatrix, Viewport viewport)
         {
-            return Pick(Mouse.Position.X, Mouse.Position.Y, viewMatrix, projectionMatrix);
+            return Pick(Mouse.Position.X, Mouse.Position.Y, viewMatrix, projectionMatrix, viewport);
         } // Pick
 
         /// <summary>
         /// Pick the object that is on the X Y coordinates.
         /// If no object was found the result is a null pointer.
         /// </summary>
-        public GameObject Pick(int x, int y, Matrix viewMatrix, Matrix projectionMatrix)
+        public GameObject Pick(int x, int y, Matrix viewMatrix, Matrix projectionMatrix, Viewport viewport)
         {
             try
             {
 
-                RenderObjectsToPickerTexture(viewMatrix, projectionMatrix);
+                RenderObjectsToPickerTexture(viewMatrix, projectionMatrix, viewport);
                 
                 #region Get the pixel from the texture
                 
@@ -183,14 +183,14 @@ namespace XNAFinalEngine.Editor
         /// Pick the object that is on the X Y coordinates.
         /// If no object was found the result is a null pointer.
         /// </summary>
-        public List<GameObject> Pick(Rectangle region, Matrix viewMatrix, Matrix projectionMatrix)
+        public List<GameObject> Pick(Rectangle region, Matrix viewMatrix, Matrix projectionMatrix, Viewport viewport)
         {
             List<GameObject> pickedObjects = new List<GameObject>();
 
             try
             {
 
-                RenderObjectsToPickerTexture(viewMatrix, projectionMatrix);
+                RenderObjectsToPickerTexture(viewMatrix, projectionMatrix, viewport);
 
                 #region Get the pixel from the texture
 
@@ -246,7 +246,7 @@ namespace XNAFinalEngine.Editor
         /// Render the object using a constant shasder to picker texture.
         /// Each object will be render using a unique color.
         /// </summary>
-        private void RenderObjectsToPickerTexture(Matrix viewMatrix, Matrix projectionMatrix)
+        private void RenderObjectsToPickerTexture(Matrix viewMatrix, Matrix projectionMatrix, Viewport viewport)
         {
             this.viewMatrix = viewMatrix;
             this.projectionMatrix = projectionMatrix;
@@ -261,6 +261,8 @@ namespace XNAFinalEngine.Editor
 
             // Start rendering onto the picker map
             pickerTexture.EnableRenderTarget();
+
+            EngineManager.Device.Viewport = viewport;
 
             // Clear render target
             pickerTexture.Clear(Color.Black);
@@ -360,7 +362,7 @@ namespace XNAFinalEngine.Editor
         /// This allow us to control deeply the pick operation.
         /// The black color is reserved.
         /// </summary>
-        public void BeginManualPicking(Matrix viewMatrix, Matrix projectionMatrix)
+        public void BeginManualPicking(Matrix viewMatrix, Matrix projectionMatrix, Viewport viewport)
         {
             if (hasBegun)
             {
@@ -378,6 +380,8 @@ namespace XNAFinalEngine.Editor
 
                 // Start rendering onto the picker map
                 pickerTexture.EnableRenderTarget();
+
+                EngineManager.Device.Viewport = viewport;
 
                 // Clear render target
                 pickerTexture.Clear(Color.Black);

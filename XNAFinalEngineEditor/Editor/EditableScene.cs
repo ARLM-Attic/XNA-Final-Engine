@@ -29,25 +29,23 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using Microsoft.Xna.Framework;
-using XNAFinalEngine.Components;
-using XNAFinalEngine.Editor;
-using XNAFinalEngine.EngineCore;
+using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.Scenes;
+using Keyboard = XNAFinalEngine.Input.Keyboard;
 #endregion
 
-namespace XNAFinalEngine.Scenes
+namespace XNAFinalEngine.Editor
 {
 
     /// <summary>
-    /// Base class for scenes.
-    /// Here will be the application logic.
+    /// Use this scene if you want to work with the editor.
     /// </summary>
     public abstract class EditableScene : Scene
     {
 
         #region Variables
 
-        private GameObject2D editorText;
+        private bool beginInEditorMode = true;
 
         #endregion
 
@@ -60,10 +58,6 @@ namespace XNAFinalEngine.Scenes
         public override void Load()
         {
             EditorManager.Initialize();
-            editorText = new GameObject2D();
-            editorText.AddComponent<HudText>();
-            editorText.HudText.Text.Append("Press CTRL+E to toggle to Edit Mode");
-            editorText.HudText.Visible = false;
             base.Load();
         } // Load
 
@@ -77,23 +71,22 @@ namespace XNAFinalEngine.Scenes
         /// </summary>
         public override void UpdateTasks()
         {
-            editorText.Transform.Position = new Vector3(10, Screen.Height - 20, 0);
+            if (beginInEditorMode)
+            {
+                EditorManager.EnableEditorMode();
+                beginInEditorMode = false;
+            }
+            // Enable editor mode
+            if (Keyboard.KeyJustPressed(Keys.E) && Keyboard.KeyPressed(Keys.LeftControl))
+            {
+                if (EditorManager.EditorModeEnabled)
+                    EditorManager.DisableEditorMode();
+                else
+                    EditorManager.EnableEditorMode();
+            }
         } // UpdateTasks
 
         #endregion
 
-        #region Enable Editor Mode
-
-        /// <summary>
-        /// Enable editor mode
-        /// </summary>
-        /// <param name="mainCamera">The main camera it is needed.</param>
-        public void EnableEditorMode(GameObject3D mainCamera)
-        {
-            EditorManager.EnableEditorMode(mainCamera);
-        } // EnableEditorMode
-
-        #endregion
-
-    } // Scene
-} // XNAFinalEngine.Scenes
+    } // EditableScene
+} // XNAFinalEngine.Editor

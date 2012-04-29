@@ -35,6 +35,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.UserInterface;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Mouse = XNAFinalEngine.Input.Mouse;
@@ -78,6 +79,14 @@ namespace XNAFinalEngine.Editor
                 EditorManager.Update();
             }
 
+            /// <summary>
+            /// Tasks executed during the last stage of the scene render.
+            /// </summary>
+            public override void PostRenderUpdate()
+            {
+                EditorManager.PostRenderTasks();
+            }
+
         } // ScripEditorManager
 
         #endregion
@@ -95,25 +104,20 @@ namespace XNAFinalEngine.Editor
             Translation
         }; // Gizmo
 
-        #endregion
-
-        #region Structs
-
         /// <summary>
-        /// Stores the previous commands.
+        /// This indicate the mode of the viewport (scene, game, etc.).
         /// </summary>
-        private struct UndoStruct
+        private enum ViewportModeType
         {
-            public readonly GameObject obj;
-            public readonly Matrix localMatrix;
-
-            public UndoStruct(GameObject obj, Matrix localMatrix)
-            {
-                this.obj = obj;
-                this.localMatrix = localMatrix;
-            } // UndoStruct
-
-        } // UndoStruct
+            /// <summary>
+            /// The editor camera.
+            /// </summary>
+            Scene,
+            /// <summary>
+            /// The game camera.
+            /// </summary>
+            Game,
+        } // ViewportModeType
 
         #endregion
 
@@ -124,7 +128,7 @@ namespace XNAFinalEngine.Editor
         private static ScriptEditorCamera editorCameraScript;
 
         // The game main camera.
-        private static GameObject3D gameMainCamera;
+        private static Camera gameMainCamera;
 
         // The picker to select an object from the screen.
         private static Picker picker;
@@ -152,6 +156,9 @@ namespace XNAFinalEngine.Editor
         // The gizmos.
         private static TranslationGizmo translationGizmo;
 
+        // The user interface control for the viewport.
+        private static Container renderSpace;
+        
         #endregion
 
         #region Properties
@@ -160,6 +167,11 @@ namespace XNAFinalEngine.Editor
         /// Is the editor mode enabled?
         /// </summary>
         public static bool EditorModeEnabled { get { return editorModeEnabled; } }
+
+        /// <summary>
+        /// This indicate the mode of the viewport (scene, game, etc.).
+        /// </summary>
+        private static ViewportModeType ViewportMode { get; set; }
 
         #endregion
 
@@ -173,8 +185,12 @@ namespace XNAFinalEngine.Editor
             if (initialized)
                 return;
             initialized = true;
+            // Call the manager's update and render methods in the correct order without explicit calls. 
+            editorManagerGameObject = new GameObject2D();
+            editorManagerGameObject.AddComponent<ScripEditorManager>();
             // If it already initialize don't worry.
             UserInterfaceManager.Initialize();
+            UserInterfaceManager.Visible = false;
             picker = new Picker(Size.FullScreen);
 
             #region Cameras
@@ -291,6 +307,50 @@ namespace XNAFinalEngine.Editor
                 }
                 buttonSpace.Focused = false;
             };
+            TabControl tabControlRenderSpace = new TabControl
+            {
+                Left = 0,
+                Top = buttonSpace.Top + buttonSpace.Height + 5,
+                Width = 150,
+                Height = 20,
+                Anchor = Anchors.All,
+                Parent = toolBarTopPanel,
+            };
+            tabControlRenderSpace.AddPage();
+            tabControlRenderSpace.TabPages[0].Text = "Scene";
+            tabControlRenderSpace.AddPage();
+            tabControlRenderSpace.TabPages[1].Text = "Game";
+            topPanel.Height = tabControlRenderSpace.Top + tabControlRenderSpace.Height;
+            toolBarTopPanel.Height = tabControlRenderSpace.Top + tabControlRenderSpace.Height;
+            tabControlRenderSpace.PageChanged += delegate
+            {
+                if (tabControlRenderSpace.SelectedPage == tabControlRenderSpace.TabPages[0])
+                    ViewportMode = ViewportModeType.Scene;
+                else
+                    ViewportMode = ViewportModeType.Game;
+            };
+
+            #endregion
+
+            #region Render Space
+
+            // The canvas cover the whole window. I will place the static controls there.
+            // I don’t place the controls directly to the manager to allow having some functionality
+            // provided by the canvas like the automatic placing of menu items, status bar, etc.
+            renderSpace = new Container
+            {
+                Top = 0,
+                Left = 0,
+                Width = canvas.ClientWidth - 420,
+                Height = canvas.ClientHeight,
+                Anchor = Anchors.All,
+                AutoScroll = false,
+                BackgroundColor = Color.Transparent,
+                StayOnBack = true,
+                Passive = true,
+                CanFocus = false,
+                Parent = canvas,
+            };
 
             #endregion
 
@@ -308,7 +368,7 @@ namespace XNAFinalEngine.Editor
                 Color = new Color(64, 64, 64),
             };
 
-            TabControl tabControl = new TabControl
+            TabControl tabControlRightPanel = new TabControl
             {
                 Parent = rightPanel,
                 Left = 2,
@@ -317,12 +377,12 @@ namespace XNAFinalEngine.Editor
                 Height = rightPanel.ClientHeight - 2,
                 Anchor = Anchors.All
             };
-            tabControl.AddPage();
-            tabControl.TabPages[0].Text = "Inspector";
+            tabControlRightPanel.AddPage();
+            tabControlRightPanel.TabPages[0].Text = "Inspector";
             var panel = new PanelCollapsible();
             panel.Anchor = Anchors.Left | Anchors.Right | Anchors.Top;
-            panel.Parent = tabControl.TabPages[0];
-            panel.Width = tabControl.TabPages[0].ClientWidth;
+            panel.Parent = tabControlRightPanel.TabPages[0];
+            panel.Width = tabControlRightPanel.TabPages[0].ClientWidth;
             panel.Text = "Transform";
             CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
             CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
@@ -332,9 +392,6 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
-                // Call the manager's update and render methods in the correct order without explicit calls. 
-                editorManagerGameObject = new GameObject2D();
-            editorManagerGameObject.AddComponent<ScripEditorManager>();
         } // Initialize
 
         #endregion
@@ -372,26 +429,12 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Enable editor mode
         /// </summary>
-        /// <param name="mainCamera">The main camera it is needed.</param>
-        public static void EnableEditorMode(GameObject3D mainCamera)
+        public static void EnableEditorMode()
         {
-            if (mainCamera == null)
-                throw new ArgumentNullException("mainCamera");
-            if (mainCamera.Camera == null)
-                throw new ArgumentException("Editor Manager: Unable to activate editor mode. The game object passed does not have a camera component", "mainCamera");
             if (editorModeEnabled)
                 return;
             editorModeEnabled = true;
-            gameMainCamera = mainCamera;
-            gameMainCamera.Camera.Visible = false;
-            editorCamera.Camera.Visible = true;
-            gizmoCamera.Camera.Visible = true;
-            // Add bounding box to the current selected objects.
-            foreach (var gameObject in selectedObjects)
-            {
-                ChangeGameObjectBoundingBoxVisibility(gameObject, true);
-            }
-            // Copy camera parameters to editor camera TODO!!
+            UserInterfaceManager.Visible = true;
         } // EnableEditorMode
 
         /// <summary>
@@ -401,11 +444,13 @@ namespace XNAFinalEngine.Editor
         {
             if (!editorModeEnabled)
                 return;
+            UserInterfaceManager.Visible = false;
             editorModeEnabled = false;
-            gameMainCamera.Camera.Visible = true;
+            if (gameMainCamera != null)
+                gameMainCamera.Visible = true;
+            gameMainCamera = null;
             editorCamera.Camera.Visible = false;
             gizmoCamera.Camera.Visible = false;
-            gameMainCamera = null;
             // Remove bounding box off the screen.
             foreach (var gameObject in selectedObjects)
             {
@@ -438,12 +483,74 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static void Update()
         {
+            //UserInterfaceManager.Visible = false;
 
             #region If no update is needed...
 
-            if (!editorModeEnabled || 
-                // Keyboard shortcuts, camera movement and similar should be ignored when the text box is active.
-                (UserInterfaceManager.FocusedControl != null && UserInterfaceManager.FocusedControl is TextBox))
+            if (!editorModeEnabled)
+            {
+                previousFocusedControl = UserInterfaceManager.FocusedControl;
+                return;
+            }
+
+            #endregion
+
+            #region Prepare viewport mode
+
+            // Find Current Camera
+            Camera currentCamera;
+            if (Camera.MainCamera != null)
+                currentCamera = Camera.MainCamera;
+            else
+                currentCamera = null;
+            // If the main camera changes then restore the visibility of the old main camera.
+            if (currentCamera != gameMainCamera)
+            {
+                if (gameMainCamera != null)
+                    gameMainCamera.Visible = true;
+                gameMainCamera = currentCamera;
+            }
+
+            if (ViewportMode == ViewportModeType.Scene)
+            {
+                if (gameMainCamera != null)
+                    gameMainCamera.Visible = false;
+                editorCamera.Camera.Visible = true;
+                gizmoCamera.Camera.Visible = true;
+                // Restore bounding box to the current selected objects.
+                foreach (var gameObject in selectedObjects)
+                {
+                    ChangeGameObjectBoundingBoxVisibility(gameObject, true);
+                }
+                // The editor camera only use part of the render target.
+                editorCamera.Camera.Viewport = new Rectangle(renderSpace.ClientArea.ControlLeftAbsoluteCoordinate,
+                                                             renderSpace.ClientArea.ControlTopAbsoluteCoordinate,
+                                                             renderSpace.ClientArea.Width, renderSpace.ClientArea.Height);
+                gizmoCamera.Camera.Viewport = new Rectangle(renderSpace.ClientArea.ControlLeftAbsoluteCoordinate, 
+                                                            renderSpace.ClientArea.ControlTopAbsoluteCoordinate,
+                                                            renderSpace.ClientArea.Width, renderSpace.ClientArea.Height);
+            }
+            else
+            {
+                if (gameMainCamera != null)
+                    gameMainCamera.Visible = true;
+                editorCamera.Camera.Visible = false;
+                gizmoCamera.Camera.Visible = false;
+                // Remove the bounding box in game mode.
+                foreach (var gameObject in selectedObjects)
+                {
+                    ChangeGameObjectBoundingBoxVisibility(gameObject, false);
+                }
+                previousFocusedControl = UserInterfaceManager.FocusedControl;
+                return;
+            }
+
+            #endregion
+
+            #region If no update is needed...
+
+            // Keyboard shortcuts, camera movement and similar should be ignored when the text box is active.
+            if ((UserInterfaceManager.FocusedControl != null && UserInterfaceManager.FocusedControl is TextBox))
             {
                 previousFocusedControl = UserInterfaceManager.FocusedControl;
                 return;
@@ -570,16 +677,18 @@ namespace XNAFinalEngine.Editor
 
                     #region Pick objects
 
+                    Viewport viewport = new Viewport(editorCamera.Camera.Viewport.X, editorCamera.Camera.Viewport.Y, 
+                                                     editorCamera.Camera.Viewport.Width, editorCamera.Camera.Viewport.Height);
                     List<GameObject3D> newSelectedObjects = new List<GameObject3D>();
                     if (Mouse.NoDragging)
                     {
-                        GameObject gameObject = picker.Pick(editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix);
+                        GameObject gameObject = picker.Pick(editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix, viewport);
                         if (gameObject != null && gameObject is GameObject3D)
                             newSelectedObjects.Add((GameObject3D)gameObject);
                     }
                     else
                     {
-                        List<GameObject> pickedObjects = picker.Pick(Mouse.DraggingRectangle, editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix);
+                        List<GameObject> pickedObjects = picker.Pick(Mouse.DraggingRectangle, editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix, viewport);
                         foreach (GameObject pickedObject in pickedObjects)
                         {
                             if (pickedObject is GameObject3D)
@@ -709,6 +818,50 @@ namespace XNAFinalEngine.Editor
                 ((GameObject3D)gameObject).ModelRenderer.RenderBoundingBox = boundingBoxVisibility;
             // ... TODO!!!
         } // ChangeGameObjectBoundingBoxVisibility
+
+        #endregion
+
+        #region Render Tasks
+
+        /// <summary>
+        /// Tasks after the engine render.
+        /// Probably you won’t need to place any task here.
+        /// </summary>
+        public static void PostRenderTasks()
+        {
+            if (editorModeEnabled && ViewportMode == ViewportModeType.Game)
+            {
+                EngineManager.Device.Clear(Color.Black);
+                Camera mainCamera = Camera.MainCamera;
+                if (mainCamera != null)
+                {
+                    // Aspect ratio
+                    Rectangle screenRectangle;
+                    float renderTargetAspectRatio = mainCamera.RenderTarget.Width / (float)mainCamera.RenderTarget.Height,
+                          renderSpaceAspectRatio = renderSpace.ClientArea.Width / (float)renderSpace.ClientArea.Height;
+
+                    if (renderTargetAspectRatio > renderSpaceAspectRatio)
+                    {
+                        float vsAspectRatio = renderTargetAspectRatio / renderSpaceAspectRatio;
+                        int blackStripe = (int)((renderSpace.ClientArea.Height - (renderSpace.ClientArea.Height / vsAspectRatio)) / 2);
+                        screenRectangle = new Rectangle(renderSpace.ControlLeftAbsoluteCoordinate, renderSpace.ControlTopAbsoluteCoordinate + blackStripe,
+                                                        renderSpace.ClientArea.Width, renderSpace.ClientArea.Height - blackStripe * 2);
+                    }
+                    else
+                    {
+                        float vsAspectRatio = renderSpaceAspectRatio / renderTargetAspectRatio;
+                        int blackStripe = (int)((renderSpace.ClientArea.Width - (renderSpace.ClientArea.Width / vsAspectRatio)) / 2);
+                        screenRectangle = new Rectangle(renderSpace.ControlLeftAbsoluteCoordinate + blackStripe, renderSpace.ControlTopAbsoluteCoordinate,
+                                                        renderSpace.ClientArea.Width - blackStripe * 2, renderSpace.ClientArea.Height);
+                    }
+                    SpriteManager.Begin2D();
+                    SpriteManager.Draw2DTexture(mainCamera.RenderTarget, 0,
+                                                screenRectangle,
+                                                null, Color.White, 0, Vector2.Zero);
+                    SpriteManager.End();
+                }
+            }
+        } // PostRenderTasks
 
         #endregion
 

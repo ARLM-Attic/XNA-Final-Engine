@@ -69,11 +69,11 @@ namespace XNAFinalEngine.Editor
         
         // The selected object.
         // If there are more then the first is used to place the gizmo.
-        protected static GameObject3D selectedObject;
+        protected GameObject3D selectedObject;
 
         // The selected object.
         // If there are more then the first is used to place the gizmo.
-        protected static List<GameObject3D> selectedObjects;
+        protected List<GameObject3D> selectedObjects;
 
         protected static List<Matrix> selectedObjectsLocalMatrix;
         
@@ -81,15 +81,15 @@ namespace XNAFinalEngine.Editor
         protected GameObject3D gizmoCamera;
         
         // Indicates what axis is selected.
-        protected static bool redAxisSelected,
-                              greenAxisSelected,
-                              blueAxisSelected;
+        protected bool redAxisSelected,
+                       greenAxisSelected,
+                       blueAxisSelected;
 
         // Auxiliary structure.
         protected static Vector3[] vertices = new Vector3[7];
 
         // Picker to select gizmo axis.
-        protected static Picker picker;
+        protected Picker picker;
 
         #endregion
 
@@ -148,10 +148,11 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Calculate how the mouse movement will affect the transformation amount.
         /// </summary>
+        /// <param name="selectedObject">Selected object.</param>
         /// <param name="gizmoCamera">The camera.</param>
         /// <param name="direction">The direction indicates the axis.</param>
         /// <param name="transformationAmount">This value will be multiplied by the mouse position to calculate the transformation amount.</param>
-        protected static void Calculate2DMouseDirection(GameObject3D gizmoCamera, Vector3 direction, out Vector2 transformationAmount)
+        protected static void Calculate2DMouseDirection(GameObject3D selectedObject, GameObject3D gizmoCamera, Vector3 direction, out Vector2 transformationAmount)
         {
             // Calculate the center, scale and orientation of the gizmo.
             Vector3 center;

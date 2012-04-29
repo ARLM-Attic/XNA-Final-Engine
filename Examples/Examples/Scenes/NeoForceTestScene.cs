@@ -101,8 +101,6 @@ namespace XNAFinalEngineExamples
             
             InitControls();
 
-            GameLoop.ShowFramesPerSecond = true;
-
             base.Load();
         } // Load
 

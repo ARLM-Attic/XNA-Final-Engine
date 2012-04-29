@@ -126,7 +126,7 @@ namespace XNAFinalEngine.Editor
             lines.LineRenderer.Visible = true;
             planeAll.LineRenderer.Visible = true;
 
-            Gizmo.picker = picker;
+            this.picker = picker;
 
             selectedObject = _selectedObjects[0];
             selectedObjects = _selectedObjects;
@@ -150,6 +150,8 @@ namespace XNAFinalEngine.Editor
             lines.LineRenderer.Visible = false;
             planeAll.LineRenderer.Visible = false;
 
+            selectedObject = null;
+            selectedObjects = null;
             selectedObjectsLocalMatrix.Clear();
         } // DisableGizmo
 
@@ -186,19 +188,19 @@ namespace XNAFinalEngine.Editor
                     // First we have to know how much to move the object in each axis.
                     if (redAxisSelected)
                     {
-                        Calculate2DMouseDirection(gizmoCamera, new Vector3(1, 0, 0), out transformationAmount);
+                        Calculate2DMouseDirection(selectedObject, gizmoCamera, new Vector3(1, 0, 0), out transformationAmount);
                         translation.X =  (Mouse.XMovement * transformationAmount.X / 100.0f);
                         translation.X += (Mouse.YMovement * transformationAmount.Y / 100.0f);
                     }
                     if (greenAxisSelected)
                     {
-                        Calculate2DMouseDirection(gizmoCamera, new Vector3(0, 1, 0), out transformationAmount);
+                        Calculate2DMouseDirection(selectedObject, gizmoCamera, new Vector3(0, 1, 0), out transformationAmount);
                         translation.Y =  (Mouse.XMovement * transformationAmount.X / 100.0f);
                         translation.Y += (Mouse.YMovement * transformationAmount.Y / 100.0f);
                     }
                     if (blueAxisSelected)
                     {
-                        Calculate2DMouseDirection(gizmoCamera, new Vector3(0, 0, 1), out transformationAmount);
+                        Calculate2DMouseDirection(selectedObject, gizmoCamera, new Vector3(0, 0, 1), out transformationAmount);
                         translation.Z =  (Mouse.XMovement * transformationAmount.X / 100.0f);
                         translation.Z += (Mouse.YMovement * transformationAmount.Y / 100.0f);
                     }
@@ -239,7 +241,10 @@ namespace XNAFinalEngine.Editor
                 }
 
                 // Perform a pick around the mouse pointer.
-                picker.BeginManualPicking(gizmoCamera.Camera.ViewMatrix, gizmoCamera.Camera.ProjectionMatrix);
+
+                Viewport viewport = new Viewport(gizmoCamera.Camera.Viewport.X, gizmoCamera.Camera.Viewport.Y,
+                                                 gizmoCamera.Camera.Viewport.Width, gizmoCamera.Camera.Viewport.Height);
+                picker.BeginManualPicking(gizmoCamera.Camera.ViewMatrix, gizmoCamera.Camera.ProjectionMatrix, viewport);
                     RenderGizmoForPicker();
                 Color[] colorArray = picker.EndManualPicking(new Rectangle(Mouse.Position.X - RegionSize / 2, Mouse.Position.Y - RegionSize / 2, RegionSize, RegionSize));
 

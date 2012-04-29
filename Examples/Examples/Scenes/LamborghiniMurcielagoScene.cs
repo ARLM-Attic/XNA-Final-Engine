@@ -978,7 +978,6 @@ namespace XNAFinalEngineExamples
             
             statistics = new GameObject2D();
             statistics.AddComponent<ScriptStatisticsDrawer>();
-            GameLoop.ShowFramesPerSecond = true;
 
             #endregion
 
@@ -1077,8 +1076,6 @@ namespace XNAFinalEngineExamples
             camera, camera2,
             skydome;*/
             
-            EnableEditorMode(camera);
-            
             #endregion
 
         } // Load
@@ -1094,13 +1091,6 @@ namespace XNAFinalEngineExamples
         public override void UpdateTasks()
         {
             base.UpdateTasks();
-            if (Keyboard.KeyJustPressed(Keys.E) && Keyboard.KeyPressed(Keys.LeftControl))
-            {
-                if (EditorManager.EditorModeEnabled)
-                    EditorManager.DisableEditorMode();
-                else
-                    EnableEditorMode(camera);
-            }
         } // UpdateTasks
 
         #endregion
