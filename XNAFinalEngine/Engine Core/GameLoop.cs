@@ -54,7 +54,7 @@ namespace XNAFinalEngine.EngineCore
     /// </summary>
     /// <remarks>
     /// This class seems complex and in the pass I could agree.
-    /// However to have the engine pipeline code in one class is not that terrible.
+    /// However to have the engine pipeline code in one class has its advantages.
     /// Besides, I don’t put everything in here, just the callers to the specifics tasks.
     /// </remarks>
     public static class GameLoop
@@ -84,11 +84,6 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static Scene CurrentScene { get; set; }
 
-        /// <summary>
-        /// Render Head Up Display?
-        /// </summary>
-        public static bool RenderHeadUpDisplay { get; set; }
-
         #endregion
 
         #region Load Content
@@ -98,9 +93,7 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         internal static void LoadContent()
         {
-
-            RenderHeadUpDisplay = true;
-
+            
             #region Load Managers
 
             // Create the 32 layers.
@@ -350,10 +343,12 @@ namespace XNAFinalEngine.EngineCore
             #endregion
             
             #region Render Each Camera
-            
+
+            // This allows rendering only a camera ignoring the rendering order and visibility. 
+            // However, if the camera is a master or slave camera then all of them will be rendered.
             if (Camera.OnlyRendereableCamera != null)
             {
-                RenderMasterCamera(Camera.OnlyRendereableCamera);
+                RenderMasterCamera(Camera.OnlyRendereableCamera.MasterCamera ?? Camera.OnlyRendereableCamera);
             }
             else
             {
@@ -475,7 +470,7 @@ namespace XNAFinalEngine.EngineCore
 
         #endregion
 
-        #region Render Camera
+        #region Render Master Camera
 
         /// <summary>
         /// Render a master camera and its slaves. 
@@ -489,6 +484,8 @@ namespace XNAFinalEngine.EngineCore
                 currentCamera.RenderTarget = RenderCamera(currentCamera);
             else
             {
+                #region Render Cameras
+
                 // Render each camera to a render target and then merge.
                 currentCamera.PartialRenderTarget = RenderCamera(currentCamera);
                 for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
@@ -502,17 +499,31 @@ namespace XNAFinalEngine.EngineCore
                         // It also simplified the render of one camera. 
                         currentCamera.slavesCameras[i].PartialRenderTarget = RenderCamera(currentCamera.slavesCameras[i]);
                 }
+
+                #endregion
+
+                #region Composite Cameras
+
                 // Composite cameras
                 currentCamera.RenderTarget = RenderTarget.Fetch(currentCamera.RenderTargetSize, SurfaceFormat.Color, DepthFormat.None,
                                                                 RenderTarget.AntialiasingType.NoAntialiasing);
                 currentCamera.RenderTarget.EnableRenderTarget();
                 currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
-                EngineManager.Device.Viewport = new Viewport(currentCamera.Viewport.X, currentCamera.Viewport.Y,
-                                                             currentCamera.Viewport.Width, currentCamera.Viewport.Height);
-                SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget, true);
-                RenderTarget.Release(currentCamera.PartialRenderTarget);
+
+                // Composite using the rendering order
+                bool masterCamerawasRendered = false;
                 for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
                 {
+                    // If the master camera needs to be rendered.
+                    if (!masterCamerawasRendered && currentCamera.slavesCameras[i].RenderingOrder > currentCamera.RenderingOrder)
+                    {
+                        EngineManager.Device.Viewport = new Viewport(currentCamera.Viewport.X, currentCamera.Viewport.Y,
+                                                             currentCamera.Viewport.Width, currentCamera.Viewport.Height);
+                        SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget, true);
+                        RenderTarget.Release(currentCamera.PartialRenderTarget);
+                        masterCamerawasRendered = true;
+                    }
+                    // Render slaves cameras (they are already ordered).
                     if (currentCamera.slavesCameras[i].Visible && Layer.IsActive(currentCamera.slavesCameras[i].CachedLayerMask))
                     {
                         EngineManager.Device.Viewport = new Viewport(currentCamera.slavesCameras[i].Viewport.X, currentCamera.slavesCameras[i].Viewport.Y,
@@ -521,12 +532,33 @@ namespace XNAFinalEngine.EngineCore
                         RenderTarget.Release(currentCamera.slavesCameras[i].PartialRenderTarget);
                     }
                 }
-                // Reset viewport
+                // If the master camera was not rendered then we do it here.
+                if (!masterCamerawasRendered)
+                {
+                    EngineManager.Device.Viewport = new Viewport(currentCamera.Viewport.X, currentCamera.Viewport.Y,
+                                                             currentCamera.Viewport.Width, currentCamera.Viewport.Height);
+                    SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget, true);
+                    RenderTarget.Release(currentCamera.PartialRenderTarget);
+                }
+
+                // Reset viewport and render HUD
                 EngineManager.Device.Viewport = new Viewport(0, 0, Screen.Width, Screen.Height);
-                RenderHeadsUpDisplay();
+                if (currentCamera.RenderHeadUpDisplay)
+                {
+                    Layer.CurrentCameraCullingMask = currentCamera.CullingMask;
+                    RenderHeadsUpDisplay();
+                    Layer.CurrentCameraCullingMask = uint.MaxValue;
+                }
                 currentCamera.RenderTarget.DisableRenderTarget();
+
+                #endregion
+
             }
         } // RenderMainCamera
+
+        #endregion
+
+        #region Render Camera
 
         /// <summary>
         /// Deferred lighting pipeline for one camera.
@@ -1236,10 +1268,9 @@ namespace XNAFinalEngine.EngineCore
             #region Head Up Display (when render directly to camera render target)
 
             // We render directly in the camera render target so the user interface needs to be render here.
-            if (currentCamera.slavesCameras.Count == 0 && currentCamera.NormalizedViewport == new RectangleF(0, 0, 1, 1))
-            {
+            if (currentCamera.MasterCamera == null && currentCamera.slavesCameras.Count == 0 &&
+                currentCamera.NormalizedViewport == new RectangleF(0, 0, 1, 1) && currentCamera.RenderHeadUpDisplay) 
                 RenderHeadsUpDisplay();
-            }
 
             #endregion
 
@@ -1280,8 +1311,6 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         private static void RenderHeadsUpDisplay()
         {
-            if (!RenderHeadUpDisplay)
-                return;
             // Draw 2D Heads Up Display
             SpriteManager.Begin2D();
             {

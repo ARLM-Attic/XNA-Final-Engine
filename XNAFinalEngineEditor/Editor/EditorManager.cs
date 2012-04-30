@@ -156,9 +156,6 @@ namespace XNAFinalEngine.Editor
 
         // The user interface control for the viewport.
         private static Container renderSpace;
-
-        // Remember user values.
-        private static bool rememberRenderHeadUpDisplayValue;
         
         #endregion
 
@@ -203,7 +200,8 @@ namespace XNAFinalEngine.Editor
             editorCamera.Camera.PostProcess = new PostProcess();
             editorCamera.Camera.PostProcess.Bloom.Enabled = false;
             editorCamera.Camera.Visible = false;
-            editorCamera.Camera.RenderingOrder = int.MaxValue;
+            editorCamera.Camera.RenderHeadUpDisplay = false;
+            
             editorCameraScript = (ScriptEditorCamera)editorCamera.AddComponent<ScriptEditorCamera>();
             editorCameraScript.Mode = ScriptEditorCamera.ModeType.Maya;
             ResetEditorCamera(); // Reset camera to default position and orientation.
@@ -213,8 +211,10 @@ namespace XNAFinalEngine.Editor
             gizmoCamera.AddComponent<Camera>();
             gizmoCamera.Camera.Visible = false;
             gizmoCamera.Camera.CullingMask = Layer.GetLayerByNumber(31).Mask; // The editor layer.
-            gizmoCamera.Camera.MasterCamera = editorCamera.Camera;
             gizmoCamera.Camera.ClearColor = Color.Transparent;
+
+            editorCamera.Camera.MasterCamera = gizmoCamera.Camera;
+            gizmoCamera.Camera.RenderingOrder = int.MaxValue;
 
             #endregion
 
@@ -439,7 +439,6 @@ namespace XNAFinalEngine.Editor
                 return;
             editorModeEnabled = true;
             UserInterfaceManager.Visible = true;
-            rememberRenderHeadUpDisplayValue = GameLoop.RenderHeadUpDisplay;
         } // EnableEditorMode
 
         /// <summary>
@@ -454,7 +453,6 @@ namespace XNAFinalEngine.Editor
             Camera.OnlyRendereableCamera = null;
             editorCamera.Camera.Visible = false;
             gizmoCamera.Camera.Visible = false;
-            GameLoop.RenderHeadUpDisplay = rememberRenderHeadUpDisplayValue;
             // Remove bounding box off the screen.
             foreach (var gameObject in selectedObjects)
             {
@@ -499,7 +497,6 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static void Update()
         {
-
             #region If no update is needed...
 
             if (!editorModeEnabled)
@@ -514,7 +511,6 @@ namespace XNAFinalEngine.Editor
 
             if (ViewportMode == ViewportModeType.Scene)
             {
-                GameLoop.RenderHeadUpDisplay = false;
                 Camera.OnlyRendereableCamera = editorCamera.Camera;
                 editorCamera.Camera.Visible = true;
                 gizmoCamera.Camera.Visible = true;
@@ -533,7 +529,6 @@ namespace XNAFinalEngine.Editor
             }
             else
             {
-                GameLoop.RenderHeadUpDisplay = rememberRenderHeadUpDisplayValue;
                 Camera.OnlyRendereableCamera = null;
                 editorCamera.Camera.Visible = false;
                 gizmoCamera.Camera.Visible = false;

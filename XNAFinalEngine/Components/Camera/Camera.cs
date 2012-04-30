@@ -140,6 +140,15 @@ namespace XNAFinalEngine.Components
 
         #region Properties
 
+        #region Render Head Up Display
+
+        /// <summary>
+        /// Render Head Up Display?
+        /// </summary>
+        public bool RenderHeadUpDisplay { get; set; }
+
+        #endregion
+
         #region Clear Color
 
         /// <summary>
@@ -254,13 +263,36 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Camera: A camera can't be master and slave simultaneity.");
                 // Remove this camera from the old master.
                 if (masterCamera != null)
+                {
                     masterCamera.slavesCameras.Remove(this);
+                    // Order slaves
+                    for (int i = 0; i < masterCamera.slavesCameras.Count; i++)
+                    {
+                        if (masterCamera.slavesCameras[i].RenderingOrder > masterCamera.slavesCameras[masterCamera.slavesCameras.Count - 1].RenderingOrder)
+                        {
+                            Camera temp = masterCamera.slavesCameras[masterCamera.slavesCameras.Count - 1];
+                            masterCamera.slavesCameras[masterCamera.slavesCameras.Count - 1] = masterCamera.slavesCameras[i];
+                            masterCamera.slavesCameras[i] = temp;
+                        }
+                    }
+                }
+                    
                 // Set new master.
                 masterCamera = value;
                 // Update master with its new slave.
                 if (value != null)
                 {
                     value.slavesCameras.Add(this);
+                    // Order slaves
+                    for (int i = 0; i < value.slavesCameras.Count; i++)
+                    {
+                        if (value.slavesCameras[i].RenderingOrder > value.slavesCameras[value.slavesCameras.Count - 1].RenderingOrder)
+                        {
+                            Camera temp = value.slavesCameras[value.slavesCameras.Count - 1];
+                            value.slavesCameras[value.slavesCameras.Count - 1] = value.slavesCameras[i];
+                            value.slavesCameras[i] = temp;
+                        }
+                    }
                     if (renderTarget != null)
                         RenderTarget.Release(renderTarget);
                     // Just to be robust...
@@ -487,6 +519,7 @@ namespace XNAFinalEngine.Components
 
         /// <summary>
         /// Cameras with lower values are rendered before cameras with higher values.
+        /// This hold even between slave cameras.
         /// </summary>
         public int RenderingOrder
         {
@@ -559,6 +592,7 @@ namespace XNAFinalEngine.Components
             ClearColor = new Color(20, 20, 20, 255);
             orthographicVerticalSize = 10;
             RenderingOrder = 0;
+            RenderHeadUpDisplay = true;
             CullingMask = uint.MaxValue & ~(uint)(Math.Pow(2, 31)); // All layers minus the last because it's a reserved layer.
             // Generate the projection matrix.
             CalculateProjectionMatrix();
