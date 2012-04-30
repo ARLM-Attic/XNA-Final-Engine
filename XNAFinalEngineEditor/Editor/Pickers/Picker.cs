@@ -63,7 +63,7 @@ namespace XNAFinalEngine.Editor
         private readonly List<GameObject> objectsToPick;
 
         // It’s the texture where the scene is render.
-        public readonly RenderTarget pickerTexture;
+        private readonly RenderTarget pickerTexture;
 
         // I need a constant shader to render the picker.
         private readonly Shader constantShader;
@@ -323,6 +323,17 @@ namespace XNAFinalEngine.Editor
                     LineManager.Begin3D(gameObject3D.LineRenderer.PrimitiveType, viewMatrix, projectionMatrix);
                     for (int j = 0; j < gameObject3D.LineRenderer.Vertices.Length; j++)
                         LineManager.AddVertex(gameObject3D.LineRenderer.Vertices[j].Position, gameObject3D.LineRenderer.Vertices[j].Color);
+                    LineManager.End();
+                }
+            }
+            else if (gameObject is GameObject2D)
+            {
+                GameObject2D gameObject2D = (GameObject2D)gameObject;
+                if (gameObject2D.LineRenderer != null)
+                {
+                    LineManager.Begin2D(gameObject2D.LineRenderer.PrimitiveType);
+                    for (int j = 0; j < gameObject2D.LineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(gameObject2D.LineRenderer.Vertices[j].Position, gameObject2D.LineRenderer.Vertices[j].Color);
                     LineManager.End();
                 }
             }

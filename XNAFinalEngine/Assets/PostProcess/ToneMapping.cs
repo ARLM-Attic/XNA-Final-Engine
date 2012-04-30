@@ -319,11 +319,6 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
-        /// <summary>
-        /// Luminance texture. Used in the adaptation pass.
-        /// </summary>
-        internal RenderTarget LuminanceTexture { get; set; }
-
         #endregion
 
     } // ToneMapping

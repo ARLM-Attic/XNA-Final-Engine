@@ -59,6 +59,7 @@ namespace XNAFinalEngineExamples
             // Now the engine will start.
             EngineManager.StarEngine(new LamborghiniMurcielagoScene(), false);
             //EngineManager.StarEngine(new NeoForceTestScene());
+            //EngineManager.StarEngine(new EmptyScene(), false);
         } // Main
 
         #endregion

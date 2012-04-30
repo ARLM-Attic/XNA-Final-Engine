@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,10 @@ namespace XNAFinalEngine.Components
     /// <summary>
     /// Layers can be used for selective rendering.
     /// </summary>
+    /// <remarks>
+    /// All layers are active by default. 
+    /// However, the cameras’ culling masks by default have all layers active except the last one (normally used by the editor).
+    /// </remarks>
     public class Layer
     {
 
@@ -93,6 +97,7 @@ namespace XNAFinalEngine.Components
 
         /// <summary>
         /// The culling mask of the current camera.
+        /// This is used in conjunction with the ActiveLayers property to indicate if a particular mask is active.
         /// </summary>
         public static uint CurrentCameraCullingMask { get; internal set; }
 

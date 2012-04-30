@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,7 @@ namespace XNAFinalEngine.Assets
 {
 
     /// <summary>
-    /// Post Process.
+    /// This is used to add post process effects like tone mapping, bloom, MLAA, film grain, and color grading.
     /// </summary>
     public class PostProcess : Asset
     {
@@ -93,24 +93,14 @@ namespace XNAFinalEngine.Assets
 
         #region Constructor
 
+        /// <summary>
+        /// This is used to add post process effects like tone mapping, bloom, MLAA, film grain, and color grading.
+        /// </summary>
         public PostProcess()
         {
             Name = "Post Process-" + nameNumber;
             nameNumber++;
         } // PostProcess
-
-        #endregion
-
-        #region Dispose
-
-        /// <summary>
-        /// Dispose managed resources.
-        /// </summary>
-        protected override void DisposeManagedResources()
-        {
-            if (ToneMapping.LuminanceTexture != null)
-                ToneMapping.LuminanceTexture.Dispose();
-        } // DisposeManagedResources
 
         #endregion
 

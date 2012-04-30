@@ -33,6 +33,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
@@ -155,6 +156,9 @@ namespace XNAFinalEngine.Editor
 
         // The user interface control for the viewport.
         private static Container renderSpace;
+
+        // Remember user values.
+        private static bool rememberRenderHeadUpDisplayValue;
         
         #endregion
 
@@ -195,6 +199,9 @@ namespace XNAFinalEngine.Editor
             // Editor Camera
             editorCamera = new GameObject3D();
             editorCamera.AddComponent<Camera>();
+            editorCamera.Camera.AmbientLight = new AmbientLight();
+            editorCamera.Camera.PostProcess = new PostProcess();
+            editorCamera.Camera.PostProcess.Bloom.Enabled = false;
             editorCamera.Camera.Visible = false;
             editorCamera.Camera.RenderingOrder = int.MaxValue;
             editorCameraScript = (ScriptEditorCamera)editorCamera.AddComponent<ScriptEditorCamera>();
@@ -432,6 +439,7 @@ namespace XNAFinalEngine.Editor
                 return;
             editorModeEnabled = true;
             UserInterfaceManager.Visible = true;
+            rememberRenderHeadUpDisplayValue = GameLoop.RenderHeadUpDisplay;
         } // EnableEditorMode
 
         /// <summary>
@@ -446,6 +454,7 @@ namespace XNAFinalEngine.Editor
             Camera.OnlyRendereableCamera = null;
             editorCamera.Camera.Visible = false;
             gizmoCamera.Camera.Visible = false;
+            GameLoop.RenderHeadUpDisplay = rememberRenderHeadUpDisplayValue;
             // Remove bounding box off the screen.
             foreach (var gameObject in selectedObjects)
             {
@@ -470,7 +479,19 @@ namespace XNAFinalEngine.Editor
         } // ResetEditorCamera
 
         #endregion
-        
+
+        #region Change GameObject Bounding Box Visibility
+
+        private static void ChangeGameObjectBoundingBoxVisibility(GameObject gameObject, bool boundingBoxVisibility)
+        {
+            // If it is a model.
+            if (gameObject is GameObject3D && ((GameObject3D)gameObject).ModelRenderer != null)
+                ((GameObject3D)gameObject).ModelRenderer.RenderBoundingBox = boundingBoxVisibility;
+            // ... TODO!!!
+        } // ChangeGameObjectBoundingBoxVisibility
+
+        #endregion
+
         #region Update
 
         /// <summary>
@@ -493,6 +514,7 @@ namespace XNAFinalEngine.Editor
 
             if (ViewportMode == ViewportModeType.Scene)
             {
+                GameLoop.RenderHeadUpDisplay = false;
                 Camera.OnlyRendereableCamera = editorCamera.Camera;
                 editorCamera.Camera.Visible = true;
                 gizmoCamera.Camera.Visible = true;
@@ -511,6 +533,7 @@ namespace XNAFinalEngine.Editor
             }
             else
             {
+                GameLoop.RenderHeadUpDisplay = rememberRenderHeadUpDisplayValue;
                 Camera.OnlyRendereableCamera = null;
                 editorCamera.Camera.Visible = false;
                 gizmoCamera.Camera.Visible = false;
@@ -788,14 +811,6 @@ namespace XNAFinalEngine.Editor
 
             previousFocusedControl = UserInterfaceManager.FocusedControl;
         } // Update
-
-        private static void ChangeGameObjectBoundingBoxVisibility(GameObject gameObject, bool boundingBoxVisibility)
-        {
-            // If it is a model.
-            if (gameObject is GameObject3D && ((GameObject3D)gameObject).ModelRenderer != null)
-                ((GameObject3D)gameObject).ModelRenderer.RenderBoundingBox = boundingBoxVisibility;
-            // ... TODO!!!
-        } // ChangeGameObjectBoundingBoxVisibility
 
         #endregion
 

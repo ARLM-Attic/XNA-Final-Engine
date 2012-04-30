@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.EngineCore;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -66,13 +65,14 @@ namespace XNAFinalEngine.Graphics
         /// <param name="sceneTexture">Linear space HDR scene texture.</param>
         /// <param name="depthTexture">Depth texture.</param>
         /// <param name="postProcess">Post process parameters.</param>
+        /// <param name="luminanceTexture">This texture stores the previous luminance information.</param>
         /// <returns>The gamma space post process texture of the linear space scene texture.</returns>
-        public static void BeginAndProcess(Texture sceneTexture, Texture depthTexture, PostProcess postProcess)
+        public static void BeginAndProcess(Texture sceneTexture, Texture depthTexture, PostProcess postProcess, ref RenderTarget luminanceTexture)
         {
             if (sceneTexture == null || sceneTexture.Resource == null)
                 throw new ArgumentNullException("sceneTexture");
-            if (postProcess == null)
-                throw new ArgumentNullException("postProcess");
+            if (sceneTexture == null || sceneTexture.Resource == null)
+                throw new ArgumentNullException("depthTexture");
             
             try
             {
@@ -81,27 +81,27 @@ namespace XNAFinalEngine.Graphics
 
                 // Generate bloom texture
                 RenderTarget bloomTexture = null;
-                if (postProcess.Bloom != null && postProcess.Bloom.Enabled)
+                if (postProcess != null && postProcess.Bloom != null && postProcess.Bloom.Enabled)
                     bloomTexture = BloomShader.Instance.Render(sceneTexture, postProcess);
 
-                // If the shader was not created...
+                // Retrieve the shader instance.
                 postProcessingShader = PostProcessingShader.Instance;
 
-                if (postProcess.ToneMapping.AutoExposureEnabled)
+                // Tone Mapping Auto Exposure.
+                if (postProcess != null && postProcess.ToneMapping.AutoExposureEnabled)
                 {
                     // Luminance Map Generation
-                    
                     RenderTarget currentLuminanceTexture = postProcessingShader.LuminanceTextureGeneration(sceneTexture, postProcess);
                 
                     // Luminance Adaptation
-                    postProcess.ToneMapping.LuminanceTexture = postProcessingShader.LuminanceAdaptation(currentLuminanceTexture, postProcess.ToneMapping.LuminanceTexture, postProcess);
+                    luminanceTexture = postProcessingShader.LuminanceAdaptation(currentLuminanceTexture, luminanceTexture, postProcess);
                     RenderTarget.Release(currentLuminanceTexture);
                 }
 
                 postProcessedSceneTexture = RenderTarget.Fetch(sceneTexture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
                 postProcessedSceneTexture.EnableRenderTarget();
                 // Post process the scene texture.
-                postProcessingShader.Render(sceneTexture, postProcess, bloomTexture, postProcess.ToneMapping.LuminanceTexture);
+                postProcessingShader.Render(sceneTexture, postProcess, bloomTexture, luminanceTexture);
                 // Release textures (they return to the pool).
                 if (bloomTexture != null)
                     RenderTarget.Release(bloomTexture);
@@ -125,7 +125,7 @@ namespace XNAFinalEngine.Graphics
             {
                 RenderTarget.DisableCurrentRenderTargets();
                 // Process MLAA
-                if (postProcess.MLAA != null && postProcess.MLAA.Enabled)
+                if (postProcess != null && postProcess.MLAA != null && postProcess.MLAA.Enabled)
                 {
                     RenderTarget mlaaTexture = MLAAShader.Instance.Render(postProcessedSceneTexture, depthTexture, postProcess);
                     RenderTarget.Release(postProcessedSceneTexture);

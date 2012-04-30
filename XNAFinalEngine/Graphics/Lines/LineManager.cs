@@ -159,7 +159,10 @@ namespace XNAFinalEngine.Graphics
             basicEffect.World = Matrix.Identity;
             basicEffect.View = Matrix.Identity;
             // Works in screen coordinates.
-            basicEffect.Projection = Matrix.CreateOrthographicOffCenter(0, EngineManager.Device.Viewport.Width, EngineManager.Device.Viewport.Height, 0, 0, 1);
+            basicEffect.Projection = Matrix.CreateOrthographicOffCenter(EngineManager.Device.Viewport.X,
+                                                                        EngineManager.Device.Viewport.X + EngineManager.Device.Viewport.Width,
+                                                                        EngineManager.Device.Viewport.Y + EngineManager.Device.Viewport.Height,
+                                                                        EngineManager.Device.Viewport.Y, 0, 1);
             basicEffect.CurrentTechnique.Passes[0].Apply();
 
             // Flip the error checking boolean. It's now ok to call AddVertex, Flush, and End.
@@ -298,7 +301,6 @@ namespace XNAFinalEngine.Graphics
 
             // how many primitives will we draw?
             int primitiveCount = positionInBuffer / numVertsPerPrimitive;
-            basicEffect.CurrentTechnique.Passes[0].Apply();
 
             // Submit the draw call to the graphics card
             EngineManager.Device.DrawUserPrimitives(primitiveType, vertices, 0, primitiveCount);

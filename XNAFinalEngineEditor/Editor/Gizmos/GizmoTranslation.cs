@@ -350,7 +350,6 @@ namespace XNAFinalEngine.Editor
             vertices[4] = Vector3.Transform(new Vector3(1, 1, 0), transformationMatrix);
             vertices[5] = Vector3.Transform(new Vector3(0, 1, 1), transformationMatrix);
             vertices[6] = Vector3.Transform(new Vector3(1, 0, 1), transformationMatrix);
-
             
             planeRedGreen.ModelFilter.Model = new Plane(vertices[2], vertices[0], vertices[4], vertices[1]);
             planeGreenBlue.ModelFilter.Model = new Plane(vertices[5], vertices[3], vertices[2], vertices[0]);
@@ -393,12 +392,23 @@ namespace XNAFinalEngine.Editor
             blueCone.Transform.Rotate(new Vector3(90, 0, 0));
             picker.RenderObjectToPicker(blueCone, Color.Blue);
             
+            Vector3 screenPositions = EngineManager.Device.Viewport.Project(vertices[0], gizmoCamera.Camera.ProjectionMatrix, gizmoCamera.Camera.ViewMatrix, Matrix.Identity);
+            planeAll.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), Color.White);
+            planeAll.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), Color.White);
+            planeAll.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), Color.White);
+            planeAll.LineRenderer.Vertices[3] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y + RegionSize / 2, 0), Color.White);
+            planeAll.LineRenderer.Vertices[4] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y + RegionSize / 2, 0), Color.White);
+            planeAll.LineRenderer.Vertices[5] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y + RegionSize / 2, 0), Color.White);
+            planeAll.LineRenderer.Vertices[6] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y + RegionSize / 2, 0), Color.White);
+            planeAll.LineRenderer.Vertices[7] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), Color.White);
+            picker.RenderObjectToPicker(planeAll, Color.White);
+            
             // The plane used to select all axis.
-            LineManager.Begin2D(PrimitiveType.LineList);
+            /*LineManager.Begin2D(PrimitiveType.LineList);
                 Vector3 screenPositions = EngineManager.Device.Viewport.Project(vertices[0], gizmoCamera.Camera.ProjectionMatrix, gizmoCamera.Camera.ViewMatrix, Matrix.Identity);
                 LineManager.DrawSolid2DPlane(new Rectangle((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, RegionSize, RegionSize), Color.White);
-            LineManager.End();
-
+            LineManager.End();*/
+            
             // This is used to avoid problems in the gizmo rendering.
             UpdateRenderingInformation();
         } // RenderGizmoForPicker
@@ -455,6 +465,8 @@ namespace XNAFinalEngine.Editor
             else
                 planeColor = Color.Gray;
 
+            EngineManager.Device.Viewport = new Viewport(gizmoCamera.Camera.Viewport.X, gizmoCamera.Camera.Viewport.Y,
+                                                         gizmoCamera.Camera.Viewport.Width, gizmoCamera.Camera.Viewport.Height);
             Vector3 screenPositions = EngineManager.Device.Viewport.Project(vertices[0], gizmoCamera.Camera.ProjectionMatrix, gizmoCamera.Camera.ViewMatrix, Matrix.Identity);
             planeAll.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), planeColor);
             planeAll.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), planeColor);

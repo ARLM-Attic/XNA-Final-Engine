@@ -84,6 +84,11 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static Scene CurrentScene { get; set; }
 
+        /// <summary>
+        /// Render Head Up Display?
+        /// </summary>
+        public static bool RenderHeadUpDisplay { get; set; }
+
         #endregion
 
         #region Load Content
@@ -93,6 +98,8 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         internal static void LoadContent()
         {
+
+            RenderHeadUpDisplay = true;
 
             #region Load Managers
 
@@ -348,14 +355,17 @@ namespace XNAFinalEngine.EngineCore
             {
                 RenderMasterCamera(Camera.OnlyRendereableCamera);
             }
-            // For each camera we render the scene in it
-            for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
+            else
             {
-                Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
-                // If is a master camera
-                if (currentCamera.MasterCamera == null && currentCamera.Visible && Layer.IsActive(currentCamera.CachedLayerMask))
+                // For each camera we render the scene in it
+                for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
                 {
-                    RenderMasterCamera(currentCamera);
+                    Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
+                    // If is a master camera
+                    if (currentCamera.MasterCamera == null && currentCamera.Visible && Layer.IsActive(currentCamera.CachedLayerMask))
+                    {
+                        RenderMasterCamera(currentCamera);
+                    }
                 }
             }
             
@@ -382,134 +392,6 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            #region Heads Up Display
-
-            // Draw 2D Heads Up Display
-            SpriteManager.Begin2D();
-            {
-
-                #region HUD Text
-
-                HudText currentHudText;
-                for (int i = 0; i < HudText.ComponentPool2D.Count; i++)
-                {
-                    currentHudText = HudText.ComponentPool2D.Elements[i];
-                    if (currentHudText.Visible && Layer.IsActive(currentHudText.CachedLayerMask))
-                    {
-                        SpriteManager.Draw2DText(currentHudText.Font ?? Font.DefaultFont,
-                                               currentHudText.Text,
-                                               currentHudText.CachedPosition,
-                                               currentHudText.Color,
-                                               currentHudText.CachedRotation,
-                                               Vector2.Zero,
-                                               currentHudText.CachedScale);
-                    }
-                }
-
-                #endregion
-
-                #region HUD Texture
-
-                HudTexture currentHudTexture;
-                for (int i = 0; i < HudTexture.ComponentPool2D.Count; i++)
-                {
-                    currentHudTexture = HudTexture.ComponentPool2D.Elements[i];
-                    if (currentHudTexture.Visible && currentHudTexture.Texture != null && Layer.IsActive(currentHudTexture.CachedLayerMask))
-                    {
-                        if (currentHudTexture.DestinationRectangle != null)
-                            SpriteManager.Draw2DTexture(currentHudTexture.Texture,
-                                                      currentHudTexture.CachedPosition.Z,
-                                                      currentHudTexture.DestinationRectangle.Value,
-                                                      currentHudTexture.SourceRectangle,
-                                                      currentHudTexture.Color,
-                                                      currentHudTexture.CachedRotation,
-                                                      Vector2.Zero);
-                        else
-                            SpriteManager.Draw2DTexture(currentHudTexture.Texture,
-                                                      currentHudTexture.CachedPosition,
-                                                      currentHudTexture.SourceRectangle,
-                                                      currentHudTexture.Color,
-                                                      currentHudTexture.CachedRotation,
-                                                      Vector2.Zero,
-                                                      currentHudTexture.CachedScale);
-                    }
-                }
-
-                #endregion
-
-                #region 2D Lines
-
-                LineManager.Begin2D(PrimitiveType.TriangleList);
-                for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
-                {
-                    LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
-                    if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible &&
-                        currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
-                    {
-                        for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
-                            LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
-                    }
-                }
-                LineManager.End();
-
-                LineManager.Begin2D(PrimitiveType.LineList);
-                for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
-                {
-                    LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
-                    if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible &&
-                        currentLineRenderer.PrimitiveType == PrimitiveType.LineList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
-                    {
-                        for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
-                            LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
-                    }
-                }
-                LineManager.End();
-
-                #endregion
-
-                #region Videos
-
-                VideoRenderer currentVideo;
-                for (int i = 0; i < VideoRenderer.ComponentPool.Count; i++)
-                {
-                    currentVideo = VideoRenderer.ComponentPool.Elements[i];
-                    currentVideo.Update();
-                    if (currentVideo.Visible && currentVideo.Texture != null && Layer.IsActive(currentVideo.CachedLayerMask))
-                    {
-                        // Aspect ratio
-                        Rectangle screenRectangle;
-                        float videoAspectRatio = (float)currentVideo.Texture.Width / (float)currentVideo.Texture.Height,
-                              screenAspectRatio = (float)Screen.Width / (float)Screen.Height;
-
-                        if (videoAspectRatio > screenAspectRatio)
-                        {
-                            float vsAspectRatio = videoAspectRatio / screenAspectRatio;
-                            int blackStripe = (int)((Screen.Height - (Screen.Height / vsAspectRatio)) / 2);
-                            screenRectangle = new Rectangle(0, 0 + blackStripe, Screen.Width, Screen.Height - blackStripe * 2);
-                        }
-                        else
-                        {
-                            float vsAspectRatio = screenAspectRatio / videoAspectRatio;
-                            int blackStripe = (int)((Screen.Width - (Screen.Width / vsAspectRatio)) / 2);
-                            screenRectangle = new Rectangle(0 + blackStripe, 0, Screen.Width - blackStripe * 2, Screen.Height);
-                        }
-                        SpriteManager.Draw2DTexture(currentVideo.Texture,
-                                                  currentVideo.CachedPosition.Z,
-                                                  screenRectangle,
-                                                  null,
-                                                  Color.White,
-                                                  0,
-                                                  Vector2.Zero);
-                    }
-                }
-
-                #endregion
-
-            }
-            SpriteManager.End();
-
-            #endregion
-            
             #region Scene Post Render Tasks
 
             if (CurrentScene != null && CurrentScene.Loaded)
@@ -596,7 +478,7 @@ namespace XNAFinalEngine.EngineCore
         #region Render Camera
 
         /// <summary>
-        /// Render a master camera and its slaves.
+        /// Render a master camera and its slaves. 
         /// </summary>
         private static void RenderMasterCamera(Camera currentCamera)
         {
@@ -639,6 +521,9 @@ namespace XNAFinalEngine.EngineCore
                         RenderTarget.Release(currentCamera.slavesCameras[i].PartialRenderTarget);
                     }
                 }
+                // Reset viewport
+                EngineManager.Device.Viewport = new Viewport(0, 0, Screen.Width, Screen.Height);
+                RenderHeadsUpDisplay();
                 currentCamera.RenderTarget.DisableRenderTarget();
             }
         } // RenderMainCamera
@@ -773,10 +658,13 @@ namespace XNAFinalEngine.EngineCore
             #region Light Pre Pass
 
             #region Ambient Occlusion
-
-            if (currentCamera.AmbientLight.AmbientOcclusion != null && currentCamera.AmbientLight.AmbientOcclusion.Enabled)
+            
+            // TODO Podria pasar el clear color al shader asi lo puede afectar el ambient occlusion.
+            if (currentCamera.AmbientLight != null && currentCamera.AmbientLight.Intensity > 0 &&
+                currentCamera.AmbientLight.AmbientOcclusion != null && currentCamera.AmbientLight.AmbientOcclusion.Enabled)
             {
                 RenderTarget aoDepthTexture, aoNormalTexture;
+                // Select downsampled version or full version of the gbuffer textures.
                 if (currentCamera.AmbientLight.AmbientOcclusion.TextureSize == Size.TextureSize.FullSize)
                 {
                     aoDepthTexture = gbufferTextures.RenderTargets[0];
@@ -792,7 +680,7 @@ namespace XNAFinalEngine.EngineCore
                     aoDepthTexture = quarterDepthTexture;
                     aoNormalTexture = quarterNormalTexture;
                 }
-                
+                // Produce occlusion texture. The result will be used in the light pass.
                 if (currentCamera.AmbientLight.AmbientOcclusion is HorizonBasedAmbientOcclusion)
                 {
                     ambientOcclusionTexture = HorizonBasedAmbientOcclusionShader.Instance.Render(aoDepthTexture,
@@ -930,12 +818,12 @@ namespace XNAFinalEngine.EngineCore
 
             #region Light Texture
 
-            LightPrePass.Begin(destinationSize, currentCamera.AmbientLight.Color);
+            LightPrePass.Begin(destinationSize, currentCamera.AmbientLight != null ? currentCamera.AmbientLight.Color : Color.Black);
 
             #region Ambient Light
 
-            // Render ambient light for every camera.
-            if (currentCamera.AmbientLight != null)
+            // Render ambient light
+            if (currentCamera.AmbientLight != null && currentCamera.AmbientLight.Intensity > 0)
             {
                 AmbientLightShader.Instance.RenderLight(gbufferTextures.RenderTargets[1], // Normal Texture
                                                         currentCamera.AmbientLight,
@@ -1214,7 +1102,7 @@ namespace XNAFinalEngine.EngineCore
             
             #region Post Process Pass
 
-            PostProcessingPass.BeginAndProcess(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess);
+            PostProcessingPass.BeginAndProcess(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess, ref currentCamera.LuminanceTexture);
             // Render in gamma space
             
             #region Textures and Text
@@ -1344,7 +1232,17 @@ namespace XNAFinalEngine.EngineCore
             LineManager.End();
 
             #endregion
-            
+
+            #region Head Up Display (when render directly to camera render target)
+
+            // We render directly in the camera render target so the user interface needs to be render here.
+            if (currentCamera.slavesCameras.Count == 0 && currentCamera.NormalizedViewport == new RectangleF(0, 0, 1, 1))
+            {
+                RenderHeadsUpDisplay();
+            }
+
+            #endregion
+
             postProcessedSceneTexture = PostProcessingPass.End();
 
             // They are not needed anymore.
@@ -1372,6 +1270,143 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
         } // RenderCamera
+
+        #endregion
+
+        #region Render Heads Up Display
+
+        /// <summary>
+        /// Render the Head Up Display
+        /// </summary>
+        private static void RenderHeadsUpDisplay()
+        {
+            if (!RenderHeadUpDisplay)
+                return;
+            // Draw 2D Heads Up Display
+            SpriteManager.Begin2D();
+            {
+
+                #region HUD Text
+
+                HudText currentHudText;
+                for (int i = 0; i < HudText.ComponentPool2D.Count; i++)
+                {
+                    currentHudText = HudText.ComponentPool2D.Elements[i];
+                    if (currentHudText.Visible && Layer.IsActive(currentHudText.CachedLayerMask))
+                    {
+                        SpriteManager.Draw2DText(currentHudText.Font ?? Font.DefaultFont,
+                                               currentHudText.Text,
+                                               currentHudText.CachedPosition,
+                                               currentHudText.Color,
+                                               currentHudText.CachedRotation,
+                                               Vector2.Zero,
+                                               currentHudText.CachedScale);
+                    }
+                }
+
+                #endregion
+
+                #region HUD Texture
+
+                HudTexture currentHudTexture;
+                for (int i = 0; i < HudTexture.ComponentPool2D.Count; i++)
+                {
+                    currentHudTexture = HudTexture.ComponentPool2D.Elements[i];
+                    if (currentHudTexture.Visible && currentHudTexture.Texture != null && Layer.IsActive(currentHudTexture.CachedLayerMask))
+                    {
+                        if (currentHudTexture.DestinationRectangle != null)
+                            SpriteManager.Draw2DTexture(currentHudTexture.Texture,
+                                                      currentHudTexture.CachedPosition.Z,
+                                                      currentHudTexture.DestinationRectangle.Value,
+                                                      currentHudTexture.SourceRectangle,
+                                                      currentHudTexture.Color,
+                                                      currentHudTexture.CachedRotation,
+                                                      Vector2.Zero);
+                        else
+                            SpriteManager.Draw2DTexture(currentHudTexture.Texture,
+                                                      currentHudTexture.CachedPosition,
+                                                      currentHudTexture.SourceRectangle,
+                                                      currentHudTexture.Color,
+                                                      currentHudTexture.CachedRotation,
+                                                      Vector2.Zero,
+                                                      currentHudTexture.CachedScale);
+                    }
+                }
+
+                #endregion
+
+                #region 2D Lines
+
+                LineManager.Begin2D(PrimitiveType.TriangleList);
+                for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
+                {
+                    LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
+                    if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible &&
+                        currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
+                    {
+                        for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
+                            LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
+                    }
+                }
+                LineManager.End();
+
+                LineManager.Begin2D(PrimitiveType.LineList);
+                for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
+                {
+                    LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
+                    if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible &&
+                        currentLineRenderer.PrimitiveType == PrimitiveType.LineList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
+                    {
+                        for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
+                            LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
+                    }
+                }
+                LineManager.End();
+
+                #endregion
+
+                #region Videos
+
+                VideoRenderer currentVideo;
+                for (int i = 0; i < VideoRenderer.ComponentPool.Count; i++)
+                {
+                    currentVideo = VideoRenderer.ComponentPool.Elements[i];
+                    currentVideo.Update();
+                    if (currentVideo.Visible && currentVideo.Texture != null && Layer.IsActive(currentVideo.CachedLayerMask))
+                    {
+                        // Aspect ratio
+                        Rectangle screenRectangle;
+                        float videoAspectRatio = (float)currentVideo.Texture.Width / (float)currentVideo.Texture.Height,
+                              screenAspectRatio = (float)Screen.Width / (float)Screen.Height;
+
+                        if (videoAspectRatio > screenAspectRatio)
+                        {
+                            float vsAspectRatio = videoAspectRatio / screenAspectRatio;
+                            int blackStripe = (int)((Screen.Height - (Screen.Height / vsAspectRatio)) / 2);
+                            screenRectangle = new Rectangle(0, 0 + blackStripe, Screen.Width, Screen.Height - blackStripe * 2);
+                        }
+                        else
+                        {
+                            float vsAspectRatio = screenAspectRatio / videoAspectRatio;
+                            int blackStripe = (int)((Screen.Width - (Screen.Width / vsAspectRatio)) / 2);
+                            screenRectangle = new Rectangle(0 + blackStripe, 0, Screen.Width - blackStripe * 2, Screen.Height);
+                        }
+                        SpriteManager.Draw2DTexture(currentVideo.Texture,
+                                                  currentVideo.CachedPosition.Z,
+                                                  screenRectangle,
+                                                  null,
+                                                  Color.White,
+                                                  0,
+                                                  Vector2.Zero);
+                    }
+                }
+
+                #endregion
+
+            }
+            SpriteManager.End();
+
+        } // RenderHeadsUpDisplay
 
         #endregion
 

@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Helpers;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -1018,169 +1017,174 @@ namespace XNAFinalEngine.Graphics
         {
             if (sceneTexture == null || sceneTexture.Resource == null)
                 throw new ArgumentNullException("sceneTexture");
-            if (postProcess == null)
-                throw new ArgumentNullException("postProcess");
 
             try
             {
-                switch (postProcess.ToneMapping.ToneMappingFunction)
-                {
-                    case ToneMapping.ToneMappingFunctionEnumerate.FilmicALU        : Resource.CurrentTechnique = Resource.Techniques["PostProcessingFilmicALU"]; break;
-                    case ToneMapping.ToneMappingFunctionEnumerate.FilmicUncharted2 : Resource.CurrentTechnique = Resource.Techniques["PostProcessingFilmicUncharted2"];
-                        SetShoulderStrength(postProcess.ToneMapping.Uncharted2ShoulderStrength);
-                        SetLinearStrength(postProcess.ToneMapping.Uncharted2LinearStrength);
-                        SetLinearAngle(postProcess.ToneMapping.Uncharted2LinearAngle);
-                        SetToeStrength(postProcess.ToneMapping.Uncharted2ToeStrength);
-                        SetToeNumerator(postProcess.ToneMapping.Uncharted2ToeNumerator);
-                        SetToeDenominator(postProcess.ToneMapping.Uncharted2ToeDenominator);
-                        SetLinearWhite(postProcess.ToneMapping.Uncharted2LinearWhite);
-                        break;
-                    case ToneMapping.ToneMappingFunctionEnumerate.Reinhard         : Resource.CurrentTechnique = Resource.Techniques["PostProcessingReinhard"]; 
-                        SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
-                        break;
-                    case ToneMapping.ToneMappingFunctionEnumerate.ReinhardModified : Resource.CurrentTechnique = Resource.Techniques["PostProcessingReinhardModified"];
-                        SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
-                        SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
-                        break;
-                    case ToneMapping.ToneMappingFunctionEnumerate.Exponential      : Resource.CurrentTechnique = Resource.Techniques["PostProcessingExponential"];
-                        SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
-                        SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
-                        break;
-                    case ToneMapping.ToneMappingFunctionEnumerate.Logarithmic      : Resource.CurrentTechnique = Resource.Techniques["PostProcessingLogarithmic"]; 
-                        SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
-                        SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
-                        break;
-                    case ToneMapping.ToneMappingFunctionEnumerate.DragoLogarithmic : Resource.CurrentTechnique = Resource.Techniques["PostProcessingDragoLogarithmic"]; 
-                        SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
-                        SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
-                        SetBias(postProcess.ToneMapping.DragoBias);
-                        break;
-                    case ToneMapping.ToneMappingFunctionEnumerate.Duiker           : Resource.CurrentTechnique = Resource.Techniques["PostProcessingDuiker"]; break;
-                }
-
                 // Set render states
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
 
-                // Set parameters
-                SetHalfPixel(new Vector2(-1f / sceneTexture.Width, 1f / sceneTexture.Height));
-                SetSceneTexture(sceneTexture);
-
-                #region Tone Mapping
-
-                SetAutoExposure(postProcess.ToneMapping.AutoExposureEnabled);
-                EngineManager.Device.SamplerStates[12] = SamplerState.PointClamp; // To avoid an exception. Long story.
-                if (postProcess.ToneMapping.AutoExposureEnabled)
-                    SetLuminanceTexture(luminanceTexture);
-                else
-                    SetLensExposure(postProcess.ToneMapping.LensExposure);
-
-                #endregion
-
-                #region Bloom
-
-                if (postProcess.Bloom != null && postProcess.Bloom.Enabled)
+                if (postProcess != null)
                 {
-                    SetBloomEnabled(true);
-                    SetBloomScale(postProcess.Bloom.Scale);
-                    SetBloomTexture(bloomTexture);
-                }
-                else
-                    SetBloomEnabled(false);
-
-                #endregion
-
-                #region Levels
-
-                // Adjust Levels
-                if (postProcess.AdjustLevels != null && postProcess.AdjustLevels.Enabled)
-                {
-                    SetAdjustLevelsEnabled(true);
-                    SetInputBlack(postProcess.AdjustLevels.InputBlack);
-                    SetInputWhite(postProcess.AdjustLevels.InputWhite);
-                    SetInputGamma(postProcess.AdjustLevels.InputGamma);
-                    SetOutputBlack(postProcess.AdjustLevels.OutputBlack);
-                    SetOutputWhite(postProcess.AdjustLevels.OutputWhite);
-                }
-                else
-                    SetAdjustLevelsEnabled(false);
-                // Adjust Levels Individual Channels
-                if (postProcess.AdjustLevelsIndividualChannels != null && postProcess.AdjustLevelsIndividualChannels.Enabled)
-                {
-                    SetAdjustLevelsIndividualChannelsEnabled(true);
-                    SetInputBlackRgb(postProcess.AdjustLevelsIndividualChannels.InputBlack);
-                    SetInputWhiteRgb(postProcess.AdjustLevelsIndividualChannels.InputWhite);
-                    SetInputGammaRgb(postProcess.AdjustLevelsIndividualChannels.InputGamma);
-                    SetOutputBlackRgb(postProcess.AdjustLevelsIndividualChannels.OutputBlack);
-                    SetOutputWhiteRgb(postProcess.AdjustLevelsIndividualChannels.OutputWhite);
-                }
-                else
-                    SetAdjustLevelsIndividualChannelsEnabled(false);
-
-                #endregion
-                
-                #region Color Correction
-
-                if (postProcess.ColorCorrection != null && postProcess.ColorCorrection.Enabled)
-                {
-                    if (postProcess.ColorCorrection.FirstLookupTable == null || postProcess.ColorCorrection.LerpOriginalColorAmount == 0)
+                    // Select technique with the tone mapping function.
+                    switch (postProcess.ToneMapping.ToneMappingFunction)
                     {
-                        // No color correction
-                        SetColorCorrectOneLutEnabled(false);
-                        SetColorCorrectTwoLutEnabled(false);
+                        case ToneMapping.ToneMappingFunctionEnumerate.FilmicALU        : Resource.CurrentTechnique = Resource.Techniques["PostProcessingFilmicALU"]; break;
+                        case ToneMapping.ToneMappingFunctionEnumerate.FilmicUncharted2 : Resource.CurrentTechnique = Resource.Techniques["PostProcessingFilmicUncharted2"];
+                            SetShoulderStrength(postProcess.ToneMapping.Uncharted2ShoulderStrength);
+                            SetLinearStrength(postProcess.ToneMapping.Uncharted2LinearStrength);
+                            SetLinearAngle(postProcess.ToneMapping.Uncharted2LinearAngle);
+                            SetToeStrength(postProcess.ToneMapping.Uncharted2ToeStrength);
+                            SetToeNumerator(postProcess.ToneMapping.Uncharted2ToeNumerator);
+                            SetToeDenominator(postProcess.ToneMapping.Uncharted2ToeDenominator);
+                            SetLinearWhite(postProcess.ToneMapping.Uncharted2LinearWhite);
+                            break;
+                        case ToneMapping.ToneMappingFunctionEnumerate.Reinhard         : Resource.CurrentTechnique = Resource.Techniques["PostProcessingReinhard"]; 
+                            SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
+                            break;
+                        case ToneMapping.ToneMappingFunctionEnumerate.ReinhardModified : Resource.CurrentTechnique = Resource.Techniques["PostProcessingReinhardModified"];
+                            SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
+                            SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
+                            break;
+                        case ToneMapping.ToneMappingFunctionEnumerate.Exponential      : Resource.CurrentTechnique = Resource.Techniques["PostProcessingExponential"];
+                            SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
+                            SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
+                            break;
+                        case ToneMapping.ToneMappingFunctionEnumerate.Logarithmic      : Resource.CurrentTechnique = Resource.Techniques["PostProcessingLogarithmic"]; 
+                            SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
+                            SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
+                            break;
+                        case ToneMapping.ToneMappingFunctionEnumerate.DragoLogarithmic : Resource.CurrentTechnique = Resource.Techniques["PostProcessingDragoLogarithmic"]; 
+                            SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
+                            SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
+                            SetBias(postProcess.ToneMapping.DragoBias);
+                            break;
+                        case ToneMapping.ToneMappingFunctionEnumerate.Duiker           : Resource.CurrentTechnique = Resource.Techniques["PostProcessingDuiker"]; break;
+                    }
+                    // Set parameters
+                    SetHalfPixel(new Vector2(-1f / sceneTexture.Width, 1f / sceneTexture.Height));
+                    SetSceneTexture(sceneTexture);
+
+                    #region Tone Mapping
+
+                    SetAutoExposure(postProcess.ToneMapping.AutoExposureEnabled);
+                    EngineManager.Device.SamplerStates[12] = SamplerState.PointClamp; // To avoid an exception. Long story.
+                    if (postProcess.ToneMapping.AutoExposureEnabled)
+                        SetLuminanceTexture(luminanceTexture);
+                    else
+                        SetLensExposure(postProcess.ToneMapping.LensExposure);
+
+                    #endregion
+
+                    #region Bloom
+
+                    if (postProcess.Bloom != null && postProcess.Bloom.Enabled)
+                    {
+                        SetBloomEnabled(true);
+                        SetBloomScale(postProcess.Bloom.Scale);
+                        SetBloomTexture(bloomTexture);
+                    }
+                    else
+                        SetBloomEnabled(false);
+
+                    #endregion
+
+                    #region Levels
+
+                    // Adjust Levels
+                    if (postProcess.AdjustLevels != null && postProcess.AdjustLevels.Enabled)
+                    {
+                        SetAdjustLevelsEnabled(true);
+                        SetInputBlack(postProcess.AdjustLevels.InputBlack);
+                        SetInputWhite(postProcess.AdjustLevels.InputWhite);
+                        SetInputGamma(postProcess.AdjustLevels.InputGamma);
+                        SetOutputBlack(postProcess.AdjustLevels.OutputBlack);
+                        SetOutputWhite(postProcess.AdjustLevels.OutputWhite);
+                    }
+                    else
+                        SetAdjustLevelsEnabled(false);
+                    // Adjust Levels Individual Channels
+                    if (postProcess.AdjustLevelsIndividualChannels != null && postProcess.AdjustLevelsIndividualChannels.Enabled)
+                    {
+                        SetAdjustLevelsIndividualChannelsEnabled(true);
+                        SetInputBlackRgb(postProcess.AdjustLevelsIndividualChannels.InputBlack);
+                        SetInputWhiteRgb(postProcess.AdjustLevelsIndividualChannels.InputWhite);
+                        SetInputGammaRgb(postProcess.AdjustLevelsIndividualChannels.InputGamma);
+                        SetOutputBlackRgb(postProcess.AdjustLevelsIndividualChannels.OutputBlack);
+                        SetOutputWhiteRgb(postProcess.AdjustLevelsIndividualChannels.OutputWhite);
+                    }
+                    else
+                        SetAdjustLevelsIndividualChannelsEnabled(false);
+
+                    #endregion
+
+                    #region Color Correction
+
+                    if (postProcess.ColorCorrection != null && postProcess.ColorCorrection.Enabled)
+                    {
+                        if (postProcess.ColorCorrection.FirstLookupTable == null || postProcess.ColorCorrection.LerpOriginalColorAmount == 0)
+                        {
+                            // No color correction
+                            SetColorCorrectOneLutEnabled(false);
+                            SetColorCorrectTwoLutEnabled(false);
+                        }
+                        else
+                        {
+                            SetLookupTableScale(((float)(postProcess.ColorCorrection.FirstLookupTable.Size) - 1f) / (float)(postProcess.ColorCorrection.FirstLookupTable.Size));
+                            SetLookupTableOffset(1f / (2f * (float)(postProcess.ColorCorrection.FirstLookupTable.Size)));
+                            if (postProcess.ColorCorrection.SecondLookupTable == null || postProcess.ColorCorrection.LerpLookupTablesAmount == 0)
+                            {
+                                // Lerp between two lookup tables
+                                SetColorCorrectOneLutEnabled(true);
+                                SetColorCorrectTwoLutEnabled(false);
+                                SetFirstLookupTable(postProcess.ColorCorrection.FirstLookupTable);
+                                SetLerpOriginalColorAmount(postProcess.ColorCorrection.LerpOriginalColorAmount);
+                            }
+                            else
+                            {
+                                // One lookup table
+                                SetColorCorrectOneLutEnabled(false);
+                                SetColorCorrectTwoLutEnabled(true);
+                                SetFirstLookupTable(postProcess.ColorCorrection.FirstLookupTable);
+                                SetSecondLookupTable(postProcess.ColorCorrection.SecondLookupTable);
+                                SetLerpOriginalColorAmount(postProcess.ColorCorrection.LerpOriginalColorAmount);
+                                SetLerpLookupTablesAmount(postProcess.ColorCorrection.LerpLookupTablesAmount);
+                            }
+                        }
                     }
                     else
                     {
-                        SetLookupTableScale(((float)(postProcess.ColorCorrection.FirstLookupTable.Size) - 1f) / (float)(postProcess.ColorCorrection.FirstLookupTable.Size));
-                        SetLookupTableOffset(1f / (2f * (float)(postProcess.ColorCorrection.FirstLookupTable.Size)));
-                        if (postProcess.ColorCorrection.SecondLookupTable == null || postProcess.ColorCorrection.LerpLookupTablesAmount == 0) 
-                        {
-                            // Lerp between two lookup tables
-                            SetColorCorrectOneLutEnabled(true);
-                            SetColorCorrectTwoLutEnabled(false);
-                            SetFirstLookupTable(postProcess.ColorCorrection.FirstLookupTable);
-                            SetLerpOriginalColorAmount(postProcess.ColorCorrection.LerpOriginalColorAmount);
-                        }
-                        else 
-                        {
-                            // One lookup table
-                            SetColorCorrectOneLutEnabled(false);
-                            SetColorCorrectTwoLutEnabled(true);
-                            SetFirstLookupTable(postProcess.ColorCorrection.FirstLookupTable);
-                            SetSecondLookupTable(postProcess.ColorCorrection.SecondLookupTable);
-                            SetLerpOriginalColorAmount(postProcess.ColorCorrection.LerpOriginalColorAmount);
-                            SetLerpLookupTablesAmount(postProcess.ColorCorrection.LerpLookupTablesAmount);
-                        }
+                        SetColorCorrectOneLutEnabled(false);
+                        SetColorCorrectTwoLutEnabled(false);
                     }
+
+
+                    #endregion
+
+                    #region Film Grain
+
+                    if (postProcess.FilmGrain != null && postProcess.FilmGrain.Enabled && postProcess.FilmGrain.Strength != 0)
+                    {
+                        SetFilmGrainEnabled(true);
+                        SetFilmGrainStrength(postProcess.FilmGrain.Strength);
+                        SetAccentuateDarkNoisePower(postProcess.FilmGrain.AccentuateDarkNoisePower);
+                        SetRandomNoiseStrength(postProcess.FilmGrain.RandomNoiseStrength);
+                        SetRandomValue(randomNumber.Next(1, 10000) / 100.0f);
+                    }
+                    else
+                        SetFilmGrainEnabled(false);
+
+                    #endregion
+
+                    // Render post process effect.
+                    Resource.CurrentTechnique.Passes[0].Apply();
+                    RenderScreenPlane();
                 }
                 else
                 {
-                    SetColorCorrectOneLutEnabled(false);
-                    SetColorCorrectTwoLutEnabled(false);
+                    SpriteManager.DrawTextureToFullScreen(sceneTexture, false);
                 }
-                
-
-                #endregion
-
-                #region Film Grain
-
-                if (postProcess.FilmGrain != null && postProcess.FilmGrain.Enabled && postProcess.FilmGrain.Strength != 0)
-                {
-                    SetFilmGrainEnabled(true);
-                    SetFilmGrainStrength(postProcess.FilmGrain.Strength);
-                    SetAccentuateDarkNoisePower(postProcess.FilmGrain.AccentuateDarkNoisePower);
-                    SetRandomNoiseStrength(postProcess.FilmGrain.RandomNoiseStrength);
-                    SetRandomValue(randomNumber.Next(1, 10000) / 100.0f);
-                }
-                else
-                    SetFilmGrainEnabled(false);
-
-                #endregion
-
-                // Render post process effect.
-                Resource.CurrentTechnique.Passes[0].Apply();
-                RenderScreenPlane();
             }
             catch (Exception e)
             {

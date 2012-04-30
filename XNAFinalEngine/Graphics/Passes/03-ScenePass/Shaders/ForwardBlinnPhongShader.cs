@@ -539,6 +539,7 @@ namespace XNAFinalEngine.Graphics
 		/// </summary>
         internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform, BlinnPhong blinnPhongMaterial, AmbientLight ambientLight)
         {
+            // TODO!!! The shader is not done.
             try
             {
                 bool isSkinned = false;
@@ -576,19 +577,33 @@ namespace XNAFinalEngine.Graphics
                 else
                     SetReflectionTextured(false);
                 // Lights //
-                SetAmbientColor(ambientLight.Color);
-                SetAmbientIntensity(ambientLight.Intensity);
-                
-                if (ambientLight.SphericalHarmonicLighting == null)
+
+                #region Ambient Light
+
+                if (ambientLight != null)
                 {
-                    SetHasAmbientSphericalHarmonics(false);
+                    SetAmbientColor(ambientLight.Color);
+                    SetAmbientIntensity(ambientLight.Intensity);
+                    if (ambientLight.SphericalHarmonicLighting == null || ambientLight.Intensity <= 0)
+                    {
+                        SetHasAmbientSphericalHarmonics(false);
+                    }
+                    else
+                    {
+                        ambientLight.SphericalHarmonicLighting.GetCoeficients(coeficients);
+                        SetHasAmbientSphericalHarmonics(true);
+                        SetSphericalHarmonicBase(coeficients);
+                    }
                 }
                 else
                 {
-                    ambientLight.SphericalHarmonicLighting.GetCoeficients(coeficients);
-                    SetHasAmbientSphericalHarmonics(true);
-                    SetSphericalHarmonicBase(coeficients);
+                    SetHasAmbientSphericalHarmonics(false);
+                    SetAmbientColor(Color.Black);
                 }
+
+                #endregion
+
+                // TODO!!!
                 SetDirectionalLightColor(new Color(210, 200, 200));
                 SetDirectionalLightDirection(new Vector3(-0.3f, -0.3f, -0.5f));
                 SetDirectionalLightIntensity(1.7f);

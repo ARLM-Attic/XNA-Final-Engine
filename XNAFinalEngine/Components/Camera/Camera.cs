@@ -102,6 +102,10 @@ namespace XNAFinalEngine.Components
         private RenderTarget renderTarget;
 
         private int renderingOrder;
+
+        private Size renderTargetSize;
+
+        private PostProcess postProcess;
         
         #region Projection
 
@@ -129,12 +133,6 @@ namespace XNAFinalEngine.Components
 
         // Camera's vertical size when in orthographic mode.
         private int orthographicVerticalSize;
-
-        private AmbientLight ambientLight;
-
-        private PostProcess postProcess;
-
-        private Size renderTargetSize;
         
         #endregion
 
@@ -156,16 +154,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Ambient light.
         /// </summary>
-        public AmbientLight AmbientLight
-        {
-            get { return ambientLight; }
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException("value");
-                ambientLight = value;
-            }
-        } // AmbientLight
+        public AmbientLight AmbientLight { get; set; }
 
         #endregion
 
@@ -183,8 +172,21 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Post process effects applied to this camera.
         /// </summary>
-        /// <remarks>I want a no shared post process variable because the post process shader needs one luminance texture for each camera.</remarks>
-        public PostProcess PostProcess { get { return postProcess; } }
+        public PostProcess PostProcess
+        {
+            get { return postProcess; }
+            set
+            {
+                postProcess = value;
+                if (value == null && LuminanceTexture != null)
+                    RenderTarget.Release(LuminanceTexture);
+            }
+        } // PostProcess
+
+        /// <summary>
+        /// Luminance texture. Used in the adaptation pass.
+        /// </summary>
+        internal RenderTarget LuminanceTexture;
 
         #endregion
 
@@ -259,6 +261,8 @@ namespace XNAFinalEngine.Components
                 if (value != null)
                 {
                     value.slavesCameras.Add(this);
+                    if (renderTarget != null)
+                        RenderTarget.Release(renderTarget);
                     // Just to be robust...
                     // I update the children values so that, in the case of a unparent, the values remain the same as the father.
                     renderTarget = value.RenderTarget;
@@ -542,15 +546,11 @@ namespace XNAFinalEngine.Components
         {
             base.Initialize(owner);
             // Values //
-            postProcess = new PostProcess(); // This produces garbage. TODO!!
-            ambientLight = new AmbientLight(); // This produces garbage. TODO!!
             nearPlane = 0.1f;
             farPlane = 1000.0f;
             fieldOfView = 36;
             aspectRatio = 0;
             useUserProjectionMatrix = false;
-            Sky = null;
-            masterCamera = null;
             normalizedViewport = new RectangleF(0, 0, 1, 1);
             viewportExpressedInClipSpace = true;
             viewport = Rectangle.Empty;
@@ -582,6 +582,11 @@ namespace XNAFinalEngine.Components
             if (aspectRatio == 0)
                 Screen.AspectRatioChanged -= OnAspectRatioChanged;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
+            // Allows the garbage collector collected them.
+            postProcess = null;
+            AmbientLight = null;
+            Sky = null;
+            masterCamera = null;
         } // Uninitialize
 
         #endregion
@@ -591,7 +596,6 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Include a layer of objects to be rendered by the camera.
         /// </summary>
-        /// <param name="layer"></param>
         public void AddLayer(Layer layer)
         {
             CullingMask = CullingMask | layer.Mask;
@@ -600,7 +604,6 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Omit a layer of objects to be rendered by the camera.
         /// </summary>
-        /// <param name="layer"></param>
         public void RemoveLayer(Layer layer)
         {
             CullingMask = CullingMask & ~layer.Mask;
@@ -661,7 +664,6 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Camera Far Plane Bounding Frustum (in view space). 
         /// With the help of the bounding frustum, the position can be cheaply reconstructed from a depth value.
-        /// 
         /// </summary>
         public void BoundingFrustum(Vector3[] cornersViewSpace)
         {

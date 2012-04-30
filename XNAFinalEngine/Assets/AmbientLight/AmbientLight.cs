@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -46,14 +46,14 @@ namespace XNAFinalEngine.Assets
         
         #region Variables
 
-        // The count of materials for naming purposes.
+        // The count of assets for naming purposes.
         private static int nameNumber = 1;
 
         // Light diffuse color.
         private Color color = new Color(20, 20, 20);
 
         // The Intensity of a light is multiplied with the Light color.
-        private float intensity = 0.1f;
+        private float intensity = 0.5f;
         
         // Ambient Occlusion Strength.
         private static float ambientOcclusionStrength = 5;
