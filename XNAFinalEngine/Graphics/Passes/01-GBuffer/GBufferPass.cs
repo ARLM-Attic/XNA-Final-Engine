@@ -62,7 +62,7 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         internal static void Begin(Size size)
         {
-            try
+            //try
             {
                 // Multisampling on normal and depth maps makes no physical sense!!
                 // Depth Texture: Single Z-Buffer texture with 32 bits single channel precision. Equation: -DepthVS / FarPlane
@@ -89,10 +89,10 @@ namespace XNAFinalEngine.Graphics
                 RenderTarget.EnableRenderTargets(renderTargetBinding);
                 RenderTarget.ClearCurrentRenderTargets(Color.White);
             }
-            catch (Exception e)
+            /*catch (Exception e)
             {
                 throw new InvalidOperationException("GBuffer Pass: Unable to begin the rendering.", e);
-            }
+            }*/
         } // Begin
         
         #endregion

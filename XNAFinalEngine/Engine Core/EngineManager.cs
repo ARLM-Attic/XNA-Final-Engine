@@ -277,7 +277,7 @@ namespace XNAFinalEngine.EngineCore
 
             #region Maximize
 
-            // If we put 0,0 to window size then we need to maximize and this is done after base.Initialize();
+            // If we put 0,0 to window size then we need to maximize. This has to be done here and not before.
             #if (WINDOWS)
                 if (oldScreenWidth <= 0 || oldScreenHeight <= 0)
                 {
@@ -314,8 +314,6 @@ namespace XNAFinalEngine.EngineCore
         private static void Graphics_DeviceReset(object sender, EventArgs e)
         {
             Device = GraphicsDeviceManager.GraphicsDevice;
-            // Restore render to the frame buffer.
-            RenderTarget.DisableCurrentRenderTargets();
             #if (!XBOX)
                 Application.EnableVisualStyles();
                 Application.VisualStyleState = VisualStyleState.ClientAndNonClientAreasEnabled;
@@ -323,6 +321,10 @@ namespace XNAFinalEngine.EngineCore
             if (DeviceReset != null)
                 DeviceReset(sender, e);
 
+            // Try to recover memory.
+            RenderTarget.ClearRenderTargetPool();
+            RenderTarget.ClearMultpleRenderTargetPool();
+            
             GarbageCollector.CollectGarbage();
         } // graphics_DeviceReset
 
@@ -372,8 +374,9 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         ///  Load any necessary game assets.
         /// </summary>
-        protected override void LoadContent()
+        protected override void BeginRun()
         {
+            // Load Content could be called in some scenarios, I avoid it.
             if (ShowExceptionsWithGuide)
             {
                 try { GameLoop.LoadContent(); }
@@ -501,13 +504,14 @@ namespace XNAFinalEngine.EngineCore
 
         #endregion
         
-        #region UnloadContent
+        #region Unload Content
 
         /// <summary>
         /// Try to dispose everything before the program terminates.
         /// </summary>
-        protected override void UnloadContent()
+        protected override void EndRun()
         {
+            // Unload Content could be called in some scenarios, I avoid it.
             GameLoop.UnloadContent();
             base.UnloadContent();
         } // UnloadContent

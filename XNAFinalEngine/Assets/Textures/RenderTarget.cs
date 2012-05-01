@@ -650,7 +650,7 @@ namespace XNAFinalEngine.Assets
                 for (int j = 0; j < multipleRenderTargets[i].RenderTargets.Length; j++)
                     multipleRenderTargets[i].RenderTargets[j].Dispose();
             }
-            renderTargets.Clear();
+            multipleRenderTargets.Clear();
         } // ClearMultpleRenderTargetPool
 
         #endregion

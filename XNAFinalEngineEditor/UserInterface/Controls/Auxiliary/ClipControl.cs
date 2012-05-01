@@ -115,6 +115,28 @@ namespace XNAFinalEngine.UserInterface
             base.Remove(control);
             ClientArea.Remove(control);
         } // Remove
+        
+        #endregion
+
+        #region Remove Controls From Client Area
+
+        /// <summary>
+        /// Remove all controls from client area.
+        /// </summary>
+        public  void RemoveControlsFromClientArea()
+        {
+            // Recursively disposing all children controls.
+            // The collection might change from its children, so we check it on count greater than zero.
+            if (ClientArea.ChildrenControls != null)
+            {
+                int childrenControlsCount = ClientArea.ChildrenControls.Count;
+                for (int i = childrenControlsCount - 1; i >= 0; i--)
+                {
+                    ClientArea.ChildrenControls[i].Dispose();
+                }
+            }
+            AdjustMargins();
+        } // RemoveControlsFromClientArea
 
         #endregion
 

@@ -147,7 +147,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Are the controls visible?
         /// </summary>
-        public static bool Visible { get; set; }
+        public static bool UserInterfaceVisible { get; set; }
         
         #endregion
 
@@ -218,7 +218,7 @@ namespace XNAFinalEngine.UserInterface
         {
             get
             {
-                if (Visible)
+                if (UserInterfaceVisible)
                     return focusedControl;
                 return null;
             }
@@ -237,7 +237,7 @@ namespace XNAFinalEngine.UserInterface
                             focusedControl = value;
                         }
                     }
-                    else if (!value.CanFocus)
+                    else
                     {
                         if (focusedControl != null && value.Root != focusedControl.Root)
                         {
@@ -254,10 +254,8 @@ namespace XNAFinalEngine.UserInterface
                     }
                     BringToFront(value.Root);
                 }
-                else if (value == null)
-                {
-                    focusedControl = value;
-                }
+                else
+                    focusedControl = null;
             }
         } // FocusedControl
         
@@ -303,7 +301,7 @@ namespace XNAFinalEngine.UserInterface
                 return;
             try
             {
-                Visible = true;
+                UserInterfaceVisible = true;
                 initialized = true;
                 // Set some public parameters.
                 TextureResizeIncrement = 32;
@@ -558,7 +556,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private static void Update()
         {
-            if (!Visible)
+            if (!UserInterfaceVisible)
                 return;
             try
             {
@@ -652,7 +650,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private static void DrawToTexture()
         {
-            if (!Visible)
+            if (!UserInterfaceVisible)
                 return;
             if ((RootControls != null))
             {
@@ -677,7 +675,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private static void DrawTextureToScreen()
         {
-            if (!Visible)
+            if (!UserInterfaceVisible)
                 return;
             if ((RootControls != null))
             {

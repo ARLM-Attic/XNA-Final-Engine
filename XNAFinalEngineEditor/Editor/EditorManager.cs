@@ -83,6 +83,14 @@ namespace XNAFinalEngine.Editor
             /// <summary>
             /// Tasks executed during the last stage of the scene render.
             /// </summary>
+            public override void PreRenderUpdate()
+            {
+                EditorManager.PreRenderTask();
+            }
+
+            /// <summary>
+            /// Tasks executed during the last stage of the scene render.
+            /// </summary>
             public override void PostRenderUpdate()
             {
                 EditorManager.PostRenderTasks();
@@ -156,6 +164,9 @@ namespace XNAFinalEngine.Editor
 
         // The user interface control for the viewport.
         private static Container renderSpace;
+        // The user interface control for the right panel.
+        private static TabControl rightPanelTabControl;
+
         
         #endregion
 
@@ -188,7 +199,7 @@ namespace XNAFinalEngine.Editor
             editorManagerGameObject.AddComponent<ScripEditorManager>();
             // If it already initialize don't worry.
             UserInterfaceManager.Initialize();
-            UserInterfaceManager.Visible = false;
+            UserInterfaceManager.UserInterfaceVisible = false;
             picker = new Picker(Size.FullScreen);
 
             #region Cameras
@@ -372,7 +383,7 @@ namespace XNAFinalEngine.Editor
                 Color = new Color(64, 64, 64),
             };
 
-            TabControl tabControlRightPanel = new TabControl
+            rightPanelTabControl = new TabControl
             {
                 Parent = rightPanel,
                 Left = 2,
@@ -381,16 +392,8 @@ namespace XNAFinalEngine.Editor
                 Height = rightPanel.ClientHeight - 2,
                 Anchor = Anchors.All
             };
-            tabControlRightPanel.AddPage();
-            tabControlRightPanel.TabPages[0].Text = "Inspector";
-            var panel = new PanelCollapsible();
-            panel.Anchor = Anchors.Left | Anchors.Right | Anchors.Top;
-            panel.Parent = tabControlRightPanel.TabPages[0];
-            panel.Width = tabControlRightPanel.TabPages[0].ClientWidth;
-            panel.Text = "Transform";
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            rightPanelTabControl.AddPage();
+            rightPanelTabControl.TabPages[0].Text = "Inspector";
 
             #endregion
 
@@ -438,7 +441,7 @@ namespace XNAFinalEngine.Editor
             if (editorModeEnabled)
                 return;
             editorModeEnabled = true;
-            UserInterfaceManager.Visible = true;
+            UserInterfaceManager.UserInterfaceVisible = true;
         } // EnableEditorMode
 
         /// <summary>
@@ -448,7 +451,7 @@ namespace XNAFinalEngine.Editor
         {
             if (!editorModeEnabled)
                 return;
-            UserInterfaceManager.Visible = false;
+            UserInterfaceManager.UserInterfaceVisible = false;
             editorModeEnabled = false;
             Camera.OnlyRendereableCamera = null;
             editorCamera.Camera.Visible = false;
@@ -490,6 +493,33 @@ namespace XNAFinalEngine.Editor
 
         #endregion
 
+        #region Add and Remove Controls From Inspector
+
+        /// <summary>
+        /// Add User Interface controls to the inspector panel.
+        /// </summary>
+        private static void AddControlsToInspector()
+        {
+            var panel = new PanelCollapsible();
+            panel.Anchor = Anchors.Left | Anchors.Right | Anchors.Top;
+            panel.Parent = rightPanelTabControl.TabPages[0];
+            panel.Width = rightPanelTabControl.TabPages[0].ClientWidth;
+            panel.Text = "Transform";
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+        } // AddControlsToInspector
+
+        /// <summary>
+        /// Remove User Interface controls from inspector panel.
+        /// </summary>
+        private static void RemoveControlsFromInspector()
+        {
+            rightPanelTabControl.TabPages[0].RemoveControlsFromClientArea();
+        } // RemoveControlsFromInspector
+
+        #endregion
+
         #region Update
 
         /// <summary>
@@ -497,6 +527,7 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static void Update()
         {
+
             #region If no update is needed...
 
             if (!editorModeEnabled)
@@ -511,7 +542,7 @@ namespace XNAFinalEngine.Editor
 
             if (ViewportMode == ViewportModeType.Scene)
             {
-                Camera.OnlyRendereableCamera = editorCamera.Camera;
+                Camera.OnlyRendereableCamera = gizmoCamera.Camera;
                 editorCamera.Camera.Visible = true;
                 gizmoCamera.Camera.Visible = true;
                 // Restore bounding box to the current selected objects.
@@ -519,13 +550,6 @@ namespace XNAFinalEngine.Editor
                 {
                     ChangeGameObjectBoundingBoxVisibility(gameObject, true);
                 }
-                // The editor camera only use part of the render target.
-                editorCamera.Camera.Viewport = new Rectangle(renderSpace.ClientArea.ControlLeftAbsoluteCoordinate,
-                                                             renderSpace.ClientArea.ControlTopAbsoluteCoordinate,
-                                                             renderSpace.ClientArea.Width, renderSpace.ClientArea.Height);
-                gizmoCamera.Camera.Viewport = new Rectangle(renderSpace.ClientArea.ControlLeftAbsoluteCoordinate, 
-                                                            renderSpace.ClientArea.ControlTopAbsoluteCoordinate,
-                                                            renderSpace.ClientArea.Width, renderSpace.ClientArea.Height);
             }
             else
             {
@@ -655,6 +679,8 @@ namespace XNAFinalEngine.Editor
 
                 if (Mouse.LeftButtonJustReleased)
                 {
+                    
+                    RemoveControlsFromInspector();
 
                     #region Clear selection list when control keys and shift keys are not pressed
 
@@ -743,6 +769,7 @@ namespace XNAFinalEngine.Editor
 
                     #endregion
 
+                    AddControlsToInspector();
                 }
 
                 #endregion
@@ -751,6 +778,7 @@ namespace XNAFinalEngine.Editor
 
                 if (Keyboard.EscapeJustPressed)
                 {
+                    RemoveControlsFromInspector();
                     // Remove bounding box off the screen.
                     foreach (var gameObject in selectedObjects)
                     {
@@ -810,6 +838,20 @@ namespace XNAFinalEngine.Editor
         #endregion
 
         #region Render Tasks
+
+        public static void PreRenderTask()
+        {
+            if (ViewportMode == ViewportModeType.Scene)
+            {
+                // The editor camera only use part of the render target.
+                editorCamera.Camera.Viewport = new Rectangle(renderSpace.ClientArea.ControlLeftAbsoluteCoordinate,
+                                                             renderSpace.ClientArea.ControlTopAbsoluteCoordinate,
+                                                             renderSpace.ClientArea.Width, renderSpace.ClientArea.Height);
+                gizmoCamera.Camera.Viewport = new Rectangle(renderSpace.ClientArea.ControlLeftAbsoluteCoordinate,
+                                                            renderSpace.ClientArea.ControlTopAbsoluteCoordinate,
+                                                            renderSpace.ClientArea.Width, renderSpace.ClientArea.Height);
+            }
+        }
 
         /// <summary>
         /// Tasks after the engine render.

@@ -121,7 +121,8 @@ namespace XNAFinalEngine.EngineCore
             #region Pre Draw
 
             // Pre draw to avoid the first frame's garbage and to place everything into memory.
-            Draw(new GameTime());
+            // But I won't do it because I could create render targets with an incorrect size and thus waste a lot of memory on nothing.
+            //Draw(new GameTime());
 
             #endregion
 
@@ -484,8 +485,9 @@ namespace XNAFinalEngine.EngineCore
                 currentCamera.RenderTarget = RenderCamera(currentCamera);
             else
             {
-                #region Render Cameras
 
+                #region Render Cameras
+                
                 // Render each camera to a render target and then merge.
                 currentCamera.PartialRenderTarget = RenderCamera(currentCamera);
                 for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
@@ -499,7 +501,7 @@ namespace XNAFinalEngine.EngineCore
                         // It also simplified the render of one camera. 
                         currentCamera.slavesCameras[i].PartialRenderTarget = RenderCamera(currentCamera.slavesCameras[i]);
                 }
-
+                
                 #endregion
 
                 #region Composite Cameras
@@ -509,7 +511,7 @@ namespace XNAFinalEngine.EngineCore
                                                                 RenderTarget.AntialiasingType.NoAntialiasing);
                 currentCamera.RenderTarget.EnableRenderTarget();
                 currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
-
+                
                 // Composite using the rendering order
                 bool masterCamerawasRendered = false;
                 for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
@@ -540,7 +542,7 @@ namespace XNAFinalEngine.EngineCore
                     SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget, true);
                     RenderTarget.Release(currentCamera.PartialRenderTarget);
                 }
-
+                
                 // Reset viewport and render HUD
                 EngineManager.Device.Viewport = new Viewport(0, 0, Screen.Width, Screen.Height);
                 if (currentCamera.RenderHeadUpDisplay)
@@ -565,7 +567,7 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         private static RenderTarget RenderCamera(Camera currentCamera)
         {
-            
+           
             #region Buffers Declarations
 
             // This is here to allow the rendering of these render targets for testing.

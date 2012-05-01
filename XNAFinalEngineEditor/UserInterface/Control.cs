@@ -874,18 +874,8 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual ToolTip ToolTip
         {
-            get
-            {
-                if (toolTip == null) // Create one.
-                {
-                    toolTip = new ToolTip { Visible = false };
-                }
-                return toolTip;
-            }
-            set
-            {
-                toolTip = value;
-            }
+            get { return toolTip ?? (toolTip = new ToolTip {Visible = false}); }
+            set { toolTip = value;  }
         } // ToolTip
 
         /// <summary>
@@ -1272,7 +1262,7 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
         #region Dispose
-
+        
         /// <summary>
         /// Dispose managed resources.
         /// </summary>
