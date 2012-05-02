@@ -78,14 +78,14 @@ namespace XNAFinalEngine.Assets
         public Shader(string filename)
         {            
             Name = filename;
-            string fullFilename = ContentManager.GameDataDirectory + "Shaders\\" + filename;
-            if (File.Exists(fullFilename + ".xnb") == false)
+            Filename = ContentManager.GameDataDirectory + "Shaders\\" + filename;
+            if (File.Exists(Filename + ".xnb") == false)
             {
-                throw new ArgumentException("Failed to load shader: File " + fullFilename + " does not exists!", "filename");
+                throw new ArgumentException("Failed to load shader: File " + Filename + " does not exists!", "filename");
             }
             try
             {
-                Resource = ContentManager.SystemContentManager.XnaContentManager.Load<Effect>(fullFilename);
+                Resource = ContentManager.SystemContentManager.XnaContentManager.Load<Effect>(Filename);
                 ContentManager = ContentManager.SystemContentManager;
             }
             catch (ObjectDisposedException)
@@ -132,6 +132,11 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public void RenderScreenPlane()
         {
+            if (vertexBufferScreenPlane != null && vertexBufferScreenPlane.GraphicsDevice.IsDisposed)
+            {
+                vertexBufferScreenPlane.Dispose();
+                vertexBufferScreenPlane = null;
+            }
             if (vertexBufferScreenPlane == null)
             {
                 VertexPositionTexture[] vertices = new[]
@@ -151,6 +156,19 @@ namespace XNAFinalEngine.Assets
             Statistics.TrianglesDrawn += 2;
             Statistics.VerticesProcessed += 4;
         } // RenderScreenPlane
+
+        #endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
+            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<Effect>(Filename);
+            GetParametersHandles();
+        } // RecreateResource
 
         #endregion
 

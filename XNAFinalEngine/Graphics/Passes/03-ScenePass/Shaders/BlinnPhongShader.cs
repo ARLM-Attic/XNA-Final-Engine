@@ -113,7 +113,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel)
+            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -127,7 +127,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector3? lastUsedCameraPosition;
         private static void SetCameraPosition(Vector3 cameraPosition)
         {
-            if (lastUsedCameraPosition != cameraPosition)
+            if (lastUsedCameraPosition != cameraPosition || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedCameraPosition = cameraPosition;
                 epCameraPosition.SetValue(cameraPosition);
@@ -143,7 +143,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDiffuseTexture != _diffuseTexture.Resource)
+            if (lastUsedDiffuseTexture != _diffuseTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedDiffuseTexture = _diffuseTexture.Resource;
                 epDiffuseTexture.SetValue(_diffuseTexture.Resource);
@@ -157,7 +157,7 @@ namespace XNAFinalEngine.Graphics
         private static Color? lastUsedDiffuseColor;
         private static void SetDiffuseColor(Color diffuseColor)
         {
-            if (lastUsedDiffuseColor != diffuseColor)
+            if (lastUsedDiffuseColor != diffuseColor || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedDiffuseColor = diffuseColor;
                 epDiffuseColor.SetValue(new Vector3(diffuseColor.R / 255f, diffuseColor.G / 255f, diffuseColor.B / 255f));
@@ -171,7 +171,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedSpecularIntensity;
         private static void SetSpecularIntensity(float specularIntensity)
         {
-            if (lastUsedSpecularIntensity != specularIntensity)
+            if (lastUsedSpecularIntensity != specularIntensity || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedSpecularIntensity = specularIntensity;
                 epSpecularIntensity.SetValue(specularIntensity);
@@ -187,7 +187,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[2] = SamplerState.AnisotropicWrap;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedSpecularTexture != specularTexture.Resource)
+            if (lastUsedSpecularTexture != specularTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedSpecularTexture = specularTexture.Resource;
                 epSpecularTexture.SetValue(specularTexture.Resource);
@@ -201,7 +201,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedWorldViewProjMatrix;
         private static void SetWorldViewProjMatrix(Matrix worldViewProjMatrix)
         {
-            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix)
+            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedWorldViewProjMatrix = worldViewProjMatrix;
                 epWorldViewProj.SetValue(worldViewProjMatrix);
@@ -215,7 +215,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedTransposeInverseWorldMatrix;
         private static void SetTransposeInverseWorldMatrix(Matrix transposeInverseWorldMatrix)
         {
-            if (lastUsedTransposeInverseWorldMatrix != transposeInverseWorldMatrix)
+            if (lastUsedTransposeInverseWorldMatrix != transposeInverseWorldMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedTransposeInverseWorldMatrix = transposeInverseWorldMatrix;
                 epWorldIT.SetValue(transposeInverseWorldMatrix);
@@ -229,7 +229,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedWorldMatrix;
         private static void SetWorldMatrix(Matrix worldMatrix)
         {
-            if (lastUsedWorldMatrix != worldMatrix)
+            if (lastUsedWorldMatrix != worldMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedWorldMatrix = worldMatrix;
                 epWorld.SetValue(worldMatrix);
@@ -245,7 +245,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedLightTexture != lightTexture.Resource)
+            if (lastUsedLightTexture != lightTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLightTexture = lightTexture.Resource;
                 epLightTexture.SetValue(lightTexture.Resource);
@@ -259,7 +259,7 @@ namespace XNAFinalEngine.Graphics
         private static bool lastUsedDiffuseTextured;
         private static void SetDiffuseTextured(bool diffuseTextured)
         {
-            if (lastUsedDiffuseTextured != diffuseTextured)
+            if (lastUsedDiffuseTextured != diffuseTextured || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedDiffuseTextured = diffuseTextured;
                 epDiffuseTextured.SetValue(diffuseTextured);
@@ -273,7 +273,7 @@ namespace XNAFinalEngine.Graphics
         private static bool lastUsedSpecularTextured;
         private static void SetSpecularTextured(bool specularTextured)
         {
-            if (lastUsedSpecularTextured != specularTextured)
+            if (lastUsedSpecularTextured != specularTextured || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedSpecularTextured = specularTextured;
                 epSpecularTextured.SetValue(specularTextured);
@@ -287,7 +287,7 @@ namespace XNAFinalEngine.Graphics
         private static bool lastUsedReflectionTextured;
         private static void SetReflectionTextured(bool reflectionTextured)
         {
-            if (lastUsedReflectionTextured != reflectionTextured)
+            if (lastUsedReflectionTextured != reflectionTextured || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedReflectionTextured = reflectionTextured;
                 epReflectionTextured.SetValue(reflectionTextured);
@@ -303,7 +303,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[3] = SamplerState.AnisotropicWrap;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTextureTexture != normalTexture.Resource)
+            if (lastUsedNormalTextureTexture != normalTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedNormalTextureTexture = normalTexture.Resource;
                 epNormalTextureSize.SetValue(new Vector2(normalTexture.Width, normalTexture.Height));
@@ -318,7 +318,7 @@ namespace XNAFinalEngine.Graphics
         private static int lastUsedLODThreshold;
         private static void SetLODThreshold(int lodThreshold)
         {
-            if (lastUsedLODThreshold != lodThreshold)
+            if (lastUsedLODThreshold != lodThreshold || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLODThreshold = lodThreshold;
                 epLODThreshold.SetValue(lodThreshold);
@@ -332,7 +332,7 @@ namespace XNAFinalEngine.Graphics
         private static int lastUsedMinimumNumberSamples;
         private static void SetMinimumNumberSamples(int minimumNumberSamples)
         {
-            if (lastUsedMinimumNumberSamples != minimumNumberSamples)
+            if (lastUsedMinimumNumberSamples != minimumNumberSamples || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedMinimumNumberSamples = minimumNumberSamples;
                 epMinimumNumberSamples.SetValue(minimumNumberSamples);
@@ -346,7 +346,7 @@ namespace XNAFinalEngine.Graphics
         private static int lastUsedMaximumNumberSamples;
         private static void SetMaximumNumberSamples(int maximumNumberSamples)
         {
-            if (lastUsedMaximumNumberSamples != maximumNumberSamples)
+            if (lastUsedMaximumNumberSamples != maximumNumberSamples || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedMaximumNumberSamples = maximumNumberSamples;
                 epMaximumNumberSamples.SetValue(maximumNumberSamples);
@@ -360,7 +360,7 @@ namespace XNAFinalEngine.Graphics
         private static float lastUsedHeightMapScale;
         private static void SetHeightMapScale(float heightMapScale)
         {
-            if (lastUsedHeightMapScale != heightMapScale)
+            if (lastUsedHeightMapScale != heightMapScale || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedHeightMapScale = heightMapScale;
                 epHeightMapScale.SetValue(heightMapScale);
@@ -376,7 +376,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[4] = SamplerState.LinearClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedReflectionTexture != reflectionTexture.Resource)
+            if (lastUsedReflectionTexture != reflectionTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedReflectionTexture = reflectionTexture.Resource;
                 if (reflectionTexture.IsRgbm)

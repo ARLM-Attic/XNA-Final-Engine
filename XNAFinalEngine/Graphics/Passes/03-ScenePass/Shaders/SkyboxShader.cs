@@ -90,7 +90,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedViewProjectionMatrix;
         private static void SetViewProjectionMatrix(Matrix viewProjectionMatrix)
         {
-            if (lastUsedViewProjectionMatrix != viewProjectionMatrix)
+            if (lastUsedViewProjectionMatrix != viewProjectionMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedViewProjectionMatrix = viewProjectionMatrix;
                 epViewProjection.SetValue(viewProjectionMatrix);
@@ -106,7 +106,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.LinearClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedCubeTexture != cubeTexture.Resource)
+            if (lastUsedCubeTexture != cubeTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedCubeTexture = cubeTexture.Resource;
                 epCubeMapTexture.SetValue(cubeTexture.Resource);
@@ -120,7 +120,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedIntensity;
         private static void SetIntensity(float _intensity)
         {
-            if (lastUsedIntensity != _intensity)
+            if (lastUsedIntensity != _intensity || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedIntensity = _intensity;
                 epIntensity.SetValue(_intensity);
@@ -134,7 +134,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedMaxRange;
         private static void SetMaxRange(float maxRange)
         {
-            if (lastUsedMaxRange != maxRange)
+            if (lastUsedMaxRange != maxRange || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedMaxRange = maxRange;
                 epMaxRange.SetValue(maxRange);
@@ -148,7 +148,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedAlphaBlending;
         private static void SetAlphaBlending(float alphaBlending)
         {
-            if (lastUsedAlphaBlending != alphaBlending)
+            if (lastUsedAlphaBlending != alphaBlending || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedAlphaBlending = alphaBlending;
                 epAlphaBlending.SetValue(alphaBlending);

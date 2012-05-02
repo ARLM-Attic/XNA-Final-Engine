@@ -496,6 +496,11 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Current skin name.
+        /// </summary>
+        public static string CurrentSkinName { get; private set; }
        
         /// <summary>
         /// Skin information for controls.
@@ -528,6 +533,8 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public static void LoadSkin(string skinName)
         {
+            CurrentSkinName = skinName;
+
             ContentManager userContentManager = ContentManager.CurrentContentManager;
 
             #region Unload previous skin
@@ -587,7 +594,7 @@ namespace XNAFinalEngine.UserInterface
                 #if (WINDOWS)
                     foreach (SkinCursor skinCursor in Cursors)
                     {
-                        skinCursor.Cursor = new Assets.Cursor(skinName + "\\" + skinCursor.Filename);
+                        skinCursor.Cursor = new Cursor(skinName + "\\" + skinCursor.Filename);
                     }
                 #endif
                 foreach (SkinImage skinImage in Images)

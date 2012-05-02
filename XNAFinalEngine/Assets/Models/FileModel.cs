@@ -236,14 +236,14 @@ namespace XNAFinalEngine.Assets
         public FileModel(string filename)
         {
             Name = filename;
-            string fullFilename = ContentManager.GameDataDirectory + "Models\\" + filename;
-            if (File.Exists(fullFilename + ".xnb") == false)
+            Filename = ContentManager.GameDataDirectory + "Models\\" + filename;
+            if (File.Exists(Filename + ".xnb") == false)
             {
-                throw new ArgumentException("Failed to load model: File " + fullFilename + " does not exists!", "filename");
+                throw new ArgumentException("Failed to load model: File " + Filename + " does not exists!", "filename");
             }
             try
             {
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<XnaModel>(fullFilename);
+                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<XnaModel>(Filename);
                 ContentManager = ContentManager.CurrentContentManager;
                 // Calcuate bounding volumes
                 Vector3[] vectices = Vectices;
@@ -325,6 +325,18 @@ namespace XNAFinalEngine.Assets
                 }
             }
         } // Render
+
+        #endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
+            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<XnaModel>(Filename);
+        } // RecreateResource
 
         #endregion
 

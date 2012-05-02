@@ -91,7 +91,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedViewInverseMatrix;
         private static void SetViewInverseMatrix(Matrix viewInverseMatrix)
         {
-            if (lastUsedViewInverseMatrix != viewInverseMatrix)
+            if (lastUsedViewInverseMatrix != viewInverseMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedViewInverseMatrix = viewInverseMatrix;
                 epViewI.SetValue(viewInverseMatrix);
@@ -105,7 +105,7 @@ namespace XNAFinalEngine.Graphics
         private static readonly Vector3[] lastUsedSphericalHarmonicBase = new Vector3[9];
         private static void SetSphericalHarmonicBase(Vector3[] sphericalHarmonicBase)
         {
-            if (!ArrayHelper.Equals(lastUsedSphericalHarmonicBase, sphericalHarmonicBase))
+            if (!ArrayHelper.Equals(lastUsedSphericalHarmonicBase, sphericalHarmonicBase) || EngineManager.DeviceDisposedThisFrame)
             {
                 //lastUsedSphericalHarmonicBase = (Vector3[])(sphericalHarmonicBase.Clone()); // Produces garbage
                 for (int i = 0; i < 9; i++)
@@ -123,7 +123,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel)
+            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -139,7 +139,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[3] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedAmbientOcclusionTexture != ambientOcclusionTexture.Resource)
+            if (lastUsedAmbientOcclusionTexture != ambientOcclusionTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedAmbientOcclusionTexture = ambientOcclusionTexture.Resource;
                 epAmbientOcclusionTexture.SetValue(ambientOcclusionTexture.Resource);
@@ -155,7 +155,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTexture != normalTexture.Resource)
+            if (lastUsedNormalTexture != normalTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedNormalTexture = normalTexture.Resource;
                 epNormalTexture.SetValue(normalTexture.Resource);
@@ -169,7 +169,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedIntensity;
         private static void SetIntensity(float _intensity)
         {
-            if (lastUsedIntensity != _intensity)
+            if (lastUsedIntensity != _intensity || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedIntensity = _intensity;
                 epIntensity.SetValue(_intensity);
@@ -183,7 +183,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedAmbientOcclusionStrength;
         private static void SetAmbientOcclusionStrength(float ambientOcclusionStrength)
         {
-            if (lastUsedAmbientOcclusionStrength != ambientOcclusionStrength)
+            if (lastUsedAmbientOcclusionStrength != ambientOcclusionStrength || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedAmbientOcclusionStrength = ambientOcclusionStrength;
                 epAmbientOcclusionStrength.SetValue(ambientOcclusionStrength);

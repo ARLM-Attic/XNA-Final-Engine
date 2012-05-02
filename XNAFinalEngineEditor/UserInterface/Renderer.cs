@@ -44,13 +44,18 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region Init
-        
+        #region Initialize
+
         /// <summary>
         /// User Interface's elements renderer.
         /// </summary>
-        internal static void Init()
+        internal static void Initialize()
         {
+            // Handle the dipose device sittuation.
+            if (spriteBatch != null && spriteBatch.GraphicsDevice.IsDisposed)
+            {
+                spriteBatch.Dispose();
+            }
             spriteBatch = new SpriteBatch(EngineManager.Device);
             
             // The scissor test is very important, so a custom rasterizer state is created.
@@ -63,7 +68,7 @@ namespace XNAFinalEngine.UserInterface
                 ScissorTestEnable = true,
                 SlopeScaleDepthBias = RasterizerState.CullNone.SlopeScaleDepthBias,
             };
-        } // Init
+        } // Initialize
 
         #endregion
 

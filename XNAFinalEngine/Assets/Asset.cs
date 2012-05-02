@@ -60,6 +60,11 @@ namespace XNAFinalEngine.Assets
         #region Properties
 
         /// <summary>
+        /// Asset Filename.
+        /// </summary>
+        public string Filename { get; protected set; }
+
+        /// <summary>
         /// The name of the asset.
         /// </summary>
         public virtual string Name { get; set; } // TODO: change to abstract.
@@ -212,6 +217,18 @@ namespace XNAFinalEngine.Assets
                 }
             }
         } // CompareAssets
+
+        #endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal virtual void RecreateResource()
+        {
+            // Override if necessary.
+        } // RecreateResource
 
         #endregion
 

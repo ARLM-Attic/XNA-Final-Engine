@@ -94,7 +94,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel)
+            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -108,7 +108,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedBloomThreshold;
         private static void SetBloomThreshold(float bloomThreshold)
         {
-            if (lastUsedBloomThreshold != bloomThreshold)
+            if (lastUsedBloomThreshold != bloomThreshold || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedBloomThreshold = bloomThreshold;
                 epBloomThreshold.SetValue(bloomThreshold);
@@ -122,7 +122,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedLensExposure;
         private static void SetLensExposure(float lensExposure)
         {
-            if (lastUsedLensExposure != lensExposure)
+            if (lastUsedLensExposure != lensExposure || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLensExposure = lensExposure;
                 epLensExposure.SetValue(lensExposure);
@@ -138,7 +138,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[8] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedSceneTexture != sceneTexture.Resource)
+            if (lastUsedSceneTexture != sceneTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedSceneTexture = sceneTexture.Resource;
                 epSceneTexture.SetValue(sceneTexture.Resource);

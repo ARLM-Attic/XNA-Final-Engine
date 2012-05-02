@@ -87,7 +87,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 halfPixel)
         {
-            if (lastUsedHalfPixel != halfPixel)
+            if (lastUsedHalfPixel != halfPixel || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedHalfPixel = halfPixel;
                 epHalfPixel.SetValue(halfPixel);
@@ -103,7 +103,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthFoliageTexture != depthTexture.Resource)
+            if (lastUsedDepthFoliageTexture != depthTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedDepthFoliageTexture = depthTexture.Resource;
                 epDepthFoliageTexture.SetValue(depthTexture.Resource);

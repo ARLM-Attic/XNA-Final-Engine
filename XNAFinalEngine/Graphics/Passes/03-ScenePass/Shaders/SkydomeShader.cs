@@ -88,7 +88,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedViewProjectionMatrix;
         private static void SetViewProjectionMatrix(Matrix viewProjectionMatrix)
         {
-            if (lastUsedViewProjectionMatrix != viewProjectionMatrix)
+            if (lastUsedViewProjectionMatrix != viewProjectionMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedViewProjectionMatrix = viewProjectionMatrix;
                 epViewProjection.SetValue(viewProjectionMatrix);
@@ -104,7 +104,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedTexture != texture.Resource)
+            if (lastUsedTexture != texture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedTexture = texture.Resource;
                 epTexture.SetValue(texture.Resource);

@@ -35,6 +35,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -103,7 +104,7 @@ namespace XNAFinalEngine.Assets
             get
             {
                 if (xnaTexture.IsDisposed)
-                    throw new InvalidOperationException("Texture: the internal resource was disposed.");
+                    xnaTexture = null;
                 return xnaTexture;
             }
             // This is only allowed for videos. Doing something to avoid this “set” is unnecessary and probably will make more complex some classes 
@@ -199,16 +200,16 @@ namespace XNAFinalEngine.Assets
 		/// </summary>
         /// <param name="filename">The filename must be relative and be a valid file in the textures directory.</param>
         public Texture(string filename)
-		{
+        {
             Name = filename;
-            string fullFilename = ContentManager.GameDataDirectory + "Textures\\" + filename;
-            if (File.Exists(fullFilename + ".xnb") == false)
+            Filename = ContentManager.GameDataDirectory + "Textures\\" + filename;
+            if (File.Exists(Filename + ".xnb") == false)
             {
-                throw new ArgumentException("Failed to load texture: File " + fullFilename + " does not exists!", "filename");
+                throw new ArgumentException("Failed to load texture: File " + Filename + " does not exists!", "filename");
             }
             try
             {
-                xnaTexture = ContentManager.CurrentContentManager.XnaContentManager.Load<Texture2D>(fullFilename);
+                xnaTexture = ContentManager.CurrentContentManager.XnaContentManager.Load<Texture2D>(Filename);
                 ContentManager = ContentManager.CurrentContentManager;
                 Size = new Size(xnaTexture.Width, xnaTexture.Height);
                 Resource.Name = filename;
@@ -298,6 +299,39 @@ namespace XNAFinalEngine.Assets
         } // DisposeManagedResources
 
 	    #endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
+            if (string.IsNullOrEmpty(Filename))
+                xnaTexture = new Texture2D(EngineManager.Device, Size.Width, Size.Height);
+            else
+                xnaTexture = ContentManager.CurrentContentManager.XnaContentManager.Load<Texture2D>(Filename);
+        } // RecreateResource
+
+        /// <summary>
+        /// Recreate textures created without using a content manager.
+        /// </summary>
+        internal static void RecreateTexturesWithoutContentManager()
+        {
+            foreach (Texture loadedTexture in LoadedTextures)
+            {
+                if (loadedTexture.ContentManager == null)
+                {
+                    if (loadedTexture.Resource != null)
+                    {
+                        loadedTexture.Resource.Dispose();
+                        loadedTexture.RecreateResource();
+                    }
+                }
+            }
+        } // RecreateTexturesWithoutContentManager
+
+        #endregion
 
     } // Texture
 } // XNAFinalEngine.Assets

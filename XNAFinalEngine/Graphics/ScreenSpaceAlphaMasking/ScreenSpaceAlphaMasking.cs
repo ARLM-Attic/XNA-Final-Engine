@@ -135,7 +135,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel)
+            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -149,7 +149,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedWorldViewProjMatrix;
         private static void SetWorldViewProjMatrix(Matrix worldViewProjMatrix)
         {
-            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix)
+            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedWorldViewProjMatrix = worldViewProjMatrix;
                 epWorldViewProj.SetValue(worldViewProjMatrix);
@@ -163,7 +163,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedWorldViewMatrix;
         private static void SetWorldViewMatrix(Matrix worldViewMatrix)
         {
-            if (lastUsedWorldViewMatrix != worldViewMatrix)
+            if (lastUsedWorldViewMatrix != worldViewMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedWorldViewMatrix = worldViewMatrix;
                 epWorldView.SetValue(worldViewMatrix);
@@ -177,7 +177,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedFarPlane;
         private static void SetFarPlane(float farPlane)
         {
-            if (lastUsedFarPlane != farPlane)
+            if (lastUsedFarPlane != farPlane || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedFarPlane = farPlane;
                 epFarPlane.SetValue(farPlane);
@@ -191,7 +191,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedDiffuseTexture;
         private static void SetDiffuseTexture(Texture _diffuseTexture)
         {
-            if (lastUsedDiffuseTexture != _diffuseTexture)
+            if (lastUsedDiffuseTexture != _diffuseTexture || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedDiffuseTexture = _diffuseTexture;
                 epDiffuseTexture.SetValue(_diffuseTexture.XnaTexture);
@@ -205,7 +205,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedDepthTexture;
         private static void SetDepthTexture(Texture depthTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedDepthTexture != depthTexture)
+            if (lastUsedDepthTexture != depthTexture  || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedDepthTexture = depthTexture;
                 epDepthTexture.SetValue(depthTexture.XnaTexture);
@@ -219,7 +219,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedMaskTexture;
         private static void SetMaskTexture(Texture maskTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedMaskTexture != maskTexture)
+            if (lastUsedMaskTexture != maskTexture || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedMaskTexture = maskTexture;
                 epMaskTexture.SetValue(maskTexture.XnaTexture);
@@ -233,7 +233,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedFoliageColorTexture;
         private static void SetFoliageColorTexture(Texture foliageColorTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedFoliageColorTexture != foliageColorTexture)
+            if (lastUsedFoliageColorTexture != foliageColorTexture || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedFoliageColorTexture = foliageColorTexture;
                 epFoliageColorTexture.SetValue(foliageColorTexture.XnaTexture);
@@ -247,7 +247,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture lastUsedLightMapTexture;
         private static void SetLightMapTexture(Texture lightMapTexture)
         {
-            if (EngineManager.DeviceLostInThisFrame || lastUsedLightMapTexture != lightMapTexture)
+            if (lastUsedLightMapTexture != lightMapTexture  || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLightMapTexture = lightMapTexture;
                 epLightMapTexture.SetValue(lightMapTexture.XnaTexture);

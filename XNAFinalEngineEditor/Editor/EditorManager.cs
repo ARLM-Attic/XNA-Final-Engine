@@ -223,7 +223,7 @@ namespace XNAFinalEngine.Editor
             gizmoCamera.Camera.Visible = false;
             gizmoCamera.Camera.CullingMask = Layer.GetLayerByNumber(31).Mask; // The editor layer.
             gizmoCamera.Camera.ClearColor = Color.Transparent;
-
+            
             editorCamera.Camera.MasterCamera = gizmoCamera.Camera;
             gizmoCamera.Camera.RenderingOrder = int.MaxValue;
 
@@ -249,7 +249,7 @@ namespace XNAFinalEngine.Editor
             #endregion
 
             #region User Interface Controls
-
+            
             #region Canvas
 
             // The canvas cover the whole window. I will place the static controls there.
@@ -396,9 +396,9 @@ namespace XNAFinalEngine.Editor
             rightPanelTabControl.TabPages[0].Text = "Inspector";
 
             #endregion
-
+            
             #endregion
-
+            
         } // Initialize
 
         #endregion
@@ -527,7 +527,7 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static void Update()
         {
-
+           
             #region If no update is needed...
 
             if (!editorModeEnabled)
@@ -843,13 +843,16 @@ namespace XNAFinalEngine.Editor
         {
             if (ViewportMode == ViewportModeType.Scene)
             {
+                Rectangle viewport = new Rectangle(renderSpace.ClientArea.ControlLeftAbsoluteCoordinate,
+                                                   renderSpace.ClientArea.ControlTopAbsoluteCoordinate,
+                                                   renderSpace.ClientArea.Width, renderSpace.ClientArea.Height);
+                if (viewport.Width < 8)
+                    viewport.Width = 8;
+                if (viewport.Height < 8)
+                    viewport.Height = 8;
                 // The editor camera only use part of the render target.
-                editorCamera.Camera.Viewport = new Rectangle(renderSpace.ClientArea.ControlLeftAbsoluteCoordinate,
-                                                             renderSpace.ClientArea.ControlTopAbsoluteCoordinate,
-                                                             renderSpace.ClientArea.Width, renderSpace.ClientArea.Height);
-                gizmoCamera.Camera.Viewport = new Rectangle(renderSpace.ClientArea.ControlLeftAbsoluteCoordinate,
-                                                            renderSpace.ClientArea.ControlTopAbsoluteCoordinate,
-                                                            renderSpace.ClientArea.Width, renderSpace.ClientArea.Height);
+                editorCamera.Camera.Viewport = viewport;
+                gizmoCamera.Camera.Viewport = viewport;
             }
         }
 
@@ -863,7 +866,7 @@ namespace XNAFinalEngine.Editor
             {
                 EngineManager.Device.Clear(Color.Black);
                 Camera mainCamera = Camera.MainCamera;
-                if (mainCamera != null)
+                if (mainCamera != null && mainCamera.RenderTarget != null)
                 {
                     // Aspect ratio
                     Rectangle screenRectangle;

@@ -9,7 +9,7 @@
     <VSync>false</VSync>
     <MultiSampleQuality>0</MultiSampleQuality>
     <ChangeWindowSize>true</ChangeWindowSize>
-    <UpdateFrequency>-0</UpdateFrequency>
+    <UpdateFrequency>0</UpdateFrequency>
     <IsMouseVisible>true</IsMouseVisible>
   </Asset>
 </XnaContent>

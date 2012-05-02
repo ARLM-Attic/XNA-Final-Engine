@@ -102,7 +102,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel)
+            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -118,7 +118,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp; // depthTexture
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource)
+            if (lastUsedDepthTexture != depthTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedDepthTexture = depthTexture.Resource;
                 epDepthTexture.SetValue(depthTexture.Resource);
@@ -134,7 +134,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTexture != normalTexture.Resource)
+            if (lastUsedNormalTexture != normalTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedNormalTexture = normalTexture.Resource;
                 epNormalTexture.SetValue(normalTexture.Resource);
@@ -150,7 +150,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedMotionVectorSpecularPower != motionVectorSpecularPower.Resource)
+            if (lastUsedMotionVectorSpecularPower != motionVectorSpecularPower.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedMotionVectorSpecularPower = motionVectorSpecularPower.Resource;
                 epMotionVectorSpecularPowerTexture.SetValue(motionVectorSpecularPower.Resource);
@@ -164,7 +164,7 @@ namespace XNAFinalEngine.Graphics
         private static Color? lastUsedLightColor;
         private static void SetLightColor(Color lightColor)
         {
-            if (lastUsedLightColor != lightColor)
+            if (lastUsedLightColor != lightColor || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLightColor = lightColor;
                 epLightColor.SetValue(new Vector3(lightColor.R / 255f, lightColor.G / 255f, lightColor.B / 255f));
@@ -178,7 +178,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector3? lastUsedLightPosition;
         private static void SetLightPosition(Vector3 lightPosition)
         {
-            if (lastUsedLightPosition != lightPosition)
+            if (lastUsedLightPosition != lightPosition || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLightPosition = lightPosition;
                 epLightPosition.SetValue(lightPosition);
@@ -192,7 +192,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedLightIntensity;
         private static void SetLightIntensity(float lightIntensity)
         {
-            if (lastUsedLightIntensity != lightIntensity)
+            if (lastUsedLightIntensity != lightIntensity || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLightIntensity = lightIntensity;
                 epLlightIntensity.SetValue(lightIntensity);
@@ -206,7 +206,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedLightRadius;
         private static void SetLightRadius(float lightRadius)
         {
-            if (lastUsedLightRadius != lightRadius)
+            if (lastUsedLightRadius != lightRadius || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLightRadius = lightRadius;
                 epLightRadius.SetValue(lightRadius);
@@ -220,7 +220,7 @@ namespace XNAFinalEngine.Graphics
         private static float lastUsedFarPlane;
         private static void SetFarPlane(float _farPlane)
         {
-            if (lastUsedFarPlane != _farPlane)
+            if (lastUsedFarPlane != _farPlane || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedFarPlane = _farPlane;
                 epFarPlane.SetValue(_farPlane);
@@ -234,7 +234,7 @@ namespace XNAFinalEngine.Graphics
         private static bool? lastUsedInsideBoundingLightObject;
         private static void SetInsideBoundingLightObject(bool insideBoundingLightObject)
         {
-            if (lastUsedInsideBoundingLightObject != insideBoundingLightObject)
+            if (lastUsedInsideBoundingLightObject != insideBoundingLightObject || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedInsideBoundingLightObject = insideBoundingLightObject;
                 epInsideBoundingLightObject.SetValue(insideBoundingLightObject);
@@ -248,7 +248,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedWorldViewMatrix;
         private static void SetWorldViewMatrix(Matrix worldViewMatrix)
         {
-            if (lastUsedWorldViewMatrix != worldViewMatrix)
+            if (lastUsedWorldViewMatrix != worldViewMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedWorldViewMatrix = worldViewMatrix;
                 epWorldView.SetValue(worldViewMatrix);
@@ -258,7 +258,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedWorldViewProjMatrix;
         private static void SetWorldViewProjMatrix(Matrix worldViewProjectionMatrix)
         {
-            if (lastUsedWorldViewProjMatrix != worldViewProjectionMatrix)
+            if (lastUsedWorldViewProjMatrix != worldViewProjectionMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedWorldViewProjMatrix = worldViewProjectionMatrix;
                 epWorldViewProj.SetValue(worldViewProjectionMatrix);

@@ -318,7 +318,7 @@ namespace XNAFinalEngine.UserInterface
 
                 RootControls  = new ControlsList();
                 OrderList = new ControlsList();
-
+                
                 EngineManager.GraphicsDeviceManager.PreparingDeviceSettings += OnPrepareGraphicsDevice;
 
                 states.Buttons = new Control[32];
@@ -342,7 +342,7 @@ namespace XNAFinalEngine.UserInterface
                 };
 
                 // Init User Interface Renderer.
-                Renderer.Init();
+                Renderer.Initialize();
 
                 // Set Default skin.
                 SetSkin("Default");
@@ -351,6 +351,14 @@ namespace XNAFinalEngine.UserInterface
                 oldScreenWidth = Screen.Width;
                 oldScreenHeight = Screen.Height;
                 Screen.ScreenSizeChanged += OnScreenSizeChanged;
+
+                EngineManager.DeviceDisposed += delegate
+                {
+                    Renderer.Initialize();
+                    // Invalidate all controls.
+                    OnPrepareGraphicsDevice(null, new PreparingDeviceSettingsEventArgs(new GraphicsDeviceInformation()));
+                    SetSkin(Skin.CurrentSkinName);
+                };
 
                 // To automatically update and render.
                 userInterfaceGameObject = new GameObject2D();
@@ -371,6 +379,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private static void OnPrepareGraphicsDevice(object sender, PreparingDeviceSettingsEventArgs e)
         {
+           
             if (DeviceSettingsChanged != null)
                 DeviceSettingsChanged.Invoke(new DeviceEventArgs(e));
         } // OnPrepareGraphicsDevice
@@ -476,7 +485,6 @@ namespace XNAFinalEngine.UserInterface
             {
                 control.Init();
             }
-
         } // SetSkin
 
         #endregion

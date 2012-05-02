@@ -147,7 +147,7 @@ namespace XNAFinalEngine.Editor
             framesPerSecondText.Transform.LocalPosition = new Vector3(positionX, positionY + elementsHeight + 5, 0);
 
             #endregion
-
+            
             #region Draw Calls
 
             int drawCallsPositionX = positionX + linesWidth * framesPerSecondNumberOfElements + 5 + 10;

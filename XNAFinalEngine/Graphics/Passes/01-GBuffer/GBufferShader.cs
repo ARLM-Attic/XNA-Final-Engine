@@ -110,7 +110,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedTransposeInverseWorldViewMatrix;
         private static void SetTransposeInverseWorldViewMatrix(Matrix transposeInverseWorldViewMatrix)
         {
-            if (lastUsedTransposeInverseWorldViewMatrix != transposeInverseWorldViewMatrix)
+            if (lastUsedTransposeInverseWorldViewMatrix != transposeInverseWorldViewMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedTransposeInverseWorldViewMatrix = transposeInverseWorldViewMatrix;
                 epWorldViewIT.SetValue(transposeInverseWorldViewMatrix);
@@ -124,7 +124,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedWorldViewMatrix;
         private static void SetWorldViewMatrix(Matrix worldViewMatrix)
         {
-            if (lastUsedWorldViewMatrix != worldViewMatrix)
+            if (lastUsedWorldViewMatrix != worldViewMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedWorldViewMatrix = worldViewMatrix;
                 epWorldView.SetValue(worldViewMatrix);
@@ -138,7 +138,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedWorldViewProjMatrix;
         private static void SetWorldViewProjMatrix(Matrix worldViewProjMatrix)
         {
-            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix)
+            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedWorldViewProjMatrix = worldViewProjMatrix;
                 epWorldViewProj.SetValue(worldViewProjMatrix);
@@ -152,7 +152,7 @@ namespace XNAFinalEngine.Graphics
         private static float lastUsedFarPlane;
         private static void SetFarPlane(float _farPlane)
         {
-            if (lastUsedFarPlane != _farPlane)
+            if (lastUsedFarPlane != _farPlane || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedFarPlane = _farPlane;
                 epFarPlane.SetValue(_farPlane);
@@ -168,7 +168,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedObjectNormalTextureTexture != objectNormalTexture.Resource)
+            if (lastUsedObjectNormalTextureTexture != objectNormalTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedObjectNormalTextureTexture = objectNormalTexture.Resource;
                 epObjectNormalTextureSize.SetValue(new Vector2(objectNormalTexture.Width, objectNormalTexture.Height));
@@ -183,7 +183,7 @@ namespace XNAFinalEngine.Graphics
         private static int lastUsedLODThreshold;
         private static void SetLODThreshold(int lodThreshold)
         {
-            if (lastUsedLODThreshold != lodThreshold)
+            if (lastUsedLODThreshold != lodThreshold || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLODThreshold = lodThreshold;
                 epLODThreshold.SetValue(lodThreshold);
@@ -197,7 +197,7 @@ namespace XNAFinalEngine.Graphics
         private static int lastUsedMinimumNumberSamples;
         private static void SetMinimumNumberSamples(int minimumNumberSamples)
         {
-            if (lastUsedMinimumNumberSamples != minimumNumberSamples)
+            if (lastUsedMinimumNumberSamples != minimumNumberSamples || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedMinimumNumberSamples = minimumNumberSamples;
                 epMinimumNumberSamples.SetValue(minimumNumberSamples);
@@ -211,7 +211,7 @@ namespace XNAFinalEngine.Graphics
         private static int lastUsedMaximumNumberSamples;
         private static void SetMaximumNumberSamples(int maximumNumberSamples)
         {
-            if (lastUsedMaximumNumberSamples != maximumNumberSamples)
+            if (lastUsedMaximumNumberSamples != maximumNumberSamples || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedMaximumNumberSamples = maximumNumberSamples;
                 epMaximumNumberSamples.SetValue(maximumNumberSamples);
@@ -225,7 +225,7 @@ namespace XNAFinalEngine.Graphics
         private static float lastUsedHeightMapScale;
         private static void SetHeightMapScale(float heightMapScale)
         {
-            if (lastUsedHeightMapScale != heightMapScale)
+            if (lastUsedHeightMapScale != heightMapScale || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedHeightMapScale = heightMapScale;
                 epHeightMapScale.SetValue(heightMapScale);
@@ -239,7 +239,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedSpecularPower;
         private static void SetSpecularPower(float specularPower)
         {
-            if (lastUsedSpecularPower != specularPower)
+            if (lastUsedSpecularPower != specularPower || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedSpecularPower = specularPower;
                 epSpecularPower.SetValue(specularPower);
@@ -253,7 +253,7 @@ namespace XNAFinalEngine.Graphics
         private static bool lastUsedSpecularTextured;
         private static void SetSpecularTextured(bool specularTextured)
         {
-            if (lastUsedSpecularTextured != specularTextured)
+            if (lastUsedSpecularTextured != specularTextured || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedSpecularTextured = specularTextured;
                 epSpecularTextured.SetValue(specularTextured);
@@ -269,7 +269,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.LinearWrap;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedSpecularTexture != specularTexture.Resource)
+            if (lastUsedSpecularTexture != specularTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedSpecularTexture = specularTexture.Resource;
                 epObjectSpecularTexture.SetValue(specularTexture.Resource);
@@ -283,7 +283,7 @@ namespace XNAFinalEngine.Graphics
         private static RectangleF? lastUsedUvRectangle;
         private static void SetUvRectangle(RectangleF uvRectangle)
         {
-            if (lastUsedUvRectangle != uvRectangle)
+            if (lastUsedUvRectangle != uvRectangle || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedUvRectangle = uvRectangle;
                 epUvRectangleMin.SetValue(new Vector2(uvRectangle.X, uvRectangle.Y));
@@ -298,7 +298,7 @@ namespace XNAFinalEngine.Graphics
         private static float lastUsedFarTerrainBeginDistance;
         private static void SetFarTerrainBeginDistance(float farTerrainBeginDistance)
         {
-            if (lastUsedFarTerrainBeginDistance != farTerrainBeginDistance)
+            if (lastUsedFarTerrainBeginDistance != farTerrainBeginDistance || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedFarTerrainBeginDistance = farTerrainBeginDistance;
                 epFarTerrainBeginDistance.SetValue(farTerrainBeginDistance);
@@ -312,7 +312,7 @@ namespace XNAFinalEngine.Graphics
         private static float lastUsedFlatRange;
         private static void SetFlatRange(float flatRange)
         {
-            if (lastUsedFlatRange != flatRange)
+            if (lastUsedFlatRange != flatRange || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedFlatRange = flatRange;
                 epFlatRange.SetValue(flatRange);
@@ -328,7 +328,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDisplacementTexture != displacementTexture.Resource)
+            if (lastUsedDisplacementTexture != displacementTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedDisplacementTexture = displacementTexture.Resource;
                 epDisplacementTexture.SetValue(displacementTexture.Resource);
@@ -342,7 +342,7 @@ namespace XNAFinalEngine.Graphics
         private static bool lastUsedFarTerrain;
         private static void SetFarTerrain(bool farTerrain)
         {
-            if (lastUsedFarTerrain != farTerrain)
+            if (lastUsedFarTerrain != farTerrain || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedFarTerrain = farTerrain;
                 epFarTerrain.SetValue(farTerrain);
@@ -356,7 +356,7 @@ namespace XNAFinalEngine.Graphics
         //private static Matrix[] lastUsedBones;
         private static void SetBones(Matrix[] bones)
         {
-            // The values are probably different and the operation is costly and garbage prone (but this can be avoided).
+            // The values are probably different and the operation is costly and garbage prone because the clone (but this can be avoided).
             /*if (!ArrayHelper.Equals(lastUsedBones, bones))
             {
                 lastUsedBones = (Matrix[])(bones.Clone());

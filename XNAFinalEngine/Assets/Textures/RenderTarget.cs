@@ -150,6 +150,8 @@ namespace XNAFinalEngine.Assets
         {
             get
             {
+                if (renderTarget.IsDisposed)
+                    renderTarget = null;
                 if (alreadyResolved)
                     return renderTarget;
                 throw new InvalidOperationException("Render Target: Unable to return render target. Render target not resolved.");
@@ -203,7 +205,7 @@ namespace XNAFinalEngine.Assets
             MipMap = mipMap;
 
             Create();
-            EngineManager.DeviceReset += OnWindowSizeChanged;
+            EngineManager.DeviceReset += OnScreenSizeChanged;
         } // RenderTarget
 
         /// <summary>
@@ -224,7 +226,7 @@ namespace XNAFinalEngine.Assets
             MipMap = mipMap;
 
             Create();
-            EngineManager.DeviceReset += OnWindowSizeChanged;
+            EngineManager.DeviceReset += OnScreenSizeChanged;
         } // RenderTarget
 
         #endregion
@@ -244,6 +246,7 @@ namespace XNAFinalEngine.Assets
                 // But I assume that the system works in DiscardContents mode so that an XBOX 360 implementation works.
                 // What I lose, mostly nothing, because I made my own ZBuffer texture and the stencil buffer is deleted no matter what I do.
                 renderTarget = new RenderTarget2D(EngineManager.Device, Width, Height, MipMap, SurfaceFormat, DepthFormat, CalculateMultiSampleQuality(Antialiasing), RenderTargetUsage.PlatformContents);
+                alreadyResolved = true;
             }
             catch (Exception e)
             {
@@ -261,37 +264,49 @@ namespace XNAFinalEngine.Assets
         protected override void DisposeManagedResources()
         {
             base.DisposeManagedResources();
-            EngineManager.DeviceReset -= OnWindowSizeChanged;
+            EngineManager.DeviceReset -= OnScreenSizeChanged;
             renderTarget.Dispose();
         } // DisposeManagedResources
 
         #endregion
 
-        #region On Window Size Changed
+        #region On Screen Size Changed
 
         /// <summary>
         /// In older versions of XNA, when a Device was lost you had to manually recreate some resources.
         /// Now there is no need to do it, however some render targets are bound to the window size, so these render targets will be recreated with the correct size.
         /// </summary>
-        private void OnWindowSizeChanged(object sender, EventArgs e)
+        private void OnScreenSizeChanged(object sender, EventArgs e)
         {
             // Just do it. Sometimes the render targets are not automatically recreated. This seems to happen with floating point surface format.
             //if (Size == Size.FullScreen || Size == Size.HalfScreen || Size == Size.QuarterScreen ||
             //    Size == Size.SplitFullScreen || Size == Size.SplitHalfScreen || Size == Size.SplitQuarterScreen)
             {
-                // The size changes with the new window size.
+                // Render Targets don't use content managers.
                 renderTarget.Dispose();
-                Create();
-                // Redo the bindings
-                if (renderTargetBinding.HasValue)
+                RecreateResource();
+            }
+        } // OnScreenSizeChanged
+
+        #endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
+            Create();
+            // Redo the bindings
+            if (renderTargetBinding.HasValue)
+            {
+                for (int i = 0; i < renderTargetBinding.Value.InternalBinding.Length; i++)
                 {
-                    for (int i = 0; i < renderTargetBinding.Value.InternalBinding.Length; i++)
-                    {
-                        renderTargetBinding.Value.InternalBinding[i] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[i].renderTarget);
-                    }
+                    renderTargetBinding.Value.InternalBinding[i] = new Microsoft.Xna.Framework.Graphics.RenderTargetBinding(renderTargetBinding.Value.RenderTargets[i].renderTarget);
                 }
             }
-        } // OnWindowSizeChanged
+        } // RecreateResource
 
         #endregion
         

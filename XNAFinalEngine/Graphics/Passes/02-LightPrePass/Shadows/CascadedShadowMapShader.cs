@@ -139,7 +139,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedWorldViewProjMatrix;
         private static void SetWorldViewProjMatrix(Matrix worldViewProjectionMatrix)
         {
-            if (lastUsedWorldViewProjMatrix != worldViewProjectionMatrix)
+            if (lastUsedWorldViewProjMatrix != worldViewProjectionMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedWorldViewProjMatrix = worldViewProjectionMatrix;
                 epWorldViewProj.SetValue(worldViewProjectionMatrix);
@@ -149,7 +149,7 @@ namespace XNAFinalEngine.Graphics
         private static readonly Matrix[] lastUsedViewToLightViewProjMatrix = new Matrix[numberSplits];
         private static void SetViewToLightViewProjMatrix(Matrix[] viewToLightViewProjMatrix)
         {
-            if (!ArrayHelper.Equals(lastUsedViewToLightViewProjMatrix, viewToLightViewProjMatrix))
+            if (!ArrayHelper.Equals(lastUsedViewToLightViewProjMatrix, viewToLightViewProjMatrix) || EngineManager.DeviceDisposedThisFrame)
             {
                 //lastUsedViewToLightViewProjMatrix = (Matrix[])(viewToLightViewProjMatrix.Clone()); // Produces garbage
                 for (int i = 0; i < numberSplits; i++)
@@ -167,7 +167,7 @@ namespace XNAFinalEngine.Graphics
         private static readonly Vector2[] lastUsedClipPlanes = new Vector2[numberSplits];
         private static void SetClipPlanes(Vector2[] clipPlanes)
         {
-            if (!ArrayHelper.Equals(lastUsedClipPlanes, clipPlanes))
+            if (!ArrayHelper.Equals(lastUsedClipPlanes, clipPlanes) || EngineManager.DeviceDisposedThisFrame)
             {
                 // lastUsedClipPlanes = (Vector2[])(clipPlanes.Clone()); // Produces garbage
                 for (int i = 0; i < numberSplits; i++)
@@ -187,7 +187,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource)
+            if (lastUsedDepthTexture != depthTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedDepthTexture = depthTexture.Resource;
                 epDepthTexture.SetValue(depthTexture.Resource);
@@ -203,7 +203,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[3] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedShadowMapTexture != shadowMapTexture.Resource)
+            if (lastUsedShadowMapTexture != shadowMapTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedShadowMapTexture = shadowMapTexture.Resource;
                 epShadowMap.SetValue(shadowMapTexture.Resource);
@@ -217,7 +217,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel)
+            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -231,7 +231,7 @@ namespace XNAFinalEngine.Graphics
         private static readonly Vector3[] lastUsedFrustumCorners = new Vector3[numberSplits];
         private static void SetFrustumCorners(Vector3[] frustumCorners)
         {
-            if (!ArrayHelper.Equals(lastUsedFrustumCorners, frustumCorners))
+            if (!ArrayHelper.Equals(lastUsedFrustumCorners, frustumCorners) || EngineManager.DeviceDisposedThisFrame)
             {
                 // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
                 for (int i = 0; i < numberSplits; i++)
@@ -249,7 +249,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedDepthBias;
         private static void SetDepthBias(float _depthBias)
         {
-            if (lastUsedDepthBias != _depthBias)
+            if (lastUsedDepthBias != _depthBias || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedDepthBias = _depthBias;
                 epDepthBias.SetValue(_depthBias);
@@ -263,7 +263,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedShadowMapSize;
         private static void SetShadowMapSize(Vector2 shadowMapSize)
         {
-            if (lastUsedShadowMapSize != shadowMapSize)
+            if (lastUsedShadowMapSize != shadowMapSize || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedShadowMapSize = shadowMapSize;
                 epInvShadowMapSize.SetValue(new Vector2(1f / shadowMapSize.X, 1f / shadowMapSize.Y));

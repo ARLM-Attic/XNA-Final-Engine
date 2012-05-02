@@ -122,6 +122,7 @@ namespace XNAFinalEngine.EngineCore
 
             // Pre draw to avoid the first frame's garbage and to place everything into memory.
             // But I won't do it because I could create render targets with an incorrect size and thus waste a lot of memory on nothing.
+            // Moreover it helps to arise an XNA bug related with the device.
             //Draw(new GameTime());
 
             #endregion
@@ -139,6 +140,13 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            // Recreate device related managers when it is disposed. Prevents an XNA bug.
+            EngineManager.DeviceDisposed += delegate
+            {
+                SpriteManager.Initialize();
+                LineManager.Initialize();
+            };
+
         } // LoadContent
         
         #endregion
@@ -151,7 +159,7 @@ namespace XNAFinalEngine.EngineCore
         internal static void Update(GameTime gameTime)
         {
             Time.GameDeltaTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
-
+            
             #region Managers
 
             InputManager.Update();
@@ -262,10 +270,10 @@ namespace XNAFinalEngine.EngineCore
         #endregion
 
         #region Draw
-        
+
         /// <summary>
         /// Draw
-        /// </summary>        
+        /// </summary>
         internal static void Draw(GameTime gameTime)
         {
             // Update frame time
@@ -345,6 +353,14 @@ namespace XNAFinalEngine.EngineCore
             
             #region Render Each Camera
 
+            // For recover all render target.
+            for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
+            {
+                Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
+                if (currentCamera.MasterCamera == null && currentCamera.RenderTarget != null)
+                        RenderTarget.Release(currentCamera.RenderTarget);
+            }
+            
             // This allows rendering only a camera ignoring the rendering order and visibility. 
             // However, if the camera is a master or slave camera then all of them will be rendered.
             if (Camera.OnlyRendereableCamera != null)
@@ -383,7 +399,7 @@ namespace XNAFinalEngine.EngineCore
 
             EngineManager.Device.Clear(Color.Black);
             // Render onto back buffer the main camera and the HUD.
-            if (Camera.MainCamera != null)
+            if (Camera.MainCamera != null && Camera.MainCamera.RenderTarget != null)
                 SpriteManager.DrawTextureToFullScreen(Camera.MainCamera.RenderTarget);
 
             #endregion
@@ -544,7 +560,7 @@ namespace XNAFinalEngine.EngineCore
                 }
                 
                 // Reset viewport and render HUD
-                EngineManager.Device.Viewport = new Viewport(0, 0, Screen.Width, Screen.Height);
+                EngineManager.Device.Viewport = new Viewport(0, 0, currentCamera.RenderTargetSize.Width, currentCamera.RenderTargetSize.Height);
                 if (currentCamera.RenderHeadUpDisplay)
                 {
                     Layer.CurrentCameraCullingMask = currentCamera.CullingMask;
@@ -567,7 +583,7 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         private static RenderTarget RenderCamera(Camera currentCamera)
         {
-           
+
             #region Buffers Declarations
 
             // This is here to allow the rendering of these render targets for testing.
@@ -632,7 +648,7 @@ namespace XNAFinalEngine.EngineCore
             // CHC++ is a technique very used. In ShaderX7 there are a good article about it (it also includes the source code).
 
             // First Version (very simple)
-            cameraBoundingFrustum.Matrix = currentCamera.ViewMatrix*currentCamera.ProjectionMatrix;
+            cameraBoundingFrustum.Matrix = currentCamera.ViewMatrix * currentCamera.ProjectionMatrix;
             modelsToRender.Clear();
             FrustumCulling(cameraBoundingFrustum, modelsToRender);
 
@@ -688,7 +704,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
             
             #endregion
-            
+
             #region Light Pre Pass
 
             #region Ambient Occlusion
@@ -732,7 +748,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-
+            
             #region Shadow Maps
 
             #region Directional Light Shadows
@@ -751,6 +767,8 @@ namespace XNAFinalEngine.EngineCore
                         shadowDepthTexture = halfDepthTexture;
                     else
                         shadowDepthTexture = quarterDepthTexture;
+
+                    #region Cascaded Shadow
 
                     // If the shadow map is a cascaded shadow map...
                     if (currentDirectionalLight.Shadow is CascadedShadow)
@@ -774,6 +792,11 @@ namespace XNAFinalEngine.EngineCore
                         }
                         currentDirectionalLight.ShadowTexture = CascadedShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
                     }
+
+                    #endregion
+
+                    #region Basic Shadow
+
                     // If the shadow map is a basic shadow map...
                     else if (currentDirectionalLight.Shadow is BasicShadow)
                     {
@@ -795,6 +818,9 @@ namespace XNAFinalEngine.EngineCore
                         }
                         currentDirectionalLight.ShadowTexture = BasicShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
                     }
+
+                    #endregion
+
                 }
             }
 
@@ -867,14 +893,14 @@ namespace XNAFinalEngine.EngineCore
             RenderTarget.Release(ambientOcclusionTexture);
 
             #endregion
-
+            
             #region Directional Lights
 
             DirectionalLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
-                                            gbufferTextures.RenderTargets[1], // Normal Texture
-                                            gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
-                                            currentCamera.ViewMatrix,
-                                            cornersViewSpace);
+                                                  gbufferTextures.RenderTargets[1], // Normal Texture
+                                                  gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
+                                                  currentCamera.ViewMatrix,
+                                                  cornersViewSpace);
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
                 DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
@@ -886,7 +912,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-
+            
             #region Point Lights
             
             PointLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
@@ -906,7 +932,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-
+            
             #region Spot Lights
             
             SpotLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
@@ -929,7 +955,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-
+            
             lightTexture = LightPrePass.End();
 
             #endregion
@@ -1278,6 +1304,10 @@ namespace XNAFinalEngine.EngineCore
 
             postProcessedSceneTexture = PostProcessingPass.End();
 
+            #endregion
+
+            #region Release Uused Render Targets
+
             // They are not needed anymore.
             RenderTarget.Release(sceneTexture);
             RenderTarget.Release(gbufferTextures);
@@ -1298,7 +1328,7 @@ namespace XNAFinalEngine.EngineCore
 
             #region For Testing
             //RenderTarget.Release(postProcessedSceneTexture);
-            //return gbufferTextures.RenderTargets[1];
+            //return gbufferTextures.RenderTargets[2];
             //return lightTexture;
             #endregion
 

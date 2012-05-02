@@ -136,8 +136,8 @@ namespace XNAFinalEngineExamples
                                                             Color = new Color(50, 50, 50),
                                                             Intensity = 5f,
                                                             AmbientOcclusionStrength = 2f };
-            camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
-            //camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM", true, 50) };
+            //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
+            camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM", true, 50) };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
@@ -152,8 +152,8 @@ namespace XNAFinalEngineExamples
             camera.Camera.PostProcess.FilmGrain.Enabled = false;
 
             #region Test Split Screen
-
-            /*camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
+            /*
+            camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
             camera2 = new GameObject3D();
             camera2.AddComponent<Camera>();
             camera2.Camera.MasterCamera = camera.Camera;
@@ -875,7 +875,7 @@ namespace XNAFinalEngineExamples
             #endregion
             
             #endregion
-            
+
             #region Shadows and Lights
             
             directionalLight = new GameObject3D();
@@ -883,7 +883,7 @@ namespace XNAFinalEngineExamples
             directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 140);
             directionalLight.DirectionalLight.Intensity = 7f;
             directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
-            directionalLight.DirectionalLight.Shadow = new CascadedShadow()
+            directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
                 Filter = Shadow.FilterType.PCF3x3,
                 LightDepthTextureSize = Size.Square1024X1024,
@@ -970,7 +970,7 @@ namespace XNAFinalEngineExamples
             videoTest = new GameObject2D();
             videoTest.AddComponent<VideoRenderer>();
             videoTest.VideoRenderer.Video = new Video("LogosIntro");
-            //videoTest.VideoRenderer.Play();
+            videoTest.VideoRenderer.Play();
             videoTest.Transform.Position = new Vector3(0, 0, 1);
 
             #endregion
@@ -984,10 +984,10 @@ namespace XNAFinalEngineExamples
 
             #region Engine Logo
 
-            /*xnaFinalEngineLogo = new GameObject2D();
+            xnaFinalEngineLogo = new GameObject2D();
             xnaFinalEngineLogo.AddComponent<HudTexture>();
             xnaFinalEngineLogo.HudTexture.Texture = new Texture("XNA Final Engine");
-            xnaFinalEngineLogo.Transform.LocalScale = 0.5f;*/
+            xnaFinalEngineLogo.Transform.LocalScale = 0.5f;
 
             #endregion
 
@@ -1000,12 +1000,12 @@ namespace XNAFinalEngineExamples
             //UserInterfaceManager.Initialize();
             //murcielagoBody.ModelRenderer.Material = new Constant { DiffuseTexture = new Texture("Caption") { PreferredSamplerState = new SamplerState { MaxMipLevel = 2 }}};
             //ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
-            //BlinnPhongWindow.Show((BlinnPhong)murcielagoInteriorLeather.ModelRenderer.Material);
+            BlinnPhongWindow.Show((BlinnPhong)murcielagoFrontLeftBrakeCaliper.ModelRenderer.Material);
             //CarPaintWindow.Show(carPaint);
-            PostProcessWindow.Show(camera.Camera.PostProcess);
+            //PostProcessWindow.Show(camera.Camera.PostProcess);
 
-            LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
-            LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
+            //LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
+            //LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
 
             murcielagoBody.Layer = Layer.GetLayerByNumber(1);
             //Layer.GetLayerByNumber(1).Enabled = false;

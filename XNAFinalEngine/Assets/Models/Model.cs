@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -29,10 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
-using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using XNABoundingBox    = Microsoft.Xna.Framework.BoundingBox;
 using XNABoundingSphere = Microsoft.Xna.Framework.BoundingSphere;
 #endregion
@@ -75,6 +73,33 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public BoundingBox BoundingBox { get { return boundingBox; } }
 
+        /// <summary>
+        /// Loaded Textures.
+        /// </summary>
+        public static List<Model> LoadedModels { get; private set; }
+
+        #endregion
+
+        #region Constructor
+
+        protected Model()
+        {
+            LoadedModels.Add(this);
+            LoadedModels.Sort(CompareAssets);
+        } // Model
+
+        #endregion
+
+        #region Static Constructor
+
+        /// <summary>
+        /// Search the available models.
+        /// </summary>
+        static Model()
+        {
+            LoadedModels = new List<Model>();
+        } // Texture
+
         #endregion
 
         #region Render
@@ -87,6 +112,28 @@ namespace XNAFinalEngine.Assets
         /// This is public to allow doing some specific tasks not implemented in the engine.
         /// </remarks>
         public abstract void Render();
+
+        #endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Recreate textures created without using a content manager.
+        /// </summary>
+        internal static void RecreateModelsWithoutContentManager()
+        {
+            foreach (Model loadedModel in LoadedModels)
+            {
+                if (loadedModel.ContentManager == null)
+                {
+                    if (loadedModel is PrimitiveModel)
+                    {
+                        loadedModel.Dispose();
+                        loadedModel.RecreateResource();
+                    }
+                }
+            }
+        } // RecreateResource
 
         #endregion
 

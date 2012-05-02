@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -48,7 +48,7 @@ namespace XNAFinalEngine.Assets
         #region Variables
 
         // default material.
-        private static Font defaultFont = new Font("Default");
+        private static Font defaultFont;
 
         #endregion
 
@@ -117,14 +117,14 @@ namespace XNAFinalEngine.Assets
         public Font(string filename)
         {
             Name = filename;
-            string fullFilename = ContentManager.GameDataDirectory + "Fonts\\" + filename;
-            if (File.Exists(fullFilename + ".xnb") == false)
+            Filename = ContentManager.GameDataDirectory + "Fonts\\" + filename;
+            if (File.Exists(Filename + ".xnb") == false)
             {
-                throw new Exception("Failed to load font: File " + fullFilename + " does not exists!");
+                throw new Exception("Failed to load font: File " + Filename + " does not exists!");
             }
             try
             {
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SpriteFont>(fullFilename);
+                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SpriteFont>(Filename);
                 ContentManager = ContentManager.CurrentContentManager;
             }
             catch (ObjectDisposedException e)
@@ -135,6 +135,12 @@ namespace XNAFinalEngine.Assets
             {
                 throw new Exception("Failed to load font: " + filename, e);
             }
+        } // Font
+
+        static Font()
+        {
+            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            defaultFont = new Font("Default");
         } // Font
 
         #endregion
@@ -160,6 +166,18 @@ namespace XNAFinalEngine.Assets
         } // MeasureString
 
         #endregion
-        
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
+            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SpriteFont>(Filename);
+        } // RecreateResource
+
+        #endregion
+
     } // Font
 } // XNAFinalEngineBase.Assets

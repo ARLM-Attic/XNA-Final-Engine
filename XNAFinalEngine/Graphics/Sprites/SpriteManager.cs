@@ -98,7 +98,12 @@ namespace XNAFinalEngine.Graphics
         /// Initialize the Sprite Manager subsystem.
         /// </summary>
         internal static void Initialize()
-        {            
+        {
+            // Handle the dipose device sittuation.
+            if (spriteBatch != null && spriteBatch.GraphicsDevice.IsDisposed)
+            {
+                spriteBatch.Dispose();
+            }
             spriteBatch = new SpriteBatch(EngineManager.Device);
         } // Initialize
 

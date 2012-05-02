@@ -101,7 +101,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedNumberSteps;
         private static void SetNumberSteps(float _numberSteps)
         {
-            if (lastUsedNumberSteps != _numberSteps)
+            if (lastUsedNumberSteps != _numberSteps || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedNumberSteps = _numberSteps;
                 epNumberSteps.SetValue(_numberSteps);
@@ -115,7 +115,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedNumberRays;
         private static void SetNumberRays(float _numberRays)
         {
-            if (lastUsedNumberRays != _numberRays)
+            if (lastUsedNumberRays != _numberRays || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedNumberRays = _numberRays;
                 epNumberRays.SetValue(_numberRays);
@@ -129,7 +129,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedNumberDirections;
         private static void SetNumberDirections(float _numberDirections)
         {
-            if (lastUsedNumberDirections != _numberDirections)
+            if (lastUsedNumberDirections != _numberDirections || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedNumberDirections = _numberDirections;
                 epNumberDirections.SetValue(_numberDirections);
@@ -149,7 +149,7 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private static void SetContrast(float _contrast)
         {
-            if (lastUsedContrast != _contrast)
+            if (lastUsedContrast != _contrast || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedContrast = _contrast;
                 epContrast.SetValue(_contrast);
@@ -163,7 +163,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedLineAttenuation;
         private static void SetLineAttenuation(float _lineAttenuation)
         {
-            if (lastUsedLineAttenuation != _lineAttenuation)
+            if (lastUsedLineAttenuation != _lineAttenuation || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLineAttenuation = _lineAttenuation;
                 epLineAttenuation.SetValue(_lineAttenuation);
@@ -177,7 +177,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedRadius;
         private static void SetRadius(float _radius)
         {
-            if (lastUsedRadius != _radius)
+            if (lastUsedRadius != _radius || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedRadius = _radius;
                 epRadius.SetValue(_radius);
@@ -191,7 +191,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel)
+            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -205,7 +205,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedFocalLength;
         private static void SetFocalLength(Vector2 focalLength)
         {
-            if (lastUsedFocalLength != focalLength)
+            if (lastUsedFocalLength != focalLength || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedFocalLength = focalLength;
                 epFocalLength.SetValue(focalLength);
@@ -221,7 +221,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource)
+            if (lastUsedDepthTexture != depthTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedDepthTexture = depthTexture.Resource;
                 epDepthTexture.SetValue(depthTexture.Resource);
@@ -237,7 +237,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTexture != normalTexture.Resource)
+            if (lastUsedNormalTexture != normalTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedNormalTexture = normalTexture.Resource;
                 epNormalTexture.SetValue(normalTexture.Resource);

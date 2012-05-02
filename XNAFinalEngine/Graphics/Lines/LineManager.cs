@@ -117,6 +117,11 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         internal static void Initialize()
         {
+            // Handle the dipose device sittuation.
+            if (basicEffect != null && basicEffect.GraphicsDevice.IsDisposed)
+            {
+                basicEffect.Dispose();
+            }
             // Set up a new basic effect, and enable vertex colors.
             basicEffect = new BasicEffect(EngineManager.Device) { VertexColorEnabled = true };
             vertices = new VertexPositionColor[defaultBufferSize];

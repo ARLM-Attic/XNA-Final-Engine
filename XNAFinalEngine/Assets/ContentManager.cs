@@ -310,5 +310,29 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
+        #region Recreate Content Managers
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal static void RecreateContentManagers()
+        {
+            ContentManager temp = CurrentContentManager;
+            foreach (ContentManager contentManager in ContentManagers)
+            {
+                CurrentContentManager = contentManager;
+                // Unload resources.
+                contentManager.XnaContentManager.Unload();
+                // Load them again.
+                foreach (Asset asset in contentManager.Assets)
+                {
+                    asset.RecreateResource();
+                }
+            }
+            CurrentContentManager = temp;
+        } // RecreateContentManagers
+
+        #endregion
+
     } // ContentManager
 } // XNAFinalEngine.Assets

@@ -95,7 +95,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel)
+            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -109,7 +109,7 @@ namespace XNAFinalEngine.Graphics
         private static readonly Vector3[] lastUsedFrustumCorners = new Vector3[4];
         private static void SetFrustumCorners(Vector3[] frustumCorners)
         {
-            if (!ArrayHelper.Equals(lastUsedFrustumCorners, frustumCorners))
+            if (!ArrayHelper.Equals(lastUsedFrustumCorners, frustumCorners) || EngineManager.DeviceDisposedThisFrame)
             {
                 // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
                 for (int i = 0; i < 4; i++)
@@ -129,7 +129,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource)
+            if (lastUsedDepthTexture != depthTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedDepthTexture = depthTexture.Resource;
                 epDepthTexture.SetValue(depthTexture.Resource);
@@ -145,7 +145,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTexture != normalTexture.Resource)
+            if (lastUsedNormalTexture != normalTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedNormalTexture = normalTexture.Resource;
                 epNormalTexture.SetValue(normalTexture.Resource);
@@ -157,14 +157,14 @@ namespace XNAFinalEngine.Graphics
         #region Motion Vector Specular Power Texture
 
         private static Texture2D lastUsedMotionVectorSpecularPower;
-        private static void SetMotionVectorSpecularPower(Texture motionVectorSpecularPower)
+        private static void SetMotionVectorSpecularPower(Texture motionVectorSpecularPowerTexture)
         {
             EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedMotionVectorSpecularPower != motionVectorSpecularPower.Resource)
+            if (lastUsedMotionVectorSpecularPower != motionVectorSpecularPowerTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
-                lastUsedMotionVectorSpecularPower = motionVectorSpecularPower.Resource;
-                epMotionVectorSpecularPowerTexture.SetValue(motionVectorSpecularPower.Resource);
+                lastUsedMotionVectorSpecularPower = motionVectorSpecularPowerTexture.Resource;
+                epMotionVectorSpecularPowerTexture.SetValue(motionVectorSpecularPowerTexture.Resource);
             }
         } // SetMotionVectorSpecularPower
 
@@ -177,7 +177,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[3] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedShadowTexture != shadowTexture.Resource)
+            if (lastUsedShadowTexture != shadowTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedShadowTexture = shadowTexture.Resource;
                 epShadowTexture.SetValue(shadowTexture.Resource);
@@ -191,7 +191,7 @@ namespace XNAFinalEngine.Graphics
         private static Color? lastUsedLightColor;
         private static void SetLightColor(Color lightColor)
         {
-            if (lastUsedLightColor != lightColor)
+            if (lastUsedLightColor != lightColor || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLightColor = lightColor;
                 epLightColor.SetValue(new Vector3(lightColor.R / 255f, lightColor.G / 255f, lightColor.B / 255f));
@@ -205,7 +205,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector3? lastUsedLightDir;
         private static void SetLightDirection(Vector3 lightDirection)
         {
-            if (lastUsedLightDir != lightDirection)
+            if (lastUsedLightDir != lightDirection || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLightDir = lightDirection;
                 epLightDirection.SetValue(lightDirection);
@@ -219,7 +219,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedLightIntensity;
         private static void SetLightIntensity(float lightIntensity)
         {
-            if (lastUsedLightIntensity != lightIntensity)
+            if (lastUsedLightIntensity != lightIntensity || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLightIntensity = lightIntensity;
                 epLlightIntensity.SetValue(lightIntensity);
@@ -307,7 +307,7 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-
+                
                 #region Set Parameters
               
                 SetLightColor(diffuseColor);

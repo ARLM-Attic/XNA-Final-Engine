@@ -125,8 +125,10 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected override void DisposeManagedResources()
         {
-            vertexBuffer.Dispose();
-            indexBuffer.Dispose();
+            if (vertexBuffer != null)
+                vertexBuffer.Dispose();
+            if (indexBuffer != null)
+                indexBuffer.Dispose();
         } // DisposeManagedResources
 
         #endregion
@@ -138,6 +140,9 @@ namespace XNAFinalEngine.Assets
     public class Sphere : PrimitiveModel
     {
 
+        private readonly int stacks, slices;
+        private readonly float radius;
+
         #region Constructor
 
         /// <summary>
@@ -148,65 +153,78 @@ namespace XNAFinalEngine.Assets
         /// <param name="radius">Radius</param>
         public Sphere(int stacks, int slices, float radius)
         {
-
             Name = "Sphere Primitive";
+            this.stacks = stacks;
+            this.slices = slices;
+            this.radius = radius;
+            RecreateResource();
+        } // Sphere
 
+        #endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
             // Calculates the resulting number of vertices and indices
             numberVertices = (stacks + 1) * (slices + 1);
             numberIndices = (3 * stacks * (slices + 1)) * 2;
             int[] indices = new int[numberIndices];
             VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[numberVertices];
-               
-            float stackAngle = MathHelper.Pi / stacks;  
-            float sliceAngle = (float)(Math.PI * 2.0) / slices;  
-             
+
+            float stackAngle = MathHelper.Pi / stacks;
+            float sliceAngle = (float)(Math.PI * 2.0) / slices;
+
             // Generate the group of Stacks for the sphere  
-            int wVertexIndex = 0;  
-            int vertexCount = 0;  
-            int indexCount = 0;  
- 
-            for (int stack = 0; stack < (stacks+1); stack++)  
-            {  
- 
-                float r = (float)Math.Sin(stack * stackAngle);  
-                float y = (float)Math.Cos(stack * stackAngle);  
- 
+            int wVertexIndex = 0;
+            int vertexCount = 0;
+            int indexCount = 0;
+
+            for (int stack = 0; stack < (stacks + 1); stack++)
+            {
+
+                float r = (float)Math.Sin(stack * stackAngle);
+                float y = (float)Math.Cos(stack * stackAngle);
+
                 // Generate the group of segments for the current Stack  
-                for (int slice = 0; slice < (slices+1); slice++)  
-                {  
-                    float x = r * (float)Math.Sin(slice * sliceAngle);  
-                    float z = r * (float)Math.Cos(slice * sliceAngle);  
+                for (int slice = 0; slice < (slices + 1); slice++)
+                {
+                    float x = r * (float)Math.Sin(slice * sliceAngle);
+                    float z = r * (float)Math.Cos(slice * sliceAngle);
                     vertices[vertexCount].Position = new Vector3(x * radius, y * radius, z * radius);
- 
-                    vertices[vertexCount].Normal = Vector3.Normalize(new Vector3(x, y, z));  
- 
+
+                    vertices[vertexCount].Normal = Vector3.Normalize(new Vector3(x, y, z));
+
                     vertices[vertexCount].TextureCoordinate = new Vector2((float)slice / (float)slices, (float)stack / (float)stacks);
-                    vertexCount++;  
-                    if (stack != (stacks - 1))  
-                    {  
+                    vertexCount++;
+                    if (stack != (stacks - 1))
+                    {
                         // First Face
                         indices[indexCount++] = wVertexIndex + (slices + 1);
-                        
+
                         indices[indexCount++] = wVertexIndex;
 
                         indices[indexCount++] = wVertexIndex + 1;
-                        
+
                         // Second Face
                         indices[indexCount++] = wVertexIndex + (slices);
 
-                        indices[indexCount++] = wVertexIndex;  
-                        
-                        indices[indexCount++] = wVertexIndex + (slices + 1);  
-                        
-                        wVertexIndex++;  
-                    }  
-                }  
+                        indices[indexCount++] = wVertexIndex;
+
+                        indices[indexCount++] = wVertexIndex + (slices + 1);
+
+                        wVertexIndex++;
+                    }
+                }
             }
             vertexBuffer = new VertexBuffer(EngineManager.Device, typeof(VertexPositionNormalTexture), numberVertices, BufferUsage.None);
             vertexBuffer.SetData(vertices, 0, vertices.Length);
             indexBuffer = new IndexBuffer(EngineManager.Device, typeof(int), numberIndices, BufferUsage.None);
             indexBuffer.SetData(indices, 0, indices.Length);
-        } // Sphere
+        } // RecreateResource
 
         #endregion
 
@@ -218,6 +236,7 @@ namespace XNAFinalEngine.Assets
 
     public class Box : PrimitiveModel
     {
+        private readonly float width, height, depth;
 
         #region Constructors
 
@@ -230,86 +249,108 @@ namespace XNAFinalEngine.Assets
         public Box(float width, float height, float depth)
         {
             Name = "Box Primitive";
+            this.width = width;
+            this.height = height;
+            this.depth = depth;
+            RecreateResource();
+        } // Box
 
+        /// <summary>
+        /// Creates a box model.
+        /// </summary>
+        /// <param name="size">Size</param>
+        public Box(float size) : this(size, size, size)
+        {
+        } // Box
+        
+        #endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
             // Calculates the resulting number of vertices and indices  
             numberVertices = 36;
             numberIndices = 36;
             int[] indices = new int[numberIndices];
             VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[numberVertices];
-                        
+
             // Because the box is centered at the origin, we need to divide by two to find the + and - offsets
-            float halfWidth  = width  / 2.0f;
+            float halfWidth = width / 2.0f;
             float halfHeight = height / 2.0f;
-            float halfDepth  = depth  / 2.0f;
+            float halfDepth = depth / 2.0f;
 
-            Vector3 topLeftFront     = new Vector3(-halfWidth, halfHeight, halfDepth);
-            Vector3 bottomLeftFront  = new Vector3(-halfWidth, -halfHeight, halfDepth);
-            Vector3 topRightFront    = new Vector3(halfWidth, halfHeight, halfDepth);
+            Vector3 topLeftFront = new Vector3(-halfWidth, halfHeight, halfDepth);
+            Vector3 bottomLeftFront = new Vector3(-halfWidth, -halfHeight, halfDepth);
+            Vector3 topRightFront = new Vector3(halfWidth, halfHeight, halfDepth);
             Vector3 bottomRightFront = new Vector3(halfWidth, -halfHeight, halfDepth);
-            Vector3 topLeftBack      = new Vector3(-halfWidth, halfHeight, -halfDepth);
-            Vector3 topRightBack     = new Vector3(halfWidth, halfHeight, -halfDepth);
-            Vector3 bottomLeftBack   = new Vector3(-halfWidth, -halfHeight, -halfDepth);
-            Vector3 bottomRightBack  = new Vector3(halfWidth, -halfHeight, -halfDepth);
+            Vector3 topLeftBack = new Vector3(-halfWidth, halfHeight, -halfDepth);
+            Vector3 topRightBack = new Vector3(halfWidth, halfHeight, -halfDepth);
+            Vector3 bottomLeftBack = new Vector3(-halfWidth, -halfHeight, -halfDepth);
+            Vector3 bottomRightBack = new Vector3(halfWidth, -halfHeight, -halfDepth);
 
-            Vector2 textureTopLeft     = new Vector2(0.0f, 0.0f);
-            Vector2 textureTopRight    = new Vector2(1.0f, 0.0f);
-            Vector2 textureBottomLeft  = new Vector2(0.0f, 1.0f);
+            Vector2 textureTopLeft = new Vector2(0.0f, 0.0f);
+            Vector2 textureTopRight = new Vector2(1.0f, 0.0f);
+            Vector2 textureBottomLeft = new Vector2(0.0f, 1.0f);
             Vector2 textureBottomRight = new Vector2(1.0f, 1.0f);
 
-            Vector3 frontNormal  = new Vector3(0.0f, 0.0f, 1.0f);
-            Vector3 backNormal   = new Vector3(0.0f, 0.0f, -1.0f);
-            Vector3 topNormal    = new Vector3(0.0f, 1.0f, 0.0f);
+            Vector3 frontNormal = new Vector3(0.0f, 0.0f, 1.0f);
+            Vector3 backNormal = new Vector3(0.0f, 0.0f, -1.0f);
+            Vector3 topNormal = new Vector3(0.0f, 1.0f, 0.0f);
             Vector3 bottomNormal = new Vector3(0.0f, -1.0f, 0.0f);
-            Vector3 leftNormal   = new Vector3(-1.0f, 0.0f, 0.0f);
-            Vector3 rightNormal  = new Vector3(1.0f, 0.0f, 0.0f);
+            Vector3 leftNormal = new Vector3(-1.0f, 0.0f, 0.0f);
+            Vector3 rightNormal = new Vector3(1.0f, 0.0f, 0.0f);
 
             // Front face.
-            vertices[1] = new VertexPositionNormalTexture(topLeftFront,     frontNormal, textureTopLeft);
-            vertices[0] = new VertexPositionNormalTexture(bottomLeftFront,  frontNormal, textureBottomLeft);
-            vertices[2] = new VertexPositionNormalTexture(topRightFront,    frontNormal, textureTopRight);
-            vertices[4] = new VertexPositionNormalTexture(bottomLeftFront,  frontNormal, textureBottomLeft);
+            vertices[1] = new VertexPositionNormalTexture(topLeftFront, frontNormal, textureTopLeft);
+            vertices[0] = new VertexPositionNormalTexture(bottomLeftFront, frontNormal, textureBottomLeft);
+            vertices[2] = new VertexPositionNormalTexture(topRightFront, frontNormal, textureTopRight);
+            vertices[4] = new VertexPositionNormalTexture(bottomLeftFront, frontNormal, textureBottomLeft);
             vertices[3] = new VertexPositionNormalTexture(bottomRightFront, frontNormal, textureBottomRight);
-            vertices[5] = new VertexPositionNormalTexture(topRightFront,    frontNormal, textureTopRight);
+            vertices[5] = new VertexPositionNormalTexture(topRightFront, frontNormal, textureTopRight);
 
             // Back face.
-            vertices[7] = new VertexPositionNormalTexture(topLeftBack,      backNormal, textureTopRight);
-            vertices[6] = new VertexPositionNormalTexture(topRightBack,     backNormal, textureTopLeft);
-            vertices[8] = new VertexPositionNormalTexture(bottomLeftBack,   backNormal, textureBottomRight);
-            vertices[10] = new VertexPositionNormalTexture(bottomLeftBack,  backNormal, textureBottomRight);
-            vertices[9] = new VertexPositionNormalTexture(topRightBack,     backNormal, textureTopLeft);
+            vertices[7] = new VertexPositionNormalTexture(topLeftBack, backNormal, textureTopRight);
+            vertices[6] = new VertexPositionNormalTexture(topRightBack, backNormal, textureTopLeft);
+            vertices[8] = new VertexPositionNormalTexture(bottomLeftBack, backNormal, textureBottomRight);
+            vertices[10] = new VertexPositionNormalTexture(bottomLeftBack, backNormal, textureBottomRight);
+            vertices[9] = new VertexPositionNormalTexture(topRightBack, backNormal, textureTopLeft);
             vertices[11] = new VertexPositionNormalTexture(bottomRightBack, backNormal, textureBottomLeft);
 
             // Top face.
-            vertices[13] = new VertexPositionNormalTexture(topLeftFront,  topNormal, textureBottomLeft);
-            vertices[12] = new VertexPositionNormalTexture(topRightBack,  topNormal, textureTopRight);
-            vertices[14] = new VertexPositionNormalTexture(topLeftBack,   topNormal, textureTopLeft);
-            vertices[16] = new VertexPositionNormalTexture(topLeftFront,  topNormal, textureBottomLeft);
+            vertices[13] = new VertexPositionNormalTexture(topLeftFront, topNormal, textureBottomLeft);
+            vertices[12] = new VertexPositionNormalTexture(topRightBack, topNormal, textureTopRight);
+            vertices[14] = new VertexPositionNormalTexture(topLeftBack, topNormal, textureTopLeft);
+            vertices[16] = new VertexPositionNormalTexture(topLeftFront, topNormal, textureBottomLeft);
             vertices[15] = new VertexPositionNormalTexture(topRightFront, topNormal, textureBottomRight);
-            vertices[17] = new VertexPositionNormalTexture(topRightBack,  topNormal, textureTopRight);
+            vertices[17] = new VertexPositionNormalTexture(topRightBack, topNormal, textureTopRight);
 
             // Bottom face. 
-            vertices[19] = new VertexPositionNormalTexture(bottomLeftFront,  bottomNormal, textureTopLeft);
-            vertices[18] = new VertexPositionNormalTexture(bottomLeftBack,   bottomNormal, textureBottomLeft);
-            vertices[20] = new VertexPositionNormalTexture(bottomRightBack,  bottomNormal, textureBottomRight);
-            vertices[22] = new VertexPositionNormalTexture(bottomLeftFront,  bottomNormal, textureTopLeft);
-            vertices[21] = new VertexPositionNormalTexture(bottomRightBack,  bottomNormal, textureBottomRight);
+            vertices[19] = new VertexPositionNormalTexture(bottomLeftFront, bottomNormal, textureTopLeft);
+            vertices[18] = new VertexPositionNormalTexture(bottomLeftBack, bottomNormal, textureBottomLeft);
+            vertices[20] = new VertexPositionNormalTexture(bottomRightBack, bottomNormal, textureBottomRight);
+            vertices[22] = new VertexPositionNormalTexture(bottomLeftFront, bottomNormal, textureTopLeft);
+            vertices[21] = new VertexPositionNormalTexture(bottomRightBack, bottomNormal, textureBottomRight);
             vertices[23] = new VertexPositionNormalTexture(bottomRightFront, bottomNormal, textureTopRight);
 
             // Left face.
-            vertices[25] = new VertexPositionNormalTexture(topLeftFront,    leftNormal, textureTopRight);
-            vertices[24] = new VertexPositionNormalTexture(bottomLeftBack,  leftNormal, textureBottomLeft);
+            vertices[25] = new VertexPositionNormalTexture(topLeftFront, leftNormal, textureTopRight);
+            vertices[24] = new VertexPositionNormalTexture(bottomLeftBack, leftNormal, textureBottomLeft);
             vertices[26] = new VertexPositionNormalTexture(bottomLeftFront, leftNormal, textureBottomRight);
-            vertices[28] = new VertexPositionNormalTexture(topLeftBack,     leftNormal, textureTopLeft);
-            vertices[27] = new VertexPositionNormalTexture(bottomLeftBack,  leftNormal, textureBottomLeft);
-            vertices[29] = new VertexPositionNormalTexture(topLeftFront,    leftNormal, textureTopRight);
+            vertices[28] = new VertexPositionNormalTexture(topLeftBack, leftNormal, textureTopLeft);
+            vertices[27] = new VertexPositionNormalTexture(bottomLeftBack, leftNormal, textureBottomLeft);
+            vertices[29] = new VertexPositionNormalTexture(topLeftFront, leftNormal, textureTopRight);
 
             // Right face. 
-            vertices[31] = new VertexPositionNormalTexture(topRightFront,    rightNormal, textureTopLeft);
+            vertices[31] = new VertexPositionNormalTexture(topRightFront, rightNormal, textureTopLeft);
             vertices[30] = new VertexPositionNormalTexture(bottomRightFront, rightNormal, textureBottomLeft);
-            vertices[32] = new VertexPositionNormalTexture(bottomRightBack,  rightNormal, textureBottomRight);
-            vertices[34] = new VertexPositionNormalTexture(topRightBack,     rightNormal, textureTopRight);
-            vertices[33] = new VertexPositionNormalTexture(topRightFront,    rightNormal, textureTopLeft);
-            vertices[35] = new VertexPositionNormalTexture(bottomRightBack,  rightNormal, textureBottomRight);
+            vertices[32] = new VertexPositionNormalTexture(bottomRightBack, rightNormal, textureBottomRight);
+            vertices[34] = new VertexPositionNormalTexture(topRightBack, rightNormal, textureTopRight);
+            vertices[33] = new VertexPositionNormalTexture(topRightFront, rightNormal, textureTopLeft);
+            vertices[35] = new VertexPositionNormalTexture(bottomRightBack, rightNormal, textureBottomRight);
 
             for (int i = 0; i < 36; i++)
             {
@@ -320,15 +361,7 @@ namespace XNAFinalEngine.Assets
             vertexBuffer.SetData(vertices, 0, vertices.Length);
             indexBuffer = new IndexBuffer(EngineManager.Device, typeof(int), numberIndices, BufferUsage.None);
             indexBuffer.SetData(indices, 0, indices.Length);
-        } // Box
-
-        /// <summary>
-        /// Creates a box model.
-        /// </summary>
-        /// <param name="size">Size</param>
-        public Box(float size) : this(size, size, size)
-        {
-        } // Box        
+        } // RecreateResource
 
         #endregion
 
@@ -341,6 +374,8 @@ namespace XNAFinalEngine.Assets
     public class Plane : PrimitiveModel
     {
 
+        private readonly Vector3 topLeft, bottomLeft, topRight, bottomRight;
+
         #region Constructor
                 
         /// <summary>
@@ -350,6 +385,7 @@ namespace XNAFinalEngine.Assets
         /// <param name="height">Height</param>
         public Plane(float width, float height)
         {
+            Name = "Plane Primitive";
             // Because the plane is centered at the origin, need to divide by two to find the + and - offsets
             width = width / 2.0f;
             height = height / 2.0f;
@@ -359,8 +395,12 @@ namespace XNAFinalEngine.Assets
             Vector3 topRight = new Vector3(width, 0, height);
             Vector3 bottomRight = new Vector3(width, 0, -height);
 
-            CreatePlane(topLeft, bottomLeft, topRight, bottomRight);
-
+            this.topLeft = topLeft;
+            this.bottomLeft = bottomLeft;
+            this.topRight = topRight;
+            this.bottomRight = bottomRight;
+            
+            RecreateResource();
         } // Plane
 
         /// <summary>
@@ -378,26 +418,25 @@ namespace XNAFinalEngine.Assets
         /// <param name="bottomLeft">Bottom left vertex's position</param>
         /// <param name="topRight">Top right vertex's position</param>
         /// <param name="bottomRight">Bottom right vertex's position</param>
-        public Plane(Vector3 topLeft, Vector3 bottomLeft, Vector3 topRight, Vector3 bottomRight) // TODO: A constructor with only three vectors.
-        {   
-            CreatePlane(topLeft, bottomLeft, topRight, bottomRight);
+        public Plane(Vector3 topLeft, Vector3 bottomLeft, Vector3 topRight, Vector3 bottomRight)
+        {
+            Name = "Plane Primitive";
+            this.topLeft = topLeft;
+            this.bottomLeft = bottomLeft;
+            this.topRight = topRight;
+            this.bottomRight = bottomRight;
+            RecreateResource();
         } // Plane
 
         #endregion
 
-        #region Create Plane
+        #region Recreate Resource
 
         /// <summary>
-        /// Creates a XY plane model.
+        /// Useful when the XNA device is disposed.
         /// </summary>
-        /// <param name="topLeft">Top left vertex's position</param>
-        /// <param name="bottomLeft">Bottom left vertex's position</param>
-        /// <param name="topRight">Top right vertex's position</param>
-        /// <param name="bottomRight">Bottom right vertex's position</param>
-        private void CreatePlane(Vector3 topLeft, Vector3 bottomLeft, Vector3 topRight, Vector3 bottomRight)
+        internal override void RecreateResource()
         {
-            Name = "Plane Primitive";
-
             // Calculates the resulting number of vertices and indices  
             numberVertices = 4;
             numberIndices = 6;
@@ -440,6 +479,8 @@ namespace XNAFinalEngine.Assets
 
     public class Cylinder : PrimitiveModel
     {
+        private readonly float radius, length;
+        private readonly int slices;
 
         #region Constructor
 
@@ -452,7 +493,20 @@ namespace XNAFinalEngine.Assets
         public Cylinder(float radius, float length, int slices)
         {
             Name = "Cylinder Primitive";
-            
+            this.radius = radius;
+            this.length = length;
+            this.slices = slices;
+        } // Cylinder
+
+        #endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
             float sliceStep = MathHelper.TwoPi / slices;
             float textureStep = 1.0f / slices;
             // Calculates the resulting number of vertices and indices
@@ -462,13 +516,13 @@ namespace XNAFinalEngine.Assets
             VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[numberVertices];
 
             // The center top and center bottom vertices //
-            vertices[0] = new VertexPositionNormalTexture(new Vector3(0, length / 2.0f, 0),  Vector3.Up,   new Vector2(0.5f, 0.5f));
+            vertices[0] = new VertexPositionNormalTexture(new Vector3(0, length / 2.0f, 0), Vector3.Up, new Vector2(0.5f, 0.5f));
             vertices[1] = new VertexPositionNormalTexture(new Vector3(0, -length / 2.0f, 0), Vector3.Down, new Vector2(0.5f, 0.5f));
-            
+
             // The other vertices
             int currentVertex = 2;
             int indexCount = 0;
-                        
+
             float sliceAngle = 0;
             for (int i = 0; i < slices; i++)
             {
@@ -489,7 +543,7 @@ namespace XNAFinalEngine.Assets
                 #endregion
 
                 #region Bottom
-                
+
                 vertices[currentVertex + slices] = new VertexPositionNormalTexture(new Vector3(radius * x, -length / 2, radius * z),
                                                                                    Vector3.Down,
                                                                                    new Vector2(-x / 2.0f + 0.5f, z / 2.0f + 0.5f));
@@ -500,12 +554,12 @@ namespace XNAFinalEngine.Assets
                 else
                     indices[indexCount++] = currentVertex + slices + 1;
                 indices[indexCount++] = currentVertex + slices;
-                
+
                 #endregion
 
                 #region Side
 
-                vertices[currentVertex + 2 * slices]    = new VertexPositionNormalTexture(new Vector3(radius * x, length / 2, radius * z),
+                vertices[currentVertex + 2 * slices] = new VertexPositionNormalTexture(new Vector3(radius * x, length / 2, radius * z),
                                                                                           new Vector3(x, 0, z),
                                                                                           new Vector2(textureStep * i, 1));
 
@@ -531,7 +585,7 @@ namespace XNAFinalEngine.Assets
                 // Second Face                
                 indices[indexCount++] = currentVertex + 3 * slices;
                 if (i == slices - 1)
-                {                   
+                {
                     indices[indexCount++] = currentVertex + 3 * slices + 2;
                     indices[indexCount++] = currentVertex + 3 * slices + 1;
                 }
@@ -541,7 +595,7 @@ namespace XNAFinalEngine.Assets
                     indices[indexCount++] = currentVertex + 2 * slices + 1;
                 }
                 #endregion
-                                
+
                 currentVertex++;
                 sliceAngle += sliceStep;
             }
@@ -550,7 +604,7 @@ namespace XNAFinalEngine.Assets
             vertexBuffer.SetData(vertices, 0, vertices.Length);
             indexBuffer = new IndexBuffer(EngineManager.Device, typeof(int), numberIndices, BufferUsage.None);
             indexBuffer.SetData(indices, 0, indices.Length);
-        } // Cylinder
+        } // RecreateResource
 
         #endregion
 
@@ -562,6 +616,8 @@ namespace XNAFinalEngine.Assets
 
     public class Cone : PrimitiveModel
     {
+        private readonly float radius, length;
+        private readonly int slices;
 
         #region Constructor
 
@@ -574,7 +630,20 @@ namespace XNAFinalEngine.Assets
         public Cone(float radius, float length, int slices)
         {
             Name = "Cylinder Primitive";
+            this.radius = radius;
+            this.length = length;
+            this.slices = slices;
+        } // Cone
 
+        #endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
             float sliceStep = MathHelper.TwoPi / slices;
             // Calculates the resulting number of vertices and indices  
             numberVertices = 2 + (slices * 2);// +2;
@@ -625,7 +694,7 @@ namespace XNAFinalEngine.Assets
                 indices[indexCount++] = currentVertex + slices;
 
                 #endregion
-                
+
                 currentVertex++;
                 sliceAngle += sliceStep;
             }
@@ -634,7 +703,7 @@ namespace XNAFinalEngine.Assets
             vertexBuffer.SetData(vertices, 0, vertices.Length);
             indexBuffer = new IndexBuffer(EngineManager.Device, typeof(int), numberIndices, BufferUsage.None);
             indexBuffer.SetData(indices, 0, indices.Length);
-        } // Cone
+        } // RecreateResource
 
         #endregion
 

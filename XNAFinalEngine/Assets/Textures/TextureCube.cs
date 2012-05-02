@@ -137,14 +137,14 @@ namespace XNAFinalEngine.Assets
             Name = filename;
 		    IsRgbm = isRgbm;
 	        RgbmMaxRange = rgbmMaxRange;
-            string fullFilename = ContentManager.GameDataDirectory + "Textures\\CubeTextures\\" + filename;
-            if (File.Exists(fullFilename + ".xnb") == false)
+            Filename = ContentManager.GameDataDirectory + "Textures\\CubeTextures\\" + filename;
+            if (File.Exists(Filename + ".xnb") == false)
             {
-                throw new ArgumentException("Failed to load cube map: File " + fullFilename + " does not exists!");
+                throw new ArgumentException("Failed to load cube map: File " + Filename + " does not exists!");
             }
             try
             {
-                xnaTextureCube = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Graphics.TextureCube>(fullFilename);
+                xnaTextureCube = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Graphics.TextureCube>(Filename);
                 ContentManager = ContentManager.CurrentContentManager;
                 size = xnaTextureCube.Size;
                 Resource.Name = filename;
@@ -188,6 +188,18 @@ namespace XNAFinalEngine.Assets
                 Resource.Dispose();
             LoadedTextures.Remove(this);
         } // DisposeManagedResources
+
+        #endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
+            xnaTextureCube = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Graphics.TextureCube>(Filename);
+        } // RecreateResource
 
         #endregion
 

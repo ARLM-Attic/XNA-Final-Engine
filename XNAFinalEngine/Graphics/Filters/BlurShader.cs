@@ -84,7 +84,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedBlurWidth;
         private static void SetBlurWidth(float _blurWidth)
         {
-            if (lastUsedBlurWidth != _blurWidth && _blurWidth >= 0.0f && _blurWidth <= 10.0f)
+            if (lastUsedBlurWidth != _blurWidth || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedBlurWidth = _blurWidth;
                 epBlurWidth.SetValue(_blurWidth);
@@ -98,7 +98,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 halfPixel)
         {
-            if (lastUsedHalfPixel != halfPixel)
+            if (lastUsedHalfPixel != halfPixel || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedHalfPixel = halfPixel;
                 epHalfPixel.SetValue(halfPixel);
@@ -113,7 +113,7 @@ namespace XNAFinalEngine.Graphics
         private static void SetTexture(Texture texture)
         {
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedTexture != texture.Resource)
+            if (lastUsedTexture != texture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedTexture = texture.Resource;
                 epTexture.SetValue(texture.Resource);
@@ -127,7 +127,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedTextureResolution;
         private static void SetTextureResolution(Vector2 textureResolution)
         {
-            if (lastUsedTextureResolution != textureResolution)
+            if (lastUsedTextureResolution != textureResolution || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedTextureResolution = textureResolution;
                 epTextureResolution.SetValue(textureResolution);

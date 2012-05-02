@@ -111,7 +111,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel)
+            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -125,7 +125,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector3? lastUsedCameraPosition;
         private static void SetCameraPosition(Vector3 cameraPosition)
         {
-            if (lastUsedCameraPosition != cameraPosition)
+            if (lastUsedCameraPosition != cameraPosition || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedCameraPosition = cameraPosition;
                 epCameraPosition.SetValue(cameraPosition);
@@ -141,7 +141,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedLightTexture != lightTexture.Resource)
+            if (lastUsedLightTexture != lightTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLightTexture = lightTexture.Resource;
                 epLightMapTexture.SetValue(lightTexture.Resource);
@@ -155,7 +155,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedWorldViewProjMatrix;
         private static void SetWorldViewProjMatrix(Matrix worldViewProjMatrix)
         {
-            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix)
+            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedWorldViewProjMatrix = worldViewProjMatrix;
                 epWorldViewProj.SetValue(worldViewProjMatrix);
@@ -169,7 +169,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedWorldMatrix;
         private static void SetWorldMatrix(Matrix worldMatrix)
         {
-            if (lastUsedWorldMatrix != worldMatrix)
+            if (lastUsedWorldMatrix != worldMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedWorldMatrix = worldMatrix;
                 epWorld.SetValue(worldMatrix);
@@ -183,7 +183,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedTransposeInverseWorldMatrix;
         private static void SetTransposeInverseWorldMatrix(Matrix transposeInverseWorldMatrix)
         {
-            if (lastUsedTransposeInverseWorldMatrix != transposeInverseWorldMatrix)
+            if (lastUsedTransposeInverseWorldMatrix != transposeInverseWorldMatrix || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedTransposeInverseWorldMatrix = transposeInverseWorldMatrix;
                 epWorldIT.SetValue(transposeInverseWorldMatrix);
@@ -197,7 +197,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedSpecularIntensity;
         private static void SetSpecularIntensity(float specularIntensity)
         {
-            if (lastUsedSpecularIntensity != specularIntensity)
+            if (lastUsedSpecularIntensity != specularIntensity || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedSpecularIntensity = specularIntensity;
                 epSpecularIntensity.SetValue(specularIntensity);
@@ -211,7 +211,7 @@ namespace XNAFinalEngine.Graphics
         private static Color? lastUsedBasePaintColor;
         private static void SetBasePaintColor(Color basePaintColor)
         {
-            if (lastUsedBasePaintColor != basePaintColor)
+            if (lastUsedBasePaintColor != basePaintColor || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedBasePaintColor = basePaintColor;
                 epBasePaintColor.SetValue(new Vector3(basePaintColor.R / 255f, basePaintColor.G / 255f, basePaintColor.B / 255f));
@@ -225,7 +225,7 @@ namespace XNAFinalEngine.Graphics
         private static Color? lastUsedLightedPaintColor;
         private static void SetLightedPaintColor(Color lightedPaintColor)
         {
-            if (lastUsedLightedPaintColor != lightedPaintColor)
+            if (lastUsedLightedPaintColor != lightedPaintColor || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedLightedPaintColor = lightedPaintColor;
                 epBasePaintColor2.SetValue(new Vector3(lightedPaintColor.R / 255f, lightedPaintColor.G / 255f, lightedPaintColor.B / 255f));
@@ -239,7 +239,7 @@ namespace XNAFinalEngine.Graphics
         private static Color? lastUsedMiddlePaintColor;
         private static void SetFlakeLayerColor1(Color middlePaintColor)
         {
-            if (lastUsedMiddlePaintColor != middlePaintColor)
+            if (lastUsedMiddlePaintColor != middlePaintColor || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedMiddlePaintColor = middlePaintColor;
                 epFlakeLayerColor1.SetValue(new Vector3(middlePaintColor.R / 255f, middlePaintColor.G / 255f, middlePaintColor.B / 255f));
@@ -253,7 +253,7 @@ namespace XNAFinalEngine.Graphics
         private static Color? lastUsedFlakeLayerColor;
         private static void SetFlakeLayerColor2(Color flakeLayerColor)
         {
-            if (lastUsedFlakeLayerColor != flakeLayerColor)
+            if (lastUsedFlakeLayerColor != flakeLayerColor || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedFlakeLayerColor = flakeLayerColor;
                 epFlakeLayerColor2.SetValue(new Vector3(flakeLayerColor.R / 255f, flakeLayerColor.G / 255f, flakeLayerColor.B / 255f));
@@ -267,7 +267,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedMicroflakePerturbation;
         private static void SetMicroflakePerturbation(float microflakePerturbation)
         {
-            if (lastUsedMicroflakePerturbation != microflakePerturbation)
+            if (lastUsedMicroflakePerturbation != microflakePerturbation || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedMicroflakePerturbation = microflakePerturbation;
                 epMicroflakePerturbation.SetValue(microflakePerturbation);
@@ -281,7 +281,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedMicroflakePerturbationA;
         private static void SetMicroflakePerturbationA(float microflakePerturbationA)
         {
-            if (lastUsedMicroflakePerturbationA != microflakePerturbationA)
+            if (lastUsedMicroflakePerturbationA != microflakePerturbationA || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedMicroflakePerturbationA = microflakePerturbationA;
                 epMicroflakePerturbationA.SetValue(microflakePerturbationA);
@@ -295,7 +295,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedNormalPerturbation;
         private static void SetNormalPerturbation(float normalPerturbation)
         {
-            if (lastUsedNormalPerturbation != normalPerturbation)
+            if (lastUsedNormalPerturbation != normalPerturbation || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedNormalPerturbation = normalPerturbation;
                 epNormalPerturbation.SetValue(normalPerturbation);
@@ -311,7 +311,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[4] = SamplerState.LinearClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedReflectionTexture != reflectionTexture.Resource)
+            if (lastUsedReflectionTexture != reflectionTexture.Resource || EngineManager.DeviceDisposedThisFrame)
             {
                 lastUsedReflectionTexture = reflectionTexture.Resource;
                 if (reflectionTexture.IsRgbm)

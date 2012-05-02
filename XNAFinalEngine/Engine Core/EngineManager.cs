@@ -41,11 +41,13 @@ using XNAFinalEngine.Audio;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngineContentPipelineExtensionRuntime.Settings;
 using XNAFinalEngine.Scenes;
+using Texture = XNAFinalEngine.Assets.Texture;
 #if (!XBOX)
     using System.Threading;
     using System.Windows.Forms;
     using System.Windows.Forms.VisualStyles;
     using MessageBoxIcon = System.Windows.Forms.MessageBoxIcon;
+using Model = Microsoft.Xna.Framework.Graphics.Model;
 using Point = System.Drawing.Point;
 #endif
 #endregion
@@ -79,6 +81,11 @@ namespace XNAFinalEngine.EngineCore
         /// Singleton reference for specific task like the exit method.
         /// </summary>
         internal static EngineManager EngineManagerReference { get; private set; }
+
+        /// <summary>
+        /// Was the device disposed this frame?
+        /// </summary>
+        public static bool DeviceDisposedThisFrame { get; private set; }
 
         /// <summary>
         /// XNA graphic device.
@@ -132,6 +139,17 @@ namespace XNAFinalEngine.EngineCore
         /// Raised when the device is reset.
         /// </summary>
         public static event EventHandler DeviceReset;
+
+        /// <summary>
+        /// XNA 2.0+ used a virtualized graphics device so that all graphical content always points to a valid Graphics Device.
+        /// That’s a great feature. Unfortunately in some rare cases (for instance Magicka suffers it) the device is disposed and this reference is no longer valid.
+        /// This happened because something is accessing the Device in a device reset situation.
+        /// The worst part is that sometimes I didn’t do it anything and still the device is changed.
+        /// Particularly a couple of resources are created internally on the device.
+        /// The good news is that the assets can be restored. The bad news is how to do it.
+        /// XNA calls unload content and load content again, therefore in load content we should recreate all the assets.
+        /// </summary>
+        public static event EventHandler DeviceDisposed;
 
         #endregion
 
@@ -240,7 +258,7 @@ namespace XNAFinalEngine.EngineCore
 
         #endregion
 
-        #region Initialize XNA device
+        #region Initialize
 
         /// <summary>
         /// Initialize.
@@ -318,13 +336,10 @@ namespace XNAFinalEngine.EngineCore
                 Application.EnableVisualStyles();
                 Application.VisualStyleState = VisualStyleState.ClientAndNonClientAreasEnabled;
             #endif
+
             if (DeviceReset != null)
                 DeviceReset(sender, e);
 
-            // Try to recover memory.
-            RenderTarget.ClearRenderTargetPool();
-            RenderTarget.ClearMultpleRenderTargetPool();
-            
             GarbageCollector.CollectGarbage();
         } // graphics_DeviceReset
 
@@ -335,13 +350,18 @@ namespace XNAFinalEngine.EngineCore
         private static void Window_ClientSizeChanged(object sender, EventArgs e)
         {
             // I don't want that this method is called when a device reset occurs.
-            // The device has the new value and the graphic device manager the old one, but not always, that's the problem.
+            // I do this comparison in this way because the device has the new value and the graphic device manager the old one,
+            // but not always, that's the problem.
             if (Device.PresentationParameters.BackBufferWidth != oldScreenWidth ||
                 Device.PresentationParameters.BackBufferHeight != oldScreenHeight)
             {
                 oldScreenWidth = Device.PresentationParameters.BackBufferWidth;
                 oldScreenHeight = Device.PresentationParameters.BackBufferHeight;
+                // Recreate the surviving render targets to readjust to screen size and to avoid an XNA bug related with floating point render targets.
                 Screen.OnScreenSizeChanged(sender, e);
+                // Try to recover memory.
+                RenderTarget.ClearRenderTargetPool();
+                RenderTarget.ClearMultpleRenderTargetPool();
             }
         } // Window_ClientSizeChanged
      
@@ -369,7 +389,7 @@ namespace XNAFinalEngine.EngineCore
 
         #endregion
 
-        #region Load Content
+        #region Begin Run
 
         /// <summary>
         ///  Load any necessary game assets.
@@ -393,12 +413,43 @@ namespace XNAFinalEngine.EngineCore
             {
                 GameLoop.LoadContent();
             }
+        } // BeginRun
+
+        #endregion
+
+        #region Load Content
+
+        /// <summary>
+        /// Recreate load content
+        /// </summary>
+        protected override void LoadContent()
+        {
+            // XNA 2.0+ used a virtualized graphics device so that all graphical content always points to a valid Graphics Device.
+            // That’s a great feature. Unfortunately in some rare cases (for instance Magicka suffers it) the device is disposed and this reference is no longer valid.
+            // This happened because something is accessing the Device in a device reset situation.
+            // The worst part is that sometimes I didn’t do it anything and still the device is changed.
+            // Particularly a couple of resources are created internally on the device.
+            // The good news is that the assets can be restored. The bad news is how to do it.
+            // XNA calls unload content and load content again, therefore in load content we should recreate all the assets.
+
+            Device = GraphicsDeviceManager.GraphicsDevice;
+            DeviceDisposedThisFrame = true;
+
+            // Recreate all render targets
+            Texture.RecreateTexturesWithoutContentManager();
+            Assets.Model.RecreateModelsWithoutContentManager();
+
+            // Recreate assets
+            ContentManager.RecreateContentManagers();
+            
+            if (DeviceDisposed != null)
+                DeviceDisposed(this, new EventArgs());
         } // LoadContent
 
         #endregion
 
         #region Update
-        
+
         /// <summary>
         /// Update
         /// </summary>
@@ -442,12 +493,14 @@ namespace XNAFinalEngine.EngineCore
         protected override void Draw(GameTime gameTime)
         {
             base.Draw(gameTime);
-            Device.Clear(ClearOptions.Target, new Color(30, 30, 40), 1.0f, 0);
             if (ShowExceptionsWithGuide) // If we want to show exception in the Guide.
             {
                 if (exception == null) // If no exception was raised.
                 {
-                    try { GameLoop.Draw(gameTime); }
+                    try
+                    {
+                        GameLoop.Draw(gameTime);
+                    }
                     catch (Exception e)
                     {
                         if (!(e is NoAudioHardwareException) || SoundManager.CatchNoAudioHardwareException)
@@ -461,6 +514,7 @@ namespace XNAFinalEngine.EngineCore
                 {
                     if (!Guide.IsVisible)
                     {
+                        Device.Clear(ClearOptions.Target, new Color(30, 30, 40), 1.0f, 0);
                         Guide.BeginShowMessageBox("XNA Final Engine",
                                                   "There was a critical error.\n\n" + exception.Message,
                                                   new List<string> {"Try to continue", "Exit"}, 0,
@@ -473,6 +527,7 @@ namespace XNAFinalEngine.EngineCore
             {
                 GameLoop.Draw(gameTime);
             }
+            DeviceDisposedThisFrame = false;
         } // Draw
 
         /// <summary>
@@ -503,8 +558,8 @@ namespace XNAFinalEngine.EngineCore
         } // ExitApplication
 
         #endregion
-        
-        #region Unload Content
+
+        #region End Run
 
         /// <summary>
         /// Try to dispose everything before the program terminates.
