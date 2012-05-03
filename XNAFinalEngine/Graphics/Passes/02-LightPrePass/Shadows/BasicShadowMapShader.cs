@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -103,20 +103,20 @@ namespace XNAFinalEngine.Graphics
 
         #region Matrices
 
-        private static Matrix? lastUsedWorldViewProjMatrix;
+        private static Matrix lastUsedWorldViewProjMatrix;
         private static void SetWorldViewProjMatrix(Matrix worldViewProjectionMatrix)
         {
-            if (lastUsedWorldViewProjMatrix != worldViewProjectionMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedWorldViewProjMatrix != worldViewProjectionMatrix)
             {
                 lastUsedWorldViewProjMatrix = worldViewProjectionMatrix;
                 epWorldViewProj.SetValue(worldViewProjectionMatrix);
             }
         } // SetWorldViewProjMatrix
 
-        private static Matrix? lastUsedViewToLightViewProjMatrix;
+        private static Matrix lastUsedViewToLightViewProjMatrix;
         private static void SetViewToLightViewProjMatrix(Matrix viewToLightViewProjMatrix)
         {
-            if (lastUsedViewToLightViewProjMatrix != viewToLightViewProjMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedViewToLightViewProjMatrix != viewToLightViewProjMatrix)
             {
                 lastUsedViewToLightViewProjMatrix = viewToLightViewProjMatrix;
                 epViewToLightViewProj.SetValue(viewToLightViewProjMatrix);
@@ -132,7 +132,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDepthTexture != depthTexture.Resource)
             {
                 lastUsedDepthTexture = depthTexture.Resource;
                 epDepthTexture.SetValue(depthTexture.Resource);
@@ -148,7 +148,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[3] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedShadowMapTexture != shadowMapTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedShadowMapTexture != shadowMapTexture.Resource)
             {
                 lastUsedShadowMapTexture = shadowMapTexture.Resource;
                 epShadowMap.SetValue(shadowMapTexture.Resource);
@@ -159,10 +159,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Half Pixel
 
-        private static Vector2? lastUsedHalfPixel;
+        private static Vector2 lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedHalfPixel != _halfPixel)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -176,7 +176,7 @@ namespace XNAFinalEngine.Graphics
         private static readonly Vector3[] lastUsedFrustumCorners = new Vector3[4];
         private static void SetFrustumCorners(Vector3[] frustumCorners)
         {
-            if (!ArrayHelper.Equals(lastUsedFrustumCorners, frustumCorners) || EngineManager.DeviceDisposedThisFrame)
+            if (!ArrayHelper.Equals(lastUsedFrustumCorners, frustumCorners))
             {
                 // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
                 for (int i = 0; i < 4; i++)
@@ -191,10 +191,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Depth Bias
 
-        private static float? lastUsedDepthBias;
+        private static float lastUsedDepthBias;
         private static void SetDepthBias(float _depthBias)
         {
-            if (lastUsedDepthBias != _depthBias || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDepthBias != _depthBias)
             {
                 lastUsedDepthBias = _depthBias;
                 epDepthBias.SetValue(_depthBias);
@@ -205,10 +205,10 @@ namespace XNAFinalEngine.Graphics
         
         #region Shadow Map Size
 
-        private static Vector2? lastUsedShadowMapSize;
+        private static Vector2 lastUsedShadowMapSize;
         private static void SetShadowMapTexelSize(Vector2 shadowMapSize)
         {
-            if (lastUsedShadowMapSize != shadowMapSize || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedShadowMapSize != shadowMapSize)
             {
                 lastUsedShadowMapSize = shadowMapSize;
                 epInvShadowMapSize.SetValue(new Vector2(1f / shadowMapSize.X, 1f / shadowMapSize.Y));
@@ -245,16 +245,27 @@ namespace XNAFinalEngine.Graphics
             {
                 // Matrices
                 epWorldViewProj       = Resource.Parameters["worldViewProj"];
+                    epWorldViewProj.SetValue(lastUsedWorldViewProjMatrix);
                 epViewToLightViewProj = Resource.Parameters["viewToLightViewProj"];
+                    epViewToLightViewProj.SetValue(lastUsedViewToLightViewProjMatrix);
                 // Textures
                 epDepthTexture        = Resource.Parameters["depthTexture"];
+                    if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
+                        epDepthTexture.SetValue(lastUsedDepthTexture);
                 epShadowMap           = Resource.Parameters["shadowMap"];
+                    if (lastUsedShadowMapTexture != null && !lastUsedShadowMapTexture.IsDisposed)
+                        epShadowMap.SetValue(lastUsedShadowMapTexture);
 			    // Get additional parameters
                 epHalfPixel           = Resource.Parameters["halfPixel"];
+                    epHalfPixel.SetValue(lastUsedHalfPixel);
                 epFrustumCorners      = Resource.Parameters["frustumCorners"];
+                    epFrustumCorners.SetValue(lastUsedFrustumCorners);
                 epDepthBias           = Resource.Parameters["depthBias"];
+                    epDepthBias.SetValue(lastUsedDepthBias);
                 epShadowMapSize       = Resource.Parameters["shadowMapSize"];
+                    epShadowMapSize.SetValue(lastUsedShadowMapSize);
                 epInvShadowMapSize    = Resource.Parameters["invShadowMapSize"];
+                    epInvShadowMapSize.SetValue(new Vector2(1f / lastUsedShadowMapSize.X, 1f / lastUsedShadowMapSize.Y));
             }
             catch
             {

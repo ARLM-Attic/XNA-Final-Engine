@@ -47,8 +47,7 @@ using Texture = XNAFinalEngine.Assets.Texture;
     using System.Windows.Forms;
     using System.Windows.Forms.VisualStyles;
     using MessageBoxIcon = System.Windows.Forms.MessageBoxIcon;
-using Model = Microsoft.Xna.Framework.Graphics.Model;
-using Point = System.Drawing.Point;
+    using Point = System.Drawing.Point;
 #endif
 #endregion
 
@@ -64,14 +63,14 @@ namespace XNAFinalEngine.EngineCore
 
         #region Variables
 
-        /// <summary>
-        /// Stores the exception raised when ShowExceptionsWithGuide is true.
-        /// </summary>
+        // Stores the exception raised when ShowExceptionsWithGuide is true.
         private static Exception exception;
 
         private static int oldScreenWidth, oldScreenHeight;
 
         private static bool showExceptionsWithGuide;
+
+        private float lastTimeToggleFullScreen;
 
         #endregion
 
@@ -81,11 +80,6 @@ namespace XNAFinalEngine.EngineCore
         /// Singleton reference for specific task like the exit method.
         /// </summary>
         internal static EngineManager EngineManagerReference { get; private set; }
-
-        /// <summary>
-        /// Was the device disposed this frame?
-        /// </summary>
-        public static bool DeviceDisposedThisFrame { get; private set; }
 
         /// <summary>
         /// XNA graphic device.
@@ -130,6 +124,16 @@ namespace XNAFinalEngine.EngineCore
             get { return showExceptionsWithGuide && UseGamerServices && !Debugger.IsAttached; }
             set { showExceptionsWithGuide = value; }
         } // ShowExceptionsWithGuide
+
+        /// <summary>
+        /// Toggles between full screen and windowed mode.
+        /// </summary>
+        internal static bool ToggleFullScreen { get; set; }
+
+        /// <summary>
+        /// Reset the device.
+        /// </summary>
+        internal static bool ResetDevice { get; set; }
 
         #endregion
 
@@ -273,6 +277,10 @@ namespace XNAFinalEngine.EngineCore
             // Reset to take new parameters //
             GraphicsDevice.Reset(GraphicsDevice.PresentationParameters);
 
+            // In classes that derive from Game, you need to call base.Initialize in Initialize,
+            // which will automatically enumerate through any game components that have been added to Game.Components and call their Initialize methods.
+            base.Initialize();
+
             if (UseGamerServices)
             {
                 try
@@ -289,9 +297,6 @@ namespace XNAFinalEngine.EngineCore
                     throw new InvalidOperationException("Engine Manager: Games for Windows - LIVE is unavailable. Please install it and try again.");
                 }
             }
-            // In classes that derive from Game, you need to call base.Initialize in Initialize,
-            // which will automatically enumerate through any game components that have been added to Game.Components and call their Initialize methods.
-            base.Initialize();
 
             #region Maximize
 
@@ -433,21 +438,22 @@ namespace XNAFinalEngine.EngineCore
             // XNA calls unload content and load content again, therefore in load content we should recreate all the assets.
 
             Device = GraphicsDeviceManager.GraphicsDevice;
-            DeviceDisposedThisFrame = true;
 
-            // Recreate all render targets
+            // Recreate assets that does not use content managers.
             Texture.RecreateTexturesWithoutContentManager();
             Assets.Model.RecreateModelsWithoutContentManager();
 
-            // Recreate assets
+            // Recreate assets that use content managers.
             ContentManager.RecreateContentManagers();
             
             if (DeviceDisposed != null)
                 DeviceDisposed(this, new EventArgs());
+
+            GarbageCollector.CollectGarbage();
         } // LoadContent
 
         #endregion
-
+        
         #region Update
 
         /// <summary>
@@ -455,6 +461,12 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
+            if (ResetDevice)
+            {
+                GraphicsDeviceManager.ApplyChanges();
+                ResetDevice = false;
+            }
+
             if (UseGamerServices)
                 GamerServicesDispatcher.Update();
 
@@ -492,6 +504,14 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>        
         protected override void Draw(GameTime gameTime)
         {
+            // It is done here to prevent the change in the middle of the draw call.
+            if (ToggleFullScreen && (Time.ApplicationTime - lastTimeToggleFullScreen > 1))
+            {
+                lastTimeToggleFullScreen = Time.ApplicationTime;
+                GraphicsDeviceManager.ToggleFullScreen();
+            }
+            ToggleFullScreen = false;
+
             base.Draw(gameTime);
             if (ShowExceptionsWithGuide) // If we want to show exception in the Guide.
             {
@@ -527,7 +547,6 @@ namespace XNAFinalEngine.EngineCore
             {
                 GameLoop.Draw(gameTime);
             }
-            DeviceDisposedThisFrame = false;
         } // Draw
 
         /// <summary>

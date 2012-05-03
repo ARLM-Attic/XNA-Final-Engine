@@ -87,10 +87,10 @@ namespace XNAFinalEngine.Graphics
 
         #region View Projection Matrix
 
-        private static Matrix? lastUsedViewProjectionMatrix;
+        private static Matrix lastUsedViewProjectionMatrix;
         private static void SetViewProjectionMatrix(Matrix viewProjectionMatrix)
         {
-            if (lastUsedViewProjectionMatrix != viewProjectionMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedViewProjectionMatrix != viewProjectionMatrix)
             {
                 lastUsedViewProjectionMatrix = viewProjectionMatrix;
                 epViewProjection.SetValue(viewProjectionMatrix);
@@ -106,7 +106,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.LinearClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedCubeTexture != cubeTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedCubeTexture != cubeTexture.Resource)
             {
                 lastUsedCubeTexture = cubeTexture.Resource;
                 epCubeMapTexture.SetValue(cubeTexture.Resource);
@@ -117,10 +117,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Intensity
 
-        private static float? lastUsedIntensity;
+        private static float lastUsedIntensity;
         private static void SetIntensity(float _intensity)
         {
-            if (lastUsedIntensity != _intensity || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedIntensity != _intensity)
             {
                 lastUsedIntensity = _intensity;
                 epIntensity.SetValue(_intensity);
@@ -131,10 +131,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Max Range
 
-        private static float? lastUsedMaxRange;
+        private static float lastUsedMaxRange;
         private static void SetMaxRange(float maxRange)
         {
-            if (lastUsedMaxRange != maxRange || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedMaxRange != maxRange)
             {
                 lastUsedMaxRange = maxRange;
                 epMaxRange.SetValue(maxRange);
@@ -145,10 +145,10 @@ namespace XNAFinalEngine.Graphics
         
         #region Alpha Blending
 
-        private static float? lastUsedAlphaBlending;
+        private static float lastUsedAlphaBlending;
         private static void SetAlphaBlending(float alphaBlending)
         {
-            if (lastUsedAlphaBlending != alphaBlending || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedAlphaBlending != alphaBlending)
             {
                 lastUsedAlphaBlending = alphaBlending;
                 epAlphaBlending.SetValue(alphaBlending);
@@ -184,10 +184,16 @@ namespace XNAFinalEngine.Graphics
 			try
 			{
                 epViewProjection = Resource.Parameters["ViewITProj"];
+                    epViewProjection.SetValue(lastUsedViewProjectionMatrix);
                 epCubeMapTexture = Resource.Parameters["CubeMapTexture"];
+                    if (lastUsedCubeTexture != null && !lastUsedCubeTexture.IsDisposed)
+                        epCubeMapTexture.SetValue(lastUsedCubeTexture);
                 epAlphaBlending  = Resource.Parameters["alphaBlending"];
+			        epAlphaBlending.SetValue(lastUsedAlphaBlending);
                 epIntensity      = Resource.Parameters["intensity"];
+                    epIntensity.SetValue(lastUsedIntensity);
                 epMaxRange       = Resource.Parameters["maxRange"];
+                    epMaxRange.SetValue(lastUsedMaxRange);
             }
             catch
             {

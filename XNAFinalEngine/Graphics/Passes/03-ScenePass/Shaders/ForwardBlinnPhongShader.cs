@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -126,10 +126,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Half Pixel
 
-        private static Vector2? lastUsedHalfPixel;
+        private static Vector2 lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedHalfPixel != _halfPixel)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -140,10 +140,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Camera Position
 
-        private static Vector3? lastUsedCameraPosition;
+        private static Vector3 lastUsedCameraPosition;
         private static void SetCameraPosition(Vector3 cameraPosition)
         {
-            if (lastUsedCameraPosition != cameraPosition || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedCameraPosition != cameraPosition)
             {
                 lastUsedCameraPosition = cameraPosition;
                 epCameraPosition.SetValue(cameraPosition);
@@ -156,10 +156,10 @@ namespace XNAFinalEngine.Graphics
 
         #region World View Projection Matrix
 
-        private static Matrix? lastUsedWorldViewProjMatrix;
+        private static Matrix lastUsedWorldViewProjMatrix;
         private static void SetWorldViewProjMatrix(Matrix worldViewProjMatrix)
         {
-            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix)
             {
                 lastUsedWorldViewProjMatrix = worldViewProjMatrix;
                 epWorldViewProj.SetValue(worldViewProjMatrix);
@@ -170,10 +170,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Transpose Inverse World Matrix
 
-        private static Matrix? lastUsedTransposeInverseWorldMatrix;
+        private static Matrix lastUsedTransposeInverseWorldMatrix;
         private static void SetTransposeInverseWorldMatrix(Matrix transposeInverseWorldMatrix)
         {
-            if (lastUsedTransposeInverseWorldMatrix != transposeInverseWorldMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedTransposeInverseWorldMatrix != transposeInverseWorldMatrix)
             {
                 lastUsedTransposeInverseWorldMatrix = transposeInverseWorldMatrix;
                 epWorldIT.SetValue(transposeInverseWorldMatrix);
@@ -184,10 +184,10 @@ namespace XNAFinalEngine.Graphics
 
         #region World Matrix
 
-        private static Matrix? lastUsedWorldMatrix;
+        private static Matrix lastUsedWorldMatrix;
         private static void SetWorldMatrix(Matrix worldMatrix)
         {
-            if (lastUsedWorldMatrix != worldMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedWorldMatrix != worldMatrix)
             {
                 lastUsedWorldMatrix = worldMatrix;
                 epWorld.SetValue(worldMatrix);
@@ -200,10 +200,10 @@ namespace XNAFinalEngine.Graphics
         
         #region Diffuse Color
 
-        private static Color? lastUsedDiffuseColor;
+        private static Color lastUsedDiffuseColor;
         private static void SetDiffuseColor(Color diffuseColor)
         {
-            if (lastUsedDiffuseColor != diffuseColor || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDiffuseColor != diffuseColor)
             {
                 lastUsedDiffuseColor = diffuseColor;
                 epDiffuseColor.SetValue(new Vector3(diffuseColor.R / 255f, diffuseColor.G / 255f, diffuseColor.B / 255f));
@@ -214,10 +214,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Specular Intensity
 
-        private static float? lastUsedSpecularIntensity;
+        private static float lastUsedSpecularIntensity;
         private static void SetSpecularIntensity(float specularIntensity)
         {
-            if (lastUsedSpecularIntensity != specularIntensity || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedSpecularIntensity != specularIntensity)
             {
                 lastUsedSpecularIntensity = specularIntensity;
                 epSpecularIntensity.SetValue(specularIntensity);
@@ -228,10 +228,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Specular Power
 
-        private static float? lastUsedSpecularPower;
+        private static float lastUsedSpecularPower;
         private static void SetSpecularPower(float specularPower)
         {
-            if (lastUsedSpecularPower != specularPower || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedSpecularPower != specularPower)
             {
                 lastUsedSpecularPower = specularPower;
                 epSpecularPower.SetValue(specularPower);
@@ -245,7 +245,7 @@ namespace XNAFinalEngine.Graphics
         private static bool lastUsedReflectionTextured;
         private static void SetReflectionTextured(bool reflectionTextured)
         {
-            if (lastUsedReflectionTextured != reflectionTextured || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedReflectionTextured != reflectionTextured)
             {
                 lastUsedReflectionTextured = reflectionTextured;
                 epReflectionTextured.SetValue(reflectionTextured);
@@ -253,24 +253,30 @@ namespace XNAFinalEngine.Graphics
         } // SetReflectionTextured
 
         #endregion
-        
+
         #region Reflection Texture
 
         private static Microsoft.Xna.Framework.Graphics.TextureCube lastUsedReflectionTexture;
+        private static bool lastUsedIsRGBM;
+        private static float lastUsedMaxRange;
         private static void SetReflectionTexture(TextureCube reflectionTexture)
         {
             EngineManager.Device.SamplerStates[4] = SamplerState.LinearClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedReflectionTexture != reflectionTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedReflectionTexture != reflectionTexture.Resource)
             {
                 lastUsedReflectionTexture = reflectionTexture.Resource;
                 if (reflectionTexture.IsRgbm)
                 {
-                    epIsRGBM.SetValue(true);
+                    lastUsedIsRGBM = true;
+                    lastUsedMaxRange = reflectionTexture.RgbmMaxRange;
                     epMaxRange.SetValue(reflectionTexture.RgbmMaxRange);
                 }
                 else
-                    epIsRGBM.SetValue(false);
+                {
+                    lastUsedIsRGBM = true;
+                }
+                epIsRGBM.SetValue(lastUsedIsRGBM);
                 epReflectionTexture.SetValue(reflectionTexture.Resource);
             }
         } // SetReflectionTexture
@@ -279,10 +285,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Alpha Blending
 
-        private static float? lastUsedAlphaBlending;
+        private static float lastUsedAlphaBlending;
         private static void SetAlphaBlending(float alphaBlending)
         {
-            if (lastUsedAlphaBlending != alphaBlending || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedAlphaBlending != alphaBlending)
             {
                 lastUsedAlphaBlending = alphaBlending;
                 epAlphaBlending.SetValue(alphaBlending);
@@ -298,7 +304,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDiffuseTexture != _diffuseTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDiffuseTexture != _diffuseTexture.Resource)
             {
                 lastUsedDiffuseTexture = _diffuseTexture.Resource;
                 epDiffuseTexture.SetValue(_diffuseTexture.Resource);
@@ -312,7 +318,7 @@ namespace XNAFinalEngine.Graphics
         private static bool lastUsedDiffuseTextured;
         private static void SetDiffuseTextured(bool diffuseTextured)
         {
-            if (lastUsedDiffuseTextured != diffuseTextured || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDiffuseTextured != diffuseTextured)
             {
                 lastUsedDiffuseTextured = diffuseTextured;
                 epDiffuseTextured.SetValue(diffuseTextured);
@@ -325,10 +331,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Ambient Intensity
 
-        private static float? lastUsedAmbientIntensity;
+        private static float lastUsedAmbientIntensity;
         private static void SetAmbientIntensity(float ambientIntensity)
         {
-            if (lastUsedAmbientIntensity != ambientIntensity || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedAmbientIntensity != ambientIntensity)
             {
                 lastUsedAmbientIntensity = ambientIntensity;
                 epAmbientIntensity.SetValue(ambientIntensity);
@@ -342,7 +348,7 @@ namespace XNAFinalEngine.Graphics
         private static readonly Vector3[] lastUsedSphericalHarmonicBase = new Vector3[9];
         private static void SetSphericalHarmonicBase(Vector3[] sphericalHarmonicBase)
         {
-            if (!ArrayHelper.Equals(lastUsedSphericalHarmonicBase, sphericalHarmonicBase) || EngineManager.DeviceDisposedThisFrame)
+            if (!ArrayHelper.Equals(lastUsedSphericalHarmonicBase, sphericalHarmonicBase))
             {
                 //lastUsedSphericalHarmonicBase = (Vector3[])(sphericalHarmonicBase.Clone()); // Produces garbage
                 for (int i = 0; i < 9; i++)
@@ -357,10 +363,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Ambient Color
 
-        private static Color? lastUsedAmbientColor;
+        private static Color lastUsedAmbientColor;
         private static void SetAmbientColor(Color ambientColor)
         {
-            if (lastUsedAmbientColor != ambientColor || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedAmbientColor != ambientColor)
             {
                 lastUsedAmbientColor = ambientColor;
                 epAmbientColor.SetValue(new Vector3(ambientColor.R / 255f, ambientColor.G / 255f, ambientColor.B / 255f));
@@ -374,7 +380,7 @@ namespace XNAFinalEngine.Graphics
         private static bool lastUsedHasAmbientSphericalHarmonics;
         private static void SetHasAmbientSphericalHarmonics(bool hasAmbientSphericalHarmonics)
         {
-            if (lastUsedHasAmbientSphericalHarmonics != hasAmbientSphericalHarmonics || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedHasAmbientSphericalHarmonics != hasAmbientSphericalHarmonics)
             {
                 lastUsedHasAmbientSphericalHarmonics = hasAmbientSphericalHarmonics;
                 epHasAmbientSphericalHarmonics.SetValue(hasAmbientSphericalHarmonics);
@@ -385,10 +391,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Directional Light Color
 
-        private static Color? lastUsedDirectionalLightColor;
+        private static Color lastUsedDirectionalLightColor;
         private static void SetDirectionalLightColor(Color directionalLightColor)
         {
-            if (lastUsedDirectionalLightColor != directionalLightColor || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDirectionalLightColor != directionalLightColor)
             {
                 lastUsedDirectionalLightColor = directionalLightColor;
                 epDirectionalLightColor.SetValue(new Vector3(directionalLightColor.R / 255f, directionalLightColor.G / 255f, directionalLightColor.B / 255f));
@@ -399,10 +405,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Directional Light Direction
 
-        private static Vector3? lastUsedDirectionalLightDirection;
+        private static Vector3 lastUsedDirectionalLightDirection;
         private static void SetDirectionalLightDirection(Vector3 directionalLightDirection)
         {
-            if (lastUsedDirectionalLightDirection != directionalLightDirection || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDirectionalLightDirection != directionalLightDirection)
             {
                 lastUsedDirectionalLightDirection = directionalLightDirection;
                 epDirectionalLightDirection.SetValue(directionalLightDirection);
@@ -413,10 +419,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Directional Light Intensity
 
-        private static float? lastUsedDirectionalLightIntensity;
+        private static float lastUsedDirectionalLightIntensity;
         private static void SetDirectionalLightIntensity(float directionalLightIntensity)
         {
-            if (lastUsedDirectionalLightIntensity != directionalLightIntensity || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDirectionalLightIntensity != directionalLightIntensity)
             {
                 lastUsedDirectionalLightIntensity = directionalLightIntensity;
                 epDirectionalLightIntensity.SetValue(directionalLightIntensity);
@@ -468,29 +474,55 @@ namespace XNAFinalEngine.Graphics
 			{
                 // Matrices //
                 epWorldViewProj        = Resource.Parameters["worldViewProj"];
+                    epWorldViewProj.SetValue(lastUsedWorldViewProjMatrix);
                 epWorld                = Resource.Parameters["world"];
+                    epWorld.SetValue(lastUsedWorldMatrix);
                 epWorldIT              = Resource.Parameters["worldIT"];
+                    epWorldIT.SetValue(lastUsedTransposeInverseWorldMatrix);
                 // Parameters //
                 epHalfPixel            = Resource.Parameters["halfPixel"];
+                    epHalfPixel.SetValue(lastUsedHalfPixel);
                 epCameraPosition       = Resource.Parameters["cameraPosition"];
+                    epCameraPosition.SetValue(lastUsedCameraPosition);
                 epSpecularIntensity    = Resource.Parameters["specularIntensity"];
-                epSpecularPower        = Resource.Parameters["specularPower"];
+                    epSpecularIntensity.SetValue(lastUsedSpecularIntensity);
+                epSpecularPower = Resource.Parameters["specularPower"];
+                    epSpecularPower.SetValue(lastUsedSpecularPower);
                 epDiffuseColor         = Resource.Parameters["diffuseColor"];
+                    epDiffuseColor.SetValue(new Vector3(lastUsedDiffuseColor.R / 255f, lastUsedDiffuseColor.G / 255f, lastUsedDiffuseColor.B / 255f));
+                epDiffuseTexture       = Resource.Parameters["diffuseTexture"];
+                    if (lastUsedDiffuseTexture != null && !lastUsedDiffuseTexture.IsDisposed)
+                        epDiffuseTexture.SetValue(lastUsedDiffuseTexture);
                 epReflectionTexture    = Resource.Parameters["reflectionTexture"];
-                epReflectionTextured   = Resource.Parameters["reflectionTextured"];
                 epIsRGBM               = Resource.Parameters["isRGBM"];
                 epMaxRange             = Resource.Parameters["maxRange"];
+                    if (lastUsedReflectionTexture != null && !lastUsedReflectionTexture.IsDisposed)
+                    {
+                        epReflectionTexture.SetValue(lastUsedReflectionTexture);
+                        epIsRGBM.SetValue(lastUsedIsRGBM);
+                        epMaxRange.SetValue(lastUsedMaxRange);
+                    }
+                epDiffuseTextured      = Resource.Parameters["diffuseTextured"];
+                    epDiffuseTextured.SetValue(lastUsedDiffuseTextured);
+                epReflectionTextured   = Resource.Parameters["reflectionTextured"];
+                    epReflectionTextured.SetValue(lastUsedReflectionTextured);
                 epAlphaBlending        = Resource.Parameters["alphaBlending"];
-                epDiffuseTexture = Resource.Parameters["diffuseTexture"];
-                epDiffuseTextured = Resource.Parameters["diffuseTextured"];
+                    epAlphaBlending.SetValue(lastUsedAlphaBlending);
                 // Lights //
                 epSphericalHarmonicBase        = Resource.Parameters["sphericalHarmonicBase"];
+                    epSphericalHarmonicBase.SetValue(lastUsedSphericalHarmonicBase);
                 epAmbientIntensity             = Resource.Parameters["ambientIntensity"];
+                    epAmbientIntensity.SetValue(lastUsedAmbientIntensity);
                 epAmbientColor                 = Resource.Parameters["ambientColor"];
+                    epAmbientColor.SetValue(new Vector3(lastUsedAmbientColor.R / 255f, lastUsedAmbientColor.G / 255f, lastUsedAmbientColor.B / 255f));
                 epHasAmbientSphericalHarmonics = Resource.Parameters["hasAmbientSphericalHarmonics"];
+                    epHasAmbientSphericalHarmonics.SetValue(lastUsedHasAmbientSphericalHarmonics);
                 epDirectionalLightDirection    = Resource.Parameters["directionalLightDirection"];
+                    epDirectionalLightDirection.SetValue(lastUsedDirectionalLightDirection);
                 epDirectionalLightColor        = Resource.Parameters["directionalLightColor"];
+                    epDirectionalLightColor.SetValue(new Vector3(lastUsedDirectionalLightColor.R / 255f, lastUsedDirectionalLightColor.G / 255f, lastUsedDirectionalLightColor.B / 255f));
                 epDirectionalLightIntensity    = Resource.Parameters["directionalLightIntensity"];
+                    epDirectionalLightIntensity.SetValue(lastUsedDirectionalLightIntensity);
                 // Skinning //
                 epBones                        = Resource.Parameters["Bones"];
             }

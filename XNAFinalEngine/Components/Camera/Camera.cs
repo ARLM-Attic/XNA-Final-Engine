@@ -490,8 +490,7 @@ namespace XNAFinalEngine.Components
             set
             {
                 if (RenderTarget != null &&
-                    (value == Rectangle.Empty || value.X < 0 || value.Y < 0 || value.Width == 0 || value.Height == 0 ||
-                    (value.X + value.Width) > RenderTarget.Width || (value.Y + value.Height) > RenderTarget.Height))
+                    (value == Rectangle.Empty || value.X < 0 || value.Y < 0 || value.Width == 0 || value.Height == 0))
                     throw new ArgumentException("Camera: viewport size invalid.", "value");
                 viewportExpressedInClipSpace = false;
                 viewport = value;

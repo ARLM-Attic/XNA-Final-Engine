@@ -111,12 +111,12 @@ namespace XNAFinalEngine.Editor
             framesPerSecondBackground.AddComponent<LineRenderer>();
             framesPerSecondBackground.LineRenderer.PrimitiveType = PrimitiveType.TriangleList;
             framesPerSecondBackground.LineRenderer.Vertices = new VertexPositionColor[6];
-            framesPerSecondBackground.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3(screenRect.X, screenRect.Y, -0.1f), backgroundColor);
-            framesPerSecondBackground.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3(screenRect.X, screenRect.Y + screenRect.Height, -0.1f), backgroundColor);
-            framesPerSecondBackground.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3(screenRect.X + screenRect.Width, screenRect.Y, -0.1f), backgroundColor);
-            framesPerSecondBackground.LineRenderer.Vertices[4] = new VertexPositionColor(new Vector3(screenRect.X + screenRect.Width, screenRect.Y, -0.1f), backgroundColor);
-            framesPerSecondBackground.LineRenderer.Vertices[3] = new VertexPositionColor(new Vector3(screenRect.X, screenRect.Y + screenRect.Height, -0.1f), backgroundColor);
-            framesPerSecondBackground.LineRenderer.Vertices[5] = new VertexPositionColor(new Vector3(screenRect.X + screenRect.Width, screenRect.Y + screenRect.Height, -0.1f), backgroundColor);
+            framesPerSecondBackground.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3(screenRect.X, screenRect.Y, 0), backgroundColor);
+            framesPerSecondBackground.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3(screenRect.X, screenRect.Y + screenRect.Height, 0), backgroundColor);
+            framesPerSecondBackground.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3(screenRect.X + screenRect.Width, screenRect.Y, 0), backgroundColor);
+            framesPerSecondBackground.LineRenderer.Vertices[4] = new VertexPositionColor(new Vector3(screenRect.X + screenRect.Width, screenRect.Y, 0), backgroundColor);
+            framesPerSecondBackground.LineRenderer.Vertices[3] = new VertexPositionColor(new Vector3(screenRect.X, screenRect.Y + screenRect.Height, 0), backgroundColor);
+            framesPerSecondBackground.LineRenderer.Vertices[5] = new VertexPositionColor(new Vector3(screenRect.X + screenRect.Width, screenRect.Y + screenRect.Height, 0), backgroundColor);
             
             // Graph
             framesPerSecondLines = new GameObject2D();

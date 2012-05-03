@@ -966,12 +966,12 @@ namespace XNAFinalEngineExamples
             #endregion
             
             #region Video
-
+            /*
             videoTest = new GameObject2D();
             videoTest.AddComponent<VideoRenderer>();
             videoTest.VideoRenderer.Video = new Video("LogosIntro");
             videoTest.VideoRenderer.Play();
-            videoTest.Transform.Position = new Vector3(0, 0, 1);
+            videoTest.Transform.Position = new Vector3(0, 0, 1);*/
 
             #endregion
 

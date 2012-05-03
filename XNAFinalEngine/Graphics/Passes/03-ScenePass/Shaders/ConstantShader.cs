@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -93,10 +93,10 @@ namespace XNAFinalEngine.Graphics
 
         #region World View Projection Matrix
 
-        private static Matrix? lastUsedWorldViewProjMatrix;
+        private static Matrix lastUsedWorldViewProjMatrix;
         private static void SetWorldViewProjMatrix(Matrix worldViewProjMatrix)
         {
-            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix)
             {
                 lastUsedWorldViewProjMatrix = worldViewProjMatrix;
                 epWorldViewProj.SetValue(worldViewProjMatrix);
@@ -112,7 +112,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDiffuseTexture != _diffuseTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDiffuseTexture != _diffuseTexture.Resource)
             {
                 lastUsedDiffuseTexture = _diffuseTexture.Resource;
                 epDiffuseTexture.SetValue(_diffuseTexture.Resource);
@@ -123,10 +123,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Diffuse Color
 
-        private static Color? lastUsedDiffuseColor;
+        private static Color lastUsedDiffuseColor;
         private static void SetDiffuseColor(Color diffuseColor)
         {
-            if (lastUsedDiffuseColor != diffuseColor || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDiffuseColor != diffuseColor)
             {
                 lastUsedDiffuseColor = diffuseColor;
                 epDiffuseColor.SetValue(new Vector3(diffuseColor.R / 255f, diffuseColor.G / 255f, diffuseColor.B / 255f));
@@ -137,10 +137,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Alpha Blending
 
-        private static float? lastUsedAlphaBlending;
+        private static float lastUsedAlphaBlending;
         private static void SetAlphaBlending(float alphaBlending)
         {
-            if (lastUsedAlphaBlending != alphaBlending || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedAlphaBlending != alphaBlending)
             {
                 lastUsedAlphaBlending = alphaBlending;
                 epAlphaBlending.SetValue(alphaBlending);
@@ -173,9 +173,14 @@ namespace XNAFinalEngine.Graphics
 			try
 			{
                 epDiffuseTexture = Resource.Parameters["diffuseTexture"];
+                    if (lastUsedDiffuseTexture != null && !lastUsedDiffuseTexture.IsDisposed)
+                        epDiffuseTexture.SetValue(lastUsedDiffuseTexture);
                 epDiffuseColor   = Resource.Parameters["diffuseColor"];
+                    epDiffuseColor.SetValue(new Vector3(lastUsedDiffuseColor.R / 255f, lastUsedDiffuseColor.G / 255f, lastUsedDiffuseColor.B / 255f));
                 epWorldViewProj  = Resource.Parameters["worldViewProj"];
+			        epWorldViewProj.SetValue(lastUsedWorldViewProjMatrix);
                 epAlphaBlending  = Resource.Parameters["alphaBlending"];
+                    epAlphaBlending.SetValue(lastUsedAlphaBlending);
             }
             catch
             {

@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -92,10 +92,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Half Pixel
 
-        private static Vector2? lastUsedHalfPixel;
+        private static Vector2 lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedHalfPixel != _halfPixel)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -109,7 +109,7 @@ namespace XNAFinalEngine.Graphics
         private static readonly Vector3[] lastUsedFrustumCorners = new Vector3[4];
         private static void SetFrustumCorners(Vector3[] frustumCorners)
         {
-            if (!ArrayHelper.Equals(lastUsedFrustumCorners, frustumCorners) || EngineManager.DeviceDisposedThisFrame)
+            if (!ArrayHelper.Equals(lastUsedFrustumCorners, frustumCorners))
             {
                 // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
                 for (int i = 0; i < 4; i++)
@@ -129,7 +129,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDepthTexture != depthTexture.Resource)
             {
                 lastUsedDepthTexture = depthTexture.Resource;
                 epDepthTexture.SetValue(depthTexture.Resource);
@@ -145,7 +145,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTexture != normalTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedNormalTexture != normalTexture.Resource)
             {
                 lastUsedNormalTexture = normalTexture.Resource;
                 epNormalTexture.SetValue(normalTexture.Resource);
@@ -161,7 +161,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedMotionVectorSpecularPower != motionVectorSpecularPowerTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedMotionVectorSpecularPower != motionVectorSpecularPowerTexture.Resource)
             {
                 lastUsedMotionVectorSpecularPower = motionVectorSpecularPowerTexture.Resource;
                 epMotionVectorSpecularPowerTexture.SetValue(motionVectorSpecularPowerTexture.Resource);
@@ -177,7 +177,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[3] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedShadowTexture != shadowTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedShadowTexture != shadowTexture.Resource)
             {
                 lastUsedShadowTexture = shadowTexture.Resource;
                 epShadowTexture.SetValue(shadowTexture.Resource);
@@ -188,10 +188,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Light Color
 
-        private static Color? lastUsedLightColor;
+        private static Color lastUsedLightColor;
         private static void SetLightColor(Color lightColor)
         {
-            if (lastUsedLightColor != lightColor || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLightColor != lightColor)
             {
                 lastUsedLightColor = lightColor;
                 epLightColor.SetValue(new Vector3(lightColor.R / 255f, lightColor.G / 255f, lightColor.B / 255f));
@@ -202,12 +202,12 @@ namespace XNAFinalEngine.Graphics
 
         #region Light Direction
 
-        private static Vector3? lastUsedLightDir;
+        private static Vector3 lastUsedLightDirection;
         private static void SetLightDirection(Vector3 lightDirection)
         {
-            if (lastUsedLightDir != lightDirection || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLightDirection != lightDirection)
             {
-                lastUsedLightDir = lightDirection;
+                lastUsedLightDirection = lightDirection;
                 epLightDirection.SetValue(lightDirection);
             }
         } // SetLightDirection
@@ -216,10 +216,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Light Intensity
 
-        private static float? lastUsedLightIntensity;
+        private static float lastUsedLightIntensity;
         private static void SetLightIntensity(float lightIntensity)
         {
-            if (lastUsedLightIntensity != lightIntensity || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLightIntensity != lightIntensity)
             {
                 lastUsedLightIntensity = lightIntensity;
                 epLlightIntensity.SetValue(lightIntensity);
@@ -252,14 +252,27 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 epHalfPixel                        = Resource.Parameters["halfPixel"];
+                    epHalfPixel.SetValue(lastUsedHalfPixel);
                 epLightColor                       = Resource.Parameters["lightColor"];
+                    epLightColor.SetValue(new Vector3(lastUsedLightColor.R / 255f, lastUsedLightColor.G / 255f, lastUsedLightColor.B / 255f));
                 epLightDirection                   = Resource.Parameters["lightDirection"];
+                    epLightDirection.SetValue(lastUsedLightDirection);
                 epLlightIntensity                  = Resource.Parameters["lightIntensity"];
+                    epLlightIntensity.SetValue(lastUsedLightIntensity);
                 epFrustumCorners                   = Resource.Parameters["frustumCorners"];
+                    epFrustumCorners.SetValue(lastUsedFrustumCorners);
                 epDepthTexture                     = Resource.Parameters["depthTexture"];
+                    if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
+                        epDepthTexture.SetValue(lastUsedDepthTexture);
                 epNormalTexture                    = Resource.Parameters["normalTexture"];
+                    if (lastUsedNormalTexture != null && !lastUsedNormalTexture.IsDisposed)
+                        epNormalTexture.SetValue(lastUsedNormalTexture);
                 epMotionVectorSpecularPowerTexture = Resource.Parameters["motionVectorSpecularPowerTexture"];
-                epShadowTexture                    = Resource.Parameters["shadowTexture"];
+                    if (lastUsedMotionVectorSpecularPower != null && !lastUsedMotionVectorSpecularPower.IsDisposed)
+                        epMotionVectorSpecularPowerTexture.SetValue(lastUsedMotionVectorSpecularPower);
+                epShadowTexture = Resource.Parameters["shadowTexture"];
+                    if (lastUsedShadowTexture != null && !lastUsedShadowTexture.IsDisposed)
+                        epShadowTexture.SetValue(lastUsedShadowTexture);
             }
             catch
             {

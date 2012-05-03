@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -54,6 +54,8 @@ namespace XNAFinalEngine.Graphics
         // Singleton reference.
         private static RayMarchingAmbientOcclusionShader instance;
 
+        private static Texture randomNormalTexture;
+
         #endregion
 
         #region Properties
@@ -98,10 +100,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Number Steps
 
-        private static float? lastUsedNumberSteps;
+        private static float lastUsedNumberSteps;
         private static void SetNumberSteps(float _numberSteps)
         {
-            if (lastUsedNumberSteps != _numberSteps || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedNumberSteps != _numberSteps)
             {
                 lastUsedNumberSteps = _numberSteps;
                 epNumberSteps.SetValue(_numberSteps);
@@ -112,10 +114,10 @@ namespace XNAFinalEngine.Graphics
         
         #region Number Rays
 
-        private static float? lastUsedNumberRays;
+        private static float lastUsedNumberRays;
         private static void SetNumberRays(float _numberRays)
         {
-            if (lastUsedNumberRays != _numberRays || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedNumberRays != _numberRays)
             {
                 lastUsedNumberRays = _numberRays;
                 epNumberRays.SetValue(_numberRays);
@@ -126,10 +128,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Number Directions
         
-        private static float? lastUsedNumberDirections;
+        private static float lastUsedNumberDirections;
         private static void SetNumberDirections(float _numberDirections)
         {
-            if (lastUsedNumberDirections != _numberDirections || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedNumberDirections != _numberDirections)
             {
                 lastUsedNumberDirections = _numberDirections;
                 epNumberDirections.SetValue(_numberDirections);
@@ -140,16 +142,10 @@ namespace XNAFinalEngine.Graphics
         
         #region Contrast
 
-        /// <summary>
-        /// Last used contrast
-        /// </summary>
-        private static float? lastUsedContrast;
-        /// <summary>
-        /// Contrast
-        /// </summary>
+        private static float lastUsedContrast;
         private static void SetContrast(float _contrast)
         {
-            if (lastUsedContrast != _contrast || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedContrast != _contrast)
             {
                 lastUsedContrast = _contrast;
                 epContrast.SetValue(_contrast);
@@ -160,10 +156,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Line Attenuation
         
-        private static float? lastUsedLineAttenuation;
+        private static float lastUsedLineAttenuation;
         private static void SetLineAttenuation(float _lineAttenuation)
         {
-            if (lastUsedLineAttenuation != _lineAttenuation || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLineAttenuation != _lineAttenuation)
             {
                 lastUsedLineAttenuation = _lineAttenuation;
                 epLineAttenuation.SetValue(_lineAttenuation);
@@ -174,10 +170,10 @@ namespace XNAFinalEngine.Graphics
         
         #region Radius
 
-        private static float? lastUsedRadius;
+        private static float lastUsedRadius;
         private static void SetRadius(float _radius)
         {
-            if (lastUsedRadius != _radius || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedRadius != _radius)
             {
                 lastUsedRadius = _radius;
                 epRadius.SetValue(_radius);
@@ -188,10 +184,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Half Pixel
 
-        private static Vector2? lastUsedHalfPixel;
+        private static Vector2 lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedHalfPixel != _halfPixel)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -202,10 +198,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Focal Length
 
-        private static Vector2? lastUsedFocalLength;
+        private static Vector2 lastUsedFocalLength;
         private static void SetFocalLength(Vector2 focalLength)
         {
-            if (lastUsedFocalLength != focalLength || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedFocalLength != focalLength)
             {
                 lastUsedFocalLength = focalLength;
                 epFocalLength.SetValue(focalLength);
@@ -221,7 +217,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDepthTexture != depthTexture.Resource)
             {
                 lastUsedDepthTexture = depthTexture.Resource;
                 epDepthTexture.SetValue(depthTexture.Resource);
@@ -237,7 +233,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTexture != normalTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedNormalTexture != normalTexture.Resource)
             {
                 lastUsedNormalTexture = normalTexture.Resource;
                 epNormalTexture.SetValue(normalTexture.Resource);
@@ -258,10 +254,9 @@ namespace XNAFinalEngine.Graphics
             ContentManager userContentManager = ContentManager.CurrentContentManager;
             ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
             // Set the random normal map. Helps to make the samplers more random.
-            Texture randomNormalTexture = new Texture("Shaders\\RandomNormal");
-            ContentManager.CurrentContentManager = userContentManager;
-
+            randomNormalTexture = new Texture("Shaders\\RandomNormal");
             Resource.Parameters["randomTexture"].SetValue(randomNormalTexture.Resource);
+            ContentManager.CurrentContentManager = userContentManager;
         } // RayMarchingAmbientOcclusionShader
 
 		#endregion
@@ -278,16 +273,31 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                epNormalTexture    = Resource.Parameters["normalTexture"];
-                epDepthTexture     = Resource.Parameters["depthTexture"];
+                epDepthTexture = Resource.Parameters["depthTexture"];
+                if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
+                    epDepthTexture.SetValue(lastUsedDepthTexture);
+                epNormalTexture = Resource.Parameters["normalTexture"];
+                if (lastUsedNormalTexture != null && !lastUsedNormalTexture.IsDisposed)
+                    epNormalTexture.SetValue(lastUsedNormalTexture);
                 epNumberSteps      = Resource.Parameters["numberSteps"];
+                    epNumberSteps.SetValue(lastUsedNumberSteps);
                 epNumberRays       = Resource.Parameters["numberRays"];
+                    epNumberRays.SetValue(lastUsedNumberRays);
                 epNumberDirections = Resource.Parameters["numberDirections"];
+                    epNumberDirections.SetValue(lastUsedNumberDirections);
                 epContrast         = Resource.Parameters["contrast"];
+                    epContrast.SetValue(lastUsedContrast);
                 epLineAttenuation  = Resource.Parameters["linearAttenuation"];
+                    epLineAttenuation.SetValue(lastUsedLineAttenuation);
                 epRadius           = Resource.Parameters["radius"];
+                    epRadius.SetValue(lastUsedRadius);
                 epHalfPixel        = Resource.Parameters["halfPixel"];
+                    epHalfPixel.SetValue(lastUsedHalfPixel);
                 epFocalLength      = Resource.Parameters["focalLength"];
+                    epFocalLength.SetValue(lastUsedFocalLength);
+
+                if (randomNormalTexture != null)
+                    Resource.Parameters["randomTexture"].SetValue(randomNormalTexture.Resource);
             }
             catch
             {

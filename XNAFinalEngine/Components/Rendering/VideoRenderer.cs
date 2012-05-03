@@ -54,7 +54,7 @@ namespace XNAFinalEngine.Components
         private float volume;
         
         // The current frame.
-        private Texture texture;
+        private readonly Texture texture = new Texture();
 
         #endregion
 
@@ -149,20 +149,6 @@ namespace XNAFinalEngine.Components
         
         #endregion
 
-        #region Events
-
-        /// <summary>
-        /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
-        /// </summary>
-        public delegate void VideoEventHandler(object sender, Video video);
-
-        /// <summary>
-        /// Raised when the video ends.
-        /// </summary>
-        public event VideoEventHandler VideoEnded;
-
-        #endregion
-
         #region Play, Pause, Resume, Stop
 
         /// <summary>
@@ -175,11 +161,9 @@ namespace XNAFinalEngine.Components
         {
             if (videoPlayerInstance == null)
             {
-                videoPlayerInstance = new VideoPlayer();// VideoManager.FetchVideoInstance(Video); // TODO
-                texture = new Texture { Name = Video.Name };
-                // If the sound instance could not be created then do nothing.
-                /*if (videoPlayerInstance == null)
-                    return;*/
+                // Probably the garbage won't be noticed.
+                videoPlayerInstance = new VideoPlayer();// VideoManager.FetchVideoInstance(Video); 
+                texture.Name = Video.Name;
                 videoPlayerInstance.IsMuted = IsMuted;
                 videoPlayerInstance.IsLooped = IsLooped;
                 videoPlayerInstance.Volume = Volume;
@@ -199,15 +183,9 @@ namespace XNAFinalEngine.Components
         {
             if (videoPlayerInstance != null)
             {
-                // Dispose sound effect instance to avoid garbage collection.
-                //VideoManager.ReleaseSoundInstance(videoPlayerInstance);
-                videoPlayerInstance.Dispose(); // TODO!!
+                videoPlayerInstance.Dispose();
                 videoPlayerInstance = null;
-                texture.Dispose();
-                texture = null;
-                // Raise event
-                if (VideoEnded != null)
-                    VideoEnded(this, Video);
+                texture.Resource = null;
             }
         } // Stop
 
@@ -251,10 +229,21 @@ namespace XNAFinalEngine.Components
                 }
                 else
                 {
-                    videoPlayerInstance.IsMuted = IsMuted;
+                    videoPlayerInstance.IsMuted  = IsMuted;
                     videoPlayerInstance.IsLooped = IsLooped;
-                    videoPlayerInstance.Volume = Volume;
-                    texture.Resource = videoPlayerInstance.GetTexture();
+                    videoPlayerInstance.Volume   = Volume;
+                    try
+                    {
+                        texture.Resource = videoPlayerInstance.GetTexture();
+                    }
+                    catch
+                    {
+                        // Recreate video player if there is an error. Probably a device disposed.
+                        videoPlayerInstance.Dispose();
+                        videoPlayerInstance = new VideoPlayer();
+                        videoPlayerInstance.Play(Video.Resource);
+                        texture.Resource = videoPlayerInstance.GetTexture();
+                    }
                 }
             }
         } // Update
@@ -269,7 +258,6 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
-            texture = null;
             // Set default values.
             volume = 1;
             IsMuted = false;
@@ -286,6 +274,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
+            texture.Resource = null;
             base.Uninitialize();
         } // Uninitialize
 

@@ -33,6 +33,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
@@ -1343,7 +1344,81 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         private static void RenderHeadsUpDisplay()
         {
-            // Draw 2D Heads Up Display
+            // If depth is important then a depth buffer should be generated in the back buffer.
+            SpriteManager.Begin2D();
+            {
+
+                #region Videos
+
+                VideoRenderer currentVideo;
+                for (int i = 0; i < VideoRenderer.ComponentPool.Count; i++)
+                {
+                    currentVideo = VideoRenderer.ComponentPool.Elements[i];
+                    currentVideo.Update();
+                    if (currentVideo.Visible && currentVideo.State != MediaState.Stopped && Layer.IsActive(currentVideo.CachedLayerMask))
+                    {
+                        // Aspect ratio
+                        Rectangle screenRectangle;
+                        float videoAspectRatio = (float)currentVideo.Texture.Width / (float)currentVideo.Texture.Height,
+                              screenAspectRatio = (float)Screen.Width / (float)Screen.Height;
+
+                        if (videoAspectRatio > screenAspectRatio)
+                        {
+                            float vsAspectRatio = videoAspectRatio / screenAspectRatio;
+                            int blackStripe = (int)((Screen.Height - (Screen.Height / vsAspectRatio)) / 2);
+                            screenRectangle = new Rectangle(0, 0 + blackStripe, Screen.Width, Screen.Height - blackStripe * 2);
+                        }
+                        else
+                        {
+                            float vsAspectRatio = screenAspectRatio / videoAspectRatio;
+                            int blackStripe = (int)((Screen.Width - (Screen.Width / vsAspectRatio)) / 2);
+                            screenRectangle = new Rectangle(0 + blackStripe, 0, Screen.Width - blackStripe * 2, Screen.Height);
+                        }
+                        SpriteManager.Draw2DTexture(currentVideo.Texture,
+                                                    currentVideo.CachedPosition.Z,
+                                                    screenRectangle,
+                                                    null,
+                                                    Color.White,
+                                                    0,
+                                                    Vector2.Zero);
+                    }
+                }
+
+                #endregion
+
+            }
+            SpriteManager.End();
+
+            #region 2D Lines
+
+            LineManager.Begin2D(PrimitiveType.TriangleList);
+            for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
+            {
+                LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible &&
+                    currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
+                {
+                    for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
+                }
+            }
+            LineManager.End();
+
+            LineManager.Begin2D(PrimitiveType.LineList);
+            for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
+            {
+                LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible &&
+                    currentLineRenderer.PrimitiveType == PrimitiveType.LineList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
+                {
+                    for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
+                }
+            }
+            LineManager.End();
+
+            #endregion
+
             SpriteManager.Begin2D();
             {
 
@@ -1395,78 +1470,9 @@ namespace XNAFinalEngine.EngineCore
                 }
 
                 #endregion
-
-                #region 2D Lines
-
-                LineManager.Begin2D(PrimitiveType.TriangleList);
-                for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
-                {
-                    LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
-                    if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible &&
-                        currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
-                    {
-                        for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
-                            LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
-                    }
-                }
-                LineManager.End();
-
-                LineManager.Begin2D(PrimitiveType.LineList);
-                for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
-                {
-                    LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
-                    if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible &&
-                        currentLineRenderer.PrimitiveType == PrimitiveType.LineList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
-                    {
-                        for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
-                            LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
-                    }
-                }
-                LineManager.End();
-
-                #endregion
-
-                #region Videos
-
-                VideoRenderer currentVideo;
-                for (int i = 0; i < VideoRenderer.ComponentPool.Count; i++)
-                {
-                    currentVideo = VideoRenderer.ComponentPool.Elements[i];
-                    currentVideo.Update();
-                    if (currentVideo.Visible && currentVideo.Texture != null && Layer.IsActive(currentVideo.CachedLayerMask))
-                    {
-                        // Aspect ratio
-                        Rectangle screenRectangle;
-                        float videoAspectRatio = (float)currentVideo.Texture.Width / (float)currentVideo.Texture.Height,
-                              screenAspectRatio = (float)Screen.Width / (float)Screen.Height;
-
-                        if (videoAspectRatio > screenAspectRatio)
-                        {
-                            float vsAspectRatio = videoAspectRatio / screenAspectRatio;
-                            int blackStripe = (int)((Screen.Height - (Screen.Height / vsAspectRatio)) / 2);
-                            screenRectangle = new Rectangle(0, 0 + blackStripe, Screen.Width, Screen.Height - blackStripe * 2);
-                        }
-                        else
-                        {
-                            float vsAspectRatio = screenAspectRatio / videoAspectRatio;
-                            int blackStripe = (int)((Screen.Width - (Screen.Width / vsAspectRatio)) / 2);
-                            screenRectangle = new Rectangle(0 + blackStripe, 0, Screen.Width - blackStripe * 2, Screen.Height);
-                        }
-                        SpriteManager.Draw2DTexture(currentVideo.Texture,
-                                                  currentVideo.CachedPosition.Z,
-                                                  screenRectangle,
-                                                  null,
-                                                  Color.White,
-                                                  0,
-                                                  Vector2.Zero);
-                    }
-                }
-
-                #endregion
-
+                
             }
             SpriteManager.End();
-
         } // RenderHeadsUpDisplay
 
         #endregion

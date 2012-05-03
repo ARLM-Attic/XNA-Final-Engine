@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -92,7 +92,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedHalfPixel != _halfPixel)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -106,7 +106,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedPixelSize;
         private static void SetPixelSize(Vector2 pixelSize)
         {
-            if (lastUsedPixelSize != pixelSize || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedPixelSize != pixelSize)
             {
                 lastUsedPixelSize = pixelSize;
                 epPixelSize.SetValue(pixelSize);
@@ -120,7 +120,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedThresholdColor;
         private static void SetThresholdColor(float thresholdColor)
         {
-            if (lastUsedThresholdColor != thresholdColor || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedThresholdColor != thresholdColor)
             {
                 lastUsedThresholdColor = thresholdColor;
                 epThresholdColor.SetValue(thresholdColor);
@@ -134,7 +134,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedThresholdDepth;
         private static void SetThresholdDepth(float thresholdDepth)
         {
-            if (lastUsedThresholdDepth != thresholdDepth || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedThresholdDepth != thresholdDepth)
             {
                 lastUsedThresholdDepth = thresholdDepth;
                 epThresholdDepth.SetValue(thresholdDepth);
@@ -151,7 +151,7 @@ namespace XNAFinalEngine.Graphics
             EngineManager.Device.SamplerStates[10] = SamplerState.PointClamp;
             EngineManager.Device.SamplerStates[11] = SamplerState.LinearClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedSceneTexture != sceneTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedSceneTexture != sceneTexture.Resource)
             {
                 lastUsedSceneTexture = sceneTexture.Resource;
                 epSceneTexture.SetValue(sceneTexture.Resource);
@@ -167,7 +167,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[14] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDepthTexture != depthTexture.Resource)
             {
                 lastUsedDepthTexture = depthTexture.Resource;
                 epDepthTexture.SetValue(depthTexture.Resource);
@@ -183,7 +183,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[12] = SamplerState.LinearClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedEdgeTexture != edgeTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedEdgeTexture != edgeTexture.Resource)
             {
                 lastUsedEdgeTexture = edgeTexture.Resource;
                 epEdgeTexture.SetValue(edgeTexture.Resource);
@@ -199,7 +199,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[13] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedBlendedWeightsTexture != blendedWeightsTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedBlendedWeightsTexture != blendedWeightsTexture.Resource)
             {
                 lastUsedBlendedWeightsTexture = blendedWeightsTexture.Resource;
                 epBlendedWeightsTexture.SetValue(blendedWeightsTexture.Resource);

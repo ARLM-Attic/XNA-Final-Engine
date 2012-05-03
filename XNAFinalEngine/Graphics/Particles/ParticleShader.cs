@@ -106,7 +106,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedViewProjectionMatrix;
         private static void SetViewProjectionMatrix(Matrix viewProjectionMatrix)
         {
-            if (lastUsedViewProjectionMatrix != viewProjectionMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedViewProjectionMatrix != viewProjectionMatrix)
             {
                 lastUsedViewProjectionMatrix = viewProjectionMatrix;
                 epViewProjection.SetValue(viewProjectionMatrix);
@@ -116,7 +116,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedProjectionMatrix;
         private static void SetProjectionMatrix(Matrix projectionMatrix)
         {
-            if (lastUsedProjectionMatrix != projectionMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedProjectionMatrix != projectionMatrix)
             {
                 lastUsedProjectionMatrix = projectionMatrix;
                 epProjection.SetValue(projectionMatrix);
@@ -126,7 +126,7 @@ namespace XNAFinalEngine.Graphics
         private static Matrix? lastUsedProjectionInvertMatrix;
         private static void SetProjectionInvertMatrix(Matrix projectionInvertMatrix)
         {
-            if (lastUsedProjectionInvertMatrix != projectionInvertMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedProjectionInvertMatrix != projectionInvertMatrix)
             {
                 lastUsedProjectionInvertMatrix = projectionInvertMatrix;
                 epProjectionInvert.SetValue(projectionInvertMatrix);
@@ -140,7 +140,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedViewportScale;
         private static void SetViewportScale(Vector2 _viewportScale)
         {
-            if (lastUsedViewportScale != _viewportScale || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedViewportScale != _viewportScale)
             {
                 lastUsedViewportScale = _viewportScale;
                 epViewportScale.SetValue(_viewportScale);
@@ -154,7 +154,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedCurrentTime;
         private static void SetCurrentTime(float _currentTime)
         {
-            if (lastUsedCurrentTime != _currentTime || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedCurrentTime != _currentTime)
             {
                 lastUsedCurrentTime = _currentTime;
                 epCurrentTime.SetValue(_currentTime);
@@ -170,7 +170,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedDuration;
         private static void SetDuration(float _duration)
         {
-            if (lastUsedDuration != _duration || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDuration != _duration)
             {
                 lastUsedDuration = _duration;
                 epDuration.SetValue(_duration);
@@ -184,7 +184,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedDurationRandomness;
         private static void SetDurationRandomness(float _durationRandomness)
         {
-            if (lastUsedDurationRandomness != _durationRandomness || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDurationRandomness != _durationRandomness)
             {
                 lastUsedDurationRandomness = _durationRandomness;
                 epDurationRandomness.SetValue(_durationRandomness);
@@ -198,7 +198,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector3? lastUsedGravity;
         protected void SetGravity(Vector3 _gravity)
         {
-            if (lastUsedGravity != _gravity || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedGravity != _gravity)
             {
                 lastUsedGravity = _gravity;
                 epGravity.SetValue(_gravity);
@@ -212,7 +212,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedEndVelocity;
         private static void SetEndVelocity(float _endVelocity)
         {
-            if (lastUsedEndVelocity != _endVelocity || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedEndVelocity != _endVelocity)
             {
                 lastUsedEndVelocity = _endVelocity;
                 epEndVelocity.SetValue(_endVelocity);
@@ -226,7 +226,7 @@ namespace XNAFinalEngine.Graphics
         private static Color? lastUsedMinimumColor;
         protected void SetMinimumColor(Color _minimumColor)
         {
-            if (lastUsedMinimumColor != _minimumColor || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedMinimumColor != _minimumColor)
             {
                 lastUsedMinimumColor = _minimumColor;
                 epMinColor.SetValue(new Vector4(_minimumColor.R / 255f, _minimumColor.G / 255f, _minimumColor.B / 255f, _minimumColor.A / 255f));
@@ -240,7 +240,7 @@ namespace XNAFinalEngine.Graphics
         private static Color? lastUsedMaximumColor;
         protected void SetMaximumColor(Color _maximumColor)
         {
-            if (lastUsedMaximumColor != _maximumColor || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedMaximumColor != _maximumColor)
             {
                 lastUsedMaximumColor = _maximumColor;
                 epMaxColor.SetValue(new Vector4(_maximumColor.R / 255f, _maximumColor.G / 255f, _maximumColor.B / 255f, _maximumColor.A / 255f));
@@ -254,7 +254,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedRotateSpeed;
         private static void SetRotateSpeed(Vector2 _rotateSpeed)
         {
-            if (lastUsedRotateSpeed != _rotateSpeed || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedRotateSpeed != _rotateSpeed)
             {
                 lastUsedRotateSpeed = _rotateSpeed;
                 epRotateSpeed.SetValue(_rotateSpeed);
@@ -268,7 +268,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedStartSize;
         private static void SetStartSize(Vector2 _startSize)
         {
-            if (lastUsedStartSize != _startSize || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedStartSize != _startSize)
             {
                 lastUsedStartSize = _startSize;
                 epStartSize.SetValue(_startSize);
@@ -282,7 +282,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedEndSize;
         private static void SetEndSize(Vector2 _endSize)
         {
-            if (lastUsedEndSize != _endSize || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedEndSize != _endSize)
             {
                 lastUsedEndSize = _endSize;
                 epEndSize.SetValue(_endSize);
@@ -300,7 +300,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[3] = SamplerState.LinearWrap;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedTexture != texture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedTexture != texture.Resource)
             {
                 lastUsedTexture = texture.Resource;
                 epTexture.SetValue(texture.Resource);
@@ -316,7 +316,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDepthTexture != depthTexture.Resource)
             {
                 lastUsedDepthTexture = depthTexture.Resource;
                 epDepthTexture.SetValue(depthTexture.Resource);
@@ -330,7 +330,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedHalfPixel != _halfPixel)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -344,7 +344,7 @@ namespace XNAFinalEngine.Graphics
         private static float lastUsedFarPlane;
         private static void SetFarPlane(float _farPlane)
         {
-            if (lastUsedFarPlane != _farPlane || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedFarPlane != _farPlane)
             {
                 lastUsedFarPlane = _farPlane;
                 epFarPlane.SetValue(_farPlane);
@@ -358,7 +358,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastFadeDistance;
         private static void SetFadeDistance(float fadeDistance)
         {
-            if (lastFadeDistance != fadeDistance || EngineManager.DeviceDisposedThisFrame)
+            if (lastFadeDistance != fadeDistance)
             {
                 lastFadeDistance = fadeDistance;
                 epFadeDistance.SetValue(fadeDistance);

@@ -81,14 +81,14 @@ namespace XNAFinalEngine.Assets
         public Video(string filename)
         {
             Name = filename;
-            string fullFilename = ContentManager.GameDataDirectory + "Videos\\" + filename;
-            if (File.Exists(fullFilename + ".xnb") == false)
+            Filename = ContentManager.GameDataDirectory + "Videos\\" + filename;
+            if (File.Exists(Filename + ".xnb") == false)
             {
-                throw new Exception("Failed to load sound: File " + fullFilename + " does not exists!");
+                throw new Exception("Failed to load sound: File " + Filename + " does not exists!");
             }
             try
             {
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Media.Video>(fullFilename);
+                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Media.Video>(Filename);
                 ContentManager = ContentManager.CurrentContentManager;
             }
             catch (ObjectDisposedException e)
@@ -100,6 +100,18 @@ namespace XNAFinalEngine.Assets
                 throw new Exception("Failed to load video: " + filename, e);
             }
         } // Video
+
+        #endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
+            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Media.Video>(Filename);
+        } // RecreateResource
 
         #endregion
 

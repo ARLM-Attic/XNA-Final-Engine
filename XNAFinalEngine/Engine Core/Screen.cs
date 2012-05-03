@@ -46,15 +46,11 @@ namespace XNAFinalEngine.EngineCore
 
         #region Variables
         
-        /// <summary>
-        /// Changing the multi sample quality requires a device reset and the setting of this new value
-        /// has to be done in a specific place, the Graphics_PreparingDeviceSettings method.
-        /// </summary>
+        // Changing the multi sample quality requires a device reset and the setting of this new value
+        // has to be done in a specific place, the Graphics_PreparingDeviceSettings method.
         private static int multiSampleQuality;
 
-        /// <summary>
-        /// Aspect Ratio.
-        /// </summary>
+        // Aspect Ratio.
         private static float aspectRatio;
 
         #endregion
@@ -88,7 +84,7 @@ namespace XNAFinalEngine.EngineCore
             set
             {
                 EngineManager.GraphicsDeviceManager.IsFullScreen = value;
-                EngineManager.GraphicsDeviceManager.ApplyChanges();
+                EngineManager.ResetDevice = true;
             }
         } // Fullscreen
 
@@ -101,7 +97,7 @@ namespace XNAFinalEngine.EngineCore
             set
             {
                 EngineManager.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = value;
-                EngineManager.GraphicsDeviceManager.ApplyChanges();
+                EngineManager.ResetDevice = true;
             }
         } // Fullscreen
 
@@ -127,8 +123,7 @@ namespace XNAFinalEngine.EngineCore
                 multiSampleQuality = value;
                 if (EngineManager.Device != null)
                     EngineManager.Device.PresentationParameters.MultiSampleCount = value;
-                //SystemInformation.GraphicsDeviceManager.PreferMultiSampling = multiSampleQuality != 0; // Activate the antialiasing if multisamplequality is different than zero.
-                //SystemInformation.GraphicsDeviceManager.ApplyChanges();
+                EngineManager.ResetDevice = true;
             }
         } // MultiSampleQuality
 
@@ -152,18 +147,15 @@ namespace XNAFinalEngine.EngineCore
             get { return new Size(Width, Height); }
             set
             {
-                // Use current desktop resolution if autodetect is selected.
-                if (value.Width <= 0 || value.Height <= 0)
-                {
-                    EngineManager.GraphicsDeviceManager.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-                    EngineManager.GraphicsDeviceManager.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-                }
-                else
+                // TODO: Needs more testing.
+                if (value.Width == Width && value.Height == Height)
+                    return;
+                if (value.Width > 0 && value.Height > 0)
                 {
                     EngineManager.GraphicsDeviceManager.PreferredBackBufferWidth = value.Width;
                     EngineManager.GraphicsDeviceManager.PreferredBackBufferHeight = value.Height;
                 }
-                EngineManager.GraphicsDeviceManager.ApplyChanges();
+                EngineManager.ResetDevice = true;
             }
         } // Resolution
 
@@ -199,7 +191,7 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static void ToggleFullscreen()
         {
-            EngineManager.GraphicsDeviceManager.ToggleFullScreen();
+            EngineManager.ToggleFullScreen = true;
         } // ToggleFullscreen
 
         #endregion

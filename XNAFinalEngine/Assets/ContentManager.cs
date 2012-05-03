@@ -326,7 +326,14 @@ namespace XNAFinalEngine.Assets
                 // Load them again.
                 foreach (Asset asset in contentManager.Assets)
                 {
-                    asset.RecreateResource();
+                    if (!(asset is Shader))
+                        asset.RecreateResource();
+                }
+                // Some shaders create its own textures, I want that this textures are recreated first.
+                foreach (Asset asset in contentManager.Assets)
+                {
+                    if (asset is Shader)
+                        asset.RecreateResource();
                 }
             }
             CurrentContentManager = temp;

@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -88,10 +88,10 @@ namespace XNAFinalEngine.Graphics
 
         #region View Projection Matrix
 
-        private static Matrix? lastUsedViewInverseMatrix;
+        private static Matrix lastUsedViewInverseMatrix;
         private static void SetViewInverseMatrix(Matrix viewInverseMatrix)
         {
-            if (lastUsedViewInverseMatrix != viewInverseMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedViewInverseMatrix != viewInverseMatrix)
             {
                 lastUsedViewInverseMatrix = viewInverseMatrix;
                 epViewI.SetValue(viewInverseMatrix);
@@ -105,7 +105,7 @@ namespace XNAFinalEngine.Graphics
         private static readonly Vector3[] lastUsedSphericalHarmonicBase = new Vector3[9];
         private static void SetSphericalHarmonicBase(Vector3[] sphericalHarmonicBase)
         {
-            if (!ArrayHelper.Equals(lastUsedSphericalHarmonicBase, sphericalHarmonicBase) || EngineManager.DeviceDisposedThisFrame)
+            if (!ArrayHelper.Equals(lastUsedSphericalHarmonicBase, sphericalHarmonicBase))
             {
                 //lastUsedSphericalHarmonicBase = (Vector3[])(sphericalHarmonicBase.Clone()); // Produces garbage
                 for (int i = 0; i < 9; i++)
@@ -120,10 +120,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Half Pixel
 
-        private static Vector2? lastUsedHalfPixel;
+        private static Vector2 lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedHalfPixel != _halfPixel)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -139,7 +139,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[3] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedAmbientOcclusionTexture != ambientOcclusionTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedAmbientOcclusionTexture != ambientOcclusionTexture.Resource)
             {
                 lastUsedAmbientOcclusionTexture = ambientOcclusionTexture.Resource;
                 epAmbientOcclusionTexture.SetValue(ambientOcclusionTexture.Resource);
@@ -155,7 +155,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTexture != normalTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedNormalTexture != normalTexture.Resource)
             {
                 lastUsedNormalTexture = normalTexture.Resource;
                 epNormalTexture.SetValue(normalTexture.Resource);
@@ -166,10 +166,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Intensity
 
-        private static float? lastUsedIntensity;
+        private static float lastUsedIntensity;
         private static void SetIntensity(float _intensity)
         {
-            if (lastUsedIntensity != _intensity || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedIntensity != _intensity)
             {
                 lastUsedIntensity = _intensity;
                 epIntensity.SetValue(_intensity);
@@ -180,10 +180,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Ambient Occlusion Strength
 
-        private static float? lastUsedAmbientOcclusionStrength;
+        private static float lastUsedAmbientOcclusionStrength;
         private static void SetAmbientOcclusionStrength(float ambientOcclusionStrength)
         {
-            if (lastUsedAmbientOcclusionStrength != ambientOcclusionStrength || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedAmbientOcclusionStrength != ambientOcclusionStrength)
             {
                 lastUsedAmbientOcclusionStrength = ambientOcclusionStrength;
                 epAmbientOcclusionStrength.SetValue(ambientOcclusionStrength);
@@ -216,12 +216,21 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 epHalfPixel                = Resource.Parameters["halfPixel"];
+                    epHalfPixel.SetValue(lastUsedHalfPixel);
                 epNormalTexture            = Resource.Parameters["normalTexture"];
+                    if (lastUsedNormalTexture != null && !lastUsedNormalTexture.IsDisposed)
+                        epNormalTexture.SetValue(lastUsedNormalTexture);
                 epAmbientOcclusionTexture  = Resource.Parameters["ambientOcclusionTexture"];
+                    if (lastUsedAmbientOcclusionTexture != null && !lastUsedAmbientOcclusionTexture.IsDisposed)
+                        epAmbientOcclusionTexture.SetValue(lastUsedAmbientOcclusionTexture);
                 epSphericalHarmonicBase    = Resource.Parameters["sphericalHarmonicBase"];
+                    epSphericalHarmonicBase.SetValue(lastUsedSphericalHarmonicBase);
                 epIntensity                = Resource.Parameters["intensity"];
+                    epIntensity.SetValue(lastUsedIntensity);
                 epViewI                    = Resource.Parameters["viewI"];
+                    epViewI.SetValue(lastUsedViewInverseMatrix);
                 epAmbientOcclusionStrength = Resource.Parameters["ambientOcclusionStrength"];
+                    epAmbientOcclusionStrength.SetValue(lastUsedAmbientOcclusionStrength);
             }
             catch
             {

@@ -82,20 +82,20 @@ namespace XNAFinalEngine.Graphics
                                        epDepthTexture;
 
 
-        private static Vector2? lastUsedHalfPixel;
+        private static Vector2 lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedHalfPixel != _halfPixel)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
             }
         } // SetHalfPixel
 
-        private static Vector2? lastUsedQuarterTexel;
+        private static Vector2 lastUsedQuarterTexel;
         private static void SetQuarterTexel(Vector2 _quarterTexel)
         {
-            if (lastUsedQuarterTexel != _quarterTexel || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedQuarterTexel != _quarterTexel)
             {
                 lastUsedQuarterTexel = _quarterTexel;
                 epQuarterTexel.SetValue(_quarterTexel);
@@ -109,7 +109,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDepthTexture != depthTexture.Resource)
             {
                 lastUsedDepthTexture = depthTexture.Resource;
                 epDepthTexture.SetValue(depthTexture.Resource);
@@ -142,8 +142,12 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 epHalfPixel    = Resource.Parameters["halfPixel"];
+                    epHalfPixel.SetValue(lastUsedHalfPixel);
                 epQuarterTexel = Resource.Parameters["quarterTexel"];
+                    epQuarterTexel.SetValue(lastUsedQuarterTexel);
                 epDepthTexture = Resource.Parameters["depthTexture"];
+                    if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
+                        epDepthTexture.SetValue(lastUsedDepthTexture);
             }
             catch
             {

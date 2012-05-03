@@ -48,14 +48,14 @@ namespace XNAFinalEngine.Graphics
     {
 
         #region Variables
-
-        /// <summary>
-        /// The geometry used by the shader.
-        /// </summary>
+        
+        // The geometry used by the shader.
         private readonly Model skydomeModel;
 
         // Singleton reference.
         private static SkydomeShader instance;
+
+        private static Texture skyTextureNight, skyTextureSunset, skyTextureDay;
 
         #endregion
 
@@ -85,10 +85,10 @@ namespace XNAFinalEngine.Graphics
 
         #region View Projection Matrix
 
-        private static Matrix? lastUsedViewProjectionMatrix;
+        private static Matrix lastUsedViewProjectionMatrix;
         private static void SetViewProjectionMatrix(Matrix viewProjectionMatrix)
         {
-            if (lastUsedViewProjectionMatrix != viewProjectionMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedViewProjectionMatrix != viewProjectionMatrix)
             {
                 lastUsedViewProjectionMatrix = viewProjectionMatrix;
                 epViewProjection.SetValue(viewProjectionMatrix);
@@ -104,7 +104,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedTexture != texture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedTexture != texture.Resource)
             {
                 lastUsedTexture = texture.Resource;
                 epTexture.SetValue(texture.Resource);
@@ -123,15 +123,14 @@ namespace XNAFinalEngine.Graphics
         private SkydomeShader() : base("Sky\\Skydome")
         {
             skydomeModel = new FileModel("Skydome");
-
             ContentManager userContentManager = ContentManager.CurrentContentManager;
             ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
-            Texture skyTextureNight = new Texture("Shaders\\SkyNight");
+            skyTextureNight = new Texture("Shaders\\SkyNight");
+            skyTextureSunset = new Texture("Shaders\\SkySunset");
+            skyTextureDay = new Texture("Shaders\\SkyDay");
             Resource.Parameters["SkyTextureNight"].SetValue(skyTextureNight.Resource);
-            Texture skyTextureSunset = new Texture("Shaders\\SkySunset");
             Resource.Parameters["SkyTextureSunset"].SetValue(skyTextureSunset.Resource);
-            Texture skyTextureDay = new Texture("Shaders\\SkyDay");
-            Resource.Parameters["SkyTextureDay"].SetValue(skyTextureDay.Resource);
+            Resource.Parameters["SkyTextureDay"].SetValue(skyTextureDay.Resource);  
             ContentManager.CurrentContentManager = userContentManager;
         } // SkyboxShader
 
@@ -150,7 +149,16 @@ namespace XNAFinalEngine.Graphics
 			try
 			{
                 epViewProjection = Resource.Parameters["ViewITProj"];
+                    epViewProjection.SetValue(lastUsedViewProjectionMatrix);
                 epTexture = Resource.Parameters["diffuseTexture"];
+                    if (lastUsedTexture != null && !lastUsedTexture.IsDisposed)
+                        epTexture.SetValue(lastUsedTexture);
+                if (skyTextureNight != null)
+                {
+                    Resource.Parameters["SkyTextureNight"].SetValue(skyTextureNight.Resource);
+                    Resource.Parameters["SkyTextureSunset"].SetValue(skyTextureSunset.Resource);
+                    Resource.Parameters["SkyTextureDay"].SetValue(skyTextureDay.Resource);    
+                }
             }
             catch
             {

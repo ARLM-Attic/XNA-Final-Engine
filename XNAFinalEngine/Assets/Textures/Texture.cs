@@ -103,7 +103,10 @@ namespace XNAFinalEngine.Assets
         { 
             get
             {
-                if (xnaTexture.IsDisposed)
+                // Textures and render targets have a different treatment because textures could be set,
+                // because both are persistent shader parameters, and because they could be created without using content managers.
+                // For that reason the nullified resources could be accessed.
+                if (xnaTexture != null && xnaTexture.IsDisposed)
                     xnaTexture = null;
                 return xnaTexture;
             }
@@ -112,10 +115,11 @@ namespace XNAFinalEngine.Assets
             // Just don’t dispose this texture because the resource is managed by the video.
             internal set 
             {
-                if (value == null)
-                    throw new ArgumentNullException("value");
                 xnaTexture = value;
-                Size = new Size(xnaTexture.Width, xnaTexture.Height);
+                if (value == null)
+                    Size = new Size(0, 0);
+                else
+                    Size = new Size(xnaTexture.Width, xnaTexture.Height);
             }
         } // Resource
 

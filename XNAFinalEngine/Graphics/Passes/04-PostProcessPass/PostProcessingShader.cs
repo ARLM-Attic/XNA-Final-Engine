@@ -140,7 +140,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector2? lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedHalfPixel != _halfPixel)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -156,7 +156,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[9] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedSceneTexture != sceneTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedSceneTexture != sceneTexture.Resource)
             {
                 lastUsedSceneTexture = sceneTexture.Resource;
                 epSceneTexture.SetValue(sceneTexture.Resource);
@@ -172,7 +172,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[12] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedLastLuminanceTexture != lastLuminanceTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLastLuminanceTexture != lastLuminanceTexture.Resource)
             {
                 lastUsedLastLuminanceTexture = lastLuminanceTexture.Resource;
                 epLastLuminanceTexture.SetValue(lastLuminanceTexture.Resource);
@@ -188,7 +188,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedLensExposure;
         private static void SetLensExposure(float lensExposure)
         {
-            if (lastUsedLensExposure != lensExposure || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLensExposure != lensExposure)
             {
                 lastUsedLensExposure = lensExposure;
                 epLensExposure.SetValue(lensExposure);
@@ -202,7 +202,7 @@ namespace XNAFinalEngine.Graphics
         private static bool? lastUsedAutoExposure;
         private static void SetAutoExposure(bool autoExposure)
         {
-            if (lastUsedAutoExposure != autoExposure || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedAutoExposure != autoExposure)
             {
                 lastUsedAutoExposure = autoExposure;
                 epAutoExposure.SetValue(autoExposure);
@@ -216,7 +216,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedAutoExposureAdjustTimeMultiplier;
         private static void SetAutoExposureAdjustTimeMultiplier(float exposureAdjustTimeMultiplier)
         {
-            if (lastUsedAutoExposureAdjustTimeMultiplier != exposureAdjustTimeMultiplier || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedAutoExposureAdjustTimeMultiplier != exposureAdjustTimeMultiplier)
             {
                 lastUsedAutoExposureAdjustTimeMultiplier = exposureAdjustTimeMultiplier;
                 epExposureAdjustTimeMultiplier.SetValue(exposureAdjustTimeMultiplier);
@@ -230,7 +230,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedAutoExposureLuminanceLowThreshold;
         private static void SetAutoExposureLuminanceLowThreshold(float autoExposureLuminanceLowThreshold)
         {
-            if (lastUsedAutoExposureLuminanceLowThreshold != autoExposureLuminanceLowThreshold || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedAutoExposureLuminanceLowThreshold != autoExposureLuminanceLowThreshold)
             {
                 lastUsedAutoExposureLuminanceLowThreshold = autoExposureLuminanceLowThreshold;
                 epLuminanceLowThreshold.SetValue(autoExposureLuminanceLowThreshold);
@@ -244,7 +244,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedAutoExposureLuminanceHighThreshold;
         private static void SetAutoExposureLuminanceHighThreshold(float autoExposureLuminanceHighThreshold)
         {
-            if (lastUsedAutoExposureLuminanceHighThreshold != autoExposureLuminanceHighThreshold || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedAutoExposureLuminanceHighThreshold != autoExposureLuminanceHighThreshold)
             {
                 lastUsedAutoExposureLuminanceHighThreshold = autoExposureLuminanceHighThreshold;
                 epLuminanceHighThreshold.SetValue(autoExposureLuminanceHighThreshold);
@@ -262,7 +262,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedWhiteLevel;
         private static void SetWhiteLevel(float whiteLevel)
         {
-            if (lastUsedWhiteLevel != whiteLevel || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedWhiteLevel != whiteLevel)
             {
                 lastUsedWhiteLevel = whiteLevel;
                 epWhiteLevel.SetValue(whiteLevel);
@@ -276,7 +276,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedLuminanceSaturation;
         private static void SetLuminanceSaturation(float luminanceSaturation)
         {
-            if (lastUsedLuminanceSaturation != luminanceSaturation || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLuminanceSaturation != luminanceSaturation)
             {
                 lastUsedLuminanceSaturation = luminanceSaturation;
                 epLuminanceSaturation.SetValue(luminanceSaturation);
@@ -290,7 +290,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedBias;
         private static void SetBias(float bias)
         {
-            if (lastUsedBias != bias || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedBias != bias)
             {
                 lastUsedBias = bias;
                 epBias.SetValue(bias);
@@ -304,7 +304,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedShoulderStrength;
         private static void SetShoulderStrength(float shoulderStrength)
         {
-            if (lastUsedShoulderStrength != shoulderStrength || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedShoulderStrength != shoulderStrength)
             {
                 lastUsedShoulderStrength = shoulderStrength;
                 epShoulderStrength.SetValue(shoulderStrength);
@@ -318,7 +318,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedLinearStrength;
         private static void SetLinearStrength(float linearStrength)
         {
-            if (lastUsedLinearStrength != linearStrength || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLinearStrength != linearStrength)
             {
                 lastUsedLinearStrength = linearStrength;
                 epLinearStrength.SetValue(linearStrength);
@@ -332,7 +332,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedLinearAngle;
         private static void SetLinearAngle(float linearAngle)
         {
-            if (lastUsedLinearAngle != linearAngle || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLinearAngle != linearAngle)
             {
                 lastUsedLinearAngle = linearAngle;
                 epLinearAngle.SetValue(linearAngle);
@@ -346,7 +346,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedToeStrength;
         private static void SetToeStrength(float toeStrength)
         {
-            if (lastUsedToeStrength != toeStrength || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedToeStrength != toeStrength)
             {
                 lastUsedToeStrength = toeStrength;
                 epToeStrength.SetValue(toeStrength);
@@ -360,7 +360,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedToeNumerator;
         private static void SetToeNumerator(float toeNumerator)
         {
-            if (lastUsedToeNumerator != toeNumerator || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedToeNumerator != toeNumerator)
             {
                 lastUsedToeNumerator = toeNumerator;
                 epToeNumerator.SetValue(toeNumerator);
@@ -374,7 +374,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedToeDenominator;
         private static void SetToeDenominator(float toeDenominator)
         {
-            if (lastUsedToeDenominator != toeDenominator || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedToeDenominator != toeDenominator)
             {
                 lastUsedToeDenominator = toeDenominator;
                 epToeDenominator.SetValue(toeDenominator);
@@ -388,7 +388,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedLinearWhite;
         private static void SetLinearWhite(float linearWhite)
         {
-            if (lastUsedLinearWhite != linearWhite || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLinearWhite != linearWhite)
             {
                 lastUsedLinearWhite = linearWhite;
                 epLinearWhite.SetValue(linearWhite);
@@ -406,7 +406,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedBloomScale;
         private static void SetBloomScale(float bloomScale)
         {
-            if (lastUsedBloomScale != bloomScale || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedBloomScale != bloomScale)
             {
                 lastUsedBloomScale = bloomScale;
                 epBloomScale.SetValue(bloomScale);
@@ -422,7 +422,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[10] = SamplerState.AnisotropicClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedBloomTexture != bloomTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedBloomTexture != bloomTexture.Resource)
             {
                 lastUsedBloomTexture = bloomTexture.Resource;
                 epBloomTexture.SetValue(bloomTexture.Resource);
@@ -436,7 +436,7 @@ namespace XNAFinalEngine.Graphics
         private static bool? lastUsedBloomEnabled;
         private static void SetBloomEnabled(bool bloomEnabled)
         {
-            if (lastUsedBloomEnabled != bloomEnabled || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedBloomEnabled != bloomEnabled)
             {
                 lastUsedBloomEnabled = bloomEnabled;
                 epBloomEnabled.SetValue(bloomEnabled);
@@ -454,7 +454,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedInputBlack;
         private static void SetInputBlack(float inputBlack)
         {
-            if (lastUsedInputBlack != inputBlack || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedInputBlack != inputBlack)
             {
                 lastUsedInputBlack = inputBlack;
                 epInputBlack.SetValue(inputBlack);
@@ -468,7 +468,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedInputWhite;
         private static void SetInputWhite(float inputWhite)
         {
-            if (lastUsedInputWhite != inputWhite || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedInputWhite != inputWhite)
             {
                 lastUsedInputWhite = inputWhite;
                 epInputWhite.SetValue(inputWhite);
@@ -482,7 +482,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedInputGamma;
         private static void SetInputGamma(float inputGamma)
         {
-            if (lastUsedInputGamma != inputGamma || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedInputGamma != inputGamma)
             {
                 lastUsedInputGamma = inputGamma;
                 epInputGamma.SetValue(inputGamma);
@@ -496,7 +496,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedOutputBlack;
         private static void SetOutputBlack(float outputBlack)
         {
-            if (lastUsedOutputBlack != outputBlack || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedOutputBlack != outputBlack)
             {
                 lastUsedOutputBlack = outputBlack;
                 epOutputBlack.SetValue(outputBlack);
@@ -510,7 +510,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedOutputWhite;
         private static void SetOutputWhite(float outputWhite)
         {
-            if (lastUsedOutputWhite != outputWhite || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedOutputWhite != outputWhite)
             {
                 lastUsedOutputWhite = outputWhite;
                 epOutputWhite.SetValue(outputWhite);
@@ -524,7 +524,7 @@ namespace XNAFinalEngine.Graphics
         private static bool? lastUsedAdjustLevelsEnabled;
         private static void SetAdjustLevelsEnabled(bool adjustLevelsEnabled)
         {
-            if (lastUsedAdjustLevelsEnabled != adjustLevelsEnabled || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedAdjustLevelsEnabled != adjustLevelsEnabled)
             {
                 lastUsedAdjustLevelsEnabled = adjustLevelsEnabled;
                 epAdjustLevelsEnabled.SetValue(adjustLevelsEnabled);
@@ -542,7 +542,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector3? lastUsedInputBlackRgb;
         private static void SetInputBlackRgb(Vector3 inputBlackRgb)
         {
-            if (lastUsedInputBlackRgb != inputBlackRgb || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedInputBlackRgb != inputBlackRgb)
             {
                 lastUsedInputBlackRgb = inputBlackRgb;
                 epInputBlackRgb.SetValue(inputBlackRgb);
@@ -556,7 +556,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector3? lastUsedInputWhiteRgb;
         private static void SetInputWhiteRgb(Vector3 inputWhiteRgb)
         {
-            if (lastUsedInputWhiteRgb != inputWhiteRgb || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedInputWhiteRgb != inputWhiteRgb)
             {
                 lastUsedInputWhiteRgb = inputWhiteRgb;
                 epInputWhiteRgb.SetValue(inputWhiteRgb);
@@ -570,7 +570,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector3? lastUsedInputGammaRgb;
         private static void SetInputGammaRgb(Vector3 inputGammaRgb)
         {
-            if (lastUsedInputGammaRgb != inputGammaRgb || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedInputGammaRgb != inputGammaRgb)
             {
                 lastUsedInputGammaRgb = inputGammaRgb;
                 epInputGammaRgb.SetValue(inputGammaRgb);
@@ -584,7 +584,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector3? lastUsedOutputBlackRgb;
         private static void SetOutputBlackRgb(Vector3 outputBlackRgb)
         {
-            if (lastUsedOutputBlackRgb != outputBlackRgb || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedOutputBlackRgb != outputBlackRgb)
             {
                 lastUsedOutputBlackRgb = outputBlackRgb;
                 epOutputBlackRgb.SetValue(outputBlackRgb);
@@ -598,7 +598,7 @@ namespace XNAFinalEngine.Graphics
         private static Vector3? lastUsedOutputWhiteRgb;
         private static void SetOutputWhiteRgb(Vector3 outputWhiteRgb)
         {
-            if (lastUsedOutputWhiteRgb != outputWhiteRgb || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedOutputWhiteRgb != outputWhiteRgb)
             {
                 lastUsedOutputWhiteRgb = outputWhiteRgb;
                 epOutputWhiteRgb.SetValue(outputWhiteRgb);
@@ -612,7 +612,7 @@ namespace XNAFinalEngine.Graphics
         private static bool? lastUsedAdjustLevelsIndividualChannelsEnabled;
         private static void SetAdjustLevelsIndividualChannelsEnabled(bool adjustLevelsIndividualChannelsEnabled)
         {
-            if (lastUsedAdjustLevelsIndividualChannelsEnabled != adjustLevelsIndividualChannelsEnabled || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedAdjustLevelsIndividualChannelsEnabled != adjustLevelsIndividualChannelsEnabled)
             {
                 lastUsedAdjustLevelsIndividualChannelsEnabled = adjustLevelsIndividualChannelsEnabled;
                 epAdjustLevelsIndividualChannelsEnabled.SetValue(adjustLevelsIndividualChannelsEnabled);
@@ -630,7 +630,7 @@ namespace XNAFinalEngine.Graphics
         private static bool? lastUsedColorCorrectOneLutEnabled;
         private static void SetColorCorrectOneLutEnabled(bool colorCorrectOneLutEnabled)
         {
-            if (lastUsedColorCorrectOneLutEnabled != colorCorrectOneLutEnabled || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedColorCorrectOneLutEnabled != colorCorrectOneLutEnabled)
             {
                 lastUsedColorCorrectOneLutEnabled = colorCorrectOneLutEnabled;
                 epColorCorrectOneLutEnabled.SetValue(colorCorrectOneLutEnabled);
@@ -644,7 +644,7 @@ namespace XNAFinalEngine.Graphics
         private static bool? lastUsedColorCorrectTwoLutEnabled;
         private static void SetColorCorrectTwoLutEnabled(bool colorCorrectTwoLutEnabled)
         {
-            if (lastUsedColorCorrectTwoLutEnabled != colorCorrectTwoLutEnabled || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedColorCorrectTwoLutEnabled != colorCorrectTwoLutEnabled)
             {
                 lastUsedColorCorrectTwoLutEnabled = colorCorrectTwoLutEnabled;
                 epColorCorrectTwoLutEnabled.SetValue(colorCorrectTwoLutEnabled);
@@ -658,7 +658,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedLookupTableScale;
         private static void SetLookupTableScale(float lookupTableScale)
         {
-            if (lastUsedLookupTableScale != lookupTableScale || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLookupTableScale != lookupTableScale)
             {
                 lastUsedLookupTableScale = lookupTableScale;
                 epLookupTableScale.SetValue(lookupTableScale);
@@ -672,7 +672,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedLookupTableOffset;
         private static void SetLookupTableOffset(float lookupTableOffset)
         {
-            if (lastUsedLookupTableOffset != lookupTableOffset || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLookupTableOffset != lookupTableOffset)
             {
                 lastUsedLookupTableOffset = lookupTableOffset;
                 epLookupTableOffset.SetValue(lookupTableOffset);
@@ -686,7 +686,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedLerpOriginalColorAmount;
         private static void SetLerpOriginalColorAmount(float lerpOriginalColorAmount)
         {
-            if (lastUsedLerpOriginalColorAmount != lerpOriginalColorAmount || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLerpOriginalColorAmount != lerpOriginalColorAmount)
             {
                 lastUsedLerpOriginalColorAmount = lerpOriginalColorAmount;
                 epLerpOriginalColorAmount.SetValue(lerpOriginalColorAmount);
@@ -700,7 +700,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedLerpLookupTablesAmount;
         private static void SetLerpLookupTablesAmount(float lerpLookupTablesAmount)
         {
-            if (lastUsedLerpLookupTablesAmount != lerpLookupTablesAmount || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLerpLookupTablesAmount != lerpLookupTablesAmount)
             {
                 lastUsedLerpLookupTablesAmount = lerpLookupTablesAmount;
                 epLerpLookupTablesAmount.SetValue(lerpLookupTablesAmount);
@@ -716,7 +716,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[5] = SamplerState.LinearClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedFirstLookupTable != firstLookupTable.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedFirstLookupTable != firstLookupTable.Resource)
             {
                 lastUsedFirstLookupTable = firstLookupTable.Resource;
                 epFirstlookupTable.SetValue(firstLookupTable.Resource);
@@ -732,7 +732,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[6] = SamplerState.LinearClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedSecondLookupTable != secondLookupTable.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedSecondLookupTable != secondLookupTable.Resource)
             {
                 lastUsedSecondLookupTable = secondLookupTable.Resource;
                 epSecondlookupTable.SetValue(secondLookupTable.Resource);
@@ -750,7 +750,7 @@ namespace XNAFinalEngine.Graphics
         private static bool? lastUsedFilmGrainEnabled;
         private static void SetFilmGrainEnabled(bool filmGrainEnabled)
         {
-            if (lastUsedFilmGrainEnabled != filmGrainEnabled || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedFilmGrainEnabled != filmGrainEnabled)
             {
                 lastUsedFilmGrainEnabled = filmGrainEnabled;
                 epFilmGrainEnabled.SetValue(filmGrainEnabled);
@@ -764,7 +764,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedFilmGrainStrength;
         private static void SetFilmGrainStrength(float filmGrainStrength)
         {
-            if (lastUsedFilmGrainStrength != filmGrainStrength || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedFilmGrainStrength != filmGrainStrength)
             {
                 lastUsedFilmGrainStrength = filmGrainStrength;
                 epFilmGrainStrength.SetValue(filmGrainStrength);
@@ -778,7 +778,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedAccentuateDarkNoisePower;
         private static void SetAccentuateDarkNoisePower(float accentuateDarkNoisePower)
         {
-            if (lastUsedAccentuateDarkNoisePower != accentuateDarkNoisePower || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedAccentuateDarkNoisePower != accentuateDarkNoisePower)
             {
                 lastUsedAccentuateDarkNoisePower = accentuateDarkNoisePower;
                 epAccentuateDarkNoisePower.SetValue(accentuateDarkNoisePower);
@@ -792,7 +792,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedRandomNoiseStrength;
         private static void SetRandomNoiseStrength(float randomNoiseStrength)
         {
-            if (lastUsedRandomNoiseStrength != randomNoiseStrength || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedRandomNoiseStrength != randomNoiseStrength)
             {
                 lastUsedRandomNoiseStrength = randomNoiseStrength;
                 epRandomNoiseStrength.SetValue(randomNoiseStrength);
@@ -806,7 +806,7 @@ namespace XNAFinalEngine.Graphics
         private static float? lastUsedRandomValue;
         private static void SetRandomValue(float randomValue)
         {
-            if (lastUsedRandomValue != randomValue || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedRandomValue != randomValue)
             {
                 lastUsedRandomValue = randomValue;
                 epRandomValue.SetValue(randomValue);

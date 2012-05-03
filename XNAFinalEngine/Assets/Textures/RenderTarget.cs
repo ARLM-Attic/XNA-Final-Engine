@@ -150,7 +150,7 @@ namespace XNAFinalEngine.Assets
         {
             get
             {
-                if (renderTarget.IsDisposed)
+                if (renderTarget != null && renderTarget.IsDisposed)
                     renderTarget = null;
                 if (alreadyResolved)
                     return renderTarget;
@@ -655,7 +655,8 @@ namespace XNAFinalEngine.Assets
                     return;
                 }
             }
-            throw new ArgumentException("Render Target: Cannot release multiple render target. The multiple render target is not present in the pool.");
+            // If not do nothing.
+            //throw new ArgumentException("Render Target: Cannot release multiple render target. The multiple render target is not present in the pool.");
         } // Release
 
         public static void ClearMultpleRenderTargetPool()

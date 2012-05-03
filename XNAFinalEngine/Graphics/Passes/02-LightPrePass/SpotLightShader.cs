@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -107,10 +107,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Half Pixel
 
-        private static Vector2? lastUsedHalfPixel;
+        private static Vector2 lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
-            if (lastUsedHalfPixel != _halfPixel || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedHalfPixel != _halfPixel)
             {
                 lastUsedHalfPixel = _halfPixel;
                 epHalfPixel.SetValue(_halfPixel);
@@ -126,7 +126,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp; // depthTexture
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedDepthTexture != depthTexture.Resource)
             {
                 lastUsedDepthTexture = depthTexture.Resource;
                 epDepthTexture.SetValue(depthTexture.Resource);
@@ -142,7 +142,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTexture != normalTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedNormalTexture != normalTexture.Resource)
             {
                 lastUsedNormalTexture = normalTexture.Resource;
                 epNormalTexture.SetValue(normalTexture.Resource);
@@ -158,7 +158,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[4] = SamplerState.LinearClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedLightMaskTexture != lightMaskTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLightMaskTexture != lightMaskTexture.Resource)
             {
                 lastUsedLightMaskTexture = lightMaskTexture.Resource;
                 epLightMaskTexture.SetValue(lightMaskTexture.Resource);
@@ -174,7 +174,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedMotionVectorSpecularPower != motionVectorSpecularPower.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedMotionVectorSpecularPower != motionVectorSpecularPower.Resource)
             {
                 lastUsedMotionVectorSpecularPower = motionVectorSpecularPower.Resource;
                 epMotionVectorSpecularPowerTexture.SetValue(motionVectorSpecularPower.Resource);
@@ -185,10 +185,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Light Color
 
-        private static Color? lastUsedLightColor;
+        private static Color lastUsedLightColor;
         private static void SetLightColor(Color lightColor)
         {
-            if (lastUsedLightColor != lightColor || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLightColor != lightColor)
             {
                 lastUsedLightColor = lightColor;
                 epLightColor.SetValue(new Vector3(lightColor.R / 255f, lightColor.G / 255f, lightColor.B / 255f));
@@ -199,10 +199,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Light Position
 
-        private static Vector3? lastUsedLightPosition;
+        private static Vector3 lastUsedLightPosition;
         private static void SetLightPosition(Vector3 lightPosition)
         {
-            if (lastUsedLightPosition != lightPosition || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLightPosition != lightPosition)
             {
                 lastUsedLightPosition = lightPosition;
                 epLightPosition.SetValue(lightPosition);
@@ -213,10 +213,10 @@ namespace XNAFinalEngine.Graphics
         
         #region Light Intensity
 
-        private static float? lastUsedLightIntensity;
+        private static float lastUsedLightIntensity;
         private static void SetLightIntensity(float lightIntensity)
         {
-            if (lastUsedLightIntensity != lightIntensity || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLightIntensity != lightIntensity)
             {
                 lastUsedLightIntensity = lightIntensity;
                 epLlightIntensity.SetValue(lightIntensity);
@@ -227,10 +227,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Radius
 
-        private static float? lastUsedLightRadius;
+        private static float lastUsedLightRadius;
         private static void SetLightRadius(float lightRadius)
         {
-            if (lastUsedLightRadius != lightRadius || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLightRadius != lightRadius)
             {
                 lastUsedLightRadius = lightRadius;
                 epLightRadius.SetValue(lightRadius);
@@ -241,10 +241,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Light Direction
 
-        private static Vector3? lastUsedLightDirection;
+        private static Vector3 lastUsedLightDirection;
         private static void SetLightDirection(Vector3 lightDirection)
         {
-            if (lastUsedLightDirection != lightDirection || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLightDirection != lightDirection)
             {
                 lastUsedLightDirection = lightDirection;
                 epLightDirection.SetValue(lightDirection);
@@ -255,10 +255,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Light Inner Cone Angle
 
-        private static float? lastUsedLightInnerConeAngle;
+        private static float lastUsedLightInnerConeAngle;
         private static void SetLightInnerConeAngle(float lightInnerConeAngle)
         {
-            if (lastUsedLightInnerConeAngle != lightInnerConeAngle || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLightInnerConeAngle != lightInnerConeAngle)
             {
                 lastUsedLightInnerConeAngle = lightInnerConeAngle;
                 epLightInnerConeAngle.SetValue(lightInnerConeAngle / (3.141592f / 180.0f));
@@ -269,10 +269,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Light Outer Cone Angle
 
-        private static float? lastUsedLightOuterConeAngle;
+        private static float lastUsedLightOuterConeAngle;
         private static void SetLightOuterConeAngle(float lightOuterConeAngle)
         {
-            if (lastUsedLightOuterConeAngle != lightOuterConeAngle || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedLightOuterConeAngle != lightOuterConeAngle)
             {
                 lastUsedLightOuterConeAngle = lightOuterConeAngle;
                 epLightOuterConeAngle.SetValue(lightOuterConeAngle / (3.141592f / 180.0f));
@@ -286,7 +286,7 @@ namespace XNAFinalEngine.Graphics
         private static float lastUsedFarPlane;
         private static void SetFarPlane(float _farPlane)
         {
-            if (lastUsedFarPlane != _farPlane || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedFarPlane != _farPlane)
             {
                 lastUsedFarPlane = _farPlane;
                 epFarPlane.SetValue(_farPlane);
@@ -297,10 +297,10 @@ namespace XNAFinalEngine.Graphics
 
         #region Inside Bounding Light Object
 
-        private static bool? lastUsedInsideBoundingLightObject;
+        private static bool lastUsedInsideBoundingLightObject;
         private static void SetInsideBoundingLightObject(bool insideBoundingLightObject)
         {
-            if (lastUsedInsideBoundingLightObject != insideBoundingLightObject || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedInsideBoundingLightObject != insideBoundingLightObject)
             {
                 lastUsedInsideBoundingLightObject = insideBoundingLightObject;
                 epInsideBoundingLightObject.SetValue(insideBoundingLightObject);
@@ -311,30 +311,30 @@ namespace XNAFinalEngine.Graphics
 
         #region Matrices
 
-        private static Matrix? lastUsedWorldViewMatrix;
+        private static Matrix lastUsedWorldViewMatrix;
         private static void SetWorldViewMatrix(Matrix worldViewMatrix)
         {
-            if (lastUsedWorldViewMatrix != worldViewMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedWorldViewMatrix != worldViewMatrix)
             {
                 lastUsedWorldViewMatrix = worldViewMatrix;
                 epWorldView.SetValue(worldViewMatrix);
             }
         } // SetWorldViewMatrix
 
-        private static Matrix? lastUsedWorldViewProjMatrix;
+        private static Matrix lastUsedWorldViewProjMatrix;
         private static void SetWorldViewProjMatrix(Matrix worldViewProjectionMatrix)
         {
-            if (lastUsedWorldViewProjMatrix != worldViewProjectionMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedWorldViewProjMatrix != worldViewProjectionMatrix)
             {
                 lastUsedWorldViewProjMatrix = worldViewProjectionMatrix;
                 epWorldViewProj.SetValue(worldViewProjectionMatrix);
             }
         } // SetWorldViewProjMatrix
 
-        private static Matrix? lastUsedViewToLightViewProjMatrix;
+        private static Matrix lastUsedViewToLightViewProjMatrix;
         private static void SetViewToLightViewProjMatrix(Matrix viewToLightViewProjMatrix)
         {
-            if (lastUsedViewToLightViewProjMatrix != viewToLightViewProjMatrix || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedViewToLightViewProjMatrix != viewToLightViewProjMatrix)
             {
                 lastUsedViewToLightViewProjMatrix = viewToLightViewProjMatrix;
                 epViewToLightViewProj.SetValue(viewToLightViewProjMatrix);
@@ -350,7 +350,7 @@ namespace XNAFinalEngine.Graphics
         {
             EngineManager.Device.SamplerStates[3] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedShadowTexture != shadowTexture.Resource || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedShadowTexture != shadowTexture.Resource)
             {
                 lastUsedShadowTexture = shadowTexture.Resource;
                 epShadowTexture.SetValue(shadowTexture.Resource);
@@ -364,7 +364,7 @@ namespace XNAFinalEngine.Graphics
         private static bool lastUsedHasLightMask;
         private static void SetHasLightMask(bool hasLightMask)
         {
-            if (lastUsedHasLightMask != hasLightMask || EngineManager.DeviceDisposedThisFrame)
+            if (lastUsedHasLightMask != hasLightMask)
             {
                 lastUsedHasLightMask = hasLightMask;
                 epHasLightMask.SetValue(hasLightMask);
@@ -400,24 +400,48 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 epHalfPixel                        = Resource.Parameters["halfPixel"];
+                    epHalfPixel.SetValue(lastUsedHalfPixel);
                 epLightColor                       = Resource.Parameters["lightColor"];
+                    epLightColor.SetValue(new Vector3(lastUsedLightColor.R / 255f, lastUsedLightColor.G / 255f, lastUsedLightColor.B / 255f));
                 epLightPosition                    = Resource.Parameters["lightPosition"];
+                    epLightPosition.SetValue(lastUsedLightPosition);
                 epLlightIntensity                  = Resource.Parameters["lightIntensity"];
+                    epLlightIntensity.SetValue(lastUsedLightIntensity);
                 epLightRadius                      = Resource.Parameters["lightRadius"];
+                    epLightRadius.SetValue(lastUsedLightRadius);
                 epLightDirection                   = Resource.Parameters["lightDirection"];
+                    epLightDirection.SetValue(lastUsedLightDirection);
                 epLightOuterConeAngle              = Resource.Parameters["lightOuterAngle"];
+                    epLightOuterConeAngle.SetValue(lastUsedLightOuterConeAngle);
                 epLightInnerConeAngle              = Resource.Parameters["lightInnerAngle"];
+                    epLightInnerConeAngle.SetValue(lastUsedLightInnerConeAngle);
                 epDepthTexture                     = Resource.Parameters["depthTexture"];
+                    if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
+                        epDepthTexture.SetValue(lastUsedDepthTexture);
                 epNormalTexture                    = Resource.Parameters["normalTexture"];
+                    if (lastUsedNormalTexture != null && !lastUsedNormalTexture.IsDisposed)
+                        epNormalTexture.SetValue(lastUsedNormalTexture);
                 epMotionVectorSpecularPowerTexture = Resource.Parameters["motionVectorSpecularPowerTexture"];
+                    if (lastUsedMotionVectorSpecularPower != null && !lastUsedMotionVectorSpecularPower.IsDisposed)
+                        epMotionVectorSpecularPowerTexture.SetValue(lastUsedMotionVectorSpecularPower);
                 epFarPlane                         = Resource.Parameters["farPlane"];
+                    epFarPlane.SetValue(lastUsedFarPlane);
                 epWorldViewProj                    = Resource.Parameters["worldViewProj"];
+                    epWorldViewProj.SetValue(lastUsedWorldViewProjMatrix);
                 epWorldView                        = Resource.Parameters["worldView"];
+                    epWorldView.SetValue(lastUsedWorldViewMatrix);
                 epInsideBoundingLightObject        = Resource.Parameters["insideBoundingLightObject"];
+                    epInsideBoundingLightObject.SetValue(lastUsedInsideBoundingLightObject);
                 epShadowTexture                    = Resource.Parameters["shadowTexture"];
+                    if (lastUsedShadowTexture != null && !lastUsedShadowTexture.IsDisposed)
+                        epShadowTexture.SetValue(lastUsedShadowTexture);
                 epViewToLightViewProj              = Resource.Parameters["viewToLightViewProj"];
+                    epViewToLightViewProj.SetValue(lastUsedViewToLightViewProjMatrix);
                 epHasLightMask                     = Resource.Parameters["hasLightMask"];
+                    epHasLightMask.SetValue(lastUsedHasLightMask);
                 epLightMaskTexture                 = Resource.Parameters["lightMaskTexture"];
+                    if (lastUsedLightMaskTexture != null && !lastUsedLightMaskTexture.IsDisposed)
+                        epLightMaskTexture.SetValue(lastUsedLightMaskTexture);
             }
             catch
             {
