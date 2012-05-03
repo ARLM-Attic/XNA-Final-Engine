@@ -412,9 +412,9 @@ namespace XNAFinalEngine.Graphics
                 epLightDirection                   = Resource.Parameters["lightDirection"];
                     epLightDirection.SetValue(lastUsedLightDirection);
                 epLightOuterConeAngle              = Resource.Parameters["lightOuterAngle"];
-                    epLightOuterConeAngle.SetValue(lastUsedLightOuterConeAngle);
+                    epLightOuterConeAngle.SetValue(lastUsedLightOuterConeAngle / (3.141592f / 180.0f));
                 epLightInnerConeAngle              = Resource.Parameters["lightInnerAngle"];
-                    epLightInnerConeAngle.SetValue(lastUsedLightInnerConeAngle);
+                    epLightInnerConeAngle.SetValue(lastUsedLightInnerConeAngle/ (3.141592f / 180.0f));
                 epDepthTexture                     = Resource.Parameters["depthTexture"];
                     if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
                         epDepthTexture.SetValue(lastUsedDepthTexture);

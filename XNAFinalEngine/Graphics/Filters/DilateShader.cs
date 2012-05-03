@@ -81,7 +81,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Dilate Width
 
-        private static float? lastUsedDilateWidth;
+        private static float lastUsedDilateWidth;
         private static void SetDilateWidth(float _dilateWidth)
         {
             if (lastUsedDilateWidth != _dilateWidth)
@@ -95,7 +95,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Half Pixel
 
-        private static Vector2? lastUsedHalfPixel;
+        private static Vector2 lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 halfPixel)
         {
             if (lastUsedHalfPixel != halfPixel)
@@ -124,7 +124,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Texture Resolution
 
-        private static Vector2? lastUsedTextureResolution;
+        private static Vector2 lastUsedTextureResolution;
         private static void SetTextureResolution(Vector2 textureResolution)
         {
             if (lastUsedTextureResolution != textureResolution)
@@ -159,10 +159,15 @@ namespace XNAFinalEngine.Graphics
 		{
             try
             {
-			    epTextureResolution = Resource.Parameters["textureResolution"];
-                epDilateWidth       = Resource.Parameters["dilateWidth"];
-                epTexture           = Resource.Parameters["sceneMap"];
-                epHalfPixel         = Resource.Parameters["halfPixel"];
+                epTextureResolution = Resource.Parameters["textureResolution"];
+                    epTextureResolution.SetValue(lastUsedTextureResolution);
+                epDilateWidth = Resource.Parameters["dilateWidth"];
+                    epDilateWidth.SetValue(lastUsedDilateWidth);
+                epTexture = Resource.Parameters["sceneTexture"];
+                    if (lastUsedTexture != null && !lastUsedTexture.IsDisposed)
+                        epTexture.SetValue(lastUsedTexture);
+                epHalfPixel = Resource.Parameters["halfPixel"];
+                    epHalfPixel.SetValue(lastUsedHalfPixel);
             }
             catch
             {

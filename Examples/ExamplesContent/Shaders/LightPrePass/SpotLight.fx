@@ -157,7 +157,7 @@ float4 ps_main(uniform bool hasShadows, VS_OUT input) : COLOR0
 			Discard();
 		}
 	}
-			
+	
 	// This is a ray constructed using the camera frustum.
     // Because it will be interpolated for the current pixel we can use
     // this to reconstruct the position of the surface we want to light.
@@ -177,7 +177,7 @@ float4 ps_main(uniform bool hasShadows, VS_OUT input) : COLOR0
 			
     // Compute diffuse light
     float NL = max(dot(N, normalize(L)), 0);
-
+	
 	// Compute attenuation
 		// Basic attenuation
 		//float attenuation = saturate(1.0f - dot(L, L) / pow(lightRadius, 2)); // length(L)

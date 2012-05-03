@@ -170,7 +170,6 @@
     <Compile Include="Graphics\Particles\ParticleShader.cs" />
     <Compile Include="Graphics\Particles\ParticleSystem.cs" />
     <Compile Include="Graphics\Particles\ParticleVertex.cs" />
-    <Compile Include="Graphics\Passes\01-GBuffer\CombineDepthAndNormalsShader.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\DepthDownsamplerShader.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBufferShader.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBufferPass.cs" />

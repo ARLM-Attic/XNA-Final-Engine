@@ -81,7 +81,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Blur Width
 
-        private static float? lastUsedBlurWidth;
+        private static float lastUsedBlurWidth;
         private static void SetBlurWidth(float _blurWidth)
         {
             if (lastUsedBlurWidth != _blurWidth)
@@ -95,7 +95,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Half Pixel
 
-        private static Vector2? lastUsedHalfPixel;
+        private static Vector2 lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 halfPixel)
         {
             if (lastUsedHalfPixel != halfPixel)
@@ -124,7 +124,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Texture Resolution
 
-        private static Vector2? lastUsedTextureResolution;
+        private static Vector2 lastUsedTextureResolution;
         private static void SetTextureResolution(Vector2 textureResolution)
         {
             if (lastUsedTextureResolution != textureResolution)
@@ -160,9 +160,14 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 epTextureResolution = Resource.Parameters["textureResolution"];
+                    epTextureResolution.SetValue(lastUsedTextureResolution);
                 epBlurWidth         = Resource.Parameters["blurWidth"];
+                    epBlurWidth.SetValue(lastUsedBlurWidth);
                 epTexture           = Resource.Parameters["sceneTexture"];
+                    if (lastUsedTexture != null && !lastUsedTexture.IsDisposed)
+                        epTexture.SetValue(lastUsedTexture);
                 epHalfPixel         = Resource.Parameters["halfPixel"];
+                    epHalfPixel.SetValue(lastUsedHalfPixel);
             }
             catch
             {

@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -103,7 +103,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Matrices
 
-        private static Matrix? lastUsedViewProjectionMatrix;
+        private static Matrix lastUsedViewProjectionMatrix;
         private static void SetViewProjectionMatrix(Matrix viewProjectionMatrix)
         {
             if (lastUsedViewProjectionMatrix != viewProjectionMatrix)
@@ -113,7 +113,7 @@ namespace XNAFinalEngine.Graphics
             }
         } // SetViewProjectionMatrix
 
-        private static Matrix? lastUsedProjectionMatrix;
+        private static Matrix lastUsedProjectionMatrix;
         private static void SetProjectionMatrix(Matrix projectionMatrix)
         {
             if (lastUsedProjectionMatrix != projectionMatrix)
@@ -123,7 +123,7 @@ namespace XNAFinalEngine.Graphics
             }
         } // SetProjectionMatrix
 
-        private static Matrix? lastUsedProjectionInvertMatrix;
+        private static Matrix lastUsedProjectionInvertMatrix;
         private static void SetProjectionInvertMatrix(Matrix projectionInvertMatrix)
         {
             if (lastUsedProjectionInvertMatrix != projectionInvertMatrix)
@@ -137,7 +137,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Viewport Scale
 
-        private static Vector2? lastUsedViewportScale;
+        private static Vector2 lastUsedViewportScale;
         private static void SetViewportScale(Vector2 _viewportScale)
         {
             if (lastUsedViewportScale != _viewportScale)
@@ -151,7 +151,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Current Time
 
-        private static float? lastUsedCurrentTime;
+        private static float lastUsedCurrentTime;
         private static void SetCurrentTime(float _currentTime)
         {
             if (lastUsedCurrentTime != _currentTime)
@@ -167,7 +167,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Duration
 
-        private static float? lastUsedDuration;
+        private static float lastUsedDuration;
         private static void SetDuration(float _duration)
         {
             if (lastUsedDuration != _duration)
@@ -181,7 +181,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Duration Randomness
 
-        private static float? lastUsedDurationRandomness;
+        private static float lastUsedDurationRandomness;
         private static void SetDurationRandomness(float _durationRandomness)
         {
             if (lastUsedDurationRandomness != _durationRandomness)
@@ -195,7 +195,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Gravity
 
-        private static Vector3? lastUsedGravity;
+        private static Vector3 lastUsedGravity;
         protected void SetGravity(Vector3 _gravity)
         {
             if (lastUsedGravity != _gravity)
@@ -209,7 +209,7 @@ namespace XNAFinalEngine.Graphics
 
         #region End velocity
 
-        private static float? lastUsedEndVelocity;
+        private static float lastUsedEndVelocity;
         private static void SetEndVelocity(float _endVelocity)
         {
             if (lastUsedEndVelocity != _endVelocity)
@@ -223,7 +223,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Minimum Color
 
-        private static Color? lastUsedMinimumColor;
+        private static Color lastUsedMinimumColor;
         protected void SetMinimumColor(Color _minimumColor)
         {
             if (lastUsedMinimumColor != _minimumColor)
@@ -237,7 +237,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Maximum Color
 
-        private static Color? lastUsedMaximumColor;
+        private static Color lastUsedMaximumColor;
         protected void SetMaximumColor(Color _maximumColor)
         {
             if (lastUsedMaximumColor != _maximumColor)
@@ -251,7 +251,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Rotate Speed
 
-        private static Vector2? lastUsedRotateSpeed;
+        private static Vector2 lastUsedRotateSpeed;
         private static void SetRotateSpeed(Vector2 _rotateSpeed)
         {
             if (lastUsedRotateSpeed != _rotateSpeed)
@@ -265,7 +265,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Start Size
 
-        private static Vector2? lastUsedStartSize;
+        private static Vector2 lastUsedStartSize;
         private static void SetStartSize(Vector2 _startSize)
         {
             if (lastUsedStartSize != _startSize)
@@ -279,7 +279,7 @@ namespace XNAFinalEngine.Graphics
 
         #region End Size
 
-        private static Vector2? lastUsedEndSize;
+        private static Vector2 lastUsedEndSize;
         private static void SetEndSize(Vector2 _endSize)
         {
             if (lastUsedEndSize != _endSize)
@@ -327,7 +327,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Half Pixel
 
-        private static Vector2? lastUsedHalfPixel;
+        private static Vector2 lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
             if (lastUsedHalfPixel != _halfPixel)
@@ -355,12 +355,12 @@ namespace XNAFinalEngine.Graphics
 
         #region Fade Distance
 
-        private static float? lastFadeDistance;
+        private static float lastUsedFadeDistance;
         private static void SetFadeDistance(float fadeDistance)
         {
-            if (lastFadeDistance != fadeDistance)
+            if (lastUsedFadeDistance != fadeDistance)
             {
-                lastFadeDistance = fadeDistance;
+                lastUsedFadeDistance = fadeDistance;
                 epFadeDistance.SetValue(fadeDistance);
             }
         } // SetFadeDistance
@@ -392,27 +392,48 @@ namespace XNAFinalEngine.Graphics
             {
                 // Matrices //
                 epViewProjection     = Resource.Parameters["viewProjection"];
+                    epViewProjection.SetValue(lastUsedViewProjectionMatrix);
                 epProjection         = Resource.Parameters["Projection"];
+                    epProjection.SetValue(lastUsedProjectionMatrix);
                 // Surface //    
                 epViewportScale      = Resource.Parameters["ViewportScale"];
+                    epViewportScale.SetValue(lastUsedViewportScale);
                 epCurrentTime        = Resource.Parameters["CurrentTime"];
+                    epCurrentTime.SetValue(lastUsedCurrentTime);
                 epDuration           = Resource.Parameters["Duration"];
+                    epDuration.SetValue(lastUsedDuration);
                 epDurationRandomness = Resource.Parameters["DurationRandomness"];
+                    epDurationRandomness.SetValue(lastUsedDurationRandomness);
                 epGravity            = Resource.Parameters["Gravity"];
+                    epGravity.SetValue(lastUsedGravity);
                 epEndVelocity        = Resource.Parameters["EndVelocity"];
+                    epEndVelocity.SetValue(lastUsedEndVelocity);
                 epMinColor           = Resource.Parameters["MinColor"];
+                    epMinColor.SetValue(new Vector4(lastUsedMinimumColor.R / 255f, lastUsedMinimumColor.G / 255f, lastUsedMinimumColor.B / 255f, lastUsedMinimumColor.A / 255f));
                 epMaxColor           = Resource.Parameters["MaxColor"];
+                    epMaxColor.SetValue(new Vector4(lastUsedMaximumColor.R / 255f, lastUsedMaximumColor.G / 255f, lastUsedMaximumColor.B / 255f, lastUsedMaximumColor.A / 255f));
                 epRotateSpeed        = Resource.Parameters["RotateSpeed"];
+                    epRotateSpeed.SetValue(lastUsedRotateSpeed);
                 epStartSize          = Resource.Parameters["StartSize"];
+                    epStartSize.SetValue(lastUsedStartSize);
                 epEndSize            = Resource.Parameters["EndSize"];
+                    epEndSize.SetValue(lastUsedEndSize);
                 // Textures //
                 epTexture = Resource.Parameters["particleTexture"];
+                    if (lastUsedTexture != null && !lastUsedTexture.IsDisposed)
+                        epTexture.SetValue(lastUsedTexture);
                 // Soft Particles //
                 epProjectionInvert = Resource.Parameters["ProjI"];
+                    epProjectionInvert.SetValue(lastUsedProjectionInvertMatrix);
                 epFarPlane         = Resource.Parameters["farPlane"];
+                    epFarPlane.SetValue(lastUsedFarPlane);
                 epDepthTexture     = Resource.Parameters["depthTexture"];
+                    if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
+                        epDepthTexture.SetValue(lastUsedDepthTexture);
                 epHalfPixel        = Resource.Parameters["halfPixel"];
+                    epHalfPixel.SetValue(lastUsedHalfPixel);
                 epFadeDistance     = Resource.Parameters["fadeDistance"];
+                    epFadeDistance.SetValue(lastUsedFadeDistance);
             }
             catch
             {

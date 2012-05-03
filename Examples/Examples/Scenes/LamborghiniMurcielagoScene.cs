@@ -945,8 +945,8 @@ namespace XNAFinalEngineExamples
             pointLight7.PointLight.Intensity = 200f;
             pointLight7.PointLight.Range = 50; // I always forget to set the light range lower than the camera far plane.
             pointLight7.PointLight.SpecularColor = Color.White;
-            pointLight7.Transform.Position = new Vector3(-15, 5f, -30);*/
-            
+            pointLight7.Transform.Position = new Vector3(-15, 5f, -30);
+            */
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
             spotLight.SpotLight.DiffuseColor = Color.Green;

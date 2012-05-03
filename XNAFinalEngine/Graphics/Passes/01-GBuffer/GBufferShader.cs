@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -107,7 +107,7 @@ namespace XNAFinalEngine.Graphics
         
         #region Transpose Inverse World View Matrix
 
-        private static Matrix? lastUsedTransposeInverseWorldViewMatrix;
+        private static Matrix lastUsedTransposeInverseWorldViewMatrix;
         private static void SetTransposeInverseWorldViewMatrix(Matrix transposeInverseWorldViewMatrix)
         {
             if (lastUsedTransposeInverseWorldViewMatrix != transposeInverseWorldViewMatrix)
@@ -121,7 +121,7 @@ namespace XNAFinalEngine.Graphics
 
         #region World View Matrix
 
-        private static Matrix? lastUsedWorldViewMatrix;
+        private static Matrix lastUsedWorldViewMatrix;
         private static void SetWorldViewMatrix(Matrix worldViewMatrix)
         {
             if (lastUsedWorldViewMatrix != worldViewMatrix)
@@ -135,7 +135,7 @@ namespace XNAFinalEngine.Graphics
 
         #region World View Projection Matrix
 
-        private static Matrix? lastUsedWorldViewProjMatrix;
+        private static Matrix lastUsedWorldViewProjMatrix;
         private static void SetWorldViewProjMatrix(Matrix worldViewProjMatrix)
         {
             if (lastUsedWorldViewProjMatrix != worldViewProjMatrix)
@@ -236,7 +236,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Specular Power
 
-        private static float? lastUsedSpecularPower;
+        private static float lastUsedSpecularPower;
         private static void SetSpecularPower(float specularPower)
         {
             if (lastUsedSpecularPower != specularPower)
@@ -280,7 +280,7 @@ namespace XNAFinalEngine.Graphics
 
         #region UvRectangle
 
-        private static RectangleF? lastUsedUvRectangle;
+        private static RectangleF lastUsedUvRectangle;
         private static void SetUvRectangle(RectangleF uvRectangle)
         {
             if (lastUsedUvRectangle != uvRectangle)
@@ -396,29 +396,52 @@ namespace XNAFinalEngine.Graphics
             {
                 // Matrices //
                 epWorldViewProj           = Resource.Parameters["worldViewProj"];
+                    epWorldViewProj.SetValue(lastUsedWorldViewProjMatrix);
                 epWorldView               = Resource.Parameters["worldView"];
+                    epWorldView.SetValue(lastUsedWorldViewMatrix);
                 epWorldViewIT             = Resource.Parameters["worldViewIT"];
+                    epWorldViewIT.SetValue(lastUsedTransposeInverseWorldViewMatrix);
                 // Others //
                 epFarPlane                = Resource.Parameters["farPlane"];
+                    epFarPlane.SetValue(lastUsedFarPlane);
                 epObjectNormalTexture     = Resource.Parameters["objectNormalTexture"];
+                    if (lastUsedObjectNormalTextureTexture != null && !lastUsedObjectNormalTextureTexture.IsDisposed)
+                        epObjectNormalTexture.SetValue(lastUsedObjectNormalTextureTexture);
                 epSpecularPower           = Resource.Parameters["specularPower"];
+                    epSpecularPower.SetValue(lastUsedSpecularPower);
                 epObjectSpecularTexture   = Resource.Parameters["objectSpecularTexture"];
+                    if (lastUsedSpecularTexture != null && !lastUsedSpecularTexture.IsDisposed)
+                        epObjectSpecularTexture.SetValue(lastUsedSpecularTexture);
                 epSpecularTextured        = Resource.Parameters["specularTextured"];
+                    epSpecularTextured.SetValue(lastUsedSpecularTextured);
                 // Parallax //
                 epObjectNormalTextureSize = Resource.Parameters["objectNormalTextureSize"];
-                epLODThreshold            = Resource.Parameters["LODThreshold"];
-                epMinimumNumberSamples    = Resource.Parameters["minimumNumberSamples"];
-                epMaximumNumberSamples    = Resource.Parameters["maximumNumberSamples"];
-                epHeightMapScale          = Resource.Parameters["heightMapScale"];
+                    if (lastUsedObjectNormalTextureTexture != null && !lastUsedObjectNormalTextureTexture.IsDisposed)
+                        epObjectNormalTextureSize.SetValue(new Vector2(lastUsedObjectNormalTextureTexture.Width, lastUsedObjectNormalTextureTexture.Height));
+                 epLODThreshold         = Resource.Parameters["LODThreshold"];
+                    epLODThreshold.SetValue(lastUsedLODThreshold);
+                epMinimumNumberSamples = Resource.Parameters["minimumNumberSamples"];
+                    epMinimumNumberSamples.SetValue(lastUsedMinimumNumberSamples);
+                epMaximumNumberSamples = Resource.Parameters["maximumNumberSamples"];
+			        epMaximumNumberSamples.SetValue(lastUsedMaximumNumberSamples);
+                epHeightMapScale       = Resource.Parameters["heightMapScale"];
+                    epHeightMapScale.SetValue(lastUsedHeightMapScale);
                 // Skinning //
                 epBones                   = Resource.Parameters["Bones"];
                 // Terrain //
                 epUvRectangleMin          = Resource.Parameters["uvRectangleMin"];
+                    epUvRectangleMin.SetValue(new Vector2(lastUsedUvRectangle.X, lastUsedUvRectangle.Y));
                 epUvRectangleSide         = Resource.Parameters["uvRectangleSide"];
+                    epUvRectangleSide.SetValue(new Vector2(lastUsedUvRectangle.Width, lastUsedUvRectangle.Height));
                 epFarTerrainBeginDistance = Resource.Parameters["farTerrainBeginDistance"];
+                    epFarTerrainBeginDistance.SetValue(lastUsedFarTerrainBeginDistance);
                 epFlatRange               = Resource.Parameters["flatRange"];
+                    epFlatRange.SetValue(lastUsedFlatRange);
                 epDisplacementTexture     = Resource.Parameters["displacementTexture"];
+                    if (lastUsedDisplacementTexture != null && !lastUsedDisplacementTexture.IsDisposed)
+                        epDisplacementTexture.SetValue(lastUsedDisplacementTexture);
                 epFarTerrain              = Resource.Parameters["farTerrain"];
+                    epFarTerrain.SetValue(lastUsedFarTerrain);
             }
             catch
             {

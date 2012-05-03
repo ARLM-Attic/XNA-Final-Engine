@@ -53,6 +53,8 @@ namespace XNAFinalEngine.Graphics
         // Random number for the film grain effect.
         private static readonly Random randomNumber = new Random();
 
+        private static Texture filmLutTexture;
+
         #endregion
 
         #region Properties
@@ -137,7 +139,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Half Pixel
 
-        private static Vector2? lastUsedHalfPixel;
+        private static Vector2 lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
             if (lastUsedHalfPixel != _halfPixel)
@@ -185,7 +187,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Lens Exposure
 
-        private static float? lastUsedLensExposure;
+        private static float lastUsedLensExposure;
         private static void SetLensExposure(float lensExposure)
         {
             if (lastUsedLensExposure != lensExposure)
@@ -199,7 +201,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Auto Exposure
 
-        private static bool? lastUsedAutoExposure;
+        private static bool lastUsedAutoExposure;
         private static void SetAutoExposure(bool autoExposure)
         {
             if (lastUsedAutoExposure != autoExposure)
@@ -213,7 +215,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Auto Exposure Adjust Time Multiplier
 
-        private static float? lastUsedAutoExposureAdjustTimeMultiplier;
+        private static float lastUsedAutoExposureAdjustTimeMultiplier;
         private static void SetAutoExposureAdjustTimeMultiplier(float exposureAdjustTimeMultiplier)
         {
             if (lastUsedAutoExposureAdjustTimeMultiplier != exposureAdjustTimeMultiplier)
@@ -227,7 +229,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Auto Exposure Luminance Low Threshold
 
-        private static float? lastUsedAutoExposureLuminanceLowThreshold;
+        private static float lastUsedAutoExposureLuminanceLowThreshold;
         private static void SetAutoExposureLuminanceLowThreshold(float autoExposureLuminanceLowThreshold)
         {
             if (lastUsedAutoExposureLuminanceLowThreshold != autoExposureLuminanceLowThreshold)
@@ -241,7 +243,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Auto Exposure Luminance High Threshold
 
-        private static float? lastUsedAutoExposureLuminanceHighThreshold;
+        private static float lastUsedAutoExposureLuminanceHighThreshold;
         private static void SetAutoExposureLuminanceHighThreshold(float autoExposureLuminanceHighThreshold)
         {
             if (lastUsedAutoExposureLuminanceHighThreshold != autoExposureLuminanceHighThreshold)
@@ -259,7 +261,7 @@ namespace XNAFinalEngine.Graphics
 
         #region White Level
 
-        private static float? lastUsedWhiteLevel;
+        private static float lastUsedWhiteLevel;
         private static void SetWhiteLevel(float whiteLevel)
         {
             if (lastUsedWhiteLevel != whiteLevel)
@@ -273,7 +275,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Luminance Saturation
 
-        private static float? lastUsedLuminanceSaturation;
+        private static float lastUsedLuminanceSaturation;
         private static void SetLuminanceSaturation(float luminanceSaturation)
         {
             if (lastUsedLuminanceSaturation != luminanceSaturation)
@@ -287,7 +289,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Bias
 
-        private static float? lastUsedBias;
+        private static float lastUsedBias;
         private static void SetBias(float bias)
         {
             if (lastUsedBias != bias)
@@ -301,7 +303,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Shoulder Strength
 
-        private static float? lastUsedShoulderStrength;
+        private static float lastUsedShoulderStrength;
         private static void SetShoulderStrength(float shoulderStrength)
         {
             if (lastUsedShoulderStrength != shoulderStrength)
@@ -315,7 +317,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Linear Strength
 
-        private static float? lastUsedLinearStrength;
+        private static float lastUsedLinearStrength;
         private static void SetLinearStrength(float linearStrength)
         {
             if (lastUsedLinearStrength != linearStrength)
@@ -329,7 +331,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Linear Angle
 
-        private static float? lastUsedLinearAngle;
+        private static float lastUsedLinearAngle;
         private static void SetLinearAngle(float linearAngle)
         {
             if (lastUsedLinearAngle != linearAngle)
@@ -343,7 +345,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Toe Strength
 
-        private static float? lastUsedToeStrength;
+        private static float lastUsedToeStrength;
         private static void SetToeStrength(float toeStrength)
         {
             if (lastUsedToeStrength != toeStrength)
@@ -357,7 +359,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Toe Numerator
 
-        private static float? lastUsedToeNumerator;
+        private static float lastUsedToeNumerator;
         private static void SetToeNumerator(float toeNumerator)
         {
             if (lastUsedToeNumerator != toeNumerator)
@@ -371,7 +373,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Toe Denominator
 
-        private static float? lastUsedToeDenominator;
+        private static float lastUsedToeDenominator;
         private static void SetToeDenominator(float toeDenominator)
         {
             if (lastUsedToeDenominator != toeDenominator)
@@ -385,7 +387,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Linear White
 
-        private static float? lastUsedLinearWhite;
+        private static float lastUsedLinearWhite;
         private static void SetLinearWhite(float linearWhite)
         {
             if (lastUsedLinearWhite != linearWhite)
@@ -403,7 +405,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Bloom Scale
 
-        private static float? lastUsedBloomScale;
+        private static float lastUsedBloomScale;
         private static void SetBloomScale(float bloomScale)
         {
             if (lastUsedBloomScale != bloomScale)
@@ -433,7 +435,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Bloom Enabled
 
-        private static bool? lastUsedBloomEnabled;
+        private static bool lastUsedBloomEnabled;
         private static void SetBloomEnabled(bool bloomEnabled)
         {
             if (lastUsedBloomEnabled != bloomEnabled)
@@ -451,7 +453,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Input Black
         
-        private static float? lastUsedInputBlack;
+        private static float lastUsedInputBlack;
         private static void SetInputBlack(float inputBlack)
         {
             if (lastUsedInputBlack != inputBlack)
@@ -465,7 +467,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Input White
 
-        private static float? lastUsedInputWhite;
+        private static float lastUsedInputWhite;
         private static void SetInputWhite(float inputWhite)
         {
             if (lastUsedInputWhite != inputWhite)
@@ -479,7 +481,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Input Gamma
 
-        private static float? lastUsedInputGamma;
+        private static float lastUsedInputGamma;
         private static void SetInputGamma(float inputGamma)
         {
             if (lastUsedInputGamma != inputGamma)
@@ -493,7 +495,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Output Black
 
-        private static float? lastUsedOutputBlack;
+        private static float lastUsedOutputBlack;
         private static void SetOutputBlack(float outputBlack)
         {
             if (lastUsedOutputBlack != outputBlack)
@@ -507,7 +509,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Output White
 
-        private static float? lastUsedOutputWhite;
+        private static float lastUsedOutputWhite;
         private static void SetOutputWhite(float outputWhite)
         {
             if (lastUsedOutputWhite != outputWhite)
@@ -521,7 +523,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Adjust Levels Enabled
 
-        private static bool? lastUsedAdjustLevelsEnabled;
+        private static bool lastUsedAdjustLevelsEnabled;
         private static void SetAdjustLevelsEnabled(bool adjustLevelsEnabled)
         {
             if (lastUsedAdjustLevelsEnabled != adjustLevelsEnabled)
@@ -539,7 +541,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Input Black RGB
 
-        private static Vector3? lastUsedInputBlackRgb;
+        private static Vector3 lastUsedInputBlackRgb;
         private static void SetInputBlackRgb(Vector3 inputBlackRgb)
         {
             if (lastUsedInputBlackRgb != inputBlackRgb)
@@ -553,7 +555,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Input White RGB
 
-        private static Vector3? lastUsedInputWhiteRgb;
+        private static Vector3 lastUsedInputWhiteRgb;
         private static void SetInputWhiteRgb(Vector3 inputWhiteRgb)
         {
             if (lastUsedInputWhiteRgb != inputWhiteRgb)
@@ -567,7 +569,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Input Gamma RGB
 
-        private static Vector3? lastUsedInputGammaRgb;
+        private static Vector3 lastUsedInputGammaRgb;
         private static void SetInputGammaRgb(Vector3 inputGammaRgb)
         {
             if (lastUsedInputGammaRgb != inputGammaRgb)
@@ -581,7 +583,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Output Black RGB
 
-        private static Vector3? lastUsedOutputBlackRgb;
+        private static Vector3 lastUsedOutputBlackRgb;
         private static void SetOutputBlackRgb(Vector3 outputBlackRgb)
         {
             if (lastUsedOutputBlackRgb != outputBlackRgb)
@@ -595,7 +597,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Output White RGB
 
-        private static Vector3? lastUsedOutputWhiteRgb;
+        private static Vector3 lastUsedOutputWhiteRgb;
         private static void SetOutputWhiteRgb(Vector3 outputWhiteRgb)
         {
             if (lastUsedOutputWhiteRgb != outputWhiteRgb)
@@ -609,7 +611,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Adjust Levels Individual Channels Enabled
 
-        private static bool? lastUsedAdjustLevelsIndividualChannelsEnabled;
+        private static bool lastUsedAdjustLevelsIndividualChannelsEnabled;
         private static void SetAdjustLevelsIndividualChannelsEnabled(bool adjustLevelsIndividualChannelsEnabled)
         {
             if (lastUsedAdjustLevelsIndividualChannelsEnabled != adjustLevelsIndividualChannelsEnabled)
@@ -627,7 +629,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Color Correct One Lut Enabled
 
-        private static bool? lastUsedColorCorrectOneLutEnabled;
+        private static bool lastUsedColorCorrectOneLutEnabled;
         private static void SetColorCorrectOneLutEnabled(bool colorCorrectOneLutEnabled)
         {
             if (lastUsedColorCorrectOneLutEnabled != colorCorrectOneLutEnabled)
@@ -641,7 +643,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Color Correct Two Lut Enabled
 
-        private static bool? lastUsedColorCorrectTwoLutEnabled;
+        private static bool lastUsedColorCorrectTwoLutEnabled;
         private static void SetColorCorrectTwoLutEnabled(bool colorCorrectTwoLutEnabled)
         {
             if (lastUsedColorCorrectTwoLutEnabled != colorCorrectTwoLutEnabled)
@@ -655,7 +657,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Lookup Table Scale
 
-        private static float? lastUsedLookupTableScale;
+        private static float lastUsedLookupTableScale;
         private static void SetLookupTableScale(float lookupTableScale)
         {
             if (lastUsedLookupTableScale != lookupTableScale)
@@ -669,7 +671,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Lookup Table Offset
 
-        private static float? lastUsedLookupTableOffset;
+        private static float lastUsedLookupTableOffset;
         private static void SetLookupTableOffset(float lookupTableOffset)
         {
             if (lastUsedLookupTableOffset != lookupTableOffset)
@@ -683,7 +685,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Lerp Original Color Amount
 
-        private static float? lastUsedLerpOriginalColorAmount;
+        private static float lastUsedLerpOriginalColorAmount;
         private static void SetLerpOriginalColorAmount(float lerpOriginalColorAmount)
         {
             if (lastUsedLerpOriginalColorAmount != lerpOriginalColorAmount)
@@ -697,7 +699,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Lerp Lookup Tables Amount
 
-        private static float? lastUsedLerpLookupTablesAmount;
+        private static float lastUsedLerpLookupTablesAmount;
         private static void SetLerpLookupTablesAmount(float lerpLookupTablesAmount)
         {
             if (lastUsedLerpLookupTablesAmount != lerpLookupTablesAmount)
@@ -747,7 +749,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Film Grain Enabled
 
-        private static bool? lastUsedFilmGrainEnabled;
+        private static bool lastUsedFilmGrainEnabled;
         private static void SetFilmGrainEnabled(bool filmGrainEnabled)
         {
             if (lastUsedFilmGrainEnabled != filmGrainEnabled)
@@ -761,7 +763,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Film Grain Strength
 
-        private static float? lastUsedFilmGrainStrength;
+        private static float lastUsedFilmGrainStrength;
         private static void SetFilmGrainStrength(float filmGrainStrength)
         {
             if (lastUsedFilmGrainStrength != filmGrainStrength)
@@ -775,7 +777,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Accentuate Dark Noise Power
 
-        private static float? lastUsedAccentuateDarkNoisePower;
+        private static float lastUsedAccentuateDarkNoisePower;
         private static void SetAccentuateDarkNoisePower(float accentuateDarkNoisePower)
         {
             if (lastUsedAccentuateDarkNoisePower != accentuateDarkNoisePower)
@@ -789,7 +791,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Random Noise Strength
 
-        private static float? lastUsedRandomNoiseStrength;
+        private static float lastUsedRandomNoiseStrength;
         private static void SetRandomNoiseStrength(float randomNoiseStrength)
         {
             if (lastUsedRandomNoiseStrength != randomNoiseStrength)
@@ -803,7 +805,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Random Value
 
-        private static float? lastUsedRandomValue;
+        private static float lastUsedRandomValue;
         private static void SetRandomValue(float randomValue)
         {
             if (lastUsedRandomValue != randomValue)
@@ -828,10 +830,9 @@ namespace XNAFinalEngine.Graphics
         {
             ContentManager userContentManager = ContentManager.CurrentContentManager;
             ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
-            Texture filmLutTexture = new Texture("Shaders\\FilmLut");
-            ContentManager.CurrentContentManager = userContentManager;
-
+            filmLutTexture = new Texture("Shaders\\FilmLut");
             Resource.Parameters["filmLutTexture"].SetValue(filmLutTexture.Resource);
+            ContentManager.CurrentContentManager = userContentManager;
         } // PostProcessingShader
 
         #endregion
@@ -849,58 +850,114 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 epHalfPixel    = Resource.Parameters["halfPixel"];
+                    epHalfPixel.SetValue(lastUsedHalfPixel);
                 epLensExposure = Resource.Parameters["lensExposure"];
+                    epLensExposure.SetValue(lastUsedLensExposure);
                 epSceneTexture = Resource.Parameters["sceneTexture"];
+                    if (lastUsedSceneTexture != null && !lastUsedSceneTexture.IsDisposed)
+                        epSceneTexture.SetValue(lastUsedSceneTexture);
                 epLastLuminanceTexture = Resource.Parameters["lastLuminanceTexture"];
+                    if (lastUsedLastLuminanceTexture != null && !lastUsedLastLuminanceTexture.IsDisposed)
+                        epLastLuminanceTexture.SetValue(lastUsedLastLuminanceTexture);
                 epAutoExposure = Resource.Parameters["autoExposure"];
+                    epAutoExposure.SetValue(lastUsedAutoExposure);
                 epTimeDelta = Resource.Parameters["timeDelta"];
                 epExposureAdjustTimeMultiplier = Resource.Parameters["tau"];
+                    epExposureAdjustTimeMultiplier.SetValue(lastUsedAutoExposureAdjustTimeMultiplier);
                 epLuminanceLowThreshold = Resource.Parameters["luminanceLowThreshold"];
+                    epLuminanceLowThreshold.SetValue(lastUsedAutoExposureLuminanceLowThreshold);
                 epLuminanceHighThreshold = Resource.Parameters["luminanceHighThreshold"];
+                    epLuminanceHighThreshold.SetValue(lastUsedAutoExposureLuminanceHighThreshold);
                 // Tone Mapping
                 epWhiteLevel = Resource.Parameters["whiteLevel"];
+                    epWhiteLevel.SetValue(lastUsedWhiteLevel);
                 epLuminanceSaturation = Resource.Parameters["luminanceSaturation"];
+                    epLuminanceSaturation.SetValue(lastUsedLuminanceSaturation);
                 epBias = Resource.Parameters["bias"];
+                    epBias.SetValue(lastUsedBias);
                 epShoulderStrength = Resource.Parameters["shoulderStrength"];
+                    epShoulderStrength.SetValue(lastUsedShoulderStrength);
                 epLinearStrength = Resource.Parameters["linearStrength"];
+                    epLinearStrength.SetValue(lastUsedLinearStrength);
                 epLinearAngle = Resource.Parameters["linearAngle"];
+                    epLinearAngle.SetValue(lastUsedLinearAngle);
                 epToeStrength = Resource.Parameters["toeStrength"];
+                    epToeStrength.SetValue(lastUsedToeStrength);
                 epToeNumerator = Resource.Parameters["toeNumerator"];
+                    epToeNumerator.SetValue(lastUsedToeNumerator);
                 epToeDenominator = Resource.Parameters["toeDenominator"];
+                    epToeDenominator.SetValue(lastUsedToeDenominator);
                 epLinearWhite = Resource.Parameters["linearWhite"];
+                    epLinearWhite.SetValue(lastUsedLinearWhite);
                 // Bloom
                 epBloomScale   = Resource.Parameters["bloomScale"];
+                    epBloomScale.SetValue(lastUsedBloomScale);
                 epBloomTexture = Resource.Parameters["bloomTexture"];
+                    if (lastUsedBloomTexture != null && !lastUsedBloomTexture.IsDisposed)
+                        epBloomTexture.SetValue(lastUsedBloomTexture);
                 epBloomEnabled = Resource.Parameters["bloomEnabled"];
+                    epBloomEnabled.SetValue(lastUsedBloomEnabled);
                 // Levels
                 epInputBlack   = Resource.Parameters["inputBlack"];
+                    epInputBlack.SetValue(lastUsedInputBlack);
                 epInputWhite   = Resource.Parameters["inputWhite"];
+                    epInputWhite.SetValue(lastUsedInputWhite);
                 epInputGamma   = Resource.Parameters["inputGamma"];
+                    epInputGamma.SetValue(lastUsedInputGamma);
                 epOutputBlack  = Resource.Parameters["outputBlack"];
+                    epOutputBlack.SetValue(lastUsedOutputBlack);
                 epOutputWhite  = Resource.Parameters["outputWhite"];
+                    epOutputWhite.SetValue(lastUsedOutputWhite);
                 epAdjustLevelsEnabled = Resource.Parameters["adjustLevelsEnabled"];
+                    epAdjustLevelsEnabled.SetValue(lastUsedAdjustLevelsEnabled);
                 // Leves Individual Channels
                 epInputBlackRgb = Resource.Parameters["inputBlackRGB"];
+                    epInputBlackRgb.SetValue(lastUsedInputBlackRgb);
                 epInputWhiteRgb = Resource.Parameters["inputWhiteRGB"];
+                    epInputWhiteRgb.SetValue(lastUsedInputWhiteRgb);
                 epInputGammaRgb = Resource.Parameters["inputGammaRGB"];
+                    epInputGammaRgb.SetValue(lastUsedInputGammaRgb);
                 epOutputBlackRgb = Resource.Parameters["outputBlackRGB"];
+                    epOutputBlackRgb.SetValue(lastUsedOutputBlackRgb);
                 epOutputWhiteRgb = Resource.Parameters["outputWhiteRGB"];
+                    epOutputWhiteRgb.SetValue(lastUsedOutputWhiteRgb);
                 epAdjustLevelsIndividualChannelsEnabled = Resource.Parameters["adjustLevelsIndividualChannelsEnabled"];
+                    epAdjustLevelsIndividualChannelsEnabled.SetValue(lastUsedAdjustLevelsIndividualChannelsEnabled);
                 // Color Correction
                 epColorCorrectOneLutEnabled = Resource.Parameters["colorCorrectOneLutEnabled"];
+                    epColorCorrectOneLutEnabled.SetValue(lastUsedColorCorrectOneLutEnabled);
                 epColorCorrectTwoLutEnabled = Resource.Parameters["colorCorrectTwoLutEnabled"];
+                    epColorCorrectTwoLutEnabled.SetValue(lastUsedColorCorrectTwoLutEnabled);
                 epLookupTableScale = Resource.Parameters["scale"];
+                    epLookupTableScale.SetValue(lastUsedLookupTableScale);
                 epLookupTableOffset = Resource.Parameters["offset"];
+                    epLookupTableOffset.SetValue(lastUsedLookupTableOffset);
                 epFirstlookupTable = Resource.Parameters["firstlookupTableTexture"];
+                    if (lastUsedFirstLookupTable != null && !lastUsedFirstLookupTable.IsDisposed)
+                        epFirstlookupTable.SetValue(lastUsedFirstLookupTable);
                 epSecondlookupTable = Resource.Parameters["secondlookupTableTexture"];
+                    if (lastUsedSecondLookupTable != null && !lastUsedSecondLookupTable.IsDisposed)
+                        epSecondlookupTable.SetValue(lastUsedSecondLookupTable);
                 epLerpOriginalColorAmount = Resource.Parameters["lerpOriginalColorAmount"];
+                    epLerpOriginalColorAmount.SetValue(lastUsedLerpOriginalColorAmount);
                 epLerpLookupTablesAmount = Resource.Parameters["lerpLookupTablesAmount"];
+                    epLerpLookupTablesAmount.SetValue(lastUsedLerpLookupTablesAmount);
                 // Film Grain
                 epFilmGrainEnabled = Resource.Parameters["filmGrainEnabled"];
+                    epFilmGrainEnabled.SetValue(lastUsedFilmGrainEnabled);
                 epFilmGrainStrength = Resource.Parameters["filmGrainStrength"];
+                    epFilmGrainStrength.SetValue(lastUsedFilmGrainStrength);
                 epAccentuateDarkNoisePower = Resource.Parameters["accentuateDarkNoisePower"];
+                    epAccentuateDarkNoisePower.SetValue(lastUsedAccentuateDarkNoisePower);
                 epRandomNoiseStrength = Resource.Parameters["randomNoiseStrength"];
+                    epRandomNoiseStrength.SetValue(lastUsedRandomNoiseStrength);
                 epRandomValue = Resource.Parameters["randomValue"];
+                    epRandomValue.SetValue(lastUsedRandomValue);
+
+                if (filmLutTexture != null)
+                {
+                    Resource.Parameters["filmLutTexture"].SetValue(filmLutTexture.Resource);
+                }
             }
             catch
             {

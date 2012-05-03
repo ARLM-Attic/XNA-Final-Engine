@@ -50,6 +50,8 @@ namespace XNAFinalEngine.Graphics
         // Singleton reference.
         private static MLAAShader instance;
 
+        private static Texture areaTexture;
+
         #endregion
 
         #region Properties
@@ -89,7 +91,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Half Pixel
 
-        private static Vector2? lastUsedHalfPixel;
+        private static Vector2 lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
             if (lastUsedHalfPixel != _halfPixel)
@@ -103,7 +105,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Pixel Size
 
-        private static Vector2? lastUsedPixelSize;
+        private static Vector2 lastUsedPixelSize;
         private static void SetPixelSize(Vector2 pixelSize)
         {
             if (lastUsedPixelSize != pixelSize)
@@ -117,7 +119,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Threshold Color
 
-        private static float? lastUsedThresholdColor;
+        private static float lastUsedThresholdColor;
         private static void SetThresholdColor(float thresholdColor)
         {
             if (lastUsedThresholdColor != thresholdColor)
@@ -131,7 +133,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Threshold Depth
 
-        private static float? lastUsedThresholdDepth;
+        private static float lastUsedThresholdDepth;
         private static void SetThresholdDepth(float thresholdDepth)
         {
             if (lastUsedThresholdDepth != thresholdDepth)
@@ -222,11 +224,10 @@ namespace XNAFinalEngine.Graphics
             // IMPORTANT: Be careful of the content processor properties of this texture
             // Pre multiply alpha: false
             // Texture format: No change.
-            Texture areaTexture = new Texture("Shaders\\AreaMap32");
-            ContentManager.CurrentContentManager = userContentManager;
-            
-            EngineManager.Device.SamplerStates[15] = SamplerState.PointWrap;
+            areaTexture = new Texture("Shaders\\AreaMap32");
             Resource.Parameters["areaTexture"].SetValue(areaTexture.Resource);
+            EngineManager.Device.SamplerStates[15] = SamplerState.PointWrap;
+            ContentManager.CurrentContentManager = userContentManager;
         } // MLAAShader
 
         #endregion
@@ -244,13 +245,28 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 epHalfPixel      = Resource.Parameters["halfPixel"];
+                    epHalfPixel.SetValue(lastUsedHalfPixel);
                 epPixelSize      = Resource.Parameters["pixelSize"];
+                    epPixelSize.SetValue(lastUsedPixelSize);
                 epThresholdColor = Resource.Parameters["thresholdColor"];
+                    epThresholdColor.SetValue(lastUsedThresholdColor);
                 epThresholdDepth = Resource.Parameters["thresholdDepth"];
+                    epThresholdDepth.SetValue(lastUsedThresholdDepth);
                 epSceneTexture   = Resource.Parameters["sceneTexture"];
+                if (lastUsedSceneTexture != null && !lastUsedSceneTexture.IsDisposed)
+                    epSceneTexture.SetValue(lastUsedSceneTexture);
                 epDepthTexture   = Resource.Parameters["depthTexture"];
+                if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
+                    epDepthTexture.SetValue(lastUsedDepthTexture);
                 epEdgeTexture    = Resource.Parameters["edgeTexture"];
+                if (lastUsedEdgeTexture != null && !lastUsedEdgeTexture.IsDisposed)
+                    epEdgeTexture.SetValue(lastUsedEdgeTexture);
                 epBlendedWeightsTexture = Resource.Parameters["blendedWeightsTexture"];
+                if (areaTexture != null)
+                {
+                    Resource.Parameters["areaTexture"].SetValue(areaTexture.Resource);
+                    EngineManager.Device.SamplerStates[15] = SamplerState.PointWrap;
+                }
             }
             catch
             {

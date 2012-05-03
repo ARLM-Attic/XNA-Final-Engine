@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -91,7 +91,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Half Pixel
 
-        private static Vector2? lastUsedHalfPixel;
+        private static Vector2 lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
         {
             if (lastUsedHalfPixel != _halfPixel)
@@ -105,7 +105,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Bloom Threshold
 
-        private static float? lastUsedBloomThreshold;
+        private static float lastUsedBloomThreshold;
         private static void SetBloomThreshold(float bloomThreshold)
         {
             if (lastUsedBloomThreshold != bloomThreshold)
@@ -119,7 +119,7 @@ namespace XNAFinalEngine.Graphics
 
         #region Lens Exposure
         
-        private static float? lastUsedLensExposure;
+        private static float lastUsedLensExposure;
         private static void SetLensExposure(float lensExposure)
         {
             if (lastUsedLensExposure != lensExposure)
@@ -154,10 +154,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Bloom shader.
         /// </summary>
-        private BloomShader() : base("PostProcessing\\Bloom")
-        {
-            Resource.CurrentTechnique = Resource.Techniques["Bloom"];
-        } // BloomShader
+        private BloomShader() : base("PostProcessing\\Bloom") { }
 
         #endregion
 
@@ -174,9 +171,15 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 epHalfPixel      = Resource.Parameters["halfPixel"];
+                    epHalfPixel.SetValue(lastUsedHalfPixel);
                 epBloomThreshold = Resource.Parameters["bloomThreshold"];
+                    epBloomThreshold.SetValue(lastUsedBloomThreshold);
                 epLensExposure   = Resource.Parameters["lensExposure"];
+                    epLensExposure.SetValue(lastUsedLensExposure);
                 epSceneTexture   = Resource.Parameters["sceneTexture"];
+                    if (lastUsedSceneTexture != null && !lastUsedSceneTexture.IsDisposed)
+                        epSceneTexture.SetValue(lastUsedSceneTexture);
+                Resource.CurrentTechnique = Resource.Techniques["Bloom"];
             }
             catch
             {
