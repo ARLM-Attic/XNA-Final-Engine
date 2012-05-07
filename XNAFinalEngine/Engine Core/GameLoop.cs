@@ -41,17 +41,17 @@ using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Input;
 using XNAFinalEngine.Audio;
 using RootAnimation = XNAFinalEngine.Components.RootAnimations;
-using XNAFinalEngine.Scenes;
 using Camera = XNAFinalEngine.Components.Camera;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using System.Collections.Generic;
+using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.EngineCore
 {
 
     /// <summary>
-    /// The XNA Final Engine pipeline is defined here.
+    /// The XNA Final Engine pipeline is defined here. There is no need for user input, all operations are carried automatically.
     /// </summary>
     /// <remarks>
     /// This class seems complex and in the pass I could agree.
@@ -83,7 +83,7 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// Current Scene.
         /// </summary>
-        public static Scene CurrentScene { get; set; }
+        public static Scene CurrentScene { get; internal set; }
 
         #endregion
 
@@ -141,17 +141,43 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            // Recreate device related managers when it is disposed. Prevents an XNA bug.
+            #region Device Disposed
+
+            // Recreate device related managers and assets when it is disposed. Prevents an XNA bug.
             EngineManager.DeviceDisposed += delegate
             {
+                // Recreate assets that does not use content managers.
+                Texture.RecreateTexturesWithoutContentManager();
+                Assets.Model.RecreateModelsWithoutContentManager();
+
+                // Recreate assets that use content managers.
+                ContentManager.RecreateContentManagers();
+
+                // Recreate sensitive managers.
                 SpriteManager.Initialize();
                 LineManager.Initialize();
             };
 
+            #endregion
+
         } // LoadContent
         
         #endregion
-        
+
+        #region Remove Unused Resources
+
+        /// <summary>
+        /// Remove Unused Resources.
+        /// This is intended to be used when you load a level.
+        /// </summary>
+        public static void RemoveUnusedResources()
+        {
+            SoundManager.RemoveUnusedSoundInstances();
+            GarbageCollector.CollectGarbage();
+        } // RemoveUnusedResources
+
+        #endregion
+
         #region Update
 
         /// <summary>

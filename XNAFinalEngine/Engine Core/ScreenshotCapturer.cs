@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -37,9 +37,7 @@ using XNAFinalEngine.Assets;
 namespace XNAFinalEngine.EngineCore
 {
 	/// <summary>
-    /// Screenshot Capturer.
-    /// Creates a png image of the current frame when the user press “print screen”.
-    /// Because this key is "special" the call is done by the keyboard hook class. 
+    /// Creates and stores an image of the current frame when the user press “print screen”.
 	/// </summary>
 	public static class ScreenshotCapturer
     {

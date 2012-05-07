@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -46,27 +46,7 @@ namespace XNAFinalEngine.Components
     /// </summary>
     public class SoundEmitter : Component
     {
-
-        #region Enumerates
-
-        /// <summary>
-        /// Indicates if the sound is 2D or 3D.
-        /// </summary>
-        public enum SoundType
-        {
-            /// <summary>
-            /// They sound the same no matter the listener and emitter properties.
-            /// </summary>
-            Sound2D,
-            /// <summary>
-            /// 3D sounds take in consideration the emitter and a listener properties, like position, orientation, velocity and distance. 
-            /// The sound source should be mono.
-            /// </summary>
-            Sound3D
-        } // SoundType
-
-        #endregion
-
+        
         #region Variables
 
         // Sound Effect Instance.
@@ -86,7 +66,7 @@ namespace XNAFinalEngine.Components
 
         // For velocity calculations.
         private Vector3 oldPosition;
-
+        
         // The Apply3D method needs an audio listener, but when I play a sound I don't have this information so I use an empty audio listener.
         // To avoid garbage I created beforehand.
         private static readonly AudioListener emptyAudioListener = new AudioListener();
@@ -96,12 +76,6 @@ namespace XNAFinalEngine.Components
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Indicates if the sound is 2D or 3D.
-        /// </summary>
-        /// <value>Default value: 3D sound.</value>
-        public SoundType Type { get; set; }
 
         /// <summary>
         /// Sound Volume.
@@ -124,14 +98,6 @@ namespace XNAFinalEngine.Components
         /// Sound asset.
         /// </summary>
         public Sound Sound { get; set; }
-
-        /// <summary>
-        /// Gets a value that indicates whether looping is enabled.
-        /// </summary>
-        /// <remarks>
-        /// If you want to make a sound play continuously until stopped, be sure to set IsLooped to true before you call Play.
-        /// </remarks>
-        public virtual bool IsLooped { get; set; }
 
         /// <summary>
         /// Gets or sets the panning.
@@ -205,20 +171,6 @@ namespace XNAFinalEngine.Components
         
         #endregion
 
-        #region Events
-
-        /// <summary>
-        /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
-        /// </summary>
-        public delegate void SoundEventHandler(object sender, Sound sound);
-
-        /// <summary>
-        /// Raised when the sound ends.
-        /// </summary>
-        public event SoundEventHandler SoundEnded;
-
-        #endregion
-
         #region Initialize
 
         /// <summary>
@@ -230,11 +182,9 @@ namespace XNAFinalEngine.Components
             // Values //
             volume = 1;
             Sound = null;
-            IsLooped = false;
             Pan = 0;
             Pitch = 0;
             dopplerScale = 1;
-            Type = SoundType.Sound3D;
             // Cache transform matrix. It will be the view matrix.
             cachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
@@ -273,12 +223,11 @@ namespace XNAFinalEngine.Components
                 // If the sound instance could not be created then do nothing.
                 if (soundEffectInstance == null)
                     return;
-                soundEffectInstance.Pan = Pan;
                 soundEffectInstance.Pitch = Pitch;
                 soundEffectInstance.Volume = Volume;
-                soundEffectInstance.IsLooped = IsLooped;
+                //soundEffectInstance.IsLooped = IsLooped;
                 // We need to activate the 3D support before play it, but we don’t want to know anything about the listener in this stage.
-                if (Type == SoundType.Sound3D)
+                if (Sound.Type == Sound.SoundType.Sound3D)
                 {
                     audioEmitter.DopplerScale = DopplerScale;
                     audioEmitter.Forward = cachedWorldMatrix.Forward;
@@ -291,6 +240,10 @@ namespace XNAFinalEngine.Components
                     oneAudioListener[0] = emptyAudioListener;
                     soundEffectInstance.Apply3D(oneAudioListener, audioEmitter);
                 }
+                else
+                {
+                    soundEffectInstance.Pan = Pan;
+                }
                 soundEffectInstance.Play();
             }
             else if (soundEffectInstance.State == SoundState.Paused)
@@ -302,18 +255,12 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Stops playing the sound.
         /// </summary>
-        /// <remarks>The sound instance is disposed.</remarks>
-        public void Stop()
+        public void Stop(bool immediate = true)
         {
             if (soundEffectInstance != null)
-            {
-                // Dispose sound effect instance to avoid garbage collection.
-                SoundManager.ReleaseSoundInstance(soundEffectInstance);
+                soundEffectInstance.Stop(immediate);
+            if (immediate)
                 soundEffectInstance = null;
-                // Raise event
-                if (SoundEnded != null)
-                    SoundEnded(this, Sound);
-            }
         } // Stop
 
         /// <summary>
@@ -359,13 +306,16 @@ namespace XNAFinalEngine.Components
                     soundEffectInstance.Pitch = Pitch;
                     soundEffectInstance.Volume = Volume;
                     // Update 3D information.
-                    if (Type == SoundType.Sound3D)
+                    if (Sound.Type == Sound.SoundType.Sound3D)
                     {
                         audioEmitter.DopplerScale = DopplerScale;
                         audioEmitter.Forward = cachedWorldMatrix.Forward;
                         audioEmitter.Up = cachedWorldMatrix.Up;
                         audioEmitter.Position = cachedWorldMatrix.Translation;
-                        audioEmitter.Velocity = (audioEmitter.Position - oldPosition) / Time.SmoothFrameTime;
+                        if (Time.SmoothFrameTime > 0)
+                            audioEmitter.Velocity = (audioEmitter.Position - oldPosition) / Time.SmoothFrameTime;
+                        else
+                            audioEmitter.Velocity = Vector3.Zero;
                         // Distance / Time
                         oldPosition = audioEmitter.Position;
                         if (audioListener == null)
@@ -404,7 +354,7 @@ namespace XNAFinalEngine.Components
                     soundEffectInstance.Pitch = Pitch;
                     soundEffectInstance.Volume = Volume;
                     // Update 3D information.
-                    if (Type == SoundType.Sound3D)
+                    if (Sound.Type == Sound.SoundType.Sound3D)
                     {
                         audioEmitter.DopplerScale = DopplerScale;
                         audioEmitter.Forward = cachedWorldMatrix.Forward;

@@ -30,7 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
@@ -52,7 +52,7 @@ namespace XNAFinalEngineExamples
     /// This was used to test most of the new version's features.
     /// It’s a mess, really, but it’s the best start point to understand the new version.
     /// </summary>
-    public class LamborghiniMurcielagoScene : EditableScene
+    public class LamborghiniMurcielagoScene2 : EditableScene
     {
 
         #region Variables
@@ -123,18 +123,16 @@ namespace XNAFinalEngineExamples
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
             ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
             script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
-            camera.Camera.ClearColor = Color.Black;
+            camera.Camera.ClearColor = Color.White;
             camera.Camera.FieldOfView = 180 / 6f;
             camera.Camera.PostProcess = new PostProcess();
+            camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicUncharted2;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
             camera.Camera.PostProcess.Bloom.Threshold = 20;
             camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
-                                                            //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
                                                             Color = new Color(50, 50, 50),
                                                             Intensity = 5f,
                                                             AmbientOcclusionStrength = 2f };
-            //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
-            camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM", true, 50) };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
@@ -147,31 +145,6 @@ namespace XNAFinalEngineExamples
                 TextureSize = Size.TextureSize.HalfSize,
             };
             camera.Camera.PostProcess.FilmGrain.Enabled = false;
-
-            #region Test Split Screen
-            /*
-            camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
-            camera2 = new GameObject3D();
-            camera2.AddComponent<Camera>();
-            camera2.Camera.MasterCamera = camera.Camera;
-            camera2.Camera.ClearColor = Color.Black;
-            camera2.Camera.FieldOfView = 180 / 8.0f;
-            camera2.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
-            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);*/
-
-            #endregion
-
-            #region Test Superposing cameras
-
-            // Both has the same viewport setting.
-            /*camera2 = new GameObject3D();
-            camera2.AddComponent<Camera>();
-            camera2.Camera.MasterCamera = camera.Camera;
-            camera2.Camera.ClearColor = Color.Transparent; // This is important
-            camera2.Camera.FieldOfView = 180 / 8.0f;
-            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);*/
-
-            #endregion
 
             #endregion
 
@@ -855,22 +828,7 @@ namespace XNAFinalEngineExamples
             murcielagoRearRightTyre02.Parent = rearRightRim;
 
             #endregion
-            
-            #region Floor
-            
-            floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
-                           new BlinnPhong
-                           {
-                               SpecularPower = 300,
-                               DiffuseColor = new Color(250, 250, 250),
-                               SpecularIntensity = 0.0f,
-                               //ReflectionTexture = new TextureCube("Showroom", false),
-                           });
-            floor.Transform.LocalScale = new Vector3(5, 5, 5);
-            floor.Transform.Position = new Vector3(0, -1.17f, 0);
-
-            #endregion
-            
+                       
             #endregion
 
             #region Shadows and Lights
@@ -878,7 +836,7 @@ namespace XNAFinalEngineExamples
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 140);
-            directionalLight.DirectionalLight.Intensity = 7f;
+            directionalLight.DirectionalLight.Intensity = 25f;
             directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
@@ -923,7 +881,7 @@ namespace XNAFinalEngineExamples
             pointLight5 = new GameObject3D();
             pointLight5.AddComponent<PointLight>();
             pointLight5.PointLight.DiffuseColor = new Color(220, 150, 155);
-            pointLight5.PointLight.Intensity = 0.35f;
+            pointLight5.PointLight.Intensity = 2.35f;
             pointLight5.PointLight.Range = 200;
             pointLight5.PointLight.SpecularColor = Color.White;
             pointLight5.Transform.Position = new Vector3(0f, 0.5f, -50);
@@ -931,19 +889,11 @@ namespace XNAFinalEngineExamples
             pointLight6 = new GameObject3D();
             pointLight6.AddComponent<PointLight>();
             pointLight6.PointLight.DiffuseColor = new Color(240, 70, 110);
-            pointLight6.PointLight.Intensity = 0.35f;
+            pointLight6.PointLight.Intensity = 2.35f;
             pointLight6.PointLight.Range = 150; // I always forget to set the light range lower than the camera far plane.
             pointLight6.PointLight.SpecularColor = Color.White;
             pointLight6.Transform.Position = new Vector3(0, -30f, -10);
             /*
-            pointLight7 = new GameObject3D();
-            pointLight7.AddComponent<PointLight>();
-            pointLight7.PointLight.DiffuseColor = Color.Green;// new Color(240, 200, 210);
-            pointLight7.PointLight.Intensity = 200f;
-            pointLight7.PointLight.Range = 50; // I always forget to set the light range lower than the camera far plane.
-            pointLight7.PointLight.SpecularColor = Color.White;
-            pointLight7.Transform.Position = new Vector3(-15, 5f, -30);
-            */
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
             spotLight.SpotLight.DiffuseColor = Color.Green;
@@ -958,36 +908,10 @@ namespace XNAFinalEngineExamples
                 Filter = Shadow.FilterType.PCF3x3,
                 LightDepthTextureSize = Size.Square1024X1024,
                 TextureSize = Size.TextureSize.FullSize
-            };
+            };*/
 
             #endregion
             
-            #region Video
-            /*
-            videoTest = new GameObject2D();
-            videoTest.AddComponent<VideoRenderer>();
-            videoTest.VideoRenderer.Video = new Video("LogosIntro");
-            videoTest.VideoRenderer.Play();
-            videoTest.Transform.Position = new Vector3(0, 0, 1);*/
-
-            #endregion
-
-            #region Statistics
-            
-            statistics = new GameObject2D();
-            statistics.AddComponent<ScriptStatisticsDrawer>();
-
-            #endregion
-
-            #region Engine Logo
-
-            xnaFinalEngineLogo = new GameObject2D();
-            xnaFinalEngineLogo.AddComponent<HudTexture>();
-            xnaFinalEngineLogo.HudTexture.Texture = new Texture("XNA Final Engine");
-            xnaFinalEngineLogo.Transform.LocalScale = 0.5f;
-
-            #endregion
-
             #region Testing
 
             ContentManager testContentManager = new ContentManager("Just for testing", false);
@@ -997,9 +921,9 @@ namespace XNAFinalEngineExamples
             //UserInterfaceManager.Initialize();
             //murcielagoBody.ModelRenderer.Material = new Constant { DiffuseTexture = new Texture("Caption") { PreferredSamplerState = new SamplerState { MaxMipLevel = 2 }}};
             //ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
-            BlinnPhongWindow.Show((BlinnPhong)murcielagoFrontLeftBrakeCaliper.ModelRenderer.Material);
+            //BlinnPhongWindow.Show((BlinnPhong)murcielagoFrontLeftBrakeCaliper.ModelRenderer.Material);
             //CarPaintWindow.Show(carPaint);
-            //PostProcessWindow.Show(camera.Camera.PostProcess);
+            PostProcessWindow.Show(camera.Camera.PostProcess);
 
             //LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             //LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
@@ -1076,18 +1000,6 @@ namespace XNAFinalEngineExamples
             
             #endregion
 
-            #region Sound Instance Test
-
-            // Just a test to see exactly how it works internally.
-            Sound sound = new Sound("Tutorials\\Dog", false, Sound.SoundType.Sound2D);
-            //sound.Play();
-            murcielagoBody.AddComponent<SoundEmitter>();
-            murcielagoBody.SoundEmitter.Sound = sound;
-            //murcielagoBody.SoundEmitter.IsLooped = true;
-            murcielagoBody.SoundEmitter.Play();
-
-            #endregion
-
         } // Load
 
         #endregion
@@ -1101,7 +1013,6 @@ namespace XNAFinalEngineExamples
         public override void UpdateTasks()
         {
             base.UpdateTasks();
-            murcielagoBody.SoundEmitter.Play();
         } // UpdateTasks
 
         #endregion

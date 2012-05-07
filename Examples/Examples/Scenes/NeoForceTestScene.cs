@@ -33,7 +33,6 @@ using System;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Scenes;
 using XNAFinalEngine.UserInterface;
 using XNAFinalEngine.UserInterface.Central;
 using Console = XNAFinalEngine.UserInterface.Console;

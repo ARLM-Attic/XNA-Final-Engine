@@ -12,7 +12,7 @@ namespace XNAFinalEngine.EngineCore
 {
 
     /// <summary>
-    /// The interface to get time information from XNA Final Engine.
+    /// The interface to get time information.
     /// </summary>
     public static class Time
     {
@@ -62,7 +62,7 @@ namespace XNAFinalEngine.EngineCore
                 frameTime = !paused ? value * TimeScale : 0;
                 
                 // Update smooth frame time.
-                SmoothFrameTime = (previousFrameTime[0] + previousFrameTime[1] + frameTime) / previousFrameTime.Length + 1;
+                SmoothFrameTime = (previousFrameTime[0] + previousFrameTime[1] + frameTime) / (previousFrameTime.Length + 1);
                 previousFrameTime[1] = previousFrameTime[0];
                 previousFrameTime[0] = frameTime;
 

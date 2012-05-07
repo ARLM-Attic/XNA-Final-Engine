@@ -266,7 +266,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Occurs when the GraphicsDevice settings are changed.
         /// </summary>
-        internal static event DeviceEventHandler DeviceSettingsChanged;
+        internal static event EventHandler DeviceReset;
 
         /// <summary>
         /// Occurs when the skin is about to change.
@@ -318,8 +318,8 @@ namespace XNAFinalEngine.UserInterface
 
                 RootControls  = new ControlsList();
                 OrderList = new ControlsList();
-                
-                EngineManager.GraphicsDeviceManager.PreparingDeviceSettings += OnPrepareGraphicsDevice;
+
+                EngineManager.DeviceReset += OnDeviceReset;
 
                 states.Buttons = new Control[32];
                 states.Click = -1;
@@ -356,7 +356,7 @@ namespace XNAFinalEngine.UserInterface
                 {
                     Renderer.Initialize();
                     // Invalidate all controls.
-                    OnPrepareGraphicsDevice(null, new PreparingDeviceSettingsEventArgs(new GraphicsDeviceInformation()));
+                    OnDeviceReset(null, new EventArgs());
                     SetSkin(Skin.CurrentSkinName);
                 };
 
@@ -372,16 +372,15 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region On Prepare Graphics Device
+        #region On Device Reset
 
         /// <summary>
         /// If the device is recreated then the controls have to be invalidated so that they redraw.
         /// </summary>
-        private static void OnPrepareGraphicsDevice(object sender, PreparingDeviceSettingsEventArgs e)
+        private static void OnDeviceReset(object sender, System.EventArgs e)
         {
-           
-            if (DeviceSettingsChanged != null)
-                DeviceSettingsChanged.Invoke(new DeviceEventArgs(e));
+            if (DeviceReset != null)
+                DeviceReset.Invoke(sender, new EventArgs());
         } // OnPrepareGraphicsDevice
 
         #endregion

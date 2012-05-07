@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -29,25 +29,26 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using XNAFinalEngine.Helpers;
+using Microsoft.Xna.Framework;
+using XNAFinalEngine.Assets;
+using XNAFinalEngine.Components;
+using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Input;
 #endregion
 
-namespace XNAFinalEngine.Scenes
+namespace XNAFinalEngineExamples
 {
 
     /// <summary>
-    /// Base class for scenes.
-    /// Here will be the application logic.
+    /// Empty scene.
     /// </summary>
-    public abstract class Scene : Disposable
+    public class HelloWorldScene : Scene
     {
 
-        #region Properties
+        #region Variables
 
-        /// <summary>
-        /// Indicates if the scene was load.
-        /// </summary>
-        public bool Loaded { get; protected set; }
+        private GameObject3D camera, body, directionalLight;
+        private GameObject2D helloWorldText;
 
         #endregion
 
@@ -57,9 +58,36 @@ namespace XNAFinalEngine.Scenes
         /// Load the resources.
         /// </summary>
         /// <remarks>Remember to call the base implementation of this method at the end.</remarks>
-        public virtual void Load()
+        public override void Load()
         {
-            Loaded = true;            
+            // Hello World
+            camera = new GameObject3D();
+            camera.AddComponent<Camera>();
+            helloWorldText = new GameObject2D();
+            helloWorldText.AddComponent<HudText>();
+            helloWorldText.HudText.Text.Append("Hello World");
+            helloWorldText.Transform.LocalPosition = new Vector3(10, 10, 0);
+            // Creating a 3D World
+            /*body = new GameObject3D();
+            body.AddComponent<ModelFilter>();
+            body.ModelFilter.Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
+            body.AddComponent<ModelRenderer>();
+            body.ModelRenderer.Material = new Constant();*/
+            body = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), new Constant());
+            camera.Transform.LookAt(new Vector3(5, 0, 10), Vector3.Zero, Vector3.Up);
+
+            body.ModelRenderer.Material = new BlinnPhong();
+            ((BlinnPhong)body.ModelRenderer.Material).DiffuseColor = Color.Yellow;
+            directionalLight = new GameObject3D();
+            directionalLight.AddComponent<DirectionalLight>();
+            directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 140);
+            directionalLight.DirectionalLight.Intensity = 1f;
+            directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
+
+            camera.Camera.PostProcess = new PostProcess();
+            camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
+
+            base.Load();
         } // Load
 
         #endregion
@@ -67,27 +95,24 @@ namespace XNAFinalEngine.Scenes
         #region Update Tasks
 
         /// <summary>
-        /// Tasks executed during the update before scripts update.
+        /// Tasks executed during the update.
         /// This is the place to put the application logic.
         /// </summary>
-        public virtual void UpdateTasks()
+        public override void UpdateTasks()
         {
-            // Overrite it!!
+            if (Keyboard.SpaceJustPressed)
+            {
+                if (directionalLight.DirectionalLight.Intensity == 1)
+                    directionalLight.DirectionalLight.Intensity = 4f;
+                else
+                    directionalLight.DirectionalLight.Intensity = 1f;
+            }
         } // UpdateTasks
-
-        /// <summary>
-        /// Tasks executed during the update, but after the scripts update.
-        /// This is the place to put the application logic.
-        /// </summary>
-        public virtual void LateUpdateTasks()
-        {
-            // Overrite it!!
-        } // LateUpdateTasks
 
         #endregion
 
         #region Render Tasks
-        
+
         /// <summary>
         /// Tasks before the engine render.
         /// Some tasks are more related to the frame rendering than the update,
@@ -95,21 +120,21 @@ namespace XNAFinalEngine.Scenes
         /// for that reason the pre render task exists.
         /// For example, is more correct to update the HUD information here because is related with the rendering.
         /// </summary>
-        public virtual void PreRenderTasks()
+        public override void PreRenderTasks()
         {
-            // Overrite it!!
+            
         } // PreRenderTasks
 
         /// <summary>
         /// Tasks after the engine render.
         /// Probably you won’t need to place any task here.
         /// </summary>
-        public virtual void PostRenderTasks()
+        public override void PostRenderTasks()
         {
-            // Overrite it!!
+            
         } // PostRenderTasks
 
         #endregion
 
-    } // Scene
-} // XNAFinalEngine.Scenes
+    } // HelloWorldScene
+} // XNAFinalEngineExamples

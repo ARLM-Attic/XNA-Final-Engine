@@ -29,17 +29,27 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Helpers;
 #endregion
 
-namespace XNAFinalEngineExamples
+namespace XNAFinalEngine.EngineCore
 {
 
     /// <summary>
-    /// Empty scene.
+    /// The application logic is stored in scenes. 
+    /// When the engine starts one scene is loaded and its code is executed in a very specific order.
     /// </summary>
-    public class EmptyScene : Scene
+    public abstract class Scene : Disposable
     {
+
+        #region Properties
+
+        /// <summary>
+        /// Indicates if the scene was load.
+        /// </summary>
+        public bool Loaded { get; protected set; }
+
+        #endregion
 
         #region Load
 
@@ -47,9 +57,9 @@ namespace XNAFinalEngineExamples
         /// Load the resources.
         /// </summary>
         /// <remarks>Remember to call the base implementation of this method at the end.</remarks>
-        public override void Load()
+        public virtual void Load()
         {
-            base.Load();
+            Loaded = true;            
         } // Load
 
         #endregion
@@ -57,18 +67,27 @@ namespace XNAFinalEngineExamples
         #region Update Tasks
 
         /// <summary>
-        /// Tasks executed during the update.
+        /// Tasks executed during the update before scripts update.
         /// This is the place to put the application logic.
         /// </summary>
-        public override void UpdateTasks()
+        public virtual void UpdateTasks()
         {
-            
+            // Overrite it!!
         } // UpdateTasks
+
+        /// <summary>
+        /// Tasks executed during the update, but after the scripts update.
+        /// This is the place to put the application logic.
+        /// </summary>
+        public virtual void LateUpdateTasks()
+        {
+            // Overrite it!!
+        } // LateUpdateTasks
 
         #endregion
 
         #region Render Tasks
-
+        
         /// <summary>
         /// Tasks before the engine render.
         /// Some tasks are more related to the frame rendering than the update,
@@ -76,21 +95,21 @@ namespace XNAFinalEngineExamples
         /// for that reason the pre render task exists.
         /// For example, is more correct to update the HUD information here because is related with the rendering.
         /// </summary>
-        public override void PreRenderTasks()
+        public virtual void PreRenderTasks()
         {
-            
+            // Overrite it!!
         } // PreRenderTasks
 
         /// <summary>
         /// Tasks after the engine render.
         /// Probably you won’t need to place any task here.
         /// </summary>
-        public override void PostRenderTasks()
+        public virtual void PostRenderTasks()
         {
-            
+            // Overrite it!!
         } // PostRenderTasks
 
         #endregion
 
-    } // EmptyScene
-} // XNAFinalEngineExamples
+    } // Scene
+} // XNAFinalEngine.EngineCore

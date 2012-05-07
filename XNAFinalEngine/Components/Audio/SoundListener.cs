@@ -111,7 +111,10 @@ namespace XNAFinalEngine.Components
             audioListener.Forward = cachedWorldMatrix.Forward;
             audioListener.Up = cachedWorldMatrix.Up;
             audioListener.Position = cachedWorldMatrix.Translation;
-            audioListener.Velocity = (audioListener.Position - oldPosition) / Time.SmoothFrameTime; // Distance / Time
+            if (Time.SmoothFrameTime > 0)
+                audioListener.Velocity = (audioListener.Position - oldPosition) / Time.SmoothFrameTime; // Distance / Time
+            else
+                audioListener.Velocity = Vector3.Zero;
             oldPosition = audioListener.Position;
         } // UpdateListenerProperties
 

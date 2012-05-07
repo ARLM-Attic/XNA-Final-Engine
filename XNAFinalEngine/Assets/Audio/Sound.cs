@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.IO;
 using Microsoft.Xna.Framework.Audio;
+using XNAFinalEngine.Audio;
 #endregion
 
 namespace XNAFinalEngine.Assets
@@ -39,15 +40,54 @@ namespace XNAFinalEngine.Assets
     /// <summary>
     /// Sound.
     /// </summary>
+    /// <remarks>
+    /// A Sound Instance is associated to one and only sound asset. 
+    /// To avoid garbage generation when playing a sound we need to have the sound instance created in loading time,
+    /// but it is impossible that the system knows in anticipation how much instances will need.
+    /// By default the engine will be create the instance and deleted when it finish and thus generating garbage in the process
+    /// (avoiding the dispose operation is not need it because the creation of classes is what the garbage collector tracks).
+    /// However, you can create a pool of instance in loading time (see the Sound class) if you know how much instances you will need. 
+    /// If all sound instances are used a new sound instance will be created outside the pool system.
+    /// </remarks>
     public class Sound : Asset
     {
-        
+
+        #region Enumerates
+
+        /// <summary>
+        /// Indicates if the sound is 2D or 3D.
+        /// </summary>
+        public enum SoundType
+        {
+            /// <summary>
+            /// They sound the same no matter the listener and emitter properties.
+            /// </summary>
+            Sound2D,
+            /// <summary>
+            /// 3D sounds take in consideration the emitter and a listener properties, like position, orientation, velocity and distance. 
+            /// The sound source should be mono.
+            /// </summary>
+            Sound3D
+        } // SoundType
+
+        #endregion
+
         #region Properties
 
         /// <summary>
         /// XNA sound effect.
         /// </summary>
         public SoundEffect Resource { get; private set; }
+
+        /// <summary>
+        /// Gets a value that indicates whether looping is enabled.
+        /// </summary>
+        public bool IsLooped { get; private set; }
+
+        /// <summary>
+        /// Indicates if the sound is 2D or 3D.
+        /// </summary>
+        public SoundType Type { get; private set; }
 
         /// <summary>
         /// Gets the duration of the sound (in seconds)
@@ -59,6 +99,11 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public static float SpeedOfSound { get { return SoundEffect.SpeedOfSound; } }
 
+        /// <summary>
+        /// Array of pre created sound effect instances.
+        /// </summary>
+        internal SoundEffectInstance[] SoundEffectInstances { get; private set; }
+
         #endregion
 
         #region Constructor
@@ -67,9 +112,13 @@ namespace XNAFinalEngine.Assets
         /// Load sound.
         /// </summary>
         /// <param name="filename">The filename must be relative and be a valid file in the sound directory.</param>
-        public Sound(string filename)
+        /// <param name="isLooped">XNA impose to set and don’t change the “is looped” property.</param>
+        /// <param name="type">2D or 3D sound. XNA impose to set and don’t change the “type” property.</param>
+        public Sound(string filename, bool isLooped = false, SoundType type = SoundType.Sound3D)
         {
             Name = filename;
+            IsLooped = isLooped;
+            Type = type;
             string fullFilename = ContentManager.GameDataDirectory + "Sounds\\" + filename;
             if (File.Exists(fullFilename + ".xnb") == false)
             {
@@ -144,6 +193,41 @@ namespace XNAFinalEngine.Assets
         {
             return Resource.Play(volume, pitch, pan);
         } // Play
+
+        #endregion
+
+        #region Create Sound Instance Pool
+
+        /// <summary>
+        /// A Sound Instance is associated to one and only sound asset. 
+        /// To avoid garbage generation when playing a sound we need to have the sound instance created in loading time,
+        /// but it is impossible that the system knows in anticipation how much instances will need.
+        /// By default the engine will be create the instance and deleted when it finish and thus generating garbage in the process
+        /// (avoiding the dispose operation is not need it because the creation of classes is what the garbage collector tracks).
+        /// However, you can create a pool of instance in loading time (see the Sound class) if you know how much instances you will need. 
+        /// If all sound instances are used a new sound instance will be created outside the pool system.
+        /// </summary>
+        /// <param name="size">Pool size.</param>
+        public void CreateSoundInstancePool(int size)
+        {
+            // Dispose previous pool.
+            if (SoundEffectInstances != null)
+            {
+                foreach (SoundEffectInstance soundEffectInstance in SoundEffectInstances)
+                {
+                    soundEffectInstance.Dispose();
+                }
+                SoundManager.SoundInstanceCount -= SoundEffectInstances.Length;
+            }
+            // Create the new pool.
+            SoundEffectInstances = new SoundEffectInstance[size];
+            for (int index = 0; index < SoundEffectInstances.Length; index++)
+            {
+                SoundEffectInstances[index] = Resource.CreateInstance();
+                SoundEffectInstances[index].IsLooped = IsLooped;
+            }
+            SoundManager.SoundInstanceCount += SoundEffectInstances.Length;
+        } // CreateSoundInstancePool
 
         #endregion
 

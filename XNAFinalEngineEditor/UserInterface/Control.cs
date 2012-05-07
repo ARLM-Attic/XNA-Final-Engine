@@ -1192,7 +1192,7 @@ namespace XNAFinalEngine.UserInterface
             newControls.Enqueue(this);
 
             // Events.
-            UserInterfaceManager.DeviceSettingsChanged += OnDeviceSettingsChanged;
+            UserInterfaceManager.DeviceReset += OnDeviceReset;
             UserInterfaceManager.SkinChanging += OnSkinChanging;
             UserInterfaceManager.SkinChanged += OnSkinChanged;
         } // Control
@@ -1269,7 +1269,7 @@ namespace XNAFinalEngine.UserInterface
         protected override void DisposeManagedResources()
         {
             // Remove events.
-            UserInterfaceManager.DeviceSettingsChanged -= OnDeviceSettingsChanged;
+            UserInterfaceManager.DeviceReset -= OnDeviceReset;
             UserInterfaceManager.SkinChanging -= OnSkinChanging;
             UserInterfaceManager.SkinChanged -= OnSkinChanged;
 
@@ -2595,7 +2595,7 @@ namespace XNAFinalEngine.UserInterface
 
         #region Handlers
 
-        protected internal void OnDeviceSettingsChanged(DeviceEventArgs e)
+        protected internal void OnDeviceReset(object sender, EventArgs e)
         {
             if (!e.Handled)
                 Invalidate();

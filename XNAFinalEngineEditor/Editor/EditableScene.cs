@@ -30,7 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework.Input;
-using XNAFinalEngine.Scenes;
+using XNAFinalEngine.EngineCore;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
 #endregion
 

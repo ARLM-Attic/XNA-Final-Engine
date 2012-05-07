@@ -37,12 +37,13 @@ namespace XNAFinalEngine.EngineCore
 {
 
     /// <summary>
-    /// Useful statistics to profile the game quickly.
-    /// But when you need to deeply profile your game use a real profiler.
-    /// PIX and Visual Studio’s profiler are powerful tools. You should use them.
+    /// Useful statistics to profile your game quickly.
+    /// When you need to deeply profile your game use a specialized profiler.
+    /// PIX, DirectX Debugger and Visual Studio’s profiler are powerful profilers.
     /// </summary>
     /// <remarks>
     /// The time measures (frame per seconds, update time and frame time) were left in the Time class for organization sake.
+    /// The editor namespace includes a script to visualize the statistic on screen.
     /// </remarks>
     public static class Statistics
     {

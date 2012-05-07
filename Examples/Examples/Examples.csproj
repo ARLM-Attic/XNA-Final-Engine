@@ -108,6 +108,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Scenes\HelloWorldScene.cs" />
+    <Compile Include="Scenes\LamborghiniMurcielagoScene2.cs" />
     <Compile Include="Scenes\LamborghiniMurcielagoScene.cs" />
     <Compile Include="Scenes\EmptyScene.cs" />
     <Compile Include="Scenes\NeoForceTestScene.cs" />
@@ -123,10 +125,6 @@
     <Content Include="Game.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\XNAFinalEngineContentPipelineExtensionRuntime\XNAFinalEngineContentPipelineExtensionRuntime.csproj">
-      <Project>{E3A98759-8C7F-4660-8D70-1B89C1F04235}</Project>
-      <Name>XNAFinalEngineContentPipelineExtensionRuntime</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\XNAFinalEngineEditor\XNAFinalEngineEditor.csproj">
       <Project>{AD41E75E-4492-416C-B8BC-2DA3BAE1648B}</Project>
       <Name>XNAFinalEngineEditor</Name>

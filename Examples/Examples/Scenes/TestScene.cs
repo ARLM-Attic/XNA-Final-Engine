@@ -31,7 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using Microsoft.Xna.Framework.Audio;
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.Scenes;
+using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngineExamples

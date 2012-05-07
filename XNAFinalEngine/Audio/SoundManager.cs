@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -41,19 +41,21 @@ namespace XNAFinalEngine.Audio
     /// The sound manager.
     /// </summary>
     /// <remarks>
-    /// It seems impossible to avoid garbage with soundEffectInstance and it’s a shame.
-    /// However we can reduce it. A pool (or something similar) could be implemented so that we don’t need to dispose the released sound instances.
-    /// Instead, they should be stored in a list and if the list is full the older item will be disposed.
-    /// If a new instance is required, then the system will search this list first and if it’s necessary create an instance.
+    /// A Sound Instance is associated to one and only sound asset. 
+    /// To avoid garbage generation when playing a sound we need to have the sound instance created in loading time,
+    /// but it is impossible that the system knows in anticipation how much instances will need.
+    /// By default the engine will be create the instance and deleted when it finish and thus generating garbage in the process
+    /// (avoiding the dispose operation is not need it because the creation of classes is what the garbage collector tracks).
+    /// However, you can create a pool of instance in loading time (see the Sound class) if you know how much instances you will need. 
+    /// If all sound instances are used you could return the next as null or create a new one outside the pool system.
     /// 
     /// About XACT:
     /// Shawn Hargreaves said: "All our future investment in audio technology will be in the SoundEffect, Song, and MediaPlayer APIs, as opposed to XACT."
     /// Moreover it seems that XACT has problems with garbage (similar to SounEffect). But I’m not so sure, I didn’t make tests to corroborate this.
-    /// But, what can I do? Make an implementation that supports XACT? or ignore it?
-    /// I’m not a sound guy but it seems that even if the XACT’s tools are nice they don’t compensate the garbage problems and complexity.
-    /// Besides XNA Final Engine is a complete framework but if you want to do a game in this you could re implement the parts that do not fit well with your project.
-    /// The sound’s components are there, you only need to change some lines of code to work with XACT.
-    /// Any suggestions?
+    /// But, what it is better? Make an implementation that supports XACT? Or ignore it?
+    /// It seems that even if the XACT’s tools are nice they don’t compensate the garbage problems and complexity.
+    /// Besides the sound’s components are there, if XACT is need then it is possible to change the SoundEffect and Song code with the XACT code.
+    /// It's not trivial, but not impossible either.
     /// </remarks>
     public static class SoundManager
     {
@@ -62,6 +64,7 @@ namespace XNAFinalEngine.Audio
 
         /// <summary>
         /// Maximum number of sound instances.
+        /// 10 are reserved for fire and forget sounds.
         /// </summary>
         private const int maximumNumberOfSoundInstances = 290;
 
@@ -75,11 +78,12 @@ namespace XNAFinalEngine.Audio
         private static float dopplerScale = 1f;
         private static bool catchNoAudioHardwareException = true;
 
-        // A counter used to avoid the creation of too many sound instances.
         private static int soundInstanceCount;
 
         // The active sound instances.
         private static readonly SoundEffectInstance[] soundEffectInstances = new SoundEffectInstance[maximumNumberOfSoundInstances];
+        // The sound resources of the active sound instances.
+        private static readonly Sound[] soundEffectInstancesResource = new Sound[maximumNumberOfSoundInstances];
 
         #endregion
 
@@ -161,6 +165,20 @@ namespace XNAFinalEngine.Audio
             set { catchNoAudioHardwareException = value; }
         } // CatchNoAudioHardwareException
 
+        /// <summary>
+        /// The number of sound instances in memory.
+        /// </summary>
+        public static int SoundInstanceCount
+        {
+            get { return soundInstanceCount; }
+            internal set
+            {
+                if (soundInstanceCount > maximumNumberOfSoundInstances)
+                    throw new InvalidOperationException("Sound Manager: The number of sound instances is too high.");
+                soundInstanceCount = value;
+            }
+        } // SoundInstanceCount
+
         #endregion
 
         #region Pause Resume
@@ -189,7 +207,7 @@ namespace XNAFinalEngine.Audio
         
         #endregion
 
-        #region Fetch and Release Sound Instance
+        #region Fetch Sound Instance
 
         /// <summary>
         /// Give a sound instance of a sound asset.
@@ -200,34 +218,85 @@ namespace XNAFinalEngine.Audio
         /// </remarks>
         internal static SoundEffectInstance FetchSoundInstance(Sound sound)
         {
-            if (soundInstanceCount >= maximumNumberOfSoundInstances)
-                return null;
-            soundEffectInstances[soundInstanceCount] = sound.Resource.CreateInstance();
-            soundInstanceCount++;
-            return soundEffectInstances[soundInstanceCount - 1];
-        } // FetchSoundInstance
-
-        /// <summary>
-        /// Dispose the sound instance.
-        /// </summary>
-        internal static void ReleaseSoundInstance(SoundEffectInstance soundEffectInstance)
-        {
-            soundInstanceCount--;
-            // TODO See class' remarks.
-            soundEffectInstance.Dispose();
-            for (int i = 0; i < maximumNumberOfSoundInstances; i++)
+            // If the sound has a pool of sound effect instances.
+            if (sound.SoundEffectInstances != null)
             {
-                if (soundEffectInstances[i] == soundEffectInstance)
+                for (int j = 0; j < sound.SoundEffectInstances.Length; j++)
                 {
-                    // Swap last value with this
-                    SoundEffectInstance temp = soundEffectInstances[i];
-                    soundEffectInstances[i] = soundEffectInstances[soundInstanceCount];
-                    soundEffectInstances[soundInstanceCount] = temp;
-                    return;
+                    if (sound.SoundEffectInstances[j].State == SoundState.Stopped)
+                        return sound.SoundEffectInstances[j];
                 }
             }
-            throw new InvalidOperationException("Sound Manager: Unable to release sound instance. The instance was not created with the sound manager or was already disposed.");
-        } // ReleaseSoundInstance
+            // Maybe we have one available in the central pool.
+            int i;
+            for (i = 0; i < soundEffectInstances.Length; i++)
+            {
+                if (soundEffectInstances[i] == null)
+                    break;
+                if (soundEffectInstancesResource[i] == sound && soundEffectInstances[i].State == SoundState.Stopped)
+                    return soundEffectInstances[i];
+            }
+            // If we have space in the sound instances array...
+            if (soundInstanceCount < maximumNumberOfSoundInstances)
+            {
+                // i is the first available position.
+                soundEffectInstances[i] = sound.Resource.CreateInstance();
+                soundEffectInstances[i].IsLooped = sound.IsLooped;
+                soundEffectInstancesResource[i] = sound;
+                soundInstanceCount++;
+                return soundEffectInstances[i];
+            }
+            // If there is no space maybe some instance is stopped. We use their place.
+            for (int j = 0; j < soundEffectInstances.Length; j++)
+            {
+                if (soundEffectInstances[j] == null)
+                    return null;
+                if (soundEffectInstances[j].State == SoundState.Stopped)
+                {
+                    soundEffectInstances[j].Dispose();
+                    soundEffectInstances[j] = sound.Resource.CreateInstance();
+                    soundEffectInstances[j].IsLooped = sound.IsLooped;
+                    soundEffectInstancesResource[j] = sound;
+                    return soundEffectInstances[j];
+                }
+            }
+            throw new InvalidOperationException("Sound Manager: Fetch Sound Instance produce an unexpected exception.");
+        } // FetchSoundInstance
+
+        #endregion
+
+        #region Remove Unused Sound Instances
+
+        /// <summary>
+        /// Remove unused sound instance from the general array of instances.
+        /// </summary>
+        internal static void RemoveUnusedSoundInstances()
+        {
+            // We find the position of the last created instance.
+            int firstNullPosition;
+            for (firstNullPosition = 0; firstNullPosition < soundEffectInstances.Length; firstNullPosition++)
+            {
+                if (soundEffectInstances[firstNullPosition] == null)
+                    break;
+            }
+            for (int i = 0; i < soundEffectInstances.Length; i++)
+            {
+                if (soundEffectInstances[i] == null)
+                    return;
+                if (soundEffectInstances[i].State == SoundState.Stopped)
+                {
+                    soundEffectInstances[i].Dispose();
+                    soundEffectInstancesResource[i] = null;
+                    soundInstanceCount--;
+                    // Swap this value with the last used sound instance.
+                    soundEffectInstances[i]         = soundEffectInstances[firstNullPosition - 1];
+                    soundEffectInstancesResource[i] = soundEffectInstancesResource[firstNullPosition - 1];
+                    soundEffectInstances[firstNullPosition - 1] = null;
+                    soundEffectInstancesResource[firstNullPosition - 1] = null;
+                    firstNullPosition--;
+                }
+            }
+        } // RemoveUnusedSoundInstances
 
         #endregion
 

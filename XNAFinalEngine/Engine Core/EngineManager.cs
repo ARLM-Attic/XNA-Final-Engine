@@ -40,8 +40,6 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.Audio;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngineContentPipelineExtensionRuntime.Settings;
-using XNAFinalEngine.Scenes;
-using Texture = XNAFinalEngine.Assets.Texture;
 #if (!XBOX)
     using System.Threading;
     using System.Windows.Forms;
@@ -54,9 +52,9 @@ using Texture = XNAFinalEngine.Assets.Texture;
 namespace XNAFinalEngine.EngineCore
 {
     /// <summary>
-    /// This class administrates the XNA device and the window in which the XNA program will run. 
-    /// Also it calls the Game Loop Manager and manages the exceptions.
-    /// In here you can start the engine and terminate the application execution.
+    /// This class administrates the XNA device and the window in which the program will run.
+    /// It also calls the Game Loop Manager, initializes the Gamer Services, and manages the exceptions. 
+    /// The commands to start the engine and terminate the application execution are placed here.
     /// </summary>
     public class EngineManager : Game
     {
@@ -89,7 +87,7 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// XNA graphics device manager.
         /// </summary>
-        public static GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
+        internal static GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
 
         /// <summary>
         /// Game Window.
@@ -438,13 +436,6 @@ namespace XNAFinalEngine.EngineCore
             // XNA calls unload content and load content again, therefore in load content we should recreate all the assets.
 
             Device = GraphicsDeviceManager.GraphicsDevice;
-
-            // Recreate assets that does not use content managers.
-            Texture.RecreateTexturesWithoutContentManager();
-            Assets.Model.RecreateModelsWithoutContentManager();
-
-            // Recreate assets that use content managers.
-            ContentManager.RecreateContentManagers();
             
             if (DeviceDisposed != null)
                 DeviceDisposed(this, new EventArgs());
