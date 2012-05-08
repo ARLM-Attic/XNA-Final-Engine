@@ -48,6 +48,11 @@ namespace XNAFinalEngine.Helpers
         /// </summary>
         private bool disposed = false;
 
+        /// <summary>
+        /// Gets a value that indicates whether the object is disposed.
+        /// </summary>
+        public bool IsDisposed { get { return disposed; } }
+
         ~Disposable()
         {
             Dispose(false);

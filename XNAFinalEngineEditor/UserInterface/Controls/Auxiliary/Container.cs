@@ -122,7 +122,7 @@ namespace XNAFinalEngine.UserInterface
                     Add(mainMenu, false);
                     mainMenu.Resize += Bars_Resize;
                 }
-                AdjustMargins();
+                Invalidate();
             }
         } // MainMenu
 
@@ -146,7 +146,7 @@ namespace XNAFinalEngine.UserInterface
                     Add(toolBarPanel, false);
                     toolBarPanel.Resize += Bars_Resize;
                 }
-                AdjustMargins();
+                Invalidate();
             }
         } // ToolBarPanel
 
@@ -170,7 +170,7 @@ namespace XNAFinalEngine.UserInterface
                     Add(statusBar, false);
                     statusBar.Resize += Bars_Resize;
                 }
-                AdjustMargins();
+                Invalidate();
             }
         } // StatusBar
 
@@ -213,7 +213,7 @@ namespace XNAFinalEngine.UserInterface
         } // Container
 
         #endregion
-
+        
         #region Adjust Margins
 
         /// <summary>
@@ -320,13 +320,16 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region Add
+        #region Invalidate
 
-        internal override void Add(Control control, bool client)
+        /// <summary>
+        /// Invalidate it and its parents.
+        /// </summary>
+        public override void Invalidate()
         {
-            base.Add(control, client);
+            base.Invalidate();
             CalculateScrolling();
-        } // Add
+        } // Invalidate
 
         #endregion
 
@@ -357,6 +360,7 @@ namespace XNAFinalEngine.UserInterface
                         foreach (Control c in ClientArea.ChildrenControls)
                         {
                             c.VerticalScrollingAmount = 0;
+                            scrollBarHorizontal.Refresh();
                             c.Invalidate();
                         }
                     }
@@ -367,6 +371,7 @@ namespace XNAFinalEngine.UserInterface
                 foreach (Control childControl in ClientArea.ChildrenControls)
                 {
                     childControl.VerticalScrollingAmount = -scrollBarVertical.Value;
+                    scrollBarVertical.Refresh();
                     childControl.Invalidate();
                 }
 

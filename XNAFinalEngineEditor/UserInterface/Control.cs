@@ -1082,12 +1082,12 @@ namespace XNAFinalEngine.UserInterface
             get { return parent; }
             set
             {
-                // Remove from old parent
+                // Remove it from old parent
                 if (parent == null)
                     UserInterfaceManager.Remove(parent);
                 else
                     parent.Remove(this);
-                // Add to the new parent
+                // Add this control to the new parent
                 if (value != null) 
                     value.Add(this);
                 else 
@@ -1218,8 +1218,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected internal virtual void Init()
         {
-            OnMove(new MoveEventArgs());
-            OnResize(new ResizeEventArgs());
+            // Override if necessary.
         } // Init
 
         /// <summary>
@@ -1819,9 +1818,7 @@ namespace XNAFinalEngine.UserInterface
         {
             invalidated = true;
             if (parent != null)
-            {
                 parent.Invalidate();
-            }
         } // Invalidate
 
         #endregion

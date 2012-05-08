@@ -268,7 +268,7 @@ namespace XNAFinalEngine.Editor
                     if (asset.ReflectionTexture == null ||
                         asset.ReflectionTexture.Name != (string)assetSelectorReflectionTexture.Items[assetSelectorReflectionTexture.ItemIndex])
                     {
-                        asset.ReflectionTexture = TextureCube.LoadedTextures[assetSelectorReflectionTexture.ItemIndex - 1]; // The first item is the no texture item.
+                        asset.ReflectionTexture = TextureCube.LoadedCubeTextures[assetSelectorReflectionTexture.ItemIndex - 1]; // The first item is the no texture item.
                     }
                 }
                 assetSelectorReflectionTexture.EditButtonEnabled = asset.ReflectionTexture != null;
@@ -278,7 +278,7 @@ namespace XNAFinalEngine.Editor
                 // Add textures name here because someone could dispose or add new asset.
                 assetSelectorReflectionTexture.Items.Clear();
                 assetSelectorReflectionTexture.Items.Add("No texture");
-                foreach (TextureCube texture in TextureCube.LoadedTextures)
+                foreach (TextureCube texture in TextureCube.LoadedCubeTextures)
                 {
                     // You can filter some assets here.
                     if (texture.ContentManager == null || !texture.ContentManager.Hidden)

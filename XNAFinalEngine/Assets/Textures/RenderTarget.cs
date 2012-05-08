@@ -150,8 +150,6 @@ namespace XNAFinalEngine.Assets
         {
             get
             {
-                if (renderTarget != null && renderTarget.IsDisposed)
-                    renderTarget = null;
                 if (alreadyResolved)
                     return renderTarget;
                 throw new InvalidOperationException("Render Target: Unable to return render target. Render target not resolved.");

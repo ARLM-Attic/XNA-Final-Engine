@@ -997,12 +997,15 @@ namespace XNAFinalEngineExamples
             //UserInterfaceManager.Initialize();
             //murcielagoBody.ModelRenderer.Material = new Constant { DiffuseTexture = new Texture("Caption") { PreferredSamplerState = new SamplerState { MaxMipLevel = 2 }}};
             //ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
-            BlinnPhongWindow.Show((BlinnPhong)murcielagoFrontLeftBrakeCaliper.ModelRenderer.Material);
+            //BlinnPhongWindow.Show((BlinnPhong)murcielagoFrontLeftBrakeCaliper.ModelRenderer.Material);
             //CarPaintWindow.Show(carPaint);
-            //PostProcessWindow.Show(camera.Camera.PostProcess);
+            
 
-            //LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
+            LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
             //LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
+            LookupTable testLookupTable3 = LookupTable.Identity(32);
+
+            PostProcessWindow.Show(camera.Camera.PostProcess);
 
             murcielagoBody.Layer = Layer.GetLayerByNumber(1);
             //Layer.GetLayerByNumber(1).Enabled = false;
@@ -1084,7 +1087,7 @@ namespace XNAFinalEngineExamples
             murcielagoBody.AddComponent<SoundEmitter>();
             murcielagoBody.SoundEmitter.Sound = sound;
             //murcielagoBody.SoundEmitter.IsLooped = true;
-            murcielagoBody.SoundEmitter.Play();
+            //murcielagoBody.SoundEmitter.Play();
 
             #endregion
 
@@ -1101,7 +1104,7 @@ namespace XNAFinalEngineExamples
         public override void UpdateTasks()
         {
             base.UpdateTasks();
-            murcielagoBody.SoundEmitter.Play();
+            //murcielagoBody.SoundEmitter.Play();
         } // UpdateTasks
 
         #endregion

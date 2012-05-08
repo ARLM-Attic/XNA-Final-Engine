@@ -1041,7 +1041,7 @@ namespace XNAFinalEngine.Graphics
                 
                 // The two first frames will use the current luminance texture.
                 // One because there is no last luminance texture, and two because I render a frame in the load content (to reduce garbage).
-                if (lastLuminanceTexture != null && lastLuminanceTexture.Resource != null)
+                if (lastLuminanceTexture != null && !lastLuminanceTexture.IsDisposed)
                     SetLuminanceTexture(lastLuminanceTexture);
                 else
                     SetLuminanceTexture(currentLuminanceTexture);

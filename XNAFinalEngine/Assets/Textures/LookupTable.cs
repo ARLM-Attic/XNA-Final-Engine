@@ -106,35 +106,14 @@ namespace XNAFinalEngine.Assets
         public LookupTable(string filename)
         {
             Name = filename;
-            string fullFilename = ContentManager.GameDataDirectory + "Textures\\LookupTables\\" + filename;
-            if (File.Exists(fullFilename + ".xnb") == false)
+            Filename = ContentManager.GameDataDirectory + "Textures\\LookupTables\\" + filename;
+            if (File.Exists(Filename + ".xnb") == false)
             {
-                throw new ArgumentException("Failed to load texture: File " + fullFilename + " does not exists!", "filename");
+                throw new ArgumentException("Failed to load texture: File " + Filename + " does not exists!", "filename");
             }
             try
             {
-                // If I use a create-dispose method, the texture can't be used again, that could mean a potential ObjectDisposedException.
-                ContentManager userContentManager = ContentManager.CurrentContentManager;
-                ContentManager temporalContentManager = new ContentManager("Temporal Content Manager", true);
-                ContentManager.CurrentContentManager = temporalContentManager;
-
-                Texture lookupTableTexture2D = new Texture("LookupTables\\" + filename);
-                
-                // SideSize is inaccurate because Math.Pow is a bad way to calculate cube roots.
-                int sideSize = (int)Math.Pow(lookupTableTexture2D.Width * lookupTableTexture2D.Height, 1 / 3.0);
-                // hence this second step to snap to nearest power of 2.
-                Size = (int)Math.Pow(2, Math.Round(Math.Log(sideSize, 2)));
-
-                //Create the cube lut and dump the 2d lut into it
-                Color[] colors = new Color[Size * Size * Size];
-                Resource = new Texture3D(EngineManager.Device, Size, Size, Size, false, SurfaceFormat.Color);
-                lookupTableTexture2D.Resource.GetData(colors);
-                Resource.SetData(colors);
-                Resource.Name = filename;
-
-                // Dispose the temporal content manager and restore the user content manager.
-                temporalContentManager.Dispose();
-                ContentManager.CurrentContentManager = userContentManager;
+                Create(filename);
             }
             catch (ObjectDisposedException)
             {
@@ -153,9 +132,41 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         private LookupTable()
         {
+            Name = "";
+            Filename = "";
             LoadedLookupTables.Add(this);
             LoadedLookupTables.Sort(CompareAssets);
         } // LookupTable
+
+        #endregion
+
+        #region Create
+
+        /// <summary>
+        /// Creates the lookup table.
+        /// </summary>
+        private void Create(string filename)
+        {
+            // If I use a create-dispose method, the texture can't be used again, that could mean a potential ObjectDisposedException.
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
+            ContentManager temporalContentManager = new ContentManager("Temporal Content Manager", true);
+            ContentManager.CurrentContentManager = temporalContentManager;
+            Texture lookupTableTexture2D = new Texture("LookupTables\\" + filename);
+            // SideSize is inaccurate because Math.Pow is a bad way to calculate cube roots.
+            int sideSize = (int)Math.Pow(lookupTableTexture2D.Width * lookupTableTexture2D.Height, 1 / 3.0);
+            // hence this second step to snap to nearest power of 2.
+            Size = (int)Math.Pow(2, Math.Round(Math.Log(sideSize, 2)));
+            //Create the cube lut and dump the 2d lut into it
+            Color[] colors = new Color[Size * Size * Size];
+            Resource = new Texture3D(EngineManager.Device, Size, Size, Size, false, SurfaceFormat.Color);
+            lookupTableTexture2D.Resource.GetData(colors);
+            Resource.SetData(colors);
+            Resource.Name = filename;
+
+            // Dispose the temporal content manager and restore the user content manager.
+            temporalContentManager.Dispose();
+            ContentManager.CurrentContentManager = userContentManager;
+        } // Create
 
         #endregion
 
@@ -181,6 +192,14 @@ namespace XNAFinalEngine.Assets
         /// <param name="size">Side size. 64 is a good value. Total size is size^3</param>
         public static LookupTable Identity(int size)
         {
+            return new LookupTable { Name = "Identity", Filename = "", Resource = IdentityTexture(size), Size = size };
+        } // Identity
+
+        /// <summary>
+        /// Gives the resources of the identity lookup table.
+        /// </summary>
+        private static Texture3D IdentityTexture(int size)
+        {
             Color[] colors = new Color[size * size * size];
             Texture3D lookupTableTexture = new Texture3D(EngineManager.Device, size, size, size, false, SurfaceFormat.Color);
             for (int redIndex = 0; redIndex < size; redIndex++)
@@ -189,18 +208,17 @@ namespace XNAFinalEngine.Assets
                 {
                     for (int blueIndex = 0; blueIndex < size; blueIndex++)
                     {
-                        float red =   (float)redIndex   / size;
+                        float red = (float)redIndex / size;
                         float green = (float)greenIndex / size;
-                        float blue =  (float)blueIndex  / size;
+                        float blue = (float)blueIndex / size;
                         Color col = new Color(red, green, blue);
                         colors[redIndex + (greenIndex * size) + (blueIndex * size * size)] = col;
                     }
                 }
             }
             lookupTableTexture.SetData(colors);
-
-            return new LookupTable { Resource = lookupTableTexture, Size = size };
-        } // Identity
+            return lookupTableTexture;
+        } // IdentityTexture
 
         #endregion
 
@@ -243,6 +261,35 @@ namespace XNAFinalEngine.Assets
             Resource.Dispose();
             LoadedLookupTables.Remove(this);
         } // DisposeManagedResources
+
+        #endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
+            if (string.IsNullOrEmpty(Filename))
+            {
+                Resource = IdentityTexture(Size);
+            }
+            else
+                Create(Filename.Substring(30)); // Removes "Textures\\"
+        } // RecreateResource
+
+        /// <summary>
+        /// Recreate lookup tables created without using a content manager.
+        /// </summary>
+        internal static void RecreateTexturesWithoutContentManager()
+        {
+            foreach (LookupTable lookupTable in LoadedLookupTables)
+            {
+                lookupTable.Resource.Dispose();
+                lookupTable.RecreateResource();
+            }
+        } // RecreateTexturesWithoutContentManager
 
         #endregion
 

@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -62,14 +62,14 @@ namespace XNAFinalEngine.Assets
         public Cursor(string filename)
 		{
             Name = filename;
-            string fullFilename = ContentManager.GameDataDirectory + "Cursors\\" + filename;
-            if (File.Exists(fullFilename + ".xnb") == false)
+            Filename = ContentManager.GameDataDirectory + "Cursors\\" + filename;
+            if (File.Exists(Filename + ".xnb") == false)
             {
-                throw new ArgumentException("Failed to load cursor: File " + fullFilename + " does not exists!", "filename");
+                throw new ArgumentException("Failed to load cursor: File " + Filename + " does not exists!", "filename");
             }
             try
             {
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<System.Windows.Forms.Cursor>(fullFilename);
+                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<System.Windows.Forms.Cursor>(Filename);
                 ContentManager = ContentManager.CurrentContentManager;
             }
             catch (ObjectDisposedException)
@@ -83,6 +83,18 @@ namespace XNAFinalEngine.Assets
         } // Cursor
 
 		#endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
+            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<System.Windows.Forms.Cursor>(Filename);
+        } // RecreateResource
+
+        #endregion
 
     } // Cursor
 #endif

@@ -508,6 +508,36 @@ namespace XNAFinalEngine.Editor
             CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
             CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
             CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
+            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
+            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
         } // AddControlsToInspector
 
         /// <summary>

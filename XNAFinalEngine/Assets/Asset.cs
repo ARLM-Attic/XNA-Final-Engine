@@ -67,7 +67,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// The name of the asset.
         /// </summary>
-        public virtual string Name { get; set; } // TODO: change to abstract.
+        public virtual string Name { get; set; }
         
         /// <summary>
         /// The content manager that stores this asset.

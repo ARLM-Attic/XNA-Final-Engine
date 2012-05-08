@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -72,11 +72,11 @@ namespace XNAFinalEngine.Assets
                 if (value != name)
                 {
                     // Is the name unique?
-                    bool isUnique = LoadedTextures.All(assetFromList => assetFromList == this || assetFromList.Name != value);
+                    bool isUnique = LoadedCubeTextures.All(assetFromList => assetFromList == this || assetFromList.Name != value);
                     if (isUnique)
                     {
                         name = value;
-                        LoadedTextures.Sort(CompareAssets);
+                        LoadedCubeTextures.Sort(CompareAssets);
                     }
                     // If not then we add one to its name and find out if is unique.
                     else
@@ -115,11 +115,15 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Loaded Cube Textures.
         /// </summary>
-        public static List<TextureCube> LoadedTextures { get; private set; }
+        public static List<TextureCube> LoadedCubeTextures { get; private set; }
 
         /// <summary>
         ///  A list with all texture' filenames on the cube texture directory.
         /// </summary>
+        /// <remarks>
+        /// If there are memory limitations, this list could be eliminated for the release version.
+        /// This is use only for the editor.
+        /// </remarks>
         public static string[] TexturesFilenames { get; private set; }
     
         #endregion
@@ -157,8 +161,8 @@ namespace XNAFinalEngine.Assets
             {
                 throw new InvalidOperationException("Failed to load cube map: " + filename, e);
             }
-            LoadedTextures.Add(this);
-            LoadedTextures.Sort(CompareAssets);
+            LoadedCubeTextures.Add(this);
+            LoadedCubeTextures.Sort(CompareAssets);
 		} // TextureCube
 
 		#endregion
@@ -171,7 +175,7 @@ namespace XNAFinalEngine.Assets
         static TextureCube()
         {
             TexturesFilenames = SearchAssetsFilename(ContentManager.GameDataDirectory + "Textures\\CubeTextures");
-            LoadedTextures = new List<TextureCube>();
+            LoadedCubeTextures = new List<TextureCube>();
         } // Texture
 
         #endregion
@@ -184,9 +188,7 @@ namespace XNAFinalEngine.Assets
         protected override void DisposeManagedResources()
         {
             base.DisposeManagedResources();
-            if (xnaTextureCube != null && !xnaTextureCube.IsDisposed)
-                Resource.Dispose();
-            LoadedTextures.Remove(this);
+            LoadedCubeTextures.Remove(this);
         } // DisposeManagedResources
 
         #endregion

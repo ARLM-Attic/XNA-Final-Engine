@@ -618,7 +618,10 @@ namespace XNAFinalEngine.Editor
             #region Lerp Original Color Amount
 
             var sliderLerpOriginalColorAmount = CommonControls.SliderNumeric("Lerp Original Color", groupColorCorrection, asset.ColorCorrection.LerpOriginalColorAmount, false, false, 0, 1);
-            sliderLerpOriginalColorAmount.ValueChanged += delegate { asset.ColorCorrection.LerpOriginalColorAmount = sliderLerpOriginalColorAmount.Value; };
+            sliderLerpOriginalColorAmount.ValueChanged += delegate
+                                                              {
+                                                                  asset.ColorCorrection.LerpOriginalColorAmount = sliderLerpOriginalColorAmount.Value;
+                                                              };
             sliderLerpOriginalColorAmount.Draw += delegate
             {
                 sliderLerpOriginalColorAmount.Enabled = asset.ColorCorrection.FirstLookupTable != null && checkBoxColorCorrectionEnabled.Checked;

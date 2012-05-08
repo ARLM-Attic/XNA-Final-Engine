@@ -149,6 +149,7 @@ namespace XNAFinalEngine.EngineCore
                 // Recreate assets that does not use content managers.
                 Texture.RecreateTexturesWithoutContentManager();
                 Assets.Model.RecreateModelsWithoutContentManager();
+                LookupTable.RecreateTexturesWithoutContentManager();
 
                 // Recreate assets that use content managers.
                 ContentManager.RecreateContentManagers();

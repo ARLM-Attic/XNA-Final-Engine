@@ -139,11 +139,11 @@ namespace XNAFinalEngine.Editor
             {
                 Left = 10,
                 Text = name,
-                Value = initialValue,
                 IfOutOfRangeRescale = ifOutOfRangeRescale,
                 ValueCanBeOutOfRange = valueCanBeOutOfRange,
                 MinimumValue = minimumValue,
                 MaximumValue = maximumValue,
+                Value = initialValue,
                 Width = parent.ClientWidth - 25,
             };
             if (parent.AvailablePositionInsideControl == 0)

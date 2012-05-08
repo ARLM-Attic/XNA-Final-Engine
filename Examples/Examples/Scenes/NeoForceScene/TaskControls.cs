@@ -209,7 +209,7 @@ namespace XNAFinalEngine.UserInterface.Central
                 TextColor = new Color(32, 32, 32)
             };
             trkMain_ValueChanged(this, null); // forcing label redraw with init values
-
+            
             mnuListBox = new ContextMenu();
 
             MenuItem i1 = new MenuItem("This is very long text");
@@ -264,8 +264,8 @@ namespace XNAFinalEngine.UserInterface.Central
                 TextColor = Color.FromNonPremultiplied(255, 64, 32, 200)
             };
             btnDisable.Click += btnDisable_Click;
-            
 
+            
             btnProgress = new Button
             {
                 Parent = BottomPanel,
@@ -284,7 +284,7 @@ namespace XNAFinalEngine.UserInterface.Central
             mnuMain.Items.Add(i13);
             mnuMain.Items.Add(i3);
             mnuMain.Items.Add(i4);
-
+            
             MainMenu = mnuMain;
             
             ToolBarPanel tlp = new ToolBarPanel();
@@ -306,6 +306,7 @@ namespace XNAFinalEngine.UserInterface.Central
             
             StatusBar stb = new StatusBar();
             StatusBar = stb;
+            
             Label t = new Label
                           {
                               Parent = stb,
@@ -318,7 +319,7 @@ namespace XNAFinalEngine.UserInterface.Central
             OutlineResizing = true;
 
             BottomPanel.BringToFront();
-
+            
             SkinChanged += TaskControls_SkinChanged;
             TaskControls_SkinChanged(null, null);
 
