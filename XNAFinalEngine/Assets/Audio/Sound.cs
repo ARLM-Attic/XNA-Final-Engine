@@ -119,14 +119,14 @@ namespace XNAFinalEngine.Assets
             Name = filename;
             IsLooped = isLooped;
             Type = type;
-            string fullFilename = ContentManager.GameDataDirectory + "Sounds\\" + filename;
-            if (File.Exists(fullFilename + ".xnb") == false)
+            Filename = ContentManager.GameDataDirectory + "Sounds\\" + filename;
+            if (File.Exists(Filename + ".xnb") == false)
             {
-                throw new Exception("Failed to load sound: File " + fullFilename + " does not exists!");
+                throw new Exception("Failed to load sound: File " + Filename + " does not exists!");
             }
             try
             {
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SoundEffect>(fullFilename);
+                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SoundEffect>(Filename);
                 ContentManager = ContentManager.CurrentContentManager;
             }
             catch (ObjectDisposedException e)
@@ -228,6 +228,26 @@ namespace XNAFinalEngine.Assets
             }
             SoundManager.SoundInstanceCount += SoundEffectInstances.Length;
         } // CreateSoundInstancePool
+
+        #endregion
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
+            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SoundEffect>(Filename);
+            if (SoundEffectInstances != null)
+            {
+                for (int index = 0; index < SoundEffectInstances.Length; index++)
+                {
+                    SoundEffectInstances[index] = Resource.CreateInstance();
+                    SoundEffectInstances[index].IsLooped = IsLooped;
+                }
+            }
+        } // RecreateResource
 
         #endregion
 

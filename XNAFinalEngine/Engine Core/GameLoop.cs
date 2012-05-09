@@ -107,15 +107,15 @@ namespace XNAFinalEngine.EngineCore
             MusicManager.Initialize();
             // Lines
             LineManager.Initialize();
+            // Sound
+            SoundManager.Initialize();
 
             #endregion
 
             #region Load Scene
 
             if (CurrentScene != null)
-            {
                 CurrentScene.Load();
-            }
 
             #endregion
 
@@ -157,6 +157,9 @@ namespace XNAFinalEngine.EngineCore
                 // Recreate sensitive managers.
                 SpriteManager.Initialize();
                 LineManager.Initialize();
+                SoundManager.Initialize();
+
+                CurrentScene.DeviceDisposed();
             };
 
             #endregion

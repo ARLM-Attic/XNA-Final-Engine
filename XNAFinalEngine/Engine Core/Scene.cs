@@ -64,6 +64,21 @@ namespace XNAFinalEngine.EngineCore
 
         #endregion
 
+        #region Device Disposed
+
+        /// <summary>
+        /// Tasks executed during a device dispose condition.
+        /// This is a very rare scenario in which the device is disposed. The system will try to recreate everything to their last state.
+        /// Be aware that the sound will stop playing, music and videos will start over and
+        /// custom textures and render targets can’t be recreated to their last values.
+        /// </summary>
+        public virtual void DeviceDisposed()
+        {
+            // Overrite it!!
+        } // DeviceDisposed
+
+        #endregion
+
         #region Update Tasks
 
         /// <summary>
@@ -77,7 +92,7 @@ namespace XNAFinalEngine.EngineCore
 
         /// <summary>
         /// Tasks executed during the update, but after the scripts update.
-        /// This is the place to put the application logic.
+        /// This is another place to put the application logic.
         /// </summary>
         public virtual void LateUpdateTasks()
         {

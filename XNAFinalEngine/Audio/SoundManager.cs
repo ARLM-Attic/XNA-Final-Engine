@@ -181,6 +181,24 @@ namespace XNAFinalEngine.Audio
 
         #endregion
 
+        #region Initialize
+
+        /// <summary>
+        /// Initialize the Sprite Manager subsystem.
+        /// </summary>
+        internal static void Initialize()
+        {
+            for (int i = 0; i < soundEffectInstances.Length; i++)
+            {
+                if (soundEffectInstances[i] == null)
+                    return;
+                soundEffectInstances[i].Dispose();
+                soundEffectInstances[i] = soundEffectInstancesResource[i].Resource.CreateInstance();
+            }
+        } // Initialize
+
+        #endregion
+
         #region Pause Resume
         
         /// <summary>

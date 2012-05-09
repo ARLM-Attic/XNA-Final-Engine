@@ -1087,7 +1087,7 @@ namespace XNAFinalEngineExamples
             murcielagoBody.AddComponent<SoundEmitter>();
             murcielagoBody.SoundEmitter.Sound = sound;
             //murcielagoBody.SoundEmitter.IsLooped = true;
-            //murcielagoBody.SoundEmitter.Play();
+            murcielagoBody.SoundEmitter.Play();
 
             #endregion
 
@@ -1104,7 +1104,7 @@ namespace XNAFinalEngineExamples
         public override void UpdateTasks()
         {
             base.UpdateTasks();
-            //murcielagoBody.SoundEmitter.Play();
+            murcielagoBody.SoundEmitter.Play();
         } // UpdateTasks
 
         #endregion
