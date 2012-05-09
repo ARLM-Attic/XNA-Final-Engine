@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -72,6 +72,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
+            Unload();
             base.Uninitialize();
         } // Uninitialize
 
@@ -111,6 +112,15 @@ namespace XNAFinalEngine.Components
         /// Tasks executed during the last stage of the scene render.
         /// </summary>
         public virtual void PostRenderUpdate() { }
+
+        #endregion
+
+        #region Unload
+
+        /// <summary>
+        /// Tasks executed during the unload of this component.
+        /// </summary>
+        public virtual void Unload() { }
 
         #endregion
 

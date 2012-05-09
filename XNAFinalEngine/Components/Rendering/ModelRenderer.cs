@@ -131,8 +131,6 @@ namespace XNAFinalEngine.Components
                 ((GameObject3D)Owner).ModelAnimations.BoneTransformChanged += OnBoneTransformChanged;
                 cachedBoneTransforms = ((GameObject3D)Owner).ModelAnimations.BoneTransform;
             }
-
-            Material = null;
         } // Initialize
 
         #endregion
@@ -146,9 +144,13 @@ namespace XNAFinalEngine.Components
         internal override void Uninitialize()
         {
             base.Uninitialize();
+            Material = null;
+            ((GameObject3D)Owner).ModelFilterChanged -= OnModelFilterChanged;
             if (((GameObject3D)Owner).ModelFilter != null)
                 ((GameObject3D)Owner).ModelFilter.ModelChanged -= OnModelChanged;
-            ((GameObject3D)Owner).ModelFilterChanged -= OnModelFilterChanged;
+            ((GameObject3D)Owner).ModelAnimationChanged -= OnModelAnimationChanged;
+            if (((GameObject3D)Owner).ModelAnimations != null)
+                ((GameObject3D)Owner).ModelAnimations.BoneTransformChanged -= OnBoneTransformChanged;
         } // Uninitialize
 
         #endregion

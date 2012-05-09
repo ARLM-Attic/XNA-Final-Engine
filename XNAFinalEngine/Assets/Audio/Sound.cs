@@ -46,8 +46,8 @@ namespace XNAFinalEngine.Assets
     /// but it is impossible that the system knows in anticipation how much instances will need.
     /// By default the engine will be create the instance and deleted when it finish and thus generating garbage in the process
     /// (avoiding the dispose operation is not need it because the creation of classes is what the garbage collector tracks).
-    /// However, you can create a pool of instance in loading time (see the Sound class) if you know how much instances you will need. 
-    /// If all sound instances are used a new sound instance will be created outside the pool system.
+    /// However, you can reserve sound effect instance in the general sound instances pool.
+    /// If all sound instances are used a new but temporal sound instance will be created in the pool system.
     /// </remarks>
     public class Sound : Asset
     {
@@ -98,11 +98,6 @@ namespace XNAFinalEngine.Assets
         /// Returns the speed of sound: 343.5 meters per second.
         /// </summary>
         public static float SpeedOfSound { get { return SoundEffect.SpeedOfSound; } }
-
-        /// <summary>
-        /// Array of pre created sound effect instances.
-        /// </summary>
-        internal SoundEffectInstance[] SoundEffectInstances { get; private set; }
 
         #endregion
 
@@ -196,6 +191,19 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            base.DisposeManagedResources();
+            SoundManager.RemoveSoundInstances(this);
+        } // DisposeManagedResources
+
+	    #endregion
+
         #region Create Sound Instance Pool
 
         /// <summary>
@@ -204,30 +212,27 @@ namespace XNAFinalEngine.Assets
         /// but it is impossible that the system knows in anticipation how much instances will need.
         /// By default the engine will be create the instance and deleted when it finish and thus generating garbage in the process
         /// (avoiding the dispose operation is not need it because the creation of classes is what the garbage collector tracks).
-        /// However, you can create a pool of instance in loading time (see the Sound class) if you know how much instances you will need. 
-        /// If all sound instances are used a new sound instance will be created outside the pool system.
+        /// However, you can reserve sound effect instance in the general sound instances pool.
+        /// If all sound instances are used a new but temporal sound instance will be created in the pool system.
         /// </summary>
-        /// <param name="size">Pool size.</param>
-        public void CreateSoundInstancePool(int size)
+        /// <param name="count">The number of instances to add.</param>
+        public void ReserveSoundInstances(int count)
         {
-            // Dispose previous pool.
-            if (SoundEffectInstances != null)
-            {
-                foreach (SoundEffectInstance soundEffectInstance in SoundEffectInstances)
-                {
-                    soundEffectInstance.Dispose();
-                }
-                SoundManager.SoundInstanceCount -= SoundEffectInstances.Length;
-            }
-            // Create the new pool.
-            SoundEffectInstances = new SoundEffectInstance[size];
-            for (int index = 0; index < SoundEffectInstances.Length; index++)
-            {
-                SoundEffectInstances[index] = Resource.CreateInstance();
-                SoundEffectInstances[index].IsLooped = IsLooped;
-            }
-            SoundManager.SoundInstanceCount += SoundEffectInstances.Length;
+            if (count <= 0 || count > 290)
+                throw new ArgumentOutOfRangeException("count");
+            SoundManager.ReserveSoundInstance(this, count);
         } // CreateSoundInstancePool
+
+        /// <summary>
+        /// Release reserved instances.
+        /// </summary>
+        /// <param name="count">You can indicate a higher number of instances of what they are.</param>
+        public void ReleaseSoundInstances(int count = 290)
+        {
+            if (count <= 0)
+                throw new ArgumentOutOfRangeException("count");
+            SoundManager.ReleaseSoundInstance(this, count);
+        } // ReleaseSoundInstances
 
         #endregion
 
@@ -239,14 +244,6 @@ namespace XNAFinalEngine.Assets
         internal override void RecreateResource()
         {
             Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SoundEffect>(Filename);
-            if (SoundEffectInstances != null)
-            {
-                for (int index = 0; index < SoundEffectInstances.Length; index++)
-                {
-                    SoundEffectInstances[index] = Resource.CreateInstance();
-                    SoundEffectInstances[index].IsLooped = IsLooped;
-                }
-            }
         } // RecreateResource
 
         #endregion

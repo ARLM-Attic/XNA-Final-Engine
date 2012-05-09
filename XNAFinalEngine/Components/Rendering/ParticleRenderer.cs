@@ -152,7 +152,6 @@ namespace XNAFinalEngine.Components
             RotateSpeed = new Vector2(-1, 1);
             StartSize = new Vector2(5, 10);
             EndSize = new Vector2(50, 200);
-            Texture = null;
             BlendState = BlendState.Additive;
             // Particle Emitter
             ((GameObject3D)Owner).ParticleEmitterChanged += OnParticleEmitterChanged;
@@ -170,6 +169,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
+            Texture = null;
             ((GameObject3D)Owner).ParticleEmitterChanged -= OnParticleEmitterChanged;
             base.Uninitialize();
         } // Uninitialize

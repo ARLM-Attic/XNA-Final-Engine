@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -76,12 +76,12 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
         /// </summary>
-        public delegate void AnimationEventHandler(object sender, Matrix[] boneTransform);
+        internal delegate void AnimationEventHandler(object sender, Matrix[] boneTransform);
 
         /// <summary>
         /// Raised when the model animation's bone transform changes.
         /// </summary>
-        public event AnimationEventHandler BoneTransformChanged;
+        internal event AnimationEventHandler BoneTransformChanged;
 
         #endregion
 
@@ -154,6 +154,7 @@ namespace XNAFinalEngine.Components
         internal override void Uninitialize()
         {
             base.Uninitialize();
+            BoneTransformChanged = null;
         } // Uninitialize
 
         #endregion

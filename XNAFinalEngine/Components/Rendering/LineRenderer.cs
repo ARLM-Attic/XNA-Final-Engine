@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -98,8 +98,6 @@ namespace XNAFinalEngine.Components
         {
             base.Initialize(owner);
             // Default values
-            Vertices = null;
-            Texture = null;
             Width = 10;
             PrimitiveType = PrimitiveType.LineList;
         } // Initialize
@@ -114,6 +112,8 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
+            Vertices = null;
+            Texture = null;
             base.Uninitialize();
         } // Uninitialize
 

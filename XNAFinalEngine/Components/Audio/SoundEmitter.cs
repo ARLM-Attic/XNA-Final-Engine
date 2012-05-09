@@ -44,6 +44,10 @@ namespace XNAFinalEngine.Components
     /// <summary>
     /// Sound Listener.
     /// </summary>
+    /// <remarks>
+    /// When a device is disposed the sound are stopped.
+    /// This could be avoided but this scenario is very rare and the sound has to start over.
+    /// </remarks>
     public class SoundEmitter : Component
     {
         
@@ -66,6 +70,9 @@ namespace XNAFinalEngine.Components
 
         // For velocity calculations.
         private Vector3 oldPosition;
+
+        // Sound asset.
+        private Sound sound;
 
         // The Apply3D method needs an audio listener, but when I play a sound I don't have this information so I use an empty audio listener.
         // To avoid garbage I created beforehand.
@@ -107,11 +114,20 @@ namespace XNAFinalEngine.Components
                     volume = 1;
             }
         } // Volume
-
+        
         /// <summary>
         /// Sound asset.
         /// </summary>
-        public Sound Sound { get; set; }
+        public Sound Sound
+        {
+            get { return sound; }
+            set
+            {
+                if (SoundEffectInstance != null)
+                    Stop();
+                sound = value;
+            }
+        } // Sound
 
         /// <summary>
         /// Gets or sets the panning.
@@ -195,7 +211,6 @@ namespace XNAFinalEngine.Components
             base.Initialize(owner);
             // Values //
             volume = 1;
-            Sound = null;
             Pan = 0;
             Pitch = 0;
             dopplerScale = 1;
@@ -219,6 +234,7 @@ namespace XNAFinalEngine.Components
             if (SoundEffectInstance != null)
                 SoundEffectInstance.Stop();
             SoundEffectInstance = null;
+            Sound = null;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
         } // Uninitialize
 

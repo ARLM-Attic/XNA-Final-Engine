@@ -154,10 +154,23 @@ namespace XNAFinalEngine.Components
             innerConeAngle = 20;
             outerConeAngle = 60;
             specularColor = Color.White;
-            LightMaskTexture = null;
             cachedPosition = ((GameObject3D)Owner).Transform.Position;
             cachedDirection = ((GameObject3D)Owner).Transform.Forward;
         } // Initialize
+
+        #endregion
+
+        #region Uninitialize
+
+        /// <summary>
+        /// Uninitialize the component.
+        /// Is important to remove event associations and any other reference.
+        /// </summary>
+        internal override void Uninitialize()
+        {
+            base.Uninitialize();
+            LightMaskTexture = null;
+        } // Uninitialize
 
         #endregion
 

@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -94,9 +94,21 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
-            // Default values.
-            Texture = null;
         } // Initialize
+
+        #endregion
+
+        #region Uninitialize
+
+        /// <summary>
+        /// Uninitialize the component.
+        /// Is important to remove event associations and any other reference.
+        /// </summary>
+        internal override void Uninitialize()
+        {
+            base.Uninitialize();
+            Texture = null;
+        } // Uninitialize
 
         #endregion
 

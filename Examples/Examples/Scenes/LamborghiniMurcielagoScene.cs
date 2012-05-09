@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.Audio;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
@@ -1079,15 +1080,20 @@ namespace XNAFinalEngineExamples
             
             #endregion
 
-            #region Sound Instance Test
+            #region Sound Test
 
             // Just a test to see exactly how it works internally.
             Sound sound = new Sound("Tutorials\\Dog", false, Sound.SoundType.Sound2D);
+            sound.ReserveSoundInstances(2);
             //sound.Play();
             murcielagoBody.AddComponent<SoundEmitter>();
             murcielagoBody.SoundEmitter.Sound = sound;
-            //murcielagoBody.SoundEmitter.IsLooped = true;
             murcielagoBody.SoundEmitter.Play();
+
+            /*
+            MusicManager.LoadAllSong(true);
+            MusicManager.Play(1);
+            */
 
             #endregion
 
@@ -1104,6 +1110,7 @@ namespace XNAFinalEngineExamples
         public override void UpdateTasks()
         {
             base.UpdateTasks();
+            murcielagoBody.SoundEmitter.Stop(false);
             murcielagoBody.SoundEmitter.Play();
         } // UpdateTasks
 
