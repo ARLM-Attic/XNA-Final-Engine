@@ -362,7 +362,7 @@ namespace XNAFinalEngine.Audio
         /// Remove unused sound instance from the general array of instances.
         /// Only not reserved sound instances are disposed.
         /// </summary>
-        internal static void RemoveUnusedSoundInstances()
+        internal static void RemoveNotReservedUnusedSoundInstances()
         {
             for (int i = 0; i < soundInstances.Length; i++)
             {
@@ -373,7 +373,7 @@ namespace XNAFinalEngine.Audio
                     soundInstances[i].Sound = null;
                 }
             }
-        } // RemoveUnusedSoundInstances
+        } // RemoveNotReservedUnusedSoundInstances
 
         #endregion
 

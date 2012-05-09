@@ -1097,6 +1097,24 @@ namespace XNAFinalEngineExamples
 
             #endregion
 
+            #region Animation Test
+            
+            murcielagoBody.AddComponent<RootAnimations>();
+            RootAnimation animation = new RootAnimation("AnimatedCube"); // Be aware to select the correct content processor.
+            murcielagoBody.RootAnimations.AddAnimationClip(animation);
+            murcielagoBody.RootAnimations.Play("AnimatedCube");
+            murcielagoBody.Transform.Translate(new Vector3(0, -20.17f, 0), Space.Local);
+
+
+            GameObject3D dude = new GameObject3D(new FileModel("DudeWalk"), new BlinnPhong());
+            dude.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
+            ModelAnimation modelAnimation = new ModelAnimation("dude"); // Be aware to select the correct content processor.
+            dude.AddComponent<ModelAnimations>();
+            dude.ModelAnimations.AddAnimationClip(modelAnimation);
+            dude.ModelAnimations.Play("dude");
+
+            #endregion
+
         } // Load
 
         #endregion

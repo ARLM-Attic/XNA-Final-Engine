@@ -1419,6 +1419,11 @@
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
     </Compile>
+    <Compile Include="Animations\AnimatedCube.fbx">
+      <Name>AnimatedCube</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RootAnimationProcessor</Processor>
+    </Compile>
     <None Include="Shaders\GlobalIllumination\HorizonBasedAmbientOcclusionMiddleQuality.fxh">
       <Name>HorizonBasedAmbientOcclusionMiddleQuality</Name>
       <Importer>EffectImporter</Importer>

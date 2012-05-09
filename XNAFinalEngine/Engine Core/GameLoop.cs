@@ -176,7 +176,7 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static void RemoveUnusedResources()
         {
-            SoundManager.RemoveUnusedSoundInstances();
+            SoundManager.RemoveNotReservedUnusedSoundInstances();
             GarbageCollector.CollectGarbage();
         } // RemoveUnusedResources
 
@@ -237,6 +237,8 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Sound
+
+            // TODO: layers, and distance activation.
             
             // Update the sound's general parameters.
             SoundManager.Update();
