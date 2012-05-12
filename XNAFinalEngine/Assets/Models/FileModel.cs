@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -249,13 +249,19 @@ namespace XNAFinalEngine.Assets
                 Vector3[] vectices = Vectices;
                 boundingSphere = BoundingSphere.CreateFromPoints(vectices);
                 boundingBox    = BoundingBox.CreateFromPoints(vectices);
+                // Mesh Count
+                MeshPartsCount = 0;
+                foreach (ModelMesh mesh in Resource.Meshes)
+                    foreach (ModelMeshPart part in mesh.MeshParts)
+                        MeshPartsCount++;
+                // Animations
                 if (Resource.Tag != null && Resource.Tag is ModelAnimationData && ((ModelAnimationData)Resource.Tag).BoneHierarchy != null)
                 {
                     BoneCount = ((ModelAnimationData) Resource.Tag).BoneHierarchy.Count;
                     if (((ModelAnimationData)Resource.Tag).InverseBindPose != null) // If is skinned
                     {
                         worldTransforms = new Matrix[BoneCount];
-                        skinTransforms = new Matrix[BoneCount];    
+                        skinTransforms = new Matrix[BoneCount];
                     }
                     IsSkinned = ((ModelAnimationData)Resource.Tag).InverseBindPose != null;
                 }
@@ -325,6 +331,40 @@ namespace XNAFinalEngine.Assets
                 }
             }
         } // Render
+
+        /// <summary>
+        /// Render a mesh part of the model.
+        /// </summary>
+        /// <remarks>
+        /// Don't call it excepting see the model on the screen.
+        /// This is public to allow doing some specific tasks not implemented in the engine.
+        /// </remarks>
+        public override void RenderMeshPart(int meshPartIndex)
+        {
+            if (meshPartIndex >= MeshPartsCount || meshPartIndex < 0)
+                throw new IndexOutOfRangeException("meshIndex");
+            int index = 0;
+            foreach (ModelMesh mesh in Resource.Meshes) // foreach is faster than for because no range checking is performed.
+            {
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    if (index == meshPartIndex)
+                    {
+                        // Set vertex buffer and index buffer
+                        EngineManager.Device.SetVertexBuffer(part.VertexBuffer);
+                        EngineManager.Device.Indices = part.IndexBuffer;
+                        // And render all primitives
+                        EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, part.VertexOffset, 0,
+                                                                   part.NumVertices, part.StartIndex, part.PrimitiveCount);
+                        // Update statistics
+                        Statistics.DrawCalls++;
+                        Statistics.TrianglesDrawn += part.PrimitiveCount;
+                        Statistics.VerticesProcessed += part.NumVertices;
+                    }
+                    index++;
+                }
+            }
+        } // RenderMesh
 
         #endregion
 

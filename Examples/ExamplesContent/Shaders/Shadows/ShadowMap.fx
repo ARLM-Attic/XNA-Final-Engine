@@ -59,15 +59,6 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-technique GenerateShadowMap
-{
-	pass P0
-	{
-		VertexShader = compile vs_3_0 VS_GenerateShadowMap();
-		PixelShader  = compile ps_3_0 PS_GenerateShadowMap();
-	}
-} // GenerateShadowMap
-
 technique RenderShadowMap2x2PCF
 {
     pass p0

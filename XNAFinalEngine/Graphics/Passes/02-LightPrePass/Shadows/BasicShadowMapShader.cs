@@ -99,7 +99,8 @@ namespace XNAFinalEngine.Graphics
                                         epFrustumCorners,
                                         epDepthBias,
                                         epShadowMapSize,
-                                        epInvShadowMapSize;
+                                        epInvShadowMapSize,
+                                        epBones;
 
         #region Matrices
 
@@ -218,6 +219,24 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
+        #region Bones
+
+        private static readonly Matrix[] lastUsedBones = new Matrix[72];
+        private static void SetBones(Matrix[] bones)
+        {
+            if (!ArrayHelper.Equals(lastUsedBones, bones))
+            {
+                // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
+                for (int i = 0; i < 4; i++)
+                {
+                    lastUsedBones[i] = bones[i];
+                }
+                epBones.SetValue(bones);
+            }
+        } // SetBones
+
+        #endregion
+
         #endregion
 
         #region Constructor
@@ -266,6 +285,9 @@ namespace XNAFinalEngine.Graphics
                     epShadowMapSize.SetValue(lastUsedShadowMapSize);
                 epInvShadowMapSize    = Resource.Parameters["invShadowMapSize"];
                     epInvShadowMapSize.SetValue(new Vector2(1f / lastUsedShadowMapSize.X, 1f / lastUsedShadowMapSize.Y));
+                // Skinning //
+                epBones = Resource.Parameters["Bones"];
+                    epBones.SetValue(lastUsedBones);
             }
             catch
             {
@@ -309,7 +331,7 @@ namespace XNAFinalEngine.Graphics
                 // Enable first render target.
                 lightDepthTexture.EnableRenderTarget();
                 lightDepthTexture.Clear(Color.White);
-                Resource.CurrentTechnique = Resource.Techniques["GenerateShadowMap"];
+                
             }
             catch (Exception e)
             {
@@ -475,9 +497,15 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render objects in light space.
         /// </summary>
-        internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform)
+        internal void RenderModel(Matrix worldMatrix, Model model)
         {
-
+            if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
+            {
+                SetBones(((FileModel)model).SkinTransforms);
+                Resource.CurrentTechnique = Resource.Techniques["GenerateShadowMapSkinned"];
+            }
+            else
+                Resource.CurrentTechnique = Resource.Techniques["GenerateShadowMap"];
             SetWorldViewProjMatrix(worldMatrix * lightViewMatrix * lightProjectionMatrix);
             Resource.CurrentTechnique.Passes[0].Apply();
             model.Render();

@@ -34,6 +34,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Helpers;
 using Model = XNAFinalEngine.Assets.Model;
 using Texture = XNAFinalEngine.Assets.Texture;
 using TextureCube = XNAFinalEngine.Assets.TextureCube;
@@ -400,16 +401,19 @@ namespace XNAFinalEngine.Graphics
 
         #region Bones
 
-        //private static Matrix[] lastUsedBones;
+        private static readonly Matrix[] lastUsedBones = new Matrix[72];
         private static void SetBones(Matrix[] bones)
         {
-            // The values are probably different and the operation is costly and garbage prone (but this can be avoided).
-            /*if (!ArrayHelper.Equals(lastUsedBones, bones))
+            if (!ArrayHelper.Equals(lastUsedBones, bones))
             {
-                lastUsedBones = (Matrix[])(bones.Clone());
+                // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
+                for (int i = 0; i < 4; i++)
+                {
+                    lastUsedBones[i] = bones[i];
+                }
                 epBones.SetValue(bones);
-            }*/
-            epBones.SetValue(bones);
+            }
+            //epBones.SetValue(bones);
         } // SetBones
 
         #endregion
@@ -495,6 +499,7 @@ namespace XNAFinalEngine.Graphics
                     epHeightMapScale.SetValue(lastUsedHeightMapScale);
                 // Skinning //
                 epBones = Resource.Parameters["Bones"];
+                    epBones.SetValue(lastUsedBones);
             }
             catch
             {
@@ -540,7 +545,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render a model.
 		/// </summary>
-        internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform, BlinnPhong blinnPhongMaterial)
+        internal void RenderModel(Matrix worldMatrix, Model model, BlinnPhong blinnPhongMaterial, int meshIndex)
         {
             try
             {
@@ -601,7 +606,7 @@ namespace XNAFinalEngine.Graphics
                     SetReflectionTextured(false);
 
                 Resource.CurrentTechnique.Passes[0].Apply();
-                model.Render();
+                model.RenderMeshPart(meshIndex);
             }
             catch (Exception e)
             {

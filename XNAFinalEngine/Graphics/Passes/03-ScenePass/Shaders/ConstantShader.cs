@@ -223,7 +223,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render a model.
 		/// </summary>		
-        internal void RenderModel(Matrix worldMatrix, Model model, Constant constantMaterial)
+        internal void RenderModel(Matrix worldMatrix, Model model, Constant constantMaterial, int meshIndex)
         {
             try
             {
@@ -241,7 +241,7 @@ namespace XNAFinalEngine.Graphics
                 }
 
                 Resource.CurrentTechnique.Passes[0].Apply();
-                model.Render();
+                model.RenderMeshPart(meshIndex);
             }
             catch (Exception e)
             {

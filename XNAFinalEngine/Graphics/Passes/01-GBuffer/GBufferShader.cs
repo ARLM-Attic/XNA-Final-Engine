@@ -353,16 +353,19 @@ namespace XNAFinalEngine.Graphics
 
         #region Bones
 
-        //private static Matrix[] lastUsedBones;
+        private static readonly Matrix[] lastUsedBones = new Matrix[72];
         private static void SetBones(Matrix[] bones)
         {
-            // The values are probably different and the operation is costly and garbage prone because the clone (but this can be avoided).
-            /*if (!ArrayHelper.Equals(lastUsedBones, bones))
+            if (!ArrayHelper.Equals(lastUsedBones, bones))
             {
-                lastUsedBones = (Matrix[])(bones.Clone());
+                // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
+                for (int i = 0; i < 4; i++)
+                {
+                    lastUsedBones[i] = bones[i];
+                }
                 epBones.SetValue(bones);
-            }*/
-            epBones.SetValue(bones);
+            }
+            //epBones.SetValue(bones);
         } // SetBones
 
         #endregion
@@ -428,6 +431,7 @@ namespace XNAFinalEngine.Graphics
                     epHeightMapScale.SetValue(lastUsedHeightMapScale);
                 // Skinning //
                 epBones                   = Resource.Parameters["Bones"];
+                    epBones.SetValue(lastUsedBones);
                 // Terrain //
                 epUvRectangleMin          = Resource.Parameters["uvRectangleMin"];
                     epUvRectangleMin.SetValue(new Vector2(lastUsedUvRectangle.X, lastUsedUvRectangle.Y));
@@ -477,28 +481,86 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render a model into the GBuffer.
         /// </summary>
-        internal void RenderModel(Matrix worldMatrix, Assets.Model model, Matrix[] boneTransform, Material material)
+        internal void RenderModel(Matrix worldMatrix, Assets.Model model, Material material, int meshIndex)
         {
             try
             {
-                // Set parameters
+
+                #region Set Matrices
+
                 SetTransposeInverseWorldViewMatrix(Matrix.Transpose(Matrix.Invert(worldMatrix * viewMatrix)));
                 SetWorldViewMatrix(worldMatrix * viewMatrix);
                 SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
 
+                #endregion
+
                 if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
                 {
-                    // I only consider skinning model with UV information for now. The extension is pretty simple thought.
-                    // I have to do the extensions for normal and specular textures. TODO!!!
-                    Resource.CurrentTechnique = Resource.Techniques["GBufferSkinnedWithTexture"];
-                    SetBones(((FileModel) model).SkinTransforms);
+
+                    #region Blinn Phong
+
+                    if (material is BlinnPhong)
+                    {
+                        BlinnPhong blinnPhongMaterial = ((BlinnPhong)material);
+                        bool textured = false;
+                        // Specular texture
+                        if (blinnPhongMaterial.SpecularTexture != null && blinnPhongMaterial.SpecularPowerFromTexture)
+                        {
+                            SetSpecularTexture(blinnPhongMaterial.SpecularTexture);
+                            SetSpecularTextured(true);
+                            textured = true;
+                            Resource.CurrentTechnique = Resource.Techniques["GBufferSkinnedWithSpecularTexture"];
+                        }
+                        else
+                        {
+                            SetSpecularPower(blinnPhongMaterial.SpecularPower);
+                            SetSpecularTextured(false);
+                        }
+                        // Normal texture
+                        if (blinnPhongMaterial.NormalTexture != null)
+                        {
+                            textured = true;
+                            SetObjectNormalTexture(blinnPhongMaterial.NormalTexture);
+                            if (blinnPhongMaterial.ParallaxEnabled)
+                            {
+                                Resource.CurrentTechnique = Resource.Techniques["GBufferSkinnedWithParallax"];
+                                SetLODThreshold(blinnPhongMaterial.ParallaxLodThreshold);
+                                SetMinimumNumberSamples(blinnPhongMaterial.ParallaxMinimumNumberSamples);
+                                SetMaximumNumberSamples(blinnPhongMaterial.ParallaxMaximumNumberSamples);
+                                SetHeightMapScale(blinnPhongMaterial.ParallaxHeightMapScale);
+                            }
+                            else
+                            {
+                                Resource.CurrentTechnique = Resource.Techniques["GBufferSkinnedWithNormalMap"];
+                            }
+                        }
+                        if (!textured)
+                            Resource.CurrentTechnique = Resource.Techniques["GBufferSkinnedWithoutTexture"];
+                        // Set Bones
+                        SetBones(((FileModel) model).SkinTransforms);
+                    }
+
+                    #endregion
+
+                    else
+                    {
+                        throw new InvalidOperationException("GBuffer: This material is not supported with skinned models.");
+                    }
                 }
                 else
                 {
+
+                    #region Constant
+
                     if (material is Constant)
                     {
                         Resource.CurrentTechnique = Resource.Techniques["GBufferWithoutTexture"];
                     }
+
+                    #endregion
+
+                    #region Blinn Phong
+
                     else if (material is BlinnPhong)
                     {
                         BlinnPhong blinnPhongMaterial = ((BlinnPhong)material);
@@ -537,6 +599,11 @@ namespace XNAFinalEngine.Graphics
                         if (!textured)
                             Resource.CurrentTechnique = Resource.Techniques["GBufferWithoutTexture"];
                     }
+
+                    #endregion
+
+                    #region Car Paint
+
                     else if (material is CarPaint)
                     {
                         CarPaint blinnPhongMaterial = ((CarPaint)material);
@@ -564,6 +631,11 @@ namespace XNAFinalEngine.Graphics
                         if (!textured)
                             Resource.CurrentTechnique = Resource.Techniques["GBufferWithoutTexture"];
                     }
+
+                    #endregion
+
+                    #region Terrain
+
                     /*else if (material is Terrain)
                     {
                         SetDisplacementTexture(TerrainMaterial.DisplacementTexture);
@@ -575,13 +647,16 @@ namespace XNAFinalEngine.Graphics
                         SetSpecularPower(500);
                         Effect.CurrentTechnique = Effect.Techniques["GBufferTerrain"];
                     }*/
+
+                    #endregion
+
                     else
                     {
                         throw new InvalidOperationException("GBuffer: This material is not supported by the GBuffer renderer.");
                     }
                 }
                 Resource.CurrentTechnique.Passes[0].Apply();
-                model.Render();
+                model.RenderMeshPart(meshIndex);
             }
             catch (Exception e)
             {

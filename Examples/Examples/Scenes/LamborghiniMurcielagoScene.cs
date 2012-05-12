@@ -96,7 +96,8 @@ namespace XNAFinalEngineExamples
                                     directionalLight, pointLight, pointLight2, pointLight3, pointLight4, pointLight5, pointLight6, pointLight7, spotLight,
                                     // Cameras
                                     camera, camera2,
-                                    skydome;
+                                    skydome,
+                                    dude;
 
         private static GameObject2D xnaFinalEngineLogo, videoTest, statistics;
         
@@ -133,7 +134,7 @@ namespace XNAFinalEngineExamples
                                                             //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
                                                             Color = new Color(50, 50, 50),
                                                             Intensity = 5f,
-                                                            AmbientOcclusionStrength = 2f };
+                                                            AmbientOcclusionStrength = 3f };
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
             camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM", true, 50) };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
@@ -193,7 +194,7 @@ namespace XNAFinalEngineExamples
             #endregion
 
             #region Models
-            
+            /*
             #region Body
 
             murcielagoBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), carPaint);
@@ -871,7 +872,7 @@ namespace XNAFinalEngineExamples
             floor.Transform.Position = new Vector3(0, -1.17f, 0);
 
             #endregion
-            
+            */
             #endregion
 
             #region Shadows and Lights
@@ -1008,13 +1009,13 @@ namespace XNAFinalEngineExamples
 
             PostProcessWindow.Show(camera.Camera.PostProcess);
 
-            murcielagoBody.Layer = Layer.GetLayerByNumber(1);
+            //murcielagoBody.Layer = Layer.GetLayerByNumber(1);
             //Layer.GetLayerByNumber(1).Enabled = false;
 
             #endregion
 
             #region Editor
-
+            /*
             EditorManager.AddObject(murcielagoBody);
             EditorManager.AddObject(murcielagoSteeringWheel);
             EditorManager.AddObject(murcielagoLP640AirTakesEngine);
@@ -1086,10 +1087,10 @@ namespace XNAFinalEngineExamples
             Sound sound = new Sound("Tutorials\\Dog", false, Sound.SoundType.Sound2D);
             sound.ReserveSoundInstances(2);
             //sound.Play();
-            murcielagoBody.AddComponent<SoundEmitter>();
+            /*murcielagoBody.AddComponent<SoundEmitter>();
             murcielagoBody.SoundEmitter.Sound = sound;
             murcielagoBody.SoundEmitter.Play();
-
+            */
             /*
             MusicManager.LoadAllSong(true);
             MusicManager.Play(1);
@@ -1098,20 +1099,27 @@ namespace XNAFinalEngineExamples
             #endregion
 
             #region Animation Test
-            
+            /*
             murcielagoBody.AddComponent<RootAnimations>();
             RootAnimation animation = new RootAnimation("AnimatedCube"); // Be aware to select the correct content processor.
             murcielagoBody.RootAnimations.AddAnimationClip(animation);
             murcielagoBody.RootAnimations.Play("AnimatedCube");
             murcielagoBody.Transform.Translate(new Vector3(0, -20.17f, 0), Space.Local);
+            */
 
-
-            GameObject3D dude = new GameObject3D(new FileModel("DudeWalk"), new BlinnPhong());
+            dude = new GameObject3D(new FileModel("DudeWalk"), null);
+            dude.ModelRenderer.MeshMaterial[0] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\head"), NormalTexture = new Texture("Dude\\headN")};
+            dude.ModelRenderer.MeshMaterial[1] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\jacket"), NormalTexture = new Texture("Dude\\jacketN") };
+            dude.ModelRenderer.MeshMaterial[2] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\pants"), NormalTexture = new Texture("Dude\\pantsN") };
+            dude.ModelRenderer.MeshMaterial[3] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN") };
+            dude.ModelRenderer.MeshMaterial[4] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN") };
             dude.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
             ModelAnimation modelAnimation = new ModelAnimation("dude"); // Be aware to select the correct content processor.
             dude.AddComponent<ModelAnimations>();
             dude.ModelAnimations.AddAnimationClip(modelAnimation);
             dude.ModelAnimations.Play("dude");
+
+            EditorManager.AddObject(dude);
 
             #endregion
 
@@ -1128,8 +1136,8 @@ namespace XNAFinalEngineExamples
         public override void UpdateTasks()
         {
             base.UpdateTasks();
-            murcielagoBody.SoundEmitter.Stop(false);
-            murcielagoBody.SoundEmitter.Play();
+            /*murcielagoBody.SoundEmitter.Stop(false);
+            murcielagoBody.SoundEmitter.Play();*/
         } // UpdateTasks
 
         #endregion

@@ -101,7 +101,7 @@ technique GBufferWithoutTexture
         VertexShader = compile vs_3_0 WithoutTextureVS();
         PixelShader  = compile ps_3_0 WithoutTexturePS();
     }
-} // GBufferWithoutSpecularTexture
+} // GBufferWithoutTexture
 
 technique GBufferWithSpecularTexture
 {
@@ -139,11 +139,38 @@ technique GBufferTerrain
     }
 } // GBufferTerrain
 
-technique GBufferSkinnedWithTexture
+technique GBufferSkinnedWithoutTexture
+{
+    pass p0
+    {
+        VertexShader = compile vs_3_0 SkinnedWithoutTextureVS();
+        PixelShader  = compile ps_3_0 WithoutTexturePS();
+    }
+} // GBufferSkinnedWithTexture
+
+technique GBufferSkinnedWithSpecularTexture
 {
     pass p0
     {
         VertexShader = compile vs_3_0 SkinnedWithTextureVS();
-        PixelShader  = compile ps_3_0 WithoutTexturePS();
+        PixelShader  = compile ps_3_0 WithSpecularTexturePS();
     }
-} // GBufferSkinnedWithTexture
+} // GBufferSkinnedWithSpecularTexture
+
+technique GBufferSkinnedWithNormalMap
+{
+    pass p0
+    {
+        VertexShader = compile vs_3_0 SkinnedWithNormalMapVS();
+        PixelShader  = compile ps_3_0 WithNormalMapPS();
+    }
+} // GBufferSkinnedWithNormalMap
+
+technique GBufferSkinnedWithParallax
+{
+    pass p0
+    {
+        VertexShader = compile vs_3_0 SkinnedWithParallaxVS();
+        PixelShader  = compile ps_3_0 WithParallaxPS();
+    }
+} // GBufferSkinnedWithParallax

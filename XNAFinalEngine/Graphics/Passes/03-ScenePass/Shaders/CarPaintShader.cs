@@ -452,10 +452,11 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render a model.
         /// </summary>
-        internal void RenderModel(Matrix worldMatrix, Model model, CarPaint carPaintMaterial)
+        internal void RenderModel(Matrix worldMatrix, Model model, CarPaint carPaintMaterial, int meshIndex)
         {
             try
             {
+
                 #region Set Parameters
 
                 // Matrices //
@@ -478,7 +479,7 @@ namespace XNAFinalEngine.Graphics
                 #endregion
 
                 Resource.CurrentTechnique.Passes[0].Apply();
-                model.Render();
+                model.RenderMeshPart(meshIndex);
             }
             catch (Exception e)
             {

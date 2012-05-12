@@ -1,5 +1,5 @@
 /***********************************************************************************************************************************************
-Copyright (c) 2008-2011, Laboratorio de Investigaci?n y Desarrollo en Visualizaci?n y Computaci?n Gr?fica - 
+Copyright (c) 2008-2012, Laboratorio de Investigaci?n y Desarrollo en Visualizaci?n y Computaci?n Gr?fica - 
                          Departamento de Ciencias e Ingenier?a de la Computaci?n - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -22,53 +22,61 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
-//////////////////////////////////////////////
-//////////////// Matrices ////////////////////
-//////////////////////////////////////////////
-
-#define MAX_BONES   72
-float4x3 Bones[MAX_BONES];
+#include <..\Helpers\SkinningCommon.fxh>
 
 //////////////////////////////////////////////
 ////////////// Data Structs //////////////////
 //////////////////////////////////////////////
 
-struct SkinnedWithTextureVS_INPUT
+struct SkinnedWithoutTextureVS_INPUT 
 {
-	float4 position : POSITION;
-    float3 normal   : NORMAL;
-    float2 uv       : TEXCOORD0;
-    int4   indices  : BLENDINDICES0;
-    float4 weights  : BLENDWEIGHT0;
+   float4 position : POSITION;
+   float3 normal   : NORMAL;   
+   int4   indices  : BLENDINDICES0;
+   float4 weights  : BLENDWEIGHT0;
 };
 
-//////////////////////////////////////////////
-///////////////// Helpers ////////////////////
-//////////////////////////////////////////////
-
-void SkinTransform(inout SkinnedWithTextureVS_INPUT input, uniform int weightsPerVertex)
+struct SkinnedWithTextureVS_INPUT
 {
-    float4x3 skinning = 0;
+   float4 position : POSITION;
+   float3 normal   : NORMAL;
+   float2 uv       : TEXCOORD0;
+   int4   indices  : BLENDINDICES0;
+   float4 weights  : BLENDWEIGHT0;
+};
 
-    [unroll]
-    for (int i = 0; i < weightsPerVertex; i++)
-    {
-        skinning += Bones[input.indices[i]] * input.weights[i];
-    }
-
-    input.position.xyz = mul(input.position, skinning);
-    input.normal = mul(input.normal, (float3x3)skinning);
-}
+struct SkinnedWithTangentVS_INPUT
+{
+   float4 position : POSITION;
+   float3 normal   : NORMAL;
+   float3 tangent  : TANGENT;
+   float3 binormal : BINORMAL;
+   float2 uv       : TEXCOORD0;
+   int4   indices  : BLENDINDICES0;
+   float4 weights  : BLENDWEIGHT0;
+};
 
 //////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
+WithoutTextureVS_OUTPUT SkinnedWithoutTextureVS(SkinnedWithoutTextureVS_INPUT input)
+{
+	WithoutTextureVS_OUTPUT output;
+   
+	SkinTransform(input.position, input.normal, input.indices, input.weights, 4);
+	output.position = mul(input.position, worldViewProj);
+	output.depth    = -mul(input.position, worldView).z / farPlane;	
+	output.normal   = mul(input.normal, worldViewIT); // The normals are in view space.	
+
+	return output;
+} // SkinnedWithoutTextureVS
+
 WithTextureVS_OUTPUT SkinnedWithTextureVS(SkinnedWithTextureVS_INPUT input)
 {
 	WithTextureVS_OUTPUT output;
    
-	SkinTransform(input, 4);
+	SkinTransform(input.position, input.normal, input.indices, input.weights, 4);
 	output.position = mul(input.position, worldViewProj);
 	output.depth    = -mul(input.position, worldView).z / farPlane;	
 	output.normal   = mul(input.normal, worldViewIT); // The normals are in view space.
@@ -76,3 +84,58 @@ WithTextureVS_OUTPUT SkinnedWithTextureVS(SkinnedWithTextureVS_INPUT input)
 
 	return output;
 } // SkinnedWithTextureVS
+
+WithTangentVS_OUTPUT SkinnedWithNormalMapVS(SkinnedWithTangentVS_INPUT input)
+{
+	WithTangentVS_OUTPUT output;
+   
+	SkinTransform(input.position, input.normal, input.indices, input.weights, 4);
+	output.position = mul(input.position, worldViewProj);
+	output.depth    = -mul(input.position, worldView).z / farPlane;	
+
+		// Generate the tanget space to view space matrix
+	output.tangentToView[0] = mul(input.tangent,  worldViewIT);
+	output.tangentToView[1] = mul(input.binormal, worldViewIT); // binormal = cross(input.tangent, input.normal)
+	output.tangentToView[2] = mul(input.normal,   worldViewIT);
+
+	output.uv = input.uv;
+
+	return output;
+} // SkinnedWithNormalMapVS
+
+WithParallaxVS_OUTPUT SkinnedWithParallaxVS(SkinnedWithTangentVS_INPUT input)
+{
+	WithParallaxVS_OUTPUT output;
+   
+	SkinTransform(input.position, input.normal, input.indices, input.weights, 4);
+	output.position = mul(input.position, worldViewProj);
+	float3 positionVS = mul(input.position, worldView);
+	output.depth    = -mul(input.position, worldView).z / farPlane;	
+
+		// Generate the tanget space to view space matrix
+	output.tangentToView[0] = mul(input.tangent,  worldViewIT);
+	output.tangentToView[1] = mul(input.binormal, worldViewIT); // binormal = cross(input.tangent, input.normal)
+	output.tangentToView[2] = mul(input.normal,   worldViewIT);
+
+	output.viewVS = normalize(-positionVS);
+
+	output.uv = input.uv;
+
+	// Compute the ray direction for intersecting the height field profile with current view ray.
+
+	float3 viewTS = mul(output.tangentToView, output.viewVS);
+         
+	// Compute initial parallax displacement direction:
+	float2 parallaxDirection = normalize(viewTS.xy);
+       
+	// The length of this vector determines the furthest amount of displacement:
+	float fLength        = length( viewTS );
+	float parallaxLength = sqrt( fLength * fLength -viewTS.z * viewTS.z ) / viewTS.z; 
+       
+	// Compute the actual reverse parallax displacement vector:
+	// Need to scale the amount of displacement to account for different height ranges in height maps.
+	// This is controlled by an artist-editable parameter heightMapScale.
+	output.parallaxOffsetTS = parallaxDirection * parallaxLength * heightMapScale;
+
+	return output;
+} // SkinnedWithParallaxVS

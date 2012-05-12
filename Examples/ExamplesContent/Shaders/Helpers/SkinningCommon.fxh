@@ -1,5 +1,5 @@
 /***********************************************************************************************************************************************
-Copyright (c) 2008-2011, Laboratorio de Investigaci?n y Desarrollo en Visualizaci?n y Computaci?n Gr?fica - 
+Copyright (c) 2008-2012, Laboratorio de Investigaci?n y Desarrollo en Visualizaci?n y Computaci?n Gr?fica - 
                          Departamento de Ciencias e Ingenier?a de la Computaci?n - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -22,42 +22,40 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
-#include <..\Helpers\SkinningCommon.fxh>
-
 //////////////////////////////////////////////
-////////////// Vertex Shader /////////////////
+//////////////// Matrices ////////////////////
 //////////////////////////////////////////////
 
-VS_OUT SkinnedWithoutTexture(in float4 position : POSITION,
-	                         in float3 normal   : NORMAL,
-							 in int4 indices    : BLENDINDICES0,
-							 in float4 weights  : BLENDWEIGHT0)
+#define MAX_BONES   72
+float4x3 Bones[MAX_BONES];
+
+//////////////////////////////////////////////
+///////////////// Helpers ////////////////////
+//////////////////////////////////////////////
+
+void SkinTransform(inout float4 position, inout float3 normal, inout int4 indices, inout float4 weights, uniform int weightsPerVertex)
 {
-	VS_OUT output = (VS_OUT)0;
+    float4x3 skinning = 0;
 
-	SkinTransform(position, normal, indices, weights, 4);
-	output.position = mul(position, worldViewProj);
-	output.postProj = output.position;
-	output.normalWS = mul(normal, worldIT);
-	output.viewWS   = normalize(cameraPosition - mul(position, world));
-	
-	return output;
-} // SkinnedWithoutTexture
+    [unroll]
+    for (int i = 0; i < weightsPerVertex; i++)
+    {
+        skinning += Bones[indices[i]] * weights[i];
+    }
 
-VS_OUT SkinnedWithTexture(in float4 position : POSITION,
-	                      in float3 normal   : NORMAL,
-						  in float2 uv       : TEXCOORD0,
-						  in int4 indices    : BLENDINDICES0,
-						  in float4 weights  : BLENDWEIGHT0)
+    position.xyz = mul(position, skinning);
+    normal = mul(normal, (float3x3)skinning);
+} // SkinTransform
+
+void SkinTransform(inout float4 position, inout int4 indices, inout float4 weights, uniform int weightsPerVertex)
 {
-	VS_OUT output = (VS_OUT)0;
+    float4x3 skinning = 0;
 
-	SkinTransform(position, normal, indices, weights, 4);
-	output.position = mul(position, worldViewProj);
-	output.postProj = output.position;	
-	output.normalWS = mul(normal, worldIT);
-	output.viewWS   = normalize(cameraPosition - mul(position, world));
-	output.uv = uv;
-	
-	return output;
-} // vs_mainWithTexture
+    [unroll]
+    for (int i = 0; i < weightsPerVertex; i++)
+    {
+        skinning += Bones[indices[i]] * weights[i];
+    }
+
+    position.xyz = mul(position, skinning);    
+} // SkinTransform

@@ -508,7 +508,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
             {
                 ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Visible && Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
                     if (boundingFrustum.Intersects(currentModelRenderer.BoundingSphere))
                     {
@@ -691,12 +691,31 @@ namespace XNAFinalEngine.EngineCore
 
             GBufferPass.Begin(destinationSize);
             GBufferShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane);
-            for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+            for (int i = 0; i < modelsToRender.Count; i++)
             {
-                ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                ModelRenderer currentModelRenderer = modelsToRender[i];
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Visible && Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
-                    GBufferShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, currentModelRenderer.Material);
+                    for (int j = 0; j < currentModelRenderer.CachedModel.MeshPartsCount; j++)
+                    {
+                        // Find material
+                        Material material = null;
+                        if (j < ModelRenderer.MaximumNumberMeshMaterials && currentModelRenderer.MeshMaterial[j] != null)
+                        {
+                            material = currentModelRenderer.MeshMaterial[j];
+                        }
+                        else if (currentModelRenderer.Material != null)
+                        {
+                            material = currentModelRenderer.Material;
+                        }
+                        if (material != null && material.AlphaBlending == 1)
+                        {
+                            // Render mesh with finded material.
+                            GBufferShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
+                                                               currentModelRenderer.CachedModel,
+                                                               material, j);
+                        }
+                    }
                 }
             }
             gbufferTextures = GBufferPass.End();
@@ -818,9 +837,10 @@ namespace XNAFinalEngine.EngineCore
                         for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
                         {
                             ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[j];
-                            if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                            
+                            if (currentModelRenderer.CachedModel != null)// && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                             {
-                                CascadedShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                                CascadedShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel);
                             }
                         }
                         currentDirectionalLight.ShadowTexture = CascadedShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
@@ -844,9 +864,9 @@ namespace XNAFinalEngine.EngineCore
                         for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
                         {
                             ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[j];
-                            if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                            if (currentModelRenderer.CachedModel != null)// && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                             {
-                                BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                                BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel);
                             }
                         }
                         currentDirectionalLight.ShadowTexture = BasicShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
@@ -890,9 +910,9 @@ namespace XNAFinalEngine.EngineCore
                             for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
                             {
                                 ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[j];
-                                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                                if (currentModelRenderer.CachedModel != null)// && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                                 {
-                                    BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                                    BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel);
                                 }
                             }
                             currentSpotLight.ShadowTexture = BasicShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
@@ -1035,23 +1055,42 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < modelsToRender.Count; i++)
             {
                 ModelRenderer currentModelRenderer = modelsToRender[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 &&
-                    currentModelRenderer.Visible && Layer.IsActive(currentModelRenderer.CachedLayerMask))
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Visible && Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
-                    if (currentModelRenderer.Material is Constant)
+                    // Render each mesh
+                    for (int j = 0; j < currentModelRenderer.CachedModel.MeshPartsCount; j++)
                     {
-                        ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
-                        ConstantShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (Constant)currentModelRenderer.Material);
-                    }
-                    else if (currentModelRenderer.Material is BlinnPhong)
-                    {
-                        BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                        BlinnPhongShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, (BlinnPhong)currentModelRenderer.Material);
-                    }
-                    else if (currentModelRenderer.Material is CarPaint)
-                    {
-                        CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                        CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint)currentModelRenderer.Material);
+                        // Find material
+                        Material material = null;
+                        if (j < ModelRenderer.MaximumNumberMeshMaterials && currentModelRenderer.MeshMaterial[j] != null)
+                        {
+                            material = currentModelRenderer.MeshMaterial[j];
+                        }
+                        else if (currentModelRenderer.Material != null)
+                        {
+                            material = currentModelRenderer.Material;
+                        }
+                        if (material != null && material.AlphaBlending == 1)
+                        {
+                            // Render mesh with finded material.
+                            if (material is Constant)
+                            {
+                                ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+                                ConstantShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (Constant) material, j);
+                            }
+                            else if (material is BlinnPhong)
+                            {
+                                BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                                BlinnPhongShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
+                                                                      currentModelRenderer.CachedModel,
+                                                                      (BlinnPhong) material, j);
+                            }
+                            else if (material is CarPaint)
+                            {
+                                CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                                CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint) material, j);
+                            }
+                        }
                     }
                 }
             }
@@ -1099,24 +1138,43 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < modelsToRender.Count; i++)
             {
                 ModelRenderer currentModelRenderer = modelsToRender[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Material != null &&
-                    currentModelRenderer.Material.AlphaBlending != 1 && currentModelRenderer.Visible &&
-                    Layer.IsActive(currentModelRenderer.CachedLayerMask))
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Visible && Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
-                    if (currentModelRenderer.Material is Constant)
+                    // Render each mesh
+                    for (int j = 0; j < currentModelRenderer.CachedModel.MeshPartsCount; j++)
                     {
-                        ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
-                        ConstantShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (Constant)currentModelRenderer.Material);
-                    }
-                    else if (currentModelRenderer.Material is BlinnPhong)
-                    {
-                        ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                        ForwardBlinnPhongShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms, (BlinnPhong)currentModelRenderer.Material, currentCamera.AmbientLight);
-                    }
-                    else if (currentModelRenderer.Material is CarPaint)
-                    {
-                        CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                        CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint)currentModelRenderer.Material);
+                        // Find material
+                        Material material = null;
+                        if (j < ModelRenderer.MaximumNumberMeshMaterials && currentModelRenderer.MeshMaterial[j] != null)
+                        {
+                            material = currentModelRenderer.MeshMaterial[j];
+                        }
+                        else if (currentModelRenderer.Material != null)
+                        {
+                            material = currentModelRenderer.Material;
+                        }
+                        if (material != null && material.AlphaBlending < 1)
+                        {
+                            // Render mesh with finded material.
+                            if (currentModelRenderer.Material is Constant)
+                            {
+                                ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+                                ConstantShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (Constant)material, j);
+                            }
+                            else if (currentModelRenderer.Material is BlinnPhong)
+                            {
+                                ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                                ForwardBlinnPhongShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
+                                                                             currentModelRenderer.CachedModel,
+                                                                             (BlinnPhong)material,
+                                                                             currentCamera.AmbientLight, j);
+                            }
+                            else if (currentModelRenderer.Material is CarPaint)
+                            {
+                                CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                                CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint)material, j);
+                            }
+                        }
                     }
                 }
             }
@@ -1360,8 +1418,8 @@ namespace XNAFinalEngine.EngineCore
             return postProcessedSceneTexture;
 
             #region For Testing
-            //RenderTarget.Release(postProcessedSceneTexture);
-            //return gbufferTextures.RenderTargets[2];
+            RenderTarget.Release(postProcessedSceneTexture);
+            return gbufferTextures.RenderTargets[1];
             //return lightTexture;
             #endregion
 

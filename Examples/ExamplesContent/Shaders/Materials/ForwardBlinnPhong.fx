@@ -281,14 +281,3 @@ technique ForwardBlinnPhongWithTexture
         PixelShader  = compile ps_3_0 ps_main();
     }
 } // BlinnPhongWithTexture
-
-//#include <SkinnedBlinnPhong.fxh>
-
-/*technique SkinnedForwardBlinnPhong
-{
-    pass P0
-    {
-        VertexShader = compile vs_3_0 SkinnedWithoutTexture();
-        PixelShader  = compile ps_3_0 PSBlinn();
-    }
-} // SkinnedForwardBlinnPhong*/

@@ -6,6 +6,7 @@
 ******************************************************************************/
 
 #include <..\GBuffer\GBufferReader.fxh>
+#include <..\Helpers\SkinningCommon.fxh>
 
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
@@ -65,6 +66,13 @@ struct VertexInput
 	float4 position : POSITION;
 };
 
+struct VertexInputSkinned
+{	
+	float4 position : POSITION;
+    int4   indices  : BLENDINDICES0;
+    float4 weights  : BLENDWEIGHT0;
+};
+
 struct GenerateShadowMapVS_OUTPUT 
 {
 	float4 position : POSITION;
@@ -78,6 +86,19 @@ struct GenerateShadowMapVS_OUTPUT
 GenerateShadowMapVS_OUTPUT  VS_GenerateShadowMap(VertexInput input)
 {
 	GenerateShadowMapVS_OUTPUT  output = (GenerateShadowMapVS_OUTPUT ) 0;
+	output.position = mul(input.position, worldViewProj);
+	
+	// Linear depth calculation instead of normal depth calculation.
+	output.depth = (output.position.z / output.position.w);
+
+	return output;
+} // VS_GenerateShadowMap
+
+GenerateShadowMapVS_OUTPUT  VS_SkinnedGenerateShadowMap(VertexInputSkinned input)
+{
+	GenerateShadowMapVS_OUTPUT  output = (GenerateShadowMapVS_OUTPUT ) 0;
+
+	SkinTransform(input.position, input.indices, input.weights, 4);
 	output.position = mul(input.position, worldViewProj);
 	
 	// Linear depth calculation instead of normal depth calculation.
@@ -202,3 +223,26 @@ float CalculateShadowTermPoisonPCF(float positionLightSpace, float2 shadowTexCoo
 	return shadowTerm;
 
 } // CalculateShadowTermPoisonPCF
+
+//////////////////////////////////////////////
+//////////////// Techniques //////////////////
+//////////////////////////////////////////////
+
+technique GenerateShadowMap
+{
+	pass P0
+	{
+		VertexShader = compile vs_3_0 VS_GenerateShadowMap();
+		PixelShader  = compile ps_3_0 PS_GenerateShadowMap();
+	}
+} // GenerateShadowMap
+
+
+technique GenerateShadowMapSkinned
+{
+	pass P0
+	{
+		VertexShader = compile vs_3_0 VS_SkinnedGenerateShadowMap();
+		PixelShader  = compile ps_3_0 PS_GenerateShadowMap();
+	}
+} // GenerateShadowMapSkinned

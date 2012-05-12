@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -115,6 +115,20 @@ namespace XNAFinalEngine.Assets
             Statistics.TrianglesDrawn += numberIndices / 3;
             Statistics.VerticesProcessed += numberVertices;
         } // Render
+
+        /// <summary>
+        /// Render a mesh of the model.
+        /// </summary>
+        /// <remarks>
+        /// Don't call it excepting see the model on the screen.
+        /// This is public to allow doing some specific tasks not implemented in the engine.
+        /// </remarks>
+        public override void RenderMeshPart(int meshIndex)
+        {
+            if (meshIndex != 0)
+                throw new IndexOutOfRangeException("meshIndex");
+            Render();
+        } // RenderMesh
 
         #endregion
 
@@ -496,6 +510,7 @@ namespace XNAFinalEngine.Assets
             this.radius = radius;
             this.length = length;
             this.slices = slices;
+            RecreateResource();
         } // Cylinder
 
         #endregion
@@ -633,6 +648,7 @@ namespace XNAFinalEngine.Assets
             this.radius = radius;
             this.length = length;
             this.slices = slices;
+            RecreateResource();
         } // Cone
 
         #endregion

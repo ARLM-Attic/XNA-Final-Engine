@@ -119,9 +119,7 @@ namespace XNAFinalEngine.Graphics
                                epHasAmbientSphericalHarmonics,
                                epDirectionalLightDirection,
                                epDirectionalLightColor,
-                               epDirectionalLightIntensity,
-                               // Skinning
-                               epBones;
+                               epDirectionalLightIntensity;
                                
 
         #region Half Pixel
@@ -431,24 +429,6 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        // Skinning
-
-        #region Bones
-
-        //private static Matrix[] lastUsedBones;
-        private static void SetBones(Matrix[] bones)
-        {
-            // The values are probably different and the operation is costly and garbage prone (but this can be avoided).
-            /*if (!ArrayHelper.Equals(lastUsedBones, bones))
-            {
-                lastUsedBones = (Matrix[])(bones.Clone());
-                epBones.SetValue(bones);
-            }*/
-            epBones.SetValue(bones);
-        } // SetBones
-
-        #endregion
-
         #endregion
 
         #region Constructor
@@ -523,8 +503,6 @@ namespace XNAFinalEngine.Graphics
                     epDirectionalLightColor.SetValue(new Vector3(lastUsedDirectionalLightColor.R / 255f, lastUsedDirectionalLightColor.G / 255f, lastUsedDirectionalLightColor.B / 255f));
                 epDirectionalLightIntensity    = Resource.Parameters["directionalLightIntensity"];
                     epDirectionalLightIntensity.SetValue(lastUsedDirectionalLightIntensity);
-                // Skinning //
-                epBones                        = Resource.Parameters["Bones"];
             }
             catch
             {
@@ -569,17 +547,15 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render a model.
 		/// </summary>
-        internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform, BlinnPhong blinnPhongMaterial, AmbientLight ambientLight)
+        internal void RenderModel(Matrix worldMatrix, Model model, BlinnPhong blinnPhongMaterial, AmbientLight ambientLight, int meshIndex)
         {
-            // TODO!!! The shader is not done.
+            if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
+            {
+                throw new InvalidOperationException("Forward Bling Phong Material: This material does not work with skinned models.");
+            }
             try
             {
-                bool isSkinned = false;
-                if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
-                {
-                    SetBones(((FileModel)model).SkinTransforms);
-                    isSkinned = true;
-                }
+                
                 SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
                 SetWorldMatrix(worldMatrix);
                 SetTransposeInverseWorldMatrix(Matrix.Transpose(Matrix.Invert(worldMatrix)));
@@ -646,7 +622,7 @@ namespace XNAFinalEngine.Graphics
                 }*/
 
                 Resource.CurrentTechnique.Passes[0].Apply();
-                model.Render();
+                model.RenderMeshPart(meshIndex);
             }
             catch (Exception e)
             {
