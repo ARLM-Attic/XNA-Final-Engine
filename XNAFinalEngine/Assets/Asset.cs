@@ -127,34 +127,38 @@ namespace XNAFinalEngine.Assets
         protected static string[] SearchAssetsFilename(string directoryPath)
         {
             string[] filenames;
-            // Search the texture files //
-            DirectoryInfo texturesDirectory = new DirectoryInfo(directoryPath);
-            try
-            {
-                FileInfo[] filesInformation = texturesDirectory.GetFiles("*.xnb", SearchOption.AllDirectories);
-                // Count the textures, except cube textures and user interface textures.
-                filenames = new string[filesInformation.Length];
-                for (int i = 0; i < filesInformation.Length; i++)
+            #if XBOX
+                return new string[0];
+            #else
+                // Search the texture files //
+                DirectoryInfo texturesDirectory = new DirectoryInfo(directoryPath);
+                try
                 {
-                    FileInfo fileInformation = filesInformation[i];
-                    // Some textures are in a sub directory, in that case we have to know how is called.
-                    string[] splitDirectoryName = fileInformation.DirectoryName.Split(new[] { directoryPath }, StringSplitOptions.None);
-                    string subdirectory = "";
-                    // If is in a sub directory
-                    if (splitDirectoryName[1] != "")
+                    FileInfo[] filesInformation = texturesDirectory.GetFiles("*.xnb", SearchOption.AllDirectories);
+                    // Count the textures, except cube textures and user interface textures.
+                    filenames = new string[filesInformation.Length];
+                    for (int i = 0; i < filesInformation.Length; i++)
                     {
-                        subdirectory = splitDirectoryName[1].Substring(1, splitDirectoryName[1].Length - 1) + "\\"; // We delete the start \ and add another \ to the end.
-                    }
-                    filenames[i] = subdirectory + fileInformation.Name.Substring(0, fileInformation.Name.Length - 4);
+                        FileInfo fileInformation = filesInformation[i];
+                        // Some textures are in a sub directory, in that case we have to know how is called.
+                        string[] splitDirectoryName = fileInformation.DirectoryName.Split(new[] { directoryPath }, StringSplitOptions.None);
+                        string subdirectory = "";
+                        // If is in a sub directory
+                        if (splitDirectoryName[1] != "")
+                        {
+                            subdirectory = splitDirectoryName[1].Substring(1, splitDirectoryName[1].Length - 1) + "\\"; // We delete the start \ and add another \ to the end.
+                        }
+                        filenames[i] = subdirectory + fileInformation.Name.Substring(0, fileInformation.Name.Length - 4);
 
+                    }
                 }
-            }
-            // If there was an error then do nothing.
-            catch
-            {
-                filenames = new string[0];
-            }
-            return filenames;
+                // If there was an error then do nothing.
+                catch
+                {
+                    filenames = new string[0];
+                }
+                return filenames;
+            #endif
         } // SearchAssetsFilename
 
         #endregion

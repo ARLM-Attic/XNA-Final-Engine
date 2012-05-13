@@ -174,9 +174,11 @@ namespace XNAFinalEngine.Editor
             screenPositions[1] = EngineManager.Device.Viewport.Project(vertices[1], gizmoCamera.Camera.ProjectionMatrix, gizmoCamera.Camera.ViewMatrix, Matrix.Identity);
 
             Vector3 aux = screenPositions[1] - screenPositions[0];
-            transformationAmount.X = aux.X / aux.Length();
-            transformationAmount.Y = aux.Y / aux.Length();
-
+            transformationAmount = new Vector2
+            {
+                X = aux.X/aux.Length(),
+                Y = aux.Y/aux.Length()
+            };
         } // Calculate2DMouseDirection
 
         #endregion

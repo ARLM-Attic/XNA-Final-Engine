@@ -5,7 +5,7 @@
 using Microsoft.Xna.Framework;
 #endregion
 
-namespace XNAFinalEngine.UserInterface.Central
+namespace XNAFinalEngine.UserInterface
 {
     public class TaskAutoScroll : Window
     {

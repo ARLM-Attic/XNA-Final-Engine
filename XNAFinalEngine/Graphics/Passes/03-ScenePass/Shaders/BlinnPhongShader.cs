@@ -550,7 +550,7 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 bool isSkinned = false;
-                if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
+                if (model is FileModel && ((FileModel)model).IsSkinned && boneTransform != null) // If it is a skinned model.
                 {
                     SetBones(boneTransform);
                     isSkinned = true;

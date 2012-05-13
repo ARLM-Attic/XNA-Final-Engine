@@ -485,7 +485,7 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
+                if (model is FileModel && ((FileModel)model).IsSkinned && boneTransform != null) // If it is a skinned model.
                 {
 
                     #region Set Matrices

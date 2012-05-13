@@ -80,10 +80,10 @@ namespace XNAFinalEngine.Components
             // Default values.
             #if (XBOX)
                 if (Text.Length > 0)
-                    Text.Lenght = 0;
+                    Text.Length = 0;
                     //Text.Remove(0, Text.Length - 1); // Clear is not supported in XBOX.
             #else
-            Text.Clear();
+                Text.Clear();
             #endif
         } // Initialize
 

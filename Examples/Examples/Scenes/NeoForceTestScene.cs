@@ -34,7 +34,6 @@ using System.Threading;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.UserInterface;
-using XNAFinalEngine.UserInterface.Central;
 using Console = XNAFinalEngine.UserInterface.Console;
 using EventArgs = XNAFinalEngine.UserInterface.EventArgs;
 #endregion

@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 using Controls = XNAFinalEngine.UserInterface;
 #endregion
 
-namespace XNAFinalEngine.UserInterface.Central
+namespace XNAFinalEngine.UserInterface
 {
     public class TaskControls : Dialog
     {

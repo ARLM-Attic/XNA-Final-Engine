@@ -3,7 +3,7 @@
 
 using XNAFinalEngine.Assets;
 
-namespace XNAFinalEngine.UserInterface.Central
+namespace XNAFinalEngine.UserInterface
 {
     public class TaskDialog : Dialog
     {

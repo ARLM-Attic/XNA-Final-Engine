@@ -33,9 +33,8 @@ using Microsoft.Xna.Framework;
 using XNAFinalEngine.Animations;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
-using XNAFinalEngine.Editor;
-using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
+using XNAFinalEngine.Editor;
 using XNAFinalEngine.Helpers;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
@@ -50,7 +49,7 @@ namespace XNAFinalEngineExamples
     /// <summary>
     /// 
     /// </summary>
-    public class DudeScene : Scene
+    public class DudeEditableScene : EditableScene
     {
 
         #region Variables
@@ -96,9 +95,8 @@ namespace XNAFinalEngineExamples
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 6f;
             camera.Camera.PostProcess = new PostProcess();
-            camera.Camera.PostProcess.MLAA.Enabled = true;
-            camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Color;
-            camera.Camera.PostProcess.Bloom.Threshold = 2;
+            camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
+            camera.Camera.PostProcess.Bloom.Threshold = 20;
             camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
                                                             //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
                                                             Color = new Color(50, 50, 50),
@@ -115,7 +113,7 @@ namespace XNAFinalEngineExamples
                 Contrast = 1.0f,
                 AngleBias = 1.25f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
-                TextureSize = Size.TextureSize.QuarterSize,
+                TextureSize = Size.TextureSize.HalfSize,
             };
             camera.Camera.PostProcess.FilmGrain.Enabled = false;
 
@@ -135,7 +133,7 @@ namespace XNAFinalEngineExamples
             #endregion
 
             #region Models
-            
+
             #region Dude
 
             dude = new GameObject3D(new FileModel("DudeWalk"), null);
@@ -145,9 +143,9 @@ namespace XNAFinalEngineExamples
             dude.ModelRenderer.MeshMaterial[3] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
             dude.ModelRenderer.MeshMaterial[4] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
             dude.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
+            ModelAnimation modelAnimation = new ModelAnimation("dude"); // Be aware to select the correct content processor.
             dude.AddComponent<ModelAnimations>();
-            //ModelAnimation modelAnimation = new ModelAnimation("dude"); // Be aware to select the correct content processor.
-            //dude.ModelAnimations.AddAnimationClip(modelAnimation);
+            dude.ModelAnimations.AddAnimationClip(modelAnimation);
             dude.ModelAnimations.Play("Take 001");
             dude.Transform.Rotate(new Vector3(0, 180, 0));
 
@@ -168,9 +166,9 @@ namespace XNAFinalEngineExamples
             animetedCube.ModelRenderer.RenderBoundingBox = true;
 
             #endregion
-            
+
             #region Floor
-            
+
             floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
                            new BlinnPhong
                            {
@@ -180,7 +178,7 @@ namespace XNAFinalEngineExamples
                                //ReflectionTexture = new TextureCube("Showroom", false),
                            });
             floor.Transform.LocalScale = new Vector3(5, 5, 5);
-            
+
             #endregion
 
             #endregion
@@ -192,13 +190,13 @@ namespace XNAFinalEngineExamples
             directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 140);
             directionalLight.DirectionalLight.Intensity = 7f;
             directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
-            /*directionalLight.DirectionalLight.Shadow = new CascadedShadow
+            directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
                 Filter = Shadow.FilterType.PCF3x3,
                 LightDepthTextureSize = Size.Square1024X1024,
                 TextureSize = Size.TextureSize.HalfSize,
                 Range = 50,
-            };*/
+            };
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
@@ -217,12 +215,12 @@ namespace XNAFinalEngineExamples
             spotLight.Transform.Position = new Vector3(0, 15f, -10);
             spotLight.Transform.Rotate(new Vector3(-45, 180, 0));
             spotLight.SpotLight.LightMaskTexture = new Texture("LightMasks\\Crysis2TestLightMask");
-            /*spotLight.SpotLight.Shadow = new BasicShadow
+            spotLight.SpotLight.Shadow = new BasicShadow
             {
                 Filter = Shadow.FilterType.PCF3x3,
                 LightDepthTextureSize = Size.Square1024X1024,
                 TextureSize = Size.TextureSize.FullSize
-            };*/
+            };
 
             #endregion
             
@@ -231,6 +229,12 @@ namespace XNAFinalEngineExamples
             statistics = new GameObject2D();
             statistics.AddComponent<ScriptStatisticsDrawer>();
 
+            #endregion
+
+            #region Editor
+
+            EditorManager.AddObject(dude);
+            
             #endregion
 
         } // Load
@@ -282,5 +286,5 @@ namespace XNAFinalEngineExamples
 
         #endregion
 
-    } // DudeScene
+    } // DudeEditableScene
 } // XNAFinalEngineExamples

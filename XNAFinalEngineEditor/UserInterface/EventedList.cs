@@ -15,6 +15,7 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.Collections.Generic;
+using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -91,7 +92,7 @@ namespace XNAFinalEngine.UserInterface
                 ItemAdded.Invoke(this, new EventArgs());
         } // InsertRange
 
-        public new int RemoveAll(Predicate<T> match)
+        public int RemoveAll(Predicate<T> match)
         {
             int c = Count;
             #if (WINDOWS)

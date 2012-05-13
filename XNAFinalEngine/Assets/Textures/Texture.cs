@@ -243,51 +243,55 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         static Texture()
         {
-            const string texturesDirectoryPath = ContentManager.GameDataDirectory + "Textures";
-            // Search the texture files //
-            DirectoryInfo texturesDirectory = new DirectoryInfo(texturesDirectoryPath);
-            try
-            {
-                FileInfo[] texturesFileInformation = texturesDirectory.GetFiles("*.xnb", SearchOption.AllDirectories);
-                int count = 0, j = 0;
-                // Count the textures, except cube textures, lookup tables and user interface textures.
-                for (int i = 0; i < texturesFileInformation.Length; i++)
-                {
-                    FileInfo fileInformation = texturesFileInformation[i];
-                    if (!fileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\Skin") &&
-                        !fileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\CubeTextures") &&
-                        !fileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\LookupTables"))
-                    {
-                        count++;
-                    }
-                }
-                // Create the array of available textures.
-                TexturesFilenames = new string[count];
-                for (int i = 0; i < texturesFileInformation.Length; i++)
-                {
-                    FileInfo fileInformation = texturesFileInformation[i];
-                    if (!fileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\Skin") &&
-                        !fileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\CubeTextures") &&
-                        !fileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\LookupTables"))
-                    {
-                        // Some textures are in a sub directory, in that case we have to know how is called.
-                        string[] splitDirectoryName = fileInformation.DirectoryName.Split(new[] { texturesDirectoryPath }, StringSplitOptions.None);
-                        string subdirectory = "";
-                        // If is in a sub directory
-                        if (splitDirectoryName[1] != "")
-                        {
-                            subdirectory = splitDirectoryName[1].Substring(1, splitDirectoryName[1].Length - 1) + "\\"; // We delete the start \ and add another \ to the end.
-                        }
-                        TexturesFilenames[j] = subdirectory + fileInformation.Name.Substring(0, fileInformation.Name.Length - 4);
-                        j++;
-                    }
-                }
-            }
-            // If there was an error then do nothing.
-            catch
-            {
+            #if XBOX
                 TexturesFilenames = new string[0];
-            }
+            #else
+                const string texturesDirectoryPath = ContentManager.GameDataDirectory + "Textures";
+                // Search the texture files //
+                DirectoryInfo texturesDirectory = new DirectoryInfo(texturesDirectoryPath);
+                try
+                {
+                    FileInfo[] texturesFileInformation = texturesDirectory.GetFiles("*.xnb", SearchOption.AllDirectories);
+                    int count = 0, j = 0;
+                    // Count the textures, except cube textures, lookup tables and user interface textures.
+                    for (int i = 0; i < texturesFileInformation.Length; i++)
+                    {
+                        FileInfo fileInformation = texturesFileInformation[i];
+                        if (!fileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\Skin") &&
+                            !fileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\CubeTextures") &&
+                            !fileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\LookupTables"))
+                        {
+                            count++;
+                        }
+                    }
+                    // Create the array of available textures.
+                    TexturesFilenames = new string[count];
+                    for (int i = 0; i < texturesFileInformation.Length; i++)
+                    {
+                        FileInfo fileInformation = texturesFileInformation[i];
+                        if (!fileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\Skin") &&
+                            !fileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\CubeTextures") &&
+                            !fileInformation.DirectoryName.Contains(texturesDirectoryPath + "\\LookupTables"))
+                        {
+                            // Some textures are in a sub directory, in that case we have to know how is called.
+                            string[] splitDirectoryName = fileInformation.DirectoryName.Split(new[] { texturesDirectoryPath }, StringSplitOptions.None);
+                            string subdirectory = "";
+                            // If is in a sub directory
+                            if (splitDirectoryName[1] != "")
+                            {
+                                subdirectory = splitDirectoryName[1].Substring(1, splitDirectoryName[1].Length - 1) + "\\"; // We delete the start \ and add another \ to the end.
+                            }
+                            TexturesFilenames[j] = subdirectory + fileInformation.Name.Substring(0, fileInformation.Name.Length - 4);
+                            j++;
+                        }
+                    }
+                }
+                // If there was an error then do nothing.
+                catch
+                {
+                    TexturesFilenames = new string[0];
+                }
+            #endif
             LoadedTextures = new List<Texture>();
         } // Texture
 

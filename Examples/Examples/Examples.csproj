@@ -108,6 +108,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Scenes\DudeEditableScene.cs" />
     <Compile Include="Scenes\DudeScene.cs" />
     <Compile Include="Scenes\HelloWorldScene.cs" />
     <Compile Include="Scenes\LamborghiniMurcielagoScene2.cs" />

@@ -1,7 +1,7 @@
 
 // This class came from Neo Force Tutorial and is not formatted correctly.
 
-namespace XNAFinalEngine.UserInterface.Central
+namespace XNAFinalEngine.UserInterface
 {
     public class TaskEvents : Window
     {

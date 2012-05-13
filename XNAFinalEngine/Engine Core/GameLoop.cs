@@ -708,7 +708,6 @@ namespace XNAFinalEngine.EngineCore
                         }
                         for (int k = 0; k < meshPartsCount; k++)
                         {
-                            currentMeshPart++;
                             // Find material
                             Material material = null;
                             if (currentMeshPart < ModelRenderer.MaximumNumberMeshMaterials && currentModelRenderer.MeshMaterial[currentMeshPart] != null)
@@ -727,6 +726,7 @@ namespace XNAFinalEngine.EngineCore
                                                                     currentModelRenderer.cachedBoneTransforms,
                                                                     material, j, k);
                             }
+                            currentMeshPart++;
                         }
                     }
                 }
