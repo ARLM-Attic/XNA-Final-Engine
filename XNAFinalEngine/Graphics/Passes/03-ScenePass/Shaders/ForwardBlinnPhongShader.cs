@@ -547,7 +547,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render a model.
 		/// </summary>
-        internal void RenderModel(Matrix worldMatrix, Model model, BlinnPhong blinnPhongMaterial, AmbientLight ambientLight, int meshIndex)
+        internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform, BlinnPhong blinnPhongMaterial, AmbientLight ambientLight, int meshIndex, int meshPart)
         {
             if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
             {
@@ -555,7 +555,8 @@ namespace XNAFinalEngine.Graphics
             }
             try
             {
-                
+                if (boneTransform != null)
+                    worldMatrix = boneTransform[meshIndex + 1] * worldMatrix;
                 SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
                 SetWorldMatrix(worldMatrix);
                 SetTransposeInverseWorldMatrix(Matrix.Transpose(Matrix.Invert(worldMatrix)));
@@ -622,7 +623,7 @@ namespace XNAFinalEngine.Graphics
                 }*/
 
                 Resource.CurrentTechnique.Passes[0].Apply();
-                model.RenderMeshPart(meshIndex);
+                model.RenderMeshPart(meshIndex, meshPart);
             }
             catch (Exception e)
             {

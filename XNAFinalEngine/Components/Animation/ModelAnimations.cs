@@ -59,9 +59,26 @@ namespace XNAFinalEngine.Components
 
         private readonly ModelAnimationPlayer animationPlayer = new ModelAnimationPlayer();
 
+        // Chaded model filter's model value.
+        private Model cachedModel;
+
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Gets/set the current play position.
+        /// </summary>
+        public float CurrentTimeValue
+        {
+            get { return animationPlayer.CurrentTimeValue; }
+            set { animationPlayer.CurrentTimeValue = value; }
+        } // CurrentTimeValue
+
+        /// <summary>
+        /// Gets the current state (playing, paused, or stopped) 
+        /// </summary>
+        public AnimationState State { get { return animationPlayer.State; } }
         
         /// <summary>
         /// Current bone transform matrices in absolute format.
@@ -111,6 +128,42 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
+        #region Pause Resume
+
+        /// <summary>
+        /// Will pause the playback of the current clip
+        /// </summary>
+        public void Pause()
+        {
+            animationPlayer.PauseClip();
+        } // PauseClip
+
+        /// <summary>
+        /// Will resume playback of the current clip
+        /// </summary>
+        public void Resume()
+        {
+            animationPlayer.ResumeClip();
+        } // ResumeClip
+
+        #endregion
+
+        #region Stop
+
+        /// <summary>
+        /// Stops playing the sound.
+        /// </summary>
+        /// <param name="immediate">
+        /// Specifies whether to stop playing immediately, or to break out of the loop region and play the release.
+        /// Specify true to stop playing immediately, or false to break out of the loop region and play the release phase (the remainder of the sound).
+        /// </param>
+        public void Stop(bool immediate = true)
+        {
+            animationPlayer.Stop(immediate);
+        } // Stop
+
+        #endregion
+
         #region Update
 
         /// <summary>
@@ -118,17 +171,18 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal void Update()
         {
-            animationPlayer.Update();
-            for (int bone = 0; bone < ModelAnimationClip.MaxBones; bone++)
+            if (animationPlayer.State == AnimationState.Playing)
             {
-                boneTransform[bone] = Matrix.CreateScale(animationPlayer.BoneTransforms[bone].scale) *
-                                      Matrix.CreateFromQuaternion(animationPlayer.BoneTransforms[bone].rotation) *
-                                      Matrix.CreateTranslation(animationPlayer.BoneTransforms[bone].position);
+                animationPlayer.Update();
+                for (int bone = 0; bone < ModelAnimationClip.MaxBones; bone++)
+                {
+                    boneTransform[bone] = Matrix.CreateScale(animationPlayer.BoneTransforms[bone].scale) *
+                                          Matrix.CreateFromQuaternion(animationPlayer.BoneTransforms[bone].rotation) *
+                                          Matrix.CreateTranslation(animationPlayer.BoneTransforms[bone].position);
+                }
+                if (BoneTransformChanged != null)
+                    BoneTransformChanged(this, boneTransform);
             }
-            if (BoneTransformChanged != null)
-                BoneTransformChanged(this, boneTransform);
-            // Update World and Skin Transform. They could be separated into two methods if animation post process exists.
-
         } // Update
 
         #endregion
@@ -141,6 +195,13 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
+            // Model
+            OnModelChanged(null, ((GameObject3D)Owner).ModelFilter == null ? null : ((GameObject3D)Owner).ModelFilter.Model);
+            ((GameObject3D)Owner).ModelFilterChanged += OnModelFilterChanged;
+            if (((GameObject3D)Owner).ModelFilter != null)
+            {
+                ((GameObject3D)Owner).ModelFilter.ModelChanged += OnModelChanged;
+            }
         } // Initialize
 
         #endregion
@@ -154,7 +215,11 @@ namespace XNAFinalEngine.Components
         internal override void Uninitialize()
         {
             base.Uninitialize();
+            cachedModel = null;
             BoneTransformChanged = null;
+            ((GameObject3D)Owner).ModelFilterChanged -= OnModelFilterChanged;
+            if (((GameObject3D)Owner).ModelFilter != null)
+                ((GameObject3D)Owner).ModelFilter.ModelChanged -= OnModelChanged;
         } // Uninitialize
 
         #endregion
@@ -168,6 +233,14 @@ namespace XNAFinalEngine.Components
         public bool ContainsAnimationClip(ModelAnimation animation)
         {
             return modelAnimations.ContainsValue(animation) || modelAnimations.ContainsKey(animation.Name);
+        } // ContainsAnimationClip
+        
+        /// <summary>
+        /// Determines if the component contains a specific model animation.
+        /// </summary>
+        public bool ContainsAnimationClip(string name)
+        {
+            return modelAnimations.ContainsKey(name);
         } // ContainsAnimationClip
 
         #endregion
@@ -184,6 +257,96 @@ namespace XNAFinalEngine.Components
             else
                 throw new ArgumentException("Model Animation Component: The animation " + animation.Name + " is already assigned.");
         } // AddAnimationClip
+
+        #endregion
+
+        #region Remove Animation Clip
+
+        /// <summary>
+        /// Remove an animation clip to the component.
+        /// </summary>
+        public void RemoveAnimationClip(ModelAnimation animation)
+        {
+            if (ContainsAnimationClip(animation))
+                modelAnimations.Remove(animation.Name);
+            else
+                throw new ArgumentException("Model Animation Component: The animation " + animation.Name + " does not exist.");
+        } // RemoveAnimationClip
+
+        /// <summary>
+        /// Remove an animation clip to the component.
+        /// </summary>
+        public void RemoveAnimationClip(string name)
+        {
+            if (ContainsAnimationClip(name))
+                modelAnimations.Remove(name);
+            else
+                throw new ArgumentException("Model Animation Component: The animation " + name + " does not exist.");
+        } // RemoveAnimationClip
+
+        #endregion
+
+        #region On Model Changed
+
+        /// <summary>
+        /// On model filter's model changed.
+        /// </summary>
+        private void OnModelChanged(object sender, Model model)
+        {
+            if (cachedModel != null && cachedModel is FileModel)
+            {
+                foreach (var modelAnimation in ((FileModel)cachedModel).ModelAnimations)
+                {
+                    RemoveAnimationClip(modelAnimation);
+                }
+            }
+            cachedModel = model;
+            // If the model is skined initialize the bone transform with the bind pose.
+            if (model != null && model is FileModel && ((FileModel)model).IsSkinned)
+            {
+                for (int i = 0; i < ((FileModel)model).BindPose.Count; i++)
+                {
+                    boneTransform[i] = ((FileModel)model).BindPose[i];
+                }
+            }
+            else
+            {
+                // If not use the identity transformation.
+                for (int i = 0; i < boneTransform.Length; i++)
+                {
+                    boneTransform[i] = Matrix.Identity;
+                }
+            }
+            if (BoneTransformChanged != null)
+                BoneTransformChanged(this, boneTransform);
+            if (cachedModel != null && cachedModel is FileModel)
+            {
+                foreach (var modelAnimation in ((FileModel)cachedModel).ModelAnimations)
+                {
+                    AddAnimationClip(modelAnimation);
+                }
+            }
+        } // OnModelChanged
+
+        #endregion
+
+        #region On Model Filter Changed
+
+        /// <summary>
+        /// On model filter changed.
+        /// </summary>
+        private void OnModelFilterChanged(object sender, Component oldComponent, Component newComponent)
+        {
+            // Remove event association.
+            if (oldComponent != null)
+                ((ModelFilter)oldComponent).ModelChanged -= OnModelChanged;
+            // Add new event association
+            if (newComponent != null)
+            {
+                ((ModelFilter)newComponent).ModelChanged += OnModelChanged;
+            }
+            OnModelChanged(null, ((GameObject3D)Owner).ModelFilter == null ? null : ((GameObject3D)Owner).ModelFilter.Model);
+        } // OnModelFilterChanged
 
         #endregion
         

@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -168,6 +168,8 @@ namespace XNAFinalEngine.Components
         {
             base.Uninitialize();
             Material = null;
+            cachedBoneTransforms = null;
+            cachedModel = null;
             for (int i = 0; i < MeshMaterial.Length; i++)
             {
                 MeshMaterial[i] = null;
@@ -249,8 +251,9 @@ namespace XNAFinalEngine.Components
             // The Unity scheme could be faked using two pools in the ModelFilter component, one for common models and one for skinned models. This is a matter of choice.
             if (cachedModel != null && cachedModel is FileModel && ((FileModel)cachedModel).IsSkinned)
             {
-                ((FileModel)cachedModel).UpdateWorldSkinTransforms(boneTransform);
-                cachedBoneTransforms = null;
+                ((FileModel)cachedModel).UpdateWorldTransforms(boneTransform, boneTransform);
+                ((FileModel)cachedModel).UpdateSkinTransforms(boneTransform, boneTransform);
+                cachedBoneTransforms = boneTransform;
             }
             else // It is rigid animated.
             {

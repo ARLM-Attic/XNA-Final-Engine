@@ -481,21 +481,20 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render a model into the GBuffer.
         /// </summary>
-        internal void RenderModel(Matrix worldMatrix, Assets.Model model, Material material, int meshIndex)
+        internal void RenderModel(Matrix worldMatrix, Assets.Model model, Matrix[] boneTransform, Material material, int meshIndex, int meshPart)
         {
             try
             {
-
-                #region Set Matrices
-
-                SetTransposeInverseWorldViewMatrix(Matrix.Transpose(Matrix.Invert(worldMatrix * viewMatrix)));
-                SetWorldViewMatrix(worldMatrix * viewMatrix);
-                SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
-
-                #endregion
-
                 if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
                 {
+
+                    #region Set Matrices
+                    
+                    SetTransposeInverseWorldViewMatrix(Matrix.Transpose(Matrix.Invert(worldMatrix * viewMatrix)));
+                    SetWorldViewMatrix(worldMatrix * viewMatrix);
+                    SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
+
+                    #endregion
 
                     #region Blinn Phong
 
@@ -537,7 +536,7 @@ namespace XNAFinalEngine.Graphics
                         if (!textured)
                             Resource.CurrentTechnique = Resource.Techniques["GBufferSkinnedWithoutTexture"];
                         // Set Bones
-                        SetBones(((FileModel) model).SkinTransforms);
+                        SetBones(boneTransform);
                     }
 
                     #endregion
@@ -549,6 +548,16 @@ namespace XNAFinalEngine.Graphics
                 }
                 else
                 {
+
+                    #region Set Matrices
+
+                    if (boneTransform != null)
+                        worldMatrix = boneTransform[meshIndex + 1] * worldMatrix;
+                    SetTransposeInverseWorldViewMatrix(Matrix.Transpose(Matrix.Invert(worldMatrix * viewMatrix)));
+                    SetWorldViewMatrix(worldMatrix * viewMatrix);
+                    SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
+
+                    #endregion
 
                     #region Constant
 
@@ -656,7 +665,7 @@ namespace XNAFinalEngine.Graphics
                     }
                 }
                 Resource.CurrentTechnique.Passes[0].Apply();
-                model.RenderMeshPart(meshIndex);
+                model.RenderMeshPart(meshIndex, meshPart);
             }
             catch (Exception e)
             {

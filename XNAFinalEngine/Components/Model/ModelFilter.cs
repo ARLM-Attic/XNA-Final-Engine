@@ -30,7 +30,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using XNAFinalEngine.Helpers;
-using Model = XNAFinalEngine.Assets.Model;
 using XNAFinalEngine.Assets;
 #endregion
 
@@ -64,10 +63,6 @@ namespace XNAFinalEngine.Components
                 model = value;
                 if (ModelChanged != null)
                     ModelChanged(this, model);
-                if (model is FileModel && ((FileModel)model).Resource.Tag != null) // If it's a XNA model and if it has animations. 
-                {
-                    // Agrego un component de animacion TODO
-                }
             }
         } // Model
 
@@ -78,12 +73,12 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
         /// </summary>
-        public delegate void ModelEventHandler(object sender, Model model);
+        internal delegate void ModelEventHandler(object sender, Model model);
 
         /// <summary>
         /// Raised when the model filter's model changes.
         /// </summary>
-        public event ModelEventHandler ModelChanged;
+        internal event ModelEventHandler ModelChanged;
 
         #endregion
 

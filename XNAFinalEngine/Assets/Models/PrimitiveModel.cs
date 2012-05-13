@@ -123,12 +123,14 @@ namespace XNAFinalEngine.Assets
         /// Don't call it excepting see the model on the screen.
         /// This is public to allow doing some specific tasks not implemented in the engine.
         /// </remarks>
-        public override void RenderMeshPart(int meshIndex)
+        public override void RenderMeshPart(int meshIndex, int meshPart)
         {
             if (meshIndex != 0)
                 throw new IndexOutOfRangeException("meshIndex");
+            if (meshPart != 0)
+                throw new IndexOutOfRangeException("meshPart");
             Render();
-        } // RenderMesh
+        } // RenderMeshPart
 
         #endregion
 

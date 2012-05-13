@@ -25,7 +25,7 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         /// <summary>
         /// Maximum number of bone matrices we can render in a single pass.
         /// </summary>
-        public const int MaxBones = 59;
+        public const int MaxBones = 72;
 
         /// <summary>
         /// Gets the total length of the model animation clip

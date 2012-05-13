@@ -43,6 +43,7 @@
   </PropertyGroup>
   <ItemGroup />
   <ItemGroup>
+    <Compile Include="Animations\Animation.cs" />
     <Compile Include="Animations\ModelAnimationPlayer.cs" />
     <Compile Include="Assets\AmbientLight\AmbientLight.cs" />
     <Compile Include="Assets\AmbientLight\AmbientOcclusion.cs" />

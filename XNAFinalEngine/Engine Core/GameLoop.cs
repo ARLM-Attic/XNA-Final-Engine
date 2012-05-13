@@ -696,24 +696,37 @@ namespace XNAFinalEngine.EngineCore
                 ModelRenderer currentModelRenderer = modelsToRender[i];
                 if (currentModelRenderer.CachedModel != null && currentModelRenderer.Visible && Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
-                    for (int j = 0; j < currentModelRenderer.CachedModel.MeshPartsCount; j++)
+                    int currentMeshPart = 0;
+                    // Render each mesh
+                    for (int j = 0; j < currentModelRenderer.CachedModel.MeshesCount; j++)
                     {
-                        // Find material
-                        Material material = null;
-                        if (j < ModelRenderer.MaximumNumberMeshMaterials && currentModelRenderer.MeshMaterial[j] != null)
+                        // I need to know the total index of the current part for the materials.
+                        int meshPartsCount = 1;
+                        if (currentModelRenderer.CachedModel is FileModel)
                         {
-                            material = currentModelRenderer.MeshMaterial[j];
+                            meshPartsCount = ((FileModel)currentModelRenderer.CachedModel).Resource.Meshes[j].MeshParts.Count;
                         }
-                        else if (currentModelRenderer.Material != null)
+                        for (int k = 0; k < meshPartsCount; k++)
                         {
-                            material = currentModelRenderer.Material;
-                        }
-                        if (material != null && material.AlphaBlending == 1)
-                        {
-                            // Render mesh with finded material.
-                            GBufferShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
-                                                               currentModelRenderer.CachedModel,
-                                                               material, j);
+                            currentMeshPart++;
+                            // Find material
+                            Material material = null;
+                            if (currentMeshPart < ModelRenderer.MaximumNumberMeshMaterials && currentModelRenderer.MeshMaterial[currentMeshPart] != null)
+                            {
+                                material = currentModelRenderer.MeshMaterial[currentMeshPart];
+                            }
+                            else if (currentModelRenderer.Material != null)
+                            {
+                                material = currentModelRenderer.Material;
+                            }
+                            if (material != null && material.AlphaBlending == 1)
+                            {
+                                // Render mesh with finded material.
+                                GBufferShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
+                                                                    currentModelRenderer.CachedModel,
+                                                                    currentModelRenderer.cachedBoneTransforms,
+                                                                    material, j, k);
+                            }
                         }
                     }
                 }
@@ -840,7 +853,7 @@ namespace XNAFinalEngine.EngineCore
                             
                             if (currentModelRenderer.CachedModel != null)// && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                             {
-                                CascadedShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel);
+                                CascadedShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
                             }
                         }
                         currentDirectionalLight.ShadowTexture = CascadedShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
@@ -866,7 +879,7 @@ namespace XNAFinalEngine.EngineCore
                             ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[j];
                             if (currentModelRenderer.CachedModel != null)// && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                             {
-                                BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel);
+                                BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
                             }
                         }
                         currentDirectionalLight.ShadowTexture = BasicShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
@@ -912,7 +925,7 @@ namespace XNAFinalEngine.EngineCore
                                 ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[j];
                                 if (currentModelRenderer.CachedModel != null)// && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
                                 {
-                                    BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel);
+                                    BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
                                 }
                             }
                             currentSpotLight.ShadowTexture = BasicShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
@@ -1057,39 +1070,57 @@ namespace XNAFinalEngine.EngineCore
                 ModelRenderer currentModelRenderer = modelsToRender[i];
                 if (currentModelRenderer.CachedModel != null && currentModelRenderer.Visible && Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
+                    int currentMeshPart = 0;
                     // Render each mesh
-                    for (int j = 0; j < currentModelRenderer.CachedModel.MeshPartsCount; j++)
+                    for (int j = 0; j < currentModelRenderer.CachedModel.MeshesCount; j++)
                     {
-                        // Find material
-                        Material material = null;
-                        if (j < ModelRenderer.MaximumNumberMeshMaterials && currentModelRenderer.MeshMaterial[j] != null)
+                        // I need to know the total index of the current part for the materials.
+                        int meshPartsCount = 1;
+                        if (currentModelRenderer.CachedModel is FileModel)
                         {
-                            material = currentModelRenderer.MeshMaterial[j];
+                            meshPartsCount = ((FileModel)currentModelRenderer.CachedModel).Resource.Meshes[j].MeshParts.Count;
                         }
-                        else if (currentModelRenderer.Material != null)
+                        for (int k = 0; k < meshPartsCount; k++)
                         {
-                            material = currentModelRenderer.Material;
-                        }
-                        if (material != null && material.AlphaBlending == 1)
-                        {
-                            // Render mesh with finded material.
-                            if (material is Constant)
+                            // Find material
+                            Material material = null;
+                            if (currentMeshPart < ModelRenderer.MaximumNumberMeshMaterials && currentModelRenderer.MeshMaterial[currentMeshPart] != null)
                             {
-                                ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
-                                ConstantShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (Constant) material, j);
+                                material = currentModelRenderer.MeshMaterial[currentMeshPart];
                             }
-                            else if (material is BlinnPhong)
+                            else if (currentModelRenderer.Material != null)
                             {
-                                BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                                BlinnPhongShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
-                                                                      currentModelRenderer.CachedModel,
-                                                                      (BlinnPhong) material, j);
+                                material = currentModelRenderer.Material;
                             }
-                            else if (material is CarPaint)
+                            // Render mesh part with finded material.
+                            if (material != null && material.AlphaBlending == 1)
                             {
-                                CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                                CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint) material, j);
+                                if (material is Constant)
+                                {
+                                    ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+                                    ConstantShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
+                                                                        currentModelRenderer.CachedModel,
+                                                                        currentModelRenderer.cachedBoneTransforms,
+                                                                        (Constant)material, j, k);
+                                }
+                                else if (material is BlinnPhong)
+                                {
+                                    BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                                    BlinnPhongShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
+                                                                          currentModelRenderer.CachedModel,
+                                                                          currentModelRenderer.cachedBoneTransforms,
+                                                                          (BlinnPhong)material, j, k);
+                                }
+                                else if (material is CarPaint)
+                                {
+                                    CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                                    CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, 
+                                                                        currentModelRenderer.CachedModel,
+                                                                        currentModelRenderer.cachedBoneTransforms, 
+                                                                        (CarPaint)material, j, k);
+                                }
                             }
+                            currentMeshPart++;
                         }
                     }
                 }
@@ -1140,40 +1171,60 @@ namespace XNAFinalEngine.EngineCore
                 ModelRenderer currentModelRenderer = modelsToRender[i];
                 if (currentModelRenderer.CachedModel != null && currentModelRenderer.Visible && Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
+                    int currentMeshPart = 0;
                     // Render each mesh
-                    for (int j = 0; j < currentModelRenderer.CachedModel.MeshPartsCount; j++)
+                    for (int j = 0; j < currentModelRenderer.CachedModel.MeshesCount; j++)
                     {
-                        // Find material
-                        Material material = null;
-                        if (j < ModelRenderer.MaximumNumberMeshMaterials && currentModelRenderer.MeshMaterial[j] != null)
+                        // I need to know the total index of the current part for the materials.
+                        int meshPartsCount = 1;
+                        if (currentModelRenderer.CachedModel is FileModel)
                         {
-                            material = currentModelRenderer.MeshMaterial[j];
+                            meshPartsCount = ((FileModel)currentModelRenderer.CachedModel).Resource.Meshes[j].MeshParts.Count;
                         }
-                        else if (currentModelRenderer.Material != null)
+                        for (int k = 0; k < meshPartsCount; k++)
                         {
-                            material = currentModelRenderer.Material;
-                        }
-                        if (material != null && material.AlphaBlending < 1)
-                        {
+                            // Find material
+                            Material material = null;
+                            if (currentMeshPart < ModelRenderer.MaximumNumberMeshMaterials &&
+                                currentModelRenderer.MeshMaterial[currentMeshPart] != null)
+                            {
+                                material = currentModelRenderer.MeshMaterial[currentMeshPart];
+                            }
+                            else if (currentModelRenderer.Material != null)
+                            {
+                                material = currentModelRenderer.Material;
+                            }
                             // Render mesh with finded material.
-                            if (currentModelRenderer.Material is Constant)
+                            if (material != null && material.AlphaBlending < 1)
                             {
-                                ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
-                                ConstantShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (Constant)material, j);
+
+                                if (currentModelRenderer.Material is Constant)
+                                {
+                                    ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+                                    ConstantShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
+                                                                        currentModelRenderer.CachedModel,
+                                                                        currentModelRenderer.cachedBoneTransforms,
+                                                                        (Constant) material, j, k);
+                                }
+                                else if (currentModelRenderer.Material is BlinnPhong)
+                                {
+                                    ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                                    ForwardBlinnPhongShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
+                                                                                 currentModelRenderer.CachedModel,
+                                                                                 currentModelRenderer.cachedBoneTransforms,
+                                                                                 (BlinnPhong) material,
+                                                                                 currentCamera.AmbientLight, j, k);
+                                }
+                                else if (currentModelRenderer.Material is CarPaint)
+                                {
+                                    CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                                    CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
+                                                                        currentModelRenderer.CachedModel,
+                                                                        currentModelRenderer.cachedBoneTransforms,
+                                                                        (CarPaint) material, j, k);
+                                }
                             }
-                            else if (currentModelRenderer.Material is BlinnPhong)
-                            {
-                                ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                                ForwardBlinnPhongShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
-                                                                             currentModelRenderer.CachedModel,
-                                                                             (BlinnPhong)material,
-                                                                             currentCamera.AmbientLight, j);
-                            }
-                            else if (currentModelRenderer.Material is CarPaint)
-                            {
-                                CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                                CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, (CarPaint)material, j);
-                            }
+                            currentMeshPart++;
                         }
                     }
                 }

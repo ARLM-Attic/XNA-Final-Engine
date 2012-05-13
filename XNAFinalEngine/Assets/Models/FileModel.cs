@@ -50,8 +50,8 @@ namespace XNAFinalEngine.Assets
 
         #region Variables
 
-        private readonly Matrix[] worldTransforms;
-        private readonly Matrix[] skinTransforms;
+        private ModelAnimation[] modelAnimations;
+        private RootAnimation[] rootAnimations;
 
         #endregion
 
@@ -135,34 +135,22 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
+        #region Animations
+
         /// <summary>
         /// Gets a collection of animation clips that operate on the root of the object.
         /// These are stored by name in a dictionary, so there could for instance be clips for "Walk", "Run", "JumpReallyHigh", etc.
         /// </summary>
-        public Dictionary<string, RootAnimationClip> RootAnimationClips
-        {
-            get
-            {
-                // If there is no animation information.
-                if (Resource.Tag == null || !(Resource.Tag is ModelAnimationData))
-                    return null;
-                return ((ModelAnimationData)Resource.Tag).RootAnimationClips;
-            }
-        } // RootAnimationClips
+        public RootAnimation[] RootAnimations { get { return rootAnimations; } }
 
         /// <summary>
         /// Gets a collection of model animation clips. These are stored by name in a dictionary, so there could for instance be clips for "Walk", "Run", "JumpReallyHigh", etc.
         /// </summary>
-        public Dictionary<string, ModelAnimationClip> ModelAnimationClips
-        {
-            get
-            {
-                // If there is no animation information.
-                if (Resource.Tag == null || !(Resource.Tag is ModelAnimationData))
-                    return null;
-                return ((ModelAnimationData)Resource.Tag).ModelAnimationClips;
-            }
-        } // ModelAnimationClips
+        public ModelAnimation[] ModelAnimations { get { return modelAnimations; } }
+
+        #endregion
+
+        #region Skinning
 
         /// <summary>
         /// Bindpose matrices for each bone in the skeleton, relative to the parent bone.
@@ -216,15 +204,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public bool IsSkinned { get; private set; }
 
-        /// <summary>
-        /// World transform (skinning information).
-        /// </summary>
-        public Matrix[] WorldTransforms { get { return worldTransforms; } }
-
-        /// <summary>
-        /// Skin transforms.
-        /// </summary>
-        public Matrix[] SkinTransforms { get { return skinTransforms; } }
+        #endregion
        
         #endregion
 
@@ -251,19 +231,39 @@ namespace XNAFinalEngine.Assets
                 boundingBox    = BoundingBox.CreateFromPoints(vectices);
                 // Mesh Count
                 MeshPartsCount = 0;
+                MeshesCount = Resource.Meshes.Count;
                 foreach (ModelMesh mesh in Resource.Meshes)
                     foreach (ModelMeshPart part in mesh.MeshParts)
                         MeshPartsCount++;
                 // Animations
                 if (Resource.Tag != null && Resource.Tag is ModelAnimationData && ((ModelAnimationData)Resource.Tag).BoneHierarchy != null)
                 {
-                    BoneCount = ((ModelAnimationData) Resource.Tag).BoneHierarchy.Count;
-                    if (((ModelAnimationData)Resource.Tag).InverseBindPose != null) // If is skinned
-                    {
-                        worldTransforms = new Matrix[BoneCount];
-                        skinTransforms = new Matrix[BoneCount];
-                    }
+                    BoneCount = ((ModelAnimationData)Resource.Tag).BoneHierarchy.Count;
                     IsSkinned = ((ModelAnimationData)Resource.Tag).InverseBindPose != null;
+                }
+                if (Resource.Tag != null && Resource.Tag is ModelAnimationData)
+                {
+                    // Model Animations.
+                    modelAnimations = new ModelAnimation[((ModelAnimationData)Resource.Tag).ModelAnimationClips.Count];
+                    int i = 0;
+                    foreach (KeyValuePair<string, ModelAnimationClip> modelAnimation in ((ModelAnimationData)Resource.Tag).ModelAnimationClips)
+                    {
+                        modelAnimations[i] = new ModelAnimation(modelAnimation.Key, modelAnimation.Value);
+                        i++;
+                    }
+                    // Root Animations.
+                    rootAnimations = new RootAnimation[((ModelAnimationData)Resource.Tag).RootAnimationClips.Count];
+                    i = 0;
+                    foreach (KeyValuePair<string, RootAnimationClip> rootAnimation in ((ModelAnimationData)Resource.Tag).RootAnimationClips)
+                    {
+                        rootAnimations[i] = new RootAnimation(rootAnimation.Key, rootAnimation.Value);
+                        i++;
+                    }
+                }
+                else
+                {
+                    modelAnimations = new ModelAnimation[0];
+                    rootAnimations = new RootAnimation[0];
                 }
             }
             catch (ObjectDisposedException)
@@ -278,28 +278,45 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
-        #region Update World Skin Transforms
+        #region Update World and Skin Transforms
 
-        /// <summary>Calculate and update world transform and skin Transform.</summary>
-        /// <remarks>They could be separated into two methods if animation post process exists.</remarks>
-        internal void UpdateWorldSkinTransforms(Matrix[] boneTransform)
+        /// <summary>
+        /// Calculate and update the world transform matrices.
+        /// </summary>
+        internal void UpdateWorldTransforms(Matrix[] boneTransform, Matrix[] worldTransforms)
         {
-            if (boneTransform != null && IsSkinned)
+            if (boneTransform == null)
+                throw new ArgumentNullException("boneTransform");
+            if (worldTransforms == null)
+                throw new ArgumentNullException("worldTransforms");
+            if (!IsSkinned)
+                throw new InvalidOperationException("Model: Unable to perform skinning operation over a non-skinned model.");
+            // Root bone.
+            worldTransforms[0] = boneTransform[0] * Matrix.Identity;
+            // Child bones.
+            for (int bone = 1; bone < BoneCount; bone++)
             {
-                // Root bone.
-                worldTransforms[0] = boneTransform[0] * Matrix.Identity;
-                // Child bones.
-                for (int bone = 1; bone < BoneCount; bone++)
-                {
-                    int parentBone = ((ModelAnimationData)Resource.Tag).BoneHierarchy[bone];
-                    worldTransforms[bone] = boneTransform[bone] * worldTransforms[parentBone];
-                }
-                for (int bone = 0; bone < BoneCount; bone++)
-                {
-                    skinTransforms[bone] = ((ModelAnimationData)Resource.Tag).InverseBindPose[bone] * worldTransforms[bone];
-                }
+                int parentBone = ((ModelAnimationData)Resource.Tag).BoneHierarchy[bone];
+                worldTransforms[bone] = boneTransform[bone] * worldTransforms[parentBone];
             }
-        } // UpdateWorldSkinTransforms
+        } // UpdateWorldTransforms
+
+        /// <summary>
+        /// Calculate and update the skin transform matrices.
+        /// </summary>
+        internal void UpdateSkinTransforms(Matrix[] worldTransforms, Matrix[] skinTransforms)
+        {
+            if (worldTransforms == null)
+                throw new ArgumentNullException("worldTransforms");
+            if (skinTransforms == null)
+                throw new ArgumentNullException("skinTransforms");
+            if (!IsSkinned)
+                throw new InvalidOperationException("Model: Unable to perform skinning operation over a non-skinned model.");
+            for (int bone = 0; bone < BoneCount; bone++)
+            {
+                skinTransforms[bone] = ((ModelAnimationData)Resource.Tag).InverseBindPose[bone] * worldTransforms[bone];
+            }
+        } // UpdateSkinTransforms
 
         #endregion
 
@@ -339,32 +356,42 @@ namespace XNAFinalEngine.Assets
         /// Don't call it excepting see the model on the screen.
         /// This is public to allow doing some specific tasks not implemented in the engine.
         /// </remarks>
-        public override void RenderMeshPart(int meshPartIndex)
+        public override void RenderMeshPart(int meshIndex, int meshPart)
         {
-            if (meshPartIndex >= MeshPartsCount || meshPartIndex < 0)
+            if (meshIndex >= MeshesCount || meshIndex < 0)
                 throw new IndexOutOfRangeException("meshIndex");
-            int index = 0;
-            foreach (ModelMesh mesh in Resource.Meshes) // foreach is faster than for because no range checking is performed.
-            {
-                foreach (ModelMeshPart part in mesh.MeshParts)
-                {
-                    if (index == meshPartIndex)
-                    {
-                        // Set vertex buffer and index buffer
-                        EngineManager.Device.SetVertexBuffer(part.VertexBuffer);
-                        EngineManager.Device.Indices = part.IndexBuffer;
-                        // And render all primitives
-                        EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, part.VertexOffset, 0,
-                                                                   part.NumVertices, part.StartIndex, part.PrimitiveCount);
-                        // Update statistics
-                        Statistics.DrawCalls++;
-                        Statistics.TrianglesDrawn += part.PrimitiveCount;
-                        Statistics.VerticesProcessed += part.NumVertices;
-                    }
-                    index++;
-                }
-            }
+            ModelMeshPart part = Resource.Meshes[meshIndex].MeshParts[meshPart];
+            // Set vertex buffer and index buffer
+            EngineManager.Device.SetVertexBuffer(part.VertexBuffer);
+            EngineManager.Device.Indices = part.IndexBuffer;
+            // And render all primitives
+            EngineManager.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, part.VertexOffset, 0,
+                                                        part.NumVertices, part.StartIndex, part.PrimitiveCount);
+            // Update statistics
+            Statistics.DrawCalls++;
+            Statistics.TrianglesDrawn += part.PrimitiveCount;
+            Statistics.VerticesProcessed += part.NumVertices;
         } // RenderMesh
+
+        #endregion
+
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            base.DisposeManagedResources();
+            foreach (ModelAnimation modelAnimation in modelAnimations)
+            {
+                modelAnimation.Dispose();
+            }
+            foreach (RootAnimation rootAnimation in rootAnimations)
+            {
+                rootAnimation.Dispose();
+            }
+        } // DisposeManagedResources
 
         #endregion
 

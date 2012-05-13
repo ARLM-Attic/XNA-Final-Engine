@@ -74,7 +74,14 @@ namespace XNAFinalEngine.Assets
         public BoundingBox BoundingBox { get { return boundingBox; } }
 
         /// <summary>
+        /// The number of meshes of the model.
+        /// Each mesh has its transformation.
+        /// </summary>
+        public int MeshesCount { get; protected set; }
+
+        /// <summary>
         /// The number of mesh parts of the model.
+        /// Each part has its own material.
         /// </summary>
         public int MeshPartsCount { get; protected set; }
 
@@ -89,6 +96,7 @@ namespace XNAFinalEngine.Assets
 
         protected Model()
         {
+            MeshesCount = 1;
             MeshPartsCount = 1;
             LoadedModels.Add(this);
             LoadedModels.Sort(CompareAssets);
@@ -126,7 +134,7 @@ namespace XNAFinalEngine.Assets
         /// Don't call it excepting see the model on the screen.
         /// This is public to allow doing some specific tasks not implemented in the engine.
         /// </remarks>
-        public abstract void RenderMeshPart(int meshIndex);
+        public abstract void RenderMeshPart(int meshIndex, int meshPart);
 
         #endregion
 

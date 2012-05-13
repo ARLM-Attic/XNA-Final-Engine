@@ -78,7 +78,6 @@ namespace XNAFinalEngine.Components
         {
             base.Initialize(owner);
             // Default values.
-            Font = null;
             #if (XBOX)
                 if (Text.Length > 0)
                     Text.Lenght = 0;
@@ -87,6 +86,20 @@ namespace XNAFinalEngine.Components
             Text.Clear();
             #endif
         } // Initialize
+
+        #endregion
+
+        #region Uninitialize
+
+        /// <summary>
+        /// Uninitialize the component.
+        /// Is important to remove event associations and any other reference.
+        /// </summary>
+        internal override void Uninitialize()
+        {
+            base.Uninitialize();
+            Font = null;
+        } // Uninitialize
 
         #endregion
 

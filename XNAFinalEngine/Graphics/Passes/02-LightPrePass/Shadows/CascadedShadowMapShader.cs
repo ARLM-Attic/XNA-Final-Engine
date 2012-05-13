@@ -578,7 +578,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render objects in light space.
         /// </summary>
-        internal void RenderModel(Matrix worldMatrix, Model model)
+        internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform)
         {
             for (int i = 0; i < numberSplits; i++)
             {
@@ -596,7 +596,7 @@ namespace XNAFinalEngine.Graphics
                 SetWorldViewProjMatrix(worldMatrix * lightViewMatrix[i] * lightProjectionMatrix[i]);
                 if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
                 {
-                    SetBones(((FileModel)model).SkinTransforms);
+                    SetBones(boneTransform);
                     Resource.CurrentTechnique = Resource.Techniques["GenerateShadowMapSkinned"];
                 }
                 else

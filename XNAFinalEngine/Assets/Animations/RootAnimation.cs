@@ -56,6 +56,15 @@ namespace XNAFinalEngine.Assets
         #region Constructors
 
         /// <summary>
+        /// Internal Constructor for File Model assets.
+        /// </summary>
+        internal RootAnimation(string name, RootAnimationClip resource)
+        {
+            Name = name;
+            Resource = resource;
+        } // RootAnimation
+
+        /// <summary>
         /// Load root animation data from a .x or fbx file.
         /// </summary>
         public RootAnimation(string filename)
@@ -90,7 +99,8 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
-            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<RootAnimationClip>(Filename);
+            if (ContentManager != null)
+                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<RootAnimationClip>(Filename);
         } // RecreateResource
 
         #endregion

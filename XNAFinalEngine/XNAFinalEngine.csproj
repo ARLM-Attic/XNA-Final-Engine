@@ -94,6 +94,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Animations\Animation.cs" />
     <Compile Include="Animations\ModelAnimationPlayer.cs" />
     <Compile Include="Assets\AmbientLight\HorizonBasedAmbientOcclusion.cs" />
     <Compile Include="Assets\AmbientLight\RayMarchingAmbientOcclusion.cs" />

@@ -60,6 +60,15 @@ namespace XNAFinalEngine.Assets
         #region Constructor
 
         /// <summary>
+        /// Internal Constructor for File Model assets.
+        /// </summary>
+        internal ModelAnimation(string name, ModelAnimationClip resource)
+        {
+            Name = name;
+            Resource = resource;
+        } // ModelAnimation
+
+        /// <summary>
         /// Load model animation data (rigid or skinned) from a .x or fbx file.
         /// </summary>
         public ModelAnimation(string filename)
@@ -94,7 +103,8 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
-            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<ModelAnimationClip>(Filename);
+            if (ContentManager != null)
+                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<ModelAnimationClip>(Filename);
         } // RecreateResource
 
         #endregion

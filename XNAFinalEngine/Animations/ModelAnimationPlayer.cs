@@ -65,6 +65,9 @@ namespace XNAFinalEngine.Animations
         // Whether or not playback is paused.
         private bool paused;
 
+        // This become true when the stop function is called with immediate in false.
+        private bool stopWhenCicleFinishes;
+
         #endregion
 
         #region Properties
@@ -131,14 +134,20 @@ namespace XNAFinalEngine.Animations
             }
         } // CurrentTimeValue
 
-        #endregion
-
-        #region Events
-
         /// <summary>
-        /// Invoked when playback has completed.
+        /// Gets the current state (playing, paused, or stopped) 
         /// </summary>
-        public event EventHandler AnimationCompleted;
+        public AnimationState State
+        {
+            get
+            {
+                if (currentAnimationClip == null)
+                    return AnimationState.Stopped;
+                if (paused)
+                    return AnimationState.Paused;
+                return AnimationState.Playing;
+            }
+        } // State
 
         #endregion
 
@@ -161,7 +170,7 @@ namespace XNAFinalEngine.Animations
         public void Play(ModelAnimation clip, float playbackRate, float duration)
         {
             if (clip == null)
-                throw new ArgumentNullException("Clip required");
+                throw new ArgumentNullException("clip");
 
             // Store the clip and reset playing data            
             currentAnimationClip = clip;
@@ -169,6 +178,7 @@ namespace XNAFinalEngine.Animations
             CurrentTimeValue = 0;
             elapsedPlaybackTime = 0;
             paused = false;
+            stopWhenCicleFinishes = false;
 
             // Store the data about how we want to playback
             this.playbackRate = playbackRate;
@@ -193,6 +203,25 @@ namespace XNAFinalEngine.Animations
                 };
             }
         } // InitClip
+
+        #endregion
+
+        #region Stop
+
+        /// <summary>
+        /// Stops playing the sound.
+        /// </summary>
+        /// <param name="immediate">
+        /// Specifies whether to stop playing immediately, or to break out of the loop region and play the release.
+        /// Specify true to stop playing immediately, or false to break out of the loop region and play the release phase (the remainder of the sound).
+        /// </param>
+        public void Stop(bool immediate = true)
+        {
+            if (immediate)
+                currentAnimationClip = null;
+            else
+                stopWhenCicleFinishes = true;
+        } // Stop
 
         #endregion
 
@@ -237,8 +266,6 @@ namespace XNAFinalEngine.Animations
             // See if we should terminate
             if (elapsedPlaybackTime > duration && duration != 0 || elapsedPlaybackTime > currentAnimationClip.Duration && duration == 0)
             {
-                if (AnimationCompleted != null)
-                    AnimationCompleted(this, EventArgs.Empty);
                 currentAnimationClip = null;
                 return;
             }
@@ -248,7 +275,14 @@ namespace XNAFinalEngine.Animations
 
             // If we reached the end, loop back to the start.
             while (time >= currentAnimationClip.Duration)
+            {
+                if (stopWhenCicleFinishes)
+                {
+                    currentAnimationClip = null;
+                    return;
+                }
                 time -= currentAnimationClip.Duration;
+            }
 
             CurrentTimeValue = time;
         } // Update

@@ -90,12 +90,12 @@ namespace XNAFinalEngine.Components
         /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
         /// This is a very common event. Not even the object is passed to improve memory performance.
         /// </summary>
-        public delegate void WorldMatrixEventHandler(Matrix worldMatrix);
+        internal delegate void WorldMatrixEventHandler(Matrix worldMatrix);
 
         /// <summary>
         /// Raised when the transform's world matrix changes.
         /// </summary>
-        public event WorldMatrixEventHandler WorldMatrixChanged;
+        internal event WorldMatrixEventHandler WorldMatrixChanged;
 
         protected void RaiseWorldMatrixChanged()
         {

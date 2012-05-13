@@ -32,6 +32,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using XNAFinalEngine.Animations;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
@@ -52,10 +54,13 @@ namespace XNAFinalEngine.Components
         // Associated animations.
         private readonly Dictionary<string, RootAnimationClip> rootAnimations = new Dictionary<string, RootAnimationClip>(0);
 
+        // Chaded model filter's model value.
+        private Model cachedModel;
+
         #region Current Animation
 
         // Clip currently being played
-        RootAnimationClip currentClip;
+        RootAnimationClip currentAnimationClip;
         // The animations are absolute, we need the previous animation's transformation matrix to make them relative.
         private Matrix previousAnimationTransform;
         // Current timeindex and keyframe in the clip
@@ -71,6 +76,8 @@ namespace XNAFinalEngine.Components
         float elapsedPlaybackTime = 0;
         // Whether or not playback is paused
         bool paused;
+        // This become true when the stop function is called with immediate in false.
+        private bool stopWhenCicleFinishes;
 
         #endregion
 
@@ -92,13 +99,13 @@ namespace XNAFinalEngine.Components
                 if (time < currentTimeValue)
                 {
                     currentKeyFrameIndex = 0;
-                    currentKeyFrame = currentClip.Keyframes[0];
+                    currentKeyFrame = currentAnimationClip.Keyframes[0];
                 }
 
                 currentTimeValue = time;
 
                 // Read keyframe matrices.
-                IList<RootKeyframe> keyframes = currentClip.Keyframes;
+                IList<RootKeyframe> keyframes = currentAnimationClip.Keyframes;
                 while (currentKeyFrameIndex < keyframes.Count)
                 {
                     RootKeyframe keyframe = keyframes[currentKeyFrameIndex];
@@ -111,6 +118,21 @@ namespace XNAFinalEngine.Components
                 }
             }
         } // CurrentTimeValue
+
+        /// <summary>
+        /// Gets the current state (playing, paused, or stopped) 
+        /// </summary>
+        public AnimationState State
+        {
+            get
+            {
+                if (currentAnimationClip == null)
+                    return AnimationState.Stopped;
+                if (paused)
+                    return AnimationState.Paused;
+                return AnimationState.Playing;
+            }
+        } // State
         
         #endregion
 
@@ -136,9 +158,9 @@ namespace XNAFinalEngine.Components
                 throw new ArgumentException("Root Animation Component: the animation name does not exist.");
 
             // Store the clip and reset playing data            
-            currentClip = rootAnimations[name];
+            currentAnimationClip = rootAnimations[name];
             currentKeyFrameIndex = 0;
-            currentKeyFrame = currentClip.Keyframes[0];
+            currentKeyFrame = currentAnimationClip.Keyframes[0];
             CurrentTimeValue = 0;
             elapsedPlaybackTime = 0;
             paused = false;
@@ -172,6 +194,25 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
+        #region Stop
+
+        /// <summary>
+        /// Stops playing the sound.
+        /// </summary>
+        /// <param name="immediate">
+        /// Specifies whether to stop playing immediately, or to break out of the loop region and play the release.
+        /// Specify true to stop playing immediately, or false to break out of the loop region and play the release phase (the remainder of the sound).
+        /// </param>
+        public void Stop(bool immediate = true)
+        {
+            if (immediate)
+                currentAnimationClip = null;
+            else
+                stopWhenCicleFinishes = true;
+        } // Stop
+
+        #endregion
+
         #region Update
 
         /// <summary>
@@ -179,7 +220,7 @@ namespace XNAFinalEngine.Components
         /// </summary>        
         public virtual void Update()
         {
-            if (currentClip == null)
+            if (currentAnimationClip == null)
                 return;
             if (paused)
                 return;
@@ -190,18 +231,26 @@ namespace XNAFinalEngine.Components
             elapsedPlaybackTime += time;
 
             // See if we should terminate
-            if (elapsedPlaybackTime > duration && duration != 0 || elapsedPlaybackTime > currentClip.Duration && duration == 0)
+            if (elapsedPlaybackTime > duration && duration != 0 || elapsedPlaybackTime > currentAnimationClip.Duration && duration == 0)
             {
                 // Animation Completed
-                currentClip = null;
+                currentAnimationClip = null;
                 return;
             }
 
             // Update the animation position.
             time += currentTimeValue;
             // If we reached the end, loop back to the start.
-            while (time >= currentClip.Duration)
-                time -= currentClip.Duration;
+            while (time >= currentAnimationClip.Duration)
+            {
+                if (stopWhenCicleFinishes)
+                {
+                    currentAnimationClip = null;
+                    return;
+                }
+                time -= currentAnimationClip.Duration;
+            }
+                
             CurrentTimeValue = time;
 
             // Update transform Matrix.
@@ -220,6 +269,13 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
+            // Model
+            OnModelChanged(null, ((GameObject3D)Owner).ModelFilter == null ? null : ((GameObject3D)Owner).ModelFilter.Model);
+            ((GameObject3D)Owner).ModelFilterChanged += OnModelFilterChanged;
+            if (((GameObject3D)Owner).ModelFilter != null)
+            {
+                ((GameObject3D)Owner).ModelFilter.ModelChanged += OnModelChanged;
+            }
         } // Initialize
 
         #endregion
@@ -232,6 +288,11 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
+            currentAnimationClip = null;
+            cachedModel = null;
+            ((GameObject3D)Owner).ModelFilterChanged -= OnModelFilterChanged;
+            if (((GameObject3D)Owner).ModelFilter != null)
+                ((GameObject3D)Owner).ModelFilter.ModelChanged -= OnModelChanged;
             base.Uninitialize();
         } // Uninitialize
 
@@ -243,9 +304,17 @@ namespace XNAFinalEngine.Components
         /// Determines if the component contains a specific root animation.
         /// </summary>
         /// <remarks>Checks both, the name and the clip.</remarks>
-        public bool ContainsAnimationClip(Assets.RootAnimation animation)
+        public bool ContainsAnimationClip(RootAnimation animation)
         {
             return rootAnimations.ContainsValue(animation.Resource) || rootAnimations.ContainsKey(animation.Name);
+        } // ContainsAnimationClip
+
+        /// <summary>
+        /// Determines if the component contains a specific model animation.
+        /// </summary>
+        public bool ContainsAnimationClip(string name)
+        {
+            return rootAnimations.ContainsKey(name);
         } // ContainsAnimationClip
 
         #endregion
@@ -262,6 +331,78 @@ namespace XNAFinalEngine.Components
             else
                 throw new ArgumentException("Root Animation Component: The animation " + animation.Name + " is already assigned.");
         } // AddAnimationClip
+
+        #endregion
+
+        #region Remove Animation Clip
+
+        /// <summary>
+        /// Remove an animation clip to the component.
+        /// </summary>
+        public void RemoveAnimationClip(RootAnimation animation)
+        {
+            if (ContainsAnimationClip(animation))
+                rootAnimations.Remove(animation.Name);
+            else
+                throw new ArgumentException("Model Animation Component: The animation " + animation.Name + " does not exist.");
+        } // RemoveAnimationClip
+
+        /// <summary>
+        /// Remove an animation clip to the component.
+        /// </summary>
+        public void RemoveAnimationClip(string name)
+        {
+            if (ContainsAnimationClip(name))
+                rootAnimations.Remove(name);
+            else
+                throw new ArgumentException("Model Animation Component: The animation " + name + " does not exist.");
+        } // RemoveAnimationClip
+
+        #endregion
+
+        #region On Model Changed
+
+        /// <summary>
+        /// On model filter's model changed.
+        /// </summary>
+        private void OnModelChanged(object sender, Model model)
+        {
+            if (cachedModel != null && cachedModel is FileModel)
+            {
+                foreach (var rootAnimation in ((FileModel)cachedModel).RootAnimations)
+                {
+                    RemoveAnimationClip(rootAnimation);
+                }
+            }
+            cachedModel = model;
+            if (cachedModel != null && cachedModel is FileModel)
+            {
+                foreach (var rootAnimation in ((FileModel)cachedModel).RootAnimations)
+                {
+                    AddAnimationClip(rootAnimation);
+                }
+            }
+        } // OnModelChanged
+
+        #endregion
+
+        #region On Model Filter Changed
+
+        /// <summary>
+        /// On model filter changed.
+        /// </summary>
+        private void OnModelFilterChanged(object sender, Component oldComponent, Component newComponent)
+        {
+            // Remove event association.
+            if (oldComponent != null)
+                ((ModelFilter)oldComponent).ModelChanged -= OnModelChanged;
+            // Add new event association
+            if (newComponent != null)
+            {
+                ((ModelFilter)newComponent).ModelChanged += OnModelChanged;
+            }
+            OnModelChanged(null, ((GameObject3D)Owner).ModelFilter == null ? null : ((GameObject3D)Owner).ModelFilter.Model);
+        } // OnModelFilterChanged
 
         #endregion
 

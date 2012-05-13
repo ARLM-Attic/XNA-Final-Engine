@@ -30,10 +30,12 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
+using XNAFinalEngine.Animations;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Editor;
+using XNAFinalEngine.Helpers;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Size = XNAFinalEngine.Helpers.Size;
@@ -56,16 +58,16 @@ namespace XNAFinalEngineExamples
         // Now every entity is a game object and the entity’s behavior is defined by the components attached to it.
         // There are several types of components, components related to models, to sound, to particles, to physics, etc.
         private static GameObject3D 
-                                    // Test floors
+                                    // Models
                                     floor,
+                                    dude, animetedCube,
                                     // Lights
                                     directionalLight, pointLight, spotLight,
                                     // Cameras
                                     camera, camera2,
-                                    skydome,
-                                    dude;
+                                    skydome;
 
-        private static GameObject2D xnaFinalEngineLogo, videoTest, statistics;
+        private static GameObject2D statistics;
         
         #endregion
 
@@ -125,25 +127,15 @@ namespace XNAFinalEngineExamples
             camera2.Camera.ClearColor = Color.Black;
             camera2.Camera.FieldOfView = 180 / 8.0f;
             camera2.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
-            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);*/
-
-            #endregion
-
-            #region Test Superposing cameras
-
-            // Both has the same viewport setting.
-            /*camera2 = new GameObject3D();
-            camera2.AddComponent<Camera>();
-            camera2.Camera.MasterCamera = camera.Camera;
-            camera2.Camera.ClearColor = Color.Transparent; // This is important
-            camera2.Camera.FieldOfView = 180 / 8.0f;
-            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);*/
-
+            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);
+            */
             #endregion
 
             #endregion
 
             #region Models
+
+            #region Dude
 
             dude = new GameObject3D(new FileModel("DudeWalk"), null);
             dude.ModelRenderer.MeshMaterial[0] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\head"), NormalTexture = new Texture("Dude\\headN"), SpecularTexture = new Texture("Dude\\headS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
@@ -151,16 +143,33 @@ namespace XNAFinalEngineExamples
             dude.ModelRenderer.MeshMaterial[2] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\pants"), NormalTexture = new Texture("Dude\\pantsN"), SpecularTexture = new Texture("Dude\\pantsS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
             dude.ModelRenderer.MeshMaterial[3] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
             dude.ModelRenderer.MeshMaterial[4] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-
             dude.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
             ModelAnimation modelAnimation = new ModelAnimation("dude"); // Be aware to select the correct content processor.
             dude.AddComponent<ModelAnimations>();
             dude.ModelAnimations.AddAnimationClip(modelAnimation);
-            dude.ModelAnimations.Play("dude");
+            dude.ModelAnimations.Play("Take 001");
             dude.Transform.Rotate(new Vector3(0, 180, 0));
 
+            #endregion
+
+            #region Animated Cube
+
+            animetedCube = new GameObject3D(new FileModel("AnimatedCube"), new BlinnPhong());
+            animetedCube.Transform.Translate(0, 0.5f, 0);
+            animetedCube.AddComponent<ModelAnimations>();
+            ModelAnimation modelAnimation2 = new ModelAnimation("AnimatedCube"); // Be aware to select the correct content processor.
+            animetedCube.ModelAnimations.AddAnimationClip(modelAnimation2);
+            animetedCube.ModelAnimations.Play("AnimatedCube");
+            RootAnimation rootAnimation = new RootAnimation("AnimatedCubeRoot"); // Be aware to select the correct content processor.
+            animetedCube.AddComponent<RootAnimations>();
+            animetedCube.RootAnimations.AddAnimationClip(rootAnimation);
+            animetedCube.RootAnimations.Play("Take 001");
+            animetedCube.ModelRenderer.RenderBoundingBox = true;
+
+            #endregion
+
             #region Floor
-            
+
             floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
                            new BlinnPhong
                            {
@@ -242,8 +251,13 @@ namespace XNAFinalEngineExamples
         public override void UpdateTasks()
         {
             base.UpdateTasks();
-            /*murcielagoBody.SoundEmitter.Stop(false);
-            murcielagoBody.SoundEmitter.Play();*/
+            if (Keyboard.SpaceJustPressed)
+            {
+                if (dude.ModelAnimations.State == AnimationState.Playing)
+                    dude.ModelAnimations.Pause();
+                else
+                    dude.ModelAnimations.Resume();   
+            }
         } // UpdateTasks
 
         #endregion

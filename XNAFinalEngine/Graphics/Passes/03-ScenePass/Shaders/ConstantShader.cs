@@ -223,10 +223,12 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render a model.
 		/// </summary>		
-        internal void RenderModel(Matrix worldMatrix, Model model, Constant constantMaterial, int meshIndex)
+        internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform, Constant constantMaterial, int meshIndex, int meshPart)
         {
             try
             {
+                if (boneTransform != null)
+                    worldMatrix = boneTransform[meshIndex + 1] * worldMatrix;
                 SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
                 SetAlphaBlending(constantMaterial.AlphaBlending);
                 if (constantMaterial.DiffuseTexture == null)
@@ -241,7 +243,7 @@ namespace XNAFinalEngine.Graphics
                 }
 
                 Resource.CurrentTechnique.Passes[0].Apply();
-                model.RenderMeshPart(meshIndex);
+                model.RenderMeshPart(meshIndex, meshPart);
             }
             catch (Exception e)
             {

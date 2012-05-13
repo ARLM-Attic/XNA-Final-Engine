@@ -452,7 +452,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render a model.
         /// </summary>
-        internal void RenderModel(Matrix worldMatrix, Model model, CarPaint carPaintMaterial, int meshIndex)
+        internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform, CarPaint carPaintMaterial, int meshIndex, int meshPart)
         {
             try
             {
@@ -460,6 +460,8 @@ namespace XNAFinalEngine.Graphics
                 #region Set Parameters
 
                 // Matrices //
+                if (boneTransform != null)
+                    worldMatrix = boneTransform[meshIndex + 1] * worldMatrix;
                 SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
                 SetWorldMatrix(worldMatrix);
                 SetTransposeInverseWorldMatrix(Matrix.Transpose(Matrix.Invert(worldMatrix)));
@@ -479,7 +481,7 @@ namespace XNAFinalEngine.Graphics
                 #endregion
 
                 Resource.CurrentTechnique.Passes[0].Apply();
-                model.RenderMeshPart(meshIndex);
+                model.RenderMeshPart(meshIndex, meshPart);
             }
             catch (Exception e)
             {
