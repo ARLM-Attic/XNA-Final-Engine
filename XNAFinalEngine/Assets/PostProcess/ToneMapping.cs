@@ -71,10 +71,10 @@ namespace XNAFinalEngine.Assets
         private float lensExposure = 0;
 
         // Controls how faster the camera’s auto exposure adaptation mechanism changes its response.
-        private float exposureAdaptationTimeMultiplier = 0.5f;
+        private float exposureAdaptationTimeMultiplier = 3f;
 
         // When auto exposure is enabled, the luminance intensity is clamp using the low and high threshold.
-        private float autoExposureLuminanceLowThreshold = 0.01f;
+        private float autoExposureLuminanceLowThreshold = 0.3f;
         private float autoExposureLuminanceHighThreshold = 20f;
 
         // Tone Mapping Parameters

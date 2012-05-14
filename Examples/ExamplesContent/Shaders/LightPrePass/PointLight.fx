@@ -88,6 +88,8 @@ float4 ps_main(VS_OUT input) : COLOR0
     // Obtain textureCoordinates corresponding to the current pixel
 	// The screen coordinates are in [-1,1]*[1,-1]
     // The texture coordinates need to be in [0,1]*[0,1]
+	// http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
+	// http://diaryofagraphicsprogrammer.blogspot.com.ar/2008/09/calculating-screen-space-texture.html
     float2 uv = 0.5f * (float2(input.screenPosition.x, -input.screenPosition.y) + 1) + halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
     
 	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	

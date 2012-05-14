@@ -349,7 +349,7 @@ namespace XNAFinalEngine.Graphics
                 SetDepthTexture(depthTexture);
                 SetNormalTexture(normalTexture);
                 SetMotionVectorSpecularPower(motionVectorSpecularPowerTexture);
-                SetHalfPixel(new Vector2(-1f / depthTexture.Width, 1f / depthTexture.Height)); // I use the depth texture, but I just need the destination render target dimension.
+                SetHalfPixel(new Vector2(0.5f / depthTexture.Width, 0.5f / depthTexture.Height)); // I use the depth texture, but I just need the destination render target dimension.
                 SetFarPlane(farPlane);
                 this.nearPlane = nearPlane;
                 this.viewMatrix = viewMatrix;

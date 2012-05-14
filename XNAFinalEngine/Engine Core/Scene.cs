@@ -56,7 +56,7 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// Load the resources.
         /// </summary>
-        /// <remarks>Remember to call the base implementation of this method at the end.</remarks>
+        /// <remarks>Remember to call the base implementation of this method.</remarks>
         public virtual void Load()
         {
             Loaded = true;            

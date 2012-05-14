@@ -47,7 +47,7 @@ namespace XNAFinalEngineExamples
 {
 
     /// <summary>
-    /// 
+    /// Test scene to show skinning animation capabilities.
     /// </summary>
     public class DudeEditableScene : EditableScene
     {
@@ -75,14 +75,14 @@ namespace XNAFinalEngineExamples
         /// <summary>
         /// Load the resources.
         /// </summary>
-        /// <remarks>Remember to call the base implementation of this method at the end.</remarks>
+        /// <remarks>Remember to call the base implementation of this method.</remarks>
         public override void Load()
         {
             // Call it before anything.
             base.Load();
 
             #region Camera
-            
+
             camera = new GameObject3D();
             camera.AddComponent<Camera>();
             camera.AddComponent<SoundListener>();
@@ -91,29 +91,33 @@ namespace XNAFinalEngineExamples
             camera.Camera.NearPlane = 0.1f;
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
             ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
-            script.SetPosition(new Vector3(-5, 10, 20), new Vector3(0, 5, 0));
+            script.SetPosition(new Vector3(0, 10, 20), new Vector3(0, 5, 0));
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 6f;
             camera.Camera.PostProcess = new PostProcess();
-            camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
-            camera.Camera.PostProcess.Bloom.Threshold = 20;
-            camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
-                                                            //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
-                                                            Color = new Color(50, 50, 50),
-                                                            Intensity = 5f,
-                                                            AmbientOcclusionStrength = 3f };
+            camera.Camera.PostProcess.MLAA.Enabled = true;
+            camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Color;
+            camera.Camera.PostProcess.Bloom.Threshold = 2;
+            camera.Camera.AmbientLight = new AmbientLight
+            {
+                SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
+                //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
+                Color = new Color(50, 50, 50),
+                Intensity = 5f,
+                AmbientOcclusionStrength = 5f
+            };
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
-            //camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM", true, 50) };
+            camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM", true, 50) };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
-                Radius = 0.000005f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                Radius = 0.000002f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 0.75f,
                 Contrast = 1.0f,
                 AngleBias = 1.25f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
-                TextureSize = Size.TextureSize.HalfSize,
+                TextureSize = Size.TextureSize.QuarterSize,
             };
             camera.Camera.PostProcess.FilmGrain.Enabled = false;
 
@@ -143,27 +147,11 @@ namespace XNAFinalEngineExamples
             dude.ModelRenderer.MeshMaterial[3] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
             dude.ModelRenderer.MeshMaterial[4] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
             dude.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
-            ModelAnimation modelAnimation = new ModelAnimation("dude"); // Be aware to select the correct content processor.
             dude.AddComponent<ModelAnimations>();
-            dude.ModelAnimations.AddAnimationClip(modelAnimation);
+            //ModelAnimation modelAnimation = new ModelAnimation("dude"); // Be aware to select the correct content processor.
+            //dude.ModelAnimations.AddAnimationClip(modelAnimation);
             dude.ModelAnimations.Play("Take 001");
             dude.Transform.Rotate(new Vector3(0, 180, 0));
-
-            #endregion
-
-            #region Animated Cube
-
-            animetedCube = new GameObject3D(new FileModel("AnimatedCube"), new BlinnPhong());
-            animetedCube.Transform.Translate(0, 0.5f, 0);
-            animetedCube.AddComponent<ModelAnimations>();
-            ModelAnimation modelAnimation2 = new ModelAnimation("AnimatedCube"); // Be aware to select the correct content processor.
-            animetedCube.ModelAnimations.AddAnimationClip(modelAnimation2);
-            animetedCube.ModelAnimations.Play("AnimatedCube");
-            RootAnimation rootAnimation = new RootAnimation("AnimatedCubeRoot"); // Be aware to select the correct content processor.
-            animetedCube.AddComponent<RootAnimations>();
-            animetedCube.RootAnimations.AddAnimationClip(rootAnimation);
-            animetedCube.RootAnimations.Play("Take 001");
-            animetedCube.ModelRenderer.RenderBoundingBox = true;
 
             #endregion
 
@@ -173,22 +161,20 @@ namespace XNAFinalEngineExamples
                            new BlinnPhong
                            {
                                SpecularPower = 300,
-                               DiffuseColor = new Color(25, 25, 25),
+                               DiffuseColor = new Color(125, 125, 125),
                                SpecularIntensity = 0.0f,
-                               //ReflectionTexture = new TextureCube("Showroom", false),
-                           });
-            floor.Transform.LocalScale = new Vector3(5, 5, 5);
+                           }) { Transform = { LocalScale = new Vector3(5, 5, 5) } };
 
             #endregion
 
             #endregion
 
             #region Shadows and Lights
-            
+
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 140);
-            directionalLight.DirectionalLight.Intensity = 7f;
+            directionalLight.DirectionalLight.Intensity = 5f;
             directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
@@ -197,7 +183,7 @@ namespace XNAFinalEngineExamples
                 TextureSize = Size.TextureSize.HalfSize,
                 Range = 50,
             };
-            
+
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.DiffuseColor = new Color(250, 0, 180);
@@ -209,23 +195,23 @@ namespace XNAFinalEngineExamples
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
             spotLight.SpotLight.DiffuseColor = Color.Green;
-            spotLight.SpotLight.Intensity = 200f;
+            spotLight.SpotLight.Intensity = 300f;
             spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
             spotLight.SpotLight.SpecularColor = Color.White;
             spotLight.Transform.Position = new Vector3(0, 15f, -10);
             spotLight.Transform.Rotate(new Vector3(-45, 180, 0));
             spotLight.SpotLight.LightMaskTexture = new Texture("LightMasks\\Crysis2TestLightMask");
-            spotLight.SpotLight.Shadow = new BasicShadow
+            /*spotLight.SpotLight.Shadow = new BasicShadow
             {
                 Filter = Shadow.FilterType.PCF3x3,
                 LightDepthTextureSize = Size.Square1024X1024,
-                TextureSize = Size.TextureSize.FullSize
-            };
+                TextureSize = Size.TextureSize.HalfSize
+            };*/
 
             #endregion
-            
+
             #region Statistics
-            
+
             statistics = new GameObject2D();
             statistics.AddComponent<ScriptStatisticsDrawer>();
 

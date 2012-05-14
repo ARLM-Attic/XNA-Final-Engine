@@ -111,8 +111,8 @@
     <Compile Include="Scenes\DudeEditableScene.cs" />
     <Compile Include="Scenes\DudeScene.cs" />
     <Compile Include="Scenes\HelloWorldScene.cs" />
-    <Compile Include="Scenes\LamborghiniMurcielagoScene2.cs" />
     <Compile Include="Scenes\LamborghiniMurcielagoScene.cs" />
+    <Compile Include="Scenes\MiscellaneousTestScene.cs" />
     <Compile Include="Scenes\EmptyScene.cs" />
     <Compile Include="Scenes\NeoForceTestScene.cs" />
     <Compile Include="Scenes\TestScene.cs" />

@@ -299,6 +299,8 @@ namespace XNAFinalEngine.Graphics
                 SetDepthTexture(depthTexture);
                 SetNormalTexture(normalTexture);
                 SetMotionVectorSpecularPower(motionVectorSpecularPowerTexture);
+                // The reason that it’s 1/width instead of 0.5/width is because, in clip space, the coordinates range from -1 to 1 (width 2),
+                // and not from 0 to 1 (width 1) like they do in textures, so you need to double the movement to account for that.
                 SetHalfPixel(new Vector2(-1f / depthTexture.Width, 1f / depthTexture.Height)); // I use the depth texture, but I just need the destination render target dimension.
                 SetFrustumCorners(boundingFrustum);
                 this.viewMatrix = viewMatrix;

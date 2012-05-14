@@ -115,7 +115,9 @@ float4 ps_main(uniform bool hasShadows, VS_OUT input) : COLOR0
     // Obtain textureCoordinates corresponding to the current pixel
 	// The screen coordinates are in [-1,1]*[1,-1]
     // The texture coordinates need to be in [0,1]*[0,1]
-    float2 uv = 0.5f * (float2(input.screenPosition.x, -input.screenPosition.y) + 1) + halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
+	// http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
+	// http://diaryofagraphicsprogrammer.blogspot.com.ar/2008/09/calculating-screen-space-texture.html
+    float2 uv = 0.5f * (float2(input.screenPosition.x, -input.screenPosition.y) + 1) + halfPixel;
     
 	// Process the shadow map value.
 	float shadowTerm = 1.0;

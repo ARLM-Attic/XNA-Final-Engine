@@ -30,17 +30,12 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.Audio;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
-using XNAFinalEngine.Helpers;
-using XNAFinalEngine.UserInterface;
 using XNAFinalEngine.Editor;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
-using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Size = XNAFinalEngine.Helpers.Size;
 using Texture = XNAFinalEngine.Assets.Texture;
 using TextureCube = XNAFinalEngine.Assets.TextureCube;
@@ -53,7 +48,7 @@ namespace XNAFinalEngineExamples
     /// This was used to test most of the new version's features.
     /// It’s a mess, really, but it’s the best start point to understand the new version.
     /// </summary>
-    public class LamborghiniMurcielagoScene : EditableScene
+    public class LamborghiniMurcielagoScene : Scene
     {
 
         #region Variables
@@ -96,8 +91,7 @@ namespace XNAFinalEngineExamples
                                     directionalLight, pointLight, pointLight2, pointLight3, pointLight4, pointLight5, pointLight6, pointLight7, spotLight,
                                     // Cameras
                                     camera, camera2,
-                                    skydome,
-                                    dude;
+                                    skydome;
 
         private static GameObject2D xnaFinalEngineLogo, videoTest, statistics;
         
@@ -108,7 +102,7 @@ namespace XNAFinalEngineExamples
         /// <summary>
         /// Load the resources.
         /// </summary>
-        /// <remarks>Remember to call the base implementation of this method at the end.</remarks>
+        /// <remarks>Remember to call the base implementation of this method.</remarks>
         public override void Load()
         {
             // Call it before anything.
@@ -124,56 +118,29 @@ namespace XNAFinalEngineExamples
             camera.Camera.NearPlane = 0.1f;
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
             ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
-            script.SetPosition(new Vector3(5, 0, 15), Vector3.Zero);
+            script.SetPosition(new Vector3(-8, 0, 9), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 6f;
             camera.Camera.PostProcess = new PostProcess();
+            camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicUncharted2;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
-            camera.Camera.PostProcess.Bloom.Threshold = 20;
+            camera.Camera.PostProcess.Bloom.Threshold = 2;
+            camera.Camera.PostProcess.FilmGrain.Enabled = true;
             camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
-                                                            //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
-                                                            Color = new Color(50, 50, 50),
+                                                            Color = new Color(20, 20, 20),
                                                             Intensity = 5f,
-                                                            AmbientOcclusionStrength = 3f };
-            //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
-            camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM", true, 50) };
+                                                            AmbientOcclusionStrength = 2f };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
-                Radius = 0.000005f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                Radius = 0.000002f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 0.75f,
                 Contrast = 1.0f,
                 AngleBias = 1.25f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
             };
-            camera.Camera.PostProcess.FilmGrain.Enabled = false;
-
-            #region Test Split Screen
-            /*
-            camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
-            camera2 = new GameObject3D();
-            camera2.AddComponent<Camera>();
-            camera2.Camera.MasterCamera = camera.Camera;
-            camera2.Camera.ClearColor = Color.Black;
-            camera2.Camera.FieldOfView = 180 / 8.0f;
-            camera2.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
-            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);*/
-
-            #endregion
-
-            #region Test Superposing cameras
-
-            // Both has the same viewport setting.
-            /*camera2 = new GameObject3D();
-            camera2.AddComponent<Camera>();
-            camera2.Camera.MasterCamera = camera.Camera;
-            camera2.Camera.ClearColor = Color.Transparent; // This is important
-            camera2.Camera.FieldOfView = 180 / 8.0f;
-            camera2.Transform.LookAt(new Vector3(0, 0, 20), new Vector3(0, -2, 0), Vector3.Up);*/
-
-            #endregion
 
             #endregion
 
@@ -181,20 +148,20 @@ namespace XNAFinalEngineExamples
 
             CarPaint carPaint = new CarPaint
             {
-                SpecularIntensity = 1f,
-                SpecularPower = 2,
+                SpecularIntensity = 10000f,
+                SpecularPower = 20,
                 BasePaintColor = new Color(180, 180, 180),
                 SecondBasePaintColor = new Color(220, 220, 220),
                 FlakeLayerColor1 = new Color(170, 170, 170),
                 FlakesColor = new Color(100, 100, 100),
-                //ReflectionTexture = new TextureCube("Showroom", false),
-                ReflectionTexture = new TextureCube("FactoryCatwalkRGBM", true, 50),
+                ReflectionTexture = new TextureCube("Showroom", false),
+                //ReflectionTexture = new TextureCube("FactoryCatwalkRGBM", true, 50),
             };
 
             #endregion
 
             #region Models
-            /*
+            
             #region Body
 
             murcielagoBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), carPaint);
@@ -209,16 +176,16 @@ namespace XNAFinalEngineExamples
                                                              new BlinnPhong
                                                              {
                                                                  DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Lights"),
-                                                                 SpecularIntensity = 20f,
-                                                                 SpecularPower = 5,
+                                                                 SpecularIntensity = 200f,
+                                                                 SpecularPower = 8,
                                                                  ReflectionTexture = new TextureCube("Showroom", false),
                                                              });
             murcielagoLightsGlasses = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LightGlasses"),
                                                              new BlinnPhong
                                                              {
                                                                  DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Lights"),
-                                                                 AlphaBlending = 0.4f,
-                                                                 SpecularIntensity = 500f,
+                                                                 AlphaBlending = 0.6f,
+                                                                 SpecularIntensity = 600f,
                                                                  SpecularPower = 3,
                                                                  ReflectionTexture = new TextureCube("Showroom", false),
                                                              });
@@ -275,9 +242,9 @@ namespace XNAFinalEngineExamples
             murcielagoLP640AirTakes = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakes"),
                                                              new BlinnPhong
                                                              {
-                                                                 DiffuseColor = new Color(29, 29, 29),
-                                                                 SpecularIntensity = 0.1f,
-                                                                 SpecularPower = 6,
+                                                                 DiffuseColor = new Color(9, 9, 9),
+                                                                 SpecularIntensity = 0.2f,
+                                                                 SpecularPower = 10,
                                                              });
             murcielagoAirTakesDark = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakesDark"),
                                                              new BlinnPhong // Constant
@@ -321,9 +288,9 @@ namespace XNAFinalEngineExamples
                                                     new BlinnPhong
                                                     {
                                                         DiffuseColor = new Color(20, 20, 20),
-                                                        AlphaBlending = 0.3f,
+                                                        AlphaBlending = 0.95f,
                                                         SpecularIntensity = 600,
-                                                        SpecularPower = 7,
+                                                        SpecularPower = 5,
                                                         ReflectionTexture = new TextureCube("Showroom", false),
                                                         //ReflectionTexture = new Graphics.TextureCube("FactoryCatwalkRGBM", true, 50)
                                                     });
@@ -553,7 +520,7 @@ namespace XNAFinalEngineExamples
 
             frontLeftRim = new GameObject3D();
             frontLeftRim.Transform.LocalScale = new Vector3(1.1f, 1.1f, 1.1f);
-            frontLeftRim.Transform.Rotate(new Vector3(0, -40, 0), Space.World);
+            frontLeftRim.Transform.Rotate(new Vector3(0, 40, 0), Space.World);
             frontLeftRim.Transform.Position = new Vector3(1.6f, -0.5f, 2.35f);
 
             murcielagoLP670FrontLeftRim.Parent = frontLeftRim;
@@ -655,7 +622,7 @@ namespace XNAFinalEngineExamples
                                             Position = new Vector3(-1.6f, -0.5f, 2.35f)
                                         }
                                 };
-            frontRightRim.Transform.Rotate(new Vector3(0, -40 + 180, 0), Space.World);
+            frontRightRim.Transform.Rotate(new Vector3(0, 40 + 180, 0), Space.World);
 
             murcielagoLP670FrontRightRim.Parent = frontRightRim;
             murcielagoLP640FrontRightRimBase.Parent = frontRightRim;
@@ -857,22 +824,21 @@ namespace XNAFinalEngineExamples
             murcielagoRearRightTyre02.Parent = rearRightRim;
 
             #endregion
-            
+
             #region Floor
-            
+
             floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
                            new BlinnPhong
                            {
                                SpecularPower = 300,
-                               DiffuseColor = new Color(250, 250, 250),
+                               DiffuseColor = new Color(0, 0, 0),
                                SpecularIntensity = 0.0f,
-                               //ReflectionTexture = new TextureCube("Showroom", false),
-                           });
-            floor.Transform.LocalScale = new Vector3(5, 5, 5);
+                           }) 
+            { Transform = { LocalScale = new Vector3(5, 5, 5) } };
             floor.Transform.Position = new Vector3(0, -1.17f, 0);
 
             #endregion
-            */
+                       
             #endregion
 
             #region Shadows and Lights
@@ -880,247 +846,64 @@ namespace XNAFinalEngineExamples
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 140);
-            directionalLight.DirectionalLight.Intensity = 7f;
+            directionalLight.DirectionalLight.Intensity = 10f;
             directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
-                Filter = Shadow.FilterType.PCF3x3,
+                Filter = Shadow.FilterType.PCF5x5,
                 LightDepthTextureSize = Size.Square1024X1024,
-                TextureSize = Size.TextureSize.HalfSize,
+                TextureSize = Size.TextureSize.FullSize,
                 Range = 50,
             };
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.DiffuseColor = new Color(250, 0, 180);
-            pointLight.PointLight.Intensity = 1f;
+            pointLight.PointLight.Intensity = 0.5f;
             pointLight.PointLight.Range = 100;
             pointLight.PointLight.SpecularColor = Color.White;
-            pointLight.Transform.Position = new Vector3(-15, 50, 5);
-
+            pointLight.Transform.Position = new Vector3(15, 5, -25);
+            
             pointLight2 = new GameObject3D();
             pointLight2.AddComponent<PointLight>();
             pointLight2.PointLight.DiffuseColor = new Color(170, 150, 255);
-            pointLight2.PointLight.Intensity = 1f;
+            pointLight2.PointLight.Intensity = 0.5f;
             pointLight2.PointLight.Range = 100;
             pointLight2.PointLight.SpecularColor = Color.White;
-            pointLight2.Transform.Position = new Vector3(25, 25, -15);
+            pointLight2.Transform.Position = new Vector3(-25, 25, -15);
             
             pointLight3 = new GameObject3D();
             pointLight3.AddComponent<PointLight>();
             pointLight3.PointLight.DiffuseColor = new Color(70, 250, 55);
-            pointLight3.PointLight.Intensity = 1f;
+            pointLight3.PointLight.Intensity = 0.5f;
             pointLight3.PointLight.Range = 100;
             pointLight3.PointLight.SpecularColor = Color.White;
-            pointLight3.Transform.Position = new Vector3(15f, 15, -20);
-
+            pointLight3.Transform.Position = new Vector3(-15f, 15, -20);
+            
             pointLight4 = new GameObject3D();
             pointLight4.AddComponent<PointLight>();
             pointLight4.PointLight.DiffuseColor = new Color(150, 150, 150);
-            pointLight4.PointLight.Intensity = 1f;
+            pointLight4.PointLight.Intensity = 0.5f;
             pointLight4.PointLight.Range = 100; // I always forget to set the light range lower than the camera far plane.
             pointLight4.PointLight.SpecularColor = Color.White;
-            pointLight4.Transform.Position = new Vector3(-20, -5, 20);
-
+            pointLight4.Transform.Position = new Vector3(20, -5, 20);
+            
             pointLight5 = new GameObject3D();
             pointLight5.AddComponent<PointLight>();
             pointLight5.PointLight.DiffuseColor = new Color(220, 150, 155);
-            pointLight5.PointLight.Intensity = 0.35f;
+            pointLight5.PointLight.Intensity = 0.5f;
             pointLight5.PointLight.Range = 200;
             pointLight5.PointLight.SpecularColor = Color.White;
-            pointLight5.Transform.Position = new Vector3(0f, 0.5f, -50);
-
+            pointLight5.Transform.Position = new Vector3(10f, 20.5f, -50);
+            
             pointLight6 = new GameObject3D();
             pointLight6.AddComponent<PointLight>();
             pointLight6.PointLight.DiffuseColor = new Color(240, 70, 110);
-            pointLight6.PointLight.Intensity = 0.35f;
+            pointLight6.PointLight.Intensity = 0.5f;
             pointLight6.PointLight.Range = 150; // I always forget to set the light range lower than the camera far plane.
             pointLight6.PointLight.SpecularColor = Color.White;
             pointLight6.Transform.Position = new Vector3(0, -30f, -10);
-            /*
-            pointLight7 = new GameObject3D();
-            pointLight7.AddComponent<PointLight>();
-            pointLight7.PointLight.DiffuseColor = Color.Green;// new Color(240, 200, 210);
-            pointLight7.PointLight.Intensity = 200f;
-            pointLight7.PointLight.Range = 50; // I always forget to set the light range lower than the camera far plane.
-            pointLight7.PointLight.SpecularColor = Color.White;
-            pointLight7.Transform.Position = new Vector3(-15, 5f, -30);
-            */
-            spotLight = new GameObject3D();
-            spotLight.AddComponent<SpotLight>();
-            spotLight.SpotLight.DiffuseColor = Color.Green;
-            spotLight.SpotLight.Intensity = 200f;
-            spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
-            spotLight.SpotLight.SpecularColor = Color.White;
-            spotLight.Transform.Position = new Vector3(0, 15f, 10);
-            spotLight.Transform.Rotate(new Vector3(-45, 0, 0));
-            spotLight.SpotLight.LightMaskTexture = new Texture("LightMasks\\Crysis2TestLightMask");
-            spotLight.SpotLight.Shadow = new BasicShadow
-            {
-                Filter = Shadow.FilterType.PCF3x3,
-                LightDepthTextureSize = Size.Square1024X1024,
-                TextureSize = Size.TextureSize.FullSize
-            };
-
-            #endregion
             
-            #region Video
-            /*
-            videoTest = new GameObject2D();
-            videoTest.AddComponent<VideoRenderer>();
-            videoTest.VideoRenderer.Video = new Video("LogosIntro");
-            videoTest.VideoRenderer.Play();
-            videoTest.Transform.Position = new Vector3(0, 0, 1);*/
-
-            #endregion
-
-            #region Statistics
-            
-            statistics = new GameObject2D();
-            statistics.AddComponent<ScriptStatisticsDrawer>();
-
-            #endregion
-
-            #region Engine Logo
-
-            xnaFinalEngineLogo = new GameObject2D();
-            xnaFinalEngineLogo.AddComponent<HudTexture>();
-            xnaFinalEngineLogo.HudTexture.Texture = new Texture("XNA Final Engine");
-            xnaFinalEngineLogo.Transform.LocalScale = 0.5f;
-
-            #endregion
-
-            #region Testing
-
-            ContentManager testContentManager = new ContentManager("Just for testing", false);
-            ContentManager.CurrentContentManager = testContentManager;
-
-            // The user interface is separated and manually called because its GPL license.
-            //UserInterfaceManager.Initialize();
-            //murcielagoBody.ModelRenderer.Material = new Constant { DiffuseTexture = new Texture("Caption") { PreferredSamplerState = new SamplerState { MaxMipLevel = 2 }}};
-            //ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
-            //BlinnPhongWindow.Show((BlinnPhong)murcielagoFrontLeftBrakeCaliper.ModelRenderer.Material);
-            //CarPaintWindow.Show(carPaint);
-            
-
-            LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
-            //LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
-            LookupTable testLookupTable3 = LookupTable.Identity(32);
-
-            PostProcessWindow.Show(camera.Camera.PostProcess);
-
-            //murcielagoBody.Layer = Layer.GetLayerByNumber(1);
-            //Layer.GetLayerByNumber(1).Enabled = false;
-
-            #endregion
-
-            #region Editor
-            /*
-            EditorManager.AddObject(murcielagoBody);
-            EditorManager.AddObject(murcielagoSteeringWheel);
-            EditorManager.AddObject(murcielagoLP640AirTakesEngine);
-            EditorManager.AddObject(murcielagoLP640AirTakes);
-            EditorManager.AddObject(murcielagoAirTakesDark);
-            EditorManager.AddObject(murcielagoFrontLightBase);
-            EditorManager.AddObject(murcielagoLights);
-            EditorManager.AddObject(murcielagoWhiteMetal);
-            EditorManager.AddObject(murcielagoGrayMetal);
-            EditorManager.AddObject(murcielagoCarbonFiber);
-            EditorManager.AddObject(murcielagoGlasses);
-            EditorManager.AddObject(murcielagoEngineGlasses);
-            EditorManager.AddObject(murcielagoBlackMetal);
-            EditorManager.AddObject(murcielagoLogo);
-            EditorManager.AddObject(murcielagoBlackContant);
-            EditorManager.AddObject(murcielagoFloor);
-            EditorManager.AddObject(murcielagoLP640Grid);
-            EditorManager.AddObject(murcielagoLP640RearSpoilerDarkPart);
-            EditorManager.AddObject(murcielagoLP640Exhaust);
-            EditorManager.AddObject(murcielagoInteriorLeather);
-            EditorManager.AddObject(murcielagoInteriorDetails);
-            EditorManager.AddObject(murcielagoBlackPlastic);
-            EditorManager.AddObject(murcielagoInteriorCostura);
-            EditorManager.AddObject(murcielagoTablero);
-            // Front Left Wheel
-            EditorManager.AddObject(murcielagoLP670FrontLeftRim);
-            EditorManager.AddObject(murcielagoLP640FrontLeftRimBase);
-            EditorManager.AddObject(murcielagoLP640FrontLeftRimBase02);
-            EditorManager.AddObject(murcielagoFrontLeftRimLogo);
-            EditorManager.AddObject(murcielagoFrontLeftBrakeDisc);
-            EditorManager.AddObject(murcielagoFrontLeftBrakeCaliper);
-            EditorManager.AddObject(murcielagoFrontLeftTyre);
-            EditorManager.AddObject(murcielagoFrontLeftTyre02);
-            EditorManager.AddObject(frontLeftRim);
-            /*
-            // Left Door
-            murcielagoLeftDoorBody, murcielagoLeftDoorBlackMetal, murcielagoLeftDoorGrayMetal, murcielagoLeftDoorLeather,
-            murcielagoLeftDoorSpeakers,
-            // Right Door
-            murcielagoRightDoorBody, murcielagoRightDoorBlackMetal, murcielagoRightDoorGrayMetal, murcielagoRightDoorLeather,
-            murcielagoRightDoorSpeakers,
-                                    
-                                    
-            // Front Right Wheel
-            murcielagoLP670FrontRightRim, murcielagoLP640FrontRightRimBase, murcielagoLP640FrontRightRimBase02,
-            murcielagoFrontRightRimLogo, murcielagoFrontRightBrakeDisc, murcielagoFrontRightBrakeCaliper, murcielagoFrontRightTyre,
-            murcielagoFrontRightTyre02, frontRightRim,
-            // Rear Left Wheel
-            murcielagoLP670RearLeftRim, murcielagoLP640RearLeftRimBase, murcielagoLP640RearLeftRimBase02,
-            murcielagoRearLeftRimLogo, murcielagoRearLeftBrakeDisc, murcielagoRearLeftBrakeCaliper, murcielagoRearLeftTyre,
-            murcielagoRearLeftTyre02, rearLeftRim,
-            // Rear Right Wheel
-            murcielagoLP670RearRightRim, murcielagoLP640RearRightRimBase, murcielagoLP640RearRightRimBase02,
-            murcielagoRearRightRimLogo, murcielagoRearRightBrakeDisc, murcielagoRearRightBrakeCaliper, murcielagoRearRightTyre,
-            murcielagoRearRightTyre02, rearRightRim,
-            // Test floors
-            floor,
-            // Lights
-            directionalLight, pointLight, pointLight2, pointLight3, pointLight4, pointLight5, pointLight6, pointLight7, spotLight,
-            // Cameras
-            camera, camera2,
-            skydome;*/
-            
-            #endregion
-
-            #region Sound Test
-
-            // Just a test to see exactly how it works internally.
-            Sound sound = new Sound("Tutorials\\Dog", false, Sound.SoundType.Sound2D);
-            sound.ReserveSoundInstances(2);
-            //sound.Play();
-            /*murcielagoBody.AddComponent<SoundEmitter>();
-            murcielagoBody.SoundEmitter.Sound = sound;
-            murcielagoBody.SoundEmitter.Play();
-            */
-            /*
-            MusicManager.LoadAllSong(true);
-            MusicManager.Play(1);
-            */
-
-            #endregion
-
-            #region Animation Test
-            /*
-            murcielagoBody.AddComponent<RootAnimations>();
-            RootAnimation animation = new RootAnimation("AnimatedCube"); // Be aware to select the correct content processor.
-            murcielagoBody.RootAnimations.AddAnimationClip(animation);
-            murcielagoBody.RootAnimations.Play("AnimatedCube");
-            murcielagoBody.Transform.Translate(new Vector3(0, -20.17f, 0), Space.Local);
-            */
-
-            dude = new GameObject3D(new FileModel("DudeWalk"), null);
-            dude.ModelRenderer.MeshMaterial[0] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\head"), NormalTexture = new Texture("Dude\\headN")};
-            dude.ModelRenderer.MeshMaterial[1] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\jacket"), NormalTexture = new Texture("Dude\\jacketN") };
-            dude.ModelRenderer.MeshMaterial[2] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\pants"), NormalTexture = new Texture("Dude\\pantsN") };
-            dude.ModelRenderer.MeshMaterial[3] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN") };
-            dude.ModelRenderer.MeshMaterial[4] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN") };
-            dude.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
-            ModelAnimation modelAnimation = new ModelAnimation("dude"); // Be aware to select the correct content processor.
-            dude.AddComponent<ModelAnimations>();
-            dude.ModelAnimations.AddAnimationClip(modelAnimation);
-            dude.ModelAnimations.Play("dude");
-
-            EditorManager.AddObject(dude);
-
             #endregion
 
         } // Load
@@ -1136,8 +919,6 @@ namespace XNAFinalEngineExamples
         public override void UpdateTasks()
         {
             base.UpdateTasks();
-            /*murcielagoBody.SoundEmitter.Stop(false);
-            murcielagoBody.SoundEmitter.Play();*/
         } // UpdateTasks
 
         #endregion

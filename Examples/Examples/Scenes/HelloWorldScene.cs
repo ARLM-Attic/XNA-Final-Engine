@@ -57,7 +57,7 @@ namespace XNAFinalEngineExamples
         /// <summary>
         /// Load the resources.
         /// </summary>
-        /// <remarks>Remember to call the base implementation of this method at the end.</remarks>
+        /// <remarks>Remember to call the base implementation of this method.</remarks>
         public override void Load()
         {
             // Hello World
