@@ -48,7 +48,7 @@ namespace XNAFinalEngineExamples
     /// This was used to test most of the new version's features.
     /// It’s a mess, really, but it’s the best start point to understand the new version.
     /// </summary>
-    public class LamborghiniMurcielagoScene : Scene
+    public class LamborghiniMurcielagoScene : EditableScene
     {
 
         #region Variables
@@ -117,7 +117,7 @@ namespace XNAFinalEngineExamples
             camera.Camera.FarPlane = 5000;
             camera.Camera.NearPlane = 0.1f;
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
-            ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
+            ScriptCustomCamera script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
             script.SetPosition(new Vector3(-8, 0, 9), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 6f;
@@ -904,6 +904,104 @@ namespace XNAFinalEngineExamples
             pointLight6.PointLight.SpecularColor = Color.White;
             pointLight6.Transform.Position = new Vector3(0, -30f, -10);
             
+            #endregion
+
+            #region Statistics
+
+            statistics = new GameObject2D();
+            statistics.AddComponent<ScriptStatisticsDrawer>();
+
+            #endregion
+            
+            #region Testing
+
+            ContentManager testContentManager = new ContentManager("Just for testing", false);
+            ContentManager.CurrentContentManager = testContentManager;
+
+            // The user interface is separated and manually called because its GPL license.
+            //UserInterfaceManager.Initialize();
+            //murcielagoBody.ModelRenderer.Material = new Constant { DiffuseTexture = new Texture("Caption") { PreferredSamplerState = new SamplerState { MaxMipLevel = 2 }}};
+            //ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
+            //BlinnPhongWindow.Show((BlinnPhong)murcielagoFrontLeftBrakeCaliper.ModelRenderer.Material);
+            //CarPaintWindow.Show(carPaint);
+
+
+            LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
+            //LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
+            LookupTable testLookupTable3 = LookupTable.Identity(32);
+
+            PostProcessWindow.Show(camera.Camera.PostProcess);
+
+            //murcielagoBody.Layer = Layer.GetLayerByNumber(1);
+            //Layer.GetLayerByNumber(1).Enabled = false;
+
+            #endregion
+
+            #region Editor
+
+            EditorManager.AddObject(murcielagoBody);
+            EditorManager.AddObject(murcielagoSteeringWheel);
+            EditorManager.AddObject(murcielagoLP640AirTakesEngine);
+            EditorManager.AddObject(murcielagoLP640AirTakes);
+            EditorManager.AddObject(murcielagoAirTakesDark);
+            EditorManager.AddObject(murcielagoFrontLightBase);
+            EditorManager.AddObject(murcielagoLights);
+            EditorManager.AddObject(murcielagoWhiteMetal);
+            EditorManager.AddObject(murcielagoGrayMetal);
+            EditorManager.AddObject(murcielagoCarbonFiber);
+            EditorManager.AddObject(murcielagoGlasses);
+            EditorManager.AddObject(murcielagoEngineGlasses);
+            EditorManager.AddObject(murcielagoBlackMetal);
+            EditorManager.AddObject(murcielagoLogo);
+            EditorManager.AddObject(murcielagoBlackContant);
+            EditorManager.AddObject(murcielagoFloor);
+            EditorManager.AddObject(murcielagoLP640Grid);
+            EditorManager.AddObject(murcielagoLP640RearSpoilerDarkPart);
+            EditorManager.AddObject(murcielagoLP640Exhaust);
+            EditorManager.AddObject(murcielagoInteriorLeather);
+            EditorManager.AddObject(murcielagoInteriorDetails);
+            EditorManager.AddObject(murcielagoBlackPlastic);
+            EditorManager.AddObject(murcielagoInteriorCostura);
+            EditorManager.AddObject(murcielagoTablero);
+            // Front Left Wheel
+            EditorManager.AddObject(murcielagoLP670FrontLeftRim);
+            EditorManager.AddObject(murcielagoLP640FrontLeftRimBase);
+            EditorManager.AddObject(murcielagoLP640FrontLeftRimBase02);
+            EditorManager.AddObject(murcielagoFrontLeftRimLogo);
+            EditorManager.AddObject(murcielagoFrontLeftBrakeDisc);
+            EditorManager.AddObject(murcielagoFrontLeftBrakeCaliper);
+            EditorManager.AddObject(murcielagoFrontLeftTyre);
+            EditorManager.AddObject(murcielagoFrontLeftTyre02);
+            EditorManager.AddObject(frontLeftRim);
+            /*
+            // Left Door
+            murcielagoLeftDoorBody, murcielagoLeftDoorBlackMetal, murcielagoLeftDoorGrayMetal, murcielagoLeftDoorLeather,
+            murcielagoLeftDoorSpeakers,
+            // Right Door
+            murcielagoRightDoorBody, murcielagoRightDoorBlackMetal, murcielagoRightDoorGrayMetal, murcielagoRightDoorLeather,
+            murcielagoRightDoorSpeakers,
+                                    
+                                    
+            // Front Right Wheel
+            murcielagoLP670FrontRightRim, murcielagoLP640FrontRightRimBase, murcielagoLP640FrontRightRimBase02,
+            murcielagoFrontRightRimLogo, murcielagoFrontRightBrakeDisc, murcielagoFrontRightBrakeCaliper, murcielagoFrontRightTyre,
+            murcielagoFrontRightTyre02, frontRightRim,
+            // Rear Left Wheel
+            murcielagoLP670RearLeftRim, murcielagoLP640RearLeftRimBase, murcielagoLP640RearLeftRimBase02,
+            murcielagoRearLeftRimLogo, murcielagoRearLeftBrakeDisc, murcielagoRearLeftBrakeCaliper, murcielagoRearLeftTyre,
+            murcielagoRearLeftTyre02, rearLeftRim,
+            // Rear Right Wheel
+            murcielagoLP670RearRightRim, murcielagoLP640RearRightRimBase, murcielagoLP640RearRightRimBase02,
+            murcielagoRearRightRimLogo, murcielagoRearRightBrakeDisc, murcielagoRearRightBrakeCaliper, murcielagoRearRightTyre,
+            murcielagoRearRightTyre02, rearRightRim,
+            // Test floors
+            floor,
+            // Lights
+            directionalLight, pointLight, pointLight2, pointLight3, pointLight4, pointLight5, pointLight6, pointLight7, spotLight,
+            // Cameras
+            camera, camera2,
+            skydome;*/
+
             #endregion
 
         } // Load

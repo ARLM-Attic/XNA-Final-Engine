@@ -122,6 +122,7 @@
     <Compile Include="Scenes\NeoForceScene\TaskControls.cs" />
     <Compile Include="Scenes\NeoForceScene\TaskDialog.cs" />
     <Compile Include="Scenes\NeoForceScene\TaskEvents.cs" />
+    <Compile Include="Scripts\ScriptCustomCamera.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

@@ -69,6 +69,7 @@
     <Compile Include="Scenes\LamborghiniMurcielagoScene.cs" />
     <Compile Include="Scenes\MiscellaneousTestScene.cs" />
     <Compile Include="Scenes\TestScene.cs" />
+    <Compile Include="Scripts\ScriptCustomCamera.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

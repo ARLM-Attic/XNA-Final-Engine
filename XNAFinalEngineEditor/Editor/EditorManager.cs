@@ -154,9 +154,6 @@ namespace XNAFinalEngine.Editor
         // Indicates if the editor is active.
         private static bool editorModeEnabled;
 
-        // An easy way to avoid a mouse click in the scene world when a control is closed.
-        private static Control previousFocusedControl;
-
         private static GameObject2D selectionRectangle, selectionRectangleBackground;
 
         // The gizmos.
@@ -167,7 +164,9 @@ namespace XNAFinalEngine.Editor
         // The user interface control for the right panel.
         private static TabControl rightPanelTabControl;
 
-        
+        // Indicates if we start draging the mouse on the viewport.
+        private static bool canSelect;
+
         #endregion
 
         #region Properties
@@ -194,12 +193,12 @@ namespace XNAFinalEngine.Editor
             if (initialized)
                 return;
             initialized = true;
+            // If it already initialize don't worry.
+            UserInterfaceManager.Initialize(false);
+            UserInterfaceManager.Visible = false;
             // Call the manager's update and render methods in the correct order without explicit calls. 
             editorManagerGameObject = new GameObject2D();
             editorManagerGameObject.AddComponent<ScripEditorManager>();
-            // If it already initialize don't worry.
-            UserInterfaceManager.Initialize();
-            UserInterfaceManager.UserInterfaceVisible = false;
             picker = new Picker(Size.FullScreen);
 
             #region Cameras
@@ -362,7 +361,7 @@ namespace XNAFinalEngine.Editor
                 AutoScroll = false,
                 BackgroundColor = Color.Transparent,
                 StayOnBack = true,
-                Passive = true,
+                Passive = false,
                 CanFocus = false,
                 Parent = canvas,
             };
@@ -441,7 +440,8 @@ namespace XNAFinalEngine.Editor
             if (editorModeEnabled)
                 return;
             editorModeEnabled = true;
-            UserInterfaceManager.UserInterfaceVisible = true;
+            UserInterfaceManager.Visible = true;
+            UserInterfaceManager.UpdateInput = true;
         } // EnableEditorMode
 
         /// <summary>
@@ -451,7 +451,7 @@ namespace XNAFinalEngine.Editor
         {
             if (!editorModeEnabled)
                 return;
-            UserInterfaceManager.UserInterfaceVisible = false;
+            UserInterfaceManager.Visible = false;
             editorModeEnabled = false;
             Camera.OnlyRendereableCamera = null;
             editorCamera.Camera.Visible = false;
@@ -557,17 +557,19 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static void Update()
         {
-           
+            UserInterfaceManager.Update();
+            
             #region If no update is needed...
 
             if (!editorModeEnabled)
             {
-                previousFocusedControl = UserInterfaceManager.FocusedControl;
+                UserInterfaceManager.UpdateInput = true;
+                canSelect = false;
                 return;
             }
 
             #endregion
-
+            
             #region Prepare viewport mode
 
             if (ViewportMode == ViewportModeType.Scene)
@@ -591,18 +593,7 @@ namespace XNAFinalEngine.Editor
                 {
                     ChangeGameObjectBoundingBoxVisibility(gameObject, false);
                 }
-                previousFocusedControl = UserInterfaceManager.FocusedControl;
-                return;
-            }
-
-            #endregion
-
-            #region If no update is needed...
-
-            // Keyboard shortcuts, camera movement and similar should be ignored when the text box is active.
-            if ((UserInterfaceManager.FocusedControl != null && UserInterfaceManager.FocusedControl is TextBox))
-            {
-                previousFocusedControl = UserInterfaceManager.FocusedControl;
+                UserInterfaceManager.UpdateInput = true;
                 return;
             }
 
@@ -617,6 +608,18 @@ namespace XNAFinalEngine.Editor
                 //case GizmoType.Scale: GizmoScale.ManipulateObject(); break;
                 //case GizmoType.Rotation: GizmoRotation.ManipulateObject(); break;
                 case GizmoType.Translation: translationGizmo.UpdateRenderingInformation(); break;
+            }
+
+            #endregion
+
+            #region If no update is needed...
+
+            // Keyboard shortcuts, camera movement and similar should be ignored when the text box is active.
+            if (!UserInterfaceManager.IsOverThisControl(renderSpace, new Point(Mouse.Position.X, Mouse.Position.Y)) && !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Visible)
+            {
+                UserInterfaceManager.UpdateInput = true;
+                canSelect = false;
+                return;
             }
 
             #endregion
@@ -660,9 +663,10 @@ namespace XNAFinalEngine.Editor
 
             #region If no update is needed... (besides gizmo feedback, frame object and reset camera)
 
-            if (editorCameraScript.Manipulating || (UserInterfaceManager.FocusedControl != null || previousFocusedControl != null))
+            if (editorCameraScript.Manipulating)
             {
-                previousFocusedControl = UserInterfaceManager.FocusedControl;
+                UserInterfaceManager.UpdateInput = true;
+                canSelect = false;
                 return;
             }
 
@@ -676,7 +680,9 @@ namespace XNAFinalEngine.Editor
                 
                 #region Selection Rectangle
 
-                if (Mouse.LeftButtonPressed)
+                if (Mouse.LeftButtonJustPressed)
+                    canSelect = true;
+                if (Mouse.LeftButtonPressed && canSelect)
                 {
                     Color lineColor = new Color(0.3f, 0.3f, 0.3f, 1f);
                     Color backgroundColor = new Color(0.3f, 0.3f, 0.3f, 0.2f);
@@ -707,7 +713,7 @@ namespace XNAFinalEngine.Editor
                 
                 #region Selection of objects
 
-                if (Mouse.LeftButtonJustReleased)
+                if (Mouse.LeftButtonJustReleased && canSelect)
                 {
                     
                     RemoveControlsFromInspector();
@@ -860,9 +866,10 @@ namespace XNAFinalEngine.Editor
                 case GizmoType.Translation: translationGizmo.Update(); break;
             }
 
+            UserInterfaceManager.UpdateInput = !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Visible;
+
             #endregion
 
-            previousFocusedControl = UserInterfaceManager.FocusedControl;
         } // Update
 
         #endregion
@@ -871,6 +878,7 @@ namespace XNAFinalEngine.Editor
 
         public static void PreRenderTask()
         {
+            UserInterfaceManager.PreRenderControls();
             if (ViewportMode == ViewportModeType.Scene)
             {
                 Rectangle viewport = new Rectangle(renderSpace.ClientArea.ControlLeftAbsoluteCoordinate,
@@ -924,7 +932,20 @@ namespace XNAFinalEngine.Editor
                     SpriteManager.End();
                 }
             }
+            UserInterfaceManager.RenderUserInterfaceToScreen();
         } // PostRenderTasks
+
+        #endregion
+
+        #region Could Be Manipulated
+
+        /// <summary>
+        /// Indicates if the camera could perform a camera movement.
+        /// </summary>
+        internal static bool CouldBeManipulated(ScriptEditorCamera scriptEditorCamera)
+        {
+            return UserInterfaceManager.IsOverThisControl(renderSpace, new Point(Mouse.Position.X, Mouse.Position.Y)) && !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Visible;
+        } // CouldBeManipulated
 
         #endregion
 

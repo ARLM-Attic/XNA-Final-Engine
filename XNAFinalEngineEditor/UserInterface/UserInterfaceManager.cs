@@ -65,7 +65,7 @@ namespace XNAFinalEngine.UserInterface
             /// </summary>
             public override void PreRenderUpdate()
             {
-                UserInterfaceManager.DrawToTexture();
+                UserInterfaceManager.PreRenderControls();
             }
 
             /// <summary>
@@ -73,7 +73,7 @@ namespace XNAFinalEngine.UserInterface
             /// </summary>
             public override void PostRenderUpdate()
             {
-                UserInterfaceManager.DrawTextureToScreen();
+                UserInterfaceManager.RenderUserInterfaceToScreen();
             }
 
         } // ScripUserInterface
@@ -147,7 +147,12 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Are the controls visible?
         /// </summary>
-        public static bool UserInterfaceVisible { get; set; }
+        public static bool Visible { get; set; }
+
+        /// <summary>
+        /// Enable or Disable Input.
+        /// </summary>
+        public static bool UpdateInput { get; set; }
         
         #endregion
 
@@ -218,7 +223,7 @@ namespace XNAFinalEngine.UserInterface
         {
             get
             {
-                if (UserInterfaceVisible)
+                if (Visible)
                     return focusedControl;
                 return null;
             }
@@ -295,13 +300,15 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Initializes the User Interface Manager.
         /// </summary>
-        public static void Initialize()
+        /// <param name="autoUpdate">Auto update and render.</param>
+        public static void Initialize(bool autoUpdate = true)
         {
             if (initialized)
                 return;
             try
             {
-                UserInterfaceVisible = true;
+                Visible = true;
+                UpdateInput = true;
                 initialized = true;
                 // Set some public parameters.
                 TextureResizeIncrement = 32;
@@ -360,9 +367,12 @@ namespace XNAFinalEngine.UserInterface
                     SetSkin(Skin.CurrentSkinName);
                 };
 
-                // To automatically update and render.
-                userInterfaceGameObject = new GameObject2D();
-                userInterfaceGameObject.AddComponent<ScripUserInterface>();
+                if (autoUpdate)
+                {
+                    // To automatically update and render.
+                    userInterfaceGameObject = new GameObject2D();
+                    userInterfaceGameObject.AddComponent<ScripUserInterface>();
+                }
             }
             catch (Exception e)
             {
@@ -561,9 +571,9 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Update.
         /// </summary>
-        private static void Update()
+        public static void Update()
         {
-            if (!UserInterfaceVisible)
+            if (!Visible || !UpdateInput)
                 return;
             try
             {
@@ -655,9 +665,9 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Renders all controls added to the manager to a render target.
         /// </summary>
-        private static void DrawToTexture()
+        public static void PreRenderControls()
         {
-            if (!UserInterfaceVisible)
+            if (!Visible)
                 return;
             if ((RootControls != null))
             {
@@ -680,9 +690,9 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Draws User Interface's render target to screen.
         /// </summary>
-        private static void DrawTextureToScreen()
+        public static void RenderUserInterfaceToScreen()
         {
-            if (!UserInterfaceVisible)
+            if (!Visible)
                 return;
             if ((RootControls != null))
             {
@@ -728,6 +738,9 @@ namespace XNAFinalEngine.UserInterface
             return (control != null && !control.Passive && control.Visible && control.Enabled && modal);
         } // CheckState
 
+        /// <summary>
+        /// True is the control is on this position and the other controls on this position are parents of this control.
+        /// </summary>
         private static bool CheckOrder(Control control, Point pos)
         {
             if (!CheckPosition(control, pos)) 
@@ -1088,6 +1101,30 @@ namespace XNAFinalEngine.UserInterface
                 }
             }
         } // KeyPressProcess
+
+        #endregion
+
+        #region Is Over Controls
+
+        /// <summary>
+        /// True is the control is on this position and the other controls on this position are parents of this control.
+        /// I.e. if it is the control visible in this position.
+        /// </summary>
+        public static bool IsOverThisControl(Control control, Point pos)
+        {
+            if (!CheckPosition(control, pos))
+                return false;
+            for (int i = OrderList.Count - 1; i > OrderList.IndexOf(control); i--)
+            {
+                Control c = OrderList[i];
+                
+                if (!c.Passive && CheckPosition(c, pos) && CheckParent(c, pos))
+                {
+                    return false;
+                }
+            }
+            return true;
+        } // IsOverThisControl
 
         #endregion
 
