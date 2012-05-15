@@ -939,6 +939,7 @@ namespace XNAFinalEngineExamples
 
             #region Editor
 
+            murcielagoBody.Transform.Rotate(new Vector3(0, 20, 0));
             EditorManager.AddObject(murcielagoBody);
             EditorManager.AddObject(murcielagoSteeringWheel);
             EditorManager.AddObject(murcielagoLP640AirTakesEngine);

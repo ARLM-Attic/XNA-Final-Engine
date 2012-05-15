@@ -413,11 +413,63 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Draw a Bounding Box.
         /// </summary>
-        public static void DrawBoundingBox(BoundingBox boundingBox, Color color)
+        public static void DrawBoundingBox(BoundingBox boundingBox, Color color, Matrix worldMatrix)
         {
             if (!hasBegun || begin2D || primitiveType != PrimitiveType.LineList)
                 throw new InvalidOperationException("Line Manager: you have to call Begin in 3D mode and with PrimitiveType.LineList selected.");
 
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Min.X, boundingBox.Min.Y, boundingBox.Min.Z), worldMatrix), color); // 0
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Max.X, boundingBox.Min.Y, boundingBox.Min.Z), worldMatrix), color); // 1
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Max.X, boundingBox.Min.Y, boundingBox.Max.Z), worldMatrix), color); // 2
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Min.X, boundingBox.Min.Y, boundingBox.Max.Z), worldMatrix), color); // 3
+
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Min.X, boundingBox.Max.Y, boundingBox.Min.Z), worldMatrix), color); // 4
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Max.X, boundingBox.Max.Y, boundingBox.Min.Z), worldMatrix), color); // 5
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Max.X, boundingBox.Max.Y, boundingBox.Max.Z), worldMatrix), color); // 6
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Min.X, boundingBox.Max.Y, boundingBox.Max.Z), worldMatrix), color); // 7
+
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Min.X, boundingBox.Min.Y, boundingBox.Min.Z), worldMatrix), color); // 0
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Min.X, boundingBox.Min.Y, boundingBox.Max.Z), worldMatrix), color); // 3
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Max.X, boundingBox.Min.Y, boundingBox.Min.Z), worldMatrix), color); // 1
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Max.X, boundingBox.Min.Y, boundingBox.Max.Z), worldMatrix), color); // 2
+
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Min.X, boundingBox.Max.Y, boundingBox.Min.Z), worldMatrix), color); // 4
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Min.X, boundingBox.Max.Y, boundingBox.Max.Z), worldMatrix), color); // 7
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Max.X, boundingBox.Max.Y, boundingBox.Min.Z), worldMatrix), color); // 5
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Max.X, boundingBox.Max.Y, boundingBox.Max.Z), worldMatrix), color); // 6
+
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Min.X, boundingBox.Min.Y, boundingBox.Min.Z), worldMatrix), color); // 0
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Min.X, boundingBox.Max.Y, boundingBox.Min.Z), worldMatrix), color); // 4
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Max.X, boundingBox.Min.Y, boundingBox.Min.Z), worldMatrix), color); // 1
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Max.X, boundingBox.Max.Y, boundingBox.Min.Z), worldMatrix), color); // 5
+
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Max.X, boundingBox.Min.Y, boundingBox.Max.Z), worldMatrix), color); // 2
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Max.X, boundingBox.Max.Y, boundingBox.Max.Z), worldMatrix), color); // 6
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Min.X, boundingBox.Min.Y, boundingBox.Max.Z), worldMatrix), color); // 3
+            AddVertex(Vector3.Transform(new Vector3(boundingBox.Min.X, boundingBox.Max.Y, boundingBox.Max.Z), worldMatrix), color); // 7
+            
+            /*// This made more draw calls but made the matrix transformation on GPU.
+            // Normally this alternative is much slower.
+            Matrix worldMatrixTemp = basicEffect.World;
+            // Render the bounding box using a specific transformation
+            basicEffect.World = worldMatrix;
+            basicEffect.CurrentTechnique.Passes[0].Apply();
+            DrawBoundingBox(boundingBox, color);
+            // To avoid destroying the previous transformation, the lines are rendered and the configuration is restored.
+            End();
+            Begin3D(PrimitiveType.LineList, basicEffect.View, basicEffect.Projection);
+            basicEffect.World = worldMatrixTemp;
+            basicEffect.CurrentTechnique.Passes[0].Apply();*/
+        } // DrawBoundingBox
+
+        /// <summary>
+        /// Draw a Bounding Box.
+        /// </summary>
+        public static void DrawBoundingBox(BoundingBox boundingBox, Color color)
+        {
+            if (!hasBegun || begin2D || primitiveType != PrimitiveType.LineList)
+                throw new InvalidOperationException("Line Manager: you have to call Begin in 3D mode and with PrimitiveType.LineList selected.");
+            
             AddVertex(new Vector3(boundingBox.Min.X, boundingBox.Min.Y, boundingBox.Min.Z), color); // 0
             AddVertex(new Vector3(boundingBox.Max.X, boundingBox.Min.Y, boundingBox.Min.Z), color); // 1
             AddVertex(new Vector3(boundingBox.Max.X, boundingBox.Min.Y, boundingBox.Max.Z), color); // 2

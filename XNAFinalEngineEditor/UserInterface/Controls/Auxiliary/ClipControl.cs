@@ -136,6 +136,7 @@ namespace XNAFinalEngine.UserInterface
                 }
             }
             AdjustMargins();
+            Invalidate();
         } // RemoveControlsFromClientArea
 
         #endregion

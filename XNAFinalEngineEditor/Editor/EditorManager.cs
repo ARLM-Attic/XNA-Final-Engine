@@ -37,6 +37,7 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
+using XNAFinalEngine.Helpers;
 using XNAFinalEngine.UserInterface;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Mouse = XNAFinalEngine.Input.Mouse;
@@ -487,7 +488,7 @@ namespace XNAFinalEngine.Editor
         {
             // If it is a model.
             if (gameObject is GameObject3D && ((GameObject3D)gameObject).ModelRenderer != null)
-                ((GameObject3D)gameObject).ModelRenderer.RenderBoundingBox = boundingBoxVisibility;
+                ((GameObject3D)gameObject).ModelRenderer.RenderNonAxisAlignedBoundingBox = boundingBoxVisibility;
             // ... TODO!!!
         } // ChangeGameObjectBoundingBoxVisibility
 
@@ -500,44 +501,29 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         private static void AddControlsToInspector()
         {
-            var panel = new PanelCollapsible();
-            panel.Anchor = Anchors.Left | Anchors.Right | Anchors.Top;
-            panel.Parent = rightPanelTabControl.TabPages[0];
-            panel.Width = rightPanelTabControl.TabPages[0].ClientWidth;
-            panel.Text = "Transform";
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Position", panel, new Vector3(2, 1, 4));
-            CommonControls.Vector3Box("Rotation", panel, new Vector3(4, 1, 4));
-            CommonControls.Vector3Box("Scale", panel, new Vector3(2, 1, 4));
+            if (selectedObjects.Count == 0)
+                return;
+            GameObject3D selectedObject = selectedObjects[0];
+
+            #region Transform Component
+
+            var panel = new PanelCollapsible
+            {
+                Anchor = Anchors.Left | Anchors.Right | Anchors.Top,
+                Parent = rightPanelTabControl.TabPages[0],
+                Width = rightPanelTabControl.TabPages[0].ClientWidth,
+                Text = "Transform"
+            };
+            Vector3 localRotationDegrees =
+                new Vector3(selectedObject.Transform.LocalRotation.GetYawPitchRoll().X*180/3.1416f,
+                            selectedObject.Transform.LocalRotation.GetYawPitchRoll().Y*180/3.1416f,
+                            selectedObject.Transform.LocalRotation.GetYawPitchRoll().Z*180/3.1416f);
+            CommonControls.Vector3Box("Position", panel, selectedObject.Transform.LocalPosition);
+            CommonControls.Vector3Box("Rotation", panel, localRotationDegrees);
+            CommonControls.Vector3Box("Scale", panel, selectedObject.Transform.LocalScale);
+
+            #endregion
+
         } // AddControlsToInspector
 
         /// <summary>

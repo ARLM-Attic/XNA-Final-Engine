@@ -1381,10 +1381,17 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
             {
                 ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                if (currentModelRenderer.CachedModel != null && (currentModelRenderer.RenderBoundingBox || currentModelRenderer.RenderBoundingSphere) &&
+                if (currentModelRenderer.CachedModel != null &&
+                    (currentModelRenderer.RenderNonAxisAlignedBoundingBox || currentModelRenderer.RenderBoundingSphere || currentModelRenderer.RenderAxisAlignedBoundingBox) &&
                     Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
-                    if (currentModelRenderer.RenderBoundingBox)
+                    if (currentModelRenderer.RenderNonAxisAlignedBoundingBox)
+                    {
+                        // Doing this allows to show a more correct bounding box.
+                        // But be aware that the axis aligned bounding box calculated in the model renderer component does not match this.
+                        LineManager.DrawBoundingBox(currentModelRenderer.CachedModel.BoundingBox, Color.Gray, currentModelRenderer.CachedWorldMatrix);
+                    }
+                    if (currentModelRenderer.RenderAxisAlignedBoundingBox)
                     {
                         LineManager.DrawBoundingBox(currentModelRenderer.BoundingBox, Color.Gray);
                     }

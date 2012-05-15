@@ -122,8 +122,15 @@ namespace XNAFinalEngine.Components
 
         /// <summary>
         /// Render bounding box using lines.
+        /// This alternative uses the asset bounding box and transforms the points using the transformation matrix.
         /// </summary>
-        public bool RenderBoundingBox { get; set; }
+        public bool RenderNonAxisAlignedBoundingBox { get; set; }
+
+        /// <summary>
+        /// Render bounding box using lines.
+        /// This alternative uses the renderer component bounding box.
+        /// </summary>
+        public bool RenderAxisAlignedBoundingBox { get; set; }
 
         /// <summary>
         /// Render bounding sphere using lines.
