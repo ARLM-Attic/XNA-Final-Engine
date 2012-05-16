@@ -448,9 +448,9 @@ namespace XNAFinalEngine.Graphics
             AddVertex(Vector3.Transform(new Vector3(boundingBox.Min.X, boundingBox.Min.Y, boundingBox.Max.Z), worldMatrix), color); // 3
             AddVertex(Vector3.Transform(new Vector3(boundingBox.Min.X, boundingBox.Max.Y, boundingBox.Max.Z), worldMatrix), color); // 7
             
-            /*// This made more draw calls but made the matrix transformation on GPU.
+            // This made more draw calls but made the matrix transformation on GPU.
             // Normally this alternative is much slower.
-            Matrix worldMatrixTemp = basicEffect.World;
+            /*Matrix worldMatrixTemp = basicEffect.World;
             // Render the bounding box using a specific transformation
             basicEffect.World = worldMatrix;
             basicEffect.CurrentTechnique.Passes[0].Apply();

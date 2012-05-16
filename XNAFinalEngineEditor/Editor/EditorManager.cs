@@ -168,6 +168,9 @@ namespace XNAFinalEngine.Editor
         // Indicates if we start draging the mouse on the viewport.
         private static bool canSelect;
 
+        // When gizmos are being manipulated we want to update the control information.
+        private static Vector3Box vector3BoxPosition, vector3BoxRotation, vector3BoxScale;
+
         #endregion
 
         #region Properties
@@ -514,13 +517,30 @@ namespace XNAFinalEngine.Editor
                 Width = rightPanelTabControl.TabPages[0].ClientWidth,
                 Text = "Transform"
             };
+            vector3BoxPosition = CommonControls.Vector3Box("Position", panel, selectedObject.Transform.LocalPosition);
+            vector3BoxPosition.ValueChanged += delegate { selectedObject.Transform.LocalPosition = vector3BoxPosition.Value; };
+            vector3BoxPosition.Draw += delegate { vector3BoxPosition.Value = selectedObject.Transform.LocalPosition; };
+
             Vector3 localRotationDegrees =
-                new Vector3(selectedObject.Transform.LocalRotation.GetYawPitchRoll().X*180/3.1416f,
-                            selectedObject.Transform.LocalRotation.GetYawPitchRoll().Y*180/3.1416f,
-                            selectedObject.Transform.LocalRotation.GetYawPitchRoll().Z*180/3.1416f);
-            CommonControls.Vector3Box("Position", panel, selectedObject.Transform.LocalPosition);
-            CommonControls.Vector3Box("Rotation", panel, localRotationDegrees);
-            CommonControls.Vector3Box("Scale", panel, selectedObject.Transform.LocalScale);
+                new Vector3(selectedObject.Transform.LocalRotation.GetYawPitchRoll().Y * 180 / (float)Math.PI,
+                            selectedObject.Transform.LocalRotation.GetYawPitchRoll().X * 180 / (float)Math.PI,
+                            selectedObject.Transform.LocalRotation.GetYawPitchRoll().Z * 180 / (float)Math.PI);
+            vector3BoxRotation = CommonControls.Vector3Box("Rotation", panel, localRotationDegrees);
+            vector3BoxRotation.ValueChanged += delegate
+            {
+                selectedObject.Transform.LocalRotation = Quaternion.CreateFromYawPitchRoll(vector3BoxRotation.Value.Y * (float)Math.PI / 180, vector3BoxRotation.Value.X * (float)Math.PI / 180, vector3BoxRotation.Value.Z * (float)Math.PI / 180);
+            };
+            vector3BoxRotation.Draw += delegate
+            {
+                Vector3 localRotationDegreesTemp =
+                new Vector3(selectedObject.Transform.LocalRotation.GetYawPitchRoll().Y * 180 / (float)Math.PI,
+                            selectedObject.Transform.LocalRotation.GetYawPitchRoll().X * 180 / (float)Math.PI,
+                            selectedObject.Transform.LocalRotation.GetYawPitchRoll().Z * 180 / (float)Math.PI);
+                vector3BoxRotation.Value = localRotationDegreesTemp;
+            };
+            vector3BoxScale = CommonControls.Vector3Box("Scale", panel, selectedObject.Transform.LocalScale);
+            vector3BoxScale.ValueChanged += delegate { selectedObject.Transform.LocalScale = vector3BoxScale.Value; };
+            vector3BoxScale.Draw += delegate { vector3BoxScale.Value = selectedObject.Transform.LocalScale; };
 
             #endregion
 
@@ -531,6 +551,9 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         private static void RemoveControlsFromInspector()
         {
+            vector3BoxPosition = null;
+            vector3BoxRotation = null;
+            vector3BoxScale = null;
             rightPanelTabControl.TabPages[0].RemoveControlsFromClientArea();
         } // RemoveControlsFromInspector
 
@@ -847,9 +870,19 @@ namespace XNAFinalEngine.Editor
 
             switch (activeGizmo)
             {
-                //case GizmoType.Scale: GizmoScale.ManipulateObject(); break;
-                //case GizmoType.Rotation: GizmoRotation.ManipulateObject(); break;
-                case GizmoType.Translation: translationGizmo.Update(); break;
+                /*case GizmoType.Scale: 
+                    GizmoScale.ManipulateObject();
+                    vector3BoxScale.Invalidate();
+                    break;
+                */
+                /*case GizmoType.Rotation: 
+                    GizmoRotation.ManipulateObject();
+                    vector3BoxRotation.Invalidate();
+                    break;*/
+                case GizmoType.Translation: 
+                    translationGizmo.Update();
+                    vector3BoxPosition.Invalidate();
+                    break;
             }
 
             UserInterfaceManager.UpdateInput = !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Visible;

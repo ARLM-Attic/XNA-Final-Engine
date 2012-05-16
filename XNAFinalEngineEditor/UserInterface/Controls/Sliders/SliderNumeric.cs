@@ -168,7 +168,7 @@ namespace XNAFinalEngine.UserInterface
 
             #region Events
 
-            slider.ValueChanged += delegate { OnValueChanged(new EventArgs()); textBox.Text = Math.Round(slider.Value, 3).ToString(); };
+            slider.ValueChanged += delegate { textBox.Text = Math.Round(slider.Value, 3).ToString(); };
             textBox.KeyDown += delegate(object sender, KeyEventArgs e)
             {
                 if (e.Key == Keys.Enter)

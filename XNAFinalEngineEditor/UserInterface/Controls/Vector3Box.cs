@@ -29,8 +29,11 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System.Windows.Forms;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+using Keys = Microsoft.Xna.Framework.Input.Keys;
+
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -46,6 +49,8 @@ namespace XNAFinalEngine.UserInterface
 
         // Controls
         private readonly TextBox xTextBox, yTextBox, zTextBox;
+        
+        private Vector3 value;
 
         #endregion
 
@@ -56,13 +61,14 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual Vector3 Value
         {
-            get { return new Vector3((float)double.Parse(xTextBox.Text), (float)double.Parse(yTextBox.Text), (float)double.Parse(zTextBox.Text)); }
+            get { return value; }
             set
             {
-                xTextBox.Text = value.X.ToString();
-                yTextBox.Text = value.Y.ToString();
-                zTextBox.Text = value.Z.ToString();
-                OnValueChanged(new EventArgs());
+                if (value != Value)
+                {
+                    this.value = value;
+                    OnValueChanged(new EventArgs());
+                }
             }
         } // Value
 
@@ -73,6 +79,12 @@ namespace XNAFinalEngine.UserInterface
         public event EventHandler ValueChanged;
 
         #endregion
+
+        protected override void DisposeManagedResources()
+        {
+            //ValueChanged = null;
+            base.DisposeManagedResources();
+        }
         
         #region Constructor
 
@@ -175,6 +187,13 @@ namespace XNAFinalEngine.UserInterface
             xTextBox.FocusLost += focusHandler;
             yTextBox.FocusLost += focusHandler;
             zTextBox.FocusLost += focusHandler;
+
+            ValueChanged += delegate
+            {
+                xTextBox.Text = value.X.ToString();
+                yTextBox.Text = value.Y.ToString();
+                zTextBox.Text = value.Z.ToString();
+            };
             
             #endregion
             

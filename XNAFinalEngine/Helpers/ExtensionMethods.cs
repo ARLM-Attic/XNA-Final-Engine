@@ -312,16 +312,53 @@ namespace XNAFinalEngine.Helpers
         /// </summary>
         /// <returns>X = yaw, Y = pitch, Z = roll</returns>
         public static Vector3 GetYawPitchRoll(this Quaternion quaternion)
-        {
+        {/*
+            float yaw, pitch, roll;
+            const float Epsilon = 0.0009765625f;
+            const float Threshold = 0.5f - Epsilon;
+
+            float XY = quaternion.X * quaternion.Y;
+            float ZW = quaternion.Z * quaternion.W;
+
+            float TEST = XY + ZW;
+
+            if (TEST < -Threshold || TEST > Threshold)
+            {
+                int sign = Math.Sign(TEST);
+                yaw = sign * 2 * (float)Math.Atan2(quaternion.X, quaternion.W);
+                pitch = sign * MathHelper.PiOver2;
+                roll = 0;
+            }
+            else
+            {
+                float XX = quaternion.X * quaternion.X;
+                float XZ = quaternion.X * quaternion.Z;
+                float XW = quaternion.X * quaternion.W;
+
+                float YY = quaternion.Y * quaternion.Y;
+                float YW = quaternion.Y * quaternion.W;
+                float YZ = quaternion.Y * quaternion.Z;
+
+                float ZZ = quaternion.Z * quaternion.Z;
+
+                yaw = (float)Math.Atan2(2 * YW - 2 * XZ, 1 - 2 * YY - 2 * ZZ);
+
+                pitch = (float)Math.Atan2(2 * XW - 2 * YZ, 1 - 2 * XX - 2 * ZZ);
+
+                roll = (float)Math.Asin(2 * TEST);
+
+            }
+            return new Vector3(yaw, pitch, roll);*/
+            
             Vector3 yawPitchRoll = new Vector3
             {
-                X = (float)(Math.Asin(-2 * (quaternion.X * quaternion.Z - quaternion.W * quaternion.Y))),
-                Y = (float)(Math.Atan2(2 * (quaternion.Y * quaternion.Z + quaternion.W * quaternion.X),
+                X = (float)(Math.Round(Math.Asin(-2 * (quaternion.X * quaternion.Z - quaternion.W * quaternion.Y)), 2)),
+                Y = (float)(Math.Round(Math.Atan2(2 * (quaternion.Y * quaternion.Z + quaternion.W * quaternion.X),
                                             quaternion.W * quaternion.W - quaternion.X * quaternion.X -
-                                            quaternion.Y * quaternion.Y + quaternion.Z * quaternion.Z)),
-                Z = (float)(Math.Atan2(2 * (quaternion.X * quaternion.Y + quaternion.W * quaternion.Z),
+                                            quaternion.Y * quaternion.Y + quaternion.Z * quaternion.Z), 2)),
+                Z = (float)(Math.Round(Math.Atan2(2 * (quaternion.X * quaternion.Y + quaternion.W * quaternion.Z),
                                             quaternion.W * quaternion.W + quaternion.X * quaternion.X -
-                                            quaternion.Y * quaternion.Y - quaternion.Z * quaternion.Z))
+                                            quaternion.Y * quaternion.Y - quaternion.Z * quaternion.Z), 2)),
             };
             return yawPitchRoll;
         } // GetYawPitchRoll

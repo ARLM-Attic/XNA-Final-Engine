@@ -36,7 +36,6 @@ using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Input;
 using Plane = XNAFinalEngine.Assets.Plane;
 #endregion
@@ -375,21 +374,21 @@ namespace XNAFinalEngine.Editor
             picker.RenderObjectToPicker(lines, Color.White);
 
             // Update Cones
-            redCone.Transform.LocalScale = new Vector3(scale);
-            redCone.Transform.LocalRotation = orientation;
-            redCone.Transform.LocalPosition = vertices[1];
+            redCone.Transform.LocalMatrix = Matrix.Identity;
+            redCone.Transform.LocalPosition = new Vector3(1, 0, 0);
             redCone.Transform.Rotate(new Vector3(0, 0, -90));
+            redCone.Transform.LocalMatrix = redCone.Transform.LocalMatrix * transformationMatrix;
             picker.RenderObjectToPicker(redCone, Color.Red);
-
-            greenCone.Transform.LocalScale = new Vector3(scale);
-            greenCone.Transform.LocalRotation = orientation;
-            greenCone.Transform.LocalPosition = vertices[2];
+            
+            greenCone.Transform.LocalMatrix = Matrix.Identity;
+            greenCone.Transform.LocalPosition = new Vector3(0, 1, 0);
+            greenCone.Transform.LocalMatrix = greenCone.Transform.LocalMatrix * transformationMatrix;
             picker.RenderObjectToPicker(greenCone, new Color(0, 255, 0)); // Color.Green is not 0, 255, 0
-
-            blueCone.Transform.LocalScale = new Vector3(scale);
-            blueCone.Transform.LocalRotation = orientation;
-            blueCone.Transform.LocalPosition = vertices[3];
+            
+            blueCone.Transform.LocalMatrix = Matrix.Identity;
+            blueCone.Transform.LocalPosition = new Vector3(0, 0, 1);
             blueCone.Transform.Rotate(new Vector3(90, 0, 0));
+            blueCone.Transform.LocalMatrix = blueCone.Transform.LocalMatrix * transformationMatrix;
             picker.RenderObjectToPicker(blueCone, Color.Blue);
             
             Vector3 screenPositions = EngineManager.Device.Viewport.Project(vertices[0], gizmoCamera.Camera.ProjectionMatrix, gizmoCamera.Camera.ViewMatrix, Matrix.Identity);
@@ -486,21 +485,21 @@ namespace XNAFinalEngine.Editor
             lines.LineRenderer.Vertices[5] = new VertexPositionColor(vertices[3], blueColor);
             
             // Update Cones
-            redCone.Transform.LocalScale = new Vector3(scale);
-            redCone.Transform.LocalRotation = orientation;
-            redCone.Transform.LocalPosition = vertices[1];
+            redCone.Transform.LocalMatrix = Matrix.Identity;
+            redCone.Transform.LocalPosition = new Vector3(1, 0, 0);
             redCone.Transform.Rotate(new Vector3(0, 0, -90));
+            redCone.Transform.LocalMatrix = redCone.Transform.LocalMatrix * transformationMatrix;
             ((Constant)redCone.ModelRenderer.Material).DiffuseColor = redColor;
-
-            greenCone.Transform.LocalScale = new Vector3(scale);
-            greenCone.Transform.LocalRotation = orientation;
-            greenCone.Transform.LocalPosition = vertices[2];
+            
+            greenCone.Transform.LocalMatrix = Matrix.Identity;
+            greenCone.Transform.LocalPosition = new Vector3(0, 1, 0);
+            greenCone.Transform.LocalMatrix = greenCone.Transform.LocalMatrix * transformationMatrix;
             ((Constant)greenCone.ModelRenderer.Material).DiffuseColor = greenColor;
-
-            blueCone.Transform.LocalScale = new Vector3(scale);
-            blueCone.Transform.LocalRotation = orientation;
-            blueCone.Transform.LocalPosition = vertices[3];
+            
+            blueCone.Transform.LocalMatrix = Matrix.Identity;
+            blueCone.Transform.LocalPosition = new Vector3(0, 0, 1);
             blueCone.Transform.Rotate(new Vector3(90, 0, 0));
+            blueCone.Transform.LocalMatrix = blueCone.Transform.LocalMatrix * transformationMatrix;
             ((Constant)blueCone.ModelRenderer.Material).DiffuseColor = blueColor;
         } // UpdateRenderingInformation
 

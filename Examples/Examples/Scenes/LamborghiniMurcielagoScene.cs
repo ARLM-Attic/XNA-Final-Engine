@@ -938,8 +938,7 @@ namespace XNAFinalEngineExamples
             #endregion
 
             #region Editor
-
-            murcielagoBody.Transform.Rotate(new Vector3(0, 20, 0));
+            
             EditorManager.AddObject(murcielagoBody);
             EditorManager.AddObject(murcielagoSteeringWheel);
             EditorManager.AddObject(murcielagoLP640AirTakesEngine);
@@ -1004,6 +1003,8 @@ namespace XNAFinalEngineExamples
             skydome;*/
 
             #endregion
+
+            murcielagoBody.Transform.Rotate(new Vector3(0, 20, 0));
 
         } // Load
 
