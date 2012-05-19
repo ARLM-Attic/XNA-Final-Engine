@@ -187,12 +187,16 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected override void DisposeManagedResources()
         {
+            // A disposed object could be still generating events, because it is alive for a time, in a disposed state, but alive nevertheless.
+            MaxItemsChanged = null;
+            ItemIndexChanged = null;
             // We added the listbox to another parent than this control, so we dispose it manually
             if (listCombo != null)
             {
                 listCombo.Dispose();
             }
             UserInterfaceManager.InputSystem.MouseDown -= InputMouseDown;
+            base.DisposeManagedResources();
         } // DisposeManagedResources
 
         #endregion

@@ -649,6 +649,7 @@ namespace XNAFinalEngine.EngineCore
                 Application.SetCompatibleTextRenderingDefault(false);
                 // Handle otherwise unhandled exceptions that occur in Windows Forms threads.
                 Application.ThreadException += UnhandledExceptions;
+                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException, true);
             #endif
             using (EngineManager engineManager = new EngineManager())
             {

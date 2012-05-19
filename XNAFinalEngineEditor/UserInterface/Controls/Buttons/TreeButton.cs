@@ -84,6 +84,20 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            // A disposed object could be still generating events, because it is alive for a time, in a disposed state, but alive nevertheless.
+            CheckedChanged = null;
+            base.DisposeManagedResources();
+        } // DisposeManagedResources
+
+        #endregion
+
         #region Draw
 
         /// <summary>

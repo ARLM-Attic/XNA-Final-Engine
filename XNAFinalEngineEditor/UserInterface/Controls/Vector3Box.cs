@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 
+using System;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
@@ -80,12 +81,20 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
         protected override void DisposeManagedResources()
         {
-            //ValueChanged = null;
+            // A disposed object could be still generating events, because it is alive for a time, in a disposed state, but alive nevertheless.
+            ValueChanged = null;
             base.DisposeManagedResources();
-        }
-        
+        } // DisposeManagedResources
+
+        #endregion
+
         #region Constructor
 
         /// <summary>

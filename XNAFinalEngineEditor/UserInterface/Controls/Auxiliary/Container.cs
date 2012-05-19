@@ -306,7 +306,7 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region Events
+        #region On Events
 
         private void Bars_Resize(object sender, ResizeEventArgs e)
         {

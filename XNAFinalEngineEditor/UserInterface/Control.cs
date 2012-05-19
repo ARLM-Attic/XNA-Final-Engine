@@ -1272,6 +1272,46 @@ namespace XNAFinalEngine.UserInterface
             UserInterfaceManager.SkinChanging -= OnSkinChanging;
             UserInterfaceManager.SkinChanged -= OnSkinChanged;
 
+            #region Own Events
+
+            // A disposed object could be still generating events, because it is alive for a time, in a disposed state, but alive nevertheless.
+            Click = null;
+            DoubleClick = null;
+            MouseDown = null;
+            MousePress = null;
+            MouseUp = null;
+            MouseMove = null;
+            MouseOver = null;
+            MouseOut = null;
+            KeyDown = null;
+            KeyPress = null;
+            KeyUp = null;
+            Move = null;
+            ValidateMove = null;
+            MoveBegin = null;
+            MoveEnd = null;
+            Resize = null;
+            ValidateResize = null;
+            ResizeBegin = null;
+            ResizeEnd = null;
+            Draw = null;
+            FocusLost = null;
+            FocusGained = null;
+            ColorChanged = null;
+            TextColorChanged = null;
+            BackColorChanged = null;
+            TextChanged = null;
+            AnchorChanged = null;
+            VisibleChanged = null;
+            EnabledChanged = null;
+            AlphaChanged = null;
+            SkinChanging = null;
+            SkinChanged = null;
+            ParentChanged = null;
+            RootChanged = null;
+            
+            #endregion
+
             if (parent != null)
                 parent.Remove(this);
             else

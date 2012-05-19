@@ -68,6 +68,7 @@ namespace XNAFinalEngine.UserInterface
         protected override void DisposeManagedResources()
         {
             UserInterfaceManager.InputSystem.MouseDown -= InputMouseDown;
+            base.DisposeManagedResources();
         } // DisposeManagedResources
 
         #endregion

@@ -995,12 +995,20 @@ namespace XNAFinalEngineExamples
             murcielagoRearRightRimLogo, murcielagoRearRightBrakeDisc, murcielagoRearRightBrakeCaliper, murcielagoRearRightTyre,
             murcielagoRearRightTyre02, rearRightRim,
             // Test floors
-            floor,
-            // Lights
-            directionalLight, pointLight, pointLight2, pointLight3, pointLight4, pointLight5, pointLight6, pointLight7, spotLight,
+            floor,            
             // Cameras
             camera, camera2,
             skydome;*/
+            // Lights
+            EditorManager.AddObject(directionalLight);
+            EditorManager.AddObject(pointLight);
+            EditorManager.AddObject(pointLight2);
+            EditorManager.AddObject(pointLight3);
+            EditorManager.AddObject(pointLight4);
+            EditorManager.AddObject(pointLight5);
+            EditorManager.AddObject(pointLight6);
+            //EditorManager.AddObject(pointLight7);
+            //EditorManager.AddObject(spotLight);
 
             #endregion
 

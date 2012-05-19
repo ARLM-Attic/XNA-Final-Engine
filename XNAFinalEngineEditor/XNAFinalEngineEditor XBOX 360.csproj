@@ -162,7 +162,6 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Net" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml">
       <Private>False</Private>
     </Reference>

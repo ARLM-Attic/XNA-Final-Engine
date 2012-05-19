@@ -66,6 +66,20 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
+        #region Events
+
+        /// <summary>
+        ///  Was the menu item clicked.
+        /// </summary>
+        public event EventHandler Click;
+
+        /// <summary>
+        /// Was the menu item selected. I.e. is the mouse over the item.
+        /// </summary>
+        public event EventHandler Selected;
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -79,20 +93,6 @@ namespace XNAFinalEngine.UserInterface
             Text = text;
             Separated = separated;
         } // MenuItem
-
-        #endregion
-
-        #region Events
-
-        /// <summary>
-        ///  Was the menu item clicked.
-        /// </summary>
-        public event EventHandler Click;
-
-        /// <summary>
-        /// Was the menu item selected. I.e. is the mouse over the item.
-        /// </summary>
-        public event EventHandler Selected;
 
         #endregion
 

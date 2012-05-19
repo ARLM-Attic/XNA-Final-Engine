@@ -234,7 +234,7 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region Events
+        #region On Events
 
         /// <summary>
         /// When the button skin changed.

@@ -41,7 +41,7 @@ namespace XNAFinalEngine.UserInterface
 
     #endregion
 
-    public class Input : Disposable
+    public class Input
     {
 
         #region Classes
