@@ -92,7 +92,7 @@ namespace XNAFinalEngine.UserInterface
                 ItemAdded.Invoke(this, new EventArgs());
         } // InsertRange
 
-        public int RemoveAll(Predicate<T> match)
+        public new int RemoveAll(Predicate<T> match)
         {
             int c = Count;
             #if (WINDOWS)

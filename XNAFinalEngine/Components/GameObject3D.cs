@@ -370,67 +370,67 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Raised when the game object's model renderer changes.
         /// </summary>
-        public event ComponentEventHandler ModelRendererChanged;
+        internal event ComponentEventHandler ModelRendererChanged;
 
         /// <summary>
         /// Raised when the game object's model filter changes.
         /// </summary>
-        public event ComponentEventHandler ModelFilterChanged;
+        internal event ComponentEventHandler ModelFilterChanged;
 
         /// <summary>
         /// Raised when the game object's root animation changes.
         /// </summary>
-        public event ComponentEventHandler RootAnimationChanged;
+        internal event ComponentEventHandler RootAnimationChanged;
 
         /// <summary>
         /// Raised when the game object's model animation changes.
         /// </summary>
-        public event ComponentEventHandler ModelAnimationChanged;
+        internal event ComponentEventHandler ModelAnimationChanged;
 
         /// <summary>
         /// Raised when the game object's camera changes.
         /// </summary>
-        public event ComponentEventHandler CameraChanged;
+        internal event ComponentEventHandler CameraChanged;
 
         /// <summary>
         /// Raised when the game object's light changes.
         /// </summary>
-        public event ComponentEventHandler LightChanged;
+        internal event ComponentEventHandler LightChanged;
 
         /// <summary>
         /// Raised when the game object's particle emitter changes.
         /// </summary>
-        public event ComponentEventHandler ParticleEmitterChanged;
+        internal event ComponentEventHandler ParticleEmitterChanged;
 
         /// <summary>
         /// Raised when the game object's particle renderer changes.
         /// </summary>
-        public event ComponentEventHandler ParticleRendererChanged;
+        internal event ComponentEventHandler ParticleRendererChanged;
 
         /// <summary>
         /// Raised when the game object's sound emitter changes.
         /// </summary>
-        public event ComponentEventHandler SoundEmitterChanged;
+        internal event ComponentEventHandler SoundEmitterChanged;
 
         /// <summary>
         /// Raised when the game object's sound listener changes.
         /// </summary>
-        public event ComponentEventHandler SoundListenerChanged;
+        internal event ComponentEventHandler SoundListenerChanged;
 
         /// <summary>
         /// Raised when the game object's HUD text changes.
         /// </summary>
-        public event ComponentEventHandler HudTextChanged;
+        internal event ComponentEventHandler HudTextChanged;
 
         /// <summary>
         /// Raised when the game object's HUD texture changes.
         /// </summary>
-        public event ComponentEventHandler HudTextureChanged;
+        internal event ComponentEventHandler HudTextureChanged;
 
         /// <summary>
         /// Raised when the game object's line renderer changes.
         /// </summary>
-        public event ComponentEventHandler LineRendererChanged;
+        internal event ComponentEventHandler LineRendererChanged;
 
         #endregion
 
@@ -490,6 +490,32 @@ namespace XNAFinalEngine.Components
             // Create a transform component. Every game object has one.
             Transform = new Transform3D { Owner = this };
         } // Initialize
+
+        #endregion
+
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            // A disposed object could be still generating events, because it is alive for a time, in a disposed state, but alive nevertheless.
+            ModelRendererChanged = null;
+            ModelFilterChanged = null;
+            RootAnimationChanged = null;
+            ModelAnimationChanged = null;
+            CameraChanged = null;
+            LightChanged = null;
+            ParticleEmitterChanged = null;
+            ParticleRendererChanged = null;
+            SoundEmitterChanged = null;
+            SoundListenerChanged = null;
+            HudTextChanged = null;
+            HudTextureChanged = null;
+            LineRendererChanged = null;
+            base.DisposeManagedResources();
+        } // DisposeManagedResources
 
         #endregion
 
@@ -693,12 +719,20 @@ namespace XNAFinalEngine.Components
 
             #region Script
             
-            // Hacerlo de otra manera, creo. Algo como add script y remove script. Los script se comportan diferente que el resto de los componentes.
             if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
             {
-                Component script = new TComponentType();
+                Component script = Script.ConstainScript<TComponentType>(this);
+                if (script != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the script component. There is one already.");
+                }
+                script = Script.FetchScript<TComponentType>();
+                if (script == null)
+                {
+                    script = new TComponentType();
+                    Script.ScriptList.Add((Script)script);
+                }
                 script.Initialize(this);
-                Script.ScriptList.Add((Script)script);
                 return script;
             }
 
@@ -837,10 +871,6 @@ namespace XNAFinalEngine.Components
                 {
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the model filter component. There is not one.");
                 }
-                if (ModelRenderer != null)
-                {
-                    throw new InvalidOperationException("Game Object 3D: Unable to remove the model filter component. There are still components that use it.");
-                }
                 ModelFilter.Uninitialize();
                 ModelFilter.ComponentPool.Release(modelFilterAccessor);
                 ModelFilter = null;
@@ -923,17 +953,21 @@ namespace XNAFinalEngine.Components
                     directionalLightAccessor = null;
                     DirectionalLight = null;
                 }
-                if (typeof(TComponentType) == typeof(PointLight))
+                else if (typeof(TComponentType) == typeof(PointLight))
                 {
                     PointLight.ComponentPool.Release(pointLightAccessor);
                     pointLightAccessor = null;
                     PointLight = null;
                 }
-                if (typeof(TComponentType) == typeof(SpotLight))
+                else if (typeof(TComponentType) == typeof(SpotLight))
                 {
                     SpotLight.ComponentPool.Release(spotLightAccessor);
                     spotLightAccessor = null;
                     SpotLight = null;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the light component.");
                 }
                 Light = null;
             }
@@ -968,6 +1002,20 @@ namespace XNAFinalEngine.Components
                 ParticleRenderer.ComponentPool.Release(particleRendererAccessor);
                 ParticleRenderer = null;
                 particleRendererAccessor = null;
+            }
+
+            #endregion
+
+            #region Script
+
+            if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
+            {
+                Component script = Script.ConstainScript<TComponentType>(this);
+                if (script == null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to remove the script component. There is not one.");
+                }
+                script.Uninitialize();
             }
 
             #endregion
@@ -1051,10 +1099,55 @@ namespace XNAFinalEngine.Components
             }
 
             #endregion
-
+            
         } // RemoveComponent
 
         #endregion
-        
+
+        #region Remove All Components
+
+        /// <summary>
+        /// Removes all components from the game object.
+        /// </summary>
+        public override void RemoveAllComponents()
+        {
+            if (ModelFilter != null)
+                RemoveComponent<ModelFilter>();
+            if (ModelRenderer != null)
+                RemoveComponent<ModelRenderer>();
+            if (RootAnimations != null)
+                RemoveComponent<RootAnimations>();
+            if (ModelAnimations != null)
+                RemoveComponent<ModelAnimations>();
+            if (Camera != null)
+                RemoveComponent<Camera>();
+            if (DirectionalLight != null)
+                RemoveComponent<DirectionalLight>();
+            if (PointLight != null)
+                RemoveComponent<PointLight>();
+            if (SpotLight != null)
+                RemoveComponent<SpotLight>();
+            if (ParticleEmitter != null)
+                RemoveComponent<ParticleEmitter>();
+            if (ParticleRenderer != null)
+                RemoveComponent<ParticleRenderer>();
+            if (SoundEmitter != null)
+                RemoveComponent<SoundEmitter>();
+            if (SoundListener != null)
+                RemoveComponent<SoundListener>();
+            if (HudText != null)
+                RemoveComponent<HudText>();
+            if (HudTexture != null)
+                RemoveComponent<HudTexture>();
+            if (LineRenderer != null)
+                RemoveComponent<LineRenderer>();
+            while (Script.ConstainScript<Script>(this) != null)
+            {
+                Script.ConstainScript<Script>(this).Uninitialize();
+            }
+        } // RemoveAllComponents
+
+        #endregion
+
     } // GameObject3D
 } // XNAFinalEngine.Components

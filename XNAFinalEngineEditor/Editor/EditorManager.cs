@@ -418,6 +418,7 @@ namespace XNAFinalEngine.Editor
             if (picker == null)
                 throw new InvalidOperationException("Editor Manager: The editor was not initialized. If you use an Editable Scene call base.Load before adding or removing elements.");
             picker.AddObject(obj);
+            
         } // AddObject
 
         /// <summary>
@@ -463,7 +464,7 @@ namespace XNAFinalEngine.Editor
             // Remove bounding box off the screen.
             foreach (var gameObject in selectedObjects)
             {
-                ChangeGameObjectBoundingBoxVisibility(gameObject, false);
+                HideGameObjectSelected(gameObject);
             }
         } // DisableEditorMode
 
@@ -485,15 +486,41 @@ namespace XNAFinalEngine.Editor
 
         #endregion
 
-        #region Change GameObject Bounding Box Visibility
+        #region Show and Hide Game Object Selected
 
-        private static void ChangeGameObjectBoundingBoxVisibility(GameObject gameObject, bool boundingBoxVisibility)
+        /// <summary>
+        /// This activates a visual feedback that shows that the game object was selected.
+        /// </summary>
+        private static void ShowGameObjectSelected(GameObject gameObject)
         {
-            // If it is a model.
-            if (gameObject is GameObject3D && ((GameObject3D)gameObject).ModelRenderer != null)
-                ((GameObject3D)gameObject).ModelRenderer.RenderNonAxisAlignedBoundingBox = boundingBoxVisibility;
-            // ... TODO!!!
-        } // ChangeGameObjectBoundingBoxVisibility
+            if (gameObject is GameObject3D)
+            {
+                GameObject3D gameObject3D = (GameObject3D)gameObject;
+                // If it is a model.
+                if (gameObject3D.ModelRenderer != null)
+                    gameObject3D.ModelRenderer.RenderNonAxisAlignedBoundingBox = true;
+                // If it is a light.
+                if (gameObject3D.Light != null)
+                {
+                    //GameObject2D lightIcon
+                }
+            }
+        } // ShowGameObjectSelected
+
+        /// <summary>
+        /// This activates a visual feedback that shows that the game object was selected.
+        /// </summary>
+        private static void HideGameObjectSelected(GameObject gameObject)
+        {
+            if (gameObject is GameObject3D)
+            {
+                GameObject3D gameObject3D = (GameObject3D)gameObject;
+                // If it is a model.
+                if (gameObject3D.ModelRenderer != null)
+                    gameObject3D.ModelRenderer.RenderNonAxisAlignedBoundingBox = false;
+                // ... TODO!!!
+            }
+        } // HideGameObjectSelected
 
         #endregion
 
@@ -551,9 +578,6 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         private static void RemoveControlsFromInspector()
         {
-            vector3BoxPosition = null;
-            vector3BoxRotation = null;
-            vector3BoxScale = null;
             rightPanelTabControl.TabPages[0].RemoveControlsFromClientArea();
         } // RemoveControlsFromInspector
 
@@ -589,7 +613,7 @@ namespace XNAFinalEngine.Editor
                 // Restore bounding box to the current selected objects.
                 foreach (var gameObject in selectedObjects)
                 {
-                    ChangeGameObjectBoundingBoxVisibility(gameObject, true);
+                    ShowGameObjectSelected(gameObject);
                 }
             }
             else
@@ -600,7 +624,7 @@ namespace XNAFinalEngine.Editor
                 // Remove the bounding box in game mode.
                 foreach (var gameObject in selectedObjects)
                 {
-                    ChangeGameObjectBoundingBoxVisibility(gameObject, false);
+                    ShowGameObjectSelected(gameObject);
                 }
                 UserInterfaceManager.UpdateInput = true;
                 return;
@@ -735,7 +759,7 @@ namespace XNAFinalEngine.Editor
                         // Remove bounding box off the screen.
                         foreach (var gameObject in selectedObjects)
                         {
-                            ChangeGameObjectBoundingBoxVisibility(gameObject, false);
+                            HideGameObjectSelected(gameObject);
                         }
                         selectedObjects.Clear();
                     }
@@ -776,7 +800,7 @@ namespace XNAFinalEngine.Editor
                             !Keyboard.KeyPressed(Keys.RightControl) && !Keyboard.KeyPressed(Keys.RightShift))
                         {
                             selectedObjects.Add(gameObject);
-                            ChangeGameObjectBoundingBoxVisibility(gameObject, true);
+                            ShowGameObjectSelected(gameObject);
                         }
                         else if ((Keyboard.KeyPressed(Keys.LeftControl) || Keyboard.KeyPressed(Keys.RightControl)) &&
                                  (!Keyboard.KeyPressed(Keys.LeftShift) && !Keyboard.KeyPressed(Keys.RightShift)))
@@ -784,12 +808,12 @@ namespace XNAFinalEngine.Editor
                             if (selectedObjects.Contains(gameObject))
                             {
                                 selectedObjects.Remove(gameObject);
-                                ChangeGameObjectBoundingBoxVisibility(gameObject, false);
+                                HideGameObjectSelected(gameObject);
                             }
                             else
                             {
                                 selectedObjects.Add(gameObject);
-                                ChangeGameObjectBoundingBoxVisibility(gameObject, true);
+                                ShowGameObjectSelected(gameObject);
                             }
                         }
                         else if ((Keyboard.KeyPressed(Keys.LeftControl) || Keyboard.KeyPressed(Keys.RightControl)) &&
@@ -798,7 +822,7 @@ namespace XNAFinalEngine.Editor
                             if (selectedObjects.Contains(gameObject))
                             {
                                 selectedObjects.Remove(gameObject);
-                                ChangeGameObjectBoundingBoxVisibility(gameObject, false);
+                                HideGameObjectSelected(gameObject);
                             }
                         }
                         else if ((!Keyboard.KeyPressed(Keys.LeftControl) && !Keyboard.KeyPressed(Keys.RightControl)) &&
@@ -807,7 +831,7 @@ namespace XNAFinalEngine.Editor
                             if (!selectedObjects.Contains(gameObject))
                             {
                                 selectedObjects.Add(gameObject);
-                                ChangeGameObjectBoundingBoxVisibility(gameObject, true);
+                                ShowGameObjectSelected(gameObject);
                             }
                         }
                     }
@@ -827,7 +851,7 @@ namespace XNAFinalEngine.Editor
                     // Remove bounding box off the screen.
                     foreach (var gameObject in selectedObjects)
                     {
-                        ChangeGameObjectBoundingBoxVisibility(gameObject, false);
+                        HideGameObjectSelected(gameObject);
                     }
                     selectedObjects.Clear();
                 }

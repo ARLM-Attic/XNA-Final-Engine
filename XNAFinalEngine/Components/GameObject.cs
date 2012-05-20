@@ -4,13 +4,18 @@
 //          Schefer, Gustavo Martin (Under Microsoft Permisive License)
 #endregion
 
+#region Using directives
+using XNAFinalEngine.Helpers;
+using System.Collections.Generic;
+#endregion
+
 namespace XNAFinalEngine.Components
 {
     
     /// <summary>
     /// Base class for all entities in the scenes.
     /// </summary>
-    public abstract class GameObject
+    public abstract class GameObject : Disposable
     {
 
         #region Variables
@@ -72,6 +77,11 @@ namespace XNAFinalEngine.Components
             }
         } // Layer
 
+        /// <summary>
+        /// Loaded game objects
+        /// </summary>
+        public static List<GameObject> GameObjects { get; private set; }
+
         #endregion
 
         #region Events
@@ -81,12 +91,12 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
         /// </summary>
-        public delegate void LayerEventHandler(object sender, uint layerMask);
+        internal delegate void LayerEventHandler(object sender, uint layerMask);
 
         /// <summary>
         /// Raised when the game object's layer changes.
         /// </summary>
-        public event LayerEventHandler LayerChanged;
+        internal event LayerEventHandler LayerChanged;
 
         #endregion
 
@@ -125,8 +135,32 @@ namespace XNAFinalEngine.Components
             // Create a unique ID
             ID = uniqueIdCounter;
             uniqueIdCounter++;
+            GameObjects.Add(this);
+        } // GameObject
+
+        /// <summary>
+        /// Static constructor to create the list of created game objects.
+        /// </summary>
+        static GameObject()
+        {
+            GameObjects = new List<GameObject>(100);
         } // GameObject
         
+        #endregion
+
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            GameObjects.Remove(this);
+            // A disposed object could be still generating events, because it is alive for a time, in a disposed state, but alive nevertheless.
+            LayerChanged = null;
+            RemoveAllComponents();
+        } // DisposeManagedResources
+
         #endregion
 
         #region Add Component
@@ -148,10 +182,12 @@ namespace XNAFinalEngine.Components
         /// Removes a component to the game object.
         /// </summary>
         /// <typeparam name="TComponentType">Component Type</typeparam>
-        public virtual void RemoveComponent<TComponentType>() where TComponentType : Component
-        {
-            // Overrite it!!!
-        } // AddComponent
+        public abstract void RemoveComponent<TComponentType>() where TComponentType : Component;
+
+        /// <summary>
+        /// Removes all components from the game object.
+        /// </summary>
+        public abstract void RemoveAllComponents();
 
         #endregion
 

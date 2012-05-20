@@ -41,6 +41,13 @@ namespace XNAFinalEngine.Components
     public abstract class Script : Component
     {
 
+        #region Variable
+        
+        // Indicates if it is available or used by an game object.
+        private bool available;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -59,6 +66,7 @@ namespace XNAFinalEngine.Components
         {
             base.Initialize(owner);
             Enabled = true;
+            available = false;
             Load();
         } // Initialize
         
@@ -73,6 +81,7 @@ namespace XNAFinalEngine.Components
         internal override void Uninitialize()
         {
             Unload();
+            available = true;
             base.Uninitialize();
         } // Uninitialize
 
@@ -134,6 +143,36 @@ namespace XNAFinalEngine.Components
         /// Script list.
         /// </summary>
         internal static List<Script> ScriptList { get { return componentList; } }
+
+        /// <summary>
+        /// Indicates if exist a no disposed script of this type with this owner.
+        /// </summary>
+        internal static Script ConstainScript<TComponentType>(GameObject owner) where TComponentType : Component
+        {
+            for (int i = 0; i < ScriptList.Count; i++)
+            {
+                if (ScriptList[i] is TComponentType && ScriptList[i].Owner == owner && !ScriptList[i].available)
+                {
+                    return ScriptList[i];
+                }
+            }
+            return null;
+        } // ConstainScript
+
+        /// <summary>
+        /// Try to fetch an available script from the currently created scripts.
+        /// </summary>
+        internal static Script FetchScript<TComponentType>() where TComponentType : Component
+        {
+            for (int i = 0; i < ScriptList.Count; i++)
+            {
+                if (ScriptList[i] is TComponentType && ScriptList[i].available)
+                {
+                    return ScriptList[i];
+                }
+            }
+            return null;
+        } // FetchScript
 
         #endregion
 

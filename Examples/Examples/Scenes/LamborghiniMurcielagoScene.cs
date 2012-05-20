@@ -118,6 +118,9 @@ namespace XNAFinalEngineExamples
             camera.Camera.NearPlane = 0.1f;
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
             ScriptCustomCamera script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
+            // Test script list.
+            //camera.RemoveComponent<ScriptCustomCamera>();
+            //script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
             script.SetPosition(new Vector3(-8, 0, 9), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 6f;
@@ -1012,7 +1015,7 @@ namespace XNAFinalEngineExamples
 
             #endregion
 
-            murcielagoBody.Transform.Rotate(new Vector3(0, 20, 0));
+            //murcielagoBody.Transform.Rotate(new Vector3(0, 20, 0));
 
         } // Load
 

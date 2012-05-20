@@ -156,22 +156,22 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Raised when the game object's HUD text changes.
         /// </summary>
-        public event ComponentEventHandler HudTextChanged;
+        internal event ComponentEventHandler HudTextChanged;
 
         /// <summary>
         /// Raised when the game object's HUD texture changes.
         /// </summary>
-        public event ComponentEventHandler HudTextureChanged;
+        internal event ComponentEventHandler HudTextureChanged;
 
         /// <summary>
         /// Raised when the game object's video renderer changes.
         /// </summary>
-        public event ComponentEventHandler VideoRendererChanged;
+        internal event ComponentEventHandler VideoRendererChanged;
 
         /// <summary>
         /// Raised when the game object's line renderer changes.
         /// </summary>
-        public event ComponentEventHandler LineRendererChanged;
+        internal event ComponentEventHandler LineRendererChanged;
 
         #endregion
         
@@ -203,8 +203,24 @@ namespace XNAFinalEngine.Components
         {
             // Create a transform component. Every game object has one.
             Transform = new Transform2D { Owner = this };
-
         } // Initialize
+
+        #endregion
+
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            // A disposed object could be still generating events, because it is alive for a time, in a disposed state, but alive nevertheless.
+            HudTextChanged = null;
+            HudTextureChanged = null;
+            VideoRendererChanged = null;
+            LineRendererChanged = null;
+            base.DisposeManagedResources();
+        } // DisposeManagedResources
 
         #endregion
 
@@ -312,9 +328,18 @@ namespace XNAFinalEngine.Components
             // Hacerlo de otra manera, creo. Algo como add script y remove script. Los script se comportan diferente que el resto de los componentes.
             if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
             {
-                Component script = new TComponentType();
+                Component script = Script.ConstainScript<TComponentType>(this);
+                if (script != null)
+                {
+                    throw new ArgumentException("Game Object 2D: Unable to create the script component. There is one already.");
+                }
+                script = Script.FetchScript<TComponentType>();
+                if (script == null)
+                {
+                    script = new TComponentType();
+                    Script.ScriptList.Add((Script)script);
+                }
                 script.Initialize(this);
-                Script.ScriptList.Add((Script)script);
                 return script;
             }
 
@@ -414,7 +439,44 @@ namespace XNAFinalEngine.Components
 
             #endregion
 
+            #region Script
+
+            if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
+            {
+                Component script = Script.ConstainScript<TComponentType>(this);
+                if (script == null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to remove the script component. There is not one.");
+                }
+                script.Uninitialize();
+            }
+
+            #endregion
+
         } // RemoveComponent
+
+        #endregion
+
+        #region Remove All Components
+
+        /// <summary>
+        /// Removes all components from the game object.
+        /// </summary>
+        public override void RemoveAllComponents()
+        {
+            if (HudText != null)
+                RemoveComponent<HudText>();
+            if (HudTexture != null)
+                RemoveComponent<HudTexture>();
+            if (VideoRenderer != null)
+                RemoveComponent<VideoRenderer>();
+            if (LineRenderer != null)
+                RemoveComponent<LineRenderer>();
+            while (Script.ConstainScript<Script>(this) != null)
+            {
+                Script.ConstainScript<Script>(this).Uninitialize();
+            }
+        } // RemoveAllComponents
 
         #endregion
 

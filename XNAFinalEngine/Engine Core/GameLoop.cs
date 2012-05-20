@@ -1476,8 +1476,8 @@ namespace XNAFinalEngine.EngineCore
             return postProcessedSceneTexture;
 
             #region For Testing
-            RenderTarget.Release(postProcessedSceneTexture);
-            return gbufferTextures.RenderTargets[1];
+            //RenderTarget.Release(postProcessedSceneTexture);
+            //return gbufferTextures.RenderTargets[1];
             //return lightTexture;
             #endregion
 
