@@ -176,6 +176,9 @@ namespace XNAFinalEngine.Editor
         // Icons
         private static Texture lightIcon;
 
+        // Sometimes I wan't to update the user interface no matter what.
+        private static bool updateUserInterface = true;
+
         #endregion
 
         #region Properties
@@ -258,7 +261,11 @@ namespace XNAFinalEngine.Editor
 
             #region Icons
 
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
+            ContentManager.CurrentContentManager = new ContentManager("Editor Content Manager", true);
+            // Load Icons
             lightIcon = new Texture("Editor\\LightIcon");
+            ContentManager.CurrentContentManager = userContentManager;
 
             #endregion
 
@@ -429,6 +436,7 @@ namespace XNAFinalEngine.Editor
             editorModeEnabled = true;
             UserInterfaceManager.Visible = true;
             UserInterfaceManager.UpdateInput = true;
+            updateUserInterface = true;
         } // EnableEditorMode
 
         /// <summary>
@@ -520,13 +528,7 @@ namespace XNAFinalEngine.Editor
 
             #region Transform Component
 
-            var panel = new PanelCollapsible
-            {
-                Anchor = Anchors.Left | Anchors.Right | Anchors.Top,
-                Parent = rightPanelTabControl.TabPages[0],
-                Width = rightPanelTabControl.TabPages[0].ClientWidth,
-                Text = "Transform"
-            };
+            var panel = CommonControls.PanelCollapsible("Transform", rightPanelTabControl, 0);
             vector3BoxPosition = CommonControls.Vector3Box("Position", panel, selectedObject.Transform.LocalPosition);
             vector3BoxPosition.ValueChanged += delegate { selectedObject.Transform.LocalPosition = vector3BoxPosition.Value; };
             vector3BoxPosition.Draw += delegate { vector3BoxPosition.Value = selectedObject.Transform.LocalPosition; };
@@ -554,6 +556,221 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
+            #region Light Component
+
+            if (selectedObject.Light != null)
+            {
+
+                #region Point Light
+
+                if (selectedObject.PointLight != null)
+                {
+                    panel = CommonControls.PanelCollapsible("Point Light", rightPanelTabControl, 0);
+                    CheckBox checkBoxLightEnabled = CommonControls.CheckBox("Visible", panel, selectedObject.PointLight.Visible);
+                    checkBoxLightEnabled.Top = 10;
+                    checkBoxLightEnabled.Draw += delegate { checkBoxLightEnabled.Checked = selectedObject.PointLight.Visible; };
+
+                    #region Intensity
+
+                    var sliderLightIntensity = CommonControls.SliderNumeric("Intensity", panel, selectedObject.PointLight.Intensity, false, true, 0, 100);
+                    sliderLightIntensity.ValueChanged += delegate { selectedObject.PointLight.Intensity = sliderLightIntensity.Value; };
+                    sliderLightIntensity.Draw += delegate { sliderLightIntensity.Value = selectedObject.PointLight.Intensity; };
+
+                    #endregion
+
+                    #region Diffuse Color
+
+                    var sliderDiffuseColor = CommonControls.SliderColor("Diffuse Color", panel, selectedObject.PointLight.DiffuseColor);
+                    sliderDiffuseColor.ColorChanged += delegate { selectedObject.PointLight.DiffuseColor = sliderDiffuseColor.Color; };
+                    sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = selectedObject.PointLight.DiffuseColor; };
+
+                    #endregion
+
+                    #region Range
+
+                    var sliderLightRange = CommonControls.SliderNumeric("Range", panel, selectedObject.PointLight.Range, false, true, 0, 500);
+                    sliderLightRange.ValueChanged += delegate { selectedObject.PointLight.Range = sliderLightRange.Value; };
+                    sliderLightRange.Draw += delegate { sliderLightRange.Value = selectedObject.PointLight.Range; };
+
+                    #endregion
+
+                    checkBoxLightEnabled.CheckedChanged += delegate
+                    {
+                        selectedObject.PointLight.Visible = checkBoxLightEnabled.Checked;
+                        sliderLightIntensity.Enabled = selectedObject.PointLight.Visible;
+                        sliderDiffuseColor.Enabled = selectedObject.PointLight.Visible;
+                        sliderLightRange.Enabled = selectedObject.PointLight.Visible;
+                    };
+                }
+
+                #endregion
+                
+                #region Spot Light
+
+                if (selectedObject.SpotLight != null)
+                {
+                    panel = CommonControls.PanelCollapsible("Spot Light", rightPanelTabControl, 0);
+                    CheckBox checkBoxLightEnabled = CommonControls.CheckBox("Visible", panel, selectedObject.SpotLight.Visible);
+                    checkBoxLightEnabled.Top = 10;
+                    checkBoxLightEnabled.Draw += delegate { checkBoxLightEnabled.Checked = selectedObject.SpotLight.Visible; };
+
+                    #region Intensity
+
+                    var sliderLightIntensity = CommonControls.SliderNumeric("Intensity", panel, selectedObject.SpotLight.Intensity, false, true, 0, 100);
+                    sliderLightIntensity.ValueChanged += delegate { selectedObject.SpotLight.Intensity = sliderLightIntensity.Value; };
+                    sliderLightIntensity.Draw += delegate { sliderLightIntensity.Value = selectedObject.SpotLight.Intensity; };
+
+                    #endregion
+
+                    #region Diffuse Color
+
+                    var sliderDiffuseColor = CommonControls.SliderColor("Diffuse Color", panel, selectedObject.SpotLight.DiffuseColor);
+                    sliderDiffuseColor.ColorChanged += delegate { selectedObject.SpotLight.DiffuseColor = sliderDiffuseColor.Color; };
+                    sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = selectedObject.SpotLight.DiffuseColor; };
+
+                    #endregion
+
+                    #region Range
+
+                    var sliderLightRange = CommonControls.SliderNumeric("Range", panel, selectedObject.SpotLight.Range, false, true, 0, 500);
+                    sliderLightRange.ValueChanged += delegate { selectedObject.SpotLight.Range = sliderLightRange.Value; };
+                    sliderLightRange.Draw += delegate { sliderLightRange.Value = selectedObject.SpotLight.Range; };
+
+                    #endregion
+
+                    #region Inner Cone Angle
+
+                    var sliderLightInnerConeAngle = CommonControls.SliderNumeric("Inner Cone Angle", panel, selectedObject.SpotLight.InnerConeAngle, false, false, 0, 175);
+                    sliderLightInnerConeAngle.ValueChanged += delegate { selectedObject.SpotLight.InnerConeAngle = sliderLightInnerConeAngle.Value; };
+                    sliderLightInnerConeAngle.Draw += delegate { sliderLightInnerConeAngle.Value = selectedObject.SpotLight.InnerConeAngle; };
+
+                    #endregion
+
+                    #region Outer Cone Angle
+
+                    var sliderLightOuterConeAngle = CommonControls.SliderNumeric("Outer Cone Angle", panel, selectedObject.SpotLight.OuterConeAngle, false, false, 0, 175);
+                    sliderLightOuterConeAngle.ValueChanged += delegate { selectedObject.SpotLight.OuterConeAngle = sliderLightOuterConeAngle.Value; };
+                    sliderLightOuterConeAngle.Draw += delegate { sliderLightOuterConeAngle.Value = selectedObject.SpotLight.OuterConeAngle; };
+
+                    #endregion
+
+                    #region Mask Texture
+
+                    var assetSelectorMaskTexture = CommonControls.AssetSelector("Mask Texture", panel);
+                    assetSelectorMaskTexture.AssetAdded += delegate
+                    {
+                        TextureWindow.CurrentCreatedAssetChanged += delegate
+                        {
+                            selectedObject.SpotLight.LightMaskTexture = TextureWindow.CurrentCreatedAsset;
+                            assetSelectorMaskTexture.Invalidate();
+                        };
+                        TextureWindow.Show(null);
+                    };
+                    assetSelectorMaskTexture.AssetEdited += delegate
+                    {
+                        TextureWindow.Show(selectedObject.SpotLight.LightMaskTexture);
+                    };
+                    // Events
+                    assetSelectorMaskTexture.ItemIndexChanged += delegate
+                    {
+                        if (assetSelectorMaskTexture.ItemIndex <= 0)
+                            selectedObject.SpotLight.LightMaskTexture = null;
+                        else
+                        {
+                            foreach (Texture texture in Texture.LoadedTextures)
+                            {
+                                // You can filter some assets here.
+                                if (texture.Name == (string)assetSelectorMaskTexture.Items[assetSelectorMaskTexture.ItemIndex])
+                                    selectedObject.SpotLight.LightMaskTexture = texture;
+                            }
+                        }
+                        assetSelectorMaskTexture.EditButtonEnabled = selectedObject.SpotLight.LightMaskTexture != null;
+                        sliderDiffuseColor.Enabled = assetSelectorMaskTexture.ItemIndex == 0;
+                    };
+                    assetSelectorMaskTexture.Draw += delegate
+                    {
+                        // Add textures name here because someone could dispose or add new asset.
+                        assetSelectorMaskTexture.Items.Clear();
+                        assetSelectorMaskTexture.Items.Add("No texture");
+                        foreach (Texture texture in Texture.LoadedTextures)
+                        {
+                            // You can filter some assets here.
+                            if (texture.ContentManager == null || !texture.ContentManager.Hidden)
+                                assetSelectorMaskTexture.Items.Add(texture.Name);
+                        }
+
+                        if (assetSelectorMaskTexture.ListBoxVisible)
+                            return;
+                        // Identify current index
+                        if (selectedObject.SpotLight.LightMaskTexture == null)
+                            assetSelectorMaskTexture.ItemIndex = 0;
+                        else
+                        {
+                            for (int i = 0; i < assetSelectorMaskTexture.Items.Count; i++)
+                            {
+                                if ((string)assetSelectorMaskTexture.Items[i] == selectedObject.SpotLight.LightMaskTexture.Name)
+                                {
+                                    assetSelectorMaskTexture.ItemIndex = i;
+                                    break;
+                                }
+                            }
+                        }
+                    };
+
+                    #endregion
+
+                    checkBoxLightEnabled.CheckedChanged += delegate
+                    {
+                        selectedObject.SpotLight.Visible = checkBoxLightEnabled.Checked;
+                        sliderLightIntensity.Enabled = selectedObject.SpotLight.Visible;
+                        sliderDiffuseColor.Enabled = selectedObject.SpotLight.Visible;
+                        sliderLightRange.Enabled = selectedObject.SpotLight.Visible;
+                        sliderLightInnerConeAngle.Enabled = selectedObject.SpotLight.Visible;
+                        sliderLightOuterConeAngle.Enabled = selectedObject.SpotLight.Visible;
+                    };
+                }
+
+                #endregion
+
+                #region Directional Light
+
+                if (selectedObject.DirectionalLight != null)
+                {
+                    panel = CommonControls.PanelCollapsible("Directional Light", rightPanelTabControl, 0);
+                    CheckBox checkBoxLightEnabled = CommonControls.CheckBox("Visible", panel, selectedObject.DirectionalLight.Visible);
+                    checkBoxLightEnabled.Top = 10;
+                    checkBoxLightEnabled.Draw += delegate { checkBoxLightEnabled.Checked = selectedObject.DirectionalLight.Visible; };
+
+                    #region Intensity
+
+                    var sliderLightIntensity = CommonControls.SliderNumeric("Intensity", panel, selectedObject.DirectionalLight.Intensity, false, true, 0, 100);
+                    sliderLightIntensity.ValueChanged += delegate { selectedObject.DirectionalLight.Intensity = sliderLightIntensity.Value; };
+                    sliderLightIntensity.Draw += delegate { sliderLightIntensity.Value = selectedObject.DirectionalLight.Intensity; };
+
+                    #endregion
+
+                    #region Diffuse Color
+
+                    var sliderDiffuseColor = CommonControls.SliderColor("Diffuse Color", panel, selectedObject.DirectionalLight.DiffuseColor);
+                    sliderDiffuseColor.ColorChanged += delegate { selectedObject.DirectionalLight.DiffuseColor = sliderDiffuseColor.Color; };
+                    sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = selectedObject.DirectionalLight.DiffuseColor; };
+
+                    #endregion
+
+                    checkBoxLightEnabled.CheckedChanged += delegate
+                    {
+                        selectedObject.DirectionalLight.Visible = checkBoxLightEnabled.Checked;
+                        sliderLightIntensity.Enabled = selectedObject.DirectionalLight.Visible;
+                        sliderDiffuseColor.Enabled = selectedObject.DirectionalLight.Visible;
+                    };
+                }
+
+                #endregion
+            }
+
+            #endregion
+
+            updateUserInterface = true;
         } // AddControlsToInspector
 
         /// <summary>
@@ -562,6 +779,7 @@ namespace XNAFinalEngine.Editor
         private static void RemoveControlsFromInspector()
         {
             rightPanelTabControl.TabPages[0].RemoveControlsFromClientArea();
+            updateUserInterface = true;
         } // RemoveControlsFromInspector
 
         #endregion
@@ -573,7 +791,13 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static void Update()
         {
-            UserInterfaceManager.Update();
+            if (updateUserInterface || !UserInterfaceManager.IsOverThisControl(renderSpace, new Point(Mouse.Position.X, Mouse.Position.Y)))
+            {
+                updateUserInterface = false;
+                UserInterfaceManager.Update();
+            }
+            else
+                UserInterfaceManager.Cursor = Skin.Cursors["Default"].Cursor;
             
             #region If no update is needed...
 
@@ -910,6 +1134,10 @@ namespace XNAFinalEngine.Editor
 
         #region Render Tasks
 
+        /// <summary>
+        /// Tasks before the engine render.
+        /// I create a viewport to place the editor scene rendering under the render space control.
+        /// </summary>
         public static void PreRenderTask()
         {
             UserInterfaceManager.PreRenderControls();
@@ -926,11 +1154,10 @@ namespace XNAFinalEngine.Editor
                 editorCamera.Camera.Viewport = viewport;
                 gizmoCamera.Camera.Viewport = viewport;
             }
-        }
+        } // PreRenderTask
 
         /// <summary>
         /// Tasks after the engine render.
-        /// Probably you won’t need to place any task here.
         /// </summary>
         public static void PostRenderTasks()
         {
@@ -938,6 +1165,7 @@ namespace XNAFinalEngine.Editor
                 return;
             if (ViewportMode == ViewportModeType.Game)
             {
+                // Render the game scene under the render space control.
                 EngineManager.Device.Clear(Color.Black);
                 Camera mainCamera = Camera.MainCamera;
                 if (mainCamera != null && mainCamera.RenderTarget != null)
@@ -993,6 +1221,15 @@ namespace XNAFinalEngine.Editor
                     }
                 }
                 SpriteManager.End();
+                // Render selected components feedback.
+                foreach (GameObject3D selectedObject in selectedObjects)
+                {
+                    if (selectedObject.SpotLight != null)
+                    {
+                        // Draw a the spot cone with lines
+                        // TODO!!!
+                    }
+                }
             }
             UserInterfaceManager.RenderUserInterfaceToScreen();
         } // PostRenderTasks

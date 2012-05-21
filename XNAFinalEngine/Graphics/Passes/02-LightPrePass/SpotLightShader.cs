@@ -261,7 +261,7 @@ namespace XNAFinalEngine.Graphics
             if (lastUsedLightInnerConeAngle != lightInnerConeAngle)
             {
                 lastUsedLightInnerConeAngle = lightInnerConeAngle;
-                epLightInnerConeAngle.SetValue(lightInnerConeAngle / (3.141592f / 180.0f));
+                epLightInnerConeAngle.SetValue(lightInnerConeAngle * (3.141592f / 180.0f));
             }
         } // SetLightInnerConeAngle
 
@@ -275,7 +275,7 @@ namespace XNAFinalEngine.Graphics
             if (lastUsedLightOuterConeAngle != lightOuterConeAngle)
             {
                 lastUsedLightOuterConeAngle = lightOuterConeAngle;
-                epLightOuterConeAngle.SetValue(lightOuterConeAngle / (3.141592f / 180.0f));
+                epLightOuterConeAngle.SetValue(lightOuterConeAngle * (3.141592f / 180.0f));
             }
         } // SetLightOuterConeAngle
 

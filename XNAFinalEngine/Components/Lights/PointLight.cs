@@ -52,9 +52,6 @@ namespace XNAFinalEngine.Components
         // Light attenuation.
         private float range;
 
-        // Light specular color.
-        private Color specularColor;
-
         #endregion
 
         #region Properties
@@ -75,15 +72,6 @@ namespace XNAFinalEngine.Components
                     range = 0;
             }
         } // Range
-
-        /// <summary>
-        /// Light specular color.
-        /// </summary>
-        public Color SpecularColor
-        {
-            get { return specularColor; }
-            set { specularColor = value; }
-        } // SpecularColor
 
         /// <summary>
         /// Associated shadow.
@@ -113,7 +101,6 @@ namespace XNAFinalEngine.Components
             base.Initialize(owner);
             // Values
             range = 1;
-            specularColor = Color.White;
             cachedPosition = ((GameObject3D)Owner).Transform.Position;
         } // Initialize
 

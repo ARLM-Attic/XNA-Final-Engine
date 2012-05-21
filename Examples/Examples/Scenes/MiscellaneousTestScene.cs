@@ -895,7 +895,6 @@ namespace XNAFinalEngineExamples
             pointLight.PointLight.DiffuseColor = new Color(250, 0, 180);
             pointLight.PointLight.Intensity = 1f;
             pointLight.PointLight.Range = 100;
-            pointLight.PointLight.SpecularColor = Color.White;
             pointLight.Transform.Position = new Vector3(-15, 50, 5);
 
             pointLight2 = new GameObject3D();
@@ -903,7 +902,6 @@ namespace XNAFinalEngineExamples
             pointLight2.PointLight.DiffuseColor = new Color(170, 150, 255);
             pointLight2.PointLight.Intensity = 1f;
             pointLight2.PointLight.Range = 100;
-            pointLight2.PointLight.SpecularColor = Color.White;
             pointLight2.Transform.Position = new Vector3(25, 25, -15);
             
             pointLight3 = new GameObject3D();
@@ -911,7 +909,6 @@ namespace XNAFinalEngineExamples
             pointLight3.PointLight.DiffuseColor = new Color(70, 250, 55);
             pointLight3.PointLight.Intensity = 1f;
             pointLight3.PointLight.Range = 100;
-            pointLight3.PointLight.SpecularColor = Color.White;
             pointLight3.Transform.Position = new Vector3(15f, 15, -20);
 
             pointLight4 = new GameObject3D();
@@ -919,7 +916,6 @@ namespace XNAFinalEngineExamples
             pointLight4.PointLight.DiffuseColor = new Color(150, 150, 150);
             pointLight4.PointLight.Intensity = 1f;
             pointLight4.PointLight.Range = 100; // I always forget to set the light range lower than the camera far plane.
-            pointLight4.PointLight.SpecularColor = Color.White;
             pointLight4.Transform.Position = new Vector3(-20, -5, 20);
 
             pointLight5 = new GameObject3D();
@@ -927,7 +923,6 @@ namespace XNAFinalEngineExamples
             pointLight5.PointLight.DiffuseColor = new Color(220, 150, 155);
             pointLight5.PointLight.Intensity = 0.35f;
             pointLight5.PointLight.Range = 200;
-            pointLight5.PointLight.SpecularColor = Color.White;
             pointLight5.Transform.Position = new Vector3(0f, 0.5f, -50);
 
             pointLight6 = new GameObject3D();
@@ -935,7 +930,6 @@ namespace XNAFinalEngineExamples
             pointLight6.PointLight.DiffuseColor = new Color(240, 70, 110);
             pointLight6.PointLight.Intensity = 0.35f;
             pointLight6.PointLight.Range = 150; // I always forget to set the light range lower than the camera far plane.
-            pointLight6.PointLight.SpecularColor = Color.White;
             pointLight6.Transform.Position = new Vector3(0, -30f, -10);
             /*
             pointLight7 = new GameObject3D();
@@ -951,7 +945,6 @@ namespace XNAFinalEngineExamples
             spotLight.SpotLight.DiffuseColor = Color.Green;
             spotLight.SpotLight.Intensity = 200f;
             spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
-            spotLight.SpotLight.SpecularColor = Color.White;
             spotLight.Transform.Position = new Vector3(0, 15f, 10);
             spotLight.Transform.Rotate(new Vector3(-45, 0, 0));
             spotLight.SpotLight.LightMaskTexture = new Texture("LightMasks\\Crysis2TestLightMask");

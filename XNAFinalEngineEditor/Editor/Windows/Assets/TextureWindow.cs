@@ -281,12 +281,17 @@ namespace XNAFinalEngine.Editor
                         comboBoxContentManager.Items.Add(contentManager.Name);
                 }
                 comboBoxContentManager.ItemIndex = 0;
+                int indexWithHidden = 0;
                 for (int i = 0; i < ContentManager.ContentManagers.Count; i++)
                 {
-                    if (!ContentManager.ContentManagers[i].Hidden && ContentManager.ContentManagers[i] == userContentManager)
+                    if (!ContentManager.ContentManagers[i].Hidden)
                     {
-                        comboBoxContentManager.ItemIndex = i;
-                        break;
+                        if (ContentManager.ContentManagers[i] == userContentManager)
+                        {
+                            comboBoxContentManager.ItemIndex = indexWithHidden;
+                            break;
+                        }
+                        indexWithHidden++;
                     }
                 }
                 comboBoxResource.Draw += delegate

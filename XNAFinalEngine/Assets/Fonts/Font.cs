@@ -137,10 +137,15 @@ namespace XNAFinalEngine.Assets
             }
         } // Font
 
+        /// <summary>
+        /// This execute the first time a font is required.
+        /// </summary>
         static Font()
         {
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
             ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
             defaultFont = new Font("Default");
+            ContentManager.CurrentContentManager = userContentManager;
         } // Font
 
         #endregion

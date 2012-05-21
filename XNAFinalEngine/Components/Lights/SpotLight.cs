@@ -58,21 +58,9 @@ namespace XNAFinalEngine.Components
         private float innerConeAngle;
         private float outerConeAngle;
 
-        // Light specular color.
-        private Color specularColor;
-
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Light specular color.
-        /// </summary>
-        public Color SpecularColor
-        {
-            get { return specularColor; }
-            set { specularColor = value; }
-        } // SpecularColor
 
         /// <summary>
         /// The inner cone angle (in degrees) that controls the spread attenuation.
@@ -85,8 +73,10 @@ namespace XNAFinalEngine.Components
                 innerConeAngle = value;
                 if (innerConeAngle < 0)
                     innerConeAngle = 0;
-                if (innerConeAngle >= 85)
-                    innerConeAngle = 85;
+                if (innerConeAngle >= 175)
+                    innerConeAngle = 175;
+                if (innerConeAngle > outerConeAngle)
+                    innerConeAngle = outerConeAngle;
             }
         } // InnerConeAngle
 
@@ -101,8 +91,10 @@ namespace XNAFinalEngine.Components
                 outerConeAngle = value;
                 if (outerConeAngle < 0)
                     outerConeAngle = 0;
-                if (outerConeAngle >= 85)
-                    outerConeAngle = 85;
+                if (outerConeAngle >= 175)
+                    outerConeAngle = 175;
+                if (outerConeAngle < innerConeAngle)
+                    outerConeAngle = innerConeAngle;
             }
         } // OuterConeAngle
 
@@ -115,8 +107,8 @@ namespace XNAFinalEngine.Components
             set
             {
                 range = value;
-                if (range < 0)
-                    range = 0;
+                if (range <= 0.1f)
+                    range = 0.1f;
             }
         } // Range
 
@@ -153,7 +145,6 @@ namespace XNAFinalEngine.Components
             range = 100;
             innerConeAngle = 20;
             outerConeAngle = 60;
-            specularColor = Color.White;
             cachedPosition = ((GameObject3D)Owner).Transform.Position;
             cachedDirection = ((GameObject3D)Owner).Transform.Forward;
         } // Initialize

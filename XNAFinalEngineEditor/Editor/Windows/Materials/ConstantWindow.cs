@@ -75,7 +75,7 @@ namespace XNAFinalEngine.Editor
             sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = asset.DiffuseColor; };
 
             #endregion
-            
+
             #region Diffuse Texture
 
             var assetSelectorDiffuseTexture = CommonControls.AssetSelector("Diffuse Texture", group);
@@ -99,11 +99,10 @@ namespace XNAFinalEngine.Editor
                     asset.DiffuseTexture = null;
                 else
                 {
-                    // If we have to change the asset...
-                    if (asset.DiffuseTexture == null ||
-                        asset.DiffuseTexture.Name != (string)assetSelectorDiffuseTexture.Items[assetSelectorDiffuseTexture.ItemIndex])
+                    foreach (Texture texture in Texture.LoadedTextures)
                     {
-                        asset.DiffuseTexture = Texture.LoadedTextures[assetSelectorDiffuseTexture.ItemIndex - 1]; // The first item is the no texture item.
+                        if (texture.Name == (string)assetSelectorDiffuseTexture.Items[assetSelectorDiffuseTexture.ItemIndex])
+                            asset.DiffuseTexture = texture;
                     }
                 }
                 assetSelectorDiffuseTexture.EditButtonEnabled = asset.DiffuseTexture != null;

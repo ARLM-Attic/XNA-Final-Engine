@@ -519,11 +519,10 @@ namespace XNAFinalEngine.Editor
                     asset.ColorCorrection.FirstLookupTable = null;
                 else
                 {
-                    // If we have to change the asset...
-                    if (asset.ColorCorrection.FirstLookupTable == null ||
-                        asset.ColorCorrection.FirstLookupTable.Name != (string)assetCreatorFirstLookupTable.Items[assetCreatorFirstLookupTable.ItemIndex])
+                    foreach (LookupTable texture in LookupTable.LoadedLookupTables)
                     {
-                        asset.ColorCorrection.FirstLookupTable = LookupTable.LoadedLookupTables[assetCreatorFirstLookupTable.ItemIndex - 1]; // The first item is the no texture item.
+                        if (texture.Name == (string)assetCreatorFirstLookupTable.Items[assetCreatorFirstLookupTable.ItemIndex])
+                            asset.ColorCorrection.FirstLookupTable = texture;
                     }
                 }
                 assetCreatorFirstLookupTable.EditButtonEnabled = asset.ColorCorrection.FirstLookupTable != null;
@@ -579,11 +578,10 @@ namespace XNAFinalEngine.Editor
                     asset.ColorCorrection.SecondLookupTable = null;
                 else
                 {
-                    // If we have to change the asset...
-                    if (asset.ColorCorrection.SecondLookupTable == null ||
-                        asset.ColorCorrection.SecondLookupTable.Name != (string)assetCreatorSecondLookupTable.Items[assetCreatorSecondLookupTable.ItemIndex])
+                    foreach (LookupTable texture in LookupTable.LoadedLookupTables)
                     {
-                        asset.ColorCorrection.SecondLookupTable = LookupTable.LoadedLookupTables[assetCreatorSecondLookupTable.ItemIndex - 1]; // The first item is the no texture item.
+                        if (texture.Name == (string)assetCreatorSecondLookupTable.Items[assetCreatorSecondLookupTable.ItemIndex])
+                            asset.ColorCorrection.SecondLookupTable = texture;
                     }
                 }
                 assetCreatorSecondLookupTable.EditButtonEnabled = asset.ColorCorrection.SecondLookupTable != null;

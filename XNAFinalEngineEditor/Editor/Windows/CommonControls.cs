@@ -366,6 +366,27 @@ namespace XNAFinalEngine.Editor
         } // TexteBox
 
         #endregion
+
+        #region Panel Collapsible
+
+        /// <summary>
+        /// Returns a panel collapsible control placed in the first free spot of a tab of a tab control.
+        /// </summary>
+        public static PanelCollapsible PanelCollapsible(string name, TabControl parent, int page)
+        {
+            PanelCollapsible panelCollapsible = new PanelCollapsible
+            {
+                Anchor = Anchors.Left | Anchors.Right | Anchors.Top,
+                Width = parent.TabPages[0].ClientWidth,
+                Top = parent.TabPages[0].AvailablePositionInsideControl + ControlSeparation,
+                Text = name,
+                Parent = parent.TabPages[page],
+            };
+
+            return panelCollapsible;
+        } // PanelCollapsible
+
+        #endregion
         
     } // CommonControls
 } // XNAFinalEngine.Editor

@@ -47,22 +47,6 @@ namespace XNAFinalEngine.Components
         // Cached transform's direction.
         internal Vector3 cachedDirection;
 
-        // Light specular color.
-        private Color specularColor;
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Light specular color.
-        /// </summary>
-        public Color SpecularColor
-        {
-            get { return specularColor; }
-            set { specularColor = value; }
-        } // SpecularColor
-        
         #endregion
 
         #region Initialize
@@ -74,7 +58,6 @@ namespace XNAFinalEngine.Components
         {
             base.Initialize(owner);
             // Values
-            specularColor = Color.White;
             cachedDirection = ((GameObject3D)Owner).Transform.Forward;
         } // Initialize
 

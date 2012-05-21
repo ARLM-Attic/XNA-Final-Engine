@@ -95,11 +95,10 @@ namespace XNAFinalEngine.Editor
                     asset.DiffuseTexture = null;
                 else
                 {
-                    // If we have to change the asset...
-                    if (asset.DiffuseTexture == null ||
-                        asset.DiffuseTexture.Name != (string)assetSelectorDiffuseTexture.Items[assetSelectorDiffuseTexture.ItemIndex])
+                    foreach (Texture texture in Texture.LoadedTextures)
                     {
-                        asset.DiffuseTexture = Texture.LoadedTextures[assetSelectorDiffuseTexture.ItemIndex - 1]; // The first item is the no texture item.
+                        if (texture.Name == (string)assetSelectorDiffuseTexture.Items[assetSelectorDiffuseTexture.ItemIndex])
+                            asset.DiffuseTexture = texture;
                     }
                 }
                 assetSelectorDiffuseTexture.EditButtonEnabled = asset.DiffuseTexture != null;
@@ -190,11 +189,10 @@ namespace XNAFinalEngine.Editor
                     asset.SpecularTexture = null;
                 else
                 {
-                    // If we have to change the asset...
-                    if (asset.SpecularTexture == null ||
-                        asset.SpecularTexture.Name != (string)assetSelectorSpecularTexture.Items[assetSelectorSpecularTexture.ItemIndex])
+                    foreach (Texture texture in Texture.LoadedTextures)
                     {
-                        asset.SpecularTexture = Texture.LoadedTextures[assetSelectorSpecularTexture.ItemIndex - 1]; // The first item is the no texture item.
+                        if (texture.Name == (string)assetSelectorSpecularTexture.Items[assetSelectorSpecularTexture.ItemIndex])
+                            asset.SpecularTexture = texture;
                     }
                 }
                 assetSelectorSpecularTexture.EditButtonEnabled = asset.SpecularTexture != null;
@@ -264,11 +262,10 @@ namespace XNAFinalEngine.Editor
                     asset.ReflectionTexture = null;
                 else
                 {
-                    // If we have to change the asset...
-                    if (asset.ReflectionTexture == null ||
-                        asset.ReflectionTexture.Name != (string)assetSelectorReflectionTexture.Items[assetSelectorReflectionTexture.ItemIndex])
+                    foreach (TextureCube texture in TextureCube.LoadedCubeTextures)
                     {
-                        asset.ReflectionTexture = TextureCube.LoadedCubeTextures[assetSelectorReflectionTexture.ItemIndex - 1]; // The first item is the no texture item.
+                        if (texture.Name == (string)assetSelectorReflectionTexture.Items[assetSelectorReflectionTexture.ItemIndex])
+                            asset.ReflectionTexture = texture;
                     }
                 }
                 assetSelectorReflectionTexture.EditButtonEnabled = asset.ReflectionTexture != null;
@@ -333,11 +330,10 @@ namespace XNAFinalEngine.Editor
                     asset.NormalTexture = null;
                 else
                 {
-                    // If we have to change the asset...
-                    if (asset.NormalTexture == null ||
-                        asset.NormalTexture.Name != (string)assetSelectorNormalTexture.Items[assetSelectorNormalTexture.ItemIndex])
+                    foreach (Texture texture in Texture.LoadedTextures)
                     {
-                        asset.NormalTexture = Texture.LoadedTextures[assetSelectorNormalTexture.ItemIndex - 1]; // The first item is the no texture item.
+                        if (texture.Name == (string)assetSelectorNormalTexture.Items[assetSelectorNormalTexture.ItemIndex])
+                            asset.NormalTexture = texture;
                     }
                 }
                 assetSelectorNormalTexture.EditButtonEnabled = asset.NormalTexture != null;

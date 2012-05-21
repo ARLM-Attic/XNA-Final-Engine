@@ -110,6 +110,8 @@ namespace XNAFinalEngine.Editor
 
             #region Group Specular
 
+            CheckBox checkBoxSpecularPowerFromTexture = null;
+
             GroupBox groupSpecular = new GroupBox
             {
                 Parent = window,
@@ -168,53 +170,63 @@ namespace XNAFinalEngine.Editor
 
             #region Specular Texture
 
-            var labelSpecularTexture = new Label
+            var assetSelectorSpecularTexture = CommonControls.AssetSelector("Specular Texture", groupSpecular);
+            assetSelectorSpecularTexture.AssetAdded += delegate
             {
-                Parent = groupSpecular,
-                Left = 10,
-                Top = 10 + sliderSpecularPower.Top + sliderSpecularPower.Height,
-                Width = 150,
-                Text = "Specular Texture"
+                TextureWindow.CurrentCreatedAssetChanged += delegate
+                {
+                    asset.SpecularTexture = TextureWindow.CurrentCreatedAsset;
+                    window.Invalidate();
+                };
+                TextureWindow.Show(null);
             };
-            var comboBoxSpecularTexture = new ComboBox
+            assetSelectorSpecularTexture.AssetEdited += delegate
             {
-                Parent = groupSpecular,
-                Left = labelSpecularTexture.Left + labelSpecularTexture.Width,
-                Top = 10 + sliderSpecularPower.Top + sliderSpecularPower.Height,
-                Height = 20,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                MaxItemsShow = 25,
+                TextureWindow.Show(asset.SpecularTexture);
             };
-            comboBoxSpecularTexture.Width = groupSpecular.Width - 10 - comboBoxSpecularTexture.Left;
-            // Add textures name
-            comboBoxSpecularTexture.Items.Add("No texture");
-            comboBoxSpecularTexture.Items.AddRange(Texture.TexturesFilenames);
             // Events
-            comboBoxSpecularTexture.ItemIndexChanged += delegate
+            assetSelectorSpecularTexture.ItemIndexChanged += delegate
             {
-                if (comboBoxSpecularTexture.ItemIndex <= 0)
+                if (assetSelectorSpecularTexture.ItemIndex <= 0)
                     asset.SpecularTexture = null;
                 else
                 {
-                    if (asset.SpecularTexture == null || asset.SpecularTexture.Name != (string)comboBoxSpecularTexture.Items[comboBoxSpecularTexture.ItemIndex])
-                        asset.SpecularTexture = new Texture((string)comboBoxSpecularTexture.Items[comboBoxSpecularTexture.ItemIndex]);
+                    foreach (Texture texture in Texture.LoadedTextures)
+                    {
+                        if (texture.Name == (string)assetSelectorSpecularTexture.Items[assetSelectorSpecularTexture.ItemIndex])
+                            asset.SpecularTexture = texture;
+                    }
                 }
+                assetSelectorSpecularTexture.EditButtonEnabled = asset.SpecularTexture != null;
+                checkBoxSpecularPowerFromTexture.Enabled = asset.SpecularTexture != null;
             };
-            comboBoxSpecularTexture.Draw += delegate
+            assetSelectorSpecularTexture.Draw += delegate
             {
-                if (comboBoxSpecularTexture.ListBoxVisible)
+                // Add textures name here because someone could dispose or add new asset.
+                assetSelectorSpecularTexture.Items.Clear();
+                assetSelectorSpecularTexture.Items.Add("No texture");
+                foreach (Texture texture in Texture.LoadedTextures)
+                {
+                    // You can filter some assets here.
+                    if (texture.ContentManager == null || !texture.ContentManager.Hidden)
+                        assetSelectorSpecularTexture.Items.Add(texture.Name);
+                }
+
+                if (assetSelectorSpecularTexture.ListBoxVisible)
                     return;
                 // Identify current index
                 if (asset.SpecularTexture == null)
-                    comboBoxSpecularTexture.ItemIndex = 0;
+                    assetSelectorSpecularTexture.ItemIndex = 0;
                 else
                 {
-                    for (int i = 0; i < comboBoxSpecularTexture.Items.Count; i++)
-                        if ((string)comboBoxSpecularTexture.Items[i] == asset.SpecularTexture.Name)
+                    for (int i = 0; i < assetSelectorSpecularTexture.Items.Count; i++)
+                    {
+                        if ((string)assetSelectorSpecularTexture.Items[i] == asset.SpecularTexture.Name)
                         {
-                            comboBoxSpecularTexture.ItemIndex = i;
+                            assetSelectorSpecularTexture.ItemIndex = i;
                             break;
                         }
+                    }
                 }
             };
 
@@ -222,24 +234,10 @@ namespace XNAFinalEngine.Editor
 
             #region Specular Texture Power Enabled
 
-            var checkBoxSpecularTexturePowerEnabled = new CheckBox
-            {
-                Parent = groupSpecular,
-                Left = 10,
-                Top = 10 + comboBoxSpecularTexture.Top + comboBoxSpecularTexture.Height,
-                Width = window.ClientWidth - 16,
-                Checked = asset.SpecularTexturePowerEnabled,
-                Text = " Specular Texture Power Enabled",
-                ToolTip =
-                {
-                    Text = "Indicates if the specular power will be read from the texture (the alpha channel of the specular texture) or from the specular power property."
-                }
-            };
-            checkBoxSpecularTexturePowerEnabled.CheckedChanged += delegate
-            {
-                asset.SpecularTexturePowerEnabled = checkBoxSpecularTexturePowerEnabled.Checked;
-            };
-            checkBoxSpecularTexturePowerEnabled.Draw += delegate { checkBoxSpecularTexturePowerEnabled.Checked = asset.SpecularTexturePowerEnabled; };
+            checkBoxSpecularPowerFromTexture = CommonControls.CheckBox("Use specular power from Texture", groupSpecular, asset.SpecularPowerFromTexture,
+                "Indicates if the specular power will be read from the texture (the alpha channel of the specular texture) or from the specular power property.");
+            checkBoxSpecularPowerFromTexture.CheckedChanged += delegate { asset.SpecularPowerFromTexture = checkBoxSpecularPowerFromTexture.Checked; };
+            checkBoxSpecularPowerFromTexture.Draw += delegate { checkBoxSpecularPowerFromTexture.Checked = asset.SpecularPowerFromTexture; };
 
             #endregion
 

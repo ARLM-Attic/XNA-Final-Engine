@@ -153,7 +153,7 @@ namespace XNAFinalEngine.Assets
         /// Indicates if the specular power will be read from the texture (the alpha channel of the specular texture) or from the specular power property.
         /// Default value: false
         /// </summary>
-        public bool SpecularTexturePowerEnabled { get; set; }
+        public bool SpecularPowerFromTexture { get; set; }
 
         /// <summary>
         /// Reflection Texture.

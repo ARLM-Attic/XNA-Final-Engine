@@ -881,7 +881,6 @@ namespace XNAFinalEngineExamples
             hangarLight10.Transform.Position = new Vector3(243.37f, 256.23f, 242.903f);            
             pl = (PointLight) hangarLight10.AddComponent<PointLight>();            
             pl.DiffuseColor = new Color(0.0f, 1.0f, 0.0f);
-            pl.SpecularColor = new Color(0.0f, 0.0f, 0.0f);
             pl.Intensity = 0.5f;
             pl.Range = 8f; 
 

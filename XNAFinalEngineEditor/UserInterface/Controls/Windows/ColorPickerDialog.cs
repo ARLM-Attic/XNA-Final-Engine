@@ -114,6 +114,7 @@ namespace XNAFinalEngine.UserInterface
             BorderVisible = false;
             Movable = false;
             StayOnTop = true;
+            AutoScroll = false;
             
             positionSquareColor = PositionFromColor(Color);
 
