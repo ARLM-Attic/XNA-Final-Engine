@@ -216,13 +216,7 @@ namespace XNAFinalEngineExamples
             statistics.AddComponent<ScriptStatisticsDrawer>();
 
             #endregion
-
-            #region Editor
-
-            EditorManager.AddObject(dude);
             
-            #endregion
-
         } // Load
 
         #endregion

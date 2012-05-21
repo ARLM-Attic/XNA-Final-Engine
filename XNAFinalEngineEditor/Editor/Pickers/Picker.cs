@@ -58,9 +58,6 @@ namespace XNAFinalEngine.Editor
     {
 
         #region Variables
-        
-        // The objects that can be selected.
-        private readonly List<GameObject> objectsToPick;
 
         // It’s the texture where the scene is render.
         private readonly RenderTarget pickerTexture;
@@ -88,31 +85,10 @@ namespace XNAFinalEngine.Editor
         /// </remarks>
         public Picker(Size size)
         {            
-            objectsToPick = new List<GameObject>();
             // No antialiasing because the colors can change.
             pickerTexture = new RenderTarget(size);
             constantShader = new Shader("Materials\\PickerConstant");
         } // Picker
-
-        #endregion
-
-        #region Add and Remove Objects
-
-        /// <summary>
-        /// Adds the object from the list of objects that can be selected.
-        /// </summary>
-        public void AddObject(GameObject obj)
-        {
-            objectsToPick.Add(obj);
-        } // AddObject
-
-        /// <summary>
-        /// Removes the object from the list of objects that can be selected.
-        /// </summary>
-        public void RemoveObject(GameObject obj)
-        {
-            objectsToPick.Remove(obj);
-        } // RemoveObject
 
         #endregion
 
@@ -149,7 +125,27 @@ namespace XNAFinalEngine.Editor
                 #region Search the object
 
                 byte red = 0, green = 0, blue = 0;
-                foreach (GameObject obj in objectsToPick)
+                foreach (GameObject obj in GameObject.GameObjects)
+                {
+                    // Select the next color
+                    if (red < 255)
+                        red++;
+                    else
+                    {
+                        red = 0;
+                        if (green < 255)
+                            green++;
+                        else
+                        {
+                            green = 0;
+                            blue++;
+                        }
+                    }
+                    if (pixel == new Color(red, green, blue))
+                        return obj;
+                }
+                // Maybe it is an icon
+                foreach (GameObject obj in GameObject.GameObjects)
                 {
                     // Select the next color
                     if (red < 255)
@@ -206,7 +202,7 @@ namespace XNAFinalEngine.Editor
                 #region Search the object
 
                 byte red = 0, green = 0, blue = 0;
-                foreach (GameObject obj in objectsToPick)
+                foreach (GameObject obj in GameObject.GameObjects)
                 {
                     // Select the next color
                     if (red < 255)
@@ -270,7 +266,7 @@ namespace XNAFinalEngine.Editor
             constantShader.Resource.CurrentTechnique = constantShader.Resource.Techniques["ConstantsRGB"];
 
             // Render every object, one at a time
-            foreach (GameObject obj in objectsToPick)
+            foreach (GameObject obj in GameObject.GameObjects)
             {
                 // Select the next color
                 if (colorMaterial.R < 255)
@@ -290,9 +286,33 @@ namespace XNAFinalEngine.Editor
                 }
                 colorMaterial = new Color(red, green, blue);
                 // Render the object with the picker material
-                if (obj is GameObject3D)
-                    RenderObjectToPicker(obj, colorMaterial);
+                RenderObjectToPicker(obj, colorMaterial);
             }
+            // Render icons
+            LineManager.Begin2D(PrimitiveType.TriangleList);
+            foreach (GameObject obj in GameObject.GameObjects)
+            {
+                // Select the next color
+                if (colorMaterial.R < 255)
+                    red++;
+                else
+                {
+                    red = 0;
+                    if (colorMaterial.G < 255)
+                        green++;
+                    else
+                    {
+                        green = 0;
+                        if (blue == 255)
+                            throw new Exception("Color out of range.");
+                        blue++;
+                    }
+                }
+                colorMaterial = new Color(red, green, blue);
+                // Render the object with the picker material
+                RenderIconToPicker(obj, colorMaterial);
+            }
+            LineManager.End();
 
             // Activate the frame buffer again.
             pickerTexture.DisableRenderTarget();
@@ -338,6 +358,35 @@ namespace XNAFinalEngine.Editor
                 }
             }
         } // RenderObjectToPicker
+
+        #endregion
+
+        #region Render Icon To Picker
+
+        /// <summary>
+        /// Render Icon To Picker.
+        /// </summary>
+        public void RenderIconToPicker(GameObject gameObject, Color color)
+        {
+            if (gameObject is GameObject3D)
+            {
+                GameObject3D gameObject3D = (GameObject3D)gameObject;
+                if (gameObject3D.Light != null)
+                {
+                    // Component's screen position.
+                    Vector3 screenPositions = EngineManager.Device.Viewport.Project(gameObject3D.Transform.Position, projectionMatrix, viewMatrix, Matrix.Identity);
+                    // Center the icon.
+                    screenPositions.X -= 16;
+                    screenPositions.Y -= 16;
+                    // Draw.
+                    LineManager.DrawSolid2DPlane(new Rectangle((int)screenPositions.X, (int)screenPositions.Y, 32, 32), color);
+                }
+            }
+            else if (gameObject is GameObject2D)
+            {
+                
+            }
+        } // RenderIconToPicker
 
         #endregion
 

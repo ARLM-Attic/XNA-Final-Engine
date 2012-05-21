@@ -116,24 +116,16 @@ namespace XNAFinalEngine.Editor
         {
             center = Vector3.Zero;
             orientation = new Quaternion();
-            if (Space == SpaceMode.Local)
-            {
-                // Model
-                if (selectedObject.ModelRenderer != null)
-                {
-                    center = selectedObject.ModelRenderer.BoundingSphere.Center;
-                    orientation = selectedObject.Transform.Rotation;
-                }
-            }
+            // Center
+            if (selectedObject.ModelRenderer != null)
+                center = selectedObject.ModelRenderer.BoundingSphere.Center;
             else
-            {
-                // Model
-                if (selectedObject.ModelRenderer != null)
-                {
-                    center = selectedObject.ModelRenderer.BoundingSphere.Center;
-                    orientation = Quaternion.CreateFromRotationMatrix(Matrix.Identity);
-                }
-            }
+                center = selectedObject.Transform.Position;
+            // Orientation
+            if (Space == SpaceMode.Local)
+                orientation = selectedObject.Transform.Rotation;
+            else
+                orientation = Quaternion.CreateFromRotationMatrix(Matrix.Identity);
 
             // Calculate the distance from the object to camera position.
             Vector3 cameraToCenter = gizmoCamera.Camera.Position - center;

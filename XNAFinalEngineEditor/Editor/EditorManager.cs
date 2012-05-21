@@ -43,6 +43,8 @@ using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Mouse = XNAFinalEngine.Input.Mouse;
 using Size = XNAFinalEngine.Helpers.Size;
 using Microsoft.Xna.Framework.Graphics;
+using Texture = XNAFinalEngine.Assets.Texture;
+
 #endregion
 
 namespace XNAFinalEngine.Editor
@@ -171,6 +173,9 @@ namespace XNAFinalEngine.Editor
         // When gizmos are being manipulated we want to update the control information.
         private static Vector3Box vector3BoxPosition, vector3BoxRotation, vector3BoxScale;
 
+        // Icons
+        private static Texture lightIcon;
+
         #endregion
 
         #region Properties
@@ -251,8 +256,14 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
+            #region Icons
+
+            lightIcon = new Texture("Editor\\LightIcon");
+
+            #endregion
+
             #region User Interface Controls
-            
+
             #region Canvas
 
             // The canvas cover the whole window. I will place the static controls there.
@@ -406,35 +417,6 @@ namespace XNAFinalEngine.Editor
 
         #endregion
 
-        #region Add or remove objects for picking
-
-        /// <summary>
-        /// Adds the object from the list of objects that can be selected.
-        /// </summary>
-        public static void AddObject(GameObject obj)
-        {
-            if (obj == null)
-                throw new ArgumentNullException("obj", "Editor Manager: object is null.");
-            if (picker == null)
-                throw new InvalidOperationException("Editor Manager: The editor was not initialized. If you use an Editable Scene call base.Load before adding or removing elements.");
-            picker.AddObject(obj);
-            
-        } // AddObject
-
-        /// <summary>
-        /// Removes the object from the list of objects that can be selected.
-        /// </summary>
-        public static void RemoveObject(GameObject obj)
-        {
-            if (obj == null)
-                throw new ArgumentNullException("obj", "Editor Manager: object is null.");
-            if (picker == null)
-                throw new InvalidOperationException("Editor Manager: The editor was not initialized. If you use an Editable Scene call base.Load before adding or removing elements.");
-            picker.RemoveObject(obj);
-        } // RemoveObject
-
-        #endregion
-
         #region Enable Disable Editor Mode
 
         /// <summary>
@@ -477,7 +459,8 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         private static void ResetEditorCamera()
         {
-            editorCameraScript.LookAtPosition = new Vector3(0, 0.5f, 0);
+            //editorCameraScript.LookAtPosition = new Vector3(0, 0.5f, 0);
+            editorCameraScript.LookAtPosition = new Vector3(224.07f, 259.80f, 259.48f);
             editorCameraScript.Distance = 30;
             editorCameraScript.Pitch = 0;
             editorCameraScript.Yaw = 0;
@@ -674,11 +657,19 @@ namespace XNAFinalEngine.Editor
                             frameBoundingSphere = BoundingSphere.CreateMerged(frameBoundingSphere.Value, gameObject.ModelRenderer.BoundingSphere);
                     }
                     // The rest of objects TODO!!!
+                    else
+                    {
+                        if (frameBoundingSphere == null)
+                            frameBoundingSphere = new BoundingSphere(gameObject.Transform.Position, 0);
+                        else
+                            frameBoundingSphere = BoundingSphere.CreateMerged(frameBoundingSphere.Value, new BoundingSphere(gameObject.Transform.Position, 0));
+                    }
+                    
                 }
                 if (frameBoundingSphere != null)
                 {
                     editorCameraScript.LookAtPosition = frameBoundingSphere.Value.Center;
-                    editorCameraScript.Distance = frameBoundingSphere.Value.Radius * 3;
+                    editorCameraScript.Distance = frameBoundingSphere.Value.Radius * 3 + editorCamera.Camera.NearPlane + 0.1f;
                 }
             }
 
@@ -943,7 +934,9 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static void PostRenderTasks()
         {
-            if (editorModeEnabled && ViewportMode == ViewportModeType.Game)
+            if (!editorModeEnabled)
+                return;
+            if (ViewportMode == ViewportModeType.Game)
             {
                 EngineManager.Device.Clear(Color.Black);
                 Camera mainCamera = Camera.MainCamera;
@@ -974,6 +967,32 @@ namespace XNAFinalEngine.Editor
                                                 null, Color.White, 0, Vector2.Zero);
                     SpriteManager.End();
                 }
+            }
+            else
+            {
+                // Draw components icons.
+                SpriteManager.Begin2D();
+                foreach (GameObject gameObject in GameObject.GameObjects)
+                {
+                    if (gameObject is GameObject3D)
+                    {
+                        GameObject3D gameObject3D = (GameObject3D) gameObject;
+                        // If it is a light.
+                        if (gameObject3D.Light != null)
+                        {
+                            // Component's screen position.
+                            Viewport editorViewport = new Viewport(editorCamera.Camera.Viewport.X, editorCamera.Camera.Viewport.Y,
+                                                                         editorCamera.Camera.Viewport.Width, editorCamera.Camera.Viewport.Height);
+                            Vector3 screenPositions = editorViewport.Project(gameObject3D.Transform.Position, editorCamera.Camera.ProjectionMatrix, editorCamera.Camera.ViewMatrix, Matrix.Identity);
+                            // Center the icon.
+                            screenPositions.X -= 16;
+                            screenPositions.Y -= 16;
+                            // Draw.
+                            SpriteManager.Draw2DTexture(lightIcon, screenPositions, null, Color.White, 0, Vector2.Zero, 1);
+                        }
+                    }
+                }
+                SpriteManager.End();
             }
             UserInterfaceManager.RenderUserInterfaceToScreen();
         } // PostRenderTasks
