@@ -941,11 +941,18 @@ namespace XNAFinalEngine.UserInterface
             
             if (!e.Handled)
             {
+                if (e.Key == Keys.Enter && mode != TextBoxMode.Multiline && !readOnly)
+                {
+                    initialText = Text;
+                    selection = new Selection(-1, -1);
+                    Focused = false;
+                }
                 if (e.Key == Keys.Escape)
                 {
                     if (initialText != null)
                         Text = initialText;
                     selection = new Selection(-1, -1);
+                    Focused = false;
                 }
                 if (e.Key == Keys.A && e.Control && mode != TextBoxMode.Password)
                 {

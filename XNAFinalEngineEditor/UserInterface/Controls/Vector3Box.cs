@@ -158,18 +158,15 @@ namespace XNAFinalEngine.UserInterface
             {
                 if (e.Key == Keys.Enter)
                 {
-                    string xTextBoxOldValue = xTextBox.Text;
-                    string yTextBoxOldValue = yTextBox.Text;
-                    string zTextBoxOldValue = zTextBox.Text;
                     try
                     {
                         Value = new Vector3((float)double.Parse(xTextBox.Text), (float)double.Parse(yTextBox.Text), (float)double.Parse(zTextBox.Text));
                     }
                     catch // If not numeric
                     {
-                        xTextBox.Text = xTextBoxOldValue;
-                        yTextBox.Text = yTextBoxOldValue;
-                        zTextBox.Text = zTextBoxOldValue;
+                        xTextBox.Text = value.X.ToString();
+                        yTextBox.Text = value.Y.ToString();
+                        zTextBox.Text = value.Z.ToString();
                     }
                 }
             };
@@ -179,18 +176,15 @@ namespace XNAFinalEngine.UserInterface
             // For tabs and other not so common things.
             EventHandler focusHandler = delegate
             {
-                string xTextBoxOldValue = xTextBox.Text;
-                string yTextBoxOldValue = yTextBox.Text;
-                string zTextBoxOldValue = zTextBox.Text;
                 try
                 {
                     Value = new Vector3((float)double.Parse(xTextBox.Text), (float)double.Parse(yTextBox.Text), (float)double.Parse(zTextBox.Text));
                 }
                 catch // If not numeric
                 {
-                    xTextBox.Text = xTextBoxOldValue;
-                    yTextBox.Text = yTextBoxOldValue;
-                    zTextBox.Text = zTextBoxOldValue;
+                    xTextBox.Text = value.X.ToString();
+                    yTextBox.Text = value.Y.ToString();
+                    zTextBox.Text = value.Z.ToString();
                 }
             };
             xTextBox.FocusLost += focusHandler;

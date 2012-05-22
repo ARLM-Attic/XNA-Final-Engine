@@ -173,11 +173,11 @@ namespace XNAFinalEngine.Editor
         // When gizmos are being manipulated we want to update the control information.
         private static Vector3Box vector3BoxPosition, vector3BoxRotation, vector3BoxScale;
 
-        // Icons
+        // Icons.
         private static Texture lightIcon;
 
-        // Sometimes I wan't to update the user interface no matter what.
-        private static bool updateUserInterface = true;
+        // This is used to know if a text box just lost its focus because escape was pressed.
+        private static Control previousFocusedControl;
 
         #endregion
 
@@ -436,7 +436,6 @@ namespace XNAFinalEngine.Editor
             editorModeEnabled = true;
             UserInterfaceManager.Visible = true;
             UserInterfaceManager.UpdateInput = true;
-            updateUserInterface = true;
         } // EnableEditorMode
 
         /// <summary>
@@ -770,7 +769,6 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
-            updateUserInterface = true;
         } // AddControlsToInspector
 
         /// <summary>
@@ -779,7 +777,6 @@ namespace XNAFinalEngine.Editor
         private static void RemoveControlsFromInspector()
         {
             rightPanelTabControl.TabPages[0].RemoveControlsFromClientArea();
-            updateUserInterface = true;
         } // RemoveControlsFromInspector
 
         #endregion
@@ -791,20 +788,20 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static void Update()
         {
-            if (updateUserInterface || !UserInterfaceManager.IsOverThisControl(renderSpace, new Point(Mouse.Position.X, Mouse.Position.Y)))
-            {
-                updateUserInterface = false;
-                UserInterfaceManager.Update();
-            }
-            else
-                UserInterfaceManager.Cursor = Skin.Cursors["Default"].Cursor;
-            
+
+            #region User Interface Update
+
+            UserInterfaceManager.Update();
+
+            #endregion
+
             #region If no update is needed...
 
             if (!editorModeEnabled)
             {
                 UserInterfaceManager.UpdateInput = true;
                 canSelect = false;
+                previousFocusedControl = UserInterfaceManager.FocusedControl;
                 return;
             }
 
@@ -831,7 +828,7 @@ namespace XNAFinalEngine.Editor
                 // Remove the bounding box in game mode.
                 foreach (var gameObject in selectedObjects)
                 {
-                    ShowGameObjectSelected(gameObject);
+                    HideGameObjectSelected(gameObject);
                 }
                 UserInterfaceManager.UpdateInput = true;
                 return;
@@ -859,6 +856,7 @@ namespace XNAFinalEngine.Editor
             {
                 UserInterfaceManager.UpdateInput = true;
                 canSelect = false;
+                previousFocusedControl = UserInterfaceManager.FocusedControl;
                 return;
             }
 
@@ -868,7 +866,7 @@ namespace XNAFinalEngine.Editor
 
             // Adjust the look at position and distance to frame the selected objects.
             // The orientation is not afected.
-            if (Keyboard.KeyJustPressed(Keys.F))
+            if (Keyboard.KeyJustPressed(Keys.F) && !(UserInterfaceManager.FocusedControl is TextBox))
             {
                 BoundingSphere? frameBoundingSphere = null; // Gabage is not an issue in the editor.
                 foreach (var gameObject in selectedObjects)
@@ -880,7 +878,7 @@ namespace XNAFinalEngine.Editor
                         else
                             frameBoundingSphere = BoundingSphere.CreateMerged(frameBoundingSphere.Value, gameObject.ModelRenderer.BoundingSphere);
                     }
-                    // The rest of objects TODO!!!
+                    // The rest of objects
                     else
                     {
                         if (frameBoundingSphere == null)
@@ -902,7 +900,7 @@ namespace XNAFinalEngine.Editor
             #region Reset Camera
 
             // Reset camera to default position and orientation.
-            if (Keyboard.KeyJustPressed(Keys.R))
+            if (Keyboard.KeyJustPressed(Keys.R) && !(UserInterfaceManager.FocusedControl is TextBox))
             {
                 ResetEditorCamera();
             }
@@ -915,6 +913,7 @@ namespace XNAFinalEngine.Editor
             {
                 UserInterfaceManager.UpdateInput = true;
                 canSelect = false;
+                previousFocusedControl = UserInterfaceManager.FocusedControl;
                 return;
             }
 
@@ -1060,7 +1059,7 @@ namespace XNAFinalEngine.Editor
 
                 #region Deselect selected objects
 
-                if (Keyboard.EscapeJustPressed)
+                if (Keyboard.EscapeJustPressed && !(previousFocusedControl is TextBox))
                 {
                     RemoveControlsFromInspector();
                     // Remove bounding box off the screen.
@@ -1079,7 +1078,7 @@ namespace XNAFinalEngine.Editor
 
             #region Gizmo Active
 
-            if (activeGizmo != GizmoType.None && (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed) && !(Gizmo.Active))
+            if (activeGizmo != GizmoType.None && (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed) && !(Gizmo.Active) && !(UserInterfaceManager.FocusedControl is TextBox) && !(previousFocusedControl is TextBox))
             {
                 switch (activeGizmo)
                 {
@@ -1127,6 +1126,8 @@ namespace XNAFinalEngine.Editor
             UserInterfaceManager.UpdateInput = !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Visible;
 
             #endregion
+
+            previousFocusedControl = UserInterfaceManager.FocusedControl;
 
         } // Update
 
