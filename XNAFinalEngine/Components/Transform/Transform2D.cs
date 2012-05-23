@@ -95,6 +95,7 @@ namespace XNAFinalEngine.Components
                     parent = value.Transform;
                     parent.WorldMatrixChanged += OnParentWorldMatrixChanged;
                 }
+                UpdateWorldMatrix();
             }
         } // Parent
 
