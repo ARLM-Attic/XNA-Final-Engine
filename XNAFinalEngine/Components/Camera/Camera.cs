@@ -691,8 +691,8 @@ namespace XNAFinalEngine.Components
         #region Bounding Frustum
 
         // To avoid garbage use always the same values.
-        private static Vector3[] cornersWorldSpace = new Vector3[8];
-        private static BoundingFrustum boundingFrustum = new BoundingFrustum(Matrix.Identity);
+        private static readonly Vector3[] cornersWorldSpace = new Vector3[8];
+        private static readonly BoundingFrustum boundingFrustum = new BoundingFrustum(Matrix.Identity);
 
         /// <summary>
         /// Camera Far Plane Bounding Frustum (in view space). 

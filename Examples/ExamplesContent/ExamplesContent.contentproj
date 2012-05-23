@@ -1747,11 +1747,6 @@
       <ProcessorParameters_GenerateMipmaps>True</ProcessorParameters_GenerateMipmaps>
       <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
     </Compile>
-    <Compile Include="Textures\CubeTextures\sky.dds">
-      <Name>sky</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Textures\Stones-Diffuse.bmp">
