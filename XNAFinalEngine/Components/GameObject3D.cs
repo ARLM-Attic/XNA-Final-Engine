@@ -514,6 +514,7 @@ namespace XNAFinalEngine.Components
             HudTextChanged = null;
             HudTextureChanged = null;
             LineRendererChanged = null;
+            Transform.Parent = null;
             base.DisposeManagedResources();
         } // DisposeManagedResources
 

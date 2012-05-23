@@ -174,7 +174,7 @@ namespace XNAFinalEngine.Editor
         private static Vector3Box vector3BoxPosition, vector3BoxRotation, vector3BoxScale;
 
         // Icons.
-        private static Texture lightIcon;
+        private static Texture lightIcon, cameraIcon;
 
         // This is used to know if a text box just lost its focus because escape was pressed.
         private static Control previousFocusedControl;
@@ -265,6 +265,7 @@ namespace XNAFinalEngine.Editor
             ContentManager.CurrentContentManager = new ContentManager("Editor Content Manager", true);
             // Load Icons
             lightIcon = new Texture("Editor\\LightIcon");
+            cameraIcon = new Texture("Editor\\CameraIcon");
             ContentManager.CurrentContentManager = userContentManager;
 
             #endregion
@@ -466,8 +467,7 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         private static void ResetEditorCamera()
         {
-            //editorCameraScript.LookAtPosition = new Vector3(0, 0.5f, 0);
-            editorCameraScript.LookAtPosition = new Vector3(224.07f, 259.80f, 259.48f);
+            editorCameraScript.LookAtPosition = new Vector3(0, 0.5f, 0);
             editorCameraScript.Distance = 30;
             editorCameraScript.Pitch = 0;
             editorCameraScript.Yaw = 0;
@@ -1207,17 +1207,13 @@ namespace XNAFinalEngine.Editor
                     {
                         GameObject3D gameObject3D = (GameObject3D) gameObject;
                         // If it is a light.
-                        if (gameObject3D.Light != null)
+                        if (gameObject3D.Camera != null && gameObject3D != editorCamera && gameObject3D != gizmoCamera)
                         {
-                            // Component's screen position.
-                            Viewport editorViewport = new Viewport(editorCamera.Camera.Viewport.X, editorCamera.Camera.Viewport.Y,
-                                                                         editorCamera.Camera.Viewport.Width, editorCamera.Camera.Viewport.Height);
-                            Vector3 screenPositions = editorViewport.Project(gameObject3D.Transform.Position, editorCamera.Camera.ProjectionMatrix, editorCamera.Camera.ViewMatrix, Matrix.Identity);
-                            // Center the icon.
-                            screenPositions.X -= 16;
-                            screenPositions.Y -= 16;
-                            // Draw.
-                            SpriteManager.Draw2DTexture(lightIcon, screenPositions, null, Color.White, 0, Vector2.Zero, 1);
+                            RenderIcon(cameraIcon, gameObject3D.Transform.Position);
+                        }
+                        else if (gameObject3D.Light != null)
+                        {
+                            RenderIcon(lightIcon, gameObject3D.Transform.Position);
                         }
                     }
                 }
@@ -1234,6 +1230,24 @@ namespace XNAFinalEngine.Editor
             }
             UserInterfaceManager.RenderUserInterfaceToScreen();
         } // PostRenderTasks
+
+        /// <summary>
+        /// Render Icon over game object.
+        /// </summary>
+        /// <param name="texture"></param>
+        /// <param name="position"></param>
+        private static void RenderIcon(Texture texture, Vector3 position)
+        {
+            // Component's screen position.
+            Viewport editorViewport = new Viewport(editorCamera.Camera.Viewport.X, editorCamera.Camera.Viewport.Y,
+                                                   editorCamera.Camera.Viewport.Width, editorCamera.Camera.Viewport.Height);
+            Vector3 screenPositions = editorViewport.Project(position, editorCamera.Camera.ProjectionMatrix, editorCamera.Camera.ViewMatrix, Matrix.Identity);
+            // Center the icon.
+            screenPositions.X -= 16;
+            screenPositions.Y -= 16;
+            // Draw.
+            SpriteManager.Draw2DTexture(texture, screenPositions, null, Color.White, 0, Vector2.Zero, 1);
+        } // RenderIcon
 
         #endregion
 

@@ -107,5 +107,35 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
+        #region On Parent World Matrix Changed
+
+        /// <summary>
+        /// On transform's world matrix changed.
+        /// </summary>
+        protected virtual void OnParentWorldMatrixChanged(Matrix worldMatrix)
+        {
+            UpdateWorldMatrix();
+        } // OnWorldMatrixChanged
+
+        #endregion
+
+        #region Update Matrices
+
+        /// <summary>
+        /// Update local matrix
+        /// If the local position, local rotation or local scale changes its value then the local matrix has to be updated.
+        /// This method also has to update the world matrix.
+        /// </summary>
+        protected abstract void UpdateLocalMatrix();
+
+        /// <summary>
+        /// Update the world matrix.
+        /// If the parent's world matrix or the local matrix changes its value then the world matrix has to be updated.
+        /// This method generates an event.
+        /// </summary>
+        protected abstract void UpdateWorldMatrix();
+
+        #endregion
+
     } // Transform
 } // XNAFinalEngine.Components

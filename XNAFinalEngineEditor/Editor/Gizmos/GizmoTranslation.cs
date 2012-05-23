@@ -36,6 +36,7 @@ using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Input;
 using Plane = XNAFinalEngine.Assets.Plane;
 #endregion
@@ -63,9 +64,9 @@ namespace XNAFinalEngine.Editor
         /// This planes are not rendered to the screen.
         /// They are used by the picker to select two axis.
         /// </summary>
-        private readonly GameObject3D planeRedGreen,
-                                      planeGreenBlue,
-                                      planeBlueRed;
+        private readonly GameObject3D planeRedGreen, planeRedGreenInv,
+                                      planeGreenBlue, planeGreenBlueInv,
+                                      planeBlueRed, planeBlueRedInv;
         private readonly GameObject2D planeAll;
         
         #endregion
@@ -91,9 +92,19 @@ namespace XNAFinalEngine.Editor
             lines = new GameObject3D { Layer = Layer.GetLayerByNumber(31), };
             lines.AddComponent<LineRenderer>();
             lines.LineRenderer.Vertices = new VertexPositionColor[6];
-            planeRedGreen = new GameObject3D(null, new Constant { DiffuseColor = new Color(255, 255, 0) }) { Layer = Layer.GetLayerByNumber(31), };
-            planeGreenBlue = new GameObject3D(null, new Constant { DiffuseColor = new Color(0, 255, 255) }) { Layer = Layer.GetLayerByNumber(31), };
-            planeBlueRed = new GameObject3D(null, new Constant { DiffuseColor = new Color(255, 0, 255) }) { Layer = Layer.GetLayerByNumber(31), };
+            vertices[0] = new Vector3(0, 0, 0);
+            vertices[1] = new Vector3(1, 0, 0);
+            vertices[2] = new Vector3(0, 1, 0);
+            vertices[3] = new Vector3(0, 0, 1);
+            vertices[4] = new Vector3(1, 1, 0);
+            vertices[5] = new Vector3(0, 1, 1);
+            vertices[6] = new Vector3(1, 0, 1);
+            planeRedGreen     = new GameObject3D(new Plane(vertices[2], vertices[0], vertices[4], vertices[1]), new Constant { DiffuseColor = new Color(255, 255, 0) }) { Layer = Layer.GetLayerByNumber(31), };
+            planeGreenBlue    = new GameObject3D(new Plane(vertices[5], vertices[3], vertices[2], vertices[0]), new Constant { DiffuseColor = new Color(0, 255, 255) }) { Layer = Layer.GetLayerByNumber(31), };
+            planeBlueRed      = new GameObject3D(new Plane(vertices[0], vertices[3], vertices[1], vertices[6]), new Constant { DiffuseColor = new Color(255, 0, 255) }) { Layer = Layer.GetLayerByNumber(31), };
+            planeRedGreenInv  = new GameObject3D(new Plane(vertices[4], vertices[1], vertices[2], vertices[0]), new Constant { DiffuseColor = new Color(255, 255, 0) }) { Layer = Layer.GetLayerByNumber(31), };
+            planeGreenBlueInv = new GameObject3D(new Plane(vertices[2], vertices[0], vertices[5], vertices[3]), new Constant { DiffuseColor = new Color(0, 255, 255) }) { Layer = Layer.GetLayerByNumber(31), };
+            planeBlueRedInv   = new GameObject3D(new Plane(vertices[1], vertices[6], vertices[0], vertices[3]), new Constant { DiffuseColor = new Color(255, 0, 255) }) { Layer = Layer.GetLayerByNumber(31), };
             planeAll = new GameObject2D { Layer = Layer.GetLayerByNumber(31), };
             planeAll.AddComponent<LineRenderer>();
             planeAll.LineRenderer.Vertices = new VertexPositionColor[8];
@@ -105,6 +116,9 @@ namespace XNAFinalEngine.Editor
             planeRedGreen.ModelRenderer.Visible = false;
             planeGreenBlue.ModelRenderer.Visible = false;
             planeBlueRed.ModelRenderer.Visible = false;
+            planeRedGreenInv.ModelRenderer.Visible = false;
+            planeGreenBlueInv.ModelRenderer.Visible = false;
+            planeBlueRedInv.ModelRenderer.Visible = false;
             planeAll.LineRenderer.Visible = false;
         } // TranslationGizmo
 
@@ -350,20 +364,20 @@ namespace XNAFinalEngine.Editor
             vertices[5] = Vector3.Transform(new Vector3(0, 1, 1), transformationMatrix);
             vertices[6] = Vector3.Transform(new Vector3(1, 0, 1), transformationMatrix);
             
-            planeRedGreen.ModelFilter.Model = new Plane(vertices[2], vertices[0], vertices[4], vertices[1]);
-            planeGreenBlue.ModelFilter.Model = new Plane(vertices[5], vertices[3], vertices[2], vertices[0]);
-            planeBlueRed.ModelFilter.Model = new Plane(vertices[0], vertices[3], vertices[1], vertices[6]);
+            planeRedGreen.Transform .LocalMatrix = transformationMatrix;
+            planeGreenBlue.Transform .LocalMatrix = transformationMatrix;
+            planeBlueRed.Transform .LocalMatrix = transformationMatrix;
             picker.RenderObjectToPicker(planeRedGreen, new Color(255, 255, 0));
             picker.RenderObjectToPicker(planeGreenBlue, new Color(0, 255, 255));
             picker.RenderObjectToPicker(planeBlueRed, new Color(255, 0, 255));
             // Render a second time but from the other side.
-            planeRedGreen.ModelFilter.Model = new Plane(vertices[4], vertices[1], vertices[2], vertices[0]);
-            planeGreenBlue.ModelFilter.Model = new Plane(vertices[2], vertices[0], vertices[5], vertices[3]);
-            planeBlueRed.ModelFilter.Model = new Plane(vertices[1], vertices[6], vertices[0], vertices[3]);
-            picker.RenderObjectToPicker(planeRedGreen, new Color(255, 255, 0));
-            picker.RenderObjectToPicker(planeGreenBlue, new Color(0, 255, 255));
-            picker.RenderObjectToPicker(planeBlueRed, new Color(255, 0, 255));
-
+            planeRedGreenInv.Transform .LocalMatrix = transformationMatrix;
+            planeGreenBlueInv.Transform.LocalMatrix = transformationMatrix;
+            planeBlueRedInv.Transform.LocalMatrix = transformationMatrix;
+            picker.RenderObjectToPicker(planeRedGreenInv, new Color(255, 255, 0));
+            picker.RenderObjectToPicker(planeGreenBlueInv, new Color(0, 255, 255));
+            picker.RenderObjectToPicker(planeBlueRedInv, new Color(255, 0, 255));
+            
             // Update Axis Lines
             lines.LineRenderer.Vertices[0] = new VertexPositionColor(vertices[0], Color.Red);
             lines.LineRenderer.Vertices[1] = new VertexPositionColor(vertices[1], Color.Red);
@@ -372,7 +386,7 @@ namespace XNAFinalEngine.Editor
             lines.LineRenderer.Vertices[4] = new VertexPositionColor(vertices[0], Color.Blue);
             lines.LineRenderer.Vertices[5] = new VertexPositionColor(vertices[3], Color.Blue);
             picker.RenderObjectToPicker(lines, Color.White);
-
+            
             // Update Cones
             redCone.Transform.LocalMatrix = Matrix.Identity;
             redCone.Transform.LocalPosition = new Vector3(1, 0, 0);

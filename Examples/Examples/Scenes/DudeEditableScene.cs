@@ -235,7 +235,6 @@ namespace XNAFinalEngineExamples
                 else
                     dude.ModelAnimations.Resume();   
             }
-            dude.Transform.Position = dude.Transform.Position + new Vector3(0, 0, 0.01f);
         } // UpdateTasks
 
         #endregion

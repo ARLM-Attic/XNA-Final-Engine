@@ -118,8 +118,15 @@ namespace XNAFinalEngine.Components
             }
             set
             {
-                parent = value.Transform;
-                UpdateLocalMatrix();
+                if (parent != null)
+                    parent.WorldMatrixChanged -= OnParentWorldMatrixChanged;
+                if (value == null)
+                    parent = null;
+                else
+                {
+                    parent = value.Transform;
+                    parent.WorldMatrixChanged += OnParentWorldMatrixChanged;
+                }
             }
         } // Parent
 
@@ -399,7 +406,7 @@ namespace XNAFinalEngine.Components
         /// If the local position, local rotation or local scale changes its value then the local matrix has to be updated.
         /// This method also has to update the world matrix.
         /// </summary>
-        private void UpdateLocalMatrix()
+        protected override void UpdateLocalMatrix()
         {
             // Don't use the property LocalMatrix to avoid an unnecessary decompose.
             localMatrix = Matrix.CreateScale(localScale) * Matrix.CreateFromQuaternion(localRotation); // TODO pasar a radians.
@@ -412,7 +419,7 @@ namespace XNAFinalEngine.Components
         /// If the parent's world matrix or the local matrix changes its value then the world matrix has to be updated.
         /// This method generates an event.
         /// </summary>
-        private void UpdateWorldMatrix()
+        protected override void UpdateWorldMatrix()
         {
             if (Parent != null)
                 worldMatrix = localMatrix * parent.WorldMatrix;
@@ -421,7 +428,6 @@ namespace XNAFinalEngine.Components
             
             // Raise event
             RaiseWorldMatrixChanged();
-
         } // UpdateWorldMatrix
 
         #endregion

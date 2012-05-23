@@ -68,7 +68,6 @@
     <Compile Include="Scenes\HelloWorldScene.cs" />
     <Compile Include="Scenes\LamborghiniMurcielagoScene.cs" />
     <Compile Include="Scenes\MiscellaneousTestScene.cs" />
-    <Compile Include="Scenes\PrototypeScene.cs" />
     <Compile Include="Scenes\TestScene.cs" />
     <Compile Include="Scripts\ScriptCustomCamera.cs" />
   </ItemGroup>

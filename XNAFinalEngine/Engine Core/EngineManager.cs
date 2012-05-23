@@ -600,7 +600,7 @@ namespace XNAFinalEngine.EngineCore
         /// Show exceptions message with Games for Windows/XBOX Guide?
         /// In XBOX 360 it's always true except in debug mode.
         /// </param>
-        public static void StarEngine(Scene scene, bool useGamerServices = false, bool showExceptionsWithGuide = false)
+        public static void StartEngine(Scene scene, bool useGamerServices = false, bool showExceptionsWithGuide = false)
         {
             GameLoop.CurrentScene = scene;
 

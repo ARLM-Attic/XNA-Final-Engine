@@ -371,7 +371,7 @@ namespace XNAFinalEngine.Editor
             if (gameObject is GameObject3D)
             {
                 GameObject3D gameObject3D = (GameObject3D)gameObject;
-                if (gameObject3D.Light != null)
+                if (gameObject3D.Light != null || gameObject3D.Camera != null)
                 {
                     // Component's screen position.
                     Vector3 screenPositions = EngineManager.Device.Viewport.Project(gameObject3D.Transform.Position, projectionMatrix, viewMatrix, Matrix.Identity);

@@ -219,6 +219,7 @@ namespace XNAFinalEngine.Components
             HudTextureChanged = null;
             VideoRendererChanged = null;
             LineRendererChanged = null;
+            Transform.Parent = null;
             base.DisposeManagedResources();
         } // DisposeManagedResources
 
