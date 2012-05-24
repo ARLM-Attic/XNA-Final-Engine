@@ -128,6 +128,11 @@
     <Content Include="Game.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\XNAFinalEngineContent\XNAFinalEngineContent.contentproj">
+      <Project>{93D209C6-BF21-42E8-A538-CE0E0D5CCDF5}</Project>
+      <Name>XNAFinalEngineContent %28Content%29</Name>
+      <XnaReferenceType>Content</XnaReferenceType>
+    </ProjectReference>
     <ProjectReference Include="..\..\XNAFinalEngineEditor\XNAFinalEngineEditor.csproj">
       <Project>{AD41E75E-4492-416C-B8BC-2DA3BAE1648B}</Project>
       <Name>XNAFinalEngineEditor</Name>
