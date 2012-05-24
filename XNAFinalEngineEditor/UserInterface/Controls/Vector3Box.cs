@@ -29,9 +29,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
-using System;
-using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 
