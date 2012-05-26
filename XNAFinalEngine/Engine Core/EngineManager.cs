@@ -77,7 +77,7 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// Singleton reference for specific task like the exit method.
         /// </summary>
-        internal static EngineManager EngineManagerReference { get; private set; }
+        public static EngineManager EngineManagerReference { get; private set; }
 
         /// <summary>
         /// XNA graphic device.
@@ -416,6 +416,7 @@ namespace XNAFinalEngine.EngineCore
             {
                 GameLoop.LoadContent();
             }
+            base.BeginRun();
         } // BeginRun
 
         #endregion
@@ -441,6 +442,7 @@ namespace XNAFinalEngine.EngineCore
                 DeviceDisposed(this, new EventArgs());
 
             GarbageCollector.CollectGarbage();
+            base.LoadContent();
         } // LoadContent
 
         #endregion
@@ -452,6 +454,7 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
+            base.Update(gameTime);
             if (ResetDevice)
             {
                 GraphicsDeviceManager.ApplyChanges();
@@ -538,6 +541,7 @@ namespace XNAFinalEngine.EngineCore
             {
                 GameLoop.Draw(gameTime);
             }
+            base.Draw(gameTime);
         } // Draw
 
         /// <summary>
@@ -578,7 +582,7 @@ namespace XNAFinalEngine.EngineCore
         {
             // Unload Content could be called in some scenarios, I avoid it.
             GameLoop.UnloadContent();
-            base.UnloadContent();
+            base.EndRun();
         } // UnloadContent
 
         #endregion

@@ -44,18 +44,7 @@ namespace XNAFinalEngine.Components
     public class ModelRenderer : Renderer
     {
 
-        #region Constants
-
-        /// <summary>
-        /// Maximum Number of Mesh Materials.
-        /// </summary>
-        public const int MaximumNumberMeshMaterials = 16;
-
-        #endregion
-
         #region Variables
-
-        private readonly Material[] meshMaterial = new Material[MaximumNumberMeshMaterials];
 
         /// <summary>The bounding sphere of the model in world space.</summary>
         /// <remarks>In the old versions I used nullable types but the bounding volumes are critical (performance wise) when frustum culling is enabled.</remarks>
@@ -83,15 +72,12 @@ namespace XNAFinalEngine.Components
         /// If the mesh material is null the material from them Material property will be used.
         /// </remarks>
         public Material Material { get; set; }
-        
+
         /// <summary>
         /// Allows to use different materials for the different model’s mesh.
         /// If the mesh material is null the material from them Material property will be used.
         /// </summary>
-        public Material[] MeshMaterial
-        {
-            get { return meshMaterial; }
-        } // MeshMaterial
+        public Material[] MeshMaterial { get; set; }
 
         /// <summary>
         /// The bounding Sphere of the model.

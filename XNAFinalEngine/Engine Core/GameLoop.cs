@@ -710,7 +710,7 @@ namespace XNAFinalEngine.EngineCore
                         {
                             // Find material
                             Material material = null;
-                            if (currentMeshPart < ModelRenderer.MaximumNumberMeshMaterials && currentModelRenderer.MeshMaterial[currentMeshPart] != null)
+                            if (currentModelRenderer.MeshMaterial != null && currentMeshPart < currentModelRenderer.MeshMaterial.Length && currentModelRenderer.MeshMaterial[currentMeshPart] != null)
                             {
                                 material = currentModelRenderer.MeshMaterial[currentMeshPart];
                             }
@@ -1084,7 +1084,7 @@ namespace XNAFinalEngine.EngineCore
                         {
                             // Find material
                             Material material = null;
-                            if (currentMeshPart < ModelRenderer.MaximumNumberMeshMaterials && currentModelRenderer.MeshMaterial[currentMeshPart] != null)
+                            if (currentModelRenderer.MeshMaterial != null && currentMeshPart < currentModelRenderer.MeshMaterial.Length && currentModelRenderer.MeshMaterial[currentMeshPart] != null)
                             {
                                 material = currentModelRenderer.MeshMaterial[currentMeshPart];
                             }
@@ -1185,7 +1185,7 @@ namespace XNAFinalEngine.EngineCore
                         {
                             // Find material
                             Material material = null;
-                            if (currentMeshPart < ModelRenderer.MaximumNumberMeshMaterials &&
+                            if (currentModelRenderer.MeshMaterial != null && currentMeshPart < currentModelRenderer.MeshMaterial.Length &&
                                 currentModelRenderer.MeshMaterial[currentMeshPart] != null)
                             {
                                 material = currentModelRenderer.MeshMaterial[currentMeshPart];
