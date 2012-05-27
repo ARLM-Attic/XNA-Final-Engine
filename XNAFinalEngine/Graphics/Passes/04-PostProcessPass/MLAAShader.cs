@@ -53,7 +53,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture areaTexture;
 
         #endregion
-
+        
         #region Properties
 
         /// <summary>
@@ -225,8 +225,8 @@ namespace XNAFinalEngine.Graphics
             // Pre multiply alpha: false
             // Texture format: No change.
             areaTexture = new Texture("Shaders\\AreaMap32");
+            EngineManager.Device.SamplerStates[15] = SamplerState.PointClamp;
             Resource.Parameters["areaTexture"].SetValue(areaTexture.Resource);
-            EngineManager.Device.SamplerStates[15] = SamplerState.PointWrap;
             ContentManager.CurrentContentManager = userContentManager;
         } // MLAAShader
 
@@ -265,7 +265,7 @@ namespace XNAFinalEngine.Graphics
                 if (areaTexture != null)
                 {
                     Resource.Parameters["areaTexture"].SetValue(areaTexture.Resource);
-                    EngineManager.Device.SamplerStates[15] = SamplerState.PointWrap;
+                    EngineManager.Device.SamplerStates[15] = SamplerState.PointClamp;
                 }
             }
             catch
@@ -300,7 +300,7 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
                 // If someone changes the sampler state of the area texture could be a problem… in a form of an exception.
-                EngineManager.Device.SamplerStates[15] = SamplerState.PointWrap;
+                EngineManager.Device.SamplerStates[15] = SamplerState.PointClamp;
 
                 // Set parameters
                 SetHalfPixel(new Vector2(-1f / texture.Width, 1f / texture.Height));

@@ -52,7 +52,7 @@ float thresholdColor;
 
 float thresholdDepth;
 
-#define MAX_SEARCH_STEPS 6
+#define MAX_SEARCH_STEPS 8
 //const int maxSearchSteps = 12;
 
 //////////////////////////////////////////////

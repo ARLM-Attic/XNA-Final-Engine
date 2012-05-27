@@ -1,5 +1,5 @@
 /***********************************************************************************************************************************************
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -171,7 +171,6 @@ technique BlurLinear
 		VertexShader = compile vs_3_0 VS_Blur(float2(1, 0));		
 		PixelShader  = compile ps_3_0 PS_Blur();
 	}
-
 	pass BlurVertical
 	{
 		VertexShader = compile vs_3_0 VS_Blur(float2(0, 1));		
@@ -186,7 +185,6 @@ technique BlurPoint
 		VertexShader = compile vs_3_0 VS_BlurPoint(float2(1, 0));		
 		PixelShader  = compile ps_3_0 PS_BlurPoint();
 	}
-
 	pass BlurVertical
 	{
 		VertexShader = compile vs_3_0 VS_BlurPoint(float2(0, 1));

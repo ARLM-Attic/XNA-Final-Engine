@@ -69,37 +69,37 @@ sampler2D diffuseSampler : register(s0) = sampler_state
 	AddressV = CLAMP;*/
 };
 
-texture SkyTextureNight;
-sampler SurfSamplerSkyTextureNight = sampler_state
+texture SkyTextureNight : register(t5);
+sampler SurfSamplerSkyTextureNight : register(s5) = sampler_state
 {
 	Texture = <SkyTextureNight>;
-	MinFilter = Anisotropic;	
+	/*MinFilter = Anisotropic;	
 	MagFilter = Anisotropic;
 	MipFilter = Linear;
 	AddressU = mirror; 
-	AddressV = mirror;
+	AddressV = mirror;*/
 };
 
-texture SkyTextureSunset;
-sampler SurfSamplerSkyTextureSunset = sampler_state
+texture SkyTextureSunset : register(t6);
+sampler SurfSamplerSkyTextureSunset : register(s6) = sampler_state
 {
 	Texture = <SkyTextureSunset>;
-	MinFilter = Anisotropic;	
+	/*MinFilter = Anisotropic;	
 	MagFilter = Anisotropic;
 	MipFilter = Linear;
 	AddressU = mirror; 
-	AddressV = mirror;
+	AddressV = mirror;*/
 };
 
-texture SkyTextureDay;
-sampler SurfSamplerSkyTextureDay = sampler_state
+texture SkyTextureDay : register(t7);
+sampler SurfSamplerSkyTextureDay : register(s7) = sampler_state
 {
 	Texture = <SkyTextureDay>;		
-	MinFilter = Anisotropic;
+	/*MinFilter = Anisotropic;
 	MagFilter = Anisotropic;
 	MipFilter = Linear;
 	AddressU = mirror; 
-	AddressV = mirror;
+	AddressV = mirror;*/
 };
 
 //////////////////////////////////////////////

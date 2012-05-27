@@ -349,7 +349,6 @@ namespace XNAFinalEngine.Graphics
             randomNormalTexture = new Texture("Shaders\\RandomNormal");
             Resource.Parameters["randomTexture"].SetValue(randomNormalTexture.Resource);
             ContentManager.CurrentContentManager = userContentManager;
-            
         } // HorizonBasedAmbientOcclusionShader
 
 		#endregion

@@ -26,27 +26,26 @@ float4x4 ViewI         : ViewInverse;
 //////////////////////////////////////////////
 
 texture NormalTexture;
-
 sampler2D NormalSampler = sampler_state 
 {
     Texture = <NormalTexture>;
-    MinFilter = Linear;
+    /*MinFilter = Linear;
     MagFilter = Linear;
 	MipFilter = Linear;
     AddressU = Wrap;
-    AddressV = Wrap;
+    AddressV = Wrap;*/
 };
 
 texture EnvTexture;
 samplerCUBE EnvSampler = sampler_state
 {
     Texture = <EnvTexture>;
-    MinFilter = Linear;
+    /*MinFilter = Linear;
     MagFilter = Linear;
 	MipFilter = Linear;
     AddressU = Clamp;
     AddressV = Clamp;
-    AddressW = Clamp;
+    AddressW = Clamp;*/
 };
 
 //////////////////////////////////////////////

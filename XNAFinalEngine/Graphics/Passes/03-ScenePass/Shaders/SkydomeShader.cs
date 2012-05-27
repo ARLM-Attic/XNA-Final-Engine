@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -43,6 +43,7 @@ namespace XNAFinalEngine.Graphics
 
     /// <summary>
     /// Skydome Shader.
+    /// TODO: Work in progress.
     /// </summary>
     internal class SkydomeShader : Shader
     {
@@ -157,7 +158,7 @@ namespace XNAFinalEngine.Graphics
                 {
                     Resource.Parameters["SkyTextureNight"].SetValue(skyTextureNight.Resource);
                     Resource.Parameters["SkyTextureSunset"].SetValue(skyTextureSunset.Resource);
-                    Resource.Parameters["SkyTextureDay"].SetValue(skyTextureDay.Resource);    
+                    Resource.Parameters["SkyTextureDay"].SetValue(skyTextureDay.Resource);
                 }
             }
             catch
@@ -185,6 +186,9 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
                 // If I set the sampler states here and no texture is set then this could produce exceptions 
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
+                EngineManager.Device.SamplerStates[5] = SamplerState.AnisotropicClamp;
+                EngineManager.Device.SamplerStates[6] = SamplerState.AnisotropicClamp;
+                EngineManager.Device.SamplerStates[7] = SamplerState.AnisotropicClamp;
 
                 Matrix worldMatrix = Matrix.CreateScale(1f);
                 SetViewProjectionMatrix(worldMatrix * Matrix.Transpose(Matrix.Invert(viewMatrix)) * projectionMatrix); // I remove the translation and scale of the view matrix.

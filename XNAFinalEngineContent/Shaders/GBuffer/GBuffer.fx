@@ -1,5 +1,5 @@
 /***********************************************************************************************************************************************
-Copyright (c) 2008-2011, Laboratorio de Investigaci?n y Desarrollo en Visualizaci?n y Computaci?n Gr?fica - 
+Copyright (c) 2008-2012, Laboratorio de Investigaci?n y Desarrollo en Visualizaci?n y Computaci?n Gr?fica - 
                          Departamento de Ciencias e Ingenier?a de la Computaci?n - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -129,7 +129,7 @@ technique GBufferWithParallax
         PixelShader  = compile ps_3_0 WithParallaxPS();
     }
 } // GBufferWithParallax
-
+/*
 technique GBufferTerrain
 {
     pass p0
@@ -137,7 +137,7 @@ technique GBufferTerrain
         VertexShader = compile vs_3_0 TerrainVS();
         PixelShader  = compile ps_3_0 TerrainPS();
     }
-} // GBufferTerrain
+} // GBufferTerrain*/
 
 technique GBufferSkinnedWithoutTexture
 {

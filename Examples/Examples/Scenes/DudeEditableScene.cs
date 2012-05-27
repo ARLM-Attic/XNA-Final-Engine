@@ -106,8 +106,8 @@ namespace XNAFinalEngineExamples
                 Intensity = 5f,
                 AmbientOcclusionStrength = 5f
             };
-            //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
-            camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM", true, 50) };
+            camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
+            //camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM", true, 50) };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
@@ -215,6 +215,8 @@ namespace XNAFinalEngineExamples
             statistics.AddComponent<ScriptStatisticsDrawer>();
 
             #endregion
+            
+            PostProcessWindow.Show(camera.Camera.PostProcess);
             
         } // Load
 

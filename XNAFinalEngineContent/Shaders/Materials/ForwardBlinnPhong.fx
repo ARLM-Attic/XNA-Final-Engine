@@ -1,5 +1,5 @@
 /***********************************************************************************************************************************************
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -72,9 +72,7 @@ float  pointLightIntensity = 0.35;
 //////////////////////////////////////////////
 
 bool reflectionTextured;
-
 bool hasDirectionalShadow;
-
 bool hasAmbientSphericalHarmonics;
 
 //////////////////////////////////////////////
@@ -92,26 +90,15 @@ sampler2D diffuseSampler : register(s0) = sampler_state
 	AddressV = WRAP;*/
 };
 
-texture reflectionTexture : ENVIRONMENT;
-
-samplerCUBE reflectionSampler = sampler_state
+texture reflectionTexture : register(t4);
+samplerCUBE reflectionSampler : register(s4) = sampler_state
 {
 	Texture = <reflectionTexture>;
-	MinFilter = Linear;
+	/*MinFilter = Linear;
 	MagFilter = Linear;
 	MipFilter = Linear;
-};
-
-texture shadowTexture;
-
-sampler2D shadowSampler = sampler_state
-{
-	Texture = <shadowTexture>;
-    ADDRESSU = CLAMP;
-	ADDRESSV = CLAMP;
-	MAGFILTER = POINT;
-	MINFILTER = POINT;
-	MIPFILTER = NONE;
+	AddressU = CLAMP;
+	AddressV = CLAMP;*/
 };
 
 //////////////////////////////////////////////
