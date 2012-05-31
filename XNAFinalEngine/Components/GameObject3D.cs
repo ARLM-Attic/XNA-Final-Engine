@@ -363,6 +363,18 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
+        #region Script
+
+        /// <summary>
+        /// Gets a script of certain type associated with this game object.
+        /// </summary>
+        public Script Script<TComponentType>() where TComponentType : Component
+        {
+            return Components.Script.ContainScript<TComponentType>(this);
+        } // Script
+
+        #endregion
+
         #endregion
 
         #region Events
@@ -722,16 +734,16 @@ namespace XNAFinalEngine.Components
             
             if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
             {
-                Component script = Script.ConstainScript<TComponentType>(this);
+                Component script = Components.Script.ContainScript<TComponentType>(this);
                 if (script != null)
                 {
                     throw new ArgumentException("Game Object 3D: Unable to create the script component. There is one already.");
                 }
-                script = Script.FetchScript<TComponentType>();
+                script = Components.Script.FetchScript<TComponentType>();
                 if (script == null)
                 {
                     script = new TComponentType();
-                    Script.ScriptList.Add((Script)script);
+                    Components.Script.ScriptList.Add((Script)script);
                 }
                 script.Initialize(this);
                 return script;
@@ -1011,7 +1023,7 @@ namespace XNAFinalEngine.Components
 
             if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
             {
-                Component script = Script.ConstainScript<TComponentType>(this);
+                Component script = Components.Script.ContainScript<TComponentType>(this);
                 if (script == null)
                 {
                     throw new ArgumentException("Game Object 3D: Unable to remove the script component. There is not one.");
@@ -1142,9 +1154,9 @@ namespace XNAFinalEngine.Components
                 RemoveComponent<HudTexture>();
             if (LineRenderer != null)
                 RemoveComponent<LineRenderer>();
-            while (Script.ConstainScript<Script>(this) != null)
+            while (Components.Script.ContainScript<Script>(this) != null)
             {
-                Script.ConstainScript<Script>(this).Uninitialize();
+                Components.Script.ContainScript<Script>(this).Uninitialize();
             }
         } // RemoveAllComponents
 

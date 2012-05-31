@@ -107,8 +107,7 @@ namespace XNAFinalEngine.Assets
                         VertexElement vertexPosition = new VertexElement();
                         foreach (VertexElement vert in vertexElements)
                         {
-                            if (vert.VertexElementUsage == VertexElementUsage.Position &&
-                                vert.VertexElementFormat == VertexElementFormat.Vector3)
+                            if (vert.VertexElementUsage == VertexElementUsage.Position && vert.VertexElementFormat == VertexElementFormat.Vector3)
                             {
                                 vertexPosition = vert;
                                 // There should only be one  
@@ -118,7 +117,7 @@ namespace XNAFinalEngine.Assets
                         // Check the position element found is valid  
                         if (vertexPosition.VertexElementUsage != VertexElementUsage.Position || vertexPosition.VertexElementFormat != VertexElementFormat.Vector3)
                         {
-                            throw new InvalidOperationException("Model's Vertices: Model uses unsupported vertex format!");
+                            throw new InvalidOperationException("Model: Model uses unsupported vertex format!");
                         }
                         // This where we store the vertices until transformed  
                         Vector3[] partVertices = new Vector3[part.NumVertices];

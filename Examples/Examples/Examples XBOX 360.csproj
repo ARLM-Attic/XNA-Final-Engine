@@ -79,6 +79,11 @@
       <Project>{5D1093DE-88C6-4A36-9704-4B13C0D7BAB4}</Project>
       <Name>XNAFinalEngineContentPipelineExtensionRuntime XBOX 360</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\XNAFinalEngineContent\XNAFinalEngineContent.contentproj">
+      <Project>{93D209C6-BF21-42E8-A538-CE0E0D5CCDF5}</Project>
+      <Name>XNAFinalEngineContent %28Content%29</Name>
+      <XnaReferenceType>Content</XnaReferenceType>
+    </ProjectReference>
     <ProjectReference Include="..\..\XNAFinalEngineEditor\XNAFinalEngineEditor XBOX 360.csproj">
       <Project>{C540C326-CA22-4903-ADF0-5E8AB9783A3C}</Project>
       <Name>XNAFinalEngineEditor XBOX 360</Name>

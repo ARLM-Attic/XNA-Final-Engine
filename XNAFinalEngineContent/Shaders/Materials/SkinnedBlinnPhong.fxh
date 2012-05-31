@@ -48,7 +48,7 @@ VS_OUT SkinnedWithTexture(in float4 position : POSITION,
 	                      in float3 normal   : NORMAL,
 						  in float2 uv       : TEXCOORD0,
 						  in int4 indices    : BLENDINDICES0,
-						  in float4 weights  : BLENDWEIGHT0)
+						  in int4 weights  : BLENDWEIGHT0)
 {
 	VS_OUT output = (VS_OUT)0;
 

@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -29,6 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System.ComponentModel;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
@@ -37,10 +39,39 @@ using Microsoft.Xna.Framework.Content.Pipeline.Processors;
 namespace XNAFinalEngineContentPipelineExtension.Models
 {
     /// <summary>
-    /// Custom processor that ignores texture assets.
+    /// Custom processor that ignores texture and shader assets.
+    /// It also hides some of the content processor properties of the father.
     /// </summary>
-    public class IgnoreTexturesModelProcessor : ModelProcessor
+    public class SimplifiedModelProcessor : ModelProcessor
     {
+
+        #region Hide Unnecessary Properties
+
+        [Browsable(false)]
+        public override bool ColorKeyEnabled { get { return false; } set { } }
+
+        [Browsable(false)]
+        public override Color ColorKeyColor { get { return base.ColorKeyColor; } set { } }
+
+        [Browsable(false)]
+        public override bool ResizeTexturesToPowerOfTwo { get { return false; } set { } }
+
+        [Browsable(false)]
+        public override bool GenerateMipmaps { get { return false; } set { } }
+
+        [Browsable(false)]
+        public override TextureProcessorOutputFormat TextureFormat { get { return TextureProcessorOutputFormat.NoChange; } set { } }
+
+        [Browsable(false)]
+        public override MaterialProcessorDefaultEffect DefaultEffect { get { return MaterialProcessorDefaultEffect.BasicEffect; } set { } }
+
+        [Browsable(false)]
+        public override bool PremultiplyTextureAlpha { get { return false; } set { } }
+
+        [Browsable(false)]
+        public override bool PremultiplyVertexColors { get { return false; } set { } }
+        
+        #endregion
         
         /// <summary>
         /// Ignores material and texture information.
@@ -50,5 +81,5 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             return null;
         } // ConvertMaterial
 
-    } // IgnoreTexturesModelProcessor
+    } // SimplifiedModelProcessor
 } // XNAFinalEngineContentPipelineExtension.Models

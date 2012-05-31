@@ -142,9 +142,9 @@
       <Name>XNAFinalEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\ExamplesContent\ExamplesContent.contentproj">
+      <Project>{1DCDC24D-03EB-48D9-B7AD-C55E97825498}</Project>
       <Name>ExamplesContent %28Content%29</Name>
       <XnaReferenceType>Content</XnaReferenceType>
-      <Project>{1DCDC24D-03EB-48D9-B7AD-C55E97825498}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

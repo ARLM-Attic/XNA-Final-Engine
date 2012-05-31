@@ -23,68 +23,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
 //////////////////////////////////////////////
-////////////// Data Structs //////////////////
-//////////////////////////////////////////////
-
-struct WithoutTextureVS_INPUT 
-{
-   float4 position : POSITION;
-   float3 normal   : NORMAL;   
-};
-
-struct WithTextureVS_INPUT
-{
-   float4 position : POSITION;
-   float3 normal   : NORMAL;
-   float2 uv       : TEXCOORD0;
-};
-
-struct WithTangentVS_INPUT
-{
-   float4 position : POSITION;
-   float3 normal   : NORMAL;
-   float3 tangent  : TANGENT;
-   float3 binormal : BINORMAL;
-   float2 uv       : TEXCOORD0;
-};
-
-struct WithoutTextureVS_OUTPUT 
-{
-   float4 position : POSITION0;
-   float3 normal   : TEXCOORD0;
-   float  depth    : TEXCOORD1;   
-};
-
-struct WithTextureVS_OUTPUT 
-{
-   float4 position         : POSITION0;
-   float3 normal           : TEXCOORD0;
-   float  depth            : TEXCOORD1;   
-   float2 uv			   : TEXCOORD2;
-};
-
-struct WithTangentVS_OUTPUT 
-{
-   float4 position         : POSITION0;
-   float  depth            : TEXCOORD0;
-   float2 uv			   : TEXCOORD1;
-   float3x3 tangentToView  : TEXCOORD2;
-};
-
-struct WithParallaxVS_OUTPUT 
-{
-   float4 position         : POSITION0;
-   float  depth            : TEXCOORD0;
-   float2 uv			   : TEXCOORD1;
-   float2 parallaxOffsetTS : TEXCOORD2;
-   float3 viewVS           : TEXCOORD3;
-   float3x3 tangentToView  : TEXCOORD4;
-};
-
-//////////////////////////////////////////////
 ///////// Vertex and Pixel Shaders //////////
 /////////////////////////////////////////////
 
+#include <..\Helpers\VertexAndFragmentDeclarations.fxh>
 #include <..\Helpers\ParallaxMapping.fxh>
 #include <GBufferVertexShaders.fxh>
 #include <GBufferPixelShaders.fxh>

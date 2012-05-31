@@ -14,6 +14,8 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Graphics.PackedVector;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 #endregion
 
@@ -23,7 +25,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
     /// Custom processor extends the builtin framework ModelProcessor class, adding animation support.
     /// </summary>
     [ContentProcessor(DisplayName = "Model - XNA Final Engine")]
-    public class RigidModelProcessor : IgnoreTexturesModelProcessor
+    public class RigidModelProcessor : SimplifiedModelProcessor
     {
 
         #region Process
@@ -69,6 +71,73 @@ namespace XNAFinalEngineContentPipelineExtension.Models
 
             return model;
         } // Process
+
+        #endregion
+
+        #region Process Vertex Channel
+
+        /// <summary>
+        /// Processes geometry content vertex channels at the specified index.
+        /// </summary>
+        protected override void ProcessVertexChannel(GeometryContent geometry, int vertexChannelIndex, ContentProcessorContext context)
+        {
+
+            #region No compressed Vertex Data
+            
+            //base.ProcessVertexChannel(geometry, vertexChannelIndex, context);
+            
+            #endregion
+
+            #region Compressed Vertex Data
+
+            VertexChannelCollection channels = geometry.Vertices.Channels;
+            string name = channels[vertexChannelIndex].Name;
+
+            if (name == VertexChannelNames.Normal())
+            {
+                channels.ConvertChannelContent<NormalizedShort4>(vertexChannelIndex);
+            }
+            else if (name == VertexChannelNames.TextureCoordinate(0))
+            {
+                // If the resource has texture coordinates outside the range [-1, 1] the values will be clamped.
+                channels.ConvertChannelContent<NormalizedShort2>(vertexChannelIndex);
+            }
+            else if (name == VertexChannelNames.TextureCoordinate(1))
+                channels.Remove(VertexChannelNames.TextureCoordinate(1));
+            else if (name == VertexChannelNames.TextureCoordinate(2))
+                channels.Remove(VertexChannelNames.TextureCoordinate(2));
+            else if (name == VertexChannelNames.TextureCoordinate(3))
+                channels.Remove(VertexChannelNames.TextureCoordinate(3));
+            else if (name == VertexChannelNames.TextureCoordinate(4))
+                channels.Remove(VertexChannelNames.TextureCoordinate(4));
+            else if (name == VertexChannelNames.TextureCoordinate(5))
+                channels.Remove(VertexChannelNames.TextureCoordinate(5));
+            else if (name == VertexChannelNames.TextureCoordinate(6))
+                channels.Remove(VertexChannelNames.TextureCoordinate(6));
+            else if (name == VertexChannelNames.TextureCoordinate(7))
+                channels.Remove(VertexChannelNames.TextureCoordinate(7));
+            else if (name == VertexChannelNames.Color(0))
+                channels.Remove(VertexChannelNames.Color(0));
+            else if (name == VertexChannelNames.Tangent(0))
+            {
+                channels.ConvertChannelContent<NormalizedShort4>(vertexChannelIndex);
+            }
+            else if (name == VertexChannelNames.Binormal(0))
+            {
+                channels.ConvertChannelContent<NormalizedShort4>(vertexChannelIndex);
+                // If the binormal is removed then the position, the normal,
+                // the tangent and the texture coordinate can be fetched in one single block of 32 bytes.
+                // Still, it is more fast to just pass the value.
+                //channels.Remove(VertexChannelNames.Binormal(0));
+            }
+            else
+            {
+                base.ProcessVertexChannel(geometry, vertexChannelIndex, context);
+            }
+
+            #endregion
+
+        } // ProcessVertexChannel
 
         #endregion
 

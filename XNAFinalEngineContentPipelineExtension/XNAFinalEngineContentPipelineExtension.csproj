@@ -54,7 +54,7 @@
     <Compile Include="Models\RigidModelProcessor.cs" />
     <Compile Include="Animations\SkinnedAnimationProcessor.cs" />
     <Compile Include="Models\SkinnedModelProcessor.cs" />
-    <Compile Include="Models\ModelProcessor.cs" />
+    <Compile Include="Models\SimplifiedModelProcessor.cs" />
     <Compile Include="Documents\XDocumentWriter.cs" />
     <Compile Include="UserInterface\CursorImporter.cs" />
     <Compile Include="UserInterface\LayoutImporter.cs" />

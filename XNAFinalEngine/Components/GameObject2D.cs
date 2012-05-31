@@ -329,7 +329,7 @@ namespace XNAFinalEngine.Components
             // Hacerlo de otra manera, creo. Algo como add script y remove script. Los script se comportan diferente que el resto de los componentes.
             if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
             {
-                Component script = Script.ConstainScript<TComponentType>(this);
+                Component script = Script.ContainScript<TComponentType>(this);
                 if (script != null)
                 {
                     throw new ArgumentException("Game Object 2D: Unable to create the script component. There is one already.");
@@ -444,7 +444,7 @@ namespace XNAFinalEngine.Components
 
             if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
             {
-                Component script = Script.ConstainScript<TComponentType>(this);
+                Component script = Script.ContainScript<TComponentType>(this);
                 if (script == null)
                 {
                     throw new ArgumentException("Game Object 3D: Unable to remove the script component. There is not one.");
@@ -473,9 +473,9 @@ namespace XNAFinalEngine.Components
                 RemoveComponent<VideoRenderer>();
             if (LineRenderer != null)
                 RemoveComponent<LineRenderer>();
-            while (Script.ConstainScript<Script>(this) != null)
+            while (Script.ContainScript<Script>(this) != null)
             {
-                Script.ConstainScript<Script>(this).Uninitialize();
+                Script.ContainScript<Script>(this).Uninitialize();
             }
         } // RemoveAllComponents
 

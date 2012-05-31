@@ -100,11 +100,11 @@ PixelShader_OUTPUT WithoutTexturePS(WithoutTextureVS_OUTPUT input)
 	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
  
 	// Depth
-	output.depth = float4(input.depth, 0, 1, 1);
+	output.depth = float4(input.normalDepth.w, 0, 1, 1);
 
 	// Normals
-	input.normal = normalize(input.normal);	
-	output.normal  = CompressNormal(input.normal);	
+	input.normalDepth.xyz = normalize(input.normalDepth.xyz);	
+	output.normal  = CompressNormal(input.normalDepth.xyz);	
 
 	// Specular Power
 	output.motionVectorSpecularPower.b = CompressSpecularPower(specularPower);
@@ -117,11 +117,11 @@ PixelShader_OUTPUT WithSpecularTexturePS(WithTextureVS_OUTPUT input)
 	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
  
 	// Depth
-	output.depth = float4(input.depth, 0, 1, 1);
+	output.depth = float4(input.normalDepth.w, 0, 1, 1);
  
 	// Normals
- 	input.normal = normalize(input.normal);			
-	output.normal  = CompressNormal(input.normal);
+ 	input.normalDepth.xyz = normalize(input.normalDepth.xyz);	
+	output.normal  = CompressNormal(input.normalDepth.xyz);	
 
 	// Specular Power
 	output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(objectSpecularSampler, input.uv).a);	
@@ -134,16 +134,16 @@ PixelShader_OUTPUT WithNormalMapPS(WithTangentVS_OUTPUT input)
 	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
  
 	// Depth
-	output.depth = float4(input.depth, 0, 1, 1);
+	output.depth = float4(input.uvDepth.z, 0, 1, 1);
  
 	// Normals
- 	output.normal.xyz = 2.0 * tex2D(objectNormalSampler, input.uv).rgb - 1;
+ 	output.normal.xyz = 2.0 * tex2D(objectNormalSampler, input.uvDepth.xy).rgb - 1;
 	output.normal.xyz =  normalize(mul(output.normal.xyz, input.tangentToView));
 	output.normal  = CompressNormal(output.normal.xyz);
 
 	// Specular Power
 	if (specularTextured)
-		output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(objectSpecularSampler, input.uv).a);
+		output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(objectSpecularSampler, input.uvDepth.xy).a);
 	else
 		output.motionVectorSpecularPower.b = CompressSpecularPower(specularPower);
 
@@ -155,23 +155,23 @@ PixelShader_OUTPUT WithParallaxPS(WithParallaxVS_OUTPUT input)
 	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
  
 	// Depth
-	output.depth = float4(input.depth, 0, 1, 1);
+	output.depth = float4(input.uvDepth.z, 0, 1, 1);
  
 	// Normals
- 	output.normal.xyz = 2.0 * tex2D(objectNormalSampler, CalculateParallaxUV(input.uv, input.parallaxOffsetTS, normalize(input.viewVS), input.tangentToView, objectNormalSampler)).rgb - 1;
+ 	output.normal.xyz = 2.0 * tex2D(objectNormalSampler, CalculateParallaxUV(input.uvDepth.xy, input.parallaxOffsetTS, normalize(input.viewVS), input.tangentToView, objectNormalSampler)).rgb - 1;
 	output.normal.xyz =  normalize(mul(output.normal.xyz, input.tangentToView));
 	output.normal  = CompressNormal(output.normal.xyz);
 	
 	// Specular Power
 	if (specularTextured)
-		output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(objectSpecularSampler, input.uv).a);
+		output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(objectSpecularSampler, input.uvDepth.xy).a);
 	else
 		output.motionVectorSpecularPower.b = CompressSpecularPower(specularPower);
 
 	return output;
 } // WithParallaxPS
 
-PixelShader_OUTPUT TerrainPS(WithTextureVS_OUTPUT input)
+/*PixelShader_OUTPUT TerrainPS(WithTextureVS_OUTPUT input)
 {
 	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
  
@@ -187,4 +187,4 @@ PixelShader_OUTPUT TerrainPS(WithTextureVS_OUTPUT input)
 	output.motionVectorSpecularPower.b = CompressSpecularPower(tex2D(objectSpecularSampler, input.uv).a);	
 
 	return output;
-} // TerrainPS
+} // TerrainPS*/

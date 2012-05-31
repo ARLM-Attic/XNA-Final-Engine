@@ -12,7 +12,7 @@
 //////////////////////////////////////////////
 
 // Number of cascaded splits
-static const int NUM_SPLITS = 4;
+static const int NUM_SPLITS = 3;
 
 float4x4	viewToLightViewProj[NUM_SPLITS];
 

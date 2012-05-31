@@ -22,6 +22,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
+#include <..\Helpers\VertexAndFragmentDeclarations.fxh>
 #include <..\Helpers\GammaLinearSpace.fxh>
 #include <..\Helpers\RGBM.fxh>
 #include <..\Helpers\ParallaxMapping.fxh>
@@ -132,7 +133,7 @@ struct VS_OUTTangent
 {
 	float4 position         : POSITION0;    
     float2 uv			    : TEXCOORD0;
-	float4 postProj         : TEXCOORD1;	
+	float4 postProj         : TEXCOORD1;
     float2 parallaxOffsetTS : TEXCOORD2;
     float3 viewWS           : TEXCOORD3;
     float3x3 tangentToWorld : TEXCOORD4;	
@@ -167,24 +168,20 @@ VS_OUT vs_mainWithTexture(in float4 position : POSITION, in float3 normal : NORM
 	return output;
 } // vs_mainWithTexture
 
-VS_OUTTangent vs_mainWithTangent(in float4 position : POSITION,
-								 in float3 normal   : NORMAL,
-								 in float3 tangent  : TANGENT,
-								 in float3 binormal : BINORMAL,
-								 in float2 uv       : TEXCOORD0)
+VS_OUTTangent vs_mainWithTangent(WithTangentVS_INPUT input)
 {
 	VS_OUTTangent output = (VS_OUTTangent)0;
 
-	output.position = mul(position, worldViewProj);
+	output.position = mul(input.position, worldViewProj);
 	output.postProj = output.position;
-	output.uv = uv;	
+	output.uv = input.uv;	
 		   
 	// Generate the tanget space to view space matrix
-	output.tangentToWorld[0] = mul(tangent,  worldIT);
-	output.tangentToWorld[1] = mul(binormal, worldIT); // binormal = cross(input.tangent, input.normal)
-	output.tangentToWorld[2] = mul(normal,   worldIT);
+	output.tangentToWorld[0] = mul(input.tangent,  worldIT);
+	output.tangentToWorld[1] = mul(input.binormal, worldIT); // binormal = cross(input.tangent, input.normal)
+	output.tangentToWorld[2] = mul(input.normal,   worldIT);
 
-	output.viewWS   = normalize(cameraPosition - mul(position, world));
+	output.viewWS   = normalize(cameraPosition - mul(input.position, world));
 
 	// Compute the ray direction for intersecting the height field profile with current view ray.
 

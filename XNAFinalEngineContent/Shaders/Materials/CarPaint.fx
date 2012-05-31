@@ -6,6 +6,7 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 ************************************************************************************************************************************************/
 
+#include <..\Helpers\VertexAndFragmentDeclarations.fxh>
 #include <..\Helpers\GammaLinearSpace.fxh>
 #include <..\Helpers\RGBM.fxh>
 
@@ -99,26 +100,22 @@ struct VS_OUT
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
-VS_OUT vs_main(in float4 position : POSITION,
-			   in float2 uv       : TEXCOORD0, // The tangent needs the uv anyway.
-               in float3 normal   : NORMAL,
-			   in float3 tangent  : TANGENT,
-			   in float3 binormal : BINORMAL)
+VS_OUT vs_main(WithTangentVS_INPUT input)
 {
 	VS_OUT output = (VS_OUT)0;
 
-	output.position = mul(position, worldViewProj);
+	output.position = mul(input.position, worldViewProj);
 	output.postProj = output.position;
 	
     // Generate the tanget space to world space matrix. View space doesn't work in this case because the reflection vector is in world space.
-    output.tangentToWorld[0] = mul(tangent,  worldIT);
-    output.tangentToWorld[1] = mul(binormal, worldIT); // binormal = cross(input.tangent, input.normal)
-    output.tangentToWorld[2] = mul(normal,   worldIT);
+    output.tangentToWorld[0] = mul(input.tangent,  worldIT);
+    output.tangentToWorld[1] = mul(input.binormal, worldIT); // binormal = cross(input.tangent, input.normal)
+    output.tangentToWorld[2] = mul(input.normal,   worldIT);
 
 	// Compute microflake tiling factor:
-    output.sparkleUv = uv * flakesScale;
+    output.sparkleUv = input.uv * flakesScale;
 
-	float3 positionWorld = mul(position, world).xyz;	
+	float3 positionWorld = mul(input.position, world).xyz;	
 	output.view = normalize(cameraPosition - positionWorld);
 	
 	return output;

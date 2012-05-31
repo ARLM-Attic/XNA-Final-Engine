@@ -276,7 +276,7 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private PointLightShader() : base("LightPrePass\\PointLight")
         {
-            boundingLightObject = new Sphere(50, 50, 1);
+            boundingLightObject = new Sphere(8, 8, 1);
         } // PointLightShader
 
         #endregion

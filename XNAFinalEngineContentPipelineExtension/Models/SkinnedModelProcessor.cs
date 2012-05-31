@@ -11,11 +11,13 @@
 #region Using directives
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
+using Microsoft.Xna.Framework.Graphics.PackedVector;
 #endregion
 
 namespace XNAFinalEngineContentPipelineExtension.Models
@@ -24,7 +26,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
     /// Custom processor extends the builtin framework ModelProcessor class, adding animation support.
     /// </summary>
     [ContentProcessor(DisplayName = "Model Skinned - XNA Final Engine")]
-    public class SkinnedModelProcessor : IgnoreTexturesModelProcessor
+    public class SkinnedModelProcessor : SimplifiedModelProcessor
     {
 
         #region Process
@@ -66,9 +68,9 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             }
 
             // Convert animation data to our runtime format.
-            Dictionary<string, ModelAnimationClip> animationClips = ProcessAnimations(skeleton.Animations, bones);
+            Dictionary<string, ModelAnimationClip> modelAnimationClips = ProcessAnimations(skeleton.Animations, bones, context);
 
-            Dictionary<string, RootAnimationClip> rootClips = new Dictionary<string, RootAnimationClip>();
+            Dictionary<string, RootAnimationClip> rootAnimationClips = new Dictionary<string, RootAnimationClip>();
             
             // Chain to the base ModelProcessor class so it can convert the model data.
             ModelContent model = base.Process(input, context);
@@ -78,11 +80,11 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             {
                 RootAnimationClip processed = RigidModelProcessor.ProcessRootAnimation(animation.Value, model.Bones[0].Name);
 
-                rootClips.Add(animation.Key, processed);
+                rootAnimationClips.Add(animation.Key, processed);
             }            
  
             // Store our custom animation data in the Tag property of the model.
-            model.Tag = new ModelAnimationData(animationClips, rootClips, bindPose, inverseBindPose, skeletonHierarchy);
+            model.Tag = new ModelAnimationData(modelAnimationClips, rootAnimationClips, bindPose, inverseBindPose, skeletonHierarchy);
 
             return model;
         } // Process
@@ -91,17 +93,73 @@ namespace XNAFinalEngineContentPipelineExtension.Models
 
         #region Process Vertex Channel
 
+        /// <summary>
+        /// Processes geometry content vertex channels at the specified index.
+        /// </summary>
         protected override void ProcessVertexChannel(GeometryContent geometry, int vertexChannelIndex, ContentProcessorContext context)
         {
+
+            #region No compressed Vertex Data
+            /*
             bool isWeights = geometry.Vertices.Channels[vertexChannelIndex].Name == VertexChannelNames.Weights();
-
             base.ProcessVertexChannel(geometry, vertexChannelIndex, context);
-
             if (isWeights)
             {
                 geometry.Vertices.Channels.ConvertChannelContent<Vector4>("BlendIndices0");
                 geometry.Vertices.Channels.ConvertChannelContent<Vector4>("BlendWeight0");
             }
+            */
+            #endregion
+
+            #region Compressed Vertex Data
+            
+            VertexChannelCollection channels = geometry.Vertices.Channels;
+            string name = channels[vertexChannelIndex].Name;
+
+            if (name == VertexChannelNames.Normal())
+            {
+                channels.ConvertChannelContent<NormalizedShort4>(vertexChannelIndex);
+            }
+            else if (name == VertexChannelNames.TextureCoordinate(0))
+            {
+                // If the resource has texture coordinates outside the range [-1, 1] the values will be clamped.
+                channels.ConvertChannelContent<NormalizedShort2>(vertexChannelIndex);
+            }
+            else if (name == VertexChannelNames.TextureCoordinate(1))
+                channels.Remove(VertexChannelNames.TextureCoordinate(1));
+            else if (name == VertexChannelNames.TextureCoordinate(2))
+                channels.Remove(VertexChannelNames.TextureCoordinate(2));
+            else if (name == VertexChannelNames.TextureCoordinate(3))
+                channels.Remove(VertexChannelNames.TextureCoordinate(3));
+            else if (name == VertexChannelNames.TextureCoordinate(4))
+                channels.Remove(VertexChannelNames.TextureCoordinate(4));
+            else if (name == VertexChannelNames.TextureCoordinate(5))
+                channels.Remove(VertexChannelNames.TextureCoordinate(5));
+            else if (name == VertexChannelNames.TextureCoordinate(6))
+                channels.Remove(VertexChannelNames.TextureCoordinate(6));
+            else if (name == VertexChannelNames.TextureCoordinate(7))
+                channels.Remove(VertexChannelNames.TextureCoordinate(7));
+            else if (name == VertexChannelNames.Color(0))
+                channels.Remove(VertexChannelNames.Color(0));
+            else if (name == VertexChannelNames.Tangent(0))
+            {
+                channels.ConvertChannelContent<NormalizedShort4>(vertexChannelIndex);
+            }
+            else if (name == VertexChannelNames.Binormal(0))
+            {
+                channels.ConvertChannelContent<NormalizedShort4>(vertexChannelIndex);
+            }
+            else
+            {
+                // Blend indices, blend weights and everything else.
+                // Don't use "BlendWeight0" as a name, nor weights0. Both names don't work.
+                base.ProcessVertexChannel(geometry, vertexChannelIndex, context);
+                geometry.Vertices.Channels.ConvertChannelContent<Byte4>("BlendIndices0");
+                geometry.Vertices.Channels.ConvertChannelContent<NormalizedShort4>(VertexChannelNames.EncodeName(VertexElementUsage.BlendWeight, 0)); 
+            }
+            
+            #endregion
+
         } // ProcessVertexChannel
 
         #endregion
@@ -112,7 +170,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
         /// Converts an intermediate format content pipeline AnimationContentDictionary
         /// object to our runtime AnimationClip format.
         /// </summary>
-        static Dictionary<string, ModelAnimationClip> ProcessAnimations(AnimationContentDictionary animations, IList<BoneContent> bones)
+        static Dictionary<string, ModelAnimationClip> ProcessAnimations(AnimationContentDictionary animations, IList<BoneContent> bones, ContentProcessorContext context)
         {
             // Build up a table mapping bone names to indices.
             Dictionary<string, int> boneMap = new Dictionary<string, int>();
@@ -138,7 +196,8 @@ namespace XNAFinalEngineContentPipelineExtension.Models
 
             if (animationClips.Count == 0)
             {
-                throw new InvalidContentException("Input file does not contain any animations.");
+                context.Logger.LogWarning(null, null, "Input file does not contain any animations.");
+                //throw new InvalidContentException("Input file does not contain any animations.");
             }
 
             return animationClips;
@@ -218,11 +277,9 @@ namespace XNAFinalEngineContentPipelineExtension.Models
                                               "Mesh {0} is a child of bone {1}. SkinnedModelProcessor does not correctly handle meshes that are children of bones.",
                                               mesh.Name, parentBoneName);
                 }
-
                 if (!MeshHasSkinning(mesh))
                 {
                     context.Logger.LogWarning(null, null, "Mesh {0} has no skinning information, so it has been deleted.", mesh.Name);
-
                     mesh.Parent.Children.Remove(mesh);
                     return;
                 }
@@ -237,10 +294,6 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             foreach (NodeContent child in new List<NodeContent>(node.Children))
                 ValidateMesh(child, context, parentBoneName);
         } // ValidateMesh
-
-        #endregion
-
-        #region Mesh Has Skinning
 
         /// <summary>
         /// Checks whether a mesh contains skininng information.
@@ -262,6 +315,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
 
         /// <summary>
         /// Bakes unwanted transforms into the model geometry, so everything ends up in the same coordinate system.
+        /// http://blogs.msdn.com/b/shawnhar/archive/2006/11/22/flattening-unwanted-bones.aspx
         /// </summary>
         static void FlattenTransforms(NodeContent node, BoneContent skeleton)
         {

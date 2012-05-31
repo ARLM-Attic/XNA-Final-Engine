@@ -56,7 +56,7 @@ namespace XNAFinalEngine.Graphics
         /// Number of splits. 
         /// This value have to be the same in both this class and the shader code.
         /// </summary>
-        private const int numberSplits = 4;
+        private const int numberSplits = 3;
 
         #endregion
 

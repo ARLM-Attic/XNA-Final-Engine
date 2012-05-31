@@ -100,13 +100,13 @@ namespace XNAFinalEngineExamples
             camera.Camera.PostProcess.Bloom.Threshold = 2;
             camera.Camera.AmbientLight = new AmbientLight
             {
-                SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
+                //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
                 //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
                 Color = new Color(50, 50, 50),
                 Intensity = 5f,
                 AmbientOcclusionStrength = 5f
             };
-            camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
+            //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
             //camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM", true, 50) };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
@@ -140,7 +140,10 @@ namespace XNAFinalEngineExamples
 
             #region Dude
 
-            dude = new GameObject3D(new FileModel("DudeWalk"), null);
+            for (int i = 0; i < 20; i++)
+            {
+            //dude = new GameObject3D(new FileModel("dude_attack"), new BlinnPhong());
+            dude = new GameObject3D(new FileModel("DudeWalk"), new BlinnPhong());
             dude.ModelRenderer.MeshMaterial = new Material[5];
             dude.ModelRenderer.MeshMaterial[0] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\head"), NormalTexture = new Texture("Dude\\headN"), SpecularTexture = new Texture("Dude\\headS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
             dude.ModelRenderer.MeshMaterial[1] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\jacket"), NormalTexture = new Texture("Dude\\jacketN"), SpecularTexture = new Texture("Dude\\jacketS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
@@ -153,11 +156,12 @@ namespace XNAFinalEngineExamples
             //dude.ModelAnimations.AddAnimationClip(modelAnimation);
             dude.ModelAnimations.Play("Take 001");
             dude.Transform.Rotate(new Vector3(0, 180, 0));
+            }
 
             #endregion
 
             #region Floor
-
+            /*
             floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
                            new BlinnPhong
                            {
@@ -165,7 +169,7 @@ namespace XNAFinalEngineExamples
                                DiffuseColor = new Color(125, 125, 125),
                                SpecularIntensity = 0.0f,
                            }) { Transform = { LocalScale = new Vector3(5, 5, 5) } };
-
+            */
             #endregion
 
             #endregion
@@ -199,7 +203,7 @@ namespace XNAFinalEngineExamples
             spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
             spotLight.Transform.Position = new Vector3(0, 15f, -10);
             spotLight.Transform.Rotate(new Vector3(-45, 180, 0));
-            spotLight.SpotLight.LightMaskTexture = new Texture("LightMasks\\Crysis2TestLightMask");
+            //spotLight.SpotLight.LightMaskTexture = new Texture("LightMasks\\Crysis2TestLightMask");
             /*spotLight.SpotLight.Shadow = new BasicShadow
             {
                 Filter = Shadow.FilterType.PCF3x3,
@@ -216,7 +220,7 @@ namespace XNAFinalEngineExamples
 
             #endregion
             
-            PostProcessWindow.Show(camera.Camera.PostProcess);
+            //PostProcessWindow.Show(camera.Camera.PostProcess);
             
         } // Load
 

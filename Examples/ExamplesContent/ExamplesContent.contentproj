@@ -227,76 +227,91 @@
       <Name>BrakeDisc-Diffuse</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\BrakeDisc-Normal.dds">
       <Name>BrakeDisc-Normal</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\BrakeDisc-Specular.dds">
       <Name>BrakeDisc-Specular</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\Lamborghini-Logo.dds">
       <Name>Lamborghini-Logo</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\LamborghiniBrakeCaliper.dds">
       <Name>LamborghiniBrakeCaliper</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\LP640-AirTakesEngine-Diffuse.dds">
       <Name>LP640-AirTakesEngine-Diffuse</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\LP640-AirTakesEngine-Specular.dds">
       <Name>LP640-AirTakesEngine-Specular</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Floor.dds">
       <Name>Murcielago-Floor</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Logo-Diffuse.dds">
       <Name>Murcielago-Logo-Diffuse</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Logo-Normal.dds">
       <Name>Murcielago-Logo-Normal</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Logo-Specular.dds">
       <Name>Murcielago-Logo-Specular</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\Murcielago-LP640-Exhaust.dds">
       <Name>Murcielago-LP640-Exhaust</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\Murcielago-LP640-Grid.dds">
       <Name>Murcielago-LP640-Grid</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\PirelliPZero-Diffuse.dds">
       <Name>PirelliPZero-Diffuse</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\LamborghiniMurcielago\PirelliPZero-Normal.dds">
       <Name>PirelliPZero-Normal</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -625,6 +640,7 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
     <Compile Include="Textures\HotPursuitSkydome.dds">
       <Name>HotPursuitSkydome</Name>

@@ -65,9 +65,9 @@ WithoutTextureVS_OUTPUT SkinnedWithoutTextureVS(SkinnedWithoutTextureVS_INPUT in
 	WithoutTextureVS_OUTPUT output;
    
 	SkinTransform(input.position, input.normal, input.indices, input.weights, 4);
-	output.position = mul(input.position, worldViewProj);
-	output.depth    = -mul(input.position, worldView).z / farPlane;	
-	output.normal   = mul(input.normal, worldViewIT); // The normals are in view space.	
+	output.position         = mul(input.position, worldViewProj);
+	output.normalDepth.w    = -mul(input.position, worldView).z / farPlane;	
+	output.normalDepth.xyz  = mul(input.normal, worldViewIT); // The normals are in view space.	
 
 	return output;
 } // SkinnedWithoutTextureVS
@@ -77,9 +77,9 @@ WithTextureVS_OUTPUT SkinnedWithTextureVS(SkinnedWithTextureVS_INPUT input)
 	WithTextureVS_OUTPUT output;
    
 	SkinTransform(input.position, input.normal, input.indices, input.weights, 4);
-	output.position = mul(input.position, worldViewProj);
-	output.depth    = -mul(input.position, worldView).z / farPlane;	
-	output.normal   = mul(input.normal, worldViewIT); // The normals are in view space.
+	output.position         = mul(input.position, worldViewProj);
+	output.normalDepth.w    = -mul(input.position, worldView).z / farPlane;	
+	output.normalDepth.xyz  = mul(input.normal, worldViewIT); // The normals are in view space.
 	output.uv = input.uv;
 
 	return output;
@@ -91,14 +91,14 @@ WithTangentVS_OUTPUT SkinnedWithNormalMapVS(SkinnedWithTangentVS_INPUT input)
    
 	SkinTransform(input.position, input.normal, input.indices, input.weights, 4);
 	output.position = mul(input.position, worldViewProj);
-	output.depth    = -mul(input.position, worldView).z / farPlane;	
+	output.uvDepth.z    = -mul(input.position, worldView).z / farPlane;	
 
 		// Generate the tanget space to view space matrix
 	output.tangentToView[0] = mul(input.tangent,  worldViewIT);
 	output.tangentToView[1] = mul(input.binormal, worldViewIT); // binormal = cross(input.tangent, input.normal)
 	output.tangentToView[2] = mul(input.normal,   worldViewIT);
 
-	output.uv = input.uv;
+	output.uvDepth.xy = input.uv;
 
 	return output;
 } // SkinnedWithNormalMapVS
@@ -110,7 +110,7 @@ WithParallaxVS_OUTPUT SkinnedWithParallaxVS(SkinnedWithTangentVS_INPUT input)
 	SkinTransform(input.position, input.normal, input.indices, input.weights, 4);
 	output.position = mul(input.position, worldViewProj);
 	float3 positionVS = mul(input.position, worldView);
-	output.depth    = -mul(input.position, worldView).z / farPlane;	
+	output.uvDepth.z    = -mul(input.position, worldView).z / farPlane;	
 
 		// Generate the tanget space to view space matrix
 	output.tangentToView[0] = mul(input.tangent,  worldViewIT);
@@ -119,7 +119,7 @@ WithParallaxVS_OUTPUT SkinnedWithParallaxVS(SkinnedWithTangentVS_INPUT input)
 
 	output.viewVS = normalize(-positionVS);
 
-	output.uv = input.uv;
+	output.uvDepth.xy = input.uv;
 
 	// Compute the ray direction for intersecting the height field profile with current view ray.
 

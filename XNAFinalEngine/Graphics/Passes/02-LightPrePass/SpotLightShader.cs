@@ -382,7 +382,7 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private SpotLightShader() : base("LightPrePass\\SpotLight")
         {
-            boundingLightObject = new Sphere(50, 50, 1);
+            boundingLightObject = new Sphere(8, 8, 1);
         } // SpotLightShader
 
         #endregion

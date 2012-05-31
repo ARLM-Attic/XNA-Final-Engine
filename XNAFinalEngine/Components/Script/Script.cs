@@ -147,7 +147,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Indicates if exist a no disposed script of this type with this owner.
         /// </summary>
-        internal static Script ConstainScript<TComponentType>(GameObject owner) where TComponentType : Component
+        internal static Script ContainScript<TComponentType>(GameObject owner) where TComponentType : Component
         {
             for (int i = 0; i < ScriptList.Count; i++)
             {
@@ -157,7 +157,7 @@ namespace XNAFinalEngine.Components
                 }
             }
             return null;
-        } // ConstainScript
+        } // ContainScript
 
         /// <summary>
         /// Try to fetch an available script from the currently created scripts.
