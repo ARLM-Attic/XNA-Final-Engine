@@ -833,6 +833,14 @@
       <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\dude_attack.fbx">
+      <Name>dude_attack</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>SkinnedModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
+    </Compile>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

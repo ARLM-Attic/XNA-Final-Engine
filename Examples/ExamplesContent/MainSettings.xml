@@ -6,8 +6,7 @@
     <WindowHeight>0</WindowHeight>
     <AspectRatio>0</AspectRatio>
     <Fullscreen>false</Fullscreen>
-    <VSync>false</VSync>
-    <MultiSampleQuality>0</MultiSampleQuality>
+    <VSync>false</VSync>    
     <ChangeWindowSize>true</ChangeWindowSize>
     <UpdateFrequency>0</UpdateFrequency>
     <IsMouseVisible>true</IsMouseVisible>

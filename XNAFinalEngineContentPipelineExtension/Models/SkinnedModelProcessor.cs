@@ -215,8 +215,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             List<ModelKeyframe> keyframes = new List<ModelKeyframe>();
 
             // For each input animation channel.
-            foreach (KeyValuePair<string, AnimationChannel> channel in
-                animation.Channels)
+            foreach (KeyValuePair<string, AnimationChannel> channel in animation.Channels)
             {
                 // Look up what bone this channel is controlling.
                 int boneIndex;
@@ -229,12 +228,36 @@ namespace XNAFinalEngineContentPipelineExtension.Models
                 // Convert the keyframe data.
                 foreach (AnimationKeyframe keyframe in channel.Value)
                 {
-                    keyframes.Add(new ModelKeyframe(boneIndex, (float)(keyframe.Time.TotalSeconds), keyframe.Transform));
+                    keyframes.Add(new ModelKeyframe((ushort)boneIndex, (float)(keyframe.Time.TotalSeconds), keyframe.Transform));
                 }
             }
 
             // Sort the merged keyframes by time.
             keyframes.Sort(CompareKeyframeTimes);
+
+            #region Key Frame Reduction
+            
+            // We drop key frame data where the bone transformation is equal to the previous key frame.
+            List<ModelKeyframe> keyframesReduced = new List<ModelKeyframe>();
+            for (int i = 0; i < ModelAnimationClip.MaxBones; i++)
+            {
+                int currentBone = i;
+                ModelKeyframe lastKeyFrame = new ModelKeyframe(255, 0, Matrix.Identity);
+                foreach (ModelKeyframe modelKeyframe in keyframes)
+                {
+                    if (modelKeyframe.Bone == (ushort)currentBone && (lastKeyFrame.Bone != (ushort)currentBone || lastKeyFrame.Position != modelKeyframe.Position ||
+                        lastKeyFrame.Rotation != modelKeyframe.Rotation || lastKeyFrame.Scale != modelKeyframe.Scale))
+                    {
+                        keyframesReduced.Add(modelKeyframe);
+                    }
+                    lastKeyFrame = modelKeyframe;
+                }
+            }
+            keyframes = keyframesReduced;
+            // Sort the merged keyframes by time.
+            keyframes.Sort(CompareKeyframeTimes);
+
+            #endregion
 
             if (keyframes.Count == 0)
                 throw new InvalidContentException("Animation has no keyframes.");
@@ -242,7 +265,12 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             if (animation.Duration <= TimeSpan.Zero)
                 throw new InvalidContentException("Animation has a zero duration.");
 
-            return new ModelAnimationClip((float)(animation.Duration.TotalSeconds), keyframes);
+            ModelKeyframe[] keyframesArray = new ModelKeyframe[keyframes.Count];
+            for (int i = 0; i < keyframes.Count; i++)
+            {
+                keyframesArray[i] = keyframes[i];
+            }
+            return new ModelAnimationClip((float)(animation.Duration.TotalSeconds), keyframesArray);
         } // ProcessAnimation
 
         #endregion
@@ -252,7 +280,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
         /// <summary>
         /// Comparison function for sorting keyframes into ascending time order.
         /// </summary>
-        static int CompareKeyframeTimes(Keyframe a, Keyframe b)
+        static int CompareKeyframeTimes(ModelKeyframe a, ModelKeyframe b)
         {
             return a.Time.CompareTo(b.Time);
         } // CompareKeyframeTimes

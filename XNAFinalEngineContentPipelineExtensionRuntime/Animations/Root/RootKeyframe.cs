@@ -9,7 +9,6 @@
 #endregion
 
 #region Using directives
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 #endregion
@@ -19,14 +18,19 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
     /// <summary>
     /// Describes the position at a single point in time.
     /// </summary>
-    public class RootKeyframe : Keyframe
+    public struct RootKeyframe
     {
+
+        /// <summary>
+        /// Gets the time offset from the start of the animation to this keyframe.
+        /// </summary>
+        [ContentSerializer]
+        public float Time;
 
         /// <summary>
         /// Gets the bone transform for this keyframe.
         /// </summary>
-        [ContentSerializer]
-        public Matrix Transform { get; private set; }
+        [ContentSerializer] public Matrix Transform;
 
         #region Constructors
 
@@ -38,11 +42,6 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
             Time = time;
             Transform = transform;
         } // RootKeyframe
-
-        /// <summary>
-        /// Private constructor for use by the XNB deserializer.
-        /// </summary>
-        private RootKeyframe() { }
 
         #endregion
 

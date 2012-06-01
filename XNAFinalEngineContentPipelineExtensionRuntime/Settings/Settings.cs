@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -73,13 +73,6 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Settings
         /// VSync enabled?
         /// </summary>
         public bool VSync = false;
-
-        /// <summary>
-        /// MultiSample Quality. 
-        /// It's the level of multisampling, in this case 4 means 4X, and 0 means no multisampling.
-        /// Important: Deferred lighting does not work well with MSAA.
-        /// </summary>
-        public int MultiSampleQuality = 0;
 
         /// <summary>
         /// Enables the option to resize the application window.

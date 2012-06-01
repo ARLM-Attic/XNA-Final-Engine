@@ -133,7 +133,7 @@ namespace XNAFinalEngineExamples
                                                             Color = new Color(20, 20, 20),
                                                             Intensity = 5f,
                                                             AmbientOcclusionStrength = 2f };
-            /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
+            camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
@@ -143,7 +143,7 @@ namespace XNAFinalEngineExamples
                 AngleBias = 1.25f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
-            };*/
+            };
 
             #endregion
 
@@ -936,7 +936,7 @@ namespace XNAFinalEngineExamples
             #endregion
             
             //dude = new GameObject3D(new FileModel("dude_attack"), new BlinnPhong());
-            GameObject3D dude = new GameObject3D(new FileModel("DudeWalk"), new BlinnPhong());
+            GameObject3D dude = new GameObject3D(new FileModel("dude_attack"), new BlinnPhong());
             dude.ModelRenderer.MeshMaterial = new Material[5];
             dude.ModelRenderer.MeshMaterial[0] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\head"), NormalTexture = new Texture("Dude\\headN"), SpecularTexture = new Texture("Dude\\headS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
             dude.ModelRenderer.MeshMaterial[1] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\jacket"), NormalTexture = new Texture("Dude\\jacketN"), SpecularTexture = new Texture("Dude\\jacketS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
@@ -944,11 +944,11 @@ namespace XNAFinalEngineExamples
             dude.ModelRenderer.MeshMaterial[3] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
             dude.ModelRenderer.MeshMaterial[4] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
             dude.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
-            dude.AddComponent<ModelAnimations>();
+            /*dude.AddComponent<ModelAnimations>();
             //ModelAnimation modelAnimation = new ModelAnimation("dude"); // Be aware to select the correct content processor.
             //dude.ModelAnimations.AddAnimationClip(modelAnimation);
             dude.ModelAnimations.Play("Take 001");
-            dude.Transform.Rotate(new Vector3(0, 180, 0));
+            dude.Transform.Rotate(new Vector3(0, 180, 0));*/
             
         } // Load
 

@@ -142,21 +142,27 @@ namespace XNAFinalEngineExamples
 
             for (int i = 0; i < 20; i++)
             {
-            //dude = new GameObject3D(new FileModel("dude_attack"), new BlinnPhong());
-            dude = new GameObject3D(new FileModel("DudeWalk"), new BlinnPhong());
-            dude.ModelRenderer.MeshMaterial = new Material[5];
-            dude.ModelRenderer.MeshMaterial[0] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\head"), NormalTexture = new Texture("Dude\\headN"), SpecularTexture = new Texture("Dude\\headS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-            dude.ModelRenderer.MeshMaterial[1] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\jacket"), NormalTexture = new Texture("Dude\\jacketN"), SpecularTexture = new Texture("Dude\\jacketS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-            dude.ModelRenderer.MeshMaterial[2] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\pants"), NormalTexture = new Texture("Dude\\pantsN"), SpecularTexture = new Texture("Dude\\pantsS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-            dude.ModelRenderer.MeshMaterial[3] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-            dude.ModelRenderer.MeshMaterial[4] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-            dude.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
-            dude.AddComponent<ModelAnimations>();
-            //ModelAnimation modelAnimation = new ModelAnimation("dude"); // Be aware to select the correct content processor.
-            //dude.ModelAnimations.AddAnimationClip(modelAnimation);
-            dude.ModelAnimations.Play("Take 001");
-            dude.Transform.Rotate(new Vector3(0, 180, 0));
+                //dude = new GameObject3D(new FileModel("dude_attack"), new BlinnPhong());
+                dude = new GameObject3D(new FileModel("DudeWalk"), new BlinnPhong());
+                dude.ModelRenderer.MeshMaterial = new Material[5];
+                dude.ModelRenderer.MeshMaterial[0] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\head"), NormalTexture = new Texture("Dude\\headN"), SpecularTexture = new Texture("Dude\\headS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
+                dude.ModelRenderer.MeshMaterial[1] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\jacket"), NormalTexture = new Texture("Dude\\jacketN"), SpecularTexture = new Texture("Dude\\jacketS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
+                dude.ModelRenderer.MeshMaterial[2] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\pants"), NormalTexture = new Texture("Dude\\pantsN"), SpecularTexture = new Texture("Dude\\pantsS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
+                dude.ModelRenderer.MeshMaterial[3] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
+                dude.ModelRenderer.MeshMaterial[4] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
+                dude.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
+                dude.AddComponent<ModelAnimations>();
+                //ModelAnimation modelAnimation = new ModelAnimation("dude"); // Be aware to select the correct content processor.
+                //dude.ModelAnimations.AddAnimationClip(modelAnimation);
+                dude.Transform.Rotate(new Vector3(0, 180, 0));
+                dude.ModelAnimations.Play("Take 001");
             }
+            /*dude = new GameObject3D(new FileModel("AnimatedCube"), new BlinnPhong());
+            dude.AddComponent<ModelAnimations>();
+            dude.ModelAnimations.Play("Take 001");
+            dude.AddComponent<RootAnimations>();
+            dude.RootAnimations.Play("Take 001");*/
+
 
             #endregion
 
@@ -221,6 +227,7 @@ namespace XNAFinalEngineExamples
             #endregion
             
             //PostProcessWindow.Show(camera.Camera.PostProcess);
+            
             
         } // Load
 

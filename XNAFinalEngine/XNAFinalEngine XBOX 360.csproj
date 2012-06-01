@@ -119,6 +119,7 @@
     <Compile Include="Components\Transform\Transform3D.cs" />
     <Compile Include="Engine Core\EngineManager.cs" />
     <Compile Include="Engine Core\GameLoop.cs" />
+    <Compile Include="Engine Core\GraphicsProfileExtender.cs" />
     <Compile Include="Engine Core\Scene.cs" />
     <Compile Include="Engine Core\Screen.cs" />
     <Compile Include="Engine Core\ScreenshotCapturer.cs" />

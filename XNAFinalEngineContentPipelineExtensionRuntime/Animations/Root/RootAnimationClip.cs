@@ -33,12 +33,12 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         /// sorted by time.
         /// </summary>
         [ContentSerializer]
-        public List<RootKeyframe> Keyframes { get; private set; }
+        public RootKeyframe[] Keyframes { get; private set; }
 
         /// <summary>
         /// Constructs a new root animation clip object.
         /// </summary>
-        public RootAnimationClip(float duration, List<RootKeyframe> keyframes)
+        public RootAnimationClip(float duration, RootKeyframe[] keyframes)
         {
             Duration = duration;
             Keyframes = keyframes;

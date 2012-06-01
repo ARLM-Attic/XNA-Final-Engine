@@ -9,7 +9,6 @@
 #endregion
 
 #region Using directives
-using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 #endregion
 
@@ -34,16 +33,15 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         public float Duration { get; private set; }
         
         /// <summary>
-        /// Gets a combined list containing all the keyframes for all bones,
-        /// sorted by time.
+        /// Gets a combined list containing all the keyframes for all bones,  sorted by time.
         /// </summary>
         [ContentSerializer]
-        public List<ModelKeyframe> Keyframes { get; private set; }
+        public ModelKeyframe[] Keyframes { get; private set; }
 
         /// <summary>
         /// Constructs a new model animation clip object.
         /// </summary>
-        public ModelAnimationClip(float duration, List<ModelKeyframe> keyframes)
+        public ModelAnimationClip(float duration, ModelKeyframe[] keyframes)
         {
             Duration = duration;
             Keyframes = keyframes;

@@ -57,10 +57,10 @@ namespace XNAFinalEngineExamples
             // User initial code. Like network updates or some checking.
 
             // Now the engine will start.
-            //EngineManager.StartEngine(new DudeEditableScene(), false);
+            EngineManager.StartEngine(new DudeEditableScene(), false);
             //EngineManager.StartEngine(new DudeScene(), false);
             //EngineManager.StartEngine(new PrototypeScene(), false);
-            EngineManager.StartEngine(new LamborghiniMurcielagoScene(), false);
+            //EngineManager.StartEngine(new LamborghiniMurcielagoScene(), false);
             //EngineManager.StartEngine(new MiscellaneousTestScene(), false);
             //EngineManager.StartEngine(new NeoForceTestScene());
             //EngineManager.StartEngine(new HelloWorldScene(), false);

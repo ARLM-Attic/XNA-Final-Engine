@@ -197,6 +197,10 @@ namespace XNAFinalEngine.EngineCore
             
             IsMouseVisible = mainSettings.IsMouseVisible;
 
+            // Check if there is an available HiDef device available.
+            // If not, extend the HiDef profile to cover the missing parts.
+            GraphicsProfileExtender.ExtendHiDefSupport();
+
             GraphicsDeviceManager graphicsDeviceManager = new GraphicsDeviceManager(this);
 
             #region Resolution
@@ -224,7 +228,7 @@ namespace XNAFinalEngine.EngineCore
             graphicsDeviceManager.IsFullScreen = mainSettings.Fullscreen;
 
             // Multisampling
-            Screen.MultiSampleQuality = mainSettings.MultiSampleQuality;
+            Screen.MultiSampleQuality = 0;
             //SystemInformation.GraphicsDeviceManager.PreferMultiSampling = mainSettings.MultiSampleQuality != 0; // Activate the antialiasing if multisamplequality is different than zero.
             // We will always use the back buffer for 2D operations, so no need to waste space and time in multisampling.
             graphicsDeviceManager.PreferMultiSampling = false;
@@ -355,8 +359,7 @@ namespace XNAFinalEngine.EngineCore
             // I don't want that this method is called when a device reset occurs.
             // I do this comparison in this way because the device has the new value and the graphic device manager the old one,
             // but not always, that's the problem.
-            if (Device.PresentationParameters.BackBufferWidth != oldScreenWidth ||
-                Device.PresentationParameters.BackBufferHeight != oldScreenHeight)
+            if (Device.PresentationParameters.BackBufferWidth != oldScreenWidth || Device.PresentationParameters.BackBufferHeight != oldScreenHeight)
             {
                 oldScreenWidth = Device.PresentationParameters.BackBufferWidth;
                 oldScreenHeight = Device.PresentationParameters.BackBufferHeight;

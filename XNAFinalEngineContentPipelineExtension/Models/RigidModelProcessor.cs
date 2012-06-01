@@ -11,6 +11,7 @@
 #region Using directives
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
@@ -220,13 +221,36 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             // Sort the merged keyframes by time.
             keyframes.Sort(CompareKeyframeTimes);
 
+            #region Key Frame Reduction
+
+            // We drop key frame data where the bone transformation is equal to the previous key frame.
+            List<RootKeyframe> keyframesReduced = new List<RootKeyframe>();
+            keyframesReduced.Add(keyframes[0]);
+            for (int i = 1; i < keyframes.Count; i++)
+            {
+                if (keyframes[i - 1].Transform != keyframes[i].Transform)
+                {
+                    keyframesReduced.Add(keyframes[i]);
+                }
+            }
+            keyframes = keyframesReduced;
+            // Sort the merged keyframes by time.
+            keyframes.Sort(CompareKeyframeTimes);
+
+            #endregion
+
             if (keyframes.Count == 0)
                 throw new InvalidContentException("Animation has no keyframes.");
 
             if (animation.Duration <= TimeSpan.Zero)
                 throw new InvalidContentException("Animation has a zero duration.");
 
-            return new RootAnimationClip((float)(animation.Duration.TotalSeconds), keyframes);
+            RootKeyframe[] keyframesArray = new RootKeyframe[keyframes.Count];
+            for (int i = 0; i < keyframes.Count; i++)
+            {
+                keyframesArray[i] = keyframes[i];
+            }
+            return new RootAnimationClip((float)(animation.Duration.TotalSeconds), keyframesArray);
         } // ProcessRootAnimation
 
         #endregion
@@ -252,7 +276,12 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             if (duration <= TimeSpan.Zero)
                 throw new InvalidContentException("Animation has a zero duration.");
 
-            return new ModelAnimationClip((float)(duration.TotalSeconds), keyframes);
+            ModelKeyframe[] keyframesArray = new ModelKeyframe[keyframes.Count];
+            for (int i = 0; i < keyframes.Count; i++)
+            {
+                keyframesArray[i] = keyframes[i];
+            }
+            return new ModelAnimationClip((float)(duration.TotalSeconds), keyframesArray);
         } // ProcessRigidAnimation
 
         static void AddTransformationNodes(string animationName, Dictionary<string, int> boneMap, NodeContent input, List<ModelKeyframe> keyframes, ref TimeSpan duration)
@@ -278,7 +307,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
 
                     foreach (AnimationKeyframe keyframe in childChannel)
                     {
-                        keyframes.Add(new ModelKeyframe(boneIndex, (float)(keyframe.Time.TotalSeconds), keyframe.Transform));
+                        keyframes.Add(new ModelKeyframe((ushort)boneIndex, (float)(keyframe.Time.TotalSeconds), keyframe.Transform));
                     }
                 }
 
@@ -293,7 +322,15 @@ namespace XNAFinalEngineContentPipelineExtension.Models
         /// <summary>
         /// Comparison function for sorting keyframes into ascending time order.
         /// </summary>
-        static int CompareKeyframeTimes(Keyframe a, Keyframe b)
+        static int CompareKeyframeTimes(ModelKeyframe a, ModelKeyframe b)
+        {
+            return a.Time.CompareTo(b.Time);
+        } // CompareKeyframeTimes
+
+        /// <summary>
+        /// Comparison function for sorting keyframes into ascending time order.
+        /// </summary>
+        static int CompareKeyframeTimes(RootKeyframe a, RootKeyframe b)
         {
             return a.Time.CompareTo(b.Time);
         } // CompareKeyframeTimes

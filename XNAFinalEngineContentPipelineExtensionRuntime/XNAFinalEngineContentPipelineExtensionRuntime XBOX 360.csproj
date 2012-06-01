@@ -43,7 +43,6 @@
   </PropertyGroup>
   <ItemGroup />
   <ItemGroup>
-    <Compile Include="Animations\Keyframe.cs" />
     <Compile Include="Animations\ModelAnimationData.cs" />
     <Compile Include="Animations\Model\ModelAnimationClip.cs" />
     <Compile Include="Animations\Model\ModelKeyframe.cs" />
