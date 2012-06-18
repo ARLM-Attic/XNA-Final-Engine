@@ -213,8 +213,9 @@ namespace XNAFinalEngine.Components
         {
             ParticleSystem.Update(Duration);
 
+            Vector3 lastPosition = currentPosition;
             currentPosition = ((GameObject3D)Owner).Transform.Position; // Cache this one. TODO
-            velocity = currentPosition / Time.FrameTime;
+            velocity = (currentPosition - lastPosition) / Time.FrameTime;
             
             if (Time.FrameTime > 0)
             {

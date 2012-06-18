@@ -32,7 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using XNAFinalEngine.Animations;
+using Microsoft.Xna.Framework.Media;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
@@ -122,15 +122,15 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Gets the current state (playing, paused, or stopped) 
         /// </summary>
-        public AnimationState State
+        public MediaState State
         {
             get
             {
                 if (currentAnimationClip == null)
-                    return AnimationState.Stopped;
+                    return MediaState.Stopped;
                 if (paused)
-                    return AnimationState.Paused;
-                return AnimationState.Playing;
+                    return MediaState.Paused;
+                return MediaState.Playing;
             }
         } // State
         

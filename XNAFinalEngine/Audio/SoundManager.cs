@@ -250,6 +250,7 @@ namespace XNAFinalEngine.Audio
                 if (soundInstances[i].Sound == null)
                 {
                     soundInstances[i].SoundEffectInstance = sound.Resource.CreateInstance();
+                    soundInstances[i].SoundEffectInstance.IsLooped = sound.IsLooped;
                     soundInstances[i].Sound = sound;
                     return soundInstances[i].SoundEffectInstance;
                 }
@@ -263,6 +264,7 @@ namespace XNAFinalEngine.Audio
                     lastSoundCreatedIndex = i;
                     soundInstances[i].SoundEffectInstance.Dispose();
                     soundInstances[i].SoundEffectInstance = sound.Resource.CreateInstance();
+                    soundInstances[i].SoundEffectInstance.IsLooped = sound.IsLooped;
                     soundInstances[i].Sound = sound;
                     return soundInstances[i].SoundEffectInstance;
                 }
@@ -274,6 +276,7 @@ namespace XNAFinalEngine.Audio
                     lastSoundCreatedIndex = i;
                     soundInstances[i].SoundEffectInstance.Dispose();
                     soundInstances[i].SoundEffectInstance = sound.Resource.CreateInstance();
+                    soundInstances[i].SoundEffectInstance.IsLooped = sound.IsLooped;
                     soundInstances[i].Sound = sound;
                     return soundInstances[i].SoundEffectInstance;
                 }

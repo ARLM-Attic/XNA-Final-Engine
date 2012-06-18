@@ -243,13 +243,6 @@ namespace XNAFinalEngineExamples
         public override void UpdateTasks()
         {
             base.UpdateTasks();
-            if (Keyboard.SpaceJustPressed)
-            {
-                if (dude.ModelAnimations.State == AnimationState.Playing)
-                    dude.ModelAnimations.Pause();
-                else
-                    dude.ModelAnimations.Resume();   
-            }
         } // UpdateTasks
 
         #endregion

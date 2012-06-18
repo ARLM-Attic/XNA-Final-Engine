@@ -59,12 +59,14 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             List<Matrix> bindPose        = new List<Matrix>();
             List<Matrix> inverseBindPose = new List<Matrix>();
             List<int> skeletonHierarchy  = new List<int>();
+            Dictionary<string, int> boneIndices = new Dictionary<string, int>();
              
             foreach (BoneContent bone in bones)
             {
                 bindPose.Add(bone.Transform);
                 inverseBindPose.Add(Matrix.Invert(bone.AbsoluteTransform));
                 skeletonHierarchy.Add(bones.IndexOf(bone.Parent as BoneContent));
+                boneIndices.Add(bone.Name, boneIndices.Count);
             }
 
             // Convert animation data to our runtime format.
@@ -84,7 +86,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             }            
  
             // Store our custom animation data in the Tag property of the model.
-            model.Tag = new ModelAnimationData(modelAnimationClips, rootAnimationClips, bindPose, inverseBindPose, skeletonHierarchy);
+            model.Tag = new ModelAnimationData(modelAnimationClips, rootAnimationClips, bindPose, inverseBindPose, skeletonHierarchy, boneIndices);
 
             return model;
         } // Process
@@ -256,7 +258,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             keyframes = keyframesReduced;
             // Sort the merged keyframes by time.
             keyframes.Sort(CompareKeyframeTimes);
-
+            
             #endregion
 
             if (keyframes.Count == 0)

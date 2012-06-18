@@ -40,6 +40,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             ValidateMesh(input, context, null);
                         
             List<int> boneHierarchy = new List<int>();
+            Dictionary<string, int> boneIndices = new Dictionary<string, int>();
              
             // Chain to the base ModelProcessor class so it can convert the model data. 
             ModelContent model = base.Process(input, context);           
@@ -48,6 +49,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             foreach (ModelBoneContent bone in model.Bones)
             {                
                 boneHierarchy.Add(model.Bones.IndexOf(bone.Parent));
+                boneIndices.Add(bone.Name, boneIndices.Count);
             }
             
             // Animation clips inside the object (mesh)
@@ -67,7 +69,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             else
             {
                 // Store the animation data for the model.
-                model.Tag = new ModelAnimationData(modelAnimationClips, rootAnimationClips, null, null, boneHierarchy);
+                model.Tag = new ModelAnimationData(modelAnimationClips, rootAnimationClips, null, null, boneHierarchy, boneIndices);
             }
 
             return model;

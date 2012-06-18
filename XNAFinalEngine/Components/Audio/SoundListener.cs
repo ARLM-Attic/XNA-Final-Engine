@@ -127,8 +127,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         protected virtual void OnWorldMatrixChanged(Matrix worldMatrix)
         {
-            // The view matrix is the invert
-            cachedWorldMatrix = Matrix.Invert(worldMatrix);            
+            cachedWorldMatrix = worldMatrix;            
         } // OnWorldMatrixChanged
 
         #endregion

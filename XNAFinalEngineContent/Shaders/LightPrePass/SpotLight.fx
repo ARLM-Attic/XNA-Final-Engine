@@ -36,7 +36,6 @@ float4x4 viewToLightViewProj;
 
 float2 halfPixel;
 float farPlane;
-bool hasLightMask;
 
 float3 lightPosition;
 float3 lightDirection;
@@ -107,7 +106,7 @@ VS_OUT vs_main(in float4 position : POSITION)
 //////////////////////////////////////////////
 
 // This shader works in view space.
-float4 ps_main(uniform bool hasShadows, VS_OUT input) : COLOR0
+float4 ps_main(uniform bool hasShadows, uniform bool hasLightMask, VS_OUT input) : COLOR0
 {
     // Obtain screen position
     input.screenPosition.xy /= input.screenPosition.w;
@@ -124,14 +123,13 @@ float4 ps_main(uniform bool hasShadows, VS_OUT input) : COLOR0
 	
 	if (hasShadows) // No need for [branch], this is a uniform value.
 	{
-		shadowTerm = tex2D(shadowSampler, uv).r;		
+		shadowTerm = tex2D(shadowSampler, uv).r;	
 		[branch]
 		if (shadowTerm == 0)
 		{
 			Discard();
 		}
 	}
-
 
 	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
 	float depth = tex2D(depthSampler, uv).r;
@@ -168,6 +166,28 @@ float4 ps_main(uniform bool hasShadows, VS_OUT input) : COLOR0
 	// Reconstruct the view space position of the surface to light.
     float3 positionVS = depth * frustumRayVS;
 	
+	[branch]
+	if (hasLightMask)
+	{
+		// Determine the depth of the pixel with respect to the light
+		float4 positionLightCS = mul(float4(positionVS, 1), viewToLightViewProj);
+		
+		float depthLightSpace = positionLightCS.z / positionLightCS.w; // range 0 to 1
+	
+		// Transform from light space to shadow map texture space.
+		float2 shadowTexCoord = 0.5 * positionLightCS.xy / positionLightCS.w + float2(0.5f, 0.5f);
+		shadowTexCoord.y = 1.0f - shadowTexCoord.y;
+
+		// This could be easily modified to support color texture projection.
+		shadowTerm *= tex2D(lightMaskSampler, shadowTexCoord).r;
+		
+		[branch]
+		if (shadowTerm == 0)
+		{
+			Discard();
+		}
+	}
+
     // Surface-to-light vector (in view space)
     float3 L = lightPosition - positionVS; // Don't normalize, the attenuation function needs the distance.	
 	float3 N = SampleNormal(uv);
@@ -199,21 +219,7 @@ float4 ps_main(uniform bool hasShadows, VS_OUT input) : COLOR0
 	// Compute specular light
     float specular = pow(saturate(dot(N, H)), DecompressSpecularPower(tex2D(motionVectorSpecularPowerSampler, uv).b));
 	
-	[branch]
-	if (hasLightMask)
-	{
-		// Determine the depth of the pixel with respect to the light
-		float4 positionLightCS = mul(float4(positionVS, 1), viewToLightViewProj);
-		
-		float depthLightSpace = positionLightCS.z / positionLightCS.w; // range 0 to 1
-	
-		// Transform from light space to shadow map texture space.
-		float2 shadowTexCoord = 0.5 * positionLightCS.xy / positionLightCS.w + float2(0.5f, 0.5f);
-		shadowTexCoord.y = 1.0f - shadowTexCoord.y;
 
-		shadowTerm *= tex2D(lightMaskSampler, shadowTexCoord).r;
-		// This could be easily modified to support color texture projection.
-	}
 
 	// Fill the light buffer:
 	// R: Color.r * N.L // The color need to be in linear space and right now it's in gamma.
@@ -234,7 +240,16 @@ technique SpotLight
 	pass p0
 	{
 		VertexShader = compile vs_3_0 vs_main();
-		PixelShader  = compile ps_3_0 ps_main(false);
+		PixelShader  = compile ps_3_0 ps_main(false, false);
+	}
+} // SpotLight
+
+technique SpotLightWithMask
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 ps_main(false, true);
 	}
 } // SpotLight
 
@@ -243,6 +258,15 @@ technique SpotLightWithShadows
 	pass p0
 	{
 		VertexShader = compile vs_3_0 vs_main();
-		PixelShader  = compile ps_3_0 ps_main(true);
+		PixelShader  = compile ps_3_0 ps_main(true, false);
+	}
+} // SpotLight
+
+technique SpotLightWithShadowsWithMask
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 ps_main(true, true);
 	}
 } // SpotLight

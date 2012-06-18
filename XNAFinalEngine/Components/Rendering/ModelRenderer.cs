@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
+using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 #endregion
 
 namespace XNAFinalEngine.Components
@@ -145,7 +146,7 @@ namespace XNAFinalEngine.Components
             if (((GameObject3D)Owner).ModelAnimations != null)
             {
                 ((GameObject3D)Owner).ModelAnimations.BoneTransformChanged += OnBoneTransformChanged;
-                cachedBoneTransforms = ((GameObject3D)Owner).ModelAnimations.BoneTransform;
+                //cachedBoneTransforms = ((GameObject3D)Owner).ModelAnimations.BoneTransform;
             }
         } // Initialize
 
@@ -163,10 +164,8 @@ namespace XNAFinalEngine.Components
             Material = null;
             cachedBoneTransforms = null;
             cachedModel = null;
-            for (int i = 0; i < MeshMaterial.Length; i++)
-            {
-                MeshMaterial[i] = null;
-            }
+            MeshMaterial = null;
+
             ((GameObject3D)Owner).ModelFilterChanged -= OnModelFilterChanged;
             if (((GameObject3D)Owner).ModelFilter != null)
                 ((GameObject3D)Owner).ModelFilter.ModelChanged -= OnModelChanged;
@@ -244,13 +243,13 @@ namespace XNAFinalEngine.Components
             // The Unity scheme could be faked using two pools in the ModelFilter component, one for common models and one for skinned models. This is a matter of choice.
             if (cachedModel != null && cachedModel is FileModel && ((FileModel)cachedModel).IsSkinned)
             {
-                ((FileModel)cachedModel).UpdateWorldTransforms(boneTransform, boneTransform);
-                ((FileModel)cachedModel).UpdateSkinTransforms(boneTransform, boneTransform);
-                cachedBoneTransforms = boneTransform;
+                if (cachedBoneTransforms == null) // TODO!!!
+                    cachedBoneTransforms = new Matrix[ModelAnimationClip.MaxBones];
+                ((FileModel)cachedModel).UpdateSkinTransforms(boneTransform, cachedBoneTransforms);
             }
             else // It is rigid animated.
             {
-                cachedBoneTransforms = boneTransform;
+                cachedBoneTransforms = boneTransform; // TODO Hay que clonar, no copiar
             }
         } // OnBoneTransformChanged
 
@@ -270,7 +269,7 @@ namespace XNAFinalEngine.Components
             if (newComponent != null)
             {
                 ((ModelAnimations)newComponent).BoneTransformChanged += OnBoneTransformChanged;
-                cachedBoneTransforms = ((GameObject3D)Owner).ModelAnimations.BoneTransform;
+                //cachedBoneTransforms = ((GameObject3D)Owner).ModelAnimations.BoneTransform;
             }
             else
             {

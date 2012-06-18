@@ -769,6 +769,89 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
+            #region Model Renderer
+
+            if (selectedObject.ModelRenderer != null)
+            {
+
+                panel = CommonControls.PanelCollapsible("Model Renderer", rightPanelTabControl, 0);
+                CheckBox checkBoxVisible = CommonControls.CheckBox("Visible", panel, selectedObject.ModelRenderer.Visible);
+                checkBoxVisible.Top = 10;
+                checkBoxVisible.Draw += delegate { checkBoxVisible.Checked = selectedObject.ModelRenderer.Visible; };
+
+                #region Material
+
+                var assetCreatirMaterial = CommonControls.AssetSelector("Material", panel);
+                assetCreatirMaterial.AssetAdded += delegate
+                {
+                    /*LookupTableWindow.CurrentCreatedAssetChanged += delegate
+                    {
+                        selectedObject.ModelRenderer.Material = LookupTableWindow.CurrentCreatedAsset;
+                        panel.Invalidate();
+                    };
+                    LookupTableWindow.Show(null);*/
+                };
+                assetCreatirMaterial.AssetEdited += delegate
+                {
+                    if (selectedObject.ModelRenderer.Material is BlinnPhong)
+                    {
+                        BlinnPhongWindow.Show((BlinnPhong)selectedObject.ModelRenderer.Material);
+                    }
+                    
+                };
+                // Events
+                /*assetCreatirMaterial.ItemIndexChanged += delegate
+                {
+                    if (assetCreatirMaterial.ItemIndex <= 0)
+                        selectedObject.ModelRenderer.Material = null;
+                    else
+                    {
+                        foreach (Material material in Material.LoadedMaterials)
+                        {
+                            if (material.Name == (string)assetCreatirMaterial.Items[assetCreatirMaterial.ItemIndex])
+                                selectedObject.ModelRenderer.Material = material;
+                        }
+                    }
+                    assetCreatirMaterial.EditButtonEnabled = selectedObject.ModelRenderer.Material != null;
+                };*/
+                assetCreatirMaterial.Draw += delegate
+                {
+                    // Add textures name here because someone could dispose or add new lookup tables.
+                    assetCreatirMaterial.Items.Clear();
+                    assetCreatirMaterial.Items.Add("No material");
+                    foreach (LookupTable lookupTable in LookupTable.LoadedLookupTables)
+                        assetCreatirMaterial.Items.Add(lookupTable.Name);
+
+                    if (assetCreatirMaterial.ListBoxVisible)
+                        return;
+                    // Identify current index
+                    if (selectedObject.ModelRenderer.Material == null)
+                        assetCreatirMaterial.ItemIndex = 0;
+                    else
+                    {
+                        for (int i = 0; i < assetCreatirMaterial.Items.Count; i++)
+                            if ((string)assetCreatirMaterial.Items[i] == selectedObject.ModelRenderer.Material.Name)
+                            {
+                                assetCreatirMaterial.ItemIndex = i;
+                                break;
+                            }
+                    }
+                };
+                
+                #endregion
+
+                checkBoxVisible.CheckedChanged += delegate
+                {
+                    selectedObject.ModelRenderer.Visible = checkBoxVisible.Checked;
+                    /*sliderLightIntensity.Enabled = selectedObject.PointLight.Visible;
+                    sliderDiffuseColor.Enabled = selectedObject.PointLight.Visible;
+                    sliderLightRange.Enabled = selectedObject.PointLight.Visible;*/
+                };
+
+            }
+
+            #endregion
+
         } // AddControlsToInspector
 
         /// <summary>

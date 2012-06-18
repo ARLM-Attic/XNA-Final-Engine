@@ -258,7 +258,6 @@ namespace XNAFinalEngine.Components
                     return;
                 SoundEffectInstance.Pitch = Pitch;
                 SoundEffectInstance.Volume = Volume;
-                //soundEffectInstance.IsLooped = IsLooped;
                 // We need to activate the 3D support before play it, but we don’t want to know anything about the listener in this stage.
                 if (Sound.Type == Sound.SoundType.Sound3D)
                 {
@@ -266,7 +265,10 @@ namespace XNAFinalEngine.Components
                     audioEmitter.Forward = cachedWorldMatrix.Forward;
                     audioEmitter.Up = cachedWorldMatrix.Up;
                     audioEmitter.Position = cachedWorldMatrix.Translation;
-                    audioEmitter.Velocity = (audioEmitter.Position - oldPosition) / Time.SmoothFrameTime;
+                    if (Time.SmoothFrameTime > 0)
+                        audioEmitter.Velocity = (audioEmitter.Position - oldPosition) / Time.SmoothFrameTime;
+                    else
+                        audioEmitter.Velocity = Vector3.Zero;
                     // Distance / Time
                     oldPosition = audioEmitter.Position;
                     // Apply3D produces garbage if you don't use a audio listener array. Go figure.
@@ -397,7 +399,10 @@ namespace XNAFinalEngine.Components
                         audioEmitter.Forward = cachedWorldMatrix.Forward;
                         audioEmitter.Up = cachedWorldMatrix.Up;
                         audioEmitter.Position = cachedWorldMatrix.Translation;
-                        audioEmitter.Velocity = (audioEmitter.Position - oldPosition)/Time.SmoothFrameTime;
+                        if (Time.SmoothFrameTime > 0)
+                            audioEmitter.Velocity = (audioEmitter.Position - oldPosition)/Time.SmoothFrameTime;
+                        else
+                            audioEmitter.Velocity = Vector3.Zero;
                         // Distance / Time
                         oldPosition = audioEmitter.Position;
                         if (SoundEffectInstance.State == SoundState.Playing)
@@ -427,8 +432,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         protected virtual void OnWorldMatrixChanged(Matrix worldMatrix)
         {
-            // The view matrix is the invert
-            cachedWorldMatrix = Matrix.Invert(worldMatrix);            
+            cachedWorldMatrix = worldMatrix;            
         } // OnWorldMatrixChanged
 
         #endregion

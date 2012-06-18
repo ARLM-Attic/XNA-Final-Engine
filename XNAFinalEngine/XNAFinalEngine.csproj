@@ -96,7 +96,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animations\Animation.cs" />
+    <Compile Include="Animations\AnimationState.cs" />
     <Compile Include="Animations\ModelAnimationPlayer.cs" />
+    <Compile Include="Animations\AnimationManager.cs" />
     <Compile Include="Assets\AmbientLight\HorizonBasedAmbientOcclusion.cs" />
     <Compile Include="Assets\AmbientLight\RayMarchingAmbientOcclusion.cs" />
     <Compile Include="Assets\Animations\ModelAnimation.cs" />
@@ -241,7 +243,6 @@
       <Name>XNAFinalEngineContentPipelineExtensionRuntime</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

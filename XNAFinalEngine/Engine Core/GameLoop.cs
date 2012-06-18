@@ -34,6 +34,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using XNAFinalEngine.Animations;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Graphics;
@@ -199,6 +200,37 @@ namespace XNAFinalEngine.EngineCore
             Chronometer.UpdateGameDeltaTimeChronometers();
             
             #endregion
+
+            #region Root Animation Processing
+
+            for (int i = 0; i < RootAnimation.ComponentPool.Count; i++)
+            {
+                RootAnimation.ComponentPool.Elements[i].Update();
+            }
+
+            #endregion
+
+            #region Model Animation Processing
+
+            AnimationManager.UpdateAnimationPlayers();
+
+            // Update every active animation.
+            // The output is a skeletal/rigid pose in local space for each active clip.
+            // The pose might contain information for every joint in the skeleton (a full-body pose),
+            // for only a subset of joints (partial pose), or it might be a difference pose for use in additive blending.
+            for (int i = 0; i < ModelAnimations.ComponentPool.Count; i++)
+            {
+                ModelAnimations.ComponentPool.Elements[i].Update();
+            }
+
+            AnimationManager.ReleaseUnusedAnimationPlayers();
+
+            // The global pose (world space) is generated.
+            // However, if no post processing exist (IK, ragdolls, etc.) this stage could be merge with
+            // the inverse bind pose multiplication stage in the mesh draw code. And for now the engine will do this.
+            // TODO!!
+
+            #endregion
             
             #region Scene Update Tasks
             
@@ -213,7 +245,8 @@ namespace XNAFinalEngine.EngineCore
 
             foreach (var script in Script.ScriptList)
             {
-                script.Update();
+                if (!script.available)
+                    script.Update();
             }
 
             #endregion 
@@ -231,7 +264,8 @@ namespace XNAFinalEngine.EngineCore
 
             foreach (var script in Script.ScriptList)
             {
-                script.LateUpdate();
+                if (!script.available)
+                    script.LateUpdate();
             }
 
             #endregion
@@ -339,40 +373,11 @@ namespace XNAFinalEngine.EngineCore
 
             foreach (var script in Script.ScriptList)
             {
-                script.PreRenderUpdate();
+                if (!script.available)
+                    script.PreRenderUpdate();
             }
 
             #endregion 
-            
-            #region Root Animation Processing
-
-            for (int i = 0; i < RootAnimation.ComponentPool.Count; i++)
-            {
-                RootAnimation.ComponentPool.Elements[i].Update();
-            }
-
-            #endregion
-
-            #region Model Animation Processing
-
-            // Update every active animation.
-            // The output is a skeletal/rigid pose in local space for each active clip.
-            // The pose might contain information for every joint in the skeleton (a full-body pose),
-            // for only a subset of joints (partial pose), or it might be a difference pose for use in additive blending.
-            for (int i = 0; i < ModelAnimations.ComponentPool.Count; i++)
-            {
-                ModelAnimations.ComponentPool.Elements[i].Update();
-            }
-
-            // Sometimes the final pose is a composition of a number of animation clips. In this stage the animations are blended.
-            // The blending includes: lerp, additive blending and cross fading blending. 
-            // TODO!! foeach modelAnimationComponent blend active animations according to a blend tree or something similar.
-
-            // The global pose (world space) is generated.
-            // However, if no post processing exist (IK, ragdolls, etc.) this stage could be merge with
-            // the inverse bind pose multiplication stage in the mesh draw code. And for now the engine will do this.
-
-            #endregion
             
             #region Particles Emitters
 
@@ -450,7 +455,8 @@ namespace XNAFinalEngine.EngineCore
 
             foreach (var script in Script.ScriptList)
             {
-                script.PostRenderUpdate();
+                if (!script.available)
+                    script.PostRenderUpdate();
             }
 
             #endregion 

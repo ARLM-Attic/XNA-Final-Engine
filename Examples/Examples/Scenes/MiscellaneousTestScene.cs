@@ -978,7 +978,7 @@ namespace XNAFinalEngineExamples
 
             xnaFinalEngineLogo = new GameObject2D();
             xnaFinalEngineLogo.AddComponent<HudTexture>();
-            xnaFinalEngineLogo.HudTexture.Texture = new Texture("XNA Final Engine");
+            xnaFinalEngineLogo.HudTexture.Texture = new Texture("XNA Final Engine");            
             xnaFinalEngineLogo.Transform.LocalScale = 0.5f;
 
             #endregion

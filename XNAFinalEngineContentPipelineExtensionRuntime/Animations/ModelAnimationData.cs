@@ -56,6 +56,12 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
         [ContentSerializer]
         public List<int> BoneHierarchy { get; private set; }
 
+        /// <summary>
+        /// Dictionary mapping bone names to their indices in the preceding lists.
+        /// </summary>
+        [ContentSerializer]
+        public Dictionary<string, int> BoneIndices { get; private set; }
+
         #endregion
 
         #region Constructors
@@ -67,13 +73,15 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Animations
                                   Dictionary<string, RootAnimationClip> rootAnimationClips,
                                   List<Matrix> bindPose,
                                   List<Matrix> inverseBindPose,
-                                  List<int> skeletonHierarchy)
+                                  List<int> skeletonHierarchy,
+                                  Dictionary<string, int> boneIndices)
         {
             ModelAnimationClips = modelAnimationClips;
             RootAnimationClips = rootAnimationClips;
             BindPose = bindPose;
             InverseBindPose = inverseBindPose;
             BoneHierarchy = skeletonHierarchy;
+            BoneIndices = boneIndices;
         } // ModelAnimationData
 
         /// <summary>

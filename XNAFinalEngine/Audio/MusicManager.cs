@@ -511,7 +511,7 @@ namespace XNAFinalEngine.Audio
         {
             MediaPlayer.Stop();
             IsPlaying = false;
-            if (playlist[currentIndex].Asset == null)
+            if (playlist.Length > 0 && playlist[currentIndex].Asset == null)
             {
                 musicContentManager.Unload();
             }

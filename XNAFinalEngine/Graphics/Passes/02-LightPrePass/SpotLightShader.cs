@@ -92,7 +92,6 @@ namespace XNAFinalEngine.Graphics
                                        epWorldViewProj,
                                        epWorldView,
                                        epViewToLightViewProj,
-                                       epHasLightMask,
                                        epLightMaskTexture,
                                        // Light
                                        epLightColor,
@@ -359,20 +358,6 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Has Light Mask
-
-        private static bool lastUsedHasLightMask;
-        private static void SetHasLightMask(bool hasLightMask)
-        {
-            if (lastUsedHasLightMask != hasLightMask)
-            {
-                lastUsedHasLightMask = hasLightMask;
-                epHasLightMask.SetValue(hasLightMask);
-            }
-        } // SetHasLightMask
-
-        #endregion
-
         #endregion
 
         #region Constructor
@@ -437,8 +422,6 @@ namespace XNAFinalEngine.Graphics
                         epShadowTexture.SetValue(lastUsedShadowTexture);
                 epViewToLightViewProj              = Resource.Parameters["viewToLightViewProj"];
                     epViewToLightViewProj.SetValue(lastUsedViewToLightViewProjMatrix);
-                epHasLightMask                     = Resource.Parameters["hasLightMask"];
-                    epHasLightMask.SetValue(lastUsedHasLightMask);
                 epLightMaskTexture                 = Resource.Parameters["lightMaskTexture"];
                     if (lastUsedLightMaskTexture != null && !lastUsedLightMaskTexture.IsDisposed)
                         epLightMaskTexture.SetValue(lastUsedLightMaskTexture);
@@ -495,6 +478,7 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
+
                 #region Set Parameters
                 
                 SetLightColor(diffuseColor);
@@ -516,10 +500,7 @@ namespace XNAFinalEngine.Graphics
                                                                                 range); // Far plane
                     SetViewToLightViewProjMatrix(Matrix.Invert(viewMatrix) * lightViewMatrix * lightProjectionMatrix);
                     SetLightMaskTexture(lightMaskTexture);
-                    SetHasLightMask(true);
                 }
-                else
-                    SetHasLightMask(false);
 
                 // Compute the light world matrix.
                 // Scale according to light radius, and translate it to light position.
@@ -531,10 +512,18 @@ namespace XNAFinalEngine.Graphics
                 if (shadowTexture != null)
                 {
                     SetShadowTexture(shadowTexture);
-                    Resource.CurrentTechnique = Resource.Techniques["SpotLightWithShadows"];
+                    if (lightMaskTexture != null)
+                        Resource.CurrentTechnique = Resource.Techniques["SpotLightWithShadowsWithMask"];
+                    else
+                        Resource.CurrentTechnique = Resource.Techniques["SpotLightWithShadows"];
                 }
                 else
-                    Resource.CurrentTechnique = Resource.Techniques["SpotLight"];
+                {
+                    if (lightMaskTexture != null)
+                        Resource.CurrentTechnique = Resource.Techniques["SpotLightWithMask"];
+                    else
+                        Resource.CurrentTechnique = Resource.Techniques["SpotLight"];
+                }
 
                 #endregion
 

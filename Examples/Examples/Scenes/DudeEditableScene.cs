@@ -29,7 +29,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Animations;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
@@ -59,7 +62,7 @@ namespace XNAFinalEngineExamples
         private static GameObject3D 
                                     // Models
                                     floor,
-                                    dude, animetedCube,
+                                    dude, rifle,
                                     // Lights
                                     directionalLight, pointLight, spotLight,
                                     // Cameras
@@ -67,6 +70,9 @@ namespace XNAFinalEngineExamples
                                     skydome;
 
         private static GameObject2D statistics;
+
+        private bool iddle = true;
+        private float animating = -1;
         
         #endregion
 
@@ -140,42 +146,61 @@ namespace XNAFinalEngineExamples
 
             #region Dude
 
-            for (int i = 0; i < 20; i++)
-            {
-                //dude = new GameObject3D(new FileModel("dude_attack"), new BlinnPhong());
+            //for (int i = 0; i < 20; i++)
+            //{
                 dude = new GameObject3D(new FileModel("DudeWalk"), new BlinnPhong());
                 dude.ModelRenderer.MeshMaterial = new Material[5];
                 dude.ModelRenderer.MeshMaterial[0] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\head"), NormalTexture = new Texture("Dude\\headN"), SpecularTexture = new Texture("Dude\\headS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-                dude.ModelRenderer.MeshMaterial[1] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\jacket"), NormalTexture = new Texture("Dude\\jacketN"), SpecularTexture = new Texture("Dude\\jacketS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-                dude.ModelRenderer.MeshMaterial[2] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\pants"), NormalTexture = new Texture("Dude\\pantsN"), SpecularTexture = new Texture("Dude\\pantsS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-                dude.ModelRenderer.MeshMaterial[3] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
+                dude.ModelRenderer.MeshMaterial[2] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\jacket"), NormalTexture = new Texture("Dude\\jacketN"), SpecularTexture = new Texture("Dude\\jacketS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
+                dude.ModelRenderer.MeshMaterial[3] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\pants"), NormalTexture = new Texture("Dude\\pantsN"), SpecularTexture = new Texture("Dude\\pantsS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
+                dude.ModelRenderer.MeshMaterial[1] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
                 dude.ModelRenderer.MeshMaterial[4] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
                 dude.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
                 dude.AddComponent<ModelAnimations>();
-                //ModelAnimation modelAnimation = new ModelAnimation("dude"); // Be aware to select the correct content processor.
-                //dude.ModelAnimations.AddAnimationClip(modelAnimation);
-                dude.Transform.Rotate(new Vector3(0, 180, 0));
-                dude.ModelAnimations.Play("Take 001");
-            }
-            /*dude = new GameObject3D(new FileModel("AnimatedCube"), new BlinnPhong());
-            dude.AddComponent<ModelAnimations>();
-            dude.ModelAnimations.Play("Take 001");
-            dude.AddComponent<RootAnimations>();
-            dude.RootAnimations.Play("Take 001");*/
+                ModelAnimation modelAnimation = new ModelAnimation("dude_attack"); // Be aware to select the correct content processor.
+                modelAnimation.WrapMode = WrapMode.ClampForever;
+                dude.ModelAnimations.AddAnimationClip(modelAnimation);
+                modelAnimation = new ModelAnimation("DudeRun"); // Be aware to select the correct content processor.
+                modelAnimation.WrapMode = WrapMode.Loop;
+                dude.ModelAnimations.AddAnimationClip(modelAnimation);
+                //dude.Transform.Rotate(new Vector3(0, 180, 0));
+                //dude.ModelAnimations.Play("dude_attack");
+                dude.ModelAnimations["Take 001"].WrapMode = WrapMode.Loop;
+            //}
+            /*GameObject3D cutter = new GameObject3D(new FileModel("cutter_attack"), 
+                new BlinnPhong
+                    {
+                        DiffuseTexture = new Texture("Cutter\\cutter_D"),
+                        NormalTexture = new Texture("Cutter\\cutter_N"),
+                        SpecularTexture = new Texture("Cutter\\cutter_s"),
+                    });
+            cutter.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
+            cutter.Transform.Translate(10, 0, 0);
+            cutter.AddComponent<ModelAnimations>();
+            cutter.ModelAnimations.Play("Take 001");
+            cutter.ModelAnimations["Take 001"].WrapMode = WrapMode.Loop;*/
 
+            rifle = new GameObject3D(new FileModel("Rifle"), 
+                new BlinnPhong
+                    {
+                        DiffuseColor = new Color(50, 50, 50),
+                        //DiffuseTexture = new Texture("Cutter\\Floor1_D"),
+                        /*NormalTexture = new Texture("Cutter\\cutter_N"),
+                        SpecularTexture = new Texture("Cutter\\cutter_s"),*/
+                    });
 
             #endregion
 
             #region Floor
-            /*
+
             floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
-                           new BlinnPhong
-                           {
-                               SpecularPower = 300,
-                               DiffuseColor = new Color(125, 125, 125),
-                               SpecularIntensity = 0.0f,
-                           }) { Transform = { LocalScale = new Vector3(5, 5, 5) } };
-            */
+                            new BlinnPhong
+                            {
+                                SpecularPower = 300,
+                                DiffuseColor = new Color(125, 125, 125),
+                                SpecularIntensity = 0.0f,
+                            }) { Transform = { LocalScale = new Vector3(5, 5, 5) } };
+            
             #endregion
 
             #endregion
@@ -226,8 +251,7 @@ namespace XNAFinalEngineExamples
 
             #endregion
             
-            //PostProcessWindow.Show(camera.Camera.PostProcess);
-            
+            dude.ModelAnimations.Play("dude_attack");
             
         } // Load
 
@@ -242,13 +266,57 @@ namespace XNAFinalEngineExamples
         public override void UpdateTasks()
         {
             base.UpdateTasks();
-            if (Keyboard.SpaceJustPressed)
+
+            if (Keyboard.KeyPressed(Keys.Space))
             {
-                if (dude.ModelAnimations.State == AnimationState.Playing)
-                    dude.ModelAnimations.Pause();
-                else
-                    dude.ModelAnimations.Resume();   
+                if (animating <= 0 || animating > 0.05f)
+                {
+                    animating = 0;
+                    dude.ModelAnimations["dude_attack"].WrapMode = WrapMode.ClampForever;
+                    dude.ModelAnimations.CrossFade("dude_attack", 0.4f);
+                    if (dude.ModelAnimations["dude_attack"].NormalizedTime > 0.5f)
+                        dude.ModelAnimations.Rewind("dude_attack");
+                    iddle = true;
+                }
             }
+            else
+            {
+                if (animating <= 0 || animating > 0.35f)
+                {
+
+                    if (Keyboard.KeyPressed(Keys.LeftShift) && Keyboard.KeyPressed(Keys.W))
+                    {
+                        animating = 0;
+                        dude.ModelAnimations.CrossFade("DudeRun", 0.3f);
+                        iddle = false;
+                    }
+                    else
+                    {
+                        if (Keyboard.KeyPressed(Keys.W))
+                        {
+                            animating = 0;
+                            dude.ModelAnimations.CrossFade("Take 001", 0.2f);
+                            iddle = false;
+                        }
+                        else
+                        {
+                            animating = 0;
+                            iddle = true;
+                            dude.ModelAnimations.CrossFade("dude_attack", 0.35f);
+                            dude.ModelAnimations["dude_attack"].WrapMode = WrapMode.ClampForever;
+                        }
+                    }
+                }
+            }
+            
+
+            rifle.Transform.LocalMatrix = Matrix.Identity;
+            rifle.Transform.Translate(new Vector3(1.2767f, 0.5312f, 0.0045f));
+            rifle.Transform.Rotate(new Vector3(0, 45, 90));
+            rifle.Transform.Translate(new Vector3(0, 1.1081f, -0.3243f));
+            rifle.Transform.Rotate(new Vector3(0, 45, 0));
+            rifle.Transform.LocalScale = new Vector3(16, 16, 16f);
+            rifle.Transform.LocalMatrix = rifle.Transform.LocalMatrix * dude.ModelAnimations.WorldBoneTransforms[30] * dude.Transform.WorldMatrix;
         } // UpdateTasks
 
         #endregion

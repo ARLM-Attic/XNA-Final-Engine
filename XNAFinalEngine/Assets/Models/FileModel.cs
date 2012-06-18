@@ -76,6 +76,7 @@ namespace XNAFinalEngine.Assets
         {
             get
             {
+
                 #region Vertex Count
 
                 int vertexCount = 0;
@@ -191,7 +192,21 @@ namespace XNAFinalEngine.Assets
                     return null;
                 return ((ModelAnimationData)Resource.Tag).BoneHierarchy;
             }
-        } // SkeletonHierarchy
+        } // BoneHierarchy
+
+        /// <summary>
+        /// The name of the bones.
+        /// </summary>
+        public Dictionary<string, int> BoneIndices
+        {
+            get
+            {
+                // If there is no animation information.
+                if (Resource.Tag == null || !(Resource.Tag is ModelAnimationData))
+                    return null;
+                return ((ModelAnimationData)Resource.Tag).BoneIndices;
+            }
+        } // BonesName
 
         /// <summary>
         /// Bone count.
@@ -291,7 +306,7 @@ namespace XNAFinalEngine.Assets
             if (!IsSkinned)
                 throw new InvalidOperationException("Model: Unable to perform skinning operation over a non-skinned model.");
             // Root bone.
-            worldTransforms[0] = boneTransform[0] * Matrix.Identity;
+            worldTransforms[0] = boneTransform[0];
             // Child bones.
             for (int bone = 1; bone < BoneCount; bone++)
             {

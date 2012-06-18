@@ -32,8 +32,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Media;
 using XNAFinalEngine.Animations;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 #endregion
@@ -47,44 +49,73 @@ namespace XNAFinalEngine.Components
     /// </summary>
     public class ModelAnimations : Component
     {
-        
+
+        #region Structs
+
+        /// <summary>
+        /// Stores the information of an animation currently being played.
+        /// </summary>
+        private class AnimationPlayed
+        {
+            public AnimationState AnimationState;
+            public ModelAnimationPlayer ModelAnimationPlayer;
+            public float FadeLenght;
+            public float ElapsedTime;
+
+            public AnimationPlayed(AnimationState animationState, ModelAnimationPlayer modelAnimationPlayer, float fadeLenght = 0, float elapsedTime = 0)
+            {
+                AnimationState = animationState;
+                ModelAnimationPlayer = modelAnimationPlayer;
+                FadeLenght = fadeLenght;
+                ElapsedTime = elapsedTime;
+            }
+        } // AnimationPlayed
+
+        #endregion
+
         #region Variables
 
         // Associated animations.
-        private readonly Dictionary<string, ModelAnimation> modelAnimations = new Dictionary<string, ModelAnimation>(0);
+        private readonly Dictionary<string, AnimationState> animationStates = new Dictionary<string, AnimationState>(0);
 
         // Current bone transform matrices in absolute format.
         // They have to be transform to world space and if the model is skinned they have to be transformed by the inverse bind pose.
         private readonly Matrix[] boneTransform = new Matrix[ModelAnimationClip.MaxBones];
 
-        private readonly ModelAnimationPlayer animationPlayer = new ModelAnimationPlayer();
-
         // Chaded model filter's model value.
         private Model cachedModel;
+
+        private readonly List<AnimationPlayed> activeAnimations = new List<AnimationPlayed>();
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets/set the current play position.
-        /// </summary>
-        public float CurrentTimeValue
-        {
-            get { return animationPlayer.CurrentTimeValue; }
-            set { animationPlayer.CurrentTimeValue = value; }
-        } // CurrentTimeValue
-
-        /// <summary>
-        /// Gets the current state (playing, paused, or stopped) 
-        /// </summary>
-        public AnimationState State { get { return animationPlayer.State; } }
         
         /// <summary>
         /// Current bone transform matrices in absolute format.
         /// They have to be transform to world space and if the model is skinned they have to be transformed by the inverse bind pose.
         /// </summary>
-        public Matrix[] BoneTransform { get { return boneTransform; } }
+        internal Matrix[] BoneTransform { get { return boneTransform; } }
+
+        /// <summary>
+        /// Are we playing any animations?
+        /// </summary>
+        public bool IsPlaying { get; private set; }
+
+        /// <summary>
+        /// Returns the animation state named name.
+        /// </summary>
+        public AnimationState this[string name] { get { return animationStates[name]; } }
+
+        /// <summary>
+        /// Get the number of clips currently assigned to this animation component.
+        /// </summary>
+        public int AnimationsCount { get { return animationStates.Count; } }
+
+        /// <summary>
+        /// Bone transforms for rigid and animated skinning models.
+        /// </summary>
+        public Matrix[] WorldBoneTransforms { get { return boneTransform; } }
 
         #endregion
 
@@ -99,91 +130,6 @@ namespace XNAFinalEngine.Components
         /// Raised when the model animation's bone transform changes.
         /// </summary>
         internal event AnimationEventHandler BoneTransformChanged;
-
-        #endregion
-
-        #region Play
-
-        /// <summary>
-        /// Starts decoding the specified animation clip.
-        /// </summary>        
-        public void Play(string name)
-        {
-            Play(name, 1.0f, float.MaxValue);
-        } // Play
-
-        /// <summary>
-        /// Starts playing a clip
-        /// </summary>
-        /// <param name="name">Animation name</param>
-        /// <param name="playbackRate">Speed to playback</param>
-        /// <param name="duration">Length of time to play in seconds (max is looping, 0 is once)</param>
-        public void Play(string name, float playbackRate, float duration)
-        {
-            if (!modelAnimations.ContainsKey(name))
-                throw new ArgumentException("Root Animation Component: the animation name does not exist.");
-            // This is provisory, the animation system is in diapers.
-            animationPlayer.Play(modelAnimations[name]);
-        } // Play
-
-        #endregion
-
-        #region Pause Resume
-
-        /// <summary>
-        /// Will pause the playback of the current clip
-        /// </summary>
-        public void Pause()
-        {
-            animationPlayer.PauseClip();
-        } // PauseClip
-
-        /// <summary>
-        /// Will resume playback of the current clip
-        /// </summary>
-        public void Resume()
-        {
-            animationPlayer.ResumeClip();
-        } // ResumeClip
-
-        #endregion
-
-        #region Stop
-
-        /// <summary>
-        /// Stops playing the sound.
-        /// </summary>
-        /// <param name="immediate">
-        /// Specifies whether to stop playing immediately, or to break out of the loop region and play the release.
-        /// Specify true to stop playing immediately, or false to break out of the loop region and play the release phase (the remainder of the sound).
-        /// </param>
-        public void Stop(bool immediate = true)
-        {
-            animationPlayer.Stop(immediate);
-        } // Stop
-
-        #endregion
-
-        #region Update
-
-        /// <summary>
-        /// Update.
-        /// </summary>
-        internal void Update()
-        {
-            if (animationPlayer.State == AnimationState.Playing)
-            {
-                animationPlayer.Update();
-                for (int bone = 0; bone < ModelAnimationClip.MaxBones; bone++)
-                {
-                    boneTransform[bone] = Matrix.CreateScale(animationPlayer.BoneTransforms[bone].scale) *
-                                          Matrix.CreateFromQuaternion(animationPlayer.BoneTransforms[bone].rotation) *
-                                          Matrix.CreateTranslation(animationPlayer.BoneTransforms[bone].position);
-                }
-                if (BoneTransformChanged != null)
-                    BoneTransformChanged(this, boneTransform);
-            }
-        } // Update
 
         #endregion
 
@@ -224,23 +170,274 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
+        #region Play
+
+        /// <summary>
+        /// Plays animation without any blending.
+        /// </summary>
+        /// <remarks>
+        /// If the animation is already playing, other animations will be stopped but the animation will not rewind to the beginning.
+        /// If the animation is not set to be looping it will be stopped and rewinded after playing.
+        /// </remarks>
+        /// <param name="name">Animation name</param>
+        public void Play(string name)
+        {
+            if (!animationStates.ContainsKey(name))
+                throw new ArgumentException("Model Animation Component: the animation name does not exist.");
+            AnimationState animationState = animationStates[name];
+            AnimationPlayed modelAnimationPlayer = null;
+            // Stop animations on this layer
+            foreach (AnimationPlayed activeAnimation in activeAnimations)
+            {
+                if (activeAnimation.AnimationState.ModelAnimation.Name != name)
+                    activeAnimation.ModelAnimationPlayer.Stop();
+                else
+                    modelAnimationPlayer = activeAnimation;
+            }
+            activeAnimations.Clear();
+            // If the animation was not being played.
+            if (modelAnimationPlayer == null)
+            {
+                // Create the new animation
+                modelAnimationPlayer = new AnimationPlayed(animationState, AnimationManager.FetchModelAnimationPlayer());
+                modelAnimationPlayer.ModelAnimationPlayer.Play(animationState);
+            }
+            activeAnimations.Add(modelAnimationPlayer);
+        } // Play
+
+        #endregion
+
+        #region Cross Fade
+
+        /// <summary>
+        /// Fades the animation with name animation in over a period of time seconds and fades other animations out.
+        /// </summary>
+        /// <remarks>
+        /// If the animation is not set to be looping it will be stopped and rewinded after playing.
+        /// </remarks>
+        /// <param name="name">Animation name.</param>
+        /// <param name="fadeLength">Fade length.</param>
+        public void CrossFade(string name, float fadeLength = 0.3f)
+        {
+            if (!animationStates.ContainsKey(name))
+                throw new ArgumentException("Model Animation Component: the animation name does not exist.");
+            AnimationPlayed animationPlayed = null;
+            AnimationState animationState = animationStates[name];
+            // Stop animations on this layer.
+            foreach (AnimationPlayed activeAnimation in activeAnimations)
+            {
+                if (activeAnimation.AnimationState.ModelAnimation.Name == name)
+                    animationPlayed = activeAnimation;
+            }
+            // If the animation was not being played.
+            if (animationPlayed == null)
+            {
+                // Create the new animation.
+                animationPlayed = new AnimationPlayed(animationState, AnimationManager.FetchModelAnimationPlayer());
+                animationPlayed.ModelAnimationPlayer.Play(animationState);
+            }
+            else
+            {
+                // I want to place the animation in the last place.
+                activeAnimations.Remove(animationPlayed);
+            }
+            animationPlayed.FadeLenght = fadeLength;
+            if (activeAnimations.Count > 0 && animationPlayed.ElapsedTime != 0)
+                animationPlayed.ModelAnimationPlayer.AnimationState.NormalizedTime = activeAnimations[activeAnimations.Count - 1].ModelAnimationPlayer.AnimationState.NormalizedTime;
+            activeAnimations.Add(animationPlayed);
+        } // CrossFade
+
+        #endregion
+
+        #region Rewind
+
+        /// <summary>
+        /// Rewinds the animation named name.
+        /// </summary>
+        public void Rewind(string name)
+        {
+            if (!animationStates.ContainsKey(name))
+                throw new ArgumentException("Model Animation Component: the animation name does not exist.");
+            foreach (AnimationPlayed activeAnimation in activeAnimations)
+            {
+                if (activeAnimation.AnimationState.ModelAnimation.Name == name)
+                    activeAnimation.ModelAnimationPlayer.CurrentTimeValue = 0;
+            }
+        } // Rewind
+
+        #endregion
+
+        #region Stop
+
+        /// <summary>
+        /// Stops all playing animations of this component.
+        /// </summary>
+        public void Stop()
+        {
+            
+        } // Stop
+
+        /// <summary>
+        /// Stops an animation named name.
+        /// </summary>
+        /// <param name="name">The animation name.</param>
+        /// <param name="immediate">
+        /// Specifies whether to stop playing immediately, or to break out of the loop region and play the release.
+        /// Specify true to stop playing immediately, or false to break out of the loop region and play the release phase (the remainder of the sound).
+        /// </param>
+        public void Stop(string name, bool immediate = true)
+        {
+            
+        } // Stop
+
+        #endregion
+
+        #region Update
+
+        /// <summary>
+        /// Update.
+        /// </summary>
+        internal void Update()
+        {
+            if (!(cachedModel is FileModel))
+                return;
+            if (activeAnimations.Count == 0)
+                return;
+
+            // Update cross fade elapsed time.
+            for (int i = 0; i < activeAnimations.Count; i++)
+            {
+                if (activeAnimations[i].FadeLenght != 0)
+                    activeAnimations[i].ElapsedTime += Time.GameDeltaTime;
+            }
+
+            bool stopAnimations = false;
+            for (int i = activeAnimations.Count - 1; i >= 0; i--)
+            {
+                if (stopAnimations)
+                    activeAnimations[i].ModelAnimationPlayer.Stop();
+                else
+                    // If cross fade is completed the rest of the animations are removed.);
+                    if (activeAnimations[activeAnimations.Count - 1].ElapsedTime > activeAnimations[activeAnimations.Count - 1].FadeLenght)
+                    {
+                        stopAnimations = true;
+                    }
+            }
+
+            const int currentAnimation = 0;
+            FileModel fileModel = (FileModel)cachedModel;
+            if (currentAnimation + 2 <= activeAnimations.Count)
+            {
+                // Update bone transform
+                for (int bone = 0; bone < fileModel.BoneCount; bone++)
+                {
+                    float amout = activeAnimations[activeAnimations.Count - 1].ElapsedTime / activeAnimations[activeAnimations.Count - 1].FadeLenght;
+                    ModelAnimationPlayer.BoneTransformationData blendedPose = InterpolatePose(activeAnimations[activeAnimations.Count - 2].ModelAnimationPlayer.BoneTransforms[bone],
+                                                                                                     activeAnimations[activeAnimations.Count - 1].ModelAnimationPlayer.BoneTransforms[bone],
+                                                                                                     amout);
+                    boneTransform[bone] = Matrix.CreateScale(blendedPose.scale) *
+                                          Matrix.CreateFromQuaternion(blendedPose.rotation) *
+                                          Matrix.CreateTranslation(blendedPose.position);
+                }
+            }
+            else
+            {
+                // Update bone transform
+                for (int bone = 0; bone < fileModel.BoneCount; bone++)
+                {
+                    boneTransform[bone] = Matrix.CreateScale(activeAnimations[0].ModelAnimationPlayer.BoneTransforms[bone].scale) *
+                                          Matrix.CreateFromQuaternion(activeAnimations[0].ModelAnimationPlayer.BoneTransforms[bone].rotation) *
+                                          Matrix.CreateTranslation(activeAnimations[0].ModelAnimationPlayer.BoneTransforms[bone].position);
+                }
+            }
+
+            #region Old
+            /*
+            // If cross fade is completed the rest of the animations are removed.
+            if (activeAnimations[activeAnimations.Count - 1].ElapsedTime > activeAnimations[activeAnimations.Count - 1].FadeLenght)
+            {
+                // Stops animation if the cross fade is over.
+                ModelAnimationPlayer modelAnimationPlayer = activeAnimations[activeAnimations.Count - 1].ModelAnimationPlayer;
+                foreach (AnimationPlayed activeAnimation in activeAnimations)
+                {
+                    if (activeAnimation.ModelAnimationPlayer != modelAnimationPlayer)
+                        activeAnimation.ModelAnimationPlayer.Stop();
+                }
+                activeAnimations.Clear();
+                activeAnimations.Add(new AnimationPlayed(modelAnimationPlayer.AnimationState, modelAnimationPlayer));
+            }
+
+            int currentAnimation = 0;
+            FileModel fileModel = (FileModel)cachedModel;
+            if (currentAnimation + 2 <= activeAnimations.Count)
+            {
+                // Update bone transform
+                for (int bone = 0; bone < fileModel.BoneCount; bone++)
+                {
+                    float amout = activeAnimations[currentAnimation + 1].ElapsedTime / activeAnimations[currentAnimation + 1].FadeLenght;
+                    ModelAnimationPlayer.BoneTransformationData blendedPose = InterpolatePose(activeAnimations[currentAnimation].ModelAnimationPlayer.BoneTransforms[bone],
+                                                                                                     activeAnimations[currentAnimation + 1].ModelAnimationPlayer.BoneTransforms[bone],
+                                                                                                     amout);
+                    boneTransform[bone] = Matrix.CreateScale(blendedPose.scale) *
+                                          Matrix.CreateFromQuaternion(blendedPose.rotation) *
+                                          Matrix.CreateTranslation(blendedPose.position);
+                }
+            }
+            else
+            {
+                // Update bone transform
+                for (int bone = 0; bone < fileModel.BoneCount; bone++)
+                {
+                    boneTransform[bone] = Matrix.CreateScale(activeAnimations[0].ModelAnimationPlayer.BoneTransforms[bone].scale) *
+                                          Matrix.CreateFromQuaternion(activeAnimations[0].ModelAnimationPlayer.BoneTransforms[bone].rotation) *
+                                          Matrix.CreateTranslation(activeAnimations[0].ModelAnimationPlayer.BoneTransforms[bone].position);
+                }
+            }*/
+
+            #endregion
+
+            ((FileModel)cachedModel).UpdateWorldTransforms(boneTransform, boneTransform);
+            if (BoneTransformChanged != null)
+                BoneTransformChanged(this, boneTransform);
+
+            // Remove finished animations from the active animations (Change to array TODO)
+            for (int i = 0; i < activeAnimations.Count; i++)
+            {
+                if (activeAnimations[i].ModelAnimationPlayer.State == MediaState.Stopped)
+                {
+                    activeAnimations.Remove(activeAnimations[i]);
+                    i--;
+                }
+            }
+        } // Update
+
+        #region Interpolate Animation
+
+        /// <summary>
+        /// Retrieves and interpolates two pose.
+        /// </summary>
+        private static ModelAnimationPlayer.BoneTransformationData InterpolatePose(ModelAnimationPlayer.BoneTransformationData transformationData1,
+                                                                                   ModelAnimationPlayer.BoneTransformationData transformationData2,
+                                                                                   float amount)
+        {
+            Vector3 translation = Vector3.SmoothStep(transformationData1.position, transformationData2.position, amount);
+            Quaternion rotation = Quaternion.Slerp(transformationData1.rotation, transformationData2.rotation, amount);
+            float scale = transformationData1.scale * (1 - amount) + transformationData2.scale * amount;
+            return new ModelAnimationPlayer.BoneTransformationData { position = translation, rotation = rotation, scale = scale };
+        } // InterpolatePose
+
+        #endregion
+
+        #endregion
+
         #region Contains Animation Clip
 
         /// <summary>
         /// Determines if the component contains a specific model animation.
         /// </summary>
-        /// <remarks>Checks both, the name and the clip.</remarks>
-        public bool ContainsAnimationClip(ModelAnimation animation)
-        {
-            return modelAnimations.ContainsValue(animation) || modelAnimations.ContainsKey(animation.Name);
-        } // ContainsAnimationClip
-        
-        /// <summary>
-        /// Determines if the component contains a specific model animation.
-        /// </summary>
         public bool ContainsAnimationClip(string name)
         {
-            return modelAnimations.ContainsKey(name);
+            return animationStates.ContainsKey(name);
         } // ContainsAnimationClip
 
         #endregion
@@ -248,12 +445,14 @@ namespace XNAFinalEngine.Components
         #region Add Animation Clip
 
         /// <summary>
-        /// Adds an animation clip to the component.
+        /// Adds a clip to the animation with name newName.
         /// </summary>
-        public void AddAnimationClip(ModelAnimation animation)
+        public void AddAnimationClip(ModelAnimation animation, string newName = null)
         {
-            if (!ContainsAnimationClip(animation))
-                modelAnimations.Add(animation.Name, animation);
+            if (newName == null)
+                newName = animation.Name;
+            if (!ContainsAnimationClip(newName))
+                animationStates.Add(newName, new AnimationState(animation));
             else
                 throw new ArgumentException("Model Animation Component: The animation " + animation.Name + " is already assigned.");
         } // AddAnimationClip
@@ -265,21 +464,10 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Remove an animation clip to the component.
         /// </summary>
-        public void RemoveAnimationClip(ModelAnimation animation)
-        {
-            if (ContainsAnimationClip(animation))
-                modelAnimations.Remove(animation.Name);
-            else
-                throw new ArgumentException("Model Animation Component: The animation " + animation.Name + " does not exist.");
-        } // RemoveAnimationClip
-
-        /// <summary>
-        /// Remove an animation clip to the component.
-        /// </summary>
         public void RemoveAnimationClip(string name)
         {
             if (ContainsAnimationClip(name))
-                modelAnimations.Remove(name);
+                animationStates.Remove(name);
             else
                 throw new ArgumentException("Model Animation Component: The animation " + name + " does not exist.");
         } // RemoveAnimationClip
@@ -297,7 +485,7 @@ namespace XNAFinalEngine.Components
             {
                 foreach (var modelAnimation in ((FileModel)cachedModel).ModelAnimations)
                 {
-                    RemoveAnimationClip(modelAnimation);
+                    RemoveAnimationClip(modelAnimation.Name);
                 }
             }
             cachedModel = model;

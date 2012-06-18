@@ -31,11 +31,46 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 namespace XNAFinalEngine.Animations
 {
 
-    public enum AnimationState
+    /// <summary>
+    /// Determines how time is treated outside of the keyframed range.
+    /// </summary>
+    public enum WrapMode
     {
-        Playing,
-        Paused,
-        Stopped,
+        /// <summary>
+        /// For animation states, Default means the animation wrap mode. Instead, for animations, Default means Once.
+        /// </summary>
+        Default,
+        /// <summary>
+        /// When time reaches the end of the animation clip, the clip will automatically stop playing and time will be reset to beginning of the clip.
+        /// </summary>
+        Once,
+        /// <summary>
+        /// When time reaches the end of the animation clip, time will continue at the beginning.
+        /// </summary>
+        Loop,
+        /// <summary>
+        /// When time reaches the end of the animation clip, time will ping pong back between beginning and end.
+        /// </summary>
+        //PingPong,
+        /// <summary>
+        /// Plays back the animation. When it reaches the end, it will keep playing the last frame and never stop playing.
+        /// </summary>
+        ClampForever,
     } // AnimationState
+
+    /// <summary>
+    /// Used by the Play function of the model animation component.
+    /// </summary>
+    public enum AnimationBlendMode
+    {
+        /// <summary>
+        /// Animations will be blended.
+        /// </summary>
+        Blend,
+        /// <summary>
+        /// Animations will be added.
+        /// </summary>
+        Additive,
+    } // AnimationBlendMode
 
 } // XNAFinalEngine.Animations

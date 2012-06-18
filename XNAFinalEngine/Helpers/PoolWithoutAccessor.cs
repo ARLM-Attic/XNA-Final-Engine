@@ -173,13 +173,15 @@ namespace XNAFinalEngine.Helpers
                 throw new ArgumentNullException("element", "Pool: Element value cannot be null");
             // To accomplish our second objective (memory locality) the last available element will be moved to the place where the released element resided.
             int i = 0;
-            while (i < Count || Elements[i].Equals(element))
+            while (i < Count && !Elements[i].Equals(element))
             {
                 i++;
             }
+            if (i == Count)
+                throw new ArgumentNullException("element", "Pool: Element value not found.");
             T temp = Elements[i];
-            Elements[i] = Elements[Count];
-            Elements[Count] = temp;
+            Elements[i] = Elements[Count - 1];
+            Elements[Count - 1] = temp;
 
             Count--;
         } // Release

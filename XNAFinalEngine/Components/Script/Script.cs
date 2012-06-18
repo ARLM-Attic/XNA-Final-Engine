@@ -44,7 +44,7 @@ namespace XNAFinalEngine.Components
         #region Variable
         
         // Indicates if it is available or used by an game object.
-        private bool available;
+        internal bool available;
 
         #endregion
 
@@ -173,6 +173,21 @@ namespace XNAFinalEngine.Components
             }
             return null;
         } // FetchScript
+
+        /// <summary>
+        /// Try to fetch an available script from the currently created scripts.
+        /// </summary>
+        internal static Script ReleaseScript<TComponentType>(GameObject owner) where TComponentType : Component
+        {
+            for (int i = 0; i < ScriptList.Count; i++)
+            {
+                if (ScriptList[i] is TComponentType && ScriptList[i].Owner == owner && !ScriptList[i].available)
+                {
+                    ScriptList[i].available = true;
+                }
+            }
+            return null;
+        } // ReleaseScript
 
         #endregion
 

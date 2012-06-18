@@ -256,14 +256,19 @@ namespace XNAFinalEngine.Components
             get
             {
                 if (Parent != null)
-                    return Quaternion.Concatenate(parent.Rotation, localRotation); // Matrix equivalent: localRotation * parent.Rotation
+                {
+                    Vector3 scale, position;
+                    Quaternion rotation;
+                    worldMatrix.Decompose(out scale, out rotation, out position);
+                    return rotation;
+                }
                 return localRotation;
-                // Alternative: WorldMatrix.Decompose(); But this is slower.
             }
             set
             {
                 if (Parent != null)
-                    LocalRotation = Quaternion.CreateFromRotationMatrix(Matrix.CreateFromQuaternion(value) * Matrix.Invert(parent.WorldMatrix));
+                    LocalRotation = Quaternion.Concatenate(value, Quaternion.Inverse(parent.Rotation));
+                //Quaternion.CreateFromRotationMatrix(Matrix.CreateFromQuaternion(value) * Matrix.Invert(parent.WorldMatrix));
                 else
                     LocalRotation = value;
             }
@@ -274,9 +279,12 @@ namespace XNAFinalEngine.Components
             get
             {
                 if (Parent != null)
+                {
+                    // Alternative: WorldMatrix.Decompose(); But this is slower. Or maybe no because the cache misses.
                     return localScale * parent.Scale;
+                }
                 return localScale;
-                // Alternative: WorldMatrix.Decompose(); But this is slower.
+
             }
         } // Scale
 

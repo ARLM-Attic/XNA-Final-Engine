@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.IO;
+using XNAFinalEngine.Animations;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 #endregion
 
@@ -43,6 +44,12 @@ namespace XNAFinalEngine.Assets
     public class ModelAnimation : Asset
     {
 
+        #region Variables
+
+        private WrapMode wrapMode;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -54,6 +61,22 @@ namespace XNAFinalEngine.Assets
         /// Animation duration.
         /// </summary>
         public float Duration { get { return Resource.Duration; } }
+
+        
+
+        /// <summary>
+        /// Sets the default wrap mode used in the animation state.
+        /// </summary>
+        public WrapMode WrapMode
+        {
+            get
+            {
+                if (wrapMode == WrapMode.Default)
+                    return WrapMode.Once;
+                return wrapMode;
+            }
+            set { wrapMode = value; }
+        } // WrapMode
         
         #endregion
 
@@ -108,6 +131,6 @@ namespace XNAFinalEngine.Assets
         } // RecreateResource
 
         #endregion
-
+        
     } // ModelAnimation
 } // XNAFinalEngine.Assets
