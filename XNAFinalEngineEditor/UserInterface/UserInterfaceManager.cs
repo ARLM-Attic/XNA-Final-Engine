@@ -152,7 +152,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Enable or Disable Input.
         /// </summary>
-        public static bool UpdateInput { get; set; }
+        public static bool InputEnable { get; set; }
         
         #endregion
 
@@ -308,7 +308,7 @@ namespace XNAFinalEngine.UserInterface
             try
             {
                 Visible = true;
-                UpdateInput = true;
+                InputEnable = true;
                 initialized = true;
                 // Set some public parameters.
                 TextureResizeIncrement = 32;
@@ -573,7 +573,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public static void Update()
         {
-            if (!Visible || !UpdateInput)
+            if (!Visible || !InputEnable)
                 return;
             try
             {
@@ -1125,6 +1125,21 @@ namespace XNAFinalEngine.UserInterface
             }
             return true;
         } // IsOverThisControl
+
+        #endregion
+
+        #region Invalidate
+
+        /// <summary>
+        /// Invalidate all controls
+        /// </summary>
+        public static void Invalidate()
+        {
+            foreach (Control rootControl in RootControls)
+            {
+                rootControl.Invalidate();
+            }
+        } // Invalidate
 
         #endregion
 

@@ -192,21 +192,21 @@ namespace XNAFinalEngine.Editor
                     {
                         for (int i = 0; i < selectedObjects.Count; i++)
                         {
-                            int index = i;
+                            // I store the action on the undo system. It seems complex. But it is pretty simple actually.
                             Matrix oldMatrix = selectedObjectsLocalMatrix[i];
-                            Matrix newMatrix = selectedObjects[index].Transform.LocalMatrix;
+                            Matrix newMatrix = selectedObjects[i].Transform.LocalMatrix;
+                            GameObject3D gameObject3D = selectedObjects[i];
                             ActionManager.CallMethod(
-                                delegate
+                                // Redo
+                                delegate 
                                 {
-                                    selectedObjectsLocalMatrix[index] = newMatrix;
-                                    selectedObjects[index].Transform.LocalMatrix = newMatrix;
+                                    gameObject3D.Transform.LocalMatrix = newMatrix;
                                 },
-                                delegate
+                                // Undo
+                                delegate 
                                 {
-                                    selectedObjects[index].Transform.LocalMatrix = oldMatrix;
-                                    selectedObjectsLocalMatrix[index] = oldMatrix;
+                                    gameObject3D.Transform.LocalMatrix = oldMatrix;
                                 });
-                            //selectedObjectsLocalMatrix[i] = selectedObjects[i].Transform.LocalMatrix;
                         }
                     }
                 }
@@ -268,6 +268,11 @@ namespace XNAFinalEngine.Editor
                 if (Mouse.LeftButtonJustPressed)
                 {
                     Active = true;
+                    // Stores initial matrix because maybe the user press escape; i.e. maybe he cancel the transformation.
+                    for (int i = 0; i < selectedObjects.Count; i++)
+                    {
+                        selectedObjectsLocalMatrix[i] = selectedObjects[i].Transform.LocalMatrix;
+                    }
                 }
 
                 // Perform a pick around the mouse pointer.

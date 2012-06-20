@@ -29,8 +29,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.Undo;
 using XNAFinalEngine.UserInterface;
 #endregion
 
@@ -112,6 +114,58 @@ namespace XNAFinalEngine.Editor
                 Parent = parent,
                 Width = parent.ClientWidth - 25,
             };
+
+            return vector3Box;
+        } // Vector3Box
+
+        /// <summary>
+        /// Returns a vector3 box control placed in the first free spot.
+        /// It automatically manages the property setting, undo and redo.
+        /// </summary>
+        /// <param name="name">Label name.</param>
+        /// <param name="parent">Parent.</param>
+        /// <param name="initialValue">Initial value.</param>
+        /// <param name="propertyOwner">The object to manipualte</param>
+        /// <param name="propertyName">The property name.</param>
+        public static Vector3Box Vector3Box(string name, ClipControl parent, Vector3 initialValue, object propertyOwner, string propertyName)
+        {
+            var label = new Label
+            {
+                Left = 10,
+                Width = 155,
+                Text = name,
+                Height = 10,
+            };
+            if (parent.AvailablePositionInsideControl == 0)
+                label.Top = 10;
+            else
+                label.Top = parent.AvailablePositionInsideControl + ControlSeparation;
+            label.Parent = parent;
+            var vector3Box = new Vector3Box
+            {
+                Left = 10,
+                Value = initialValue,
+                Top = label.Top + label.Height + 5,
+                Parent = parent,
+                Width = parent.ClientWidth - 25,
+            };
+            PropertyInfo property = propertyOwner.GetType().GetProperty(propertyName);
+            vector3Box.ValueChanged += delegate
+            {
+                if (vector3Box.Value != (Vector3)property.GetValue(propertyOwner, null))
+                {
+                    using (Transaction.Create())
+                    {
+                        // Apply the command and store for the undo feature.
+                        ActionManager.SetProperty(propertyOwner, propertyName, vector3Box.Value);
+                        ActionManager.CallMethod(// Redo
+                                                 UserInterfaceManager.Invalidate,
+                                                 // Undo
+                                                 UserInterfaceManager.Invalidate);
+                    }
+                }
+            };
+            vector3Box.Draw += delegate { vector3Box.Value = (Vector3)property.GetValue(propertyOwner, null); };
 
             return vector3Box;
         } // Vector3Box

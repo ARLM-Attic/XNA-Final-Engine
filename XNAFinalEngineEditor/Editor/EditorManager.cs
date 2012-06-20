@@ -446,7 +446,7 @@ namespace XNAFinalEngine.Editor
                 return;
             editorModeEnabled = true;
             UserInterfaceManager.Visible = true;
-            UserInterfaceManager.UpdateInput = true;
+            UserInterfaceManager.InputEnable = true;
         } // EnableEditorMode
 
         /// <summary>
@@ -539,41 +539,64 @@ namespace XNAFinalEngine.Editor
 
             var panel = CommonControls.PanelCollapsible("Transform", rightPanelTabControl, 0);
             // Position
-            vector3BoxPosition = CommonControls.Vector3Box("Position", panel, selectedObject.Transform.LocalPosition);
-            vector3BoxPosition.ValueChanged += delegate { selectedObject.Transform.LocalPosition = vector3BoxPosition.Value; };
-            vector3BoxPosition.Draw += delegate { vector3BoxPosition.Value = selectedObject.Transform.LocalPosition; };
-            // Orientation
-            Vector3 localRotationDegrees = new Vector3(selectedObject.Transform.LocalRotation.GetYawPitchRoll().Y * 180 / (float)Math.PI,
-                                                       selectedObject.Transform.LocalRotation.GetYawPitchRoll().X * 180 / (float)Math.PI,
-                                                       selectedObject.Transform.LocalRotation.GetYawPitchRoll().Z * 180 / (float)Math.PI);
-            localRotationDegrees.X = (float)Math.Round(localRotationDegrees.X, 4);
-            localRotationDegrees.Y = (float)Math.Round(localRotationDegrees.Y, 4);
-            localRotationDegrees.Z = (float)Math.Round(localRotationDegrees.Z, 4);
-            vector3BoxRotation = CommonControls.Vector3Box("Rotation", panel, localRotationDegrees);
+            vector3BoxPosition = CommonControls.Vector3Box("Position", panel, selectedObject.Transform.LocalPosition, selectedObject.Transform, "LocalPosition");
+            // Orientation.
+            #region Orientation
+
+            // This has too many special cases, I need to do it manually.
+
+            Vector3 initialValue = new Vector3(selectedObject.Transform.LocalRotation.GetYawPitchRoll().Y * 180 / (float)Math.PI,
+                                               selectedObject.Transform.LocalRotation.GetYawPitchRoll().X * 180 / (float)Math.PI,
+                                               selectedObject.Transform.LocalRotation.GetYawPitchRoll().Z * 180 / (float)Math.PI);
+            initialValue.X = (float)Math.Round(initialValue.X, 4);
+            initialValue.Y = (float)Math.Round(initialValue.Y, 4);
+            initialValue.Z = (float)Math.Round(initialValue.Z, 4);
+            vector3BoxRotation = CommonControls.Vector3Box("Rotation", panel, initialValue);
             vector3BoxRotation.ValueChanged += delegate
             {
                 if (updateRotation)
                 {
-                    selectedObject.Transform.LocalRotation = Quaternion.CreateFromYawPitchRoll(vector3BoxRotation.Value.Y * (float)Math.PI / 180, vector3BoxRotation.Value.X * (float)Math.PI / 180, vector3BoxRotation.Value.Z * (float)Math.PI / 180);
+                    Vector3 propertyValue = new Vector3(selectedObject.Transform.LocalRotation.GetYawPitchRoll().Y * 180 / (float)Math.PI,
+                                                        selectedObject.Transform.LocalRotation.GetYawPitchRoll().X * 180 / (float)Math.PI,
+                                                        selectedObject.Transform.LocalRotation.GetYawPitchRoll().Z * 180 / (float)Math.PI);
+                    // Round to avoid precision problems.
+                    propertyValue.X = (float)Math.Round(propertyValue.X, 4);
+                    propertyValue.Y = (float)Math.Round(propertyValue.Y, 4);
+                    propertyValue.Z = (float)Math.Round(propertyValue.Z, 4);
+                    // I compare the value of the transform property rounded to avoid a precision mismatch.
+                    if (propertyValue != vector3BoxRotation.Value)
+                    {
+                        using (Transaction.Create())
+                        {
+                            Quaternion newValue = Quaternion.CreateFromYawPitchRoll(vector3BoxRotation.Value.Y * (float)Math.PI / 180,
+                                                                                    vector3BoxRotation.Value.X * (float)Math.PI / 180,
+                                                                                    vector3BoxRotation.Value.Z * (float)Math.PI / 180);
+                            ActionManager.SetProperty(selectedObject.Transform, "LocalRotation", newValue);
+                            ActionManager.CallMethod(// Redo
+                                                     UserInterfaceManager.Invalidate,
+                                                     // Undo
+                                                     UserInterfaceManager.Invalidate);
+                        }
+                    }
                     updateRotation = false;
                 }
             };
             vector3BoxRotation.Draw += delegate
             {
-                Vector3 localRotationDegreesTemp = new Vector3(selectedObject.Transform.LocalRotation.GetYawPitchRoll().Y * 180 / (float)Math.PI,
-                                                               selectedObject.Transform.LocalRotation.GetYawPitchRoll().X * 180 / (float)Math.PI,
-                                                               selectedObject.Transform.LocalRotation.GetYawPitchRoll().Z * 180 / (float)Math.PI);
+                Vector3 localRotationDegrees = new Vector3(selectedObject.Transform.LocalRotation.GetYawPitchRoll().Y * 180 / (float)Math.PI,
+                                                           selectedObject.Transform.LocalRotation.GetYawPitchRoll().X * 180 / (float)Math.PI,
+                                                           selectedObject.Transform.LocalRotation.GetYawPitchRoll().Z * 180 / (float)Math.PI);
                 // Round to avoid precision problems.
-                localRotationDegreesTemp.X = (float)Math.Round(localRotationDegreesTemp.X, 4);
-                localRotationDegreesTemp.Y = (float)Math.Round(localRotationDegreesTemp.Y, 4);
-                localRotationDegreesTemp.Z = (float)Math.Round(localRotationDegreesTemp.Z, 4);
-                vector3BoxRotation.Value = localRotationDegreesTemp;
+                localRotationDegrees.X = (float)Math.Round(localRotationDegrees.X, 4);
+                localRotationDegrees.Y = (float)Math.Round(localRotationDegrees.Y, 4);
+                localRotationDegrees.Z = (float)Math.Round(localRotationDegrees.Z, 4);
+                vector3BoxRotation.Value = localRotationDegrees;
                 updateRotation = true;
             };
+
+            #endregion
             // Scale
-            vector3BoxScale = CommonControls.Vector3Box("Scale", panel, selectedObject.Transform.LocalScale);
-            vector3BoxScale.ValueChanged += delegate { selectedObject.Transform.LocalScale = vector3BoxScale.Value; };
-            vector3BoxScale.Draw += delegate { vector3BoxScale.Value = selectedObject.Transform.LocalScale; };
+            vector3BoxScale = CommonControls.Vector3Box("Scale", panel, selectedObject.Transform.LocalScale, selectedObject.Transform, "LocalScale");
 
             #endregion
 
@@ -953,7 +976,7 @@ namespace XNAFinalEngine.Editor
 
             if (!editorModeEnabled)
             {
-                UserInterfaceManager.UpdateInput = true;
+                UserInterfaceManager.InputEnable = true;
                 canSelect = false;
                 previousFocusedControl = UserInterfaceManager.FocusedControl;
                 return;
@@ -984,7 +1007,7 @@ namespace XNAFinalEngine.Editor
                 {
                     HideGameObjectSelected(gameObject);
                 }
-                UserInterfaceManager.UpdateInput = true;
+                UserInterfaceManager.InputEnable = true;
                 return;
             }
 
@@ -1008,7 +1031,7 @@ namespace XNAFinalEngine.Editor
             // Keyboard shortcuts, camera movement and similar should be ignored when the text box is active.
             if (!UserInterfaceManager.IsOverThisControl(renderSpace, new Point(Mouse.Position.X, Mouse.Position.Y)) && !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Visible)
             {
-                UserInterfaceManager.UpdateInput = true;
+                UserInterfaceManager.InputEnable = true;
                 canSelect = false;
                 previousFocusedControl = UserInterfaceManager.FocusedControl;
                 return;
@@ -1053,7 +1076,7 @@ namespace XNAFinalEngine.Editor
 
             if (editorCameraScript.Manipulating)
             {
-                UserInterfaceManager.UpdateInput = true;
+                UserInterfaceManager.InputEnable = true;
                 canSelect = false;
                 previousFocusedControl = UserInterfaceManager.FocusedControl;
                 return;
@@ -1290,7 +1313,7 @@ namespace XNAFinalEngine.Editor
                     break;
             }
 
-            UserInterfaceManager.UpdateInput = !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Visible;
+            UserInterfaceManager.InputEnable = !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Visible;
 
             #endregion
 

@@ -60,7 +60,7 @@ namespace XNAFinalEngine.Undo
         public override bool TryToMerge(IAction followingAction)
         {
             SetPropertyAction next = followingAction as SetPropertyAction;
-            if (next != null && next.ParentObject == this.ParentObject && next.Property == this.Property)
+            if (AllowToMergeWithPrevious && next != null && next.ParentObject == ParentObject && next.Property == Property)
             {
                 Value = next.Value;
                 Property.SetValue(ParentObject, Value, null);

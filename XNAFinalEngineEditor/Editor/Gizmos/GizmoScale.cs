@@ -37,6 +37,7 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Input;
+using XNAFinalEngine.Undo;
 using Plane = XNAFinalEngine.Assets.Plane;
 #endregion
 
@@ -187,9 +188,26 @@ namespace XNAFinalEngine.Editor
                 {
                     Active = false;
                     // Store new previous matrix.
-                    for (int i = 0; i < selectedObjects.Count; i++)
+                    using (Transaction.Create())
                     {
-                        selectedObjectsLocalMatrix[i] = selectedObjects[i].Transform.LocalMatrix;
+                        for (int i = 0; i < selectedObjects.Count; i++)
+                        {
+                            // I store the action on the undo system. It seems complex. But it is pretty simple actually.
+                            Matrix oldMatrix = selectedObjectsLocalMatrix[i];
+                            Matrix newMatrix = selectedObjects[i].Transform.LocalMatrix;
+                            GameObject3D gameObject3D = selectedObjects[i];
+                            ActionManager.CallMethod(
+                                // Redo
+                                delegate
+                                {
+                                    gameObject3D.Transform.LocalMatrix = newMatrix;
+                                },
+                                // Undo
+                                delegate
+                                {
+                                    gameObject3D.Transform.LocalMatrix = oldMatrix;
+                                });
+                        }
                     }
                 }
                 // Transformate object...
@@ -270,6 +288,11 @@ namespace XNAFinalEngine.Editor
                 if (Mouse.LeftButtonJustPressed)
                 {
                     Active = true;
+                    // Stores initial matrix because maybe the user press escape; i.e. maybe he cancel the transformation.
+                    for (int i = 0; i < selectedObjects.Count; i++)
+                    {
+                        selectedObjectsLocalMatrix[i] = selectedObjects[i].Transform.LocalMatrix;
+                    }
                 }
 
                 // Perform a pick around the mouse pointer.
