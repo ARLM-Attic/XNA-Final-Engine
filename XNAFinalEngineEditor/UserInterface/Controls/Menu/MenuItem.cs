@@ -45,6 +45,13 @@ namespace XNAFinalEngine.UserInterface
         public string Text { get; set; }
 
         /// <summary>
+        /// Normally this is used to indicate the keyboard shortcut.
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        public string RightSideText { get; set; }
+
+        /// <summary>
         /// Icon that can be placed to the left of the text.
         /// </summary>
         public Texture2D Icon { get; set; }

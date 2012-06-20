@@ -238,6 +238,9 @@ namespace XNAFinalEngine.UserInterface
         public event EventHandler RangeChanged;
         public event EventHandler StepSizeChanged;
         public event EventHandler PageSizeChanged;
+        public event MouseEventHandler SliderDown;
+        public event MouseEventHandler SliderUp;
+        public event MouseEventHandler SliderPress;
 
         #endregion
 
@@ -261,6 +264,10 @@ namespace XNAFinalEngine.UserInterface
                 Detached = true,
                 Movable = true
             };
+
+            buttonSlider.MouseDown  += delegate { OnMouseDown(new MouseEventArgs()); };
+            buttonSlider.MousePress += delegate { OnMousePress(new MouseEventArgs()); };
+            buttonSlider.MouseUp    += delegate { OnMouseUp(new MouseEventArgs()); };
         } // TrackBar
 
         #endregion
@@ -295,6 +302,9 @@ namespace XNAFinalEngine.UserInterface
             RangeChanged = null;
             StepSizeChanged = null;
             PageSizeChanged = null;
+            SliderDown = null;
+            SliderUp = null;
+            SliderPress = null;
             base.DisposeManagedResources();
         } // DisposeManagedResources
 
@@ -442,11 +452,27 @@ namespace XNAFinalEngine.UserInterface
         
         #region On Mouse Press, On Resize, On Value Changed, On Range Changed, On Paige Size Changed, On Step Size Changed
 
-        protected override void OnMousePress(MouseEventArgs e)
+        protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
+            if (SliderDown != null)
+                SliderDown(this, e);
+        } // OnMouseDown
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+            if (SliderUp != null)
+                SliderUp(this, e);
+        } // OnMouseUp
+
+        protected override void OnMousePress(MouseEventArgs e)
+        {
+            base.OnMousePress(e);
             if (e.Button == MouseButton.Left)
                 buttonSlider.Left = e.Position.X - buttonSlider.Width / 2;
+            if (SliderPress != null)
+                SliderPress(this, e);
         } // OnMousePress
 
         protected override void OnResize(ResizeEventArgs e)

@@ -124,6 +124,9 @@ namespace XNAFinalEngine.UserInterface
         public event EventHandler RangeChanged;
         public event EventHandler StepSizeChanged;
         public event EventHandler PageSizeChanged;
+        public event MouseEventHandler SliderDown;
+        public event MouseEventHandler SliderUp;
+        public event MouseEventHandler SliderPress;
 
         #endregion
         
@@ -199,10 +202,13 @@ namespace XNAFinalEngine.UserInterface
             
             #endregion
 
-            slider.ValueChanged += delegate { OnValueChanged(new EventArgs()); };
-            slider.RangeChanged += delegate { OnRangeChanged(new EventArgs()); };
-            slider.StepSizeChanged += delegate { OnStepSizeChanged(new EventArgs()); };
-            slider.PageSizeChanged += delegate { OnPageSizeChanged(new EventArgs()); };
+            slider.ValueChanged    += OnValueChanged;
+            slider.RangeChanged    += OnRangeChanged;
+            slider.StepSizeChanged += OnStepSizeChanged;
+            slider.PageSizeChanged += OnPageSizeChanged;
+            slider.SliderDown      += OnSliderDown;
+            slider.SliderUp        += OnSliderUp;
+            slider.SliderPress     += OnSliderPress;
 
         } // SliderNumeric
 
@@ -220,6 +226,9 @@ namespace XNAFinalEngine.UserInterface
             RangeChanged = null;
             StepSizeChanged = null;
             PageSizeChanged = null;
+            SliderDown = null;
+            SliderUp = null;
+            SliderPress = null;
             base.DisposeManagedResources();
         } // DisposeManagedResources
 
@@ -236,28 +245,46 @@ namespace XNAFinalEngine.UserInterface
 
         #region On Value Changed, On Range Changed, On Paige Size Changed, On Step Size Changed
 
-        protected virtual void OnValueChanged(EventArgs e)
+        protected virtual void OnSliderDown(object obj, MouseEventArgs e)
+        {
+            if (SliderDown != null)
+                SliderDown(this, e);
+        } // OnSliderDown
+
+        protected virtual void OnSliderUp(object obj, MouseEventArgs e)
+        {
+            if (SliderUp != null)
+                SliderUp(this, e);
+        } // OnSliderUp
+
+        protected virtual void OnSliderPress(object obj, MouseEventArgs e)
+        {
+            if (SliderPress != null)
+                SliderPress(this, e);
+        } // OnSliderPress
+
+        protected virtual void OnValueChanged(object obj, EventArgs e)
         {
             if (ValueChanged != null) 
-                ValueChanged.Invoke(this, e);
+                ValueChanged(this, e);
         } // OnValueChanged
 
-        protected virtual void OnRangeChanged(EventArgs e)
+        protected virtual void OnRangeChanged(object obj, EventArgs e)
         {
             if (RangeChanged != null) 
-                RangeChanged.Invoke(this, e);
+                RangeChanged(this, e);
         } // OnRangeChanged
 
-        protected virtual void OnPageSizeChanged(EventArgs e)
+        protected virtual void OnPageSizeChanged(object obj, EventArgs e)
         {
             if (PageSizeChanged != null) 
-                PageSizeChanged.Invoke(this, e);
+                PageSizeChanged(this, e);
         } // OnPageSizeChanged
 
-        protected virtual void OnStepSizeChanged(EventArgs e)
+        protected virtual void OnStepSizeChanged(object obj, EventArgs e)
         {
             if (StepSizeChanged != null) 
-                StepSizeChanged.Invoke(this, e);
+                StepSizeChanged(this, e);
         } // OnStepSizeChanged
 
         #endregion

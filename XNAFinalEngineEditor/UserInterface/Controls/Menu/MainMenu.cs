@@ -28,7 +28,7 @@ namespace XNAFinalEngine.UserInterface
 
         #region Variables
 
-        private Rectangle[] rs;
+        private Rectangle[] rectangle;
         private int lastIndex = -1;
 
         #endregion
@@ -67,43 +67,41 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected override void DrawControl(Rectangle rect)
         {
-            SkinLayer l1 = SkinInformation.Layers["Control"];
-            SkinLayer l2 = SkinInformation.Layers["Selection"];
-            rs = new Rectangle[Items.Count];
+            SkinLayer layerControl   = SkinInformation.Layers["Control"];
+            SkinLayer layerSelection = SkinInformation.Layers["Selection"];
+            rectangle = new Rectangle[Items.Count];
 
-            Renderer.DrawLayer(this, l1, rect, ControlState.Enabled);
-
-            int prev = l1.ContentMargins.Left;
+            Renderer.DrawLayer(this, layerControl, rect, ControlState.Enabled);
+            
+            int prev = layerControl.ContentMargins.Left;
+            
+            // Draw root menu items (the others are rendered using context menu controls)
             for (int i = 0; i < Items.Count; i++)
             {
-                MenuItem mi = Items[i];
+                MenuItem menuItem = Items[i];
 
-                int tw = (int)l1.Text.Font.Font.MeasureString(mi.Text).X + l1.ContentMargins.Horizontal;
-                rs[i] = new Rectangle(rect.Left + prev, rect.Top + l1.ContentMargins.Top, tw, Height - l1.ContentMargins.Vertical);
-                prev += tw;
+                int textWidth = (int)layerControl.Text.Font.Font.MeasureString(menuItem.Text).X + layerControl.ContentMargins.Horizontal;
+                rectangle[i] = new Rectangle(rect.Left + prev, rect.Top + layerControl.ContentMargins.Top, textWidth, Height - layerControl.ContentMargins.Vertical);
+                prev += textWidth;
 
                 if (ItemIndex != i)
                 {
-                    if (mi.Enabled && Enabled)
-                    {
-                        Renderer.DrawString(this, l1, mi.Text, rs[i], ControlState.Enabled, false);
-                    }
+                    if (menuItem.Enabled && Enabled)
+                        Renderer.DrawString(this, layerControl, menuItem.Text, rectangle[i], ControlState.Enabled, false);
                     else
-                    {
-                        Renderer.DrawString(this, l1, mi.Text, rs[i], ControlState.Disabled, false);
-                    }
+                        Renderer.DrawString(this, layerControl, menuItem.Text, rectangle[i], ControlState.Disabled, false);
                 }
                 else
                 {
                     if (Items[i].Enabled && Enabled)
                     {
-                        Renderer.DrawLayer(this, l2, rs[i], ControlState.Enabled);
-                        Renderer.DrawString(this, l2, mi.Text, rs[i], ControlState.Enabled, false);
+                        Renderer.DrawLayer(this, layerSelection, rectangle[i], ControlState.Enabled);
+                        Renderer.DrawString(this, layerSelection, menuItem.Text, rectangle[i], ControlState.Enabled, false);
                     }
                     else
                     {
-                        Renderer.DrawLayer(this, l2, rs[i], ControlState.Disabled);
-                        Renderer.DrawString(this, l2, mi.Text, rs[i], ControlState.Disabled, false);
+                        Renderer.DrawLayer(this, layerSelection, rectangle[i], ControlState.Disabled);
+                        Renderer.DrawString(this, layerSelection, menuItem.Text, rectangle[i], ControlState.Disabled, false);
                     }
                 }
             }
@@ -135,12 +133,12 @@ namespace XNAFinalEngine.UserInterface
 
         private void TrackItem(int x, int y)
         {
-            if (Items != null && Items.Count > 0 && rs != null)
+            if (Items != null && Items.Count > 0 && rectangle != null)
             {
                 Invalidate();
-                for (int i = 0; i < rs.Length; i++)
+                for (int i = 0; i < rectangle.Length; i++)
                 {
-                    if (rs[i].Contains(x, y))
+                    if (rectangle[i].Contains(x, y))
                     {
                         if (i >= 0 && i != ItemIndex)
                         {
@@ -220,8 +218,8 @@ namespace XNAFinalEngine.UserInterface
                         (ChildMenu as ContextMenu).Sender = Root;
                         ChildMenu.Items.AddRange(Items[ItemIndex].ChildrenItems);
 
-                        int y = Root.ControlTopAbsoluteCoordinate + rs[ItemIndex].Bottom + 1;
-                        (ChildMenu as ContextMenu).Show(Root, Root.ControlLeftAbsoluteCoordinate + rs[ItemIndex].Left, y);
+                        int y = Root.ControlTopAbsoluteCoordinate + rectangle[ItemIndex].Bottom + 1;
+                        (ChildMenu as ContextMenu).Show(Root, Root.ControlLeftAbsoluteCoordinate + rectangle[ItemIndex].Left, y);
                         if (ex.Button == MouseButton.None) 
                             (ChildMenu as ContextMenu).ItemIndex = 0;
                     }

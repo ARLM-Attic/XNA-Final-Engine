@@ -92,83 +92,128 @@ namespace XNAFinalEngine.UserInterface
         {
             base.DrawControl(rect);
 
-            SkinLayer l1 = SkinInformation.Layers["Control"];
-            SkinLayer l2 = SkinInformation.Layers["Selection"];
+            SkinLayer layerControl   = SkinInformation.Layers["Control"];
+            SkinLayer layerSelection = SkinInformation.Layers["Selection"];
+            int verticalSize = LineHeight();
+            Color color;
 
-            int vsize = LineHeight();
-            Color col;
+            // Find maximum width (not including right side text)
+            // This information will be used to render the right side text, if any.
+            int maximumWidth = 0;
+            foreach (MenuItem menuItem in Items)
+            {
+                int textWidth = (int)layerControl.Text.Font.Font.MeasureString(menuItem.Text).X + 16;
+                if (textWidth > maximumWidth)
+                    maximumWidth = textWidth;
+            }
 
+            // Render all menu items.
             for (int i = 0; i < Items.Count; i++)
             {
                 int mod = i > 0 ? 2 : 0;
-                int left = rect.Left + l1.ContentMargins.Left + vsize;
-                int h = vsize - mod - (i < (Items.Count - 1) ? 1 : 0);
-                int top = rect.Top + l1.ContentMargins.Top + (i * vsize) + mod;
+                int left = rect.Left + layerControl.ContentMargins.Left + verticalSize;
+                int hight = verticalSize - mod - (i < (Items.Count - 1) ? 1 : 0);
+                int top = rect.Top + layerControl.ContentMargins.Top + (i * verticalSize) + mod;
 
 
                 if (Items[i].Separated && i > 0)
                 {
-                    Rectangle r = new Rectangle(left, rect.Top + l1.ContentMargins.Top + (i * vsize), LineWidth() - vsize + 4, 1);
-                    Renderer.Draw(Skin.Controls["Control"].Layers[0].Image.Texture.Resource, r, l1.Text.Colors.Enabled);
+                    Rectangle rectangle = new Rectangle(left, rect.Top + layerControl.ContentMargins.Top + (i * verticalSize), LineWidth() - verticalSize + 4, 1);
+                    Renderer.Draw(Skin.Controls["Control"].Layers[0].Image.Texture.Resource, rectangle, layerControl.Text.Colors.Enabled);
                 }
+
+                #region No Selected
                 if (ItemIndex != i)
                 {
                     if (Items[i].Enabled)
                     {
-                        Rectangle r = new Rectangle(left, top, LineWidth() - vsize, h);
-                        Renderer.DrawString(this, l1, Items[i].Text, r, false);
-                        col = l1.Text.Colors.Enabled;
+                        Rectangle rectangle = new Rectangle(left, top, LineWidth() - verticalSize, hight);
+                        // Render Text.
+                        Renderer.DrawString(this, layerControl, Items[i].Text, rectangle, false);
+                        // Render Right Side Text.
+                        if (!string.IsNullOrEmpty(Items[i].RightSideText))
+                        {
+                            rectangle = new Rectangle(rectangle.Left + maximumWidth, rectangle.Top,
+                                                     (int)layerControl.Text.Font.Font.MeasureString(Items[i].RightSideText).X + 16, rectangle.Height);
+                            Renderer.DrawString(this, layerControl, Items[i].RightSideText, rectangle, false);
+                        }
+                        color = layerControl.Text.Colors.Enabled;
                     }
                     else
                     {
-                        Rectangle r = new Rectangle(left + l1.Text.OffsetX,
-                                                    top + l1.Text.OffsetY,
-                                                    LineWidth() - vsize, h);
-                        Renderer.DrawString(l1.Text.Font.Font.Resource, Items[i].Text, r, l1.Text.Colors.Disabled, l1.Text.Alignment);
-                        col = l1.Text.Colors.Disabled;
+                        Rectangle rectangle = new Rectangle(left + layerControl.Text.OffsetX, top + layerControl.Text.OffsetY, LineWidth() - verticalSize, hight);
+                        // Render Text.
+                        Renderer.DrawString(layerControl.Text.Font.Font.Resource, Items[i].Text, rectangle, layerControl.Text.Colors.Disabled, layerControl.Text.Alignment);
+                        // Render Right Side Text.
+                        if (!string.IsNullOrEmpty(Items[i].RightSideText))
+                        {
+                            rectangle = new Rectangle(rectangle.Left + maximumWidth, rectangle.Top,
+                                                     (int)layerControl.Text.Font.Font.MeasureString(Items[i].RightSideText).X + 16, rectangle.Height);
+                            Renderer.DrawString(this, layerControl, Items[i].RightSideText, rectangle, false);
+                        }
+                        color = layerControl.Text.Colors.Disabled;
                     }
                 }
+                #endregion
+
+                #region Selected
                 else
                 {
                     if (Items[i].Enabled)
                     {
-                        Rectangle rs = new Rectangle(rect.Left + l1.ContentMargins.Left,
+                        Rectangle rs = new Rectangle(rect.Left + layerControl.ContentMargins.Left, 
                                                      top,
-                                                     Width - (l1.ContentMargins.Horizontal - SkinInformation.OriginMargins.Horizontal),
-                                                     h);
-                        Renderer.DrawLayer(this, l2, rs);
+                                                     Width - (layerControl.ContentMargins.Horizontal - SkinInformation.OriginMargins.Horizontal),
+                                                     hight);
+                        Renderer.DrawLayer(this, layerSelection, rs);
 
-                        Rectangle r = new Rectangle(left,
-                                                    top, LineWidth() - vsize, h);
-
-                        Renderer.DrawString(this, l2, Items[i].Text, r, false);
-                        col = l2.Text.Colors.Enabled;
+                        Rectangle rectangle = new Rectangle(left, top, LineWidth() - verticalSize, hight);
+                        // Render String.
+                        Renderer.DrawString(this, layerSelection, Items[i].Text, rectangle, false);
+                        // Render Right Side Text.
+                        if (!string.IsNullOrEmpty(Items[i].RightSideText))
+                        {
+                            rectangle = new Rectangle(rectangle.Left + maximumWidth, rectangle.Top,
+                                                     (int)layerControl.Text.Font.Font.MeasureString(Items[i].RightSideText).X + 16, rectangle.Height);
+                            Renderer.DrawString(this, layerSelection, Items[i].RightSideText, rectangle, false);
+                        }
+                        color = layerSelection.Text.Colors.Enabled;
                     }
                     else
                     {
-                        Rectangle rs = new Rectangle(rect.Left + l1.ContentMargins.Left,
+                        Rectangle rs = new Rectangle(rect.Left + layerControl.ContentMargins.Left,
                                                      top,
-                                                     Width - (l1.ContentMargins.Horizontal - SkinInformation.OriginMargins.Horizontal),
-                                                     vsize);
-                        Renderer.DrawLayer(l2, rs, l2.States.Disabled.Color, l2.States.Disabled.Index);
+                                                     Width - (layerControl.ContentMargins.Horizontal - SkinInformation.OriginMargins.Horizontal),
+                                                     verticalSize);
+                        Renderer.DrawLayer(layerSelection, rs, layerSelection.States.Disabled.Color, layerSelection.States.Disabled.Index);
 
-                        Rectangle r = new Rectangle(left + l1.Text.OffsetX,
-                                                    top + l1.Text.OffsetY,
-                                                    LineWidth() - vsize, h);
-                        Renderer.DrawString(l2.Text.Font.Font.Resource, Items[i].Text, r, l2.Text.Colors.Disabled, l2.Text.Alignment);
-                        col = l2.Text.Colors.Disabled;
+                        Rectangle rectangle = new Rectangle(left + layerControl.Text.OffsetX,
+                                                    top + layerControl.Text.OffsetY,
+                                                    LineWidth() - verticalSize, hight);
+                        // Render Text.
+                        Renderer.DrawString(layerSelection.Text.Font.Font.Resource, Items[i].Text, rectangle,
+                                            layerSelection.Text.Colors.Disabled, layerSelection.Text.Alignment);
+                        // Render Right Side Text.
+                        if (!string.IsNullOrEmpty(Items[i].RightSideText))
+                        {
+                            rectangle = new Rectangle(rectangle.Left + maximumWidth, rectangle.Top,
+                                                     (int)layerControl.Text.Font.Font.MeasureString(Items[i].RightSideText).X + 16, rectangle.Height);
+                            Renderer.DrawString(this, layerSelection, Items[i].RightSideText, rectangle, false);
+                        }
+                        color = layerSelection.Text.Colors.Disabled;
                     }
                 }
+                #endregion
 
                 if (Items[i].Icon != null)
                 {
-                    Rectangle r = new Rectangle(rect.Left + l1.ContentMargins.Left + 3, rect.Top + top + 3, LineHeight() - 6, LineHeight() - 6);
+                    Rectangle r = new Rectangle(rect.Left + layerControl.ContentMargins.Left + 3, rect.Top + top + 3, LineHeight() - 6, LineHeight() - 6);
                     Renderer.Draw(Items[i].Icon, r, Color.White);
                 }
 
                 if (Items[i].ChildrenItems != null && Items[i].ChildrenItems.Count > 0)
                 {
-                    Renderer.Draw(Skin.Images["Shared.ArrowRight"].Texture.Resource, rect.Left + LineWidth() - 4, rect.Top + l1.ContentMargins.Top + (i * vsize) + 8, col);
+                    Renderer.Draw(Skin.Images["Shared.ArrowRight"].Texture.Resource, rect.Left + LineWidth() - 4, rect.Top + layerControl.ContentMargins.Top + (i * verticalSize) + 8, color);
                 }
             }
         } // DrawControl
@@ -179,29 +224,36 @@ namespace XNAFinalEngine.UserInterface
 
         private int LineHeight()
         {
-            int h = 0;
+            int height = 0;
             if (Items.Count > 0)
             {
-                SkinLayer l = SkinInformation.Layers["Control"];
-                h = l.Text.Font.Font.LineSpacing + 9;
+                height = SkinInformation.Layers["Control"].Text.Font.Font.LineSpacing + 9;
             }
-            return h;
+            return height;
         } // LineHeight
 
+        /// <summary>
+        /// Find maximum width from items.
+        /// </summary>
         private int LineWidth()
         {
-            int w = 0;
+            int maximumWidth = 0;
             SkinFont font = SkinInformation.Layers["Control"].Text.Font;
             if (Items.Count > 0)
             {
-                foreach (MenuItem t in Items)
+                foreach (MenuItem item in Items)
                 {
-                    int wx = (int)font.Font.MeasureString(t.Text).X + 16;
-                    if (wx > w) w = wx;
+                    int itemWidth;
+                    if (string.IsNullOrEmpty(item.RightSideText))
+                        itemWidth = (int)font.Font.MeasureString(item.Text).X + 16;
+                    else
+                        itemWidth = (int)font.Font.MeasureString(item.Text).X + 16 + (int)font.Font.MeasureString(item.RightSideText).X + 16;
+                    if (itemWidth > maximumWidth) 
+                        maximumWidth = itemWidth;
                 }
             }
-            w += 4 + LineHeight();
-            return w;
+            maximumWidth += 4 + LineHeight();
+            return maximumWidth;
         } // LineWidth
 
         #endregion

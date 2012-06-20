@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.Input;
 using XNAFinalEngine.Undo;
 using XNAFinalEngine.UserInterface;
 #endregion
@@ -208,6 +209,90 @@ namespace XNAFinalEngine.Editor
 
             return sliderNumeric;
         } // SliderNumeric
+
+        /// <summary>
+        /// Returns a numeric slider control placed in the first free spot.
+        /// It automatically manages the property setting, undo and redo.
+        /// </summary>
+        /// <param name="name">Label name.</param>
+        /// <param name="parent">Parent.</param>
+        /// <param name="initialValue">Initial value.</param>
+        /// <param name="ifOutOfRangeRescale">If the value is out of range, is rescaled or not?</param>
+        /// <param name="valueCanBeOutOfRange">Can the value be out of range?</param>
+        /// <param name="minimumValue">Minimum value.</param>
+        /// <param name="maximumValue">Maximum value.</param>
+        /// <param name="propertyOwner">The object to manipualte</param>
+        /// <param name="propertyName">The property name.</param>
+        public static SliderNumeric SliderNumeric(string name, ClipControl parent, float initialValue,
+                                                  bool ifOutOfRangeRescale, bool valueCanBeOutOfRange,
+                                                  float minimumValue, float maximumValue, object propertyOwner, string propertyName)
+        {
+            var sliderNumeric = new SliderNumeric
+            {
+                Left = 10,
+                Text = name,
+                IfOutOfRangeRescale = ifOutOfRangeRescale,
+                ValueCanBeOutOfRange = valueCanBeOutOfRange,
+                MinimumValue = minimumValue,
+                MaximumValue = maximumValue,
+                Value = initialValue,
+                Width = parent.ClientWidth - 25,
+            };
+            if (parent.AvailablePositionInsideControl == 0)
+                sliderNumeric.Top = 25;
+            else
+                sliderNumeric.Top = parent.AvailablePositionInsideControl + ControlSeparation;
+            sliderNumeric.Parent = parent;
+
+            PropertyInfo property = propertyOwner.GetType().GetProperty(propertyName);
+            sliderNumeric.ValueChanged += delegate
+            {
+                if (sliderNumeric.Value != (float)property.GetValue(propertyOwner, null))
+                {
+                    if (!Mouse.LeftButtonJustReleased && !Mouse.LeftButtonPressed)
+                    {
+                        using (Transaction.Create())
+                        {
+                            // Apply the command and store for the undo feature.
+                            ActionManager.SetProperty(propertyOwner, propertyName, sliderNumeric.Value);
+                            ActionManager.CallMethod(// Redo
+                                                     UserInterfaceManager.Invalidate,
+                                                     // Undo
+                                                     UserInterfaceManager.Invalidate);
+                        }
+                    }
+                    else
+                    {
+                        property.SetValue(propertyOwner, sliderNumeric.Value, null);
+                    }
+                }
+            };
+            sliderNumeric.SliderDown += delegate
+            {
+                sliderNumericOldValue = (float)property.GetValue(propertyOwner, null);
+            };
+            sliderNumeric.SliderUp += delegate
+            {
+                if (sliderNumeric.Value != sliderNumericOldValue)
+                {
+                    property.SetValue(propertyOwner, sliderNumericOldValue, null);
+                    using (Transaction.Create())
+                    {
+                        // Apply the command and store for the undo feature.
+                        ActionManager.SetProperty(propertyOwner, propertyName, sliderNumeric.Value);
+                        ActionManager.CallMethod(// Redo
+                                                 UserInterfaceManager.Invalidate,
+                                                 // Undo
+                                                 UserInterfaceManager.Invalidate);
+                    }
+                }
+            };
+            sliderNumeric.Draw += delegate { sliderNumeric.Value = (float)property.GetValue(propertyOwner, null); };
+
+            return sliderNumeric;
+        } // SliderNumeric
+
+        private static float sliderNumericOldValue;
 
         #endregion
 

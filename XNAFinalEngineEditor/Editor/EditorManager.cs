@@ -311,12 +311,16 @@ namespace XNAFinalEngine.Editor
                 Anchor = Anchors.Left | Anchors.Top,
                 CanFocus = false
             };
+            // File
             MenuItem menuItemFile = new MenuItem("File", true);
             canvas.MainMenu.Items.Add(menuItemFile);
             menuItemFile.ChildrenItems.AddRange(new[] { new MenuItem("New Scene"), new MenuItem("Open Scene"), new MenuItem("Exit", true) });
+            // Edit
             MenuItem menuItemEdit = new MenuItem("Edit", true);
             canvas.MainMenu.Items.Add(menuItemEdit);
-            menuItemEdit.ChildrenItems.AddRange(new[] { new MenuItem("Undo"), new MenuItem("Redo") });
+            menuItemEdit.ChildrenItems.AddRange(new[] { new MenuItem("Undo") { RightSideText = "Ctrl+Z" }, new MenuItem("Redo") });
+            menuItemEdit.ChildrenItems[0].Click += delegate { ActionManager.Undo(); };
+            menuItemEdit.ChildrenItems[1].Click += delegate { ActionManager.Redo(); };
             
             #endregion
 
@@ -658,13 +662,8 @@ namespace XNAFinalEngine.Editor
                     checkBoxLightEnabled.Top = 10;
                     checkBoxLightEnabled.Draw += delegate { checkBoxLightEnabled.Checked = selectedObject.SpotLight.Visible; };
 
-                    #region Intensity
-
-                    var sliderLightIntensity = CommonControls.SliderNumeric("Intensity", panel, selectedObject.SpotLight.Intensity, false, true, 0, 100);
-                    sliderLightIntensity.ValueChanged += delegate { selectedObject.SpotLight.Intensity = sliderLightIntensity.Value; };
-                    sliderLightIntensity.Draw += delegate { sliderLightIntensity.Value = selectedObject.SpotLight.Intensity; };
-
-                    #endregion
+                    // Intensity
+                    var sliderLightIntensity = CommonControls.SliderNumeric("Intensity", panel, selectedObject.SpotLight.Intensity, false, true, 0, 100, selectedObject.SpotLight, "Intensity");
 
                     #region Diffuse Color
 
