@@ -1122,7 +1122,11 @@ namespace XNAFinalEngine.UserInterface
                     {
                         if (Text.Length > 0)
                         {
-                            Text = Text.Remove(selection.Start, selection.Length);
+                            // Avoid out of range.
+                            if (selection.Start + selection.Length > Text.Length)
+                                Text = Text.Remove(selection.Start, Text.Length - selection.Start);
+                            else
+                                Text = Text.Remove(selection.Start, selection.Length);
                             Text = Text.Insert(selection.Start, c);
                             Position = selection.Start + 1;
                         }

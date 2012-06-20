@@ -30,6 +30,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 #endregion
 
@@ -47,12 +49,48 @@ namespace XNAFinalEngine.Assets
         // Alpha Blending.
         private float alphaBlending = 1.0f;
 
+        // We only sorted if we need to do it. Don't need to wast time in game mode.
+        private static bool loadedMaterialsSorted;
+
+        // Loaded assets of this type.
+        private static readonly List<Material> loadedMaterials = new List<Material>();
+
         // default material.
-        private static Material defaultMaterial = new BlinnPhong { DiffuseColor = Color.Gray };
+        private static Material defaultMaterial = new BlinnPhong { Name = "Default Material", DiffuseColor = Color.Gray };
 
         #endregion
 
         #region Properties
+
+        #region Name
+
+        /// <summary>
+        /// The name of the asset.
+        /// If the name already exists then we add one to its name and we call it again.
+        /// </summary>
+        public override string Name
+        {
+            get { return name; }
+            set
+            {
+                if (value != name)
+                {
+                    // Is the name unique?
+                    bool isUnique = LoadedMaterials.All(assetFromList => assetFromList == this || assetFromList.Name != value);
+                    if (isUnique)
+                    {
+                        name = value;
+                        loadedMaterialsSorted = false;
+
+                    }
+                    // If not then we add one to its name and find out if is unique.
+                    else
+                        Name = NamePlusOne(value);
+                }
+            }
+        } // Name
+
+        #endregion
 
         #region Transparency
 
@@ -82,6 +120,8 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
+        #region Default Material
+
         /// <summary>
         /// Default Material.
         /// </summary>
@@ -95,6 +135,38 @@ namespace XNAFinalEngine.Assets
                 defaultMaterial = value;
             }
         } // DefaultMaterial
+
+        #endregion
+
+        #region Loaded Materials
+
+        /// <summary>
+        /// Loaded materials.
+        /// </summary>
+        public static List<Material> LoadedMaterials
+        {
+            get
+            {
+                if (!loadedMaterialsSorted)
+                {
+                    loadedMaterialsSorted = true;
+                    loadedMaterials.Sort(CompareAssets);
+                }
+                return loadedMaterials;
+            }
+        } // LoadedMaterials
+
+        #endregion
+
+        #endregion
+
+        #region Constructor
+
+        protected Material()
+        {
+            loadedMaterials.Add(this);
+            loadedMaterialsSorted = false;
+        } // Material
 
         #endregion
 

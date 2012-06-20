@@ -55,6 +55,11 @@ namespace XNAFinalEngine.Components
         #region Properties
 
         /// <summary>
+        /// If post processed is enabled the element will be influenced for the post process (bloom, tone mapping, exposure, etc.).
+        /// </summary>
+        public bool PostProcessed { get; set; }
+
+        /// <summary>
         /// The array of vertex to connect.
         /// </summary>
         /// <remarks>
@@ -86,7 +91,7 @@ namespace XNAFinalEngine.Components
         /// Line width (only valid when texture is not null).
         /// </summary>
         public float Width { get; set; }
-        
+
         #endregion
 
         #region Initialize
@@ -100,6 +105,7 @@ namespace XNAFinalEngine.Components
             // Default values
             Width = 10;
             PrimitiveType = PrimitiveType.LineList;
+            PostProcessed = false;
         } // Initialize
 
         #endregion

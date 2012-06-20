@@ -47,9 +47,19 @@ namespace XNAFinalEngine.Assets
     /// </remarks>
     public class LookupTable : Asset
     {
-        
+
+        #region Variables
+
+        // We only sorted if we need to do it. Don't need to wast time in game mode.
+        private static bool loadedLookupTablesSorted;
+
+        // Loaded assets of this type.
+        private static readonly List<LookupTable> loadedLookupTables = new List<LookupTable>();
+
+        #endregion
+
         #region Properties
-        
+
         /// <summary>
         /// The name of the asset.
         /// If the name already exists then we add one to its name and we call it again.
@@ -66,7 +76,7 @@ namespace XNAFinalEngine.Assets
                     if (isUnique)
                     {
                         name = value;
-                        LoadedLookupTables.Sort(CompareAssets);
+                        loadedLookupTablesSorted = false;
                     }
                     // If not then we add one to its name and find out if is unique.
                     else
@@ -88,11 +98,26 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Loaded Lookup Tables.
         /// </summary>
-        public static List<LookupTable> LoadedLookupTables { get; private set; }
+        public static List<LookupTable> LoadedLookupTables
+        {
+            get
+            {
+                if (!loadedLookupTablesSorted)
+                {
+                    loadedLookupTablesSorted = true;
+                    loadedLookupTables.Sort(CompareAssets);
+                }
+                return loadedLookupTables;
+            }
+        } // LoadedLookupTables
         
         /// <summary>
         ///  A list with all texture' filenames on the lookup table directory.
         /// </summary>
+        /// <remarks>
+        /// If there are memory limitations, this list could be eliminated for the release version.
+        /// This is use only useful for the editor.
+        /// </remarks>
         public static string[] LookupTablesFilenames { get; private set; }
 
         #endregion
@@ -124,7 +149,7 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("Failed to load lookup texture: " + filename, e);
             }
             LoadedLookupTables.Add(this);
-            LoadedLookupTables.Sort(CompareAssets);
+            loadedLookupTablesSorted = false;
         } // LookupTable
 
         /// <summary>
@@ -135,7 +160,7 @@ namespace XNAFinalEngine.Assets
             Name = "";
             Filename = "";
             LoadedLookupTables.Add(this);
-            LoadedLookupTables.Sort(CompareAssets);
+            loadedLookupTablesSorted = false;
         } // LookupTable
 
         #endregion
@@ -178,7 +203,6 @@ namespace XNAFinalEngine.Assets
         static LookupTable()
         {
             LookupTablesFilenames = SearchAssetsFilename(ContentManager.GameDataDirectory + "Textures\\LookupTables");
-            LoadedLookupTables = new List<LookupTable>();
         } // LookupTable
 
         #endregion
@@ -246,7 +270,7 @@ namespace XNAFinalEngine.Assets
             Texture2D lookupTable2DTexture = new Texture2D(EngineManager.Device, side1, side2, false, SurfaceFormat.Color);
             lookupTable.Resource.GetData(colors);
             lookupTable2DTexture.SetData(colors);
-            return new Texture(lookupTable2DTexture);
+            return new Texture(lookupTable2DTexture) { Name = lookupTable.Name };
         } // LookupTextureToTexture
 
         #endregion
@@ -282,14 +306,14 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Recreate lookup tables created without using a content manager.
         /// </summary>
-        internal static void RecreateTexturesWithoutContentManager()
+        internal static void RecreateLookupTablesWithoutContentManager()
         {
             foreach (LookupTable lookupTable in LoadedLookupTables)
             {
                 lookupTable.Resource.Dispose();
                 lookupTable.RecreateResource();
             }
-        } // RecreateTexturesWithoutContentManager
+        } // RecreateLookupTablesWithoutContentManager
 
         #endregion
 

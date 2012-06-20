@@ -93,8 +93,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Editor\Actions\Actions.cs" />
     <Compile Include="Editor\EditableScene.cs" />
     <Compile Include="Editor\EditorManager.cs" />
+    <Compile Include="Editor\Gizmos\GizmoRotation.cs" />
+    <Compile Include="Editor\Gizmos\GizmoScale.cs" />
     <Compile Include="Editor\Gizmos\Gizmo.cs" />
     <Compile Include="Editor\Gizmos\GizmoTranslation.cs" />
     <Compile Include="Editor\Pickers\Picker.cs" />
@@ -109,6 +112,16 @@
     <Compile Include="Editor\Windows\Materials\CarPaintWindow.cs" />
     <Compile Include="Editor\Windows\Materials\ConstantWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Undo\AbstractAction.cs" />
+    <Compile Include="Undo\ActionManager.cs" />
+    <Compile Include="Undo\Actions\AddItemAction.cs" />
+    <Compile Include="Undo\Actions\CallMethodAction.cs" />
+    <Compile Include="Undo\Actions\SetPropertyAction.cs" />
+    <Compile Include="Undo\History\IActionHistory.cs" />
+    <Compile Include="Undo\History\SimpleHistory.cs" />
+    <Compile Include="Undo\History\SimpleHistoryNode.cs" />
+    <Compile Include="Undo\IAction.cs" />
+    <Compile Include="Undo\Transaction.cs" />
     <Compile Include="UserInterface\Control.cs" />
     <Compile Include="UserInterface\Controls\AssetSelector.cs" />
     <Compile Include="UserInterface\Controls\Auxiliary\Bevel.cs" />

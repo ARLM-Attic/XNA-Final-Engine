@@ -150,7 +150,7 @@ namespace XNAFinalEngine.EngineCore
                 // Recreate assets that does not use content managers.
                 Texture.RecreateTexturesWithoutContentManager();
                 Assets.Model.RecreateModelsWithoutContentManager();
-                LookupTable.RecreateTexturesWithoutContentManager();
+                LookupTable.RecreateLookupTablesWithoutContentManager();
 
                 // Recreate assets that use content managers.
                 ContentManager.RecreateContentManagers();
@@ -1067,7 +1067,7 @@ namespace XNAFinalEngine.EngineCore
             #region HDR Linear Space Pass
 
             ScenePass.Begin(destinationSize, currentCamera.ClearColor);
-            
+
             #region Opaque Objects
 
             // Render all the opaque objects...
@@ -1120,9 +1120,9 @@ namespace XNAFinalEngine.EngineCore
                                 else if (material is CarPaint)
                                 {
                                     CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                                    CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, 
+                                    CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
                                                                         currentModelRenderer.CachedModel,
-                                                                        currentModelRenderer.cachedBoneTransforms, 
+                                                                        currentModelRenderer.cachedBoneTransforms,
                                                                         (CarPaint)material, j, k);
                                 }
                             }
@@ -1133,7 +1133,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-            
+
             #region Sky
 
             // The sky is render latter so that the GPU can avoid fragment processing. But it has to be done before the transparent objects.
@@ -1152,13 +1152,13 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Particles
-            
+
             ParticleShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.AspectRatio, currentCamera.FarPlane,
                                           new Size(currentCamera.Viewport.Width, currentCamera.Viewport.Height), gbufferTextures.RenderTargets[0]);
             for (int i = 0; i < ParticleRenderer.ComponentPool.Count; i++)
             {
                 ParticleRenderer currentParticleRenderer = ParticleRenderer.ComponentPool.Elements[i];
-                if (currentParticleRenderer.cachedParticleSystem != null && currentParticleRenderer.Texture != null && 
+                if (currentParticleRenderer.cachedParticleSystem != null && currentParticleRenderer.Texture != null &&
                     currentParticleRenderer.Visible && Layer.IsActive(currentParticleRenderer.CachedLayerMask))
                     ParticleShader.Instance.Render(currentParticleRenderer.cachedParticleSystem, currentParticleRenderer.Duration,
                                                    currentParticleRenderer.BlendState, currentParticleRenderer.DurationRandomness, currentParticleRenderer.Gravity,
@@ -1166,11 +1166,11 @@ namespace XNAFinalEngine.EngineCore
                                                    currentParticleRenderer.RotateSpeed, currentParticleRenderer.StartSize, currentParticleRenderer.EndSize,
                                                    currentParticleRenderer.Texture, currentParticleRenderer.SoftParticles, currentParticleRenderer.FadeDistance);
             }
-            
+
             #endregion
 
             #region Transparent Objects
-            
+
             // The transparent objects will be render in forward fashion.
             for (int i = 0; i < modelsToRender.Count; i++)
             {
@@ -1210,7 +1210,7 @@ namespace XNAFinalEngine.EngineCore
                                     ConstantShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
                                                                         currentModelRenderer.CachedModel,
                                                                         currentModelRenderer.cachedBoneTransforms,
-                                                                        (Constant) material, j, k);
+                                                                        (Constant)material, j, k);
                                 }
                                 else if (currentModelRenderer.Material is BlinnPhong)
                                 {
@@ -1218,7 +1218,7 @@ namespace XNAFinalEngine.EngineCore
                                     ForwardBlinnPhongShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
                                                                                  currentModelRenderer.CachedModel,
                                                                                  currentModelRenderer.cachedBoneTransforms,
-                                                                                 (BlinnPhong) material,
+                                                                                 (BlinnPhong)material,
                                                                                  currentCamera.AmbientLight, j, k);
                                 }
                                 else if (currentModelRenderer.Material is CarPaint)
@@ -1227,7 +1227,7 @@ namespace XNAFinalEngine.EngineCore
                                     CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
                                                                         currentModelRenderer.CachedModel,
                                                                         currentModelRenderer.cachedBoneTransforms,
-                                                                        (CarPaint) material, j, k);
+                                                                        (CarPaint)material, j, k);
                                 }
                             }
                             currentMeshPart++;
@@ -1235,7 +1235,7 @@ namespace XNAFinalEngine.EngineCore
                     }
                 }
             }
-            
+
             #endregion
 
             #region Textures and Text
@@ -1276,7 +1276,7 @@ namespace XNAFinalEngine.EngineCore
                             else
                                 SpriteManager.Draw3DTexture(currentHudTexture.Texture,
                                                           currentHudTexture.CachedWorldMatrix,
-                                                          currentHudTexture.Color);    
+                                                          currentHudTexture.Color);
                         }
                     }
                 }
@@ -1295,7 +1295,7 @@ namespace XNAFinalEngine.EngineCore
                                                               currentCamera.Forward);
                         else
                             SpriteManager.Draw3DText(currentHudText.Font ?? Font.DefaultFont, currentHudText.Text, currentHudText.CachedWorldMatrix, currentHudText.Color);
-                        
+
                     }
                 }
                 SpriteManager.End();
@@ -1303,16 +1303,34 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            #region 3D Lines (Line List)
+
+            LineManager.Begin3D(PrimitiveType.LineList, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+
+            for (int i = 0; i < LineRenderer.ComponentPool3D.Count; i++)
+            {
+                LineRenderer currentLineRenderer = LineRenderer.ComponentPool3D.Elements[i];
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PostProcessed && currentLineRenderer.PrimitiveType == PrimitiveType.LineList &&
+                    Layer.IsActive(currentLineRenderer.CachedLayerMask))
+                {
+                    for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(Vector3.Transform(currentLineRenderer.Vertices[j].Position, currentLineRenderer.CachedWorldMatrix), currentLineRenderer.Vertices[j].Color);
+                }
+            }
+
+            LineManager.End();
+            #endregion
+
             sceneTexture = ScenePass.End();
             RenderTarget.Release(lightTexture);
 
             #endregion
-            
+
             #region Post Process Pass
 
             PostProcessingPass.BeginAndProcess(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess, ref currentCamera.LuminanceTexture);
             // Render in gamma space
-            
+
             #region Textures and Text
 
             if (HudText.ComponentPool3D.Count != 0 || HudTexture.ComponentPool3D.Count != 0)
@@ -1381,7 +1399,7 @@ namespace XNAFinalEngine.EngineCore
             #region Lines (Line List)
 
             LineManager.Begin3D(PrimitiveType.LineList, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
-            
+
             #region Bounding Volumes
 
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
@@ -1415,11 +1433,11 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < LineRenderer.ComponentPool3D.Count; i++)
             {
                 LineRenderer currentLineRenderer = LineRenderer.ComponentPool3D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.LineList &&
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.LineList && !currentLineRenderer.PostProcessed &&
                     Layer.IsActive(currentLineRenderer.CachedLayerMask))
                 {
                     for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
-                        LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
+                        LineManager.AddVertex(Vector3.Transform(currentLineRenderer.Vertices[j].Position, currentLineRenderer.CachedWorldMatrix), currentLineRenderer.Vertices[j].Color);
                 }
             }
 
@@ -1440,7 +1458,7 @@ namespace XNAFinalEngine.EngineCore
                     currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
                 {
                     for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
-                        LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
+                        LineManager.AddVertex(Vector3.Transform(currentLineRenderer.Vertices[j].Position, currentLineRenderer.CachedWorldMatrix), currentLineRenderer.Vertices[j].Color);
                 }
             }
 
@@ -1452,7 +1470,7 @@ namespace XNAFinalEngine.EngineCore
 
             // We render directly in the camera render target so the user interface needs to be render here.
             if (currentCamera.MasterCamera == null && currentCamera.slavesCameras.Count == 0 &&
-                currentCamera.NormalizedViewport == new RectangleF(0, 0, 1, 1) && currentCamera.RenderHeadUpDisplay) 
+                currentCamera.NormalizedViewport == new RectangleF(0, 0, 1, 1) && currentCamera.RenderHeadUpDisplay)
                 RenderHeadsUpDisplay();
 
             #endregion

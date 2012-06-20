@@ -38,6 +38,7 @@ using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
+using XNAFinalEngine.Undo;
 using XNAFinalEngine.UserInterface;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Mouse = XNAFinalEngine.Input.Mouse;
@@ -161,6 +162,8 @@ namespace XNAFinalEngine.Editor
 
         // The gizmos.
         private static TranslationGizmo translationGizmo;
+        private static ScaleGizmo scaleGizmo;
+        private static RotationGizmo rotationGizmo;
 
         // The user interface control for the viewport.
         private static Container renderSpace;
@@ -178,6 +181,9 @@ namespace XNAFinalEngine.Editor
 
         // This is used to know if a text box just lost its focus because escape was pressed.
         private static Control previousFocusedControl;
+        
+        // To avoid precisions problems with quaternions.
+        private static bool updateRotation;
 
         #endregion
 
@@ -223,6 +229,7 @@ namespace XNAFinalEngine.Editor
             editorCamera.Camera.PostProcess.Bloom.Enabled = false;
             editorCamera.Camera.Visible = false;
             editorCamera.Camera.RenderHeadUpDisplay = false;
+            editorCamera.Layer = Layer.GetLayerByNumber(31);
             
             editorCameraScript = (ScriptEditorCamera)editorCamera.AddComponent<ScriptEditorCamera>();
             editorCameraScript.Mode = ScriptEditorCamera.ModeType.Maya;
@@ -234,6 +241,7 @@ namespace XNAFinalEngine.Editor
             gizmoCamera.Camera.Visible = false;
             gizmoCamera.Camera.CullingMask = Layer.GetLayerByNumber(31).Mask; // The editor layer.
             gizmoCamera.Camera.ClearColor = Color.Transparent;
+            gizmoCamera.Layer = Layer.GetLayerByNumber(31);
             
             editorCamera.Camera.MasterCamera = gizmoCamera.Camera;
             gizmoCamera.Camera.RenderingOrder = int.MaxValue;
@@ -241,6 +249,8 @@ namespace XNAFinalEngine.Editor
             #endregion
 
             translationGizmo = new TranslationGizmo(gizmoCamera);
+            scaleGizmo = new ScaleGizmo(gizmoCamera);
+            rotationGizmo = new RotationGizmo(gizmoCamera);
 
             #region Selection Rectangle
 
@@ -528,27 +538,39 @@ namespace XNAFinalEngine.Editor
             #region Transform Component
 
             var panel = CommonControls.PanelCollapsible("Transform", rightPanelTabControl, 0);
+            // Position
             vector3BoxPosition = CommonControls.Vector3Box("Position", panel, selectedObject.Transform.LocalPosition);
             vector3BoxPosition.ValueChanged += delegate { selectedObject.Transform.LocalPosition = vector3BoxPosition.Value; };
             vector3BoxPosition.Draw += delegate { vector3BoxPosition.Value = selectedObject.Transform.LocalPosition; };
-
-            Vector3 localRotationDegrees =
-                new Vector3(selectedObject.Transform.LocalRotation.GetYawPitchRoll().Y * 180 / (float)Math.PI,
-                            selectedObject.Transform.LocalRotation.GetYawPitchRoll().X * 180 / (float)Math.PI,
-                            selectedObject.Transform.LocalRotation.GetYawPitchRoll().Z * 180 / (float)Math.PI);
+            // Orientation
+            Vector3 localRotationDegrees = new Vector3(selectedObject.Transform.LocalRotation.GetYawPitchRoll().Y * 180 / (float)Math.PI,
+                                                       selectedObject.Transform.LocalRotation.GetYawPitchRoll().X * 180 / (float)Math.PI,
+                                                       selectedObject.Transform.LocalRotation.GetYawPitchRoll().Z * 180 / (float)Math.PI);
+            localRotationDegrees.X = (float)Math.Round(localRotationDegrees.X, 4);
+            localRotationDegrees.Y = (float)Math.Round(localRotationDegrees.Y, 4);
+            localRotationDegrees.Z = (float)Math.Round(localRotationDegrees.Z, 4);
             vector3BoxRotation = CommonControls.Vector3Box("Rotation", panel, localRotationDegrees);
             vector3BoxRotation.ValueChanged += delegate
             {
-                selectedObject.Transform.LocalRotation = Quaternion.CreateFromYawPitchRoll(vector3BoxRotation.Value.Y * (float)Math.PI / 180, vector3BoxRotation.Value.X * (float)Math.PI / 180, vector3BoxRotation.Value.Z * (float)Math.PI / 180);
+                if (updateRotation)
+                {
+                    selectedObject.Transform.LocalRotation = Quaternion.CreateFromYawPitchRoll(vector3BoxRotation.Value.Y * (float)Math.PI / 180, vector3BoxRotation.Value.X * (float)Math.PI / 180, vector3BoxRotation.Value.Z * (float)Math.PI / 180);
+                    updateRotation = false;
+                }
             };
             vector3BoxRotation.Draw += delegate
             {
-                Vector3 localRotationDegreesTemp =
-                new Vector3(selectedObject.Transform.LocalRotation.GetYawPitchRoll().Y * 180 / (float)Math.PI,
-                            selectedObject.Transform.LocalRotation.GetYawPitchRoll().X * 180 / (float)Math.PI,
-                            selectedObject.Transform.LocalRotation.GetYawPitchRoll().Z * 180 / (float)Math.PI);
+                Vector3 localRotationDegreesTemp = new Vector3(selectedObject.Transform.LocalRotation.GetYawPitchRoll().Y * 180 / (float)Math.PI,
+                                                               selectedObject.Transform.LocalRotation.GetYawPitchRoll().X * 180 / (float)Math.PI,
+                                                               selectedObject.Transform.LocalRotation.GetYawPitchRoll().Z * 180 / (float)Math.PI);
+                // Round to avoid precision problems.
+                localRotationDegreesTemp.X = (float)Math.Round(localRotationDegreesTemp.X, 4);
+                localRotationDegreesTemp.Y = (float)Math.Round(localRotationDegreesTemp.Y, 4);
+                localRotationDegreesTemp.Z = (float)Math.Round(localRotationDegreesTemp.Z, 4);
                 vector3BoxRotation.Value = localRotationDegreesTemp;
+                updateRotation = true;
             };
+            // Scale
             vector3BoxScale = CommonControls.Vector3Box("Scale", panel, selectedObject.Transform.LocalScale);
             vector3BoxScale.ValueChanged += delegate { selectedObject.Transform.LocalScale = vector3BoxScale.Value; };
             vector3BoxScale.Draw += delegate { vector3BoxScale.Value = selectedObject.Transform.LocalScale; };
@@ -800,7 +822,7 @@ namespace XNAFinalEngine.Editor
                     
                 };
                 // Events
-                /*assetCreatirMaterial.ItemIndexChanged += delegate
+                assetCreatirMaterial.ItemIndexChanged += delegate
                 {
                     if (assetCreatirMaterial.ItemIndex <= 0)
                         selectedObject.ModelRenderer.Material = null;
@@ -813,14 +835,14 @@ namespace XNAFinalEngine.Editor
                         }
                     }
                     assetCreatirMaterial.EditButtonEnabled = selectedObject.ModelRenderer.Material != null;
-                };*/
+                };
                 assetCreatirMaterial.Draw += delegate
                 {
                     // Add textures name here because someone could dispose or add new lookup tables.
                     assetCreatirMaterial.Items.Clear();
                     assetCreatirMaterial.Items.Add("No material");
-                    foreach (LookupTable lookupTable in LookupTable.LoadedLookupTables)
-                        assetCreatirMaterial.Items.Add(lookupTable.Name);
+                    foreach (Material material in Material.LoadedMaterials)
+                        assetCreatirMaterial.Items.Add(material.Name);
 
                     if (assetCreatirMaterial.ListBoxVisible)
                         return;
@@ -864,6 +886,42 @@ namespace XNAFinalEngine.Editor
 
         #endregion
 
+        #region Frame Objects
+
+        /// <summary>
+        /// Adjust the look at position and distance to frame the selected objects.
+        /// The orientation is not afected.
+        /// </summary>
+        public static void FrameObjects(List<GameObject3D> objects)
+        {
+            BoundingSphere? frameBoundingSphere = null; // Garbage is not an issue in the editor.
+            foreach (var gameObject in objects)
+            {
+                if (gameObject.ModelRenderer != null)
+                {
+                    if (frameBoundingSphere == null)
+                        frameBoundingSphere = gameObject.ModelRenderer.BoundingSphere;
+                    else
+                        frameBoundingSphere = BoundingSphere.CreateMerged(frameBoundingSphere.Value, gameObject.ModelRenderer.BoundingSphere);
+                }
+                // The rest of objects
+                else
+                {
+                    if (frameBoundingSphere == null)
+                        frameBoundingSphere = new BoundingSphere(gameObject.Transform.Position, 0);
+                    else
+                        frameBoundingSphere = BoundingSphere.CreateMerged(frameBoundingSphere.Value, new BoundingSphere(gameObject.Transform.Position, 0));
+                }
+            }
+            if (frameBoundingSphere != null)
+            {
+                editorCameraScript.LookAtPosition = frameBoundingSphere.Value.Center;
+                editorCameraScript.Distance = frameBoundingSphere.Value.Radius * 3 + editorCamera.Camera.NearPlane + 0.1f;
+            }
+        } // FrameObjects
+
+        #endregion
+
         #region Update
 
         /// <summary>
@@ -871,6 +929,19 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static void Update()
         {
+
+            #region Undo System
+
+            if (Keyboard.KeyPressed(Keys.LeftControl) && Keyboard.KeyJustPressed(Keys.Z))
+            {
+                ActionManager.Undo();
+            }
+            if (Keyboard.KeyPressed(Keys.LeftControl) && Keyboard.KeyJustPressed(Keys.Y))
+            {
+                ActionManager.Redo();
+            }
+
+            #endregion
 
             #region User Interface Update
 
@@ -925,9 +996,9 @@ namespace XNAFinalEngine.Editor
             gizmoCamera.Camera.ProjectionMatrix = editorCamera.Camera.ProjectionMatrix;
             switch (activeGizmo)
             {
-                //case GizmoType.Scale: GizmoScale.ManipulateObject(); break;
-                //case GizmoType.Rotation: GizmoRotation.ManipulateObject(); break;
-                case GizmoType.Translation: translationGizmo.UpdateRenderingInformation(); break;
+                case GizmoType.Scale       : scaleGizmo.UpdateRenderingInformation(); break;
+                case GizmoType.Rotation    : rotationGizmo.UpdateRenderingInformation(); break;
+                case GizmoType.Translation : translationGizmo.UpdateRenderingInformation(); break;
             }
 
             #endregion
@@ -951,31 +1022,19 @@ namespace XNAFinalEngine.Editor
             // The orientation is not afected.
             if (Keyboard.KeyJustPressed(Keys.F) && !(UserInterfaceManager.FocusedControl is TextBox))
             {
-                BoundingSphere? frameBoundingSphere = null; // Gabage is not an issue in the editor.
-                foreach (var gameObject in selectedObjects)
+                FrameObjects(selectedObjects);
+            }
+            // Frame all objects.
+            if (Keyboard.KeyJustPressed(Keys.A) && !(UserInterfaceManager.FocusedControl is TextBox))
+            {
+                List<GameObject3D> gameObject3Ds = new List<GameObject3D>();
+                // We only need the 3D game objects.
+                foreach (GameObject gameObject in GameObject.GameObjects)
                 {
-                    if (gameObject.ModelRenderer != null)
-                    {
-                        if (frameBoundingSphere == null)
-                            frameBoundingSphere = gameObject.ModelRenderer.BoundingSphere;
-                        else
-                            frameBoundingSphere = BoundingSphere.CreateMerged(frameBoundingSphere.Value, gameObject.ModelRenderer.BoundingSphere);
-                    }
-                    // The rest of objects
-                    else
-                    {
-                        if (frameBoundingSphere == null)
-                            frameBoundingSphere = new BoundingSphere(gameObject.Transform.Position, 0);
-                        else
-                            frameBoundingSphere = BoundingSphere.CreateMerged(frameBoundingSphere.Value, new BoundingSphere(gameObject.Transform.Position, 0));
-                    }
-                    
+                    if (gameObject is GameObject3D && gameObject.Layer != Layer.GetLayerByNumber(31))
+                        gameObject3Ds.Add((GameObject3D)gameObject);
                 }
-                if (frameBoundingSphere != null)
-                {
-                    editorCameraScript.LookAtPosition = frameBoundingSphere.Value.Center;
-                    editorCameraScript.Distance = frameBoundingSphere.Value.Radius * 3 + editorCamera.Camera.NearPlane + 0.1f;
-                }
+                FrameObjects(gameObject3Ds);
             }
 
             #endregion
@@ -983,7 +1042,7 @@ namespace XNAFinalEngine.Editor
             #region Reset Camera
 
             // Reset camera to default position and orientation.
-            if (Keyboard.KeyJustPressed(Keys.R) && !(UserInterfaceManager.FocusedControl is TextBox))
+            if (Keyboard.KeyJustPressed(Keys.R) && Keyboard.KeyPressed(Keys.LeftControl) && !(UserInterfaceManager.FocusedControl is TextBox))
             {
                 ResetEditorCamera();
             }
@@ -1165,7 +1224,9 @@ namespace XNAFinalEngine.Editor
             {
                 switch (activeGizmo)
                 {
-                    case GizmoType.Translation: translationGizmo.DisableGizmo(); break;
+                    case GizmoType.Scale       : scaleGizmo.DisableGizmo(); break;
+                    case GizmoType.Rotation    : rotationGizmo.DisableGizmo(); break;
+                    case GizmoType.Translation : translationGizmo.DisableGizmo(); break;
                 }
                 activeGizmo = GizmoType.None;
             }
@@ -1179,10 +1240,34 @@ namespace XNAFinalEngine.Editor
             {
                 switch (activeGizmo)
                 {
-                    case GizmoType.Translation: translationGizmo.DisableGizmo(); break;
+                    case GizmoType.Scale       : scaleGizmo.DisableGizmo(); break;
+                    case GizmoType.Rotation    : rotationGizmo.DisableGizmo(); break;
+                    case GizmoType.Translation : translationGizmo.DisableGizmo(); break;
                 }
                 activeGizmo = GizmoType.Translation;
                 translationGizmo.EnableGizmo(selectedObjects, picker);
+            }
+            if (Keyboard.KeyJustPressed(Keys.E) && isPosibleToSwich)
+            {
+                switch (activeGizmo)
+                {
+                    case GizmoType.Scale       : scaleGizmo.DisableGizmo(); break;
+                    case GizmoType.Rotation    : rotationGizmo.DisableGizmo(); break;
+                    case GizmoType.Translation : translationGizmo.DisableGizmo(); break;
+                }
+                activeGizmo = GizmoType.Rotation;
+                rotationGizmo.EnableGizmo(selectedObjects, picker);
+            }
+            if (Keyboard.KeyJustPressed(Keys.R) && !Keyboard.KeyPressed(Keys.LeftControl) && isPosibleToSwich)
+            {
+                switch (activeGizmo)
+                {
+                    case GizmoType.Scale       : scaleGizmo.DisableGizmo(); break;
+                    case GizmoType.Rotation    : rotationGizmo.DisableGizmo(); break;
+                    case GizmoType.Translation : translationGizmo.DisableGizmo(); break;
+                }
+                activeGizmo = GizmoType.Scale;
+                scaleGizmo.EnableGizmo(selectedObjects, picker);
             }
 
             #endregion
@@ -1191,15 +1276,14 @@ namespace XNAFinalEngine.Editor
 
             switch (activeGizmo)
             {
-                /*case GizmoType.Scale: 
-                    GizmoScale.ManipulateObject();
+                case GizmoType.Scale:
+                    scaleGizmo.Update();
                     vector3BoxScale.Invalidate();
                     break;
-                */
-                /*case GizmoType.Rotation: 
-                    GizmoRotation.ManipulateObject();
+                case GizmoType.Rotation: 
+                    rotationGizmo.Update();
                     vector3BoxRotation.Invalidate();
-                    break;*/
+                    break;
                 case GizmoType.Translation: 
                     translationGizmo.Update();
                     vector3BoxPosition.Invalidate();

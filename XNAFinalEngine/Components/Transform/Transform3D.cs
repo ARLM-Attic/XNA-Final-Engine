@@ -204,7 +204,13 @@ namespace XNAFinalEngine.Components
             get { return localScale; }
             set
             {
-                localScale = value; 
+                localScale = value;
+                if (localScale.X <= 0.0001f)
+                    localScale.X = 0.0001f;
+                if (localScale.Y <= 0.0001f)
+                    localScale.Y = 0.0001f;
+                if (localScale.Z <= 0.0001f)
+                    localScale.Z = 0.0001f;
                 UpdateLocalMatrix();
             }
         } // LocalScale
@@ -372,7 +378,7 @@ namespace XNAFinalEngine.Components
         public void Rotate(Vector3 rotation, Space space = Space.Local, AngularMeasure angularMeasure = AngularMeasure.Degrees)
         {
             if (angularMeasure == AngularMeasure.Degrees)
-                rotation = new Vector3(rotation.X * (3.1416f / 180), rotation.Y * (3.1416f / 180), rotation.Z * (3.1416f / 180));
+                rotation = new Vector3(rotation.X * (float)Math.PI / 180, rotation.Y * (float)Math.PI / 180, rotation.Z * (float)Math.PI / 180);
             if (space == Space.Local)
             {
                 LocalRotation = Quaternion.Concatenate(LocalRotation, Quaternion.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z));
@@ -418,8 +424,8 @@ namespace XNAFinalEngine.Components
         protected override void UpdateLocalMatrix()
         {
             // Don't use the property LocalMatrix to avoid an unnecessary decompose.
-            localMatrix = Matrix.CreateScale(localScale) * Matrix.CreateFromQuaternion(localRotation); // TODO pasar a radians.
-            localMatrix.Translation = localPosition; // * Matrix.CreateTranslation(localPosition);
+            localMatrix = Matrix.CreateScale(localScale) * Matrix.CreateFromQuaternion(localRotation);
+            localMatrix.Translation = localPosition;
             UpdateWorldMatrix();
         } // UpdateLocalMatrix
 

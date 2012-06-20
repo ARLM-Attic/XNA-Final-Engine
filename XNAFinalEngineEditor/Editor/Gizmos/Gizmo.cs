@@ -122,10 +122,7 @@ namespace XNAFinalEngine.Editor
             else
                 center = selectedObject.Transform.Position;
             // Orientation
-            if (Space == SpaceMode.Local)
-                orientation = selectedObject.Transform.Rotation;
-            else
-                orientation = Quaternion.CreateFromRotationMatrix(Matrix.Identity);
+            orientation = selectedObject.Transform.Rotation;
 
             // Calculate the distance from the object to camera position.
             Vector3 cameraToCenter = gizmoCamera.Camera.Position - center;

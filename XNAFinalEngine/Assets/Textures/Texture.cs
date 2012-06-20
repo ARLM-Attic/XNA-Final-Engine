@@ -58,8 +58,14 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected Texture2D xnaTexture;
 
-        // Default value
+        // Default value.
         private SamplerState preferedSamplerState = SamplerState.AnisotropicWrap;
+
+        // We only sorted if we need to do it. Don't need to wast time in game mode.
+	    private static bool loadedTexturesSorted;
+
+        // Loaded assets of this type.
+        private static readonly List<Texture> loadedTextures = new List<Texture>();
 
         #endregion
 
@@ -83,7 +89,8 @@ namespace XNAFinalEngine.Assets
                     if (isUnique)
                     {
                         name = value;
-                        LoadedTextures.Sort(CompareAssets);
+                        loadedTexturesSorted = false;
+                        
                     }
                     // If not then we add one to its name and find out if is unique.
                     else
@@ -163,20 +170,39 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
+        #region Loaded Textures
+
         /// <summary>
-        /// Loaded Textures.
-        /// </summary>
-        public static List<Texture> LoadedTextures { get; private set; }
+	    /// Loaded textures.
+	    /// </summary>
+	    public static List<Texture> LoadedTextures
+	    {
+	        get
+	        {
+                if (!loadedTexturesSorted)
+                {
+                    loadedTexturesSorted = true;
+                    loadedTextures.Sort(CompareAssets);
+                }
+	            return loadedTextures;
+	        }
+	    } // LoadedTextures
+
+        #endregion
+
+        #region Textures Filenames
 
         /// <summary>
         ///  A list with all texture' filenames on the texture directory, except cube textures, lookup tables and user interface textures.
         /// </summary>
         /// <remarks>
         /// If there are memory limitations, this list could be eliminated for the release version.
-        /// This is use only for the editor.
+        /// This is use only useful for the editor.
         /// </remarks>
         public static string[] TexturesFilenames { get; private set; }
-        
+
+        #endregion
+
         #endregion
 
         #region Constructor
@@ -188,7 +214,7 @@ namespace XNAFinalEngine.Assets
         {
             Name = "Empty Texture";
             LoadedTextures.Add(this);
-            LoadedTextures.Sort(CompareAssets);
+            loadedTexturesSorted = false;
         } // Texture
 
 	    /// <summary>
@@ -200,7 +226,7 @@ namespace XNAFinalEngine.Assets
             this.xnaTexture = xnaTexture;
             Size = new Size(xnaTexture.Width, xnaTexture.Height);
             LoadedTextures.Add(this);
-            LoadedTextures.Sort(CompareAssets);
+            loadedTexturesSorted = false;
         } // Texture
 
 		/// <summary>
@@ -231,7 +257,7 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("Failed to load texture: " + filename, e);
             }
             LoadedTextures.Add(this);
-            LoadedTextures.Sort(CompareAssets);
+		    loadedTexturesSorted = false;
 		} // Texture
 
 		#endregion
@@ -292,7 +318,6 @@ namespace XNAFinalEngine.Assets
                     TexturesFilenames = new string[0];
                 }
             #endif
-            LoadedTextures = new List<Texture>();
         } // Texture
 
         #endregion

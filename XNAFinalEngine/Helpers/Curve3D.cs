@@ -409,7 +409,7 @@ namespace XNAFinalEngine.Helpers
         } // Hexagon
 
         /// <summary>
-        /// Hexagon
+        /// Hexagon.
         /// </summary>
         public static Curve3D Hexagon(float sideLength = 50, bool buildTangents = true)
         {

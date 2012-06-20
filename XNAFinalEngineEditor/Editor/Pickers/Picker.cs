@@ -326,6 +326,35 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Render Object To Picker.
         /// </summary>
+        public void RenderObjectToPicker(GameObject gameObject)
+        {
+            if (gameObject is GameObject3D)
+            {
+                GameObject3D gameObject3D = (GameObject3D)gameObject;
+                if (gameObject3D.LineRenderer != null)
+                {
+                    LineManager.Begin3D(gameObject3D.LineRenderer.PrimitiveType, viewMatrix, projectionMatrix);
+                    for (int j = 0; j < gameObject3D.LineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(Vector3.Transform(gameObject3D.LineRenderer.Vertices[j].Position, gameObject3D.Transform.WorldMatrix), gameObject3D.LineRenderer.Vertices[j].Color);
+                    LineManager.End();
+                }
+            }
+            else if (gameObject is GameObject2D)
+            {
+                GameObject2D gameObject2D = (GameObject2D)gameObject;
+                if (gameObject2D.LineRenderer != null)
+                {
+                    LineManager.Begin2D(gameObject2D.LineRenderer.PrimitiveType);
+                    for (int j = 0; j < gameObject2D.LineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(gameObject2D.LineRenderer.Vertices[j].Position, gameObject2D.LineRenderer.Vertices[j].Color);
+                    LineManager.End();
+                }
+            }
+        } // RenderObjectToPicker
+
+        /// <summary>
+        /// Render Object To Picker.
+        /// </summary>
         public void RenderObjectToPicker(GameObject gameObject, Color color)
         {
             if (gameObject is GameObject3D)
@@ -342,7 +371,7 @@ namespace XNAFinalEngine.Editor
                 {
                     LineManager.Begin3D(gameObject3D.LineRenderer.PrimitiveType, viewMatrix, projectionMatrix);
                     for (int j = 0; j < gameObject3D.LineRenderer.Vertices.Length; j++)
-                        LineManager.AddVertex(gameObject3D.LineRenderer.Vertices[j].Position, gameObject3D.LineRenderer.Vertices[j].Color);
+                        LineManager.AddVertex(Vector3.Transform(gameObject3D.LineRenderer.Vertices[j].Position, gameObject3D.Transform.WorldMatrix), color);
                     LineManager.End();
                 }
             }
@@ -353,7 +382,7 @@ namespace XNAFinalEngine.Editor
                 {
                     LineManager.Begin2D(gameObject2D.LineRenderer.PrimitiveType);
                     for (int j = 0; j < gameObject2D.LineRenderer.Vertices.Length; j++)
-                        LineManager.AddVertex(gameObject2D.LineRenderer.Vertices[j].Position, gameObject2D.LineRenderer.Vertices[j].Color);
+                        LineManager.AddVertex(gameObject2D.LineRenderer.Vertices[j].Position, color);
                     LineManager.End();
                 }
             }

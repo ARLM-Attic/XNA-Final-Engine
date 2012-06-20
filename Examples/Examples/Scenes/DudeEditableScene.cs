@@ -166,19 +166,8 @@ namespace XNAFinalEngineExamples
                 //dude.Transform.Rotate(new Vector3(0, 180, 0));
                 //dude.ModelAnimations.Play("dude_attack");
                 dude.ModelAnimations["Take 001"].WrapMode = WrapMode.Loop;
+                //dude.Transform.Rotate(new Vector3(0, MathHelper.Pi, 0), Space.Local, AngularMeasure.Radians);
             //}
-            /*GameObject3D cutter = new GameObject3D(new FileModel("cutter_attack"), 
-                new BlinnPhong
-                    {
-                        DiffuseTexture = new Texture("Cutter\\cutter_D"),
-                        NormalTexture = new Texture("Cutter\\cutter_N"),
-                        SpecularTexture = new Texture("Cutter\\cutter_s"),
-                    });
-            cutter.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
-            cutter.Transform.Translate(10, 0, 0);
-            cutter.AddComponent<ModelAnimations>();
-            cutter.ModelAnimations.Play("Take 001");
-            cutter.ModelAnimations["Take 001"].WrapMode = WrapMode.Loop;*/
 
             rifle = new GameObject3D(new FileModel("Rifle"), 
                 new BlinnPhong

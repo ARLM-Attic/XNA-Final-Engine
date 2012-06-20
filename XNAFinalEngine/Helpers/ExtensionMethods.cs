@@ -308,59 +308,83 @@ namespace XNAFinalEngine.Helpers
         #region Quaternion
 
         /// <summary>
+        /// In a 2D grid, returns the angle to a specified point from the +X axis.
+        /// </summary>
+        public static float ArcTanAngle(float X, float Y)
+        {
+            if (X == 0)
+            {
+                if (Y == 1)
+                    return MathHelper.PiOver2;
+                return -MathHelper.PiOver2;
+            }
+            if (X > 0)
+                return (float)Math.Atan(Y / X);
+            if (X < 0)
+            {
+                if (Y > 0)
+                    return (float)Math.Atan(Y / X) + MathHelper.Pi;
+                return (float)Math.Atan(Y / X) - MathHelper.Pi;
+            }
+            return 0;
+        } // ArcTanAngle
+
+        /// <summary>
+        /// Returns Euler angles that point from one point to another.
+        /// </summary>
+        public static Vector3 AngleTo(Vector3 from, Vector3 location)
+        {
+            Vector3 angle = new Vector3();
+            Vector3 v3 = Vector3.Normalize(location - from);
+            angle.X = (float)Math.Asin(v3.Y);
+            angle.Y = ArcTanAngle(-v3.Z, -v3.X);
+            return angle;
+        } // AngleTo
+
+        /// <summary>
         /// Return yaw, pitch and roll from this quaternion.
         /// </summary>
+        /// <remarks>
+        /// Based on: http://forums.create.msdn.com/forums/p/4574/23988.aspx#23988
+        /// </remarks>
         /// <returns>X = yaw, Y = pitch, Z = roll</returns>
         public static Vector3 GetYawPitchRoll(this Quaternion quaternion)
-        {/*
-            float yaw, pitch, roll;
-            const float Epsilon = 0.0009765625f;
-            const float Threshold = 0.5f - Epsilon;
+        {
+            Vector3 rotationaxes = new Vector3();
 
-            float XY = quaternion.X * quaternion.Y;
-            float ZW = quaternion.Z * quaternion.W;
-
-            float TEST = XY + ZW;
-
-            if (TEST < -Threshold || TEST > Threshold)
+            Vector3 forward = Vector3.Transform(Vector3.Forward, quaternion);
+            Vector3 up = Vector3.Transform(Vector3.Up, quaternion);
+            rotationaxes = AngleTo(new Vector3(), forward);
+            if (rotationaxes.X == MathHelper.PiOver2)
             {
-                int sign = Math.Sign(TEST);
-                yaw = sign * 2 * (float)Math.Atan2(quaternion.X, quaternion.W);
-                pitch = sign * MathHelper.PiOver2;
-                roll = 0;
+                rotationaxes.Y = ArcTanAngle(up.Z, up.X);
+                rotationaxes.Z = 0;
+            }
+            else if (rotationaxes.X == -MathHelper.PiOver2)
+            {
+                rotationaxes.Y = ArcTanAngle(-up.Z, -up.X);
+                rotationaxes.Z = 0;
             }
             else
             {
-                float XX = quaternion.X * quaternion.X;
-                float XZ = quaternion.X * quaternion.Z;
-                float XW = quaternion.X * quaternion.W;
-
-                float YY = quaternion.Y * quaternion.Y;
-                float YW = quaternion.Y * quaternion.W;
-                float YZ = quaternion.Y * quaternion.Z;
-
-                float ZZ = quaternion.Z * quaternion.Z;
-
-                yaw = (float)Math.Atan2(2 * YW - 2 * XZ, 1 - 2 * YY - 2 * ZZ);
-
-                pitch = (float)Math.Atan2(2 * XW - 2 * YZ, 1 - 2 * XX - 2 * ZZ);
-
-                roll = (float)Math.Asin(2 * TEST);
-
+                up = Vector3.Transform(up, Matrix.CreateRotationY(-rotationaxes.Y));
+                up = Vector3.Transform(up, Matrix.CreateRotationX(-rotationaxes.X));
+                rotationaxes.Z = ArcTanAngle(up.Y, -up.X);
             }
-            return new Vector3(yaw, pitch, roll);*/
-            
-            Vector3 yawPitchRoll = new Vector3
+
+            // Special cases.
+            if (rotationaxes.Y <= (float)-Math.PI)
+                rotationaxes.Y = (float)Math.PI;
+            if (rotationaxes.Z <= (float)-Math.PI)
+                rotationaxes.Z = (float)Math.PI;
+            if (rotationaxes.Y >= Math.PI && rotationaxes.Z >= Math.PI)
             {
-                X = (float)(Math.Round(Math.Asin(-2 * (quaternion.X * quaternion.Z - quaternion.W * quaternion.Y)), 2)),
-                Y = (float)(Math.Round(Math.Atan2(2 * (quaternion.Y * quaternion.Z + quaternion.W * quaternion.X),
-                                            quaternion.W * quaternion.W - quaternion.X * quaternion.X -
-                                            quaternion.Y * quaternion.Y + quaternion.Z * quaternion.Z), 2)),
-                Z = (float)(Math.Round(Math.Atan2(2 * (quaternion.X * quaternion.Y + quaternion.W * quaternion.Z),
-                                            quaternion.W * quaternion.W + quaternion.X * quaternion.X -
-                                            quaternion.Y * quaternion.Y - quaternion.Z * quaternion.Z), 2)),
-            };
-            return yawPitchRoll;
+                rotationaxes.Y = 0;
+                rotationaxes.Z = 0;
+                rotationaxes.X = (float)Math.PI - rotationaxes.X;
+            }
+
+            return new Vector3(rotationaxes.Y, rotationaxes.X, rotationaxes.Z);
         } // GetYawPitchRoll
 
         #endregion

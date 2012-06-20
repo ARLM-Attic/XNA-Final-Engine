@@ -36,8 +36,8 @@ using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Input;
+using XNAFinalEngine.Undo;
 using Plane = XNAFinalEngine.Assets.Plane;
 #endregion
 
@@ -188,9 +188,26 @@ namespace XNAFinalEngine.Editor
                 {
                     Active = false;
                     // Store new previous matrix.
-                    for (int i = 0; i < selectedObjects.Count; i++)
+                    using (Transaction.Create())
                     {
-                        selectedObjectsLocalMatrix[i] = selectedObjects[i].Transform.LocalMatrix;
+                        for (int i = 0; i < selectedObjects.Count; i++)
+                        {
+                            int index = i;
+                            Matrix oldMatrix = selectedObjectsLocalMatrix[i];
+                            Matrix newMatrix = selectedObjects[index].Transform.LocalMatrix;
+                            ActionManager.CallMethod(
+                                delegate
+                                {
+                                    selectedObjectsLocalMatrix[index] = newMatrix;
+                                    selectedObjects[index].Transform.LocalMatrix = newMatrix;
+                                },
+                                delegate
+                                {
+                                    selectedObjects[index].Transform.LocalMatrix = oldMatrix;
+                                    selectedObjectsLocalMatrix[index] = oldMatrix;
+                                });
+                            //selectedObjectsLocalMatrix[i] = selectedObjects[i].Transform.LocalMatrix;
+                        }
                     }
                 }
                 // Transformate object...
@@ -385,7 +402,7 @@ namespace XNAFinalEngine.Editor
             lines.LineRenderer.Vertices[3] = new VertexPositionColor(vertices[2], new Color(0, 255, 0));
             lines.LineRenderer.Vertices[4] = new VertexPositionColor(vertices[0], Color.Blue);
             lines.LineRenderer.Vertices[5] = new VertexPositionColor(vertices[3], Color.Blue);
-            picker.RenderObjectToPicker(lines, Color.White);
+            picker.RenderObjectToPicker(lines);
             
             // Update Cones
             redCone.Transform.LocalMatrix = Matrix.Identity;
@@ -439,7 +456,7 @@ namespace XNAFinalEngine.Editor
             #region Find Color
 
             Color redColor   = Color.Red;
-            Color greenColor = Color.Green;
+            Color greenColor = new Color(0, 1f, 0);
             Color blueColor  = Color.Blue;
 
             // If the manipulation is uniform then the axis are not yellow.

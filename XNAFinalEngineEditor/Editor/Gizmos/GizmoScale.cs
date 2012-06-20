@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2010, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,494 +33,510 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Content;
-using XNAFinalEngine.Graphics;
+using XNAFinalEngine.Assets;
+using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Input;
-using DirectionalLight = XNAFinalEngine.Graphics.DirectionalLight;
+using Plane = XNAFinalEngine.Assets.Plane;
 #endregion
 
-namespace XNAFinalEngine.UI
+namespace XNAFinalEngine.Editor
 {
     /// <summary>
-    /// Un manipulador de escalado basado en el funcionamiento del manipulador de escaldo de Softimage XSI.
+    /// Scale gizmo based in Softimage XSI.
     /// </summary>
-    public class GizmoScale : Gizmo
+    internal class ScaleGizmo : Gizmo
     {
 
         #region Variables
                 
         /// <summary>
-        /// Los cubos del manipulador.
+        /// The gizmo's cones.
         /// </summary>
-        private static GraphicObject redBox,
-                                     greenBox,
-                                     blueBox;
+        private readonly GameObject3D redBox,
+                                      greenBox,
+                                      blueBox,
+                                      lines;
 
         
         /// <summary>
-        /// Los planos que marcan la conjuncion de dos ejes. Son invisibles en el renderizado.
-        /// Pero visibles para el picker (aunque con menor prioridad que el resto, por eso se borra el zbuffer cuando se los renderiza)
+        /// This planes are not rendered to the screen.
+        /// They are used by the picker to select two axis.
         /// </summary>
-        private static GraphicObject planeAll,
-                                     planeRedGreen,
-                                     planeGreenBlue,
-                                     planeBlueRed;
-         
-        /// <summary>
-        /// Almacena la escala anterior a la manipuacion.
-        /// </summary>
-        private static Vector3 oldScale = Vector3.Zero;
-
-        /// <summary>
-        /// La orientacion de los ojes en un escalado puede ser negativa.
-        /// </summary>
-        private static int redAxisOrientation = 1,
-                           greenAxisOrientation = 1,
-                           blueAxisOrientation = 1;
-
-        private static Picker picker;
-
+        private readonly GameObject3D planeRedGreen, planeRedGreenInv,
+                                      planeGreenBlue, planeGreenBlueInv,
+                                      planeBlueRed, planeBlueRedInv;
+        private readonly GameObject2D planeAll;
+        
         #endregion
 
         #region Constructor
 
         /// <summary>
-        /// Aqui se crean los objetos graficos que se utilizaran para el manipulador.
+        /// Scale gizmo based in Softimage XSI.
         /// </summary>
-        static GizmoScale()
+        internal ScaleGizmo(GameObject3D camera)
         {
-            Box box = new Box(0.15f);
-            redBox = new GraphicObject(box, new Blinn());
-            greenBox = new GraphicObject(box, new Blinn());
-            blueBox = new GraphicObject(box, new Blinn());
-            // Hagamos lucir algo mejor a las cajas, rendericemoslas con informacion de luz.
-            DirectionalLight directionalLight1 = new DirectionalLight(new Vector3(1, -1, 1), Color.White);
-            DirectionalLight directionalLight2 = new DirectionalLight(new Vector3(-1, 1, -1), Color.White);
-            redBox.AssociateLight(directionalLight1);
-            redBox.AssociateLight(directionalLight2);
-            greenBox.AssociateLight(directionalLight1);
-            greenBox.AssociateLight(directionalLight2);
-            blueBox.AssociateLight(directionalLight1);
-            blueBox.AssociateLight(directionalLight2);
-            picker = new Picker();
-        }
+            if (camera == null)
+                throw new ArgumentNullException("camera");
+            if (camera.Camera == null)
+                throw new ArgumentException("Translation Gizmo: The game object has not a camera component.", "camera");
+            gizmoCamera = camera;
+
+            // Create the gizmo parts.
+            Box box = new Box(0.15f, 0.15f, 0.15f);
+            redBox   = new GameObject3D(box, new Constant()) { Layer = Layer.GetLayerByNumber(31) };
+            greenBox = new GameObject3D(box, new Constant()) { Layer = Layer.GetLayerByNumber(31) };
+            blueBox  = new GameObject3D(box, new Constant()) { Layer = Layer.GetLayerByNumber(31) };
+            lines = new GameObject3D { Layer = Layer.GetLayerByNumber(31), };
+            lines.AddComponent<LineRenderer>();
+            lines.LineRenderer.Vertices = new VertexPositionColor[6];
+            vertices[0] = new Vector3(0, 0, 0);
+            vertices[1] = new Vector3(1, 0, 0);
+            vertices[2] = new Vector3(0, 1, 0);
+            vertices[3] = new Vector3(0, 0, 1);
+            vertices[4] = new Vector3(1, 1, 0);
+            vertices[5] = new Vector3(0, 1, 1);
+            vertices[6] = new Vector3(1, 0, 1);
+            planeRedGreen     = new GameObject3D(new Plane(vertices[2], vertices[0], vertices[4], vertices[1]), new Constant { DiffuseColor = new Color(255, 255, 0) }) { Layer = Layer.GetLayerByNumber(31), };
+            planeGreenBlue    = new GameObject3D(new Plane(vertices[5], vertices[3], vertices[2], vertices[0]), new Constant { DiffuseColor = new Color(0, 255, 255) }) { Layer = Layer.GetLayerByNumber(31), };
+            planeBlueRed      = new GameObject3D(new Plane(vertices[0], vertices[3], vertices[1], vertices[6]), new Constant { DiffuseColor = new Color(255, 0, 255) }) { Layer = Layer.GetLayerByNumber(31), };
+            planeRedGreenInv  = new GameObject3D(new Plane(vertices[4], vertices[1], vertices[2], vertices[0]), new Constant { DiffuseColor = new Color(255, 255, 0) }) { Layer = Layer.GetLayerByNumber(31), };
+            planeGreenBlueInv = new GameObject3D(new Plane(vertices[2], vertices[0], vertices[5], vertices[3]), new Constant { DiffuseColor = new Color(0, 255, 255) }) { Layer = Layer.GetLayerByNumber(31), };
+            planeBlueRedInv   = new GameObject3D(new Plane(vertices[1], vertices[6], vertices[0], vertices[3]), new Constant { DiffuseColor = new Color(255, 0, 255) }) { Layer = Layer.GetLayerByNumber(31), };
+            planeAll = new GameObject2D { Layer = Layer.GetLayerByNumber(31), };
+            planeAll.AddComponent<LineRenderer>();
+            planeAll.LineRenderer.Vertices = new VertexPositionColor[8];
+            
+            redBox.ModelRenderer.Visible = false;
+            greenBox.ModelRenderer.Visible = false;
+            blueBox.ModelRenderer.Visible = false;
+            lines.LineRenderer.Visible = false;
+            planeRedGreen.ModelRenderer.Visible = false;
+            planeGreenBlue.ModelRenderer.Visible = false;
+            planeBlueRed.ModelRenderer.Visible = false;
+            planeRedGreenInv.ModelRenderer.Visible = false;
+            planeGreenBlueInv.ModelRenderer.Visible = false;
+            planeBlueRedInv.ModelRenderer.Visible = false;
+            planeAll.LineRenderer.Visible = false;
+        } // ScaleGizmo
 
         #endregion
-        
-        #region InitializeManipulator
+
+        #region Enable and Disable Gizmo
 
         /// <summary>
-        /// Inicializo el manipulador para trabajar con el objeto indicado.
+        /// Enable the gizmo for manipulation.
         /// </summary>
-        public static void InitializeManipulator(XNAFinalEngine.Graphics.Object _obj)
+        public void EnableGizmo(List<GameObject3D> _selectedObjects, Picker picker)
         {
-            active = false;
-            obj = _obj;
-            SetOldScaleAndActualizeAxisOrientation();
-        } // InitializeManipulator
+            Active = false;
 
-        #endregion
+            redBox.ModelRenderer.Visible = true;
+            greenBox.ModelRenderer.Visible = true;
+            blueBox.ModelRenderer.Visible = true;
+            lines.LineRenderer.Visible = true;
+            planeAll.LineRenderer.Visible = true;
 
-        #region ManipulateObject
+            this.picker = picker;
 
-        /// <summary>
-        /// Realizo toda la labor del manipulador en el cuadro excepto el renderizado del mismo. 
-        /// Esta operacion debe realizarse al inicio del cuadro.
-        /// </summary>
-        public static void ManipulateObject()
-        {
-            Vector3 scale = new Vector3(0, 0, 0);            
-            Color[] colorArray = new Color[regionSize * regionSize];
-            //////////////////////////////////// Activo //////////////////////////////////////
-            if (active)
+            selectedObject = _selectedObjects[0];
+            selectedObjects = _selectedObjects;
+            selectedObjectsLocalMatrix = new List<Matrix>(_selectedObjects.Count);
+            foreach (GameObject3D selectedObj in _selectedObjects)
             {
-                // Si se termino de manipular
+                selectedObjectsLocalMatrix.Add(selectedObj.Transform.LocalMatrix);
+            }
+        } // EnableGizmo
+
+        /// <summary>
+        /// Disable the gizmo.
+        /// </summary>
+        public void DisableGizmo()
+        {
+            Active = false;
+
+            redBox.ModelRenderer.Visible = false;
+            greenBox.ModelRenderer.Visible = false;
+            blueBox.ModelRenderer.Visible = false;
+            lines.LineRenderer.Visible = false;
+            planeAll.LineRenderer.Visible = false;
+
+            selectedObject = null;
+            selectedObjects = null;
+            selectedObjectsLocalMatrix.Clear();
+        } // DisableGizmo
+
+        #endregion
+
+        #region Update
+
+        /// <summary>
+        /// Update.
+        /// </summary>
+        internal void Update()
+        {
+
+            #region Active
+
+            if (Active)
+            {   
+                
+                // If the manipulation is over...
                 if (!Mouse.LeftButtonPressed)
                 {
-                    active = false;
-                    if (oldScale != obj.LocalScale)
-                        produceTransformation = true;
-                    SetOldScaleAndActualizeAxisOrientation();
+                    Active = false;
+                    // Store new previous matrix.
+                    for (int i = 0; i < selectedObjects.Count; i++)
+                    {
+                        selectedObjectsLocalMatrix[i] = selectedObjects[i].Transform.LocalMatrix;
+                    }
                 }
-                // Si lo manipulamos actualizamos el escalado segun el desplazamaiento del mouse
+                // Transformate object...
                 else
                 {
+                    Vector2 transformationAmount;
+                    Vector3 transformation = new Vector3(0, 0, 0);
+                    // First we have to know how much to move the object in each axis.
                     if (redAxisSelected)
                     {
-                        scale.X = (Mouse.DraggingAmount.X * amout.X / (float)EngineManager.Width * 10);
-                        scale.X += (Mouse.DraggingAmount.Y * amout.Y / (float)EngineManager.Height * 10);
+                        Calculate2DMouseDirection(selectedObject, gizmoCamera, new Vector3(1, 0, 0), out transformationAmount);
+                        transformation.X +=  (Mouse.XMovement * transformationAmount.X / 500.0f);
+                        transformation.X += (Mouse.YMovement * transformationAmount.Y / 500.0f);
                     }
                     if (greenAxisSelected)
                     {
-                        scale.Y = (Mouse.DraggingAmount.X * amout.X / (float)EngineManager.Width * 10);
-                        scale.Y += (Mouse.DraggingAmount.Y * amout.Y / (float)EngineManager.Height * 10);
+                        Calculate2DMouseDirection(selectedObject, gizmoCamera, new Vector3(0, 1, 0), out transformationAmount);
+                        transformation.Y +=  (Mouse.XMovement * transformationAmount.X / 500.0f);
+                        transformation.Y += (Mouse.YMovement * transformationAmount.Y / 500.0f);
                     }
                     if (blueAxisSelected)
                     {
-                        scale.Z = (Mouse.DraggingAmount.X * amout.X / (float)EngineManager.Width * 10);
-                        scale.Z += (Mouse.DraggingAmount.Y * amout.Y / (float)EngineManager.Height * 10);
+                        Calculate2DMouseDirection(selectedObject, gizmoCamera, new Vector3(0, 0, 1), out transformationAmount);
+                        transformation.Z +=  (Mouse.XMovement * transformationAmount.X / 500.0f);
+                        transformation.Z += (Mouse.YMovement * transformationAmount.Y / 500.0f);
                     }
-                    obj.ScaleAbs(scale * oldScale + oldScale);
+                    // Calculate the scale to do transformation proportional to the camera distance to the object.
+                    // The calculations are doing once from only one object to move everything at the same rate.
+                    Vector3 center;
+                    Quaternion orientation;
+                    float scale;
+                    GizmoScaleCenterOrientation(selectedObject, gizmoCamera, out scale, out center, out orientation);
+                    // All axis (just the Mouse X movement is important)
+                    if (redAxisSelected && greenAxisSelected && blueAxisSelected)
+                    {
+                        // Transform each object.
+                        foreach (GameObject3D gameObject3D in selectedObjects)
+                        {
+                            // If this is not done the scale will tend to infinite quickly.
+                            if (gameObject3D.Transform.LocalScale.X > 1 || gameObject3D.Transform.LocalScale.Y > 1 || gameObject3D.Transform.LocalScale.Z > 1)
+                                gameObject3D.Transform.LocalScale = new Vector3(gameObject3D.Transform.LocalScale.X + ((Mouse.XMovement / 500.0f) * scale),
+                                                                                gameObject3D.Transform.LocalScale.Y + ((Mouse.XMovement / 500.0f) * scale),
+                                                                                gameObject3D.Transform.LocalScale.Z + ((Mouse.XMovement / 500.0f) * scale));
+                            else
+                                gameObject3D.Transform.LocalScale = new Vector3(gameObject3D.Transform.LocalScale.X + ((Mouse.XMovement / 500.0f) * scale) * gameObject3D.Transform.LocalScale.X,
+                                                                                gameObject3D.Transform.LocalScale.Y + ((Mouse.XMovement / 500.0f) * scale) * gameObject3D.Transform.LocalScale.Y,
+                                                                                gameObject3D.Transform.LocalScale.Z + ((Mouse.XMovement / 500.0f) * scale) * gameObject3D.Transform.LocalScale.Z);
+                        }
+                    }
+                    else
+                    {
+                        // Transform each object.
+                        foreach (GameObject3D gameObject3D in selectedObjects)
+                        {
+                            gameObject3D.Transform.LocalScale = gameObject3D.Transform.LocalScale + transformation * scale * gameObject3D.Transform.LocalScale;
+                        }
+                    }
                 }
                 if (Keyboard.EscapeJustPressed)
                 {
-                    active = false;
-                    obj.ScaleAbs(oldScale);
+                    Active = false;
+                    // Revert transformation to all selected objects.
+                    for (int i = 0; i < selectedObjects.Count; i++)
+                    {
+                        selectedObjects[i].Transform.LocalMatrix = selectedObjectsLocalMatrix[i];
+                    }
+                    
                 }
             }
-            //////////////////////////////////// Inactivo //////////////////////////////////////
+
+            #endregion
+
+            #region Inactive
+            
             else            
             {
-                // Si apretamos el boton del mouse el manipulador se activa
+                // If we press the left mouse button the manipulator activates.
                 if (Mouse.LeftButtonJustPressed)
                 {
-                    active = true;
-                    oldLocalMatrix = obj.LocalMatrix;
-                    Calculate2DMouseDirection(obj.CenterPoint, obj.WorldRotation);
+                    Active = true;
                 }
-                picker.BeginManualRenderPickerTexture();
-                    RenderManipulatorForPicker(obj.CenterPoint, obj.WorldRotation);
-                colorArray = picker.ManualPickFromCurrentPickerTexture(regionSize);
-                
-                redAxisSelected = true;
+
+                // Perform a pick around the mouse pointer.
+
+                Viewport viewport = new Viewport(gizmoCamera.Camera.Viewport.X, gizmoCamera.Camera.Viewport.Y,
+                                                 gizmoCamera.Camera.Viewport.Width, gizmoCamera.Camera.Viewport.Height);
+                picker.BeginManualPicking(gizmoCamera.Camera.ViewMatrix, gizmoCamera.Camera.ProjectionMatrix, viewport);
+                    RenderGizmoForPicker();
+                Color[] colorArray = picker.EndManualPicking(new Rectangle(Mouse.Position.X - RegionSize / 2, Mouse.Position.Y - RegionSize / 2, RegionSize, RegionSize));
+
+                #region Find Selected Axis
+
+                redAxisSelected   = true;
                 greenAxisSelected = true;
-                blueAxisSelected = true;
-                for (int i = 0; i < regionSize * regionSize; i++)
+                blueAxisSelected  = true;
+                for (int i = 0; i < RegionSize * RegionSize; i++)
                 {
-                    // Si no se encontre ningun eje asilado entonces hay posibilidades de que dos ejes en conjunto sean ganadores.
-                    if (redAxisSelected == true && greenAxisSelected == true && blueAxisSelected == true)
+                    // This is the order of preference:
+                    //  1) All axis.
+                    //  2) 1 axis.
+                    //  3) 2 axis.
+                    
+                    if (redAxisSelected && greenAxisSelected && blueAxisSelected)
                     {
-                        // Ejes X e Y
+                        // X and Y axis.
                         if (colorArray[i].R == 255 && colorArray[i].G == 255 && colorArray[i].B == 0)
                         {
-                            redAxisSelected = true;
+                            redAxisSelected   = true;
                             greenAxisSelected = true;
-                            blueAxisSelected = false;
+                            blueAxisSelected  = false;
                         }
-                        // Ejes X e Z
+                        // X and Z  axis.
                         if (colorArray[i].R == 255 && colorArray[i].G == 0 && colorArray[i].B == 255)
                         {
-                            redAxisSelected = true;
+                            redAxisSelected   = true;
                             greenAxisSelected = false;
-                            blueAxisSelected = true;
+                            blueAxisSelected  = true;
                         }
-                        // Ejes Y e Z
+                        // Y and Z axis.
                         if (colorArray[i].R == 0 && colorArray[i].G == 255 && colorArray[i].B == 255)
                         {
-                            redAxisSelected = false;
+                            redAxisSelected   = false;
                             greenAxisSelected = true;
-                            blueAxisSelected = true;
+                            blueAxisSelected  = true;
                         }
                     }
-                    // Eje X
+                    // X axis.
                     if (colorArray[i].R == 255 && colorArray[i].G == 0 && colorArray[i].B == 0)
                     {
-                        redAxisSelected = true;
+                        redAxisSelected   = true;
                         greenAxisSelected = false;
-                        blueAxisSelected = false;
+                        blueAxisSelected  = false;
                     }
-                    // Eje Y
+                    // Y axis.
                     if (colorArray[i].R == 0 && colorArray[i].G == 255 && colorArray[i].B == 0)
                     {
-                        redAxisSelected = false;
+                        redAxisSelected   = false;
                         greenAxisSelected = true;
-                        blueAxisSelected = false;
+                        blueAxisSelected  = false;
                     }
-                    // Eje Z
+                    // Z axis.
                     if (colorArray[i].R == 0 && colorArray[i].G == 0 && colorArray[i].B == 255)
                     {
-                        redAxisSelected = false;
+                        redAxisSelected   = false;
                         greenAxisSelected = false;
-                        blueAxisSelected = true;
+                        blueAxisSelected  = true;
                     }
-                    // Si es el plano de todos los ejes
+                    // All axis.
                     if (colorArray[i].R == 255 && colorArray[i].G == 255 && colorArray[i].B == 255)
                     {
-                        redAxisSelected = true;
+                        redAxisSelected   = true;
                         greenAxisSelected = true;
-                        blueAxisSelected = true;
-                        i = regionSize * regionSize;
+                        blueAxisSelected  = true;
+                        i = RegionSize * RegionSize; // Or break.
                     }
                 }
+
+                #endregion
+
             }
-        } // ManipulateObject
+            
+            #endregion
+
+        } // Update
 
         #endregion
-
-        #region Calculate2DMouseDirection
-
+        
+        #region Render Gizmo For Picker
+        
         /// <summary>
-        /// Calculamos como va a afectar el movimiento vertical y horizontal del mouse al manipulador.
+        /// Render the gizmo to the picker.
         /// </summary>
-        protected static void Calculate2DMouseDirection(Vector3 center, Matrix axisMatrix)
+        private void RenderGizmoForPicker()
         {
-            Vector3[] screenPositions = new Vector3[7];
-            Vector3 aux;
+            // Calculate the center, scale and orientation of the gizmo.
+            Vector3 center;
+            Quaternion orientation;
+            float scale;
+            GizmoScaleCenterOrientation(selectedObject, gizmoCamera, out scale, out center, out orientation);
 
-            // Calculo la distancia del objecto o manipulador a la camara
-            Vector3 cameraManipulatorVector = ApplicationLogic.Camera.Position - center;
-            float cameraManipulatorDistance = cameraManipulatorVector.Length();
-            float scale = cameraManipulatorDistance / 14;
-
-            // Calculo los vertices de las distintas componentes, considerando su posicion rotacion y escala en la pantalla.
+            // Calculate the gizmo matrix.
             Matrix transformationMatrix = Matrix.CreateScale(scale);
-            transformationMatrix *= axisMatrix;
+            transformationMatrix *= Matrix.CreateFromQuaternion(orientation);
             transformationMatrix *= Matrix.CreateTranslation(center);
-
+            
             vertices[0] = Vector3.Transform(new Vector3(0, 0, 0), transformationMatrix);
-            // All and Red Axis
-            if ((redAxisSelected && greenAxisSelected && blueAxisSelected) ||
-                (redAxisSelected && !greenAxisSelected && !blueAxisSelected))
-            {
-                vertices[1] = Vector3.Transform(new Vector3(redAxisOrientation, 0, 0), transformationMatrix);
-            }
-            // Green Axis
-            if (!redAxisSelected && greenAxisSelected && !blueAxisSelected)
-            {
-                vertices[1] = Vector3.Transform(new Vector3(0, greenAxisOrientation, 0), transformationMatrix);
-            }
-            // Blue Axis
-            if (!redAxisSelected && !greenAxisSelected && blueAxisSelected)
-            {
-                vertices[1] = Vector3.Transform(new Vector3(0, 0, blueAxisOrientation), transformationMatrix);
-            }
-            // Red and Green Axis
-            if (redAxisSelected && greenAxisSelected && !blueAxisSelected)
-            {
-                vertices[1] = Vector3.Transform(new Vector3(redAxisOrientation, greenAxisOrientation, 0), transformationMatrix);
-            }
-            // Green and Blue Axis
-            if (!redAxisSelected && greenAxisSelected && blueAxisSelected)
-            {
-                vertices[1] = Vector3.Transform(new Vector3(0, greenAxisOrientation, blueAxisOrientation), transformationMatrix);
-            }
-            // Red and Blue Axis
-            if (redAxisSelected && greenAxisSelected && !blueAxisSelected)
-            {
-                vertices[1] = Vector3.Transform(new Vector3(redAxisOrientation, 0, blueAxisOrientation), transformationMatrix);
-            }
-
-            screenPositions[0] = EngineManager.Device.Viewport.Project(vertices[0], ApplicationLogic.Camera.ProjectionMatrix, ApplicationLogic.Camera.ViewMatrix, Matrix.Identity);
-            screenPositions[1] = EngineManager.Device.Viewport.Project(vertices[1], ApplicationLogic.Camera.ProjectionMatrix, ApplicationLogic.Camera.ViewMatrix, Matrix.Identity);
-
-            aux = screenPositions[1] - screenPositions[0];
-            amout.X = aux.X / aux.Length();
-            amout.Y = aux.Y / aux.Length();
-        } // Calculate2DMouseDirection
-
-        #endregion
-
-        #region Set OldScale and Actualize Axis Orientation
-
-        /// <summary>
-        /// Seteo oldScale con la escala actual y reoriento los ejes por si el escalado es negativo.
-        /// </summary>
-        private static void SetOldScaleAndActualizeAxisOrientation()
-        {
-            oldScale = obj.LocalScale;
-            // Si la escala es negativa invierto los ejes
-            if (oldScale.X < 0)
-                redAxisOrientation = -1;
-            else
-                redAxisOrientation = 1;
-            if (oldScale.Y < 0)
-                greenAxisOrientation = -1;
-            else
-                greenAxisOrientation = 1;
-            if (oldScale.Z < 0)
-                blueAxisOrientation = -1;
-            else
-                blueAxisOrientation = 1;
-        } // SetOldScaleAndActualizeAxisOrientation
-
-        #endregion
-
-        #region Render Manipulator For Picker
-
-        /// <summary>
-        /// Renderizado del manipulador para el picking. Va desde el de menor prioridad al de mayor.
-        /// </summary>
-        private static void RenderManipulatorForPicker(Vector3 center, Matrix axisMatrix)
-        {
-            Constant constantMaterial = new Constant();
-            // Calculo la distancia del objecto o manipulador a la camara
-            Vector3 cameraManipulatorVector = ApplicationLogic.Camera.Position - center;
-            float cameraManipulatorDistance = cameraManipulatorVector.Length();
-            float scale = cameraManipulatorDistance / 14;
-
-            // Calculo los vertices de las distintas componentes, considerando su posicion rotacion y escala en la pantalla.
-            Matrix transformationMatrix = Matrix.CreateScale(scale);
-            transformationMatrix *= axisMatrix;
-            transformationMatrix *= Matrix.CreateTranslation(center);
-
-            vertices[0] = Vector3.Transform(new Vector3(0, 0, 0), transformationMatrix);
-            vertices[1] = Vector3.Transform(new Vector3(redAxisOrientation, 0, 0), transformationMatrix);
-            vertices[2] = Vector3.Transform(new Vector3(0, greenAxisOrientation, 0), transformationMatrix);
-            vertices[3] = Vector3.Transform(new Vector3(0, 0, blueAxisOrientation), transformationMatrix);
-            vertices[4] = Vector3.Transform(new Vector3(redAxisOrientation, greenAxisOrientation, 0), transformationMatrix);
-            vertices[5] = Vector3.Transform(new Vector3(0, greenAxisOrientation, blueAxisOrientation), transformationMatrix);
-            vertices[6] = Vector3.Transform(new Vector3(redAxisOrientation, 0, blueAxisOrientation), transformationMatrix);
-
-            // Creo los planos y los renderizo. Borrando el Zbuffer a continuacion para que no molesten.
-            // Los renderizo de ambos lados
-
-            planeRedGreen = new GraphicObject(new XNAFinalEngine.Graphics.Plane(vertices[2], vertices[0], vertices[4], vertices[1]), new Constant(new Color(255, 255, 0)));
-            planeGreenBlue = new GraphicObject(new XNAFinalEngine.Graphics.Plane(vertices[5], vertices[3], vertices[2], vertices[0]), new Constant(new Color(0, 255, 255)));
-            planeBlueRed = new GraphicObject(new XNAFinalEngine.Graphics.Plane(vertices[0], vertices[3], vertices[1], vertices[6]), new Constant(new Color(255, 0, 255)));
-
-            planeRedGreen.Render();
-            planeGreenBlue.Render();
-            planeBlueRed.Render();
-
-            planeRedGreen = new GraphicObject(new XNAFinalEngine.Graphics.Plane(vertices[4], vertices[1], vertices[2], vertices[0]), new Constant(new Color(255, 255, 0)));
-            planeGreenBlue = new GraphicObject(new XNAFinalEngine.Graphics.Plane(vertices[2], vertices[0], vertices[5], vertices[3]), new Constant(new Color(0, 255, 255)));
-            planeBlueRed = new GraphicObject(new XNAFinalEngine.Graphics.Plane(vertices[1], vertices[6], vertices[0], vertices[3]), new Constant(new Color(255, 0, 255)));
-
-            planeRedGreen.Render();
-            planeGreenBlue.Render();
-            planeBlueRed.Render();
-
-            // Renderizo las lineas
-
-            EngineManager.Device.Clear(ClearOptions.DepthBuffer, new Color(0, 0, 0), 1.0f, 0);
-
-            Primitives.Begin(PrimitiveType.LineList);
-            Primitives.AddVertex(vertices[0], Color.Red);
-            Primitives.AddVertex(vertices[1], Color.Red);
-            Primitives.AddVertex(vertices[0], new Color(0, 255, 0)); // Color.Green no es 0 255 0
-            Primitives.AddVertex(vertices[2], new Color(0, 255, 0)); // Color.Green no es 0 255 0
-            Primitives.AddVertex(vertices[0], Color.Blue);
-            Primitives.AddVertex(vertices[3], Color.Blue);
-            Primitives.End();
-
-            // Renderizo los cubos            
-
-            constantMaterial.SurfaceColor = Color.Red;
-            redBox.ScaleAbs(scale);
-            redBox.RotateAbs(axisMatrix);
-            redBox.TranslateAbs(vertices[1]);
-            redBox.Render(constantMaterial);
-
-            constantMaterial.SurfaceColor = new Color(0, 255, 0); // Color.Green no es 0 255 0
-            greenBox.ScaleAbs(scale);
-            greenBox.RotateAbs(axisMatrix);
-            greenBox.TranslateAbs(vertices[2]);
-            greenBox.Render(constantMaterial);
-
-            constantMaterial.SurfaceColor = Color.Blue;
-            blueBox.ScaleAbs(scale);
-            blueBox.RotateAbs(axisMatrix);
-            blueBox.TranslateAbs(vertices[3]);
-            blueBox.Render(constantMaterial);
-
-            // Renderizo el plano que se rota en conjunto con la camara, el de todos los ejes. Tiene la mayor prioridad de picking.
-
-            EngineManager.Device.Clear(ClearOptions.DepthBuffer, new Color(0, 0, 0), 1.0f, 0);
-            planeAll = new GraphicObject(new XNAFinalEngine.Graphics.Plane(0.2f * scale), new Constant(Color.White));
-            planeAll.LocalMatrix = (Matrix.CreateBillboard(vertices[0], -ApplicationLogic.Camera.Position, Vector3.Up, null));
-            planeAll.Render();
-        }
+            vertices[1] = Vector3.Transform(new Vector3(1, 0, 0), transformationMatrix);
+            vertices[2] = Vector3.Transform(new Vector3(0, 1, 0), transformationMatrix);
+            vertices[3] = Vector3.Transform(new Vector3(0, 0, 1), transformationMatrix);
+            vertices[4] = Vector3.Transform(new Vector3(1, 1, 0), transformationMatrix);
+            vertices[5] = Vector3.Transform(new Vector3(0, 1, 1), transformationMatrix);
+            vertices[6] = Vector3.Transform(new Vector3(1, 0, 1), transformationMatrix);
+            
+            planeRedGreen.Transform .LocalMatrix = transformationMatrix;
+            planeGreenBlue.Transform .LocalMatrix = transformationMatrix;
+            planeBlueRed.Transform .LocalMatrix = transformationMatrix;
+            picker.RenderObjectToPicker(planeRedGreen, new Color(255, 255, 0));
+            picker.RenderObjectToPicker(planeGreenBlue, new Color(0, 255, 255));
+            picker.RenderObjectToPicker(planeBlueRed, new Color(255, 0, 255));
+            // Render a second time but from the other side.
+            planeRedGreenInv.Transform .LocalMatrix = transformationMatrix;
+            planeGreenBlueInv.Transform.LocalMatrix = transformationMatrix;
+            planeBlueRedInv.Transform.LocalMatrix = transformationMatrix;
+            picker.RenderObjectToPicker(planeRedGreenInv, new Color(255, 255, 0));
+            picker.RenderObjectToPicker(planeGreenBlueInv, new Color(0, 255, 255));
+            picker.RenderObjectToPicker(planeBlueRedInv, new Color(255, 0, 255));
+            
+            // Update Axis Lines
+            lines.LineRenderer.Vertices[0] = new VertexPositionColor(vertices[0], Color.Red);
+            lines.LineRenderer.Vertices[1] = new VertexPositionColor(vertices[1], Color.Red);
+            lines.LineRenderer.Vertices[2] = new VertexPositionColor(vertices[0], new Color(0, 255, 0));
+            lines.LineRenderer.Vertices[3] = new VertexPositionColor(vertices[2], new Color(0, 255, 0));
+            lines.LineRenderer.Vertices[4] = new VertexPositionColor(vertices[0], Color.Blue);
+            lines.LineRenderer.Vertices[5] = new VertexPositionColor(vertices[3], Color.Blue);
+            picker.RenderObjectToPicker(lines);
+            
+            // Update Cones
+            redBox.Transform.LocalMatrix = Matrix.Identity;
+            redBox.Transform.LocalPosition = new Vector3(1, 0, 0);
+            redBox.Transform.Rotate(new Vector3(0, 0, -90));
+            redBox.Transform.LocalMatrix = redBox.Transform.LocalMatrix * transformationMatrix;
+            picker.RenderObjectToPicker(redBox, Color.Red);
+            
+            greenBox.Transform.LocalMatrix = Matrix.Identity;
+            greenBox.Transform.LocalPosition = new Vector3(0, 1, 0);
+            greenBox.Transform.LocalMatrix = greenBox.Transform.LocalMatrix * transformationMatrix;
+            picker.RenderObjectToPicker(greenBox, new Color(0, 255, 0)); // Color.Green is not 0, 255, 0
+            
+            blueBox.Transform.LocalMatrix = Matrix.Identity;
+            blueBox.Transform.LocalPosition = new Vector3(0, 0, 1);
+            blueBox.Transform.Rotate(new Vector3(90, 0, 0));
+            blueBox.Transform.LocalMatrix = blueBox.Transform.LocalMatrix * transformationMatrix;
+            picker.RenderObjectToPicker(blueBox, Color.Blue);
+            
+            Vector3 screenPositions = EngineManager.Device.Viewport.Project(vertices[0], gizmoCamera.Camera.ProjectionMatrix, gizmoCamera.Camera.ViewMatrix, Matrix.Identity);
+            planeAll.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), Color.White);
+            planeAll.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), Color.White);
+            planeAll.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), Color.White);
+            planeAll.LineRenderer.Vertices[3] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y + RegionSize / 2, 0), Color.White);
+            planeAll.LineRenderer.Vertices[4] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y + RegionSize / 2, 0), Color.White);
+            planeAll.LineRenderer.Vertices[5] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y + RegionSize / 2, 0), Color.White);
+            planeAll.LineRenderer.Vertices[6] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y + RegionSize / 2, 0), Color.White);
+            planeAll.LineRenderer.Vertices[7] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), Color.White);
+            picker.RenderObjectToPicker(planeAll, Color.White);
+            
+            // The plane used to select all axis.
+            /*LineManager.Begin2D(PrimitiveType.LineList);
+                Vector3 screenPositions = EngineManager.Device.Viewport.Project(vertices[0], gizmoCamera.Camera.ProjectionMatrix, gizmoCamera.Camera.ViewMatrix, Matrix.Identity);
+                LineManager.DrawSolid2DPlane(new Rectangle((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, RegionSize, RegionSize), Color.White);
+            LineManager.End();*/
+            
+            // This is used to avoid problems in the gizmo rendering.
+            UpdateRenderingInformation();
+        } // RenderGizmoForPicker
 
         #endregion
 
-        #region Render Manipulator
+        #region Update Rendering Information
 
         /// <summary>
-        /// Renderizado del manipulador en pantalla. 
-        /// Se necesita renderizar al final cuadro para no entrar en problemas con los render targets.
+        /// Update Rendering Information.
         /// </summary>
-        public static void RenderManipulator()
+        public void UpdateRenderingInformation()
         {
-            Vector3 center = obj.CenterPoint;
-            Matrix axisMatrix = obj.WorldRotation;
 
-            Color redColor = Color.Red;
-            Color greenColor = Color.Green;
-            Color blueColor = Color.Blue;
+            #region Find Color
 
-            float redAxisAmount = 1;
-            float greenAxisAmount = 1;
-            float blueAxisAmount = 1;
-            // Si esta activo los handlers tienen un tamaño distinto al inicial.
-            if (active)
+            Color redColor   = Color.Red;
+            Color greenColor = new Color(0, 1f, 0);
+            Color blueColor  = Color.Blue;
+
+            // If the manipulation is uniform then the axis are not yellow.
+            if (!redAxisSelected || !greenAxisSelected || !blueAxisSelected) 
             {
-                if (redAxisSelected)
-                {
-                    redAxisAmount = (Mouse.DraggingAmount.X * amout.X / (float)EngineManager.Width * 10);
-                    redAxisAmount += (Mouse.DraggingAmount.Y * amout.Y / (float)EngineManager.Height * 10) + 1;
-                }
-                if (greenAxisSelected)
-                {
-                    greenAxisAmount = (Mouse.DraggingAmount.X * amout.X / (float)EngineManager.Width * 10);
-                    greenAxisAmount += (Mouse.DraggingAmount.Y * amout.Y / (float)EngineManager.Height * 10) + 1;
-                }
-                if (blueAxisSelected)
-                {
-                    blueAxisAmount = (Mouse.DraggingAmount.X * amout.X / (float)EngineManager.Width * 10);
-                    blueAxisAmount += (Mouse.DraggingAmount.Y * amout.Y / (float)EngineManager.Height * 10) + 1;
-                }
-            }
-            if (!redAxisSelected || !greenAxisSelected || !blueAxisSelected) // Si esta seleccionado el escalado uniforme los handlers no se pintan de amarillo
-            {
-                if (redAxisSelected) redColor = Color.Yellow;
+                if (redAxisSelected)   redColor   = Color.Yellow;
                 if (greenAxisSelected) greenColor = Color.Yellow;
-                if (blueAxisSelected) blueColor = Color.Yellow;
+                if (blueAxisSelected)  blueColor  = Color.Yellow;
             }
 
-            // Calculo la distancia del objecto o manipulador a la camara
-            Vector3 cameraManipulatorVector = ApplicationLogic.Camera.Position - center;
-            float cameraManipulatorDistance = cameraManipulatorVector.Length();
-            float scale = cameraManipulatorDistance / 14;
+            #endregion
 
+            // Calculate the center, scale and orientation of the gizmo.
+            Vector3 center;
+            Quaternion orientation;
+            float scale;
+            GizmoScaleCenterOrientation(selectedObject, gizmoCamera, out scale, out center, out orientation);
+            
+            // Calculate the gizmo matrix.
             Matrix transformationMatrix = Matrix.CreateScale(scale);
-            transformationMatrix *= axisMatrix;
+            transformationMatrix *= Matrix.CreateFromQuaternion(orientation);
             transformationMatrix *= Matrix.CreateTranslation(center);
 
+            // This are the axis line's vertex
             vertices[0] = Vector3.Transform(new Vector3(0, 0, 0), transformationMatrix);
-            vertices[1] = Vector3.Transform(new Vector3(redAxisAmount * redAxisOrientation, 0, 0), transformationMatrix);
-            vertices[2] = Vector3.Transform(new Vector3(0, greenAxisAmount * greenAxisOrientation, 0), transformationMatrix);
-            vertices[3] = Vector3.Transform(new Vector3(0, 0, blueAxisAmount * blueAxisOrientation), transformationMatrix);
+            vertices[1] = Vector3.Transform(new Vector3(1, 0, 0), transformationMatrix);
+            vertices[2] = Vector3.Transform(new Vector3(0, 1, 0), transformationMatrix);
+            vertices[3] = Vector3.Transform(new Vector3(0, 0, 1), transformationMatrix);
 
-            // Renderizo el plano de todos los ejes
+            // The plane used to select all axis.
+            Color planeColor;
             if (redAxisSelected && greenAxisSelected && blueAxisSelected)
             {
-                Primitives.Draw3DBillboardPlane(vertices[0], 0.2f * scale, Color.Yellow);
+                planeColor = Color.Yellow;
             }
             else
-                Primitives.Draw3DBillboardPlane(vertices[0], 0.2f * scale, Color.Gray);
+                planeColor = Color.Gray;
 
-            // Renderizo las lineas
-
-            Primitives.Begin(PrimitiveType.LineList);
-                Primitives.AddVertex(vertices[0], redColor);
-                Primitives.AddVertex(vertices[1], redColor);
-                Primitives.AddVertex(vertices[0], greenColor);
-                Primitives.AddVertex(vertices[2], greenColor);
-                Primitives.AddVertex(vertices[0], blueColor);
-                Primitives.AddVertex(vertices[3], blueColor);
-            Primitives.End();
+            EngineManager.Device.Viewport = new Viewport(gizmoCamera.Camera.Viewport.X, gizmoCamera.Camera.Viewport.Y,
+                                                         gizmoCamera.Camera.Viewport.Width, gizmoCamera.Camera.Viewport.Height);
+            Vector3 screenPositions = EngineManager.Device.Viewport.Project(vertices[0], gizmoCamera.Camera.ProjectionMatrix, gizmoCamera.Camera.ViewMatrix, Matrix.Identity);
+            planeAll.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), planeColor);
+            planeAll.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), planeColor);
+            planeAll.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), planeColor);
+            planeAll.LineRenderer.Vertices[3] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y + RegionSize / 2, 0), planeColor);
+            planeAll.LineRenderer.Vertices[4] = new VertexPositionColor(new Vector3((int)screenPositions.X + RegionSize / 2, (int)screenPositions.Y + RegionSize / 2, 0), planeColor);
+            planeAll.LineRenderer.Vertices[5] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y + RegionSize / 2, 0), planeColor);
+            planeAll.LineRenderer.Vertices[6] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y + RegionSize / 2, 0), planeColor);
+            planeAll.LineRenderer.Vertices[7] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), planeColor);
+                
+            // Update Axis Lines
+            lines.LineRenderer.Vertices[0] = new VertexPositionColor(vertices[0], redColor);
+            lines.LineRenderer.Vertices[1] = new VertexPositionColor(vertices[1], redColor);
+            lines.LineRenderer.Vertices[2] = new VertexPositionColor(vertices[0], greenColor);
+            lines.LineRenderer.Vertices[3] = new VertexPositionColor(vertices[2], greenColor);
+            lines.LineRenderer.Vertices[4] = new VertexPositionColor(vertices[0], blueColor);
+            lines.LineRenderer.Vertices[5] = new VertexPositionColor(vertices[3], blueColor);
             
-            // Renderizo los cubos
-
-            redBox.ScaleAbs(scale);
-            redBox.RotateAbs(axisMatrix);
-            redBox.TranslateAbs(vertices[1]);
-            redBox.Render(new Blinn(redColor));
-
-            greenBox.ScaleAbs(scale);
-            greenBox.RotateAbs(axisMatrix);
-            greenBox.TranslateAbs(vertices[2]);
-            greenBox.Render(new Blinn(greenColor));
-
-            blueBox.ScaleAbs(scale);
-            blueBox.RotateAbs(axisMatrix);
-            blueBox.TranslateAbs(vertices[3]);
-            blueBox.Render(new Blinn(blueColor));
-        } // RenderManipulator
+            // Update Cones
+            redBox.Transform.LocalMatrix = Matrix.Identity;
+            redBox.Transform.LocalPosition = new Vector3(1, 0, 0);
+            redBox.Transform.Rotate(new Vector3(0, 0, -90));
+            redBox.Transform.LocalMatrix = redBox.Transform.LocalMatrix * transformationMatrix;
+            ((Constant)redBox.ModelRenderer.Material).DiffuseColor = redColor;
+            
+            greenBox.Transform.LocalMatrix = Matrix.Identity;
+            greenBox.Transform.LocalPosition = new Vector3(0, 1, 0);
+            greenBox.Transform.LocalMatrix = greenBox.Transform.LocalMatrix * transformationMatrix;
+            ((Constant)greenBox.ModelRenderer.Material).DiffuseColor = greenColor;
+            
+            blueBox.Transform.LocalMatrix = Matrix.Identity;
+            blueBox.Transform.LocalPosition = new Vector3(0, 0, 1);
+            blueBox.Transform.Rotate(new Vector3(90, 0, 0));
+            blueBox.Transform.LocalMatrix = blueBox.Transform.LocalMatrix * transformationMatrix;
+            ((Constant)blueBox.ModelRenderer.Material).DiffuseColor = blueColor;
+        } // UpdateRenderingInformation
 
         #endregion
-
-    } // UIManipulatorsScale
-} // XNAFinalEngine.UI
+        
+    } // ScaleGizmo
+} // XNAFinalEngine.Editor
