@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -46,14 +46,24 @@ namespace XNAFinalEngine.UserInterface
 
         #region Variables
 
-        private TextBox textBoxR, textBoxG, textBoxB;
-        private TrackBar sliderR, sliderG, sliderB;
+        private readonly TextBox textBoxR, textBoxG, textBoxB;
+        private readonly TrackBar sliderR, sliderG, sliderB;
 
         // If the system is updating the color, then the color won't be updated by the RGB sliders.
         private bool updatingColor;
 
         // If the system is updating the RGB sliders, then the RGB sliders won't be updated by the color.
         private bool updatingRGB;
+
+        private ColorPickerDialog colorPickerDialog;
+
+        #endregion
+
+        #region Events
+
+        public event MouseEventHandler SliderDown;
+        public event MouseEventHandler SliderUp;
+        public event MouseEventHandler SliderPress;
 
         #endregion
 
@@ -95,12 +105,18 @@ namespace XNAFinalEngine.UserInterface
             Add(squareColor);
             squareColor.MouseDown += delegate
                                     {
-                                        var colorPickerDialog = new ColorPickerDialog(Color);
+                                        colorPickerDialog = new ColorPickerDialog(Color);
                                         UserInterfaceManager.Add(colorPickerDialog);
+                                        colorPickerDialog.SquareColorDown  += OnSliderDown;
+                                        colorPickerDialog.SquareColorUp    += OnSliderUp;
+                                        colorPickerDialog.SquareColorPress += OnSliderPress;
 
                                         colorPickerDialog.Closed += delegate
                                         {
                                             Focused = true;
+                                            colorPickerDialog.SquareColorDown  -= OnSliderDown;
+                                            colorPickerDialog.SquareColorUp    -= OnSliderUp;
+                                            colorPickerDialog.SquareColorPress -= OnSliderPress;
                                         };
                                         
                                         #region Color Picker Position
@@ -355,12 +371,40 @@ namespace XNAFinalEngine.UserInterface
                     if (!updatingRGB)
                         UpdateRGBFromColor();
                 updatingColor = false;
+                if (colorPickerDialog != null && !colorPickerDialog.IsDisposed)
+                    colorPickerDialog.Color = Color;
             };
 
             // To init all values with a color
             Color = Color.Gray;
 
+            sliderR.SliderDown  += OnSliderDown;
+            sliderR.SliderUp    += OnSliderUp;
+            sliderR.SliderPress += OnSliderPress;
+            sliderG.SliderDown  += OnSliderDown;
+            sliderG.SliderUp    += OnSliderUp;
+            sliderG.SliderPress += OnSliderPress;
+            sliderB.SliderDown  += OnSliderDown;
+            sliderB.SliderUp    += OnSliderUp;
+            sliderB.SliderPress += OnSliderPress;
+
         } // SliderColor
+
+        #endregion
+
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            // A disposed object could be still generating events, because it is alive for a time, in a disposed state, but alive nevertheless.
+            SliderDown = null;
+            SliderUp = null;
+            SliderPress = null;
+            base.DisposeManagedResources();
+        } // DisposeManagedResources
 
         #endregion
 
@@ -392,6 +436,28 @@ namespace XNAFinalEngine.UserInterface
         {
             // Only the children will be rendered.
         } // DrawControl
+
+        #endregion
+
+        #region On Events
+
+        protected virtual void OnSliderDown(object obj, MouseEventArgs e)
+        {
+            if (SliderDown != null)
+                SliderDown(this, e);
+        } // OnSliderDown
+
+        protected virtual void OnSliderUp(object obj, MouseEventArgs e)
+        {
+            if (SliderUp != null)
+                SliderUp(this, e);
+        } // OnSliderUp
+
+        protected virtual void OnSliderPress(object obj, MouseEventArgs e)
+        {
+            if (SliderPress != null)
+                SliderPress(this, e);
+        } // OnSliderPress
 
         #endregion
 

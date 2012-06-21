@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -97,6 +97,14 @@ namespace XNAFinalEngine.UserInterface
         
         #endregion
 
+        #region Events
+
+        public event MouseEventHandler SquareColorDown;
+        public event MouseEventHandler SquareColorUp;
+        public event MouseEventHandler SquareColorPress;
+
+        #endregion
+
         #region Constructor
 
         /// <summary>
@@ -104,8 +112,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public ColorPickerDialog(Color _oldColor)
         {
-            oldColor = _oldColor;
-            Color = oldColor;
+
             ClientWidth = 5 + 132 + 10;
             ClientHeight = 235;
             TopPanel.Visible = false;
@@ -115,9 +122,7 @@ namespace XNAFinalEngine.UserInterface
             Movable = false;
             StayOnTop = true;
             AutoScroll = false;
-            
-            positionSquareColor = PositionFromColor(Color);
-
+           
             #region Background
 
             // The background object is invisible, it serves input actions.
@@ -287,8 +292,38 @@ namespace XNAFinalEngine.UserInterface
             #endregion
 
             background.BringToFront();
+            oldColor = _oldColor;
+            Color = oldColor;
+            positionSquareColor = PositionFromColor(Color);
+
+            #region Events
+
+            squareColorPalette.MouseDown  += delegate { OnMouseDown(new MouseEventArgs()); };
+            squareColorPalette.MousePress += delegate { OnMousePress(new MouseEventArgs()); };
+            squareColorPalette.MouseUp    += delegate { OnMouseUp(new MouseEventArgs()); };
+            intensityLevelBar.MouseDown   += delegate { OnMouseDown(new MouseEventArgs()); };
+            intensityLevelBar.MousePress  += delegate { OnMousePress(new MouseEventArgs()); };
+            intensityLevelBar.MouseUp     += delegate { OnMouseUp(new MouseEventArgs()); };
+
+            #endregion
 
         } // ColorPickerDialog
+
+        #endregion
+
+        #region Dispose
+
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            // A disposed object could be still generating events, because it is alive for a time, in a disposed state, but alive nevertheless.
+            SquareColorDown = null;
+            SquareColorUp = null;
+            SquareColorPress = null;
+            base.DisposeManagedResources();
+        } // DisposeManagedResources
 
         #endregion
 
@@ -516,6 +551,7 @@ namespace XNAFinalEngine.UserInterface
         protected override void DrawControl(Rectangle rect)
         {
             base.DrawControl(rect);
+            
             LineManager.Begin2D(PrimitiveType.LineList);
 
             #region Render Square Color
@@ -600,6 +636,7 @@ namespace XNAFinalEngine.UserInterface
             textBoxRed.Text = Math.Round(Color.R / 255f, 3).ToString();
             textBoxGreen.Text = Math.Round(Color.G / 255f, 3).ToString();
             textBoxBlue.Text = Math.Round(Color.B / 255f, 3).ToString();
+            positionSquareColor = PositionFromColor(Color);
         } // UpdateRGBFromColor
 
         #endregion
@@ -773,16 +810,41 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region On Key Press
+        #region On Event
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            if (SquareColorDown != null)
+                SquareColorDown(this, e);
+        } // OnMouseDown
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+            if (SquareColorUp != null)
+                SquareColorUp(this, e);
+        } // OnMouseUp
+
+        protected override void OnMousePress(MouseEventArgs e)
+        {
+            base.OnMousePress(e);
+            if (SquareColorPress != null)
+                SquareColorPress(this, e);
+        } // OnMousePress
 
         protected override void OnKeyPress(KeyEventArgs e)
         {
             if (e.Key == Keys.Escape)
-            {
                 Close();
-            }
             base.OnKeyPress(e);
         } // OnKeyPress
+
+        protected override void OnColorChanged(EventArgs e)
+        {
+            UpdateRGBFromColor();
+            base.OnColorChanged(e);
+        } // OnColorChanged
 
         #endregion
         

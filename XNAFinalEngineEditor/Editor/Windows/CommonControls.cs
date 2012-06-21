@@ -29,6 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
@@ -45,6 +47,16 @@ namespace XNAFinalEngine.Editor
     /// </summary>
     public static class CommonControls
     {
+
+        #region Variables
+
+        // Stores the initial value when the slider is moving.
+        private static float sliderNumericOldValue;
+
+        // Stores the initial value when the slider is moving.
+        private static Color sliderColorOldValue;
+
+        #endregion
 
         #region Properties
 
@@ -130,26 +142,8 @@ namespace XNAFinalEngine.Editor
         /// <param name="propertyName">The property name.</param>
         public static Vector3Box Vector3Box(string name, ClipControl parent, Vector3 initialValue, object propertyOwner, string propertyName)
         {
-            var label = new Label
-            {
-                Left = 10,
-                Width = 155,
-                Text = name,
-                Height = 10,
-            };
-            if (parent.AvailablePositionInsideControl == 0)
-                label.Top = 10;
-            else
-                label.Top = parent.AvailablePositionInsideControl + ControlSeparation;
-            label.Parent = parent;
-            var vector3Box = new Vector3Box
-            {
-                Left = 10,
-                Value = initialValue,
-                Top = label.Top + label.Height + 5,
-                Parent = parent,
-                Width = parent.ClientWidth - 25,
-            };
+            var vector3Box = Vector3Box(name, parent, initialValue);
+
             PropertyInfo property = propertyOwner.GetType().GetProperty(propertyName);
             vector3Box.ValueChanged += delegate
             {
@@ -227,28 +221,14 @@ namespace XNAFinalEngine.Editor
                                                   bool ifOutOfRangeRescale, bool valueCanBeOutOfRange,
                                                   float minimumValue, float maximumValue, object propertyOwner, string propertyName)
         {
-            var sliderNumeric = new SliderNumeric
-            {
-                Left = 10,
-                Text = name,
-                IfOutOfRangeRescale = ifOutOfRangeRescale,
-                ValueCanBeOutOfRange = valueCanBeOutOfRange,
-                MinimumValue = minimumValue,
-                MaximumValue = maximumValue,
-                Value = initialValue,
-                Width = parent.ClientWidth - 25,
-            };
-            if (parent.AvailablePositionInsideControl == 0)
-                sliderNumeric.Top = 25;
-            else
-                sliderNumeric.Top = parent.AvailablePositionInsideControl + ControlSeparation;
-            sliderNumeric.Parent = parent;
+            var sliderNumeric = SliderNumeric(name, parent, initialValue, ifOutOfRangeRescale, valueCanBeOutOfRange, minimumValue, maximumValue);
 
             PropertyInfo property = propertyOwner.GetType().GetProperty(propertyName);
             sliderNumeric.ValueChanged += delegate
             {
                 if (sliderNumeric.Value != (float)property.GetValue(propertyOwner, null))
                 {
+                    // If it was set by the text box
                     if (!Mouse.LeftButtonJustReleased && !Mouse.LeftButtonPressed)
                     {
                         using (Transaction.Create())
@@ -267,15 +247,12 @@ namespace XNAFinalEngine.Editor
                     }
                 }
             };
-            sliderNumeric.SliderDown += delegate
-            {
-                sliderNumericOldValue = (float)property.GetValue(propertyOwner, null);
-            };
+            sliderNumeric.SliderDown += delegate { sliderNumericOldValue = (float)property.GetValue(propertyOwner, null); };
             sliderNumeric.SliderUp += delegate
             {
                 if (sliderNumeric.Value != sliderNumericOldValue)
                 {
-                    property.SetValue(propertyOwner, sliderNumericOldValue, null);
+                    property.SetValue(propertyOwner, sliderNumericOldValue, null); // We put temporarely the initial value.
                     using (Transaction.Create())
                     {
                         // Apply the command and store for the undo feature.
@@ -291,8 +268,6 @@ namespace XNAFinalEngine.Editor
 
             return sliderNumeric;
         } // SliderNumeric
-
-        private static float sliderNumericOldValue;
 
         #endregion
 
@@ -319,6 +294,65 @@ namespace XNAFinalEngine.Editor
             else
                 sliderColor.Top = parent.AvailablePositionInsideControl + ControlSeparation;
             sliderColor.Parent = parent;
+
+            return sliderColor;
+        } // SliderColor
+
+        /// <summary>
+        /// Returns a color slider control placed in the first free spot.
+        /// You need to update the value manually.
+        /// </summary>
+        /// <param name="name">Label name.</param>
+        /// <param name="parent">Parent.</param>
+        /// <param name="initialValue">Initial value.</param>
+        /// <param name="propertyOwner">The object to manipualte</param>
+        /// <param name="propertyName">The property name.</param>
+        public static SliderColor SliderColor(string name, ClipControl parent, Color initialValue, object propertyOwner, string propertyName)
+        {
+            var sliderColor = SliderColor(name, parent, initialValue);
+
+            PropertyInfo property = propertyOwner.GetType().GetProperty(propertyName);
+            sliderColor.ColorChanged += delegate
+            {
+                if (sliderColor.Color != (Color)property.GetValue(propertyOwner, null))
+                {
+                    // If it was set by the text box
+                    if (!Mouse.LeftButtonJustReleased && !Mouse.LeftButtonPressed)
+                    {
+                        using (Transaction.Create())
+                        {
+                            // Apply the command and store for the undo feature.
+                            ActionManager.SetProperty(propertyOwner, propertyName, sliderColor.Color);
+                            ActionManager.CallMethod(// Redo
+                                                     UserInterfaceManager.Invalidate,
+                                                     // Undo
+                                                     UserInterfaceManager.Invalidate);
+                        }
+                    }
+                    else
+                    {
+                        property.SetValue(propertyOwner, sliderColor.Color, null);
+                    }
+                }
+            };
+            sliderColor.SliderDown += delegate { sliderColorOldValue = (Color)property.GetValue(propertyOwner, null); };
+            sliderColor.SliderUp += delegate
+            {
+                if (sliderColor.Color != sliderColorOldValue)
+                {
+                    property.SetValue(propertyOwner, sliderColorOldValue, null); // We put temporarely the initial value.
+                    using (Transaction.Create())
+                    {
+                        // Apply the command and store for the undo feature.
+                        ActionManager.SetProperty(propertyOwner, propertyName, sliderColor.Color);
+                        ActionManager.CallMethod(// Redo
+                                                 UserInterfaceManager.Invalidate,
+                                                 // Undo
+                                                 UserInterfaceManager.Invalidate);
+                    }
+                }
+            };
+            sliderColor.Draw += delegate { sliderColor.Color = (Color)property.GetValue(propertyOwner, null); };
 
             return sliderColor;
         } // SliderColor
@@ -358,6 +392,41 @@ namespace XNAFinalEngine.Editor
             return checkBox;
         } // CheckBox
 
+        /// <summary>
+        /// Returns a check box control placed in the first free spot.
+        /// You need to update the value manually.
+        /// </summary>
+        /// <param name="name">Label name.</param>
+        /// <param name="parent">Parent.</param>
+        /// <param name="initialValue">Initial value.</param>
+        /// <param name="propertyOwner">The object to manipualte</param>
+        /// <param name="propertyName">The property name.</param>
+        /// <param name="toolTip">Tool tip text.</param>
+        public static CheckBox CheckBox(string name, ClipControl parent, bool initialValue, object propertyOwner, string propertyName, string toolTip = "")
+        {
+            var checkBox = CheckBox(name, parent, initialValue, toolTip);
+
+            PropertyInfo property = propertyOwner.GetType().GetProperty(propertyName);
+            checkBox.CheckedChanged += delegate
+            {
+                if (checkBox.Checked != (bool)property.GetValue(propertyOwner, null))
+                {
+                    using (Transaction.Create())
+                    {
+                        // Apply the command and store for the undo feature.
+                        ActionManager.SetProperty(propertyOwner, propertyName, checkBox.Checked);
+                        ActionManager.CallMethod(// Redo
+                                                 UserInterfaceManager.Invalidate,
+                                                 // Undo
+                                                 UserInterfaceManager.Invalidate);
+                    }
+                }
+            };
+            checkBox.Draw += delegate { checkBox.Checked = (bool)property.GetValue(propertyOwner, null); };
+
+            return checkBox;
+        } // CheckBox
+
         #endregion
 
         #region ComboBox
@@ -387,18 +456,18 @@ namespace XNAFinalEngine.Editor
                 MaxItemsShow = 25,
             };
             comboBox.Width = parent.ClientWidth - 15 - comboBox.Left;
-
+            // ToolTip
             label.ToolTip.Text = toolTip;
             comboBox.ToolTip.Text = toolTip;
-
+            // Top
             if (parent.AvailablePositionInsideControl == 0)
                 label.Top = comboBox.Top = 25;
             else
                 label.Top = comboBox.Top = parent.AvailablePositionInsideControl + ControlSeparation;
-
+            // Parent
             comboBox.Parent = parent;
             label.Parent = parent;
-
+            // Disable label when the control is disable.
             comboBox.EnabledChanged += delegate { label.Enabled = comboBox.Enabled; };
 
             return comboBox;
@@ -422,13 +491,122 @@ namespace XNAFinalEngine.Editor
                 Left = 10,
                 Width = parent.ClientWidth - 20,
             };
-
+            // Top
             if (parent.AvailablePositionInsideControl == 0)
                 assetSelector.Top = 25;
             else
                 assetSelector.Top = parent.AvailablePositionInsideControl + ControlSeparation;
-
+            // Parent
             assetSelector.Parent = parent;
+
+            return assetSelector;
+        } // AssetSelector
+
+        /// <summary>
+        /// Returns a asset selector control placed in the first free spot.
+        /// You need to update do everything manually :p
+        /// </summary>
+        /// <param name="name">Label name.</param>
+        /// <param name="parent">Parent.</param>
+        /// <param name="propertyOwner">The object to manipualte</param>
+        /// <param name="propertyName">The property name.</param>
+        public static AssetSelector AssetSelector<TAssetType>(string name, ClipControl parent, object propertyOwner, string propertyName) where TAssetType : Asset
+        {
+            var assetSelector = AssetSelector(name, parent);
+
+            PropertyInfo property = propertyOwner.GetType().GetProperty(propertyName);
+
+            #region Add
+
+            assetSelector.AssetAdded += delegate
+            {
+                // Texture
+                if (typeof(TAssetType) == typeof(Texture))
+                {
+                    TextureWindow.CurrentCreatedAssetChanged += delegate
+                    {
+                        property.SetValue(propertyOwner, TextureWindow.CurrentCreatedAsset, null);
+                        assetSelector.Invalidate();
+                    };
+                    TextureWindow.Show(null);
+                }
+            };
+
+            #endregion
+
+            #region Edit
+
+            assetSelector.AssetEdited += delegate
+            {
+                // Texture
+                if (typeof(TAssetType) == typeof(Texture))
+                    TextureWindow.Show((Texture)property.GetValue(propertyOwner, null));
+            };
+
+            #endregion
+
+            #region Item Index Changed
+
+            assetSelector.ItemIndexChanged += delegate
+            {
+                if (assetSelector.ItemIndex <= 0)
+                    property.SetValue(propertyOwner, null, null);
+                else
+                {
+                    // Texture
+                    if (typeof(TAssetType) == typeof(Texture))
+                    {
+                        foreach (Texture texture in Texture.LoadedTextures)
+                        {
+                            // You can filter some assets here.
+                            if (texture.Name == (string) assetSelector.Items[assetSelector.ItemIndex])
+                                property.SetValue(propertyOwner, texture, null);
+                        }
+                    }
+                }
+                assetSelector.EditButtonEnabled = property.GetValue(propertyOwner, null) != null;
+            };
+
+            #endregion
+
+            #region Draw
+
+            assetSelector.Draw += delegate
+            {
+                // Add textures name here because someone could dispose or add new asset.
+                assetSelector.Items.Clear();
+                
+                // Texture
+                if (typeof(TAssetType) == typeof(Texture))
+                {
+                    assetSelector.Items.Add("No texture");
+                    foreach (Texture texture in Texture.LoadedTextures)
+                    {
+                        // You can filter some assets here.
+                        if (texture.ContentManager == null || !texture.ContentManager.Hidden)
+                            assetSelector.Items.Add(texture.Name);
+                    }
+                }
+
+                if (assetSelector.ListBoxVisible)
+                    return;
+                // Identify current index
+                if (property.GetValue(propertyOwner, null) == null)
+                    assetSelector.ItemIndex = 0;
+                else
+                {
+                    for (int i = 0; i < assetSelector.Items.Count; i++)
+                    {
+                        if ((string)assetSelector.Items[i] == ((Asset)property.GetValue(propertyOwner, null)).Name)
+                        {
+                            assetSelector.ItemIndex = i;
+                            break;
+                        }
+                    }
+                }
+            };
+
+            #endregion
 
             return assetSelector;
         } // AssetSelector
@@ -453,12 +631,12 @@ namespace XNAFinalEngine.Editor
                 Texture = texture,
                 Height = 200
             };
-
+            // Top
             if (parent.AvailablePositionInsideControl == 0)
                 imageBox.Top = 25;
             else
                 imageBox.Top = parent.AvailablePositionInsideControl + ControlSeparation;
-
+            // Parent
             imageBox.Parent = parent;
 
             return imageBox;
@@ -474,7 +652,7 @@ namespace XNAFinalEngine.Editor
         /// <param name="name">Label name.</param>
         /// <param name="parent">Parent.</param>
         /// <param name="initialValue">Initial value.</param>
-        public static TextBox TexteBox(string name, ClipControl parent, string initialValue)
+        public static TextBox TextBox(string name, ClipControl parent, string initialValue)
         {
             var label = new Label
             {
@@ -490,19 +668,52 @@ namespace XNAFinalEngine.Editor
                 Text = initialValue,
                 Left = 160,
             };
-
+            // Top
             if (parent.AvailablePositionInsideControl == 0)
                 textBox.Top = label.Top = 25;
             else
                 textBox.Top = label.Top = parent.AvailablePositionInsideControl + ControlSeparation;
-
+            // Parent
             textBox.Parent = parent;
             label.Parent = parent;
-
+            // Disable label when the control is disable.
             textBox.EnabledChanged += delegate { label.Enabled = textBox.Enabled; };
 
             return textBox;
-        } // TexteBox
+        } // TextBox
+
+        /// <summary>
+        /// Returns a text box control placed in the first free spot.
+        /// </summary>
+        /// <param name="name">Label name.</param>
+        /// <param name="parent">Parent.</param>
+        /// <param name="initialValue">Initial value.</param>
+        /// <param name="propertyOwner">The object to manipualte</param>
+        /// <param name="propertyName">The property name.</param>
+        public static TextBox TextBox(string name, ClipControl parent, string initialValue, object propertyOwner, string propertyName)
+        {
+            TextBox textBox = TextBox(name, parent, initialValue);
+            
+            PropertyInfo property = propertyOwner.GetType().GetProperty(propertyName);
+            textBox.TextChanged += delegate
+            {
+                if (textBox.Text != (string)property.GetValue(propertyOwner, null))
+                {
+                    using (Transaction.Create())
+                    {
+                        // Apply the command and store for the undo feature.
+                        ActionManager.SetProperty(propertyOwner, propertyName, textBox.Text);
+                        ActionManager.CallMethod(// Redo
+                                                 UserInterfaceManager.Invalidate,
+                                                 // Undo
+                                                 UserInterfaceManager.Invalidate);
+                    }
+                }
+            };
+            textBox.Draw += delegate { textBox.Text = (string)property.GetValue(propertyOwner, null); };
+
+            return textBox;
+        } // TextBox
 
         #endregion
 

@@ -133,7 +133,7 @@ namespace XNAFinalEngine.Editor
 
             GroupBox groupProperties = CommonControls.Group("Properties", window);
 
-            var sizeTextBox = CommonControls.TexteBox("Size", groupProperties, asset.Size.ToString());
+            var sizeTextBox = CommonControls.TextBox("Size", groupProperties, asset.Size.ToString());
             sizeTextBox.Enabled = false;
             sizeTextBox.Draw += delegate { sizeTextBox.Text = asset.Size.ToString(); };
             

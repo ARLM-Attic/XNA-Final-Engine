@@ -142,11 +142,11 @@ namespace XNAFinalEngine.Editor
 
             GroupBox groupProperties = CommonControls.Group("Properties", window);
 
-            var widthTextBox = CommonControls.TexteBox("Width", groupProperties, asset.Width.ToString());
+            var widthTextBox = CommonControls.TextBox("Width", groupProperties, asset.Width.ToString());
             widthTextBox.Enabled = false;
             widthTextBox.Draw += delegate { widthTextBox.Text = asset.Width.ToString(); };
 
-            var heightTextBox = CommonControls.TexteBox("Height", groupProperties, asset.Height.ToString());
+            var heightTextBox = CommonControls.TextBox("Height", groupProperties, asset.Height.ToString());
             heightTextBox.Enabled = false;
             heightTextBox.Draw += delegate { heightTextBox.Text = asset.Height.ToString(); };
 

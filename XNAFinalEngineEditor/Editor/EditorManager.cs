@@ -318,7 +318,7 @@ namespace XNAFinalEngine.Editor
             // Edit
             MenuItem menuItemEdit = new MenuItem("Edit", true);
             canvas.MainMenu.Items.Add(menuItemEdit);
-            menuItemEdit.ChildrenItems.AddRange(new[] { new MenuItem("Undo") { RightSideText = "Ctrl+Z" }, new MenuItem("Redo") });
+            menuItemEdit.ChildrenItems.AddRange(new[] { new MenuItem("Undo") { RightSideText = "Ctrl+Z" }, new MenuItem("Redo") { RightSideText = "Ctrl+Y" } });
             menuItemEdit.ChildrenItems[0].Click += delegate { ActionManager.Undo(); };
             menuItemEdit.ChildrenItems[1].Click += delegate { ActionManager.Redo(); };
             
@@ -658,115 +658,33 @@ namespace XNAFinalEngine.Editor
                 if (selectedObject.SpotLight != null)
                 {
                     panel = CommonControls.PanelCollapsible("Spot Light", rightPanelTabControl, 0);
-                    CheckBox checkBoxLightEnabled = CommonControls.CheckBox("Visible", panel, selectedObject.SpotLight.Visible);
+                    // Visible
+                    CheckBox checkBoxLightEnabled = CommonControls.CheckBox("Visible", panel, selectedObject.SpotLight.Visible, selectedObject.SpotLight, "Visible");
                     checkBoxLightEnabled.Top = 10;
-                    checkBoxLightEnabled.Draw += delegate { checkBoxLightEnabled.Checked = selectedObject.SpotLight.Visible; };
-
                     // Intensity
-                    var sliderLightIntensity = CommonControls.SliderNumeric("Intensity", panel, selectedObject.SpotLight.Intensity, false, true, 0, 100, selectedObject.SpotLight, "Intensity");
-
-                    #region Diffuse Color
-
-                    var sliderDiffuseColor = CommonControls.SliderColor("Diffuse Color", panel, selectedObject.SpotLight.DiffuseColor);
-                    sliderDiffuseColor.ColorChanged += delegate { selectedObject.SpotLight.DiffuseColor = sliderDiffuseColor.Color; };
-                    sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = selectedObject.SpotLight.DiffuseColor; };
-
-                    #endregion
-
-                    #region Range
-
-                    var sliderLightRange = CommonControls.SliderNumeric("Range", panel, selectedObject.SpotLight.Range, false, true, 0, 500);
-                    sliderLightRange.ValueChanged += delegate { selectedObject.SpotLight.Range = sliderLightRange.Value; };
-                    sliderLightRange.Draw += delegate { sliderLightRange.Value = selectedObject.SpotLight.Range; };
-
-                    #endregion
-
-                    #region Inner Cone Angle
-
-                    var sliderLightInnerConeAngle = CommonControls.SliderNumeric("Inner Cone Angle", panel, selectedObject.SpotLight.InnerConeAngle, false, false, 0, 175);
-                    sliderLightInnerConeAngle.ValueChanged += delegate { selectedObject.SpotLight.InnerConeAngle = sliderLightInnerConeAngle.Value; };
-                    sliderLightInnerConeAngle.Draw += delegate { sliderLightInnerConeAngle.Value = selectedObject.SpotLight.InnerConeAngle; };
-
-                    #endregion
-
-                    #region Outer Cone Angle
-
-                    var sliderLightOuterConeAngle = CommonControls.SliderNumeric("Outer Cone Angle", panel, selectedObject.SpotLight.OuterConeAngle, false, false, 0, 175);
-                    sliderLightOuterConeAngle.ValueChanged += delegate { selectedObject.SpotLight.OuterConeAngle = sliderLightOuterConeAngle.Value; };
-                    sliderLightOuterConeAngle.Draw += delegate { sliderLightOuterConeAngle.Value = selectedObject.SpotLight.OuterConeAngle; };
-
-                    #endregion
-
-                    #region Mask Texture
-
-                    var assetSelectorMaskTexture = CommonControls.AssetSelector("Mask Texture", panel);
-                    assetSelectorMaskTexture.AssetAdded += delegate
-                    {
-                        TextureWindow.CurrentCreatedAssetChanged += delegate
-                        {
-                            selectedObject.SpotLight.LightMaskTexture = TextureWindow.CurrentCreatedAsset;
-                            assetSelectorMaskTexture.Invalidate();
-                        };
-                        TextureWindow.Show(null);
-                    };
-                    assetSelectorMaskTexture.AssetEdited += delegate
-                    {
-                        TextureWindow.Show(selectedObject.SpotLight.LightMaskTexture);
-                    };
-                    // Events
-                    assetSelectorMaskTexture.ItemIndexChanged += delegate
-                    {
-                        if (assetSelectorMaskTexture.ItemIndex <= 0)
-                            selectedObject.SpotLight.LightMaskTexture = null;
-                        else
-                        {
-                            foreach (Texture texture in Texture.LoadedTextures)
-                            {
-                                // You can filter some assets here.
-                                if (texture.Name == (string)assetSelectorMaskTexture.Items[assetSelectorMaskTexture.ItemIndex])
-                                    selectedObject.SpotLight.LightMaskTexture = texture;
-                            }
-                        }
-                        assetSelectorMaskTexture.EditButtonEnabled = selectedObject.SpotLight.LightMaskTexture != null;
-                        sliderDiffuseColor.Enabled = assetSelectorMaskTexture.ItemIndex == 0;
-                    };
-                    assetSelectorMaskTexture.Draw += delegate
-                    {
-                        // Add textures name here because someone could dispose or add new asset.
-                        assetSelectorMaskTexture.Items.Clear();
-                        assetSelectorMaskTexture.Items.Add("No texture");
-                        foreach (Texture texture in Texture.LoadedTextures)
-                        {
-                            // You can filter some assets here.
-                            if (texture.ContentManager == null || !texture.ContentManager.Hidden)
-                                assetSelectorMaskTexture.Items.Add(texture.Name);
-                        }
-
-                        if (assetSelectorMaskTexture.ListBoxVisible)
-                            return;
-                        // Identify current index
-                        if (selectedObject.SpotLight.LightMaskTexture == null)
-                            assetSelectorMaskTexture.ItemIndex = 0;
-                        else
-                        {
-                            for (int i = 0; i < assetSelectorMaskTexture.Items.Count; i++)
-                            {
-                                if ((string)assetSelectorMaskTexture.Items[i] == selectedObject.SpotLight.LightMaskTexture.Name)
-                                {
-                                    assetSelectorMaskTexture.ItemIndex = i;
-                                    break;
-                                }
-                            }
-                        }
-                    };
-
-                    #endregion
-
+                    var sliderLightIntensity = CommonControls.SliderNumeric("Intensity", panel, selectedObject.SpotLight.Intensity,
+                                                                            false, true, 0, 100, selectedObject.SpotLight, "Intensity");
+                    // Diffuse Color
+                    var sliderDiffuseColor = CommonControls.SliderColor("Diffuse Color", panel, selectedObject.SpotLight.DiffuseColor, selectedObject.SpotLight, "DiffuseColor");
+                    // Range
+                    var sliderLightRange = CommonControls.SliderNumeric("Range", panel, selectedObject.SpotLight.Range, false, true, 0, 500, selectedObject.SpotLight, "Range");
+                    // Inner Cone Angle
+                    var sliderLightInnerConeAngle = CommonControls.SliderNumeric("Inner Cone Angle", panel, selectedObject.SpotLight.InnerConeAngle,
+                                                                                 false, false, 0, 175, selectedObject.SpotLight, "InnerConeAngle");
+                    // Outer Cone Angle
+                    var sliderLightOuterConeAngle = CommonControls.SliderNumeric("Outer Cone Angle", panel, selectedObject.SpotLight.OuterConeAngle,
+                                                                                 false, false, 0, 175, selectedObject.SpotLight, "OuterConeAngle");
+                    // Mask Texture
+                    var assetSelectorMaskTexture = CommonControls.AssetSelector<Texture>("Mask Texture", panel, selectedObject.SpotLight, "LightMaskTexture");
+                    assetSelectorMaskTexture.ItemIndexChanged += delegate { sliderDiffuseColor.Enabled = assetSelectorMaskTexture.ItemIndex == 0; };
+                    // Visible
                     checkBoxLightEnabled.CheckedChanged += delegate
                     {
-                        selectedObject.SpotLight.Visible = checkBoxLightEnabled.Checked;
                         sliderLightIntensity.Enabled = selectedObject.SpotLight.Visible;
-                        sliderDiffuseColor.Enabled = selectedObject.SpotLight.Visible;
+                        if (selectedObject.SpotLight.Visible && assetSelectorMaskTexture.ItemIndex != 0)
+                            sliderDiffuseColor.Enabled = false;
+                        else
+                            sliderDiffuseColor.Enabled = selectedObject.SpotLight.Visible;
                         sliderLightRange.Enabled = selectedObject.SpotLight.Visible;
                         sliderLightInnerConeAngle.Enabled = selectedObject.SpotLight.Visible;
                         sliderLightOuterConeAngle.Enabled = selectedObject.SpotLight.Visible;

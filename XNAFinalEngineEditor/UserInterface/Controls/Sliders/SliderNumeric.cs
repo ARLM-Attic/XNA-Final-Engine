@@ -243,7 +243,7 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region On Value Changed, On Range Changed, On Paige Size Changed, On Step Size Changed
+        #region On Events
 
         protected virtual void OnSliderDown(object obj, MouseEventArgs e)
         {

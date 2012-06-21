@@ -450,7 +450,7 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
         
-        #region On Mouse Press, On Resize, On Value Changed, On Range Changed, On Paige Size Changed, On Step Size Changed
+        #region On Event
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
