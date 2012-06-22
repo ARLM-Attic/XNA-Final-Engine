@@ -93,9 +93,12 @@ namespace XNAFinalEngine.Input
 	        set
 	        {
 	            trackRelativeMovementMode = value;
-                Microsoft.Xna.Framework.Input.Mouse.SetPosition(Screen.Width / 2, Screen.Height / 2);
-                positionX = Screen.Width / 2;
-                positionY = Screen.Height / 2;
+                if (value)
+                {
+                    Microsoft.Xna.Framework.Input.Mouse.SetPosition(Screen.Width / 2, Screen.Height / 2);
+                    positionX = Screen.Width / 2;
+                    positionY = Screen.Height / 2;
+                }
 	        }
 	    } // TrackRelativeMovementMode
 

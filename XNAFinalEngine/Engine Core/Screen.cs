@@ -43,10 +43,6 @@ namespace XNAFinalEngine.EngineCore
     {
 
         #region Variables
-        
-        // Changing the multi sample quality requires a device reset and the setting of this new value
-        // has to be done in a specific place, the Graphics_PreparingDeviceSettings method.
-        private static int multiSampleQuality;
 
         // Aspect Ratio.
         private static float aspectRatio;
@@ -54,6 +50,8 @@ namespace XNAFinalEngine.EngineCore
         #endregion
 
         #region Properties
+
+        #region Window Title
 
         /// <summary>
         /// Window Title.
@@ -64,6 +62,10 @@ namespace XNAFinalEngine.EngineCore
             set { EngineManager.GameWindow.Title = value; }
         } // WindowTitle
 
+        #endregion
+
+        #region Is Mouse Visible
+
         /// <summary>
         /// Gets or sets a value indicating whether the mouse cursor should be visible.
         /// </summary>
@@ -73,6 +75,10 @@ namespace XNAFinalEngine.EngineCore
             set { EngineManager.EngineManagerReference.IsMouseVisible = value; }
         } // IsMouseVisible
 
+        #endregion
+
+        #region Fullscreen
+
         /// <summary>
         /// Fullscreen mode enabled?
         /// </summary>
@@ -81,10 +87,17 @@ namespace XNAFinalEngine.EngineCore
             get { return EngineManager.GraphicsDeviceManager.IsFullScreen; }
             set
             {
-                EngineManager.GraphicsDeviceManager.IsFullScreen = value;
-                EngineManager.ResetDevice = true;
+                if (EngineManager.GraphicsDeviceManager.IsFullScreen != value)
+                {
+                    EngineManager.GraphicsDeviceManager.IsFullScreen = value;
+                    EngineManager.ResetDevice = true;
+                }
             }
         } // Fullscreen
+
+        #endregion
+
+        #region VSync
 
         /// <summary>
         /// VSync enabled?
@@ -94,10 +107,17 @@ namespace XNAFinalEngine.EngineCore
             get { return EngineManager.GraphicsDeviceManager.SynchronizeWithVerticalRetrace; }
             set
             {
-                EngineManager.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = value;
-                EngineManager.ResetDevice = true;
+                if (EngineManager.GraphicsDeviceManager.SynchronizeWithVerticalRetrace != value)
+                {
+                    EngineManager.GraphicsDeviceManager.SynchronizeWithVerticalRetrace = value;
+                    EngineManager.ResetDevice = true;
+                }
             }
-        } // Fullscreen
+        } // VSync
+
+        #endregion
+
+        #region Allow Resizing
 
         /// <summary>
         /// Enables the option to resize the application window using the mouse.
@@ -108,22 +128,18 @@ namespace XNAFinalEngine.EngineCore
             set { EngineManager.GameWindow.AllowUserResizing = value; }
         } // AllowResizing
 
+        #endregion
+
+        #region Multi Sample Quality
+
         /// <summary>
         /// System Multi Sample Quality.
         /// Because the back buffer will be used only for 2D operations this value won’t be affect the back buffer.
         /// It's the level of multisampling, in this case 4 means 4X, and 0 means no multisampling.
         /// </summary>
-        public static int MultiSampleQuality
-        {
-            get { return multiSampleQuality; }
-            set
-            {
-                multiSampleQuality = value;
-                if (EngineManager.Device != null)
-                    EngineManager.Device.PresentationParameters.MultiSampleCount = value;
-                EngineManager.ResetDevice = true;
-            }
-        } // MultiSampleQuality
+        public static int MultiSampleQuality { get; set; }
+
+        #endregion
 
         #region Resolution
 
@@ -145,19 +161,20 @@ namespace XNAFinalEngine.EngineCore
             get { return new Size(Width, Height); }
             set
             {
-                // TODO: Needs more testing.
                 if (value.Width == Width && value.Height == Height)
                     return;
                 if (value.Width > 0 && value.Height > 0)
                 {
-                    EngineManager.GraphicsDeviceManager.PreferredBackBufferWidth = value.Width;
+                    EngineManager.GraphicsDeviceManager.PreferredBackBufferWidth  = value.Width;
                     EngineManager.GraphicsDeviceManager.PreferredBackBufferHeight = value.Height;
+                    EngineManager.ResetDevice = true;
                 }
-                EngineManager.ResetDevice = true;
             }
         } // Resolution
 
         #endregion
+
+        #region Aspect Ratio
 
         /// <summary>
         /// This is the default aspect ratio for cameras.
@@ -179,7 +196,9 @@ namespace XNAFinalEngine.EngineCore
                     AspectRatioChanged(null, EventArgs.Empty);
             }
         } // AspectRatio
-                
+
+        #endregion
+
         #endregion
 
         #region Toggle Fullscreen
@@ -189,7 +208,7 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static void ToggleFullscreen()
         {
-            EngineManager.ToggleFullScreen = true;
+            EngineManager.ToggleFullScreen();
         } // ToggleFullscreen
 
         #endregion

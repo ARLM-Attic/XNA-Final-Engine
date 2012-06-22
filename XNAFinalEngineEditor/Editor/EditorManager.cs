@@ -45,7 +45,6 @@ using Mouse = XNAFinalEngine.Input.Mouse;
 using Size = XNAFinalEngine.Helpers.Size;
 using Microsoft.Xna.Framework.Graphics;
 using Texture = XNAFinalEngine.Assets.Texture;
-
 #endregion
 
 namespace XNAFinalEngine.Editor
@@ -75,30 +74,9 @@ namespace XNAFinalEngine.Editor
         /// </remarks>
         private sealed class ScripEditorManager : Script
         {
-
-            /// <summary>
-            /// Update camera.
-            /// </summary>
-            public override void Update()
-            {
-                EditorManager.Update();
-            }
-
-            /// <summary>
-            /// Tasks executed during the last stage of the scene render.
-            /// </summary>
-            public override void PreRenderUpdate()
-            {
-                EditorManager.PreRenderTask();
-            }
-
-            /// <summary>
-            /// Tasks executed during the last stage of the scene render.
-            /// </summary>
-            public override void PostRenderUpdate()
-            {
-                EditorManager.PostRenderTasks();
-            }
+            public override void Update() { EditorManager.Update(); }
+            public override void PreRenderUpdate() { EditorManager.PreRenderTask(); }
+            public override void PostRenderUpdate() { EditorManager.PostRenderTasks(); }
 
         } // ScripEditorManager
 
@@ -314,13 +292,39 @@ namespace XNAFinalEngine.Editor
             // File
             MenuItem menuItemFile = new MenuItem("File", true);
             canvas.MainMenu.Items.Add(menuItemFile);
-            menuItemFile.ChildrenItems.AddRange(new[] { new MenuItem("New Scene"), new MenuItem("Open Scene"), new MenuItem("Exit", true) });
+            menuItemFile.ChildrenItems.AddRange(new[]
+            {
+                new MenuItem("New Scene"),
+                new MenuItem("Open Scene"), new MenuItem("Exit", true),
+            });
             // Edit
             MenuItem menuItemEdit = new MenuItem("Edit", true);
             canvas.MainMenu.Items.Add(menuItemEdit);
-            menuItemEdit.ChildrenItems.AddRange(new[] { new MenuItem("Undo") { RightSideText = "Ctrl+Z" }, new MenuItem("Redo") { RightSideText = "Ctrl+Y" } });
+            menuItemEdit.ChildrenItems.AddRange(new[]
+            {
+                new MenuItem("Undo") { RightSideText = "Ctrl+Z"},
+                new MenuItem("Redo") { RightSideText = "Ctrl+Y" },
+                new MenuItem("Frame Selected") { RightSideText = "F", Separated = true },
+                new MenuItem("Frame All")      { RightSideText = "A" },
+            });
             menuItemEdit.ChildrenItems[0].Click += delegate { ActionManager.Undo(); };
             menuItemEdit.ChildrenItems[1].Click += delegate { ActionManager.Redo(); };
+            // Game Object
+            MenuItem menuItemGameObject = new MenuItem("Game Object", true);
+            canvas.MainMenu.Items.Add(menuItemGameObject);
+            menuItemGameObject.ChildrenItems.AddRange(new[]
+            {
+                new MenuItem("Create Empty") { RightSideText = "Ctrl+Shift+N"},
+            });
+            // Component
+            MenuItem menuItemComponent = new MenuItem("Component", true);
+            canvas.MainMenu.Items.Add(menuItemComponent);
+            // Window
+            MenuItem menuItemWindow = new MenuItem("Window", true);
+            canvas.MainMenu.Items.Add(menuItemWindow);
+            // Help
+            MenuItem menuItemHelp = new MenuItem("Help", true);
+            canvas.MainMenu.Items.Add(menuItemHelp);
             
             #endregion
 
@@ -681,10 +685,7 @@ namespace XNAFinalEngine.Editor
                     checkBoxLightEnabled.CheckedChanged += delegate
                     {
                         sliderLightIntensity.Enabled = selectedObject.SpotLight.Visible;
-                        if (selectedObject.SpotLight.Visible && assetSelectorMaskTexture.ItemIndex != 0)
-                            sliderDiffuseColor.Enabled = false;
-                        else
-                            sliderDiffuseColor.Enabled = selectedObject.SpotLight.Visible;
+                        sliderDiffuseColor.Enabled = selectedObject.SpotLight.Visible;
                         sliderLightRange.Enabled = selectedObject.SpotLight.Visible;
                         sliderLightInnerConeAngle.Enabled = selectedObject.SpotLight.Visible;
                         sliderLightOuterConeAngle.Enabled = selectedObject.SpotLight.Visible;
@@ -859,6 +860,8 @@ namespace XNAFinalEngine.Editor
                 editorCameraScript.Distance = frameBoundingSphere.Value.Radius * 3 + editorCamera.Camera.NearPlane + 0.1f;
             }
         } // FrameObjects
+
+
 
         #endregion
 

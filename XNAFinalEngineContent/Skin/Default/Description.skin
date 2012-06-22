@@ -438,18 +438,18 @@
           <ContentMargins Left="2" Top="2" Right="10" Bottom="10"></ContentMargins>
           <States>
             <Enabled Index="0"></Enabled>
-            <Hovered Index="0"></Hovered>
             <Pressed Index="0"></Pressed>
+            <Hovered Index="0"></Hovered>
             <Focused Index="0"></Focused>
             <Disabled Index="0"></Disabled>
           </States>
           <Text Font="Default" Alignment="MiddleLeft" OffsetX="4" OffsetY="0">
             <Colors>
-              <Enabled Color="32;32;32;255"></Enabled>
-              <Hovered Color="32;32;32;255"></Hovered>
-              <Pressed Color="32;32;32;255"></Pressed>
-              <Focused Color="32;32;32;255"></Focused>
-              <Disabled Color="32;32;32;128"></Disabled>
+              <Enabled Color="0;0;0;255"></Enabled>
+              <Hovered Color="0;0;0;255"></Hovered>
+              <Pressed Color="0;0;0;255"></Pressed>
+              <Focused Color="0;0;0;255"></Focused>
+              <Disabled Color="0;0;0;128"></Disabled>
             </Colors>
           </Text>
         </Layer>
@@ -463,11 +463,11 @@
           </States>
           <Text Font="Default" Alignment="MiddleLeft" OffsetX="4" OffsetY="0">
             <Colors>
-              <Enabled Color="255;255;255;128"></Enabled>
-              <Hovered Color="255;255;255;128"></Hovered>
-              <Focused Color="255;255;255;128"></Focused>
-              <Pressed Color="255;255;255;128"></Pressed>
-              <Disabled Color="128;128;128;128"></Disabled>
+              <Enabled Color="255;255;255;178"></Enabled>
+              <Hovered Color="255;255;255;178"></Hovered>
+              <Focused Color="255;255;255;178"></Focused>
+              <Pressed Color="255;255;255;178"></Pressed>
+              <Disabled Color="128;128;128;178"></Disabled>
             </Colors>
           </Text>
         </Layer>
@@ -490,7 +490,7 @@
           </States>
           <Text Font="Default" Alignment="MiddleCenter" OffsetX="0" OffsetY="0">
             <Colors>
-              <Enabled Color="32;32;32;255"></Enabled>
+              <Enabled Color="0;0;0;255"></Enabled>
               <Disabled Color="32;32;32;128"></Disabled>
             </Colors>
           </Text>

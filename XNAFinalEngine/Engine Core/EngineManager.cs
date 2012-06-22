@@ -33,11 +33,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.Audio;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngineContentPipelineExtensionRuntime.Settings;
 #if (!XBOX)
@@ -64,18 +62,24 @@ namespace XNAFinalEngine.EngineCore
         // Stores the exception raised when ShowExceptionsWithGuide is true.
         private static Exception exception;
 
+        // Stores the old screen resolution to know exactly if the screen size was changed.
         private static int oldScreenWidth, oldScreenHeight;
 
+        // Show the exception on the guide or use the exception system.
         private static bool showExceptionsWithGuide;
 
+        // To avoid toggling the screen too quickly. 
         private float lastTimeToggleFullScreen;
-
+        
+        // Indicates that the next frame a toggle fullscreen operation has to be performed.
+        private static bool toggleFullScreen;
+        
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Singleton reference for specific task like the exit method.
+        /// Reference to the XNA Game instance.
         /// </summary>
         public static EngineManager EngineManagerReference { get; private set; }
 
@@ -122,11 +126,6 @@ namespace XNAFinalEngine.EngineCore
             get { return showExceptionsWithGuide && UseGamerServices && !Debugger.IsAttached; }
             set { showExceptionsWithGuide = value; }
         } // ShowExceptionsWithGuide
-
-        /// <summary>
-        /// Toggles between full screen and windowed mode.
-        /// </summary>
-        internal static bool ToggleFullScreen { get; set; }
 
         /// <summary>
         /// Reset the device.
@@ -272,9 +271,9 @@ namespace XNAFinalEngine.EngineCore
         protected override void Initialize()
         {
             // Intercept events //
-            GraphicsDeviceManager.PreparingDeviceSettings += Graphics_PreparingDeviceSettings;
-            GraphicsDeviceManager.DeviceReset += Graphics_DeviceReset;
-            Window.ClientSizeChanged += Window_ClientSizeChanged;
+            GraphicsDeviceManager.PreparingDeviceSettings += OnPreparingDeviceSettings;
+            GraphicsDeviceManager.DeviceReset             += OnDeviceReset;
+            Window.ClientSizeChanged                      += OnWindowClientSizeChanged;
 
             // Reset to take new parameters //
             GraphicsDevice.Reset(GraphicsDevice.PresentationParameters);
@@ -289,9 +288,7 @@ namespace XNAFinalEngine.EngineCore
                 {
                     // Initialize Gamer Services Dispatcher
                     if (!GamerServicesDispatcher.IsInitialized)
-                    {
                         GamerServicesDispatcher.Initialize(Services);
-                    }
                     GamerServicesDispatcher.WindowHandle = Window.Handle;
                 }
                 catch (GamerServicesNotAvailableException)
@@ -326,17 +323,17 @@ namespace XNAFinalEngine.EngineCore
         /// If this happen the render targets wouldn’t work correctly.
         /// Important: we can’t do this in graphics_DeviceReset.
         /// </summary>
-        private static void Graphics_PreparingDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
+        private static void OnPreparingDeviceSettings(object sender, PreparingDeviceSettingsEventArgs e)
         {
             // We will always use the back buffer for 2D operations, so no need to waste space in a depth buffer and multisampling.
-            Device.PresentationParameters.MultiSampleCount = Screen.MultiSampleQuality;
+            Device.PresentationParameters.MultiSampleCount   = 0;
             Device.PresentationParameters.DepthStencilFormat = DepthFormat.None;
-        } // graphics_PreparingDeviceSettings
+        } // OnPreparingDeviceSettings
         
         /// <summary>
         /// Graphics device reset. This method is also call in the beginning of the execution. 
         /// </summary>
-        private static void Graphics_DeviceReset(object sender, EventArgs e)
+        private static void OnDeviceReset(object sender, EventArgs e)
         {
             Device = GraphicsDeviceManager.GraphicsDevice;
             #if (!XBOX)
@@ -348,28 +345,24 @@ namespace XNAFinalEngine.EngineCore
                 DeviceReset(sender, e);
 
             GarbageCollector.CollectGarbage();
-        } // graphics_DeviceReset
+        } // OnDeviceReset
 
         /// <summary>
         /// Window client size changed.
-        /// If this happens the master aspect ratio is always width / height.
         /// </summary>
-        private static void Window_ClientSizeChanged(object sender, EventArgs e)
+        private static void OnWindowClientSizeChanged(object sender, EventArgs e)
         {
             // I don't want that this method is called when a device reset occurs.
             // I do this comparison in this way because the device has the new value and the graphic device manager the old one,
             // but not always, that's the problem.
             if (Device.PresentationParameters.BackBufferWidth != oldScreenWidth || Device.PresentationParameters.BackBufferHeight != oldScreenHeight)
             {
-                oldScreenWidth = Device.PresentationParameters.BackBufferWidth;
+                oldScreenWidth  = Device.PresentationParameters.BackBufferWidth;
                 oldScreenHeight = Device.PresentationParameters.BackBufferHeight;
-                // Recreate the surviving render targets to readjust to screen size and to avoid an XNA bug related with floating point render targets.
                 Screen.OnScreenSizeChanged(sender, e);
-                // Try to recover memory.
-                RenderTarget.ClearRenderTargetPool();
-                RenderTarget.ClearMultpleRenderTargetPool();
+                GarbageCollector.CollectGarbage();
             }
-        } // Window_ClientSizeChanged
+        } // OnWindowClientSizeChanged
      
         #endregion
 
@@ -405,20 +398,15 @@ namespace XNAFinalEngine.EngineCore
             // Load Content could be called in some scenarios, I avoid it.
             if (ShowExceptionsWithGuide)
             {
-                try { GameLoop.LoadContent(); }
+                try { GameLoop.BeginRun(); }
                 catch (Exception e)
                 {
-                    if (!(e is NoAudioHardwareException) || SoundManager.CatchNoAudioHardwareException)
-                    {
-                        Time.PauseGame();
-                        exception = e;
-                    }
+                    Time.PauseGame();
+                    exception = e;
                 }
             }
             else
-            {
-                GameLoop.LoadContent();
-            }
+                GameLoop.BeginRun();
             base.BeginRun();
         } // BeginRun
 
@@ -445,6 +433,7 @@ namespace XNAFinalEngine.EngineCore
                 DeviceDisposed(this, new EventArgs());
 
             GarbageCollector.CollectGarbage();
+
             base.LoadContent();
         } // LoadContent
 
@@ -453,7 +442,7 @@ namespace XNAFinalEngine.EngineCore
         #region Update
 
         /// <summary>
-        /// Update
+        /// Update.
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
@@ -478,36 +467,43 @@ namespace XNAFinalEngine.EngineCore
                     }
                     catch (Exception e)
                     {
-                        if (!(e is NoAudioHardwareException) || SoundManager.CatchNoAudioHardwareException)
-                        {
-                            Time.PauseGame();
-                            exception = e;
-                        }
+                        Time.PauseGame();
+                        exception = e;
                     }
                 }
             }
             else // If not then the StarEngine method will managed them.
-            {
                 GameLoop.Update(gameTime);
-            }
         } // Update
 
         #endregion
 
+        #region Toggle FullScreen
+
+        /// <summary>
+        /// Toggles between full screen and windowed mode.
+        /// </summary>
+        internal static void ToggleFullScreen()
+        {
+            toggleFullScreen = true;
+        } // ToggleFullScreen
+
+        #endregion
+
         #region Draw
-        
+
         /// <summary>
         /// Draw
         /// </summary>        
         protected override void Draw(GameTime gameTime)
         {
             // It is done here to prevent the change in the middle of the draw call.
-            if (ToggleFullScreen && (Time.ApplicationTime - lastTimeToggleFullScreen > 1))
+            if (toggleFullScreen && (Time.ApplicationTime - lastTimeToggleFullScreen > 1))
             {
                 lastTimeToggleFullScreen = Time.ApplicationTime;
                 GraphicsDeviceManager.ToggleFullScreen();
             }
-            ToggleFullScreen = false;
+            toggleFullScreen = false;
 
             base.Draw(gameTime);
             if (ShowExceptionsWithGuide) // If we want to show exception in the Guide.
@@ -520,11 +516,8 @@ namespace XNAFinalEngine.EngineCore
                     }
                     catch (Exception e)
                     {
-                        if (!(e is NoAudioHardwareException) || SoundManager.CatchNoAudioHardwareException)
-                        {
-                            Time.PauseGame();
-                            exception = e;
-                        }
+                        Time.PauseGame();
+                        exception = e;
                     }
                 }
                 else // Show exception screen
@@ -541,9 +534,8 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
             else // If not then the StarEngine method will managed them.
-            {
                 GameLoop.Draw(gameTime);
-            }
+
             base.Draw(gameTime);
         } // Draw
 
@@ -584,7 +576,7 @@ namespace XNAFinalEngine.EngineCore
         protected override void EndRun()
         {
             // Unload Content could be called in some scenarios, I avoid it.
-            GameLoop.UnloadContent();
+            GameLoop.EndRun();
             base.EndRun();
         } // UnloadContent
 

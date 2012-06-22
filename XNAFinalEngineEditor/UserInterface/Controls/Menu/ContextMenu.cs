@@ -149,7 +149,7 @@ namespace XNAFinalEngine.UserInterface
                         {
                             rectangle = new Rectangle(rectangle.Left + maximumWidth, rectangle.Top,
                                                      (int)layerControl.Text.Font.Font.MeasureString(Items[i].RightSideText).X + 16, rectangle.Height);
-                            Renderer.DrawString(this, layerControl, Items[i].RightSideText, rectangle, false);
+                            Renderer.DrawString(layerControl.Text.Font.Font.Resource, Items[i].RightSideText, rectangle, layerControl.Text.Colors.Disabled, layerControl.Text.Alignment);
                         }
                         color = layerControl.Text.Colors.Disabled;
                     }
@@ -198,7 +198,8 @@ namespace XNAFinalEngine.UserInterface
                         {
                             rectangle = new Rectangle(rectangle.Left + maximumWidth, rectangle.Top,
                                                      (int)layerControl.Text.Font.Font.MeasureString(Items[i].RightSideText).X + 16, rectangle.Height);
-                            Renderer.DrawString(this, layerSelection, Items[i].RightSideText, rectangle, false);
+                            Renderer.DrawString(layerSelection.Text.Font.Font.Resource, Items[i].RightSideText, rectangle,
+                                                layerSelection.Text.Colors.Disabled, layerSelection.Text.Alignment);
                         }
                         color = layerSelection.Text.Colors.Disabled;
                     }
@@ -238,21 +239,27 @@ namespace XNAFinalEngine.UserInterface
         private int LineWidth()
         {
             int maximumWidth = 0;
+            int maximumRightSideWidth = 0;
             SkinFont font = SkinInformation.Layers["Control"].Text.Font;
             if (Items.Count > 0)
             {
                 foreach (MenuItem item in Items)
                 {
-                    int itemWidth;
-                    if (string.IsNullOrEmpty(item.RightSideText))
-                        itemWidth = (int)font.Font.MeasureString(item.Text).X + 16;
-                    else
-                        itemWidth = (int)font.Font.MeasureString(item.Text).X + 16 + (int)font.Font.MeasureString(item.RightSideText).X + 16;
+                    // Text maximum.
+                    int itemWidth = (int)font.Font.MeasureString(item.Text).X + 16;
                     if (itemWidth > maximumWidth) 
                         maximumWidth = itemWidth;
+                    // Right side text maximum.
+                    int itemRightSideWidth;
+                    if (string.IsNullOrEmpty(item.RightSideText))
+                        itemRightSideWidth = 0;
+                    else
+                        itemRightSideWidth = (int)font.Font.MeasureString(item.RightSideText).X + 16;
+                    if (itemRightSideWidth > maximumRightSideWidth) 
+                        maximumRightSideWidth = itemRightSideWidth;
                 }
             }
-            maximumWidth += 4 + LineHeight();
+            maximumWidth += maximumRightSideWidth + 4 + LineHeight();
             return maximumWidth;
         } // LineWidth
 

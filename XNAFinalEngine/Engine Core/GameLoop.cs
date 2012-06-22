@@ -93,7 +93,7 @@ namespace XNAFinalEngine.EngineCore
         /// <summary>
         /// Load Content.
         /// </summary>
-        internal static void LoadContent()
+        internal static void BeginRun()
         {
             
             #region Load Managers
@@ -1651,7 +1651,7 @@ namespace XNAFinalEngine.EngineCore
 
         #region Unload Content
 
-        internal static void UnloadContent()
+        internal static void EndRun()
         {
             // Disable wiimote and keyboard hook.
             InputManager.UnloadInputDevices();

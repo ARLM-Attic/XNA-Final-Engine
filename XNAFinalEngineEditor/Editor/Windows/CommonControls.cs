@@ -550,9 +550,24 @@ namespace XNAFinalEngine.Editor
             assetSelector.ItemIndexChanged += delegate
             {
                 if (assetSelector.ItemIndex <= 0)
-                    property.SetValue(propertyOwner, null, null);
+                {
+                    if (property.GetValue(propertyOwner, null) != null) // If it change
+                    {
+                        using (Transaction.Create())
+                        {
+                            // Apply the command and store for the undo feature.
+                            ActionManager.SetProperty(propertyOwner, propertyName, null);
+                            ActionManager.CallMethod(// Redo
+                                                     UserInterfaceManager.Invalidate,
+                                                     // Undo
+                                                     UserInterfaceManager.Invalidate);
+                        }
+                    }
+                }
                 else
                 {
+                    // Find Asset from index.
+                    Asset assetToChange = null;
                     // Texture
                     if (typeof(TAssetType) == typeof(Texture))
                     {
@@ -560,8 +575,22 @@ namespace XNAFinalEngine.Editor
                         {
                             // You can filter some assets here.
                             if (texture.Name == (string) assetSelector.Items[assetSelector.ItemIndex])
-                                property.SetValue(propertyOwner, texture, null);
+                                //property.SetValue(propertyOwner, texture, null);
+                                assetToChange = texture;
                         }
+                    }
+                    // Store new asset.
+                    if (property.GetValue(propertyOwner, null) != assetToChange) // If it change
+                    {
+                        using (Transaction.Create())
+                        {
+                            // Apply the command and store for the undo feature.
+                            ActionManager.SetProperty(propertyOwner, propertyName, assetToChange);
+                            ActionManager.CallMethod(// Redo
+                                                     UserInterfaceManager.Invalidate,
+                                                     // Undo
+                                                     UserInterfaceManager.Invalidate);
+                        }   
                     }
                 }
                 assetSelector.EditButtonEnabled = property.GetValue(propertyOwner, null) != null;
