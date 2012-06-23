@@ -101,9 +101,9 @@ namespace XNAFinalEngine.Editor
             greenLine.LineRenderer.Vertices[numberOfPoints * 2 - 1] = new VertexPositionColor(Vector3.Transform(new Vector3((float)Math.Sin(0), (float)Math.Cos(0), 0), Matrix.Identity), new Color(0, 1f, 0));
             blueLine.LineRenderer.Vertices[numberOfPoints * 2 - 1]  = new VertexPositionColor(Vector3.Transform(new Vector3((float)Math.Sin(0), (float)Math.Cos(0), 0), Matrix.Identity), Color.Blue);
             
-            redLine.LineRenderer.Visible = false;
-            greenLine.LineRenderer.Visible = false;
-            blueLine.LineRenderer.Visible = false;
+            redLine.LineRenderer.Enabled = false;
+            greenLine.LineRenderer.Enabled = false;
+            blueLine.LineRenderer.Enabled = false;
         } // RotationGizmo
 
         #endregion
@@ -117,9 +117,9 @@ namespace XNAFinalEngine.Editor
         {
             Active = false;
 
-            redLine.LineRenderer.Visible = true;
-            greenLine.LineRenderer.Visible = true;
-            blueLine.LineRenderer.Visible = true;
+            redLine.LineRenderer.Enabled = true;
+            greenLine.LineRenderer.Enabled = true;
+            blueLine.LineRenderer.Enabled = true;
 
             this.picker = picker;
 
@@ -139,9 +139,9 @@ namespace XNAFinalEngine.Editor
         {
             Active = false;
 
-            redLine.LineRenderer.Visible = false;
-            greenLine.LineRenderer.Visible = false;
-            blueLine.LineRenderer.Visible = false;
+            redLine.LineRenderer.Enabled = false;
+            greenLine.LineRenderer.Enabled = false;
+            blueLine.LineRenderer.Enabled = false;
 
             selectedObject = null;
             selectedObjects = null;

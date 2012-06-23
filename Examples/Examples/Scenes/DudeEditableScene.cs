@@ -241,6 +241,8 @@ namespace XNAFinalEngineExamples
             #endregion
             
             dude.ModelAnimations.Play("dude_attack");
+
+            PostProcessWindow.Show(camera.Camera.PostProcess);
             
         } // Load
 

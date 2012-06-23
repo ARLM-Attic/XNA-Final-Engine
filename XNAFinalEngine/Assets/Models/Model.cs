@@ -85,11 +85,6 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public int MeshPartsCount { get; protected set; }
 
-        /// <summary>
-        /// Loaded Textures.
-        /// </summary>
-        public static List<Model> LoadedModels { get; private set; }
-
         #endregion
 
         #region Constructor
@@ -98,21 +93,7 @@ namespace XNAFinalEngine.Assets
         {
             MeshesCount = 1;
             MeshPartsCount = 1;
-            LoadedModels.Add(this);
-            LoadedModels.Sort(CompareAssets);
         } // Model
-
-        #endregion
-
-        #region Static Constructor
-
-        /// <summary>
-        /// Search the available models.
-        /// </summary>
-        static Model()
-        {
-            LoadedModels = new List<Model>();
-        } // Texture
 
         #endregion
 
@@ -145,15 +126,12 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal static void RecreateModelsWithoutContentManager()
         {
-            foreach (Model loadedModel in LoadedModels)
+            foreach (Asset loadedModel in LoadedAssets)
             {
-                if (loadedModel.ContentManager == null)
+                if (loadedModel is Model && loadedModel.ContentManager == null && loadedModel is PrimitiveModel)
                 {
-                    if (loadedModel is PrimitiveModel)
-                    {
-                        loadedModel.Dispose();
-                        loadedModel.RecreateResource();
-                    }
+                    loadedModel.Dispose();
+                    loadedModel.RecreateResource();
                 }
             }
         } // RecreateResource

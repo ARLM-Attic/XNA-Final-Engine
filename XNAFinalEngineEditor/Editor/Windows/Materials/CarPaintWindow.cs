@@ -191,7 +191,7 @@ namespace XNAFinalEngine.Editor
                     asset.SpecularTexture = null;
                 else
                 {
-                    foreach (Texture texture in Texture.LoadedTextures)
+                    foreach (Texture texture in Asset.LoadedAssets)
                     {
                         if (texture.Name == (string)assetSelectorSpecularTexture.Items[assetSelectorSpecularTexture.ItemIndex])
                             asset.SpecularTexture = texture;
@@ -205,7 +205,7 @@ namespace XNAFinalEngine.Editor
                 // Add textures name here because someone could dispose or add new asset.
                 assetSelectorSpecularTexture.Items.Clear();
                 assetSelectorSpecularTexture.Items.Add("No texture");
-                foreach (Texture texture in Texture.LoadedTextures)
+                foreach (Texture texture in Asset.LoadedAssets)
                 {
                     // You can filter some assets here.
                     if (texture.ContentManager == null || !texture.ContentManager.Hidden)

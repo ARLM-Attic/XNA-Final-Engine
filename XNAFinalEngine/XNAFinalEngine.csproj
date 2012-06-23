@@ -131,7 +131,6 @@
     <Compile Include="Assets\Textures\Texture.cs" />
     <Compile Include="Assets\Textures\TextureCube.cs" />
     <Compile Include="Assets\Videos\Video.cs" />
-    <Compile Include="Components\LayeredComponent.cs" />
     <Compile Include="Components\HeadsUpDisplay\HudTexture.cs" />
     <Compile Include="Audio\SoundManager.cs" />
     <Compile Include="Components\Animation\ModelAnimations.cs" />

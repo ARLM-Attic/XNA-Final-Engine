@@ -495,7 +495,7 @@ namespace XNAFinalEngine.Components
         } // GameObject3D
 
         /// <summary>
-        /// Set a unique ID and a transform component.
+        /// Set a transform component for this game object.
         /// </summary>
         private void Initialize()
         {

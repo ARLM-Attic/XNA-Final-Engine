@@ -108,7 +108,7 @@ namespace XNAFinalEngine.UserInterface
         private bool stayOnTop;
 
         // Control's tool tip.
-        private ToolTip toolTip;
+        internal ToolTip toolTip;
 
         // The area where is the control supposed to be drawn.
         private Rectangle drawingRect = Rectangle.Empty;
@@ -874,7 +874,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual ToolTip ToolTip
         {
-            get { return toolTip ?? (toolTip = new ToolTip {Visible = false}); }
+            get { return toolTip ?? (toolTip = new ToolTip { Visible = false }); }
             set { toolTip = value;  }
         } // ToolTip
 
@@ -1499,6 +1499,9 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         internal virtual void DrawControlOntoMainTexture()
         {
+            // Some controls like the list box left the scissor rectangle in a not useful value. 
+            // Therefore it is a good idea to reset it to fullscreen.
+            EngineManager.Device.ScissorRectangle = new Rectangle(0, 0, Screen.Width, Screen.Height);
             if (visible && renderTarget != null)
             {
                 Renderer.Begin();
@@ -1507,9 +1510,7 @@ namespace XNAFinalEngine.UserInterface
                                   new Rectangle(0, 0, ControlAndMarginsWidth, ControlAndMarginsHeight),
                                   Color.FromNonPremultiplied(255, 255, 255, Alpha));
                 Renderer.End();
-
                 DrawDetached(this);
-
                 DrawOutline(false);
             }
         } // DrawControlOntoMainTexture
@@ -1517,16 +1518,16 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Draw control and its children.
         /// </summary>
-        private void DrawControls(Rectangle rect, bool firstDetach)
+        private void DrawControls(Rectangle rectangle, bool firstDetach)
         {
             Renderer.Begin();
 
-            DrawingRectangle = rect;
-            DrawControl(rect);
+            DrawingRectangle = rectangle;
+            DrawControl(rectangle);
 
             DrawEventArgs args = new DrawEventArgs
             {
-                Rectangle = rect,
+                Rectangle = rectangle,
             };
             OnDraw(args);
 

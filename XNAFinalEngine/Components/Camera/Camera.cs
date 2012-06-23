@@ -52,7 +52,7 @@ namespace XNAFinalEngine.Components
     /// The viewport approach has its advantages thought. If you want that the viewport changes its size over time
     /// the viewport approach does not have any performance penalty, but maybe the penalty could be absorbed in the render target approach. 
     /// </remarks>
-    public class Camera : LayeredComponent
+    public class Camera : Component
     {
 
         #region Enumerates
@@ -549,7 +549,7 @@ namespace XNAFinalEngine.Components
                 for (int i = componentPool.Count - 1; i >= 0; i--)
                 {
                     // A slave camera could have a bigger value than its master
-                    if (componentPool.Elements[i].MasterCamera == null && componentPool.Elements[i].Visible)
+                    if (componentPool.Elements[i].MasterCamera == null && componentPool.Elements[i].Enabled)
                         return componentPool.Elements[i];
                 }
                 // The only posible scenerio is a scene with no camera.
@@ -611,7 +611,6 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
-            base.Uninitialize();
             if (aspectRatio == 0)
                 Screen.AspectRatioChanged -= OnAspectRatioChanged;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
@@ -620,6 +619,8 @@ namespace XNAFinalEngine.Components
             AmbientLight = null;
             Sky = null;
             masterCamera = null;
+            // Call this last because the owner information is needed.
+            base.Uninitialize();
         } // Uninitialize
 
         #endregion

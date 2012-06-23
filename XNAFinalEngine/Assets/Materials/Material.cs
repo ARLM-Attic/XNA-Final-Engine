@@ -33,6 +33,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using XNAFinalEngine.Helpers;
+
 #endregion
 
 namespace XNAFinalEngine.Assets
@@ -85,7 +87,7 @@ namespace XNAFinalEngine.Assets
                     }
                     // If not then we add one to its name and find out if is unique.
                     else
-                        Name = NamePlusOne(value);
+                        Name = value.PlusOne();
                 }
             }
         } // Name

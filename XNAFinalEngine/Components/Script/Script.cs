@@ -48,15 +48,6 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
-        #region Properties
-
-        /// <summary>
-        /// Enabled scripts are Updated, disabled scripts are not.
-        /// </summary>
-        public bool Enabled { get; set; }
-
-        #endregion
-
         #region Initialize
 
         /// <summary>
@@ -65,7 +56,6 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
-            Enabled = true;
             available = false;
             Load();
         } // Initialize
@@ -82,6 +72,7 @@ namespace XNAFinalEngine.Components
         {
             Unload();
             available = true;
+            // Call this last because the owner information is needed.
             base.Uninitialize();
         } // Uninitialize
 

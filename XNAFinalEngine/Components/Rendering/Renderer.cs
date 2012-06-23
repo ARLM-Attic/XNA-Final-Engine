@@ -39,7 +39,7 @@ namespace XNAFinalEngine.Components
     /// Base class for renderers.
     /// A renderer is what makes an object appear on the screen.
     /// </summary>
-    public abstract class Renderer : LayeredComponent
+    public abstract class Renderer : Component
     {
 
         #region Variables
@@ -82,15 +82,13 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
-            base.Uninitialize();
             if (Owner is GameObject2D)
-            {
                 ((GameObject2D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
-            }
             else
-            {
                 ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
-            }
+
+            // Call this last because the owner information is needed.
+            base.Uninitialize();
         } // Uninitialize
 
         #endregion

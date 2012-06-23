@@ -35,7 +35,7 @@ using System;
 namespace XNAFinalEngine.Components
 {
     /// <summary>
-    /// Layers can be used for selective rendering.
+    /// Layers can be used for selective updating and rendering.
     /// </summary>
     /// <remarks>
     /// All layers are active by default. 

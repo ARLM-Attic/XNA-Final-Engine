@@ -93,7 +93,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Editor\Actions\Actions.cs" />
     <Compile Include="Editor\EditableScene.cs" />
     <Compile Include="Editor\EditorManager.cs" />
     <Compile Include="Editor\Gizmos\GizmoRotation.cs" />

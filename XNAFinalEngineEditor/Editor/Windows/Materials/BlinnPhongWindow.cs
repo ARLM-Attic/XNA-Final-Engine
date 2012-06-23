@@ -95,7 +95,7 @@ namespace XNAFinalEngine.Editor
                     asset.DiffuseTexture = null;
                 else
                 {
-                    foreach (Texture texture in Texture.LoadedTextures)
+                    foreach (Texture texture in Asset.LoadedAssets)
                     {
                         if (texture.Name == (string)assetSelectorDiffuseTexture.Items[assetSelectorDiffuseTexture.ItemIndex])
                             asset.DiffuseTexture = texture;
@@ -109,7 +109,7 @@ namespace XNAFinalEngine.Editor
                 // Add textures name here because someone could dispose or add new asset.
                 assetSelectorDiffuseTexture.Items.Clear();
                 assetSelectorDiffuseTexture.Items.Add("No texture");
-                foreach (Texture texture in Texture.LoadedTextures)
+                foreach (Texture texture in Asset.LoadedAssets)
                 {
                     // You can filter some assets here.
                     if (texture.ContentManager == null || !texture.ContentManager.Hidden)
@@ -189,7 +189,7 @@ namespace XNAFinalEngine.Editor
                     asset.SpecularTexture = null;
                 else
                 {
-                    foreach (Texture texture in Texture.LoadedTextures)
+                    foreach (Texture texture in Asset.LoadedAssets)
                     {
                         if (texture.Name == (string)assetSelectorSpecularTexture.Items[assetSelectorSpecularTexture.ItemIndex])
                             asset.SpecularTexture = texture;
@@ -203,7 +203,7 @@ namespace XNAFinalEngine.Editor
                 // Add textures name here because someone could dispose or add new asset.
                 assetSelectorSpecularTexture.Items.Clear();
                 assetSelectorSpecularTexture.Items.Add("No texture");
-                foreach (Texture texture in Texture.LoadedTextures)
+                foreach (Texture texture in Asset.LoadedAssets)
                 {
                     // You can filter some assets here.
                     if (texture.ContentManager == null || !texture.ContentManager.Hidden)
@@ -262,10 +262,10 @@ namespace XNAFinalEngine.Editor
                     asset.ReflectionTexture = null;
                 else
                 {
-                    foreach (TextureCube texture in TextureCube.LoadedCubeTextures)
+                    foreach (Asset texture in Asset.LoadedAssets)
                     {
-                        if (texture.Name == (string)assetSelectorReflectionTexture.Items[assetSelectorReflectionTexture.ItemIndex])
-                            asset.ReflectionTexture = texture;
+                        if (texture is TextureCube && texture.Name == (string)assetSelectorReflectionTexture.Items[assetSelectorReflectionTexture.ItemIndex])
+                            asset.ReflectionTexture = (TextureCube)texture;
                     }
                 }
                 assetSelectorReflectionTexture.EditButtonEnabled = asset.ReflectionTexture != null;
@@ -275,7 +275,7 @@ namespace XNAFinalEngine.Editor
                 // Add textures name here because someone could dispose or add new asset.
                 assetSelectorReflectionTexture.Items.Clear();
                 assetSelectorReflectionTexture.Items.Add("No texture");
-                foreach (TextureCube texture in TextureCube.LoadedCubeTextures)
+                foreach (Asset texture in Asset.LoadedAssets)
                 {
                     // You can filter some assets here.
                     if (texture.ContentManager == null || !texture.ContentManager.Hidden)
@@ -330,7 +330,7 @@ namespace XNAFinalEngine.Editor
                     asset.NormalTexture = null;
                 else
                 {
-                    foreach (Texture texture in Texture.LoadedTextures)
+                    foreach (Texture texture in Asset.LoadedAssets)
                     {
                         if (texture.Name == (string)assetSelectorNormalTexture.Items[assetSelectorNormalTexture.ItemIndex])
                             asset.NormalTexture = texture;
@@ -343,7 +343,7 @@ namespace XNAFinalEngine.Editor
                 // Add textures name here because someone could dispose or add new asset.
                 assetSelectorNormalTexture.Items.Clear();
                 assetSelectorNormalTexture.Items.Add("No texture");
-                foreach (Texture texture in Texture.LoadedTextures)
+                foreach (Texture texture in Asset.LoadedAssets)
                 {
                     // You can filter some assets here.
                     if (texture.ContentManager == null || !texture.ContentManager.Hidden)

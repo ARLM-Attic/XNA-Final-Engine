@@ -61,45 +61,9 @@ namespace XNAFinalEngine.Assets
         // Default value.
         private SamplerState preferedSamplerState = SamplerState.AnisotropicWrap;
 
-        // We only sorted if we need to do it. Don't need to wast time in game mode.
-	    private static bool loadedTexturesSorted;
-
-        // Loaded assets of this type.
-        private static readonly List<Texture> loadedTextures = new List<Texture>();
-
         #endregion
 
         #region Properties
-
-        #region Name
-
-        /// <summary>
-        /// The name of the asset.
-        /// If the name already exists then we add one to its name and we call it again.
-        /// </summary>
-        public override string Name
-        {
-            get { return name; }
-            set
-            {
-                if (value != name)
-                {
-                    // Is the name unique?
-                    bool isUnique = LoadedTextures.All(assetFromList => assetFromList == this || assetFromList.Name != value);
-                    if (isUnique)
-                    {
-                        name = value;
-                        loadedTexturesSorted = false;
-                        
-                    }
-                    // If not then we add one to its name and find out if is unique.
-                    else
-                        Name = NamePlusOne(value);
-                }
-            }
-        } // Name
-
-        #endregion
 
         #region Resource
 
@@ -117,8 +81,9 @@ namespace XNAFinalEngine.Assets
                     //xnaTexture = null;
                 return xnaTexture;
             }
-            // This is only allowed for videos. Doing something to avoid this “set” is unnecessary and probably will make more complex some classes 
-            // just for this special case. Besides, an internal statement elegantly prevents a bad use of this set.
+            // This is only allowed for videos. 
+            // Doing something to avoid this “set” is unnecessary and probably will make more complex some classes just for this special case. 
+            // Besides, an internal statement elegantly prevents a bad use of this set.
             // Just don’t dispose this texture because the resource is managed by the video.
             internal set 
             {
@@ -170,26 +135,6 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
-        #region Loaded Textures
-
-        /// <summary>
-	    /// Loaded textures.
-	    /// </summary>
-	    public static List<Texture> LoadedTextures
-	    {
-	        get
-	        {
-                if (!loadedTexturesSorted)
-                {
-                    loadedTexturesSorted = true;
-                    loadedTextures.Sort(CompareAssets);
-                }
-	            return loadedTextures;
-	        }
-	    } // LoadedTextures
-
-        #endregion
-
         #region Textures Filenames
 
         /// <summary>
@@ -213,8 +158,6 @@ namespace XNAFinalEngine.Assets
         internal Texture()
         {
             Name = "Empty Texture";
-            LoadedTextures.Add(this);
-            loadedTexturesSorted = false;
         } // Texture
 
 	    /// <summary>
@@ -225,8 +168,6 @@ namespace XNAFinalEngine.Assets
             Name = "Texture";
             this.xnaTexture = xnaTexture;
             Size = new Size(xnaTexture.Width, xnaTexture.Height);
-            LoadedTextures.Add(this);
-            loadedTexturesSorted = false;
         } // Texture
 
 		/// <summary>
@@ -256,8 +197,6 @@ namespace XNAFinalEngine.Assets
             {
                 throw new InvalidOperationException("Failed to load texture: " + filename, e);
             }
-            LoadedTextures.Add(this);
-		    loadedTexturesSorted = false;
 		} // Texture
 
 		#endregion
@@ -332,7 +271,6 @@ namespace XNAFinalEngine.Assets
             base.DisposeManagedResources();
             if (xnaTexture != null && !xnaTexture.IsDisposed)
                 Resource.Dispose();
-            LoadedTextures.Remove(this);
         } // DisposeManagedResources
 
 	    #endregion
@@ -355,13 +293,13 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal static void RecreateTexturesWithoutContentManager()
         {
-            foreach (Texture loadedTexture in LoadedTextures)
+            foreach (Asset loadedTexture in LoadedAssets)
             {
-                if (loadedTexture.ContentManager == null)
+                if (loadedTexture is Texture && loadedTexture.ContentManager == null)
                 {
-                    if (loadedTexture.Resource != null)
+                    if (((Texture)loadedTexture).Resource != null)
                     {
-                        loadedTexture.Resource.Dispose();
+                        ((Texture)loadedTexture).Resource.Dispose();
                         loadedTexture.RecreateResource();
                     }
                 }

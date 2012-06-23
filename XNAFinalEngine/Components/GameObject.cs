@@ -29,7 +29,7 @@ namespace XNAFinalEngine.Components
         
         // If an object is disabled their components are not processed. 
         // I.e. the game object will not be updated or draw.
-        private bool enabled = true;
+        private bool active = true;
         
         // Default layer mask = 1 (the default layer).
         private uint layerMask = 1;
@@ -46,22 +46,22 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Identification number. Every game object has a unique ID.
         /// </summary>
-        public long ID { get; private set; }
+        public long Id { get; private set; }
         
         /// <summary>
         /// If an object is disabled their components are not processed. 
         /// I.e. the game object will not be updated or draw.
         /// </summary>
-        public bool Enabled
+        public bool Active
         {
-            get { return enabled; }
+            get { return active; }
             set
             {
-                enabled = value;
-                if (EnabledChanged != null)
-                    EnabledChanged(this, enabled);
+                active = value;
+                if (ActiveChanged != null)
+                    ActiveChanged(this, active);
             }
-        } // Enabled
+        } // Active
         
         /// <summary>
         /// The layer the game object is in.
@@ -100,17 +100,17 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
-        #region Enabled
+        #region Active
 
         /// <summary>
         /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
         /// </summary>
-        public delegate void EnabledEventHandler(object sender, bool enabled);
+        public delegate void ActiveEventHandler(object sender, bool active);
 
         /// <summary>
         /// Raised when the game object's is enabled or disabled.
         /// </summary>
-        public event EnabledEventHandler EnabledChanged;
+        public event ActiveEventHandler ActiveChanged;
 
         #endregion
 
@@ -133,7 +133,7 @@ namespace XNAFinalEngine.Components
         protected GameObject()
         {
             // Create a unique ID
-            ID = uniqueIdCounter;
+            Id = uniqueIdCounter;
             uniqueIdCounter++;
             GameObjects.Add(this);
         } // GameObject
@@ -158,6 +158,7 @@ namespace XNAFinalEngine.Components
             GameObjects.Remove(this);
             // A disposed object could be still generating events, because it is alive for a time, in a disposed state, but alive nevertheless.
             LayerChanged = null;
+            ActiveChanged = null;
             RemoveAllComponents();
         } // DisposeManagedResources
 
@@ -168,7 +169,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Adds a component to the game object.
         /// </summary>
-        /// <typeparam name="TComponentType">Component Type</typeparam>
+        /// <typeparam name="TComponentType">Component Type.</typeparam>
         public virtual Component AddComponent<TComponentType>() where TComponentType : Component, new()
         {
             return null; // Overrite it!!!
@@ -181,7 +182,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Removes a component to the game object.
         /// </summary>
-        /// <typeparam name="TComponentType">Component Type</typeparam>
+        /// <typeparam name="TComponentType">Component Type.</typeparam>
         public abstract void RemoveComponent<TComponentType>() where TComponentType : Component;
 
         /// <summary>

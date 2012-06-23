@@ -1008,7 +1008,7 @@ namespace XNAFinalEngine.UserInterface
             for (int i = controlList.Count - 1; i >= 0; i--)
             {
                 bool checkPosition = CheckPosition(controlList[i], e.Position);
-                bool checkState = CheckState(controlList[i]) || (!string.IsNullOrEmpty(controlList[i].ToolTip.Text) && controlList[i].Visible);
+                bool checkState = CheckState(controlList[i]) || (controlList[i].toolTip != null && !string.IsNullOrEmpty(controlList[i].ToolTip.Text) && controlList[i].Visible);
 
                 if (checkState && !checkPosition && states.Over == controlList[i] && states.Buttons[(int)e.Button] == null)
                 {
@@ -1021,7 +1021,7 @@ namespace XNAFinalEngine.UserInterface
             for (int i = controlList.Count - 1; i >= 0; i--)
             {
                 bool checkPosition = CheckPosition(controlList[i], e.Position);
-                bool checkState = CheckState(controlList[i]) || (!string.IsNullOrEmpty(controlList[i].ToolTip.Text) && controlList[i].Visible);
+                bool checkState = CheckState(controlList[i]) || (controlList[i].toolTip != null && !string.IsNullOrEmpty(controlList[i].ToolTip.Text) && controlList[i].Visible);
 
                 if (checkState && checkPosition && states.Over != controlList[i] && states.Buttons[(int)e.Button] == null)
                 {

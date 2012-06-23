@@ -155,6 +155,7 @@ namespace XNAFinalEngine.Input
         [ComVisibleAttribute(false), System.Security.SuppressUnmanagedCodeSecurity]
         internal class NativeMethods
         {
+
             [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
             public static extern IntPtr GetModuleHandle(string lpModuleName);
 
@@ -171,7 +172,7 @@ namespace XNAFinalEngine.Input
             [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true, CallingConvention = CallingConvention.Winapi)]
             public static extern short GetKeyState(int keyCode);
 
-        }
+        } // NativeMethods
 
         #endregion
 

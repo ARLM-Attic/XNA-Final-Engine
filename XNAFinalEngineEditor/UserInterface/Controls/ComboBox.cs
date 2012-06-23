@@ -190,7 +190,7 @@ namespace XNAFinalEngine.UserInterface
             // A disposed object could be still generating events, because it is alive for a time, in a disposed state, but alive nevertheless.
             MaxItemsChanged = null;
             ItemIndexChanged = null;
-            // We added the listbox to another parent than this control, so we dispose it manually
+            // We added the listbox to another parent other than this control, so we dispose it manually.
             if (listCombo != null)
             {
                 listCombo.Dispose();
@@ -207,16 +207,14 @@ namespace XNAFinalEngine.UserInterface
         {
             base.Init();
 
-            listCombo.Click += ListComboClick;
+            listCombo.Click     += ListComboClick;
             listCombo.FocusLost += ListComboFocusLost;
             UserInterfaceManager.InputSystem.MouseDown += InputMouseDown;
 
             listCombo.SkinInformation = new SkinControlInformation(Skin.Controls["ComboBox.ListBox"]);
             buttonDown.Glyph = new Glyph(Skin.Images["Shared.ArrowDown"].Texture)
             {
-                Color =
-                    Skin.Controls["ComboBox.Button"].Layers["Control"].Text.Colors.
-                    Enabled,
+                Color = Skin.Controls["ComboBox.Button"].Layers["Control"].Text.Colors. Enabled,
                 SizeMode = SizeMode.Centered
             };
         } // Init
@@ -325,7 +323,6 @@ namespace XNAFinalEngine.UserInterface
                 listCombo.Visible = !listCombo.Visible;
                 listCombo.Focused = true;
                 listCombo.Width = Width;
-                listCombo.AutoHeight(maxItems);
             }
         } // ButtonDownClick
 
@@ -357,7 +354,7 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region Raise events
+        #region On Event
 
         protected override void OnKeyDown(KeyEventArgs e)
         {

@@ -97,8 +97,9 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
-            base.Uninitialize();
             Font = null;
+            // Call this last because the owner information is needed.
+            base.Uninitialize();
         } // Uninitialize
 
         #endregion

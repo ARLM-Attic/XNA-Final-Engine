@@ -520,16 +520,28 @@ namespace XNAFinalEngine.Editor
 
             assetSelector.AssetAdded += delegate
             {
+                // Store the previous asset because maybe the user cancel the creation.
+                Asset previousAsset = null;
+                Asset currentAsset = null;
+                Window window = null;
                 // Texture
                 if (typeof(TAssetType) == typeof(Texture))
                 {
+                    previousAsset = (Asset)property.GetValue(propertyOwner, null);
                     TextureWindow.CurrentCreatedAssetChanged += delegate
                     {
+                        currentAsset = TextureWindow.CurrentCreatedAsset;
                         property.SetValue(propertyOwner, TextureWindow.CurrentCreatedAsset, null);
                         assetSelector.Invalidate();
                     };
-                    TextureWindow.Show(null);
+                    window = TextureWindow.Show(null);
                 }
+                // If the operation was cancel then restore the previous asset.
+                window.Closed += delegate
+                {
+                    if (currentAsset == null)
+                        property.SetValue(propertyOwner, previousAsset, null);
+                };
             };
 
             #endregion
@@ -571,11 +583,10 @@ namespace XNAFinalEngine.Editor
                     // Texture
                     if (typeof(TAssetType) == typeof(Texture))
                     {
-                        foreach (Texture texture in Texture.LoadedTextures)
+                        foreach (Asset texture in Asset.LoadedAssets)
                         {
                             // You can filter some assets here.
-                            if (texture.Name == (string) assetSelector.Items[assetSelector.ItemIndex])
-                                //property.SetValue(propertyOwner, texture, null);
+                            if (texture is Texture && texture.Name == (string)assetSelector.Items[assetSelector.ItemIndex])
                                 assetToChange = texture;
                         }
                     }
@@ -609,10 +620,10 @@ namespace XNAFinalEngine.Editor
                 if (typeof(TAssetType) == typeof(Texture))
                 {
                     assetSelector.Items.Add("No texture");
-                    foreach (Texture texture in Texture.LoadedTextures)
+                    foreach (Asset texture in Asset.SortedLoadedAssets)
                     {
                         // You can filter some assets here.
-                        if (texture.ContentManager == null || !texture.ContentManager.Hidden)
+                        if (texture is Texture && (texture.ContentManager == null || !texture.ContentManager.Hidden))
                             assetSelector.Items.Add(texture.Name);
                     }
                 }

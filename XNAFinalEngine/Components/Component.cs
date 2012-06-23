@@ -13,6 +13,22 @@ namespace XNAFinalEngine.Components
     public class Component
     {
 
+        #region Variables
+
+        /// <summary>
+        /// Chaded game object's layer mask value.
+        /// Every component tests if its layer mask is currently valid.
+        /// </summary>
+        internal uint CachedLayerMask;
+
+        /// <summary>
+        /// Chaded game object's active value.
+        /// Every component tests if its owner is currently active.
+        /// </summary>
+        internal bool CachedOwnerActive;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -20,6 +36,11 @@ namespace XNAFinalEngine.Components
         /// A component is always attached to one game object.
         /// </summary>
         public GameObject Owner { get; internal set; }
+
+        /// <summary>
+        /// Makes the componet active or not.
+        /// </summary>
+        public bool Enabled { get; set; }
 
         #endregion
 
@@ -44,6 +65,13 @@ namespace XNAFinalEngine.Components
         internal virtual void Initialize(GameObject owner)
         {
             Owner = owner;
+            Enabled = true;
+            // Set Owner's layer.
+            CachedLayerMask = Owner.Layer.Mask;
+            Owner.LayerChanged += OnLayerChanged;
+            // Set Owner's active state.
+            CachedOwnerActive = Owner.Active;
+            Owner.ActiveChanged += OnActiveChanged;
         } // Initialize
 
         #endregion
@@ -56,8 +84,34 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal virtual void Uninitialize()
         {
+            Owner.LayerChanged -= OnLayerChanged;
+            Owner.ActiveChanged -= OnActiveChanged;
             Owner = null;
         } // Uninitialize
+
+        #endregion
+
+        #region On Layer Changed
+
+        /// <summary>
+        /// On game object's layer changed.
+        /// </summary>
+        private void OnLayerChanged(object sender, uint layerMask)
+        {
+            CachedLayerMask = layerMask;
+        } // OnLayerChanged
+
+        #endregion
+
+        #region On Active Changed
+
+        /// <summary>
+        /// On game object's active changed.
+        /// </summary>
+        private void OnActiveChanged(object sender, bool active)
+        {
+            CachedOwnerActive = active;
+        } // OnActiveChanged
 
         #endregion
 

@@ -15,6 +15,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XNAFinalEngine.Assets
@@ -48,42 +49,7 @@ namespace XNAFinalEngine.Assets
     public class LookupTable : Asset
     {
 
-        #region Variables
-
-        // We only sorted if we need to do it. Don't need to wast time in game mode.
-        private static bool loadedLookupTablesSorted;
-
-        // Loaded assets of this type.
-        private static readonly List<LookupTable> loadedLookupTables = new List<LookupTable>();
-
-        #endregion
-
         #region Properties
-
-        /// <summary>
-        /// The name of the asset.
-        /// If the name already exists then we add one to its name and we call it again.
-        /// </summary>
-        public override string Name
-        {
-            get { return name; }
-            set
-            {
-                if (value != name)
-                {
-                    // Is the name unique?
-                    bool isUnique = LoadedLookupTables.All(assetFromList => assetFromList == this || assetFromList.Name != value);
-                    if (isUnique)
-                    {
-                        name = value;
-                        loadedLookupTablesSorted = false;
-                    }
-                    // If not then we add one to its name and find out if is unique.
-                    else
-                        Name = NamePlusOne(value);
-                }
-            }
-        } // Name
 
         /// <summary>
         /// Lookup Table Texture.
@@ -94,22 +60,6 @@ namespace XNAFinalEngine.Assets
         /// Side size.
         /// </summary>
         public int Size { get; private set; }
-
-        /// <summary>
-        /// Loaded Lookup Tables.
-        /// </summary>
-        public static List<LookupTable> LoadedLookupTables
-        {
-            get
-            {
-                if (!loadedLookupTablesSorted)
-                {
-                    loadedLookupTablesSorted = true;
-                    loadedLookupTables.Sort(CompareAssets);
-                }
-                return loadedLookupTables;
-            }
-        } // LoadedLookupTables
         
         /// <summary>
         ///  A list with all texture' filenames on the lookup table directory.
@@ -148,8 +98,6 @@ namespace XNAFinalEngine.Assets
             {
                 throw new InvalidOperationException("Failed to load lookup texture: " + filename, e);
             }
-            LoadedLookupTables.Add(this);
-            loadedLookupTablesSorted = false;
         } // LookupTable
 
         /// <summary>
@@ -159,8 +107,6 @@ namespace XNAFinalEngine.Assets
         {
             Name = "";
             Filename = "";
-            LoadedLookupTables.Add(this);
-            loadedLookupTablesSorted = false;
         } // LookupTable
 
         #endregion
@@ -283,7 +229,6 @@ namespace XNAFinalEngine.Assets
         protected override void DisposeManagedResources()
         {
             Resource.Dispose();
-            LoadedLookupTables.Remove(this);
         } // DisposeManagedResources
 
         #endregion
@@ -308,10 +253,13 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal static void RecreateLookupTablesWithoutContentManager()
         {
-            foreach (LookupTable lookupTable in LoadedLookupTables)
+            foreach (Asset lookupTable in LoadedAssets)
             {
-                lookupTable.Resource.Dispose();
-                lookupTable.RecreateResource();
+                if (lookupTable is LookupTable)
+                {
+                    ((LookupTable)lookupTable).Resource.Dispose();
+                    lookupTable.RecreateResource();
+                }
             }
         } // RecreateLookupTablesWithoutContentManager
 

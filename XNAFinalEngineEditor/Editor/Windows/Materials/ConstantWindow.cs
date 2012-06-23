@@ -99,7 +99,7 @@ namespace XNAFinalEngine.Editor
                     asset.DiffuseTexture = null;
                 else
                 {
-                    foreach (Texture texture in Texture.LoadedTextures)
+                    foreach (Texture texture in Asset.LoadedAssets)
                     {
                         if (texture.Name == (string)assetSelectorDiffuseTexture.Items[assetSelectorDiffuseTexture.ItemIndex])
                             asset.DiffuseTexture = texture;
@@ -113,7 +113,7 @@ namespace XNAFinalEngine.Editor
                 // Add textures name here because someone could dispose or add new asset.
                 assetSelectorDiffuseTexture.Items.Clear();
                 assetSelectorDiffuseTexture.Items.Add("No texture");
-                foreach (Texture texture in Texture.LoadedTextures)
+                foreach (Texture texture in Asset.LoadedAssets)
                 {
                     // You can filter some assets here.
                     if (texture.ContentManager == null || !texture.ContentManager.Hidden)

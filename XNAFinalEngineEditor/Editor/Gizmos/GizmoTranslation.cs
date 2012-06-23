@@ -109,17 +109,17 @@ namespace XNAFinalEngine.Editor
             planeAll.AddComponent<LineRenderer>();
             planeAll.LineRenderer.Vertices = new VertexPositionColor[8];
             
-            redCone.ModelRenderer.Visible = false;
-            greenCone.ModelRenderer.Visible = false;
-            blueCone.ModelRenderer.Visible = false;
-            lines.LineRenderer.Visible = false;
-            planeRedGreen.ModelRenderer.Visible = false;
-            planeGreenBlue.ModelRenderer.Visible = false;
-            planeBlueRed.ModelRenderer.Visible = false;
-            planeRedGreenInv.ModelRenderer.Visible = false;
-            planeGreenBlueInv.ModelRenderer.Visible = false;
-            planeBlueRedInv.ModelRenderer.Visible = false;
-            planeAll.LineRenderer.Visible = false;
+            redCone.ModelRenderer.Enabled = false;
+            greenCone.ModelRenderer.Enabled = false;
+            blueCone.ModelRenderer.Enabled = false;
+            lines.LineRenderer.Enabled = false;
+            planeRedGreen.ModelRenderer.Enabled = false;
+            planeGreenBlue.ModelRenderer.Enabled = false;
+            planeBlueRed.ModelRenderer.Enabled = false;
+            planeRedGreenInv.ModelRenderer.Enabled = false;
+            planeGreenBlueInv.ModelRenderer.Enabled = false;
+            planeBlueRedInv.ModelRenderer.Enabled = false;
+            planeAll.LineRenderer.Enabled = false;
         } // TranslationGizmo
 
         #endregion
@@ -133,11 +133,11 @@ namespace XNAFinalEngine.Editor
         {
             Active = false;
 
-            redCone.ModelRenderer.Visible = true;
-            greenCone.ModelRenderer.Visible = true;
-            blueCone.ModelRenderer.Visible = true;
-            lines.LineRenderer.Visible = true;
-            planeAll.LineRenderer.Visible = true;
+            redCone.ModelRenderer.Enabled = true;
+            greenCone.ModelRenderer.Enabled = true;
+            blueCone.ModelRenderer.Enabled = true;
+            lines.LineRenderer.Enabled = true;
+            planeAll.LineRenderer.Enabled = true;
 
             this.picker = picker;
 
@@ -157,11 +157,11 @@ namespace XNAFinalEngine.Editor
         {
             Active = false;
 
-            redCone.ModelRenderer.Visible = false;
-            greenCone.ModelRenderer.Visible = false;
-            blueCone.ModelRenderer.Visible = false;
-            lines.LineRenderer.Visible = false;
-            planeAll.LineRenderer.Visible = false;
+            redCone.ModelRenderer.Enabled = false;
+            greenCone.ModelRenderer.Enabled = false;
+            blueCone.ModelRenderer.Enabled = false;
+            lines.LineRenderer.Enabled = false;
+            planeAll.LineRenderer.Enabled = false;
 
             selectedObject = null;
             selectedObjects = null;

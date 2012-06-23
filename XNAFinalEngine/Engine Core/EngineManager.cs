@@ -36,12 +36,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.Helpers;
 using XNAFinalEngineContentPipelineExtensionRuntime.Settings;
 #if (!XBOX)
     using System.Threading;
     using System.Windows.Forms;
-    using System.Windows.Forms.VisualStyles;
     using MessageBoxIcon = System.Windows.Forms.MessageBoxIcon;
     using Point = System.Drawing.Point;
 #endif
@@ -316,7 +314,7 @@ namespace XNAFinalEngine.EngineCore
 
         #endregion
 
-        #region XNA Device reset/change
+        #region XNA Device Reset/Change
         
         /// <summary>
         /// If the XNA device was detroyed (for example the user press alt-tab) chances are that the new device don’t have the correct multisample quality parameter assigned.
@@ -336,15 +334,8 @@ namespace XNAFinalEngine.EngineCore
         private static void OnDeviceReset(object sender, EventArgs e)
         {
             Device = GraphicsDeviceManager.GraphicsDevice;
-            #if (!XBOX)
-                Application.EnableVisualStyles();
-                Application.VisualStyleState = VisualStyleState.ClientAndNonClientAreasEnabled;
-            #endif
-
             if (DeviceReset != null)
                 DeviceReset(sender, e);
-
-            GarbageCollector.CollectGarbage();
         } // OnDeviceReset
 
         /// <summary>
@@ -360,13 +351,12 @@ namespace XNAFinalEngine.EngineCore
                 oldScreenWidth  = Device.PresentationParameters.BackBufferWidth;
                 oldScreenHeight = Device.PresentationParameters.BackBufferHeight;
                 Screen.OnScreenSizeChanged(sender, e);
-                GarbageCollector.CollectGarbage();
             }
         } // OnWindowClientSizeChanged
      
         #endregion
 
-        #region On activated and on deactivated
+        #region On Activated and On Deactivated
 
         /// <summary>
         /// On activated.
@@ -388,10 +378,47 @@ namespace XNAFinalEngine.EngineCore
 
         #endregion
 
+        #region Load Content
+
+        /// <summary>
+        /// Called when device resources need to be loaded or recreated.
+        /// </summary>
+        protected override void LoadContent()
+        {
+            // XNA 2.0+ used a virtualized graphics device so that all graphical content always points to a valid Graphics Device.
+            // That’s a great feature. Unfortunately in some rare cases (for instance Magicka suffers it) the device is disposed and this reference is no longer valid.
+            // This happened because something is accessing the Device in a device reset situation.
+            // The worst part is that sometimes I didn’t do it anything and still the device is changed.
+            // Particularly a couple of resources are created internally on the device.
+            // The good news is that the assets can be restored. The bad news is how to do it.
+            // XNA calls unload content and load content again, therefore in load content we should recreate all the assets.
+            Device = GraphicsDeviceManager.GraphicsDevice;
+
+            if (DeviceDisposed != null)
+                DeviceDisposed(this, new EventArgs());
+
+            // Load Content could be called in some scenarios, I avoid it.
+            if (ShowExceptionsWithGuide)
+            {
+                try { GameLoop.LoadContent(); }
+                catch (Exception e)
+                {
+                    Time.PauseGame();
+                    exception = e;
+                }
+            }
+            else
+                GameLoop.LoadContent();
+
+            base.LoadContent();
+        } // LoadContent
+
+        #endregion
+
         #region Begin Run
 
         /// <summary>
-        ///  Load any necessary game assets.
+        ///  Called after all components are initialized but before the first update in the game loop.
         /// </summary>
         protected override void BeginRun()
         {
@@ -411,38 +438,11 @@ namespace XNAFinalEngine.EngineCore
         } // BeginRun
 
         #endregion
-
-        #region Load Content
-
-        /// <summary>
-        /// Recreate load content
-        /// </summary>
-        protected override void LoadContent()
-        {
-            // XNA 2.0+ used a virtualized graphics device so that all graphical content always points to a valid Graphics Device.
-            // That’s a great feature. Unfortunately in some rare cases (for instance Magicka suffers it) the device is disposed and this reference is no longer valid.
-            // This happened because something is accessing the Device in a device reset situation.
-            // The worst part is that sometimes I didn’t do it anything and still the device is changed.
-            // Particularly a couple of resources are created internally on the device.
-            // The good news is that the assets can be restored. The bad news is how to do it.
-            // XNA calls unload content and load content again, therefore in load content we should recreate all the assets.
-
-            Device = GraphicsDeviceManager.GraphicsDevice;
-            
-            if (DeviceDisposed != null)
-                DeviceDisposed(this, new EventArgs());
-
-            GarbageCollector.CollectGarbage();
-
-            base.LoadContent();
-        } // LoadContent
-
-        #endregion
         
         #region Update
 
         /// <summary>
-        /// Update.
+        /// Called when the game has determined that game logic needs to be processed.
         /// </summary>
         protected override void Update(GameTime gameTime)
         {
@@ -478,22 +478,10 @@ namespace XNAFinalEngine.EngineCore
 
         #endregion
 
-        #region Toggle FullScreen
-
-        /// <summary>
-        /// Toggles between full screen and windowed mode.
-        /// </summary>
-        internal static void ToggleFullScreen()
-        {
-            toggleFullScreen = true;
-        } // ToggleFullScreen
-
-        #endregion
-
         #region Draw
 
         /// <summary>
-        /// Draw
+        /// Called when the game determines it is time to draw a frame.
         /// </summary>        
         protected override void Draw(GameTime gameTime)
         {
@@ -555,19 +543,7 @@ namespace XNAFinalEngine.EngineCore
         } // MessageBoxExceptionEnd
 
         #endregion
-
-        #region Exit
-
-        /// <summary>
-        /// Exit application.
-        /// </summary>
-        public static void ExitApplication()
-        {
-            EngineManagerReference.Exit();
-        } // ExitApplication
-
-        #endregion
-
+        
         #region End Run
 
         /// <summary>
@@ -579,6 +555,30 @@ namespace XNAFinalEngine.EngineCore
             GameLoop.EndRun();
             base.EndRun();
         } // UnloadContent
+
+        #endregion
+
+        #region Toggle FullScreen
+
+        /// <summary>
+        /// Toggles between full screen and windowed mode.
+        /// </summary>
+        internal static void ToggleFullScreen()
+        {
+            toggleFullScreen = true;
+        } // ToggleFullScreen
+
+        #endregion
+
+        #region Exit
+
+        /// <summary>
+        /// Exit application.
+        /// </summary>
+        public static void ExitApplication()
+        {
+            EngineManagerReference.Exit();
+        } // ExitApplication
 
         #endregion
 

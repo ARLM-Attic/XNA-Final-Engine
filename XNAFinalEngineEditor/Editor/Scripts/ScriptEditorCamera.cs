@@ -193,7 +193,7 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public override void Update()
         {
-            if (!((GameObject3D)Owner).Camera.Visible)
+            if (!((GameObject3D)Owner).Camera.Enabled)
                 return;
             if (EditorManager.CouldBeManipulated(this) || manipulationing)
             {

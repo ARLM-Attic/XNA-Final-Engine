@@ -36,6 +36,7 @@ String extension methods based on the class StringHelper.cs from RacingGame. Lic
 using System;
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;
 #endregion
 
@@ -135,6 +136,8 @@ namespace XNAFinalEngine.Helpers
 
         #region String
 
+        #region Is Numeric Float
+
         /// <summary>
         /// Is numeric float
         /// </summary>
@@ -208,6 +211,10 @@ namespace XNAFinalEngine.Helpers
             return retVal;
         } // IsNumericFloat
 
+        #endregion
+
+        #region Is Numeric Int
+
         /// <summary>
         /// Check if string is numeric integer. A decimal point is not accepted.
         /// </summary>
@@ -233,6 +240,8 @@ namespace XNAFinalEngine.Helpers
             // All fine, return true, this is a number!
             return true;
         } // IsNumericInt
+
+        #endregion
 
         #region Allow Only One Decimal Point
 
@@ -300,6 +309,29 @@ namespace XNAFinalEngine.Helpers
 
             return true;
         } // AllowOnlyOneDecimalPoint
+
+        #endregion
+
+        #region Plus One
+        
+        /// <summary>
+        /// Return the string plus one.
+        /// </summary>
+        /// <example>
+        /// "name" will be returned like "name1" and "name9" will be returned like "name10".
+        /// </example>
+        public static string PlusOne(this string name)
+        {
+            Regex regex = new Regex(@"(\d+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+            Match match = regex.Match(name);
+
+            if (match.Success)
+            {
+                int numberPlusOne = (int)double.Parse(match.Value) + 1;
+                return regex.Replace(name, numberPlusOne.ToString());
+            }
+            return name + "1";
+        } // PlusOne
 
         #endregion
 

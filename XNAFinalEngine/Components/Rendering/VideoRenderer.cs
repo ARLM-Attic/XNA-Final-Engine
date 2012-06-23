@@ -275,6 +275,7 @@ namespace XNAFinalEngine.Components
         internal override void Uninitialize()
         {
             texture.Resource = null;
+            // Call this last because the owner information is needed.
             base.Uninitialize();
         } // Uninitialize
 

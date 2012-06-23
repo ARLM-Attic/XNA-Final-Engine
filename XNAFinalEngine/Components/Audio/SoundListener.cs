@@ -95,8 +95,9 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
-            base.Uninitialize();
             ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
+            // Call this last because the owner information is needed.
+            base.Uninitialize();
         } // Uninitialize
 
         #endregion

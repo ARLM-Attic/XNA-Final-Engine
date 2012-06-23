@@ -129,7 +129,7 @@ namespace XNAFinalEngine.Assets
                     }
                     // If not then we add one to its name and find out if is unique.
                     else
-                        Name = NamePlusOne(value);
+                        Name = value.PlusOne();
                 }
             }
         } // Name
@@ -226,27 +226,6 @@ namespace XNAFinalEngine.Assets
             Assets.Clear();
         } // Unload
         
-        #endregion
-
-        #region Name Plus One
-
-        /// <summary>
-        /// Return the name plus one.
-        /// For example: name will be returned like name1 and name9 will be returned like name10.
-        /// </summary>
-        protected static string NamePlusOne(string name)
-        {
-            Regex regex = new Regex(@"(\d+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-            Match match = regex.Match(name);
-
-            if (match.Success)
-            {
-                int numberPlusOne = (int)double.Parse(match.Value) + 1;
-                return regex.Replace(name, numberPlusOne.ToString());
-            }
-            return name + "1";
-        } // NamePlusOne
-
         #endregion
 
         #region Sort

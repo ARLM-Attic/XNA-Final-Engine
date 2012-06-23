@@ -131,7 +131,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void Update()
         {
-            if (!((GameObject3D)Owner).Camera.Visible || ((GameObject3D)Owner).Camera != Camera.MainCamera)
+            if (!((GameObject3D)Owner).Camera.Enabled || ((GameObject3D)Owner).Camera != Camera.MainCamera)
                 return;
             
             #region Manipulate

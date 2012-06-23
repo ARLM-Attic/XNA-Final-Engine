@@ -78,7 +78,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Creates and shows the configuration window of this asset.
         /// </summary>
-        public static void Show(Texture asset)
+        public static Window Show(Texture asset)
         {
             ContentManager temporalContentManager = null;
             ContentManager userContentManager = null;
@@ -86,7 +86,7 @@ namespace XNAFinalEngine.Editor
             if (asset == null && Texture.TexturesFilenames.Length == 0)
             {
                 CurrentCreatedAsset = null; // To avoid unwanted event references.
-                return;
+                return null;
             }
 
             bool assetCreation = asset == null;
@@ -131,9 +131,7 @@ namespace XNAFinalEngine.Editor
             #region Group Image
 
             var groupImage = CommonControls.Group("Image", window);
-
             var imageBoxImage = CommonControls.ImageBox(asset, groupImage);
-
             groupImage.AdjustHeightFromChildren();
 
             #endregion
@@ -363,6 +361,8 @@ namespace XNAFinalEngine.Editor
                 #endregion
             }
             window.AdjustHeightFromChildren();
+
+            return window;
         } // Show
 
         #endregion

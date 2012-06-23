@@ -30,8 +30,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
+using System.Linq;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -49,26 +50,59 @@ namespace XNAFinalEngine.Assets
 
         #region Variables
 
+        // A simple but effective way of having unique ids.
+        // We can have 18.446.744.073.709.551.616 game object creations before the system "collapse". Almost infinite in practice. 
+        // If a more robust system is needed (networking/threading) then you can use the guid structure: http://msdn.microsoft.com/en-us/library/system.guid.aspx
+        // However this method is slightly simpler, slightly faster and has slightly lower memory requirements.
+        // If performance is critical consider the int type (4.294.967.294 unique values).
+        private static long uniqueIdCounter = long.MinValue;
+
         // The asset name.
         protected string name;
 
         // The content manager that stores this asset.
         private ContentManager contentManager;
 
+        // Loaded assets of this type.
+        private static readonly List<Asset> loadedAssets = new List<Asset>();
+
+        // We only sorted if we need to do it. Don't need to wast time in game mode.
+        private static bool areLoadedAssetsSorted;
+
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// Asset Filename.
+        /// Identification number. Every asset has a unique ID.
+        /// </summary>
+        public long Id { get; private set; }
+
+        /// <summary>
+        /// Asset Filename (if any).
         /// </summary>
         public string Filename { get; protected set; }
 
         /// <summary>
         /// The name of the asset.
         /// </summary>
-        public virtual string Name { get; set; }
-        
+        /// <remarks>
+        /// The name is not unique. 
+        /// Consequently it can be used to identify the asset, use Id instead.
+        /// </remarks>
+        public virtual string Name
+        {
+            get { return name; }
+            set
+            {
+                if (!string.IsNullOrEmpty(value) && name != value)
+                {
+                    name = value;
+                    areLoadedAssetsSorted = false;
+                }
+            }
+        } // Name
+
         /// <summary>
         /// The content manager that stores this asset.
         /// </summary>
@@ -83,6 +117,48 @@ namespace XNAFinalEngine.Assets
             }
         } // ContentManager
 
+        #region Loaded Textures
+
+        /// <summary>
+        /// Loaded textures.
+        /// </summary>
+        public static List<Asset> LoadedAssets { get { return loadedAssets; } }
+
+        /// <summary>
+        /// Sorted loaded assets list.
+        /// If the list is already sorted this operation is O(c).
+        /// </summary>
+        public static List<Asset> SortedLoadedAssets
+        {
+            get
+            {
+                if (!areLoadedAssetsSorted)
+                {
+                    // The assets are sorted by name.
+                    // But they are only sorted when it is needed .
+                    // This won't affect game performance, just the editor performance.
+                    areLoadedAssetsSorted = true;
+                    loadedAssets.Sort(CompareAssets);
+                }
+                return loadedAssets;
+            }
+        } // SortedLoadedAssets
+
+        #endregion
+
+        #endregion
+
+        #region Constructor
+
+        protected Asset()
+        {
+            // Create a unique ID
+            Id = uniqueIdCounter;
+            uniqueIdCounter++;
+            LoadedAssets.Add(this);
+            areLoadedAssetsSorted = false;
+        } // Asset
+
         #endregion
 
         #region Dispose
@@ -94,28 +170,9 @@ namespace XNAFinalEngine.Assets
         {
             if (ContentManager != null)
                 throw new InvalidOperationException("Assets loaded with content managers cannot be disposed individually.");
+            LoadedAssets.Remove(this);
+            areLoadedAssetsSorted = false;
         } // DisposeManagedResources
-
-        #endregion
-
-        #region Name Plus One
-
-        /// <summary>
-        /// Return the name plus one.
-        /// For example: name will be returned like name1 and name9 will be returned like name10.
-        /// </summary>
-        protected static string NamePlusOne(string name)
-        {
-            Regex regex = new Regex(@"(\d+)$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-            Match match = regex.Match(name);
-
-            if (match.Success)
-            {
-                int numberPlusOne = (int) double.Parse(match.Value) + 1;
-                return regex.Replace(name, numberPlusOne.ToString());
-            }
-            return name + "1";
-        } // NamePlusOne
 
         #endregion
 
@@ -170,57 +227,72 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected static int CompareAssets(Asset asset1, Asset asset2)
         {
+            // If they are the same asset then return equals.
+            if (asset1 == asset2)
+                return 0;
+
             string x = asset1.Name;
             string y = asset2.Name;
             if (x == null)
             {
                 if (y == null)
-                {
-                    // If x is null and y is null, they're
-                    // equal. 
+                    // If x is null and y is null, they're equal. 
                     return 0;
-                }
                 else
-                {
-                    // If x is null and y is not null, y
-                    // is greater. 
+                    // If x is null and y is not null, y is greater. 
                     return -1;
-                }
             }
             else
             {
                 // If x is not null...
-                //
                 if (y == null)
                 // ...and y is null, x is greater.
-                {
                     return 1;
-                }
                 else
                 {
-                    // ...and y is not null, compare the 
-                    // lengths of the two strings.
-                    //
+                    // ...and y is not null, compare the two strings.
                     int retval = x.CompareTo(y);
-                    //int retval = x.Length.CompareTo(y.Length);
 
                     if (retval != 0)
-                    {
                         // If the strings are not of equal length,
                         // the longer string is greater.
-                        //
                         return retval;
-                    }
                     else
                     {
+                        // Create a new unique name for the second asset and do a comparation again.
+                        asset2.SetUniqueName(y);
+                        y = asset2.Name;
                         // If the strings are of equal length,
                         // sort them with ordinary string comparison.
-                        //
                         return x.CompareTo(y);
                     }
                 }
             }
         } // CompareAssets
+
+        #endregion
+
+        #region Set Unique Name
+
+        /// <summary>
+        /// Set a unique texture name.
+        /// </summary>
+        public void SetUniqueName(string newName)
+        {
+            // Is the name unique?
+            bool isUnique = LoadedAssets.All(assetFromList => assetFromList == this || assetFromList.Name != newName);
+            if (isUnique)
+            {
+                if (name != newName)
+                {
+                    name = newName;
+                    areLoadedAssetsSorted = false;
+                }
+            }
+            // If not then we add one to its name and search again to see if is unique.
+            else
+                SetUniqueName(newName.PlusOne());
+        } // SetUniqueName
 
         #endregion
 

@@ -120,6 +120,7 @@ namespace XNAFinalEngine.Components
         {
             Vertices = null;
             Texture = null;
+            // Call this last because the owner information is needed.
             base.Uninitialize();
         } // Uninitialize
 

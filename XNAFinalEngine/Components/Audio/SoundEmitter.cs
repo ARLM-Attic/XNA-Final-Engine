@@ -230,12 +230,13 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
-            base.Uninitialize();
             if (SoundEffectInstance != null)
                 SoundEffectInstance.Stop();
             SoundEffectInstance = null;
             Sound = null;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
+            // Call this last because the owner information is needed.
+            base.Uninitialize();
         } // Uninitialize
 
         #endregion

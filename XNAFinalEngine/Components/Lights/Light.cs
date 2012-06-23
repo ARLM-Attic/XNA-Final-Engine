@@ -40,7 +40,7 @@ namespace XNAFinalEngine.Components
     /// <summary>
     /// Base class for lights.
     /// </summary>
-    public abstract class Light : LayeredComponent
+    public abstract class Light : Component
     {
 
         #region Variables
@@ -120,9 +120,10 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
-            base.Uninitialize();
             Shadow = null;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
+            // Call this last because the owner information is needed.
+            base.Uninitialize();
         } // Uninitialize
 
         #endregion

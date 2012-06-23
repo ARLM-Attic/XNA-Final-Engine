@@ -519,10 +519,10 @@ namespace XNAFinalEngine.Editor
                     asset.ColorCorrection.FirstLookupTable = null;
                 else
                 {
-                    foreach (LookupTable texture in LookupTable.LoadedLookupTables)
+                    foreach (Asset texture in Asset.LoadedAssets)
                     {
-                        if (texture.Name == (string)assetCreatorFirstLookupTable.Items[assetCreatorFirstLookupTable.ItemIndex])
-                            asset.ColorCorrection.FirstLookupTable = texture;
+                        if (texture is LookupTable && texture.Name == (string)assetCreatorFirstLookupTable.Items[assetCreatorFirstLookupTable.ItemIndex])
+                            asset.ColorCorrection.FirstLookupTable = (LookupTable)texture;
                     }
                 }
                 assetCreatorFirstLookupTable.EditButtonEnabled = asset.ColorCorrection.FirstLookupTable != null;
@@ -532,8 +532,8 @@ namespace XNAFinalEngine.Editor
                 // Add textures name here because someone could dispose or add new lookup tables.
                 assetCreatorFirstLookupTable.Items.Clear();
                 assetCreatorFirstLookupTable.Items.Add("No texture");
-                foreach (LookupTable lookupTable in LookupTable.LoadedLookupTables)
-                    assetCreatorFirstLookupTable.Items.Add(lookupTable.Name);
+                foreach (Asset texture in Asset.LoadedAssets)
+                    assetCreatorFirstLookupTable.Items.Add(texture.Name);
 
                 if (assetCreatorFirstLookupTable.ListBoxVisible)
                     return;
@@ -578,10 +578,10 @@ namespace XNAFinalEngine.Editor
                     asset.ColorCorrection.SecondLookupTable = null;
                 else
                 {
-                    foreach (LookupTable texture in LookupTable.LoadedLookupTables)
+                    foreach (Asset texture in Asset.LoadedAssets)
                     {
                         if (texture.Name == (string)assetCreatorSecondLookupTable.Items[assetCreatorSecondLookupTable.ItemIndex])
-                            asset.ColorCorrection.SecondLookupTable = texture;
+                            asset.ColorCorrection.SecondLookupTable = (LookupTable)texture;
                     }
                 }
                 assetCreatorSecondLookupTable.EditButtonEnabled = asset.ColorCorrection.SecondLookupTable != null;
@@ -592,8 +592,8 @@ namespace XNAFinalEngine.Editor
                 // Add textures name here because someone could dispose or add new lookup tables.
                 assetCreatorSecondLookupTable.Items.Clear();
                 assetCreatorSecondLookupTable.Items.Add("No texture");
-                foreach (LookupTable lookupTable in LookupTable.LoadedLookupTables)
-                    assetCreatorSecondLookupTable.Items.Add(lookupTable.Name);
+                foreach (Asset texture in Asset.LoadedAssets)
+                    assetCreatorSecondLookupTable.Items.Add(texture.Name);
 
                 if (assetCreatorSecondLookupTable.ListBoxVisible)
                     return;

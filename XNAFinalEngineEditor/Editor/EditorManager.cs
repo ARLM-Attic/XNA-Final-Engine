@@ -205,7 +205,7 @@ namespace XNAFinalEngine.Editor
             editorCamera.Camera.AmbientLight = new AmbientLight();
             editorCamera.Camera.PostProcess = new PostProcess();
             editorCamera.Camera.PostProcess.Bloom.Enabled = false;
-            editorCamera.Camera.Visible = false;
+            editorCamera.Camera.Enabled = false;
             editorCamera.Camera.RenderHeadUpDisplay = false;
             editorCamera.Layer = Layer.GetLayerByNumber(31);
             
@@ -216,7 +216,7 @@ namespace XNAFinalEngine.Editor
             // This is done because the gizmos need to be in front of everything and I can't clear the ZBuffer wherever I want.
             gizmoCamera = new GameObject3D();
             gizmoCamera.AddComponent<Camera>();
-            gizmoCamera.Camera.Visible = false;
+            gizmoCamera.Camera.Enabled = false;
             gizmoCamera.Camera.CullingMask = Layer.GetLayerByNumber(31).Mask; // The editor layer.
             gizmoCamera.Camera.ClearColor = Color.Transparent;
             gizmoCamera.Layer = Layer.GetLayerByNumber(31);
@@ -236,13 +236,13 @@ namespace XNAFinalEngine.Editor
             selectionRectangle = new GameObject2D();
             selectionRectangle.AddComponent<LineRenderer>();
             selectionRectangle.LineRenderer.Vertices = new VertexPositionColor[4 * 2];
-            selectionRectangle.LineRenderer.Visible = false;
+            selectionRectangle.LineRenderer.Enabled = false;
             selectionRectangle.Layer = Layer.GetLayerByNumber(31);
             selectionRectangleBackground = new GameObject2D();
             selectionRectangleBackground.AddComponent<LineRenderer>();
             selectionRectangleBackground.LineRenderer.PrimitiveType = PrimitiveType.TriangleList;
             selectionRectangleBackground.LineRenderer.Vertices = new VertexPositionColor[6];
-            selectionRectangleBackground.LineRenderer.Visible = false;
+            selectionRectangleBackground.LineRenderer.Enabled = false;
             selectionRectangleBackground.Layer = Layer.GetLayerByNumber(31);
 
             #endregion
@@ -467,8 +467,8 @@ namespace XNAFinalEngine.Editor
             UserInterfaceManager.Visible = false;
             editorModeEnabled = false;
             Camera.OnlyRendereableCamera = null;
-            editorCamera.Camera.Visible = false;
-            gizmoCamera.Camera.Visible = false;
+            editorCamera.Camera.Enabled = false;
+            gizmoCamera.Camera.Enabled = false;
             // Remove bounding box off the screen.
             foreach (var gameObject in selectedObjects)
             {
@@ -618,9 +618,9 @@ namespace XNAFinalEngine.Editor
                 if (selectedObject.PointLight != null)
                 {
                     panel = CommonControls.PanelCollapsible("Point Light", rightPanelTabControl, 0);
-                    CheckBox checkBoxLightEnabled = CommonControls.CheckBox("Visible", panel, selectedObject.PointLight.Visible);
+                    CheckBox checkBoxLightEnabled = CommonControls.CheckBox("Enabled", panel, selectedObject.PointLight.Enabled);
                     checkBoxLightEnabled.Top = 10;
-                    checkBoxLightEnabled.Draw += delegate { checkBoxLightEnabled.Checked = selectedObject.PointLight.Visible; };
+                    checkBoxLightEnabled.Draw += delegate { checkBoxLightEnabled.Checked = selectedObject.PointLight.Enabled; };
 
                     #region Intensity
 
@@ -648,10 +648,10 @@ namespace XNAFinalEngine.Editor
 
                     checkBoxLightEnabled.CheckedChanged += delegate
                     {
-                        selectedObject.PointLight.Visible = checkBoxLightEnabled.Checked;
-                        sliderLightIntensity.Enabled = selectedObject.PointLight.Visible;
-                        sliderDiffuseColor.Enabled = selectedObject.PointLight.Visible;
-                        sliderLightRange.Enabled = selectedObject.PointLight.Visible;
+                        selectedObject.PointLight.Enabled = checkBoxLightEnabled.Checked;
+                        sliderLightIntensity.Enabled = selectedObject.PointLight.Enabled;
+                        sliderDiffuseColor.Enabled = selectedObject.PointLight.Enabled;
+                        sliderLightRange.Enabled = selectedObject.PointLight.Enabled;
                     };
                 }
 
@@ -663,7 +663,7 @@ namespace XNAFinalEngine.Editor
                 {
                     panel = CommonControls.PanelCollapsible("Spot Light", rightPanelTabControl, 0);
                     // Visible
-                    CheckBox checkBoxLightEnabled = CommonControls.CheckBox("Visible", panel, selectedObject.SpotLight.Visible, selectedObject.SpotLight, "Visible");
+                    CheckBox checkBoxLightEnabled = CommonControls.CheckBox("Enabled", panel, selectedObject.SpotLight.Enabled, selectedObject.SpotLight, "Enabled");
                     checkBoxLightEnabled.Top = 10;
                     // Intensity
                     var sliderLightIntensity = CommonControls.SliderNumeric("Intensity", panel, selectedObject.SpotLight.Intensity,
@@ -680,15 +680,15 @@ namespace XNAFinalEngine.Editor
                                                                                  false, false, 0, 175, selectedObject.SpotLight, "OuterConeAngle");
                     // Mask Texture
                     var assetSelectorMaskTexture = CommonControls.AssetSelector<Texture>("Mask Texture", panel, selectedObject.SpotLight, "LightMaskTexture");
-                    assetSelectorMaskTexture.ItemIndexChanged += delegate { sliderDiffuseColor.Enabled = assetSelectorMaskTexture.ItemIndex == 0; };
                     // Visible
                     checkBoxLightEnabled.CheckedChanged += delegate
                     {
-                        sliderLightIntensity.Enabled = selectedObject.SpotLight.Visible;
-                        sliderDiffuseColor.Enabled = selectedObject.SpotLight.Visible;
-                        sliderLightRange.Enabled = selectedObject.SpotLight.Visible;
-                        sliderLightInnerConeAngle.Enabled = selectedObject.SpotLight.Visible;
-                        sliderLightOuterConeAngle.Enabled = selectedObject.SpotLight.Visible;
+                        sliderLightIntensity.Enabled = selectedObject.SpotLight.Enabled;
+                        sliderDiffuseColor.Enabled = selectedObject.SpotLight.Enabled;
+                        sliderLightRange.Enabled = selectedObject.SpotLight.Enabled;
+                        sliderLightInnerConeAngle.Enabled = selectedObject.SpotLight.Enabled;
+                        sliderLightOuterConeAngle.Enabled = selectedObject.SpotLight.Enabled;
+                        assetSelectorMaskTexture.Enabled = selectedObject.SpotLight.Enabled;
                     };
                 }
 
@@ -699,9 +699,9 @@ namespace XNAFinalEngine.Editor
                 if (selectedObject.DirectionalLight != null)
                 {
                     panel = CommonControls.PanelCollapsible("Directional Light", rightPanelTabControl, 0);
-                    CheckBox checkBoxLightEnabled = CommonControls.CheckBox("Visible", panel, selectedObject.DirectionalLight.Visible);
+                    CheckBox checkBoxLightEnabled = CommonControls.CheckBox("Enabled", panel, selectedObject.DirectionalLight.Enabled);
                     checkBoxLightEnabled.Top = 10;
-                    checkBoxLightEnabled.Draw += delegate { checkBoxLightEnabled.Checked = selectedObject.DirectionalLight.Visible; };
+                    checkBoxLightEnabled.Draw += delegate { checkBoxLightEnabled.Checked = selectedObject.DirectionalLight.Enabled; };
 
                     #region Intensity
 
@@ -721,9 +721,9 @@ namespace XNAFinalEngine.Editor
 
                     checkBoxLightEnabled.CheckedChanged += delegate
                     {
-                        selectedObject.DirectionalLight.Visible = checkBoxLightEnabled.Checked;
-                        sliderLightIntensity.Enabled = selectedObject.DirectionalLight.Visible;
-                        sliderDiffuseColor.Enabled = selectedObject.DirectionalLight.Visible;
+                        selectedObject.DirectionalLight.Enabled = checkBoxLightEnabled.Checked;
+                        sliderLightIntensity.Enabled = selectedObject.DirectionalLight.Enabled;
+                        sliderDiffuseColor.Enabled = selectedObject.DirectionalLight.Enabled;
                     };
                 }
 
@@ -738,9 +738,9 @@ namespace XNAFinalEngine.Editor
             {
 
                 panel = CommonControls.PanelCollapsible("Model Renderer", rightPanelTabControl, 0);
-                CheckBox checkBoxVisible = CommonControls.CheckBox("Visible", panel, selectedObject.ModelRenderer.Visible);
+                CheckBox checkBoxVisible = CommonControls.CheckBox("Visible", panel, selectedObject.ModelRenderer.Enabled);
                 checkBoxVisible.Top = 10;
-                checkBoxVisible.Draw += delegate { checkBoxVisible.Checked = selectedObject.ModelRenderer.Visible; };
+                checkBoxVisible.Draw += delegate { checkBoxVisible.Checked = selectedObject.ModelRenderer.Enabled; };
 
                 #region Material
 
@@ -805,7 +805,7 @@ namespace XNAFinalEngine.Editor
 
                 checkBoxVisible.CheckedChanged += delegate
                 {
-                    selectedObject.ModelRenderer.Visible = checkBoxVisible.Checked;
+                    selectedObject.ModelRenderer.Enabled = checkBoxVisible.Checked;
                     /*sliderLightIntensity.Enabled = selectedObject.PointLight.Visible;
                     sliderDiffuseColor.Enabled = selectedObject.PointLight.Visible;
                     sliderLightRange.Enabled = selectedObject.PointLight.Visible;*/
@@ -909,8 +909,8 @@ namespace XNAFinalEngine.Editor
             if (ViewportMode == ViewportModeType.Scene)
             {
                 Camera.OnlyRendereableCamera = gizmoCamera.Camera;
-                editorCamera.Camera.Visible = true;
-                gizmoCamera.Camera.Visible = true;
+                editorCamera.Camera.Enabled = true;
+                gizmoCamera.Camera.Enabled = true;
                 // Restore bounding box to the current selected objects.
                 foreach (var gameObject in selectedObjects)
                 {
@@ -920,8 +920,8 @@ namespace XNAFinalEngine.Editor
             else
             {
                 Camera.OnlyRendereableCamera = null;
-                editorCamera.Camera.Visible = false;
-                gizmoCamera.Camera.Visible = false;
+                editorCamera.Camera.Enabled = false;
+                gizmoCamera.Camera.Enabled = false;
                 // Remove the bounding box in game mode.
                 foreach (var gameObject in selectedObjects)
                 {
@@ -949,7 +949,7 @@ namespace XNAFinalEngine.Editor
             #region If no update is needed...
 
             // Keyboard shortcuts, camera movement and similar should be ignored when the text box is active.
-            if (!UserInterfaceManager.IsOverThisControl(renderSpace, new Point(Mouse.Position.X, Mouse.Position.Y)) && !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Visible)
+            if (!UserInterfaceManager.IsOverThisControl(renderSpace, new Point(Mouse.Position.X, Mouse.Position.Y)) && !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Enabled)
             {
                 UserInterfaceManager.InputEnable = true;
                 canSelect = false;
@@ -1018,7 +1018,7 @@ namespace XNAFinalEngine.Editor
                 {
                     Color lineColor = new Color(0.3f, 0.3f, 0.3f, 1f);
                     Color backgroundColor = new Color(0.3f, 0.3f, 0.3f, 0.2f);
-                    selectionRectangle.LineRenderer.Visible = true;
+                    selectionRectangle.LineRenderer.Enabled = true;
                     selectionRectangle.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y, 0), lineColor);
                     selectionRectangle.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y, 0), lineColor);
                     selectionRectangle.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y, 0), lineColor);
@@ -1027,7 +1027,7 @@ namespace XNAFinalEngine.Editor
                     selectionRectangle.LineRenderer.Vertices[5] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, 0), lineColor);
                     selectionRectangle.LineRenderer.Vertices[6] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, 0), lineColor);
                     selectionRectangle.LineRenderer.Vertices[7] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y, 0), lineColor);
-                    selectionRectangleBackground.LineRenderer.Visible = true;
+                    selectionRectangleBackground.LineRenderer.Enabled = true;
                     selectionRectangleBackground.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y, -0.1f), backgroundColor);
                     selectionRectangleBackground.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, -0.1f), backgroundColor);
                     selectionRectangleBackground.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y, -0.1f), backgroundColor);
@@ -1037,8 +1037,8 @@ namespace XNAFinalEngine.Editor
                 }
                 else
                 {
-                    selectionRectangleBackground.LineRenderer.Visible = false;
-                    selectionRectangle.LineRenderer.Visible = false;
+                    selectionRectangleBackground.LineRenderer.Enabled = false;
+                    selectionRectangle.LineRenderer.Enabled = false;
                 }
 
                 #endregion
@@ -1233,7 +1233,7 @@ namespace XNAFinalEngine.Editor
                     break;
             }
 
-            UserInterfaceManager.InputEnable = !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Visible;
+            UserInterfaceManager.InputEnable = !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Enabled;
 
             #endregion
 
@@ -1368,7 +1368,7 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         internal static bool CouldBeManipulated(ScriptEditorCamera scriptEditorCamera)
         {
-            return UserInterfaceManager.IsOverThisControl(renderSpace, new Point(Mouse.Position.X, Mouse.Position.Y)) && !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Visible;
+            return UserInterfaceManager.IsOverThisControl(renderSpace, new Point(Mouse.Position.X, Mouse.Position.Y)) && !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Enabled;
         } // CouldBeManipulated
 
         #endregion

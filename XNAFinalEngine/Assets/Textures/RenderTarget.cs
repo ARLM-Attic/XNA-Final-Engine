@@ -227,20 +227,6 @@ namespace XNAFinalEngine.Assets
             EngineManager.DeviceReset += OnScreenSizeChanged;
         } // RenderTarget
 
-        /// <summary>
-        /// Static constructor to register some evented actions.
-        /// </summary>
-        static RenderTarget()
-        {
-            // Try to recover memory when the screen size changes.
-            // Render Targets relative to the old screen resolution are not longer need it.
-            Screen.ScreenSizeChanged += delegate 
-            {
-                ClearRenderTargetPool();
-                ClearMultpleRenderTargetPool();
-            };
-        } // RenderTarget
-
         #endregion
 
         #region Create

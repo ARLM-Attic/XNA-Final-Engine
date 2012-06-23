@@ -171,6 +171,7 @@ namespace XNAFinalEngine.Components
         {
             Texture = null;
             ((GameObject3D)Owner).ParticleEmitterChanged -= OnParticleEmitterChanged;
+            // Call this last because the owner information is needed.
             base.Uninitialize();
         } // Uninitialize
 

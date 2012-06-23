@@ -33,6 +33,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using XNAFinalEngine.Helpers;
+
 #endregion
 
 namespace XNAFinalEngine.Assets
@@ -53,44 +55,9 @@ namespace XNAFinalEngine.Assets
         // The size of this texture resource, in pixels.
 	    protected int size;
 
-        // We only sorted if we need to do it. Don't need to wast time in game mode.
-        private static bool loadedTexturesCubeSorted;
-
-        // Loaded assets of this type.
-        private static readonly List<TextureCube> loadedTexturesCube = new List<TextureCube>();
-
         #endregion
 
         #region Properties
-
-        #region Name
-
-        /// <summary>
-        /// The name of the asset.
-        /// If the name already exists then we add one to its name and we call it again.
-        /// </summary>
-        public override string Name
-        {
-            get { return name; }
-            set
-            {
-                if (value != name)
-                {
-                    // Is the name unique?
-                    bool isUnique = LoadedCubeTextures.All(assetFromList => assetFromList == this || assetFromList.Name != value);
-                    if (isUnique)
-                    {
-                        name = value;
-                        loadedTexturesCubeSorted = false;
-                    }
-                    // If not then we add one to its name and find out if is unique.
-                    else
-                        Name = NamePlusOne(value);
-                }
-            }
-        } // Name
-
-        #endregion
 
 	    /// <summary>
 	    /// XNA Texture.
@@ -116,22 +83,6 @@ namespace XNAFinalEngine.Assets
         ///  A list with all texture' filenames on the cube texture directory.
         /// </summary>
         public static string[] TexturesFilename { get; private set; }
-
-        /// <summary>
-        /// Loaded Cube Textures.
-        /// </summary>
-        public static List<TextureCube> LoadedCubeTextures
-        {
-            get
-            {
-                if (!loadedTexturesCubeSorted)
-                {
-                    loadedTexturesCubeSorted = true;
-                    loadedTexturesCube.Sort(CompareAssets);
-                }
-                return loadedTexturesCube;
-            }
-        } // LoadedTextures
 
         /// <summary>
         ///  A list with all texture' filenames on the cube texture directory.
@@ -177,8 +128,6 @@ namespace XNAFinalEngine.Assets
             {
                 throw new InvalidOperationException("Failed to load cube map: " + filename, e);
             }
-            LoadedCubeTextures.Add(this);
-            loadedTexturesCubeSorted = false;
 		} // TextureCube
 
 		#endregion
@@ -192,19 +141,6 @@ namespace XNAFinalEngine.Assets
         {
             TexturesFilenames = SearchAssetsFilename(ContentManager.GameDataDirectory + "Textures\\CubeTextures");
         } // TextureCube
-
-        #endregion
-
-        #region Dispose
-
-        /// <summary>
-        /// Dispose managed resources.
-        /// </summary>
-        protected override void DisposeManagedResources()
-        {
-            base.DisposeManagedResources();
-            LoadedCubeTextures.Remove(this);
-        } // DisposeManagedResources
 
         #endregion
 

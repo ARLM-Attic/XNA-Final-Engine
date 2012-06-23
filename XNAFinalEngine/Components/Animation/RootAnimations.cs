@@ -293,6 +293,7 @@ namespace XNAFinalEngine.Components
             ((GameObject3D)Owner).ModelFilterChanged -= OnModelFilterChanged;
             if (((GameObject3D)Owner).ModelFilter != null)
                 ((GameObject3D)Owner).ModelFilter.ModelChanged -= OnModelChanged;
+            // Call this last because the owner information is needed.
             base.Uninitialize();
         } // Uninitialize
 

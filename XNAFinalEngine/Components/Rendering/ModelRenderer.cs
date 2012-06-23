@@ -160,7 +160,6 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
-            base.Uninitialize();
             Material = null;
             cachedBoneTransforms = null;
             cachedModel = null;
@@ -172,6 +171,9 @@ namespace XNAFinalEngine.Components
             ((GameObject3D)Owner).ModelAnimationChanged -= OnModelAnimationChanged;
             if (((GameObject3D)Owner).ModelAnimations != null)
                 ((GameObject3D)Owner).ModelAnimations.BoneTransformChanged -= OnBoneTransformChanged;
+
+            // Call this last because the owner information is needed.
+            base.Uninitialize();
         } // Uninitialize
 
         #endregion

@@ -52,7 +52,8 @@ namespace XNAFinalEngine.EngineCore
 {
 
     /// <summary>
-    /// The XNA Final Engine pipeline is defined here. There is no need for user input, all operations are carried automatically.
+    /// The XNA Final Engine pipeline is defined here. 
+    /// There is no need for user input, all operations are carried automatically.
     /// </summary>
     /// <remarks>
     /// This class seems complex and in the pass I could agree.
@@ -65,7 +66,7 @@ namespace XNAFinalEngine.EngineCore
         #region Variables
 
         // It's an auxiliary value that helps avoiding garbage.
-        private static Vector3[] cornersViewSpace = new Vector3[4];
+        private static readonly Vector3[] cornersViewSpace = new Vector3[4];
 
         private static readonly List<ModelRenderer> modelsToRender = new List<ModelRenderer>(50);
         private static readonly List<ModelRenderer> modelsToRenderShadow = new List<ModelRenderer>(50);
@@ -73,9 +74,9 @@ namespace XNAFinalEngine.EngineCore
         private static readonly BoundingFrustum cameraBoundingFrustum = new BoundingFrustum(Matrix.Identity);
 
         private static AudioListener oneAudioListener;
-        private static AudioListener[] twoAudioListener = new AudioListener[2];
-        private static AudioListener[] threeAudioListener = new AudioListener[3];
-        private static AudioListener[] fourAudioListener = new AudioListener[4];
+        private static readonly AudioListener[] twoAudioListener = new AudioListener[2];
+        private static readonly AudioListener[] threeAudioListener = new AudioListener[3];
+        private static readonly AudioListener[] fourAudioListener = new AudioListener[4];
         
         #endregion
 
@@ -91,102 +92,79 @@ namespace XNAFinalEngine.EngineCore
         #region Load Content
 
         /// <summary>
-        /// Load Content.
+        /// Called when the application starts and when the device is disposed. 
         /// </summary>
-        internal static void BeginRun()
+        /// <remarks> 
+        /// In application start up this method is called before Begin Run.
+        /// </remarks>
+        internal static void LoadContent()
         {
-            
-            #region Load Managers
-
-            // Create the 32 layers.
-            Layer.Initialize();
-            // Graphics
+            // Initialize managers that are related to the device.
             SpriteManager.Initialize();
-            // Input
-            InputManager.Initialize();
-            // Music
-            MusicManager.Initialize();
-            // Lines
             LineManager.Initialize();
-            // Sound
             SoundManager.Initialize();
+            
+            // Recreate assets that does not use content managers and are related to the device.
+            Texture.RecreateTexturesWithoutContentManager();
+            Assets.Model.RecreateModelsWithoutContentManager();
+            LookupTable.RecreateLookupTablesWithoutContentManager();
+            // Recreate assets that use content managers.
+            ContentManager.RecreateContentManagers();
 
-            #endregion
-
-            #region Load Scene
-
-            if (CurrentScene != null)
-                CurrentScene.Load();
-
-            #endregion
-
-            #region Pre Draw
-
-            // Pre draw to avoid the first frame's garbage and to place everything into memory.
-            // But I won't do it because I could create render targets with an incorrect size and thus waste a lot of memory on nothing.
-            // Moreover it helps to arise an XNA bug related with the device.
-            //Draw(new GameTime());
-
-            #endregion
-
-            #region Garbage Collection
+            // Call the DeviceDisposed method only when the the device was disposed.
+            if (CurrentScene.Loaded)
+                CurrentScene.DeviceDisposed();
 
             // Collect all garbage.
+            // Garbage collections are performed in XBOX 360 between 1 Mb of created data.
+            // Collecting the garbage gives a little more room to have a little garbage periodically.
             GarbageCollector.CollectGarbage();
-
-            #endregion
-
-            #region Statistics
-
-            Statistics.InitStatistics();
-
-            #endregion
-
-            #region Device Disposed
-
-            // Recreate device related managers and assets when it is disposed. Prevents an XNA bug.
-            EngineManager.DeviceDisposed += delegate
-            {
-                // Recreate assets that does not use content managers.
-                Texture.RecreateTexturesWithoutContentManager();
-                Assets.Model.RecreateModelsWithoutContentManager();
-                LookupTable.RecreateLookupTablesWithoutContentManager();
-
-                // Recreate assets that use content managers.
-                ContentManager.RecreateContentManagers();
-
-                // Recreate sensitive managers.
-                SpriteManager.Initialize();
-                LineManager.Initialize();
-                SoundManager.Initialize();
-
-                CurrentScene.DeviceDisposed();
-            };
-
-            #endregion
-
         } // LoadContent
-        
+
         #endregion
 
-        #region Remove Unused Resources
+        #region Begin Run
 
         /// <summary>
-        /// Remove Unused Resources.
-        /// This is intended to be used when you load a level.
+        /// Called when the application starts. 
         /// </summary>
-        public static void RemoveUnusedResources()
+        /// <remarks> 
+        /// In application start up this method is called after Load Content.
+        /// </remarks>
+        internal static void BeginRun()
         {
-            SoundManager.RemoveNotReservedUnusedSoundInstances();
+            // Initialize managers that are not related to the device.
+            Layer.Initialize(); // Create the 32 layers.
+            InputManager.Initialize();
+            MusicManager.Initialize();
+            
+            // Load scene.
+            CurrentScene.Load();
+
+            // Init statistics counting.
+            Statistics.InitStatistics();
+
+            // Try to recover memory when the screen size changes.
+            // Render Targets relative to the old screen resolution are not longer need it.
+            Screen.ScreenSizeChanged += delegate
+            {
+                RenderTarget.ClearRenderTargetPool();
+                RenderTarget.ClearMultpleRenderTargetPool();
+            };
+
+            // Collect all garbage.
+            // Garbage collections are performed in XBOX 360 between 1 Mb of created data.
+            // Collecting the garbage gives a little more room to have a little garbage periodically.
             GarbageCollector.CollectGarbage();
-        } // RemoveUnusedResources
+
+        } // BeginRun
 
         #endregion
 
         #region Update
 
         /// <summary>
-        /// Update
+        /// Called when the game has determined that game logic needs to be processed.
         /// </summary>
         internal static void Update(GameTime gameTime)
         {
@@ -412,7 +390,7 @@ namespace XNAFinalEngine.EngineCore
                 {
                     Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
                     // If is a master camera
-                    if (currentCamera.MasterCamera == null && currentCamera.Visible && Layer.IsActive(currentCamera.CachedLayerMask))
+                    if (currentCamera.MasterCamera == null && currentCamera.Enabled && Layer.IsActive(currentCamera.CachedLayerMask))
                     {
                         RenderMasterCamera(currentCamera);
                     }
@@ -514,7 +492,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
             {
                 ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Visible && Layer.IsActive(currentModelRenderer.CachedLayerMask))
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Enabled && Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
                     if (boundingFrustum.Intersects(currentModelRenderer.BoundingSphere))
                     {
@@ -547,7 +525,7 @@ namespace XNAFinalEngine.EngineCore
                 currentCamera.PartialRenderTarget = RenderCamera(currentCamera);
                 for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
                 {
-                    if (currentCamera.slavesCameras[i].Visible && Layer.IsActive(currentCamera.slavesCameras[i].CachedLayerMask))
+                    if (currentCamera.slavesCameras[i].Enabled && Layer.IsActive(currentCamera.slavesCameras[i].CachedLayerMask))
                         // I store the render of the camera to a partial render target.
                         // This helps reduce the memory consumption (GBuffer, Light Pass, HDR pass)
                         // at the expense of a pass that copy this texture to a bigger render target
@@ -581,7 +559,7 @@ namespace XNAFinalEngine.EngineCore
                         masterCamerawasRendered = true;
                     }
                     // Render slaves cameras (they are already ordered).
-                    if (currentCamera.slavesCameras[i].Visible && Layer.IsActive(currentCamera.slavesCameras[i].CachedLayerMask))
+                    if (currentCamera.slavesCameras[i].Enabled && Layer.IsActive(currentCamera.slavesCameras[i].CachedLayerMask))
                     {
                         EngineManager.Device.Viewport = new Viewport(currentCamera.slavesCameras[i].Viewport.X, currentCamera.slavesCameras[i].Viewport.Y,
                                                                      currentCamera.slavesCameras[i].Viewport.Width, currentCamera.slavesCameras[i].Viewport.Height);
@@ -700,7 +678,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < modelsToRender.Count; i++)
             {
                 ModelRenderer currentModelRenderer = modelsToRender[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Visible && Layer.IsActive(currentModelRenderer.CachedLayerMask))
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Enabled && Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
                     int currentMeshPart = 0;
                     // Render each mesh
@@ -828,7 +806,7 @@ namespace XNAFinalEngine.EngineCore
             {
                 DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
                 // If there is a shadow map...
-                if (currentDirectionalLight.Shadow != null && currentDirectionalLight.Shadow.Enabled && currentDirectionalLight.Visible &&
+                if (currentDirectionalLight.Shadow != null && currentDirectionalLight.Shadow.Enabled && currentDirectionalLight.Enabled &&
                     currentDirectionalLight.Intensity > 0 && Layer.IsActive(currentDirectionalLight.CachedLayerMask))
                 {
                     RenderTarget shadowDepthTexture;
@@ -904,7 +882,7 @@ namespace XNAFinalEngine.EngineCore
             {
                 SpotLight currentSpotLight = SpotLight.ComponentPool.Elements[i];
                 // If there is a shadow map...
-                if (currentSpotLight.Shadow != null && currentSpotLight.Shadow.Enabled && currentSpotLight.Visible &&
+                if (currentSpotLight.Shadow != null && currentSpotLight.Shadow.Enabled && currentSpotLight.Enabled &&
                     currentSpotLight.Intensity > 0 && Layer.IsActive(currentSpotLight.CachedLayerMask))
                 {
                     RenderTarget shadowDepthTexture;
@@ -976,7 +954,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
                 DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
-                if (currentDirectionalLight.Visible && currentDirectionalLight.Intensity > 0 && Layer.IsActive(currentDirectionalLight.CachedLayerMask))
+                if (currentDirectionalLight.Enabled && currentDirectionalLight.Intensity > 0 && Layer.IsActive(currentDirectionalLight.CachedLayerMask))
                 {
                     DirectionalLightShader.Instance.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection,
                                                                 currentDirectionalLight.Intensity, currentDirectionalLight.ShadowTexture);
@@ -997,7 +975,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < PointLight.ComponentPool.Count; i++)
             {
                 PointLight currentPointLight = PointLight.ComponentPool.Elements[i];
-                if (currentPointLight.Visible && currentPointLight.Intensity > 0 && Layer.IsActive(currentPointLight.CachedLayerMask))
+                if (currentPointLight.Enabled && currentPointLight.Intensity > 0 && Layer.IsActive(currentPointLight.CachedLayerMask))
                 {
                     PointLightShader.Instance.RenderLight(currentPointLight.DiffuseColor, currentPointLight.cachedPosition, currentPointLight.Intensity, currentPointLight.Range);
                 }
@@ -1017,7 +995,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < SpotLight.ComponentPool.Count; i++)
             {
                 SpotLight currentSpotLight = SpotLight.ComponentPool.Elements[i];
-                if (currentSpotLight.Visible && currentSpotLight.Intensity > 0 && Layer.IsActive(currentSpotLight.CachedLayerMask))
+                if (currentSpotLight.Enabled && currentSpotLight.Intensity > 0 && Layer.IsActive(currentSpotLight.CachedLayerMask))
                 {
                     SpotLightShader.Instance.RenderLight(currentSpotLight.DiffuseColor, currentSpotLight.cachedPosition,
                                                          currentSpotLight.cachedDirection, currentSpotLight.Intensity,
@@ -1074,7 +1052,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < modelsToRender.Count; i++)
             {
                 ModelRenderer currentModelRenderer = modelsToRender[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Visible && Layer.IsActive(currentModelRenderer.CachedLayerMask))
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Enabled && Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
                     int currentMeshPart = 0;
                     // Render each mesh
@@ -1159,7 +1137,7 @@ namespace XNAFinalEngine.EngineCore
             {
                 ParticleRenderer currentParticleRenderer = ParticleRenderer.ComponentPool.Elements[i];
                 if (currentParticleRenderer.cachedParticleSystem != null && currentParticleRenderer.Texture != null &&
-                    currentParticleRenderer.Visible && Layer.IsActive(currentParticleRenderer.CachedLayerMask))
+                    currentParticleRenderer.Enabled && Layer.IsActive(currentParticleRenderer.CachedLayerMask))
                     ParticleShader.Instance.Render(currentParticleRenderer.cachedParticleSystem, currentParticleRenderer.Duration,
                                                    currentParticleRenderer.BlendState, currentParticleRenderer.DurationRandomness, currentParticleRenderer.Gravity,
                                                    currentParticleRenderer.EndVelocity, currentParticleRenderer.MinimumColor, currentParticleRenderer.MaximumColor,
@@ -1175,7 +1153,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < modelsToRender.Count; i++)
             {
                 ModelRenderer currentModelRenderer = modelsToRender[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Visible && Layer.IsActive(currentModelRenderer.CachedLayerMask))
+                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Enabled && Layer.IsActive(currentModelRenderer.CachedLayerMask))
                 {
                     int currentMeshPart = 0;
                     // Render each mesh
@@ -1246,7 +1224,7 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < HudTexture.ComponentPool3D.Count; i++)
                 {
                     HudTexture currentHudTexture = HudTexture.ComponentPool3D.Elements[i];
-                    if (currentHudTexture.Visible && currentHudTexture.Texture != null && currentHudTexture.PostProcessed && Layer.IsActive(currentHudTexture.CachedLayerMask))
+                    if (currentHudTexture.Enabled && currentHudTexture.Texture != null && currentHudTexture.PostProcessed && Layer.IsActive(currentHudTexture.CachedLayerMask))
                     {
                         if (currentHudTexture.Billboard)
                         {
@@ -1283,7 +1261,7 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < HudText.ComponentPool3D.Count; i++)
                 {
                     HudText currentHudText = HudText.ComponentPool3D.Elements[i];
-                    if (currentHudText.Visible && currentHudText.PostProcessed && Layer.IsActive(currentHudText.CachedLayerMask))
+                    if (currentHudText.Enabled && currentHudText.PostProcessed && Layer.IsActive(currentHudText.CachedLayerMask))
                     {
                         if (currentHudText.Billboard)
                             SpriteManager.Draw3DBillboardText(currentHudText.Font ?? Font.DefaultFont,
@@ -1310,7 +1288,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < LineRenderer.ComponentPool3D.Count; i++)
             {
                 LineRenderer currentLineRenderer = LineRenderer.ComponentPool3D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PostProcessed && currentLineRenderer.PrimitiveType == PrimitiveType.LineList &&
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Enabled && currentLineRenderer.PostProcessed && currentLineRenderer.PrimitiveType == PrimitiveType.LineList &&
                     Layer.IsActive(currentLineRenderer.CachedLayerMask))
                 {
                     for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
@@ -1339,7 +1317,7 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < HudTexture.ComponentPool3D.Count; i++)
                 {
                     HudTexture currentHudTexture = HudTexture.ComponentPool3D.Elements[i];
-                    if (currentHudTexture.Visible && currentHudTexture.Texture != null && !currentHudTexture.PostProcessed && Layer.IsActive(currentHudTexture.CachedLayerMask))
+                    if (currentHudTexture.Enabled && currentHudTexture.Texture != null && !currentHudTexture.PostProcessed && Layer.IsActive(currentHudTexture.CachedLayerMask))
                     {
                         if (currentHudTexture.Billboard)
                         {
@@ -1376,7 +1354,7 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < HudText.ComponentPool3D.Count; i++)
                 {
                     HudText currentHudText = HudText.ComponentPool3D.Elements[i];
-                    if (currentHudText.Visible && !currentHudText.PostProcessed && Layer.IsActive(currentHudText.CachedLayerMask))
+                    if (currentHudText.Enabled && !currentHudText.PostProcessed && Layer.IsActive(currentHudText.CachedLayerMask))
                     {
                         if (currentHudText.Billboard)
                             SpriteManager.Draw3DBillboardText(currentHudText.Font ?? Font.DefaultFont,
@@ -1433,7 +1411,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < LineRenderer.ComponentPool3D.Count; i++)
             {
                 LineRenderer currentLineRenderer = LineRenderer.ComponentPool3D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible && currentLineRenderer.PrimitiveType == PrimitiveType.LineList && !currentLineRenderer.PostProcessed &&
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Enabled && currentLineRenderer.PrimitiveType == PrimitiveType.LineList && !currentLineRenderer.PostProcessed &&
                     Layer.IsActive(currentLineRenderer.CachedLayerMask))
                 {
                     for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
@@ -1454,7 +1432,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < LineRenderer.ComponentPool3D.Count; i++)
             {
                 LineRenderer currentLineRenderer = LineRenderer.ComponentPool3D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible &&
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Enabled &&
                     currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
                 {
                     for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
@@ -1527,7 +1505,7 @@ namespace XNAFinalEngine.EngineCore
                 {
                     currentVideo = VideoRenderer.ComponentPool.Elements[i];
                     currentVideo.Update();
-                    if (currentVideo.Visible && currentVideo.State != MediaState.Stopped && Layer.IsActive(currentVideo.CachedLayerMask))
+                    if (currentVideo.Enabled && currentVideo.State != MediaState.Stopped && Layer.IsActive(currentVideo.CachedLayerMask))
                     {
                         // Aspect ratio
                         Rectangle screenRectangle;
@@ -1567,7 +1545,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
             {
                 LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible &&
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Enabled &&
                     currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
                 {
                     for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
@@ -1580,7 +1558,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
             {
                 LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Visible &&
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.Enabled &&
                     currentLineRenderer.PrimitiveType == PrimitiveType.LineList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
                 {
                     for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
@@ -1600,7 +1578,7 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < HudText.ComponentPool2D.Count; i++)
                 {
                     currentHudText = HudText.ComponentPool2D.Elements[i];
-                    if (currentHudText.Visible && Layer.IsActive(currentHudText.CachedLayerMask))
+                    if (currentHudText.Enabled && Layer.IsActive(currentHudText.CachedLayerMask))
                     {
                         SpriteManager.Draw2DText(currentHudText.Font ?? Font.DefaultFont,
                                                currentHudText.Text,
@@ -1620,7 +1598,7 @@ namespace XNAFinalEngine.EngineCore
                 for (int i = 0; i < HudTexture.ComponentPool2D.Count; i++)
                 {
                     currentHudTexture = HudTexture.ComponentPool2D.Elements[i];
-                    if (currentHudTexture.Visible && currentHudTexture.Texture != null && Layer.IsActive(currentHudTexture.CachedLayerMask))
+                    if (currentHudTexture.Enabled && currentHudTexture.Texture != null && Layer.IsActive(currentHudTexture.CachedLayerMask))
                     {
                         if (currentHudTexture.DestinationRectangle != null)
                             SpriteManager.Draw2DTexture(currentHudTexture.Texture,
@@ -1656,6 +1634,20 @@ namespace XNAFinalEngine.EngineCore
             // Disable wiimote and keyboard hook.
             InputManager.UnloadInputDevices();
         } // UnloadContent
+
+        #endregion
+
+        #region Remove Unused Resources
+
+        /// <summary>
+        /// Remove Unused Resources.
+        /// This is intended to be used when you load a level.
+        /// </summary>
+        public static void RemoveUnusedResources()
+        {
+            SoundManager.RemoveNotReservedUnusedSoundInstances();
+            GarbageCollector.CollectGarbage();
+        } // RemoveUnusedResources
 
         #endregion
 

@@ -269,11 +269,16 @@ namespace XNAFinalEngine.UserInterface
                 SkinControlInformation skinControlShadow = Skin.Controls[skinShadow];
                 SkinLayer   skinLayerShadow   = skinControlShadow.Layers[layerShadow];
 
-                Color shadowColor = Color.FromNonPremultiplied(skinLayerShadow.States.Enabled.Color.R, skinLayerShadow.States.Enabled.Color.G, skinLayerShadow.States.Enabled.Color.B, Alpha);
+                Color shadowColor = Color.FromNonPremultiplied(skinLayerShadow.States.Enabled.Color.R, 
+                                                               skinLayerShadow.States.Enabled.Color.G,
+                                                               skinLayerShadow.States.Enabled.Color.B, Alpha);
 
                 Renderer.Begin();
                     Renderer.DrawLayer(skinLayerShadow,
-                                       new Rectangle(Left - skinControlShadow.OriginMargins.Left, Top - skinControlShadow.OriginMargins.Top, Width + skinControlShadow.OriginMargins.Horizontal, Height + skinControlShadow.OriginMargins.Vertical),
+                                       new Rectangle(Left - skinControlShadow.OriginMargins.Left,
+                                                     Top - skinControlShadow.OriginMargins.Top, 
+                                                     Width + skinControlShadow.OriginMargins.Horizontal,
+                                                     Height + skinControlShadow.OriginMargins.Vertical),
                                        shadowColor, 0);
                 Renderer.End();
             }

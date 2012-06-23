@@ -155,7 +155,7 @@ namespace XNAFinalEngine.UserInterface
             };
             buttonEdit.Click += delegate { OnAssetEdited(new EventArgs()); };
 
-            comboBox.MaxItemsChanged += delegate { OnMaxItemsChanged(new EventArgs()); };
+            comboBox.MaxItemsChanged  += delegate { OnMaxItemsChanged(new EventArgs()); };
             comboBox.ItemIndexChanged += delegate { OnItemIndexChanged(new EventArgs()); };
             
         } // SliderNumeric
