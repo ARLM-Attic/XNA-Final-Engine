@@ -91,7 +91,7 @@ namespace XNAFinalEngine.Assets
         /// If there are memory limitations, this list could be eliminated for the release version.
         /// This is use only useful for the editor.
         /// </remarks>
-        public static string[] TexturesFilenames { get; private set; }
+        public static string[] Filenames { get; private set; }
     
         #endregion
 
@@ -139,7 +139,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         static TextureCube()
         {
-            TexturesFilenames = SearchAssetsFilename(ContentManager.GameDataDirectory + "Textures\\CubeTextures");
+            Filenames = SearchAssetsFilename(ContentManager.GameDataDirectory + "Textures\\CubeTextures");
         } // TextureCube
 
         #endregion

@@ -93,6 +93,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Editor\Controls\Assets\TextureControls.cs" />
+    <Compile Include="Editor\Controls\AssetWindow.cs" />
     <Compile Include="Editor\EditableScene.cs" />
     <Compile Include="Editor\EditorManager.cs" />
     <Compile Include="Editor\Gizmos\GizmoRotation.cs" />
@@ -102,14 +104,7 @@
     <Compile Include="Editor\Pickers\Picker.cs" />
     <Compile Include="Editor\Scripts\ScriptEditorCamera.cs" />
     <Compile Include="Editor\Scripts\ScriptStatisticsDrawer.cs" />
-    <Compile Include="Editor\Windows\Assets\LookupTableWindow.cs" />
-    <Compile Include="Editor\Windows\Assets\PostProcessWindow.cs" />
-    <Compile Include="Editor\Windows\Assets\TextureCubeWindow.cs" />
-    <Compile Include="Editor\Windows\Assets\TextureWindow.cs" />
-    <Compile Include="Editor\Windows\CommonControls.cs" />
-    <Compile Include="Editor\Windows\Materials\BlinnPhongWindow.cs" />
-    <Compile Include="Editor\Windows\Materials\CarPaintWindow.cs" />
-    <Compile Include="Editor\Windows\Materials\ConstantWindow.cs" />
+    <Compile Include="Editor\Controls\CommonControls.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Undo\AbstractAction.cs" />
     <Compile Include="Undo\ActionManager.cs" />

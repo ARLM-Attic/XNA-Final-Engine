@@ -928,7 +928,7 @@ namespace XNAFinalEngineExamples
             //LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
             LookupTable testLookupTable3 = LookupTable.Identity(32);
 
-            PostProcessWindow.Show(camera.Camera.PostProcess);
+            //PostProcessWindow.Show(camera.Camera.PostProcess);
 
             //murcielagoBody.Layer = Layer.GetLayerByNumber(1);
             //Layer.GetLayerByNumber(1).Enabled = false;

@@ -68,7 +68,7 @@ namespace XNAFinalEngine.Assets
         /// If there are memory limitations, this list could be eliminated for the release version.
         /// This is use only useful for the editor.
         /// </remarks>
-        public static string[] LookupTablesFilenames { get; private set; }
+        public static string[] Filenames { get; private set; }
 
         #endregion
 
@@ -148,7 +148,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         static LookupTable()
         {
-            LookupTablesFilenames = SearchAssetsFilename(ContentManager.GameDataDirectory + "Textures\\LookupTables");
+            Filenames = SearchAssetsFilename(ContentManager.GameDataDirectory + "Textures\\LookupTables");
         } // LookupTable
 
         #endregion

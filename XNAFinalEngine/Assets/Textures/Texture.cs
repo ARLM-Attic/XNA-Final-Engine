@@ -144,7 +144,7 @@ namespace XNAFinalEngine.Assets
         /// If there are memory limitations, this list could be eliminated for the release version.
         /// This is use only useful for the editor.
         /// </remarks>
-        public static string[] TexturesFilenames { get; private set; }
+        public static string[] Filenames { get; private set; }
 
         #endregion
 
@@ -230,7 +230,7 @@ namespace XNAFinalEngine.Assets
                         }
                     }
                     // Create the array of available textures.
-                    TexturesFilenames = new string[count];
+                    Filenames = new string[count];
                     for (int i = 0; i < texturesFileInformation.Length; i++)
                     {
                         FileInfo fileInformation = texturesFileInformation[i];
@@ -246,7 +246,7 @@ namespace XNAFinalEngine.Assets
                             {
                                 subdirectory = splitDirectoryName[1].Substring(1, splitDirectoryName[1].Length - 1) + "\\"; // We delete the start \ and add another \ to the end.
                             }
-                            TexturesFilenames[j] = subdirectory + fileInformation.Name.Substring(0, fileInformation.Name.Length - 4);
+                            Filenames[j] = subdirectory + fileInformation.Name.Substring(0, fileInformation.Name.Length - 4);
                             j++;
                         }
                     }
@@ -254,7 +254,7 @@ namespace XNAFinalEngine.Assets
                 // If there was an error then do nothing.
                 catch
                 {
-                    TexturesFilenames = new string[0];
+                    Filenames = new string[0];
                 }
             #endif
         } // Texture

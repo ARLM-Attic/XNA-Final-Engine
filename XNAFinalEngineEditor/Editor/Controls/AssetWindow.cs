@@ -147,46 +147,12 @@ namespace XNAFinalEngine.Editor
             groupResource.AdjustHeightFromChildren();
 
             #endregion
-           
-            #region Group Properties
 
-            GroupBox groupProperties = CommonControls.Group("Properties", window);
-            /*
-            var sizeTextBox = CommonControls.TextBox("Size", groupProperties, asset.Size.ToString());
-            sizeTextBox.Enabled = false;
-            sizeTextBox.Draw += delegate { sizeTextBox.Text = asset.Size.ToString(); };
-            */
-            groupProperties.AdjustHeightFromChildren();
+            #region Creation Mode
 
-            #endregion
-            
             if (assetCreation)
             {
-
-                #region Buttons
-
-                var buttonApply = new Button
-                {
-                    Anchor = Anchors.Top | Anchors.Right,
-                    Top = window.AvailablePositionInsideControl + CommonControls.ControlSeparation,
-                    Left = window.ClientWidth - 4 - 70 * 2 - 8,
-                    Text = "Create",
-                    Parent = window,
-                };
-                buttonApply.Click += delegate { window.Close(); };
-
-                var buttonClose = new Button
-                {
-                    Anchor = Anchors.Top | Anchors.Right,
-                    Text = "Cancel",
-                    ModalResult = ModalResult.Cancel,
-                    Top = buttonApply.Top,
-                    Left = window.ClientWidth - 70 - 8,
-                    Parent = window,
-                };
-
-                #endregion
-
+                
                 #region Combo Box Resource
 
                 // Add textures name
@@ -304,6 +270,8 @@ namespace XNAFinalEngine.Editor
 
             }
 
+            #endregion
+
             #region Edit Mode
 
             else // If it is in edit mode...
@@ -334,7 +302,44 @@ namespace XNAFinalEngine.Editor
             }
             #endregion
 
+            #region Specific Controls for Specific Assets
+
+            if (typeof(TAssetType) == typeof(Texture))
+            {
+                TextureControls.AddTextureControls((Texture)asset, window, comboBoxResource);
+            }
+
+            #endregion
+
+            if (assetCreation)
+            {
+                #region Buttons
+
+                var buttonApply = new Button
+                {
+                    Anchor = Anchors.Top | Anchors.Right,
+                    Top = window.AvailablePositionInsideControl + CommonControls.ControlSeparation,
+                    Left = window.ClientWidth - 4 - 70 * 2 - 8,
+                    Text = "Create",
+                    Parent = window,
+                };
+                buttonApply.Click += delegate { window.Close(); };
+
+                var buttonClose = new Button
+                {
+                    Anchor = Anchors.Top | Anchors.Right,
+                    Text = "Cancel",
+                    ModalResult = ModalResult.Cancel,
+                    Top = buttonApply.Top,
+                    Left = window.ClientWidth - 70 - 8,
+                    Parent = window,
+                };
+
+                #endregion
+            }
+
             window.AdjustHeightFromChildren();
+            window.Height += 5;
             return window;
         } // Show
 

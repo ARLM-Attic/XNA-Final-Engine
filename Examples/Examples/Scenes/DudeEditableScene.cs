@@ -242,7 +242,7 @@ namespace XNAFinalEngineExamples
             
             dude.ModelAnimations.Play("dude_attack");
 
-            PostProcessWindow.Show(camera.Camera.PostProcess);
+            //PostProcessWindow.Show(camera.Camera.PostProcess);
             
         } // Load
 

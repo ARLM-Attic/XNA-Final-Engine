@@ -738,77 +738,13 @@ namespace XNAFinalEngine.Editor
             {
 
                 panel = CommonControls.PanelCollapsible("Model Renderer", rightPanelTabControl, 0);
-                CheckBox checkBoxVisible = CommonControls.CheckBox("Visible", panel, selectedObject.ModelRenderer.Enabled);
+                CheckBox checkBoxVisible = CommonControls.CheckBox("Enabled", panel, selectedObject.ModelRenderer.Enabled, selectedObject.ModelRenderer, "Enabled");
                 checkBoxVisible.Top = 10;
-                checkBoxVisible.Draw += delegate { checkBoxVisible.Checked = selectedObject.ModelRenderer.Enabled; };
 
-                #region Material
-
-                var assetCreatirMaterial = CommonControls.AssetSelector("Material", panel);
-                assetCreatirMaterial.AssetAdded += delegate
-                {
-                    /*LookupTableWindow.CurrentCreatedAssetChanged += delegate
-                    {
-                        selectedObject.ModelRenderer.Material = LookupTableWindow.CurrentCreatedAsset;
-                        panel.Invalidate();
-                    };
-                    LookupTableWindow.Show(null);*/
-                };
-                assetCreatirMaterial.AssetEdited += delegate
-                {
-                    if (selectedObject.ModelRenderer.Material is BlinnPhong)
-                    {
-                        BlinnPhongWindow.Show((BlinnPhong)selectedObject.ModelRenderer.Material);
-                    }
-                    
-                };
-                // Events
-                assetCreatirMaterial.ItemIndexChanged += delegate
-                {
-                    if (assetCreatirMaterial.ItemIndex <= 0)
-                        selectedObject.ModelRenderer.Material = null;
-                    else
-                    {
-                        foreach (Material material in Material.LoadedMaterials)
-                        {
-                            if (material.Name == (string)assetCreatirMaterial.Items[assetCreatirMaterial.ItemIndex])
-                                selectedObject.ModelRenderer.Material = material;
-                        }
-                    }
-                    assetCreatirMaterial.EditButtonEnabled = selectedObject.ModelRenderer.Material != null;
-                };
-                assetCreatirMaterial.Draw += delegate
-                {
-                    // Add textures name here because someone could dispose or add new lookup tables.
-                    assetCreatirMaterial.Items.Clear();
-                    assetCreatirMaterial.Items.Add("No material");
-                    foreach (Material material in Material.LoadedMaterials)
-                        assetCreatirMaterial.Items.Add(material.Name);
-
-                    if (assetCreatirMaterial.ListBoxVisible)
-                        return;
-                    // Identify current index
-                    if (selectedObject.ModelRenderer.Material == null)
-                        assetCreatirMaterial.ItemIndex = 0;
-                    else
-                    {
-                        for (int i = 0; i < assetCreatirMaterial.Items.Count; i++)
-                            if ((string)assetCreatirMaterial.Items[i] == selectedObject.ModelRenderer.Material.Name)
-                            {
-                                assetCreatirMaterial.ItemIndex = i;
-                                break;
-                            }
-                    }
-                };
-                
-                #endregion
+                //var assetCreationMaterial = CommonControls.AssetSelectorMaterial("Material", panel, selectedObject.ModelRenderer, "Material");
 
                 checkBoxVisible.CheckedChanged += delegate
                 {
-                    selectedObject.ModelRenderer.Enabled = checkBoxVisible.Checked;
-                    /*sliderLightIntensity.Enabled = selectedObject.PointLight.Visible;
-                    sliderDiffuseColor.Enabled = selectedObject.PointLight.Visible;
-                    sliderLightRange.Enabled = selectedObject.PointLight.Visible;*/
                 };
 
             }

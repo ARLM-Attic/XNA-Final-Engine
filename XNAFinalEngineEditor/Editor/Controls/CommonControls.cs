@@ -654,7 +654,7 @@ namespace XNAFinalEngine.Editor
 
             return assetSelector;
         } // AssetSelector
-
+        
         #endregion
 
         #region Image Box
