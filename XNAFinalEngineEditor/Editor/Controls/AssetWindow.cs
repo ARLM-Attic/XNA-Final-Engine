@@ -31,13 +31,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.Reflection;
-using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.UserInterface;
 using EventArgs = XNAFinalEngine.UserInterface.EventArgs;
 using EventHandler = XNAFinalEngine.UserInterface.EventHandler;
-using Texture = XNAFinalEngine.Assets.Texture;
-using TextureCube = XNAFinalEngine.Assets.TextureCube;
 #endregion
 
 namespace XNAFinalEngine.Editor
@@ -49,8 +46,6 @@ namespace XNAFinalEngine.Editor
 
         // This is a copy of the asset in its current state of creation.
         private static Asset currentCreatedAsset;
-
-        private static SamplerState customSamplerState;
 
         #endregion
 
@@ -113,9 +108,7 @@ namespace XNAFinalEngine.Editor
                 }
                 // If not... (ambient light, post process, shadows, etc.)
                 else
-                {
                     asset = (Asset)typeof(TAssetType).GetConstructor(new Type[] { }).Invoke(null);
-                }
                 
                 CurrentCreatedAsset = asset;
             }
@@ -129,7 +122,7 @@ namespace XNAFinalEngine.Editor
             };
             window.AssetNameChanged += delegate
             {
-                asset.Name = window.AssetName;
+                asset.SetUniqueName(window.AssetName);
                 window.AssetName = asset.Name; // If the new name is not unique
             };
             window.Draw += delegate { window.AssetName = asset.Name; };
@@ -141,10 +134,17 @@ namespace XNAFinalEngine.Editor
 
             #region Group Resource
 
-            GroupBox groupResource = CommonControls.Group("Resource", window);
-            var comboBoxResource = CommonControls.ComboBox("Resource", groupResource);
-            var comboBoxContentManager = CommonControls.ComboBox("Content Manager", groupResource);
-            groupResource.AdjustHeightFromChildren();
+            GroupBox groupResource;
+            ComboBox comboBoxResource = null;
+            ComboBox comboBoxContentManager = null;
+
+            if (resourcedAsset)
+            {
+                groupResource = CommonControls.Group("Resource", window);
+                comboBoxResource = CommonControls.ComboBox("Resource", groupResource);
+                comboBoxContentManager = CommonControls.ComboBox("Content Manager", groupResource);
+                groupResource.AdjustHeightFromChildren();
+            }
 
             #endregion
 
@@ -154,8 +154,7 @@ namespace XNAFinalEngine.Editor
             {
                 
                 #region Combo Box Resource
-
-                // Add textures name
+                
                 if (resourcedAsset)
                 {
                     comboBoxResource.Items.AddRange(filenames);
@@ -193,45 +192,43 @@ namespace XNAFinalEngine.Editor
                     };
 
                 }
-                else
-                {
-                    comboBoxResource.Items.Add("No Internal Resource.");
-                    comboBoxResource.Enabled = false;
-                }
                 
                 #endregion
 
                 #region Combo Box Content Manager
 
-                // The names of the content manager are added here because we want to place the item index in the current content manager.
-                comboBoxContentManager.Items.Clear();
-                // Add content names.
-                foreach (ContentManager contentManager in ContentManager.ContentManagers)
+                if (resourcedAsset)
                 {
-                    if (!contentManager.Hidden)
-                        comboBoxContentManager.Items.Add(contentManager.Name);
-                }
-                // Find the current content manager.
-                comboBoxContentManager.ItemIndex = 0;
-                for (int i = 0; i < comboBoxContentManager.Items.Count; i++)
-                {
-                    if (ContentManager.ContentManagers[i] == userContentManager)
-                    {
-                        comboBoxContentManager.ItemIndex = i;
-                        break;
-                    }
-                }
-                comboBoxResource.Draw += delegate
-                {
-                    // The names of the content manager are added here because someone could dispose or add a new one.
+                    // The names of the content manager are added here because we want to place the item index in the current content manager.
                     comboBoxContentManager.Items.Clear();
-                    // Add names
+                    // Add content names.
                     foreach (ContentManager contentManager in ContentManager.ContentManagers)
                     {
                         if (!contentManager.Hidden)
                             comboBoxContentManager.Items.Add(contentManager.Name);
                     }
-                };
+                    // Find the current content manager.
+                    comboBoxContentManager.ItemIndex = 0;
+                    for (int i = 0; i < comboBoxContentManager.Items.Count; i++)
+                    {
+                        if (ContentManager.ContentManagers[i] == userContentManager)
+                        {
+                            comboBoxContentManager.ItemIndex = i;
+                            break;
+                        }
+                    }
+                    comboBoxResource.Draw += delegate
+                    {
+                        // The names of the content manager are added here because someone could dispose or add a new one.
+                        comboBoxContentManager.Items.Clear();
+                        // Add names
+                        foreach (ContentManager contentManager in ContentManager.ContentManagers)
+                        {
+                            if (!contentManager.Hidden)
+                                comboBoxContentManager.Items.Add(contentManager.Name);
+                        }
+                    };
+                }
 
                 #endregion
 
@@ -239,29 +236,36 @@ namespace XNAFinalEngine.Editor
                 
                 window.Closed += delegate
                 {
-                    temporalContentManager.Dispose();
+                    if (resourcedAsset)
+                        temporalContentManager.Dispose();
                     if (window.ModalResult == ModalResult.Cancel)
                     {
                         // Returns null.
                         CurrentCreatedAsset = null;
+                        if (!resourcedAsset)
+                            asset.Dispose();
                     }
                     else
                     {
-                        // Search the content manager reference using its name.
-                        foreach (ContentManager contenManager in ContentManager.ContentManagers)
+                        if (resourcedAsset)
                         {
-                            if (contenManager.Name == (string)(comboBoxContentManager.Items[comboBoxContentManager.ItemIndex]))
+                            // Search the content manager reference using its name.
+                            foreach (ContentManager contenManager in ContentManager.ContentManagers)
                             {
-                                ContentManager.CurrentContentManager = contenManager;
-                                break;
+                                if (contenManager.Name == (string)(comboBoxContentManager.Items[comboBoxContentManager.ItemIndex]))
+                                {
+                                    ContentManager.CurrentContentManager = contenManager;
+                                    break;
+                                }
                             }
+                            // And create the asset with this content manager.
+                            CurrentCreatedAsset = (Asset)typeof(TAssetType).GetConstructor(new[] { typeof(string) }).Invoke(new object[] { filenames[comboBoxResource.ItemIndex] });
                         }
-                        // And create the asset with this content manager.
-                        CurrentCreatedAsset = (Asset)typeof(TAssetType).GetConstructor(new[] { typeof(string) }).Invoke(new object[] { filenames[comboBoxResource.ItemIndex] });
                         CurrentCreatedAsset.Name = window.AssetName;
                     }
                     // Restore user content manager.
-                    ContentManager.CurrentContentManager = userContentManager;
+                    if (resourcedAsset)
+                        ContentManager.CurrentContentManager = userContentManager;
                     // Remove references to the event.
                     CurrentCreatedAssetChanged = null;
                 };
@@ -286,28 +290,23 @@ namespace XNAFinalEngine.Editor
                     PropertyInfo nameProperty = resourceProperty.GetValue(asset, null).GetType().GetProperty("Name");
                     Object name = nameProperty.GetValue(obj, null);
                     comboBoxResource.Items.Add(name);
+                    comboBoxResource.ItemIndex = 0;
+                    comboBoxResource.Enabled = false;
+                    // Fill Content Manager Combo Box.
+                    if (asset.ContentManager != null)
+                        comboBoxContentManager.Items.Add(asset.ContentManager.Name);
+                    else
+                        comboBoxContentManager.Items.Add("Does not have a Content Manager");
+                    comboBoxContentManager.ItemIndex = 0;
+                    comboBoxContentManager.Enabled = false;
                 }
-                else
-                    comboBoxResource.Items.Add("No Internal Resource.");
-
-                comboBoxResource.ItemIndex = 0;
-                comboBoxResource.Enabled = false;
-                // Fill Content Manager Combo Box.
-                if (asset.ContentManager != null)
-                    comboBoxContentManager.Items.Add(asset.ContentManager.Name);
-                else
-                    comboBoxContentManager.Items.Add("Does not have a Content Manager");
-                comboBoxContentManager.ItemIndex = 0;
-                comboBoxContentManager.Enabled = false;
             }
             #endregion
 
             #region Specific Controls for Specific Assets
 
             if (typeof(TAssetType) == typeof(Texture))
-            {
-                TextureControls.AddTextureControls((Texture)asset, window, comboBoxResource);
-            }
+                TextureControls.AddControls((Texture)asset, window, comboBoxResource);
 
             #endregion
 

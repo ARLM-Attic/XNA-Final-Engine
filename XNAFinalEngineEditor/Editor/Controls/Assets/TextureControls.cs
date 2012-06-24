@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -53,7 +53,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Creates the configuration controls of this asset.
         /// </summary>
-        public static void AddTextureControls(Texture asset, Window owner, ComboBox comboBoxResource)
+        public static void AddControls(Texture asset, Window owner, ComboBox comboBoxResource)
         {
             // In asset creation I need to look on the CurrentCreatedAsset property to have the last asset.
             // I can't use CurrentCreatedAsset in edit mode.
@@ -140,7 +140,7 @@ namespace XNAFinalEngine.Editor
                         ((Texture)AssetWindow.CurrentCreatedAsset).PreferredSamplerState = GetSamplerState(comboBoxPreferredSamplerState.ItemIndex);
                 };
             }
-        } // AddTextureControls
+        } // AddControls
 
         #endregion
 

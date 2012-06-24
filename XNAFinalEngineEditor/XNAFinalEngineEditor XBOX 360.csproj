@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Editor\Controls\Assets\TextureControls.cs" />
+    <Compile Include="Editor\Controls\Components\CameraControls.cs" />
     <Compile Include="UserInterface\Controls\Windows\AssetWindow.cs" />
     <Compile Include="Editor\Controls\AssetWindow.cs" />
     <Compile Include="Editor\Controls\CommonControls.cs" />

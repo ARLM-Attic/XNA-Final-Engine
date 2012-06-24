@@ -30,10 +30,11 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 
-using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Input;
 using XNAFinalEngine.Undo;
 using XNAFinalEngine.UserInterface;
@@ -520,41 +521,20 @@ namespace XNAFinalEngine.Editor
 
             assetSelector.AssetAdded += delegate
             {
-                // Store the previous asset because maybe the user cancel the creation.
-                Asset previousAsset = (Asset)property.GetValue(propertyOwner, null);
-                Asset currentAsset = null;
-
-                AssetWindow.CurrentCreatedAssetChanged += delegate
+                if (typeof(TAssetType) == typeof(Sky))
                 {
-                    currentAsset = AssetWindow.CurrentCreatedAsset;
-                    property.SetValue(propertyOwner, AssetWindow.CurrentCreatedAsset, null);
-                    assetSelector.Invalidate();
-                };
-                Window window = AssetWindow.Show<TAssetType>(null);
-               
-                // If the operation was cancel then restore the previous asset.
-                window.Closed += delegate
-                {
-                    // Set the previous asset onto the property.
-                    // This is done when the user cancel the operation and also in the creation because the undo feature needs the previous value.
-                    property.SetValue(propertyOwner, previousAsset, null);
-                    // If the operation was no canceled.
-                    if (currentAsset != null )
+                    var assetTypeListBox = AssetTypeListBox(assetSelector, propertyOwner, propertyName, new[] { "Skybox", "Skydome" });
+                    assetTypeListBox.Click += delegate
                     {
-                        // Store the undo/redo Operation
-                        using (Transaction.Create())
-                        {
-                            // Apply the command and store for the undo feature.
-                            ActionManager.SetProperty(propertyOwner, propertyName, currentAsset);
-                            ActionManager.CallMethod(// Redo
-                                                     UserInterfaceManager.Invalidate,
-                                                     // Undo
-                                                     UserInterfaceManager.Invalidate);
-                            // The operations to create and dispose the asset should be also included here.
-                            // TODO!!
-                        }
-                    }
-                };
+                        if (assetTypeListBox.ItemIndex == 0)
+                            CreateAsset<Skybox>(assetSelector, propertyOwner, propertyName);
+                        else
+                            CreateAsset<Skydome>(assetSelector, propertyOwner, propertyName);
+                        assetTypeListBox.Dispose();
+                    };
+                }
+                else
+                    CreateAsset<TAssetType>(assetSelector, propertyOwner, propertyName);
             };
 
             #endregion
@@ -563,7 +543,12 @@ namespace XNAFinalEngine.Editor
 
             assetSelector.AssetEdited += delegate
             {
-                AssetWindow.Show<TAssetType>((Asset)property.GetValue(propertyOwner, null));
+                if (property.GetValue(propertyOwner, null) is Skybox)
+                    AssetWindow.Show<Skybox>((Asset)property.GetValue(propertyOwner, null));
+                if (property.GetValue(propertyOwner, null) is Skybox)
+                    AssetWindow.Show<Skydome>((Asset)property.GetValue(propertyOwner, null));
+                else
+                    AssetWindow.Show<TAssetType>((Asset)property.GetValue(propertyOwner, null));
             };
 
             #endregion
@@ -654,7 +639,96 @@ namespace XNAFinalEngine.Editor
 
             return assetSelector;
         } // AssetSelector
-        
+
+        #region Create Asset
+
+        /// <summary>
+        /// Opens a asset creation window and manages its behavior.
+        /// </summary>
+        private static void CreateAsset<TAssetType>(AssetSelector assetSelector, object propertyOwner, string propertyName) where TAssetType : Asset
+        {
+            PropertyInfo property = propertyOwner.GetType().GetProperty(propertyName);
+            // Store the previous asset because maybe the user cancel the creation.
+            Asset previousAsset = (Asset)property.GetValue(propertyOwner, null);
+            Asset currentAsset = null;
+
+            AssetWindow.CurrentCreatedAssetChanged += delegate
+            {
+                currentAsset = AssetWindow.CurrentCreatedAsset;
+                property.SetValue(propertyOwner, AssetWindow.CurrentCreatedAsset, null);
+                assetSelector.Invalidate();
+            };
+            Window window = AssetWindow.Show<TAssetType>(null);
+
+            // If the operation was cancel then restore the previous asset.
+            window.Closed += delegate
+            {
+                // Set the previous asset onto the property.
+                // This is done when the user cancel the operation and also in the creation because the undo feature needs the previous value.
+                property.SetValue(propertyOwner, previousAsset, null);
+                // If the operation was no canceled.
+                if (currentAsset != null)
+                {
+                    // Store the undo/redo Operation
+                    using (Transaction.Create())
+                    {
+                        // Apply the command and store for the undo feature.
+                        ActionManager.SetProperty(propertyOwner, propertyName, currentAsset);
+                        ActionManager.CallMethod(// Redo
+                                                 UserInterfaceManager.Invalidate,
+                                                 // Undo
+                                                 UserInterfaceManager.Invalidate);
+                        // The operations to create and dispose the asset should be also included here.
+                        // TODO!!
+                    }
+                }
+            };
+        } // CreateAsset
+
+        #endregion
+
+        #region Asset Type List Box
+
+        /// <summary>
+        /// Get a list box used to select asset types.
+        /// </summary>
+        private static ListBox AssetTypeListBox(AssetSelector assetSelector, object propertyOwner, string propertyName,
+                                                     IEnumerable<string> assetTypes)
+        {
+            ListBox assetTypeListBox = new ListBox
+            {
+                HotTrack = true,
+                Detached = true,
+                Left = assetSelector.ControlLeftAbsoluteCoordinate - assetSelector.Root.Left + 140,
+                Top = assetSelector.ControlTopAbsoluteCoordinate - assetSelector.Root.Top + assetSelector.Height - 8,
+                Width = assetSelector.Width - 140,
+            };
+            // If there is no place to put the list box under the control then is moved up.
+            if (assetTypeListBox.ControlTopAbsoluteCoordinate + assetTypeListBox.Height > Screen.Height)
+                assetTypeListBox.Top = assetTypeListBox.Top - assetSelector.Height - assetTypeListBox.Height - 2;
+
+            assetTypeListBox.SkinInformation = new SkinControlInformation(Skin.Controls["ComboBox.ListBox"]);
+            assetTypeListBox.Items.AddRange(assetTypes);
+            ((Container)assetSelector.Root).Add(assetTypeListBox, false);
+            assetTypeListBox.AutoHeight(5);
+
+            UserInterfaceManager.InputSystem.MouseDown += delegate
+            {
+                // If the user click outside the list box then it is hide.
+                if (assetTypeListBox.Visible &&
+                   (Mouse.Position.X < assetTypeListBox.ControlLeftAbsoluteCoordinate ||
+                    Mouse.Position.X > assetTypeListBox.ControlLeftAbsoluteCoordinate + assetTypeListBox.Width ||
+                    Mouse.Position.Y < assetTypeListBox.ControlTopAbsoluteCoordinate ||
+                    Mouse.Position.Y > assetTypeListBox.ControlTopAbsoluteCoordinate + assetTypeListBox.Height))
+                {
+                    assetTypeListBox.Dispose();
+                }
+            };
+            return assetTypeListBox;
+        } // AssetTypeListBox
+
+        #endregion
+
         #endregion
 
         #region Image Box

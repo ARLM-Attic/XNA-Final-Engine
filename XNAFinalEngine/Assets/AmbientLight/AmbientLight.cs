@@ -114,7 +114,7 @@ namespace XNAFinalEngine.Assets
 
         public AmbientLight()
         {
-            Name = "Post Process-" + nameNumber;
+            Name = "Ambient Light-" + nameNumber;
             nameNumber++;
             SphericalHarmonicLighting = new SphericalHarmonicL2();
             SphericalHarmonicLighting.Fill(0.5f, 0.5f, 0.5f);

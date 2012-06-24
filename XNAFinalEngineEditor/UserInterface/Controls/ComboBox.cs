@@ -207,8 +207,7 @@ namespace XNAFinalEngine.UserInterface
         {
             base.Init();
 
-            listCombo.Click     += ListComboClick;
-            listCombo.FocusLost += ListComboFocusLost;
+            listCombo.Click += ListComboClick;
             UserInterfaceManager.InputSystem.MouseDown += InputMouseDown;
 
             listCombo.SkinInformation = new SkinControlInformation(Skin.Controls["ComboBox.ListBox"]);
@@ -284,12 +283,10 @@ namespace XNAFinalEngine.UserInterface
                     ItemIndex = listCombo.ItemIndex;
                 }
             }
+            // The focus was removed to assure that the list box is focused.
+            CanFocus = true;
+            Focused = true;
         } // ListComboClick
-
-        void ListComboFocusLost(object sender, EventArgs e)
-        {
-            Invalidate();
-        } // ListComboFocusLost
 
         #endregion
 
@@ -315,13 +312,23 @@ namespace XNAFinalEngine.UserInterface
                 }
 
                 listCombo.AutoHeight(maxItems);
+                // If there is no place to put the list box under the control then is moved up.
                 if (listCombo.ControlTopAbsoluteCoordinate + listCombo.Height > Screen.Height)
-                {
                     listCombo.Top = listCombo.Top - Height - listCombo.Height - 2;
-                }
 
                 listCombo.Visible = !listCombo.Visible;
-                listCombo.Focused = true;
+                if (listCombo.Visible)
+                {
+                    // The focus is removed to assure that the list box is focused.
+                    CanFocus = false;
+                    listCombo.Focused = true;
+                }
+                else
+                {
+                    // The focus was removed to assure that the list box is focused.
+                    CanFocus = true;
+                    Focused = true;
+                }
                 listCombo.Width = Width;
             }
         } // ButtonDownClick
@@ -336,8 +343,10 @@ namespace XNAFinalEngine.UserInterface
                 (e.Position.X >= ControlLeftAbsoluteCoordinate &&
                  e.Position.X <= ControlLeftAbsoluteCoordinate + Width &&
                  e.Position.Y >= ControlTopAbsoluteCoordinate &&
-                 e.Position.Y <= ControlTopAbsoluteCoordinate + Height)) return;
+                 e.Position.Y <= ControlTopAbsoluteCoordinate + Height))
+                return;
 
+            // If the user click outside the list box then it is hide.
             if (listCombo.Visible &&
                (e.Position.X < listCombo.ControlLeftAbsoluteCoordinate ||
                 e.Position.X > listCombo.ControlLeftAbsoluteCoordinate + listCombo.Width ||
@@ -370,7 +379,7 @@ namespace XNAFinalEngine.UserInterface
         {
             base.OnMouseDown(e);
             if (ReadOnly && e.Button == MouseButton.Left)
-                ButtonDownClick(this, new MouseEventArgs());
+                ButtonDownClick(this, e);
         } // OnMouseDown
 
         protected virtual void OnMaxItemsChanged(EventArgs e)

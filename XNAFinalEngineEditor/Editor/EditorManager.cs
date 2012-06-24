@@ -746,7 +746,16 @@ namespace XNAFinalEngine.Editor
                 checkBoxVisible.CheckedChanged += delegate
                 {
                 };
+            }
 
+            #endregion
+
+            #region Camera
+
+            if (selectedObject.Camera != null)
+            {
+                panel = CommonControls.PanelCollapsible("Camera", rightPanelTabControl, 0);
+                CameraControls.AddControls(selectedObject.Camera, panel);
             }
 
             #endregion

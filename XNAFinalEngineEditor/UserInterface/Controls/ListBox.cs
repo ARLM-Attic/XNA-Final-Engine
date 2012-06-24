@@ -31,7 +31,7 @@ namespace XNAFinalEngine.UserInterface
         #region Variables
         
         private List<object> items = new List<object>();
-        private readonly ScrollBar sbVert;
+        private readonly ScrollBar scrollBarVertical;
         private readonly ClipBox pane;
         private int itemIndex = -1;
         private bool hotTrack;
@@ -116,24 +116,24 @@ namespace XNAFinalEngine.UserInterface
             Height = 64;
             MinimumHeight = 16;
 
-            sbVert = new ScrollBar(Orientation.Vertical)
+            scrollBarVertical = new ScrollBar(Orientation.Vertical)
             {
                 Parent = this, 
                 Range = 1, 
                 PageSize = 1,
                 StepSize = 10
             };
-            sbVert.Left = Left + Width - sbVert.Width - SkinInformation.Layers["Control"].ContentMargins.Right;
-            sbVert.Top = Top + SkinInformation.Layers["Control"].ContentMargins.Top;
-            sbVert.Height = Height - SkinInformation.Layers["Control"].ContentMargins.Vertical;
-            sbVert.Anchor = Anchors.Top | Anchors.Right | Anchors.Bottom;
+            scrollBarVertical.Left = Left + Width - scrollBarVertical.Width - SkinInformation.Layers["Control"].ContentMargins.Right;
+            scrollBarVertical.Top = Top + SkinInformation.Layers["Control"].ContentMargins.Top;
+            scrollBarVertical.Height = Height - SkinInformation.Layers["Control"].ContentMargins.Vertical;
+            scrollBarVertical.Anchor = Anchors.Top | Anchors.Right | Anchors.Bottom;
             
             pane = new ClipBox
             {
                 Parent = this,
                 Top = SkinInformation.Layers["Control"].ContentMargins.Top,
                 Left = SkinInformation.Layers["Control"].ContentMargins.Left,
-                Width = Width - sbVert.Width - SkinInformation.Layers["Control"].ContentMargins.Horizontal - 1,
+                Width = Width - scrollBarVertical.Width - SkinInformation.Layers["Control"].ContentMargins.Horizontal - 1,
                 Height = Height - SkinInformation.Layers["Control"].ContentMargins.Vertical,
                 Anchor = Anchors.All,
                 Passive = true,
@@ -167,23 +167,27 @@ namespace XNAFinalEngine.UserInterface
 
         public virtual void AutoHeight(int maxItems)
         {
-            if (items != null && items.Count < maxItems) maxItems = items.Count;
+            if (items != null && items.Count < maxItems) 
+                maxItems = items.Count;
             if (maxItems < 3)
             {
-                sbVert.Visible = false;
+                // No scroll bar for 3 or few items.
+                scrollBarVertical.Visible = false;
                 pane.Width = Width - SkinInformation.Layers["Control"].ContentMargins.Horizontal - 1;
             }
             else
             {
-                pane.Width = Width - sbVert.Width - SkinInformation.Layers["Control"].ContentMargins.Horizontal - 1;
-                sbVert.Visible = true;
+                // Reduce pane size to place the scroll bar.
+                scrollBarVertical.Visible = true;
+                pane.Width = Width - scrollBarVertical.Width - SkinInformation.Layers["Control"].ContentMargins.Horizontal - 1;
             }
 
             SkinText font = SkinInformation.Layers["Control"].Text;
             if (items != null && items.Count > 0)
             {
-                int h = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
-                Height = (h * maxItems) + (SkinInformation.Layers["Control"].ContentMargins.Vertical);// - Skin.OriginMargins.Vertical);
+                // Calculate the height of the list box.
+                int fontHeight = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
+                Height = (fontHeight * maxItems) + (SkinInformation.Layers["Control"].ContentMargins.Vertical);// - Skin.OriginMargins.Vertical);
             }
             else
             {
@@ -200,7 +204,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected override void DrawControl(Rectangle rect)
         {
-            sbVert.Invalidate();
+            scrollBarVertical.Invalidate();
             pane.Invalidate();
             base.DrawControl(rect);
         } // DrawControl
@@ -209,29 +213,29 @@ namespace XNAFinalEngine.UserInterface
         {
             if (items != null && items.Count > 0)
             {
-                SkinText font = SkinInformation.Layers["Control"].Text;
-                SkinLayer sel = SkinInformation.Layers["ListBox.Selection"];
-                int h = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
-                int v = (sbVert.Value / 10);
-                int p = (sbVert.PageSize / 10);
-                int d = (int)(((sbVert.Value % 10) / 10f) * h);
-                int c = items.Count;
-                int s = itemIndex;
-
+                SkinText  fontLayer = SkinInformation.Layers["Control"].Text;
+                SkinLayer selectedLayer = SkinInformation.Layers["ListBox.Selection"];
+                int fontHeight = (int)fontLayer.Font.Font.MeasureString(items[0].ToString()).Y;
+                int v = (scrollBarVertical.Value / 10);
+                int p = (scrollBarVertical.PageSize / 10);
+                int d = (int)(((scrollBarVertical.Value % 10) / 10f) * fontHeight);
+                // Draw elements
                 for (int i = v; i <= v + p + 1; i++)
                 {
-                    if (i < c)
+                    if (i < items.Count)
                     {
-                        Renderer.DrawString(this, SkinInformation.Layers["Control"], items[i].ToString(), new Rectangle(e.Rectangle.Left, e.Rectangle.Top - d + ((i - v) * h), e.Rectangle.Width, h), false);
+                        Renderer.DrawString(this, SkinInformation.Layers["Control"], items[i].ToString(),
+                                            new Rectangle(e.Rectangle.Left, e.Rectangle.Top - d + ((i - v) * fontHeight), e.Rectangle.Width, fontHeight), false);
                     }
                 }
-                if (s >= 0 && s < c && (Focused || !hideSelection))
+                // Draw selection
+                if (itemIndex >= 0 && itemIndex < items.Count && (Focused || !hideSelection))
                 {
-                    int pos = -d + ((s - v) * h);
-                    if (pos > -h && pos < (p + 1) * h)
+                    int pos = -d + ((itemIndex - v) * fontHeight);
+                    if (pos > -fontHeight && pos < (p + 1) * fontHeight)
                     {
-                        Renderer.DrawLayer(this, sel, new Rectangle(e.Rectangle.Left, e.Rectangle.Top + pos, e.Rectangle.Width, h));
-                        Renderer.DrawString(this, sel, items[s].ToString(), new Rectangle(e.Rectangle.Left, e.Rectangle.Top + pos, e.Rectangle.Width, h), false);
+                        Renderer.DrawLayer(this, selectedLayer, new Rectangle(e.Rectangle.Left, e.Rectangle.Top + pos, e.Rectangle.Width, fontHeight));
+                        Renderer.DrawString(this, selectedLayer, items[itemIndex].ToString(), new Rectangle(e.Rectangle.Left, e.Rectangle.Top + pos, e.Rectangle.Width, fontHeight), false);
                     }
                 }
             }
@@ -262,8 +266,8 @@ namespace XNAFinalEngine.UserInterface
             {
                 SkinText font = SkinInformation.Layers["Control"].Text;
                 int h = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
-                int i = (int)Math.Floor((sbVert.Value / 10f) + ((float)y / h));
-                if (i >= 0 && i < Items.Count && i >= (int)Math.Floor((float)sbVert.Value / 10f) && i < (int)Math.Ceiling((float)(sbVert.Value + sbVert.PageSize) / 10f)) ItemIndex = i;
+                int i = (int)Math.Floor((scrollBarVertical.Value / 10f) + ((float)y / h));
+                if (i >= 0 && i < Items.Count && i >= (int)Math.Floor((float)scrollBarVertical.Value / 10f) && i < (int)Math.Ceiling((float)(scrollBarVertical.Value + scrollBarVertical.PageSize) / 10f)) ItemIndex = i;
                 Focused = true;
             }
         } // TrackItem
@@ -280,14 +284,14 @@ namespace XNAFinalEngine.UserInterface
                 int h = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
 
                 int sizev = Height - SkinInformation.Layers["Control"].ContentMargins.Vertical;
-                sbVert.Range = items.Count * 10;
-                sbVert.PageSize = (int)Math.Floor((float)sizev * 10 / h);
+                scrollBarVertical.Range = items.Count * 10;
+                scrollBarVertical.PageSize = (int)Math.Floor((float)sizev * 10 / h);
                 Invalidate();
             }
             else if (items == null || items.Count <= 0)
             {
-                sbVert.Range = 1;
-                sbVert.PageSize = 1;
+                scrollBarVertical.Range = 1;
+                scrollBarVertical.PageSize = 1;
                 Invalidate();
             }
         } // ItemsChanged
@@ -299,13 +303,13 @@ namespace XNAFinalEngine.UserInterface
         public virtual void ScrollTo(int index)
         {
             ItemsChanged();
-            if ((index * 10) < sbVert.Value)
+            if ((index * 10) < scrollBarVertical.Value)
             {
-                sbVert.Value = index * 10;
+                scrollBarVertical.Value = index * 10;
             }
-            else if (index >= (int)Math.Floor(((float)sbVert.Value + sbVert.PageSize) / 10f))
+            else if (index >= (int)Math.Floor(((float)scrollBarVertical.Value + scrollBarVertical.PageSize) / 10f))
             {
-                sbVert.Value = ((index + 1) * 10) - sbVert.PageSize;
+                scrollBarVertical.Value = ((index + 1) * 10) - scrollBarVertical.PageSize;
             }
         } // ScrollTo
 
@@ -332,22 +336,22 @@ namespace XNAFinalEngine.UserInterface
             if (e.Key == Keys.Down)
             {
                 e.Handled = true;
-                itemIndex += sbVert.StepSize / 10;
+                itemIndex += scrollBarVertical.StepSize / 10;
             }
             else if (e.Key == Keys.Up)
             {
                 e.Handled = true;
-                itemIndex -= sbVert.StepSize / 10;
+                itemIndex -= scrollBarVertical.StepSize / 10;
             }
             else if (e.Key == Keys.PageDown)
             {
                 e.Handled = true;
-                itemIndex += sbVert.PageSize / 10;
+                itemIndex += scrollBarVertical.PageSize / 10;
             }
             else if (e.Key == Keys.PageUp)
             {
                 e.Handled = true;
-                itemIndex -= sbVert.PageSize / 10;
+                itemIndex -= scrollBarVertical.PageSize / 10;
             }
             else if (e.Key == Keys.Home)
             {

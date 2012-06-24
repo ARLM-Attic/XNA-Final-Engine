@@ -121,16 +121,6 @@ namespace XNAFinalEngine.UserInterface
             };
             TextChanged += delegate { label.Text = Text; };
 
-            comboBox = new ComboBox
-            {
-                Parent = this,
-                Left = 180,
-                Height = 20,
-                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
-                MaxItemsShow = 25,
-                Width = 235,
-            };
-
             buttonAdd = new Button
             {
                 Parent = this,
@@ -151,9 +141,21 @@ namespace XNAFinalEngine.UserInterface
                 Height = 20,
                 ToolTip = { Text = "Edit current asset" },
                 Text = "E",
-                Enabled = comboBox.ItemIndex > 0,
+                
             };
             buttonEdit.Click += delegate { OnAssetEdited(new EventArgs()); };
+
+            comboBox = new ComboBox
+            {
+                Parent = this,
+                Left = 180,
+                Height = 20,
+                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
+                MaxItemsShow = 25,
+                Width = 235,
+            };
+
+            buttonEdit.Enabled = comboBox.ItemIndex > 0;
 
             comboBox.MaxItemsChanged  += delegate { OnMaxItemsChanged(new EventArgs()); };
             comboBox.ItemIndexChanged += delegate { OnItemIndexChanged(new EventArgs()); };
