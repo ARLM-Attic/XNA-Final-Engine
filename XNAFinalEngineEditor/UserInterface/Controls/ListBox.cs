@@ -169,7 +169,7 @@ namespace XNAFinalEngine.UserInterface
         {
             if (items != null && items.Count < maxItems) 
                 maxItems = items.Count;
-            if (maxItems < 3)
+            if (items == null || items.Count == maxItems)
             {
                 // No scroll bar for 3 or few items.
                 scrollBarVertical.Visible = false;

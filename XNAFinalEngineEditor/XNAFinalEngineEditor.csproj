@@ -93,6 +93,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Editor\Controls\Assets\PostProcessControls.cs" />
     <Compile Include="Editor\Controls\Assets\TextureControls.cs" />
     <Compile Include="Editor\Controls\AssetWindow.cs" />
     <Compile Include="Editor\Controls\Components\CameraControls.cs" />

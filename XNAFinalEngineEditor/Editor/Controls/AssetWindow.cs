@@ -307,8 +307,10 @@ namespace XNAFinalEngine.Editor
 
             if (typeof(TAssetType) == typeof(Texture))
                 TextureControls.AddControls((Texture)asset, window, comboBoxResource);
+            else if (typeof(TAssetType) == typeof(PostProcess))
+                PostProcessControls.AddControls((PostProcess) asset, window, comboBoxResource);
 
-            #endregion
+            #endregion);
 
             if (assetCreation)
             {
@@ -339,6 +341,8 @@ namespace XNAFinalEngine.Editor
 
             window.AdjustHeightFromChildren();
             window.Height += 5;
+            if (window.Height > 500)
+                window.Height = 500;
             return window;
         } // Show
 
