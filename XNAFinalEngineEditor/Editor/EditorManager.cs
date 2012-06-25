@@ -363,10 +363,59 @@ namespace XNAFinalEngine.Editor
                 }
                 buttonSpace.Focused = false;
             };
+
+            Texture playTexture = new Texture("Editor\\PlayIconNotPressed");
+            Texture playPressedTexture = new Texture("Editor\\PlayIcon");
+            Button buttonPlay = new Button
+            {
+                Left = Screen.Width / 2 - 50,
+                Top = 2,
+                Height = 32,
+                Width = 32,
+                Glyph = new Glyph(playTexture) { SizeMode = SizeMode.Normal },
+                Parent = toolBarTopPanel,
+                CanFocus = false,
+            };
+            buttonPlay.Click += delegate
+            {
+                buttonPlay.Glyph.Texture = buttonPlay.Glyph.Texture == playTexture ? playPressedTexture : playTexture;
+            };
+            Texture pauseTexture = new Texture("Editor\\PauseIconNotPressed");
+            Texture pausePressedTexture = new Texture("Editor\\PauseIcon");
+            Button buttonPause = new Button
+            {
+                Left = buttonPlay.Left + 34,
+                Top = 2,
+                Height = 32,
+                Width = 32,
+                Glyph = new Glyph(pauseTexture) { SizeMode = SizeMode.Normal },
+                Parent = toolBarTopPanel,
+                CanFocus = false,
+            };
+            buttonPause.Click += delegate
+            {
+                buttonPause.Glyph.Texture = buttonPause.Glyph.Texture == pauseTexture ? pausePressedTexture : pauseTexture;
+            };
+            Texture stopTexture = new Texture("Editor\\StopIconNotPressed");
+            Texture stopPressedTexture = new Texture("Editor\\StopIcon");
+            Button buttonStop = new Button
+            {
+                Left = buttonPlay.Left + 68,
+                Top = 2,
+                Height = 32,
+                Width = 32,
+                Glyph = new Glyph(stopTexture) { SizeMode = SizeMode.Normal },
+                Parent = toolBarTopPanel,
+                CanFocus = false,
+            };
+            buttonStop.Click += delegate
+            {
+                buttonStop.Glyph.Texture = buttonStop.Glyph.Texture == stopTexture ? stopPressedTexture : stopTexture;
+            };
             TabControl tabControlRenderSpace = new TabControl
             {
                 Left = 0,
-                Top = buttonSpace.Top + buttonSpace.Height + 5,
+                Top = buttonSpace.Top + buttonSpace.Height + 15,
                 Width = 150,
                 Height = 20,
                 Anchor = Anchors.All,
