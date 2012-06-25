@@ -109,7 +109,7 @@ namespace XNAFinalEngine.Assets
             set
             {
                 depthBias = value;
-                if (value < 0.0f)
+                if (value < 0f)
                     depthBias = 0;
                 if (value > 0.1f)
                     depthBias = 0.1f;

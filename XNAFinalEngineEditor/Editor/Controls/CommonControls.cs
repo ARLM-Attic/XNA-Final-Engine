@@ -29,7 +29,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Xna.Framework;
@@ -52,7 +52,10 @@ namespace XNAFinalEngine.Editor
         #region Variables
 
         // Stores the initial value when the slider is moving.
-        private static float sliderNumericOldValue;
+        private static int sliderNumericOldIntValue;
+
+        // Stores the initial value when the slider is moving.
+        private static float sliderNumericOldFloatValue;
 
         // Stores the initial value when the slider is moving.
         private static Color sliderColorOldValue;
@@ -218,9 +221,9 @@ namespace XNAFinalEngine.Editor
         /// <param name="maximumValue">Maximum value.</param>
         /// <param name="propertyOwner">The object to manipualte</param>
         /// <param name="propertyName">The property name.</param>
-        public static SliderNumeric SliderNumeric(string name, ClipControl parent, float initialValue,
-                                                  bool ifOutOfRangeRescale, bool valueCanBeOutOfRange,
-                                                  float minimumValue, float maximumValue, object propertyOwner, string propertyName)
+        public static SliderNumeric SliderNumericFloat(string name, ClipControl parent, float initialValue,
+                                                       bool ifOutOfRangeRescale, bool valueCanBeOutOfRange,
+                                                       float minimumValue, float maximumValue, object propertyOwner, string propertyName)
         {
             var sliderNumeric = SliderNumeric(name, parent, initialValue, ifOutOfRangeRescale, valueCanBeOutOfRange, minimumValue, maximumValue);
 
@@ -248,12 +251,12 @@ namespace XNAFinalEngine.Editor
                     }
                 }
             };
-            sliderNumeric.SliderDown += delegate { sliderNumericOldValue = (float)property.GetValue(propertyOwner, null); };
+            sliderNumeric.SliderDown += delegate { sliderNumericOldFloatValue = (float)property.GetValue(propertyOwner, null); };
             sliderNumeric.SliderUp += delegate
             {
-                if (sliderNumeric.Value != sliderNumericOldValue)
+                if (sliderNumeric.Value != sliderNumericOldFloatValue)
                 {
-                    property.SetValue(propertyOwner, sliderNumericOldValue, null); // We put temporarely the initial value.
+                    property.SetValue(propertyOwner, sliderNumericOldFloatValue, null); // We put temporarely the initial value.
                     using (Transaction.Create())
                     {
                         // Apply the command and store for the undo feature.
@@ -268,7 +271,72 @@ namespace XNAFinalEngine.Editor
             sliderNumeric.Draw += delegate { sliderNumeric.Value = (float)property.GetValue(propertyOwner, null); };
 
             return sliderNumeric;
-        } // SliderNumeric
+        } // SliderNumericFloat
+
+        /// <summary>
+        /// Returns a numeric slider control placed in the first free spot.
+        /// It automatically manages the property setting, undo and redo.
+        /// </summary>
+        /// <param name="name">Label name.</param>
+        /// <param name="parent">Parent.</param>
+        /// <param name="initialValue">Initial value.</param>
+        /// <param name="ifOutOfRangeRescale">If the value is out of range, is rescaled or not?</param>
+        /// <param name="valueCanBeOutOfRange">Can the value be out of range?</param>
+        /// <param name="minimumValue">Minimum value.</param>
+        /// <param name="maximumValue">Maximum value.</param>
+        /// <param name="propertyOwner">The object to manipualte</param>
+        /// <param name="propertyName">The property name.</param>
+        public static SliderNumeric SliderNumericInt(string name, ClipControl parent, int initialValue,
+                                                     bool ifOutOfRangeRescale, bool valueCanBeOutOfRange,
+                                                     float minimumValue, float maximumValue, object propertyOwner, string propertyName)
+        {
+            var sliderNumeric = SliderNumeric(name, parent, initialValue, ifOutOfRangeRescale, valueCanBeOutOfRange, minimumValue, maximumValue);
+
+            PropertyInfo property = propertyOwner.GetType().GetProperty(propertyName);
+            sliderNumeric.ValueChanged += delegate
+            {
+                if (Convert.ToInt32(sliderNumeric.Value) != (int)property.GetValue(propertyOwner, null))
+                {
+                    // If it was set by the text box
+                    if (!Mouse.LeftButtonJustReleased && !Mouse.LeftButtonPressed)
+                    {
+                        using (Transaction.Create())
+                        {
+                            // Apply the command and store for the undo feature.
+                            ActionManager.SetProperty(propertyOwner, propertyName, Convert.ToInt32(sliderNumeric.Value));
+                            ActionManager.CallMethod(// Redo
+                                                     UserInterfaceManager.Invalidate,
+                                                     // Undo
+                                                     UserInterfaceManager.Invalidate);
+                        }
+                    }
+                    else
+                    {
+                        property.SetValue(propertyOwner, Convert.ToInt32(sliderNumeric.Value), null);
+                    }
+                }
+            };
+            sliderNumeric.SliderDown += delegate { sliderNumericOldIntValue = (int)property.GetValue(propertyOwner, null); };
+            sliderNumeric.SliderUp += delegate
+            {
+                if (Convert.ToInt32(sliderNumeric.Value) != sliderNumericOldIntValue)
+                {
+                    property.SetValue(propertyOwner, sliderNumericOldIntValue, null); // We put temporarely the initial value.
+                    using (Transaction.Create())
+                    {
+                        // Apply the command and store for the undo feature.
+                        ActionManager.SetProperty(propertyOwner, propertyName, Convert.ToInt32(sliderNumeric.Value));
+                        ActionManager.CallMethod(// Redo
+                                                 UserInterfaceManager.Invalidate,
+                                                 // Undo
+                                                 UserInterfaceManager.Invalidate);
+                    }
+                }
+            };
+            sliderNumeric.Draw += delegate { sliderNumeric.Value = (int)property.GetValue(propertyOwner, null); };
+
+            return sliderNumeric;
+        } // SliderNumericInt
 
         #endregion
 
@@ -533,6 +601,18 @@ namespace XNAFinalEngine.Editor
                         assetTypeListBox.Dispose();
                     };
                 }
+                else if (typeof(TAssetType) == typeof(AmbientOcclusion))
+                {
+                    var assetTypeListBox = AssetTypeListBox(assetSelector, propertyOwner, propertyName, new[] { "Horizon Based Ambient Occlusion", "Ray Marching Ambient Occlusion" });
+                    assetTypeListBox.Click += delegate
+                    {
+                        if (assetTypeListBox.ItemIndex == 0)
+                            CreateAsset<HorizonBasedAmbientOcclusion>(assetSelector, propertyOwner, propertyName);
+                        else
+                            CreateAsset<RayMarchingAmbientOcclusion>(assetSelector, propertyOwner, propertyName);
+                        assetTypeListBox.Dispose();
+                    };
+                }
                 else
                     CreateAsset<TAssetType>(assetSelector, propertyOwner, propertyName);
             };
@@ -545,8 +625,14 @@ namespace XNAFinalEngine.Editor
             {
                 if (property.GetValue(propertyOwner, null) is Skybox)
                     AssetWindow.Show<Skybox>((Asset)property.GetValue(propertyOwner, null));
-                if (property.GetValue(propertyOwner, null) is Skybox)
+                else if (property.GetValue(propertyOwner, null) is Skydome)
                     AssetWindow.Show<Skydome>((Asset)property.GetValue(propertyOwner, null));
+                else if (property.GetValue(propertyOwner, null) is HorizonBasedAmbientOcclusion)
+                    AssetWindow.Show<HorizonBasedAmbientOcclusion>((Asset)property.GetValue(propertyOwner, null));
+                else if (property.GetValue(propertyOwner, null) is RayMarchingAmbientOcclusion)
+                    AssetWindow.Show<RayMarchingAmbientOcclusion>((Asset)property.GetValue(propertyOwner, null));
+                else if (property.GetValue(propertyOwner, null) is BasicShadow)
+                    AssetWindow.Show<BasicShadow>((Asset)property.GetValue(propertyOwner, null));
                 else
                     AssetWindow.Show<TAssetType>((Asset)property.GetValue(propertyOwner, null));
             };

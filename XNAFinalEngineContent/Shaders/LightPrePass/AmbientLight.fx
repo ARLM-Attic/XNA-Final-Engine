@@ -31,11 +31,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 //////////////////////////////////////////////
 
 float2 halfPixel;
-
+float3 color;
 float3x3 viewI;
-
-float intensity = 0.1f;
-
+float intensity;
 float ambientOcclusionStrength;
 
 //////////////////////////////////////////////
@@ -83,47 +81,63 @@ VS_OUT vs_main(in float4 position : POSITION, in float2 uv : TEXCOORD)
 //////////////////////////////////////////////
 
 // This shader works in view space.
-float4 ps_mainSH(in float2 uv : TEXCOORD0) : COLOR0
+float4 ps_main(uniform bool sphericalHarmonicsEnabled, uniform bool ambientOcclusionEnabled, in float2 uv : TEXCOORD0) : COLOR0
 {	
-	float3 N = SampleNormal(uv);
-
-	// Normal (view space) to world space
-	N = normalize(mul(N, viewI));
-			
-	return float4(SampleSH(N) * intensity, 0);
-} // ps_mainSH
-
-// This shader works in view space.
-float4 ps_mainSHSSAO(in float2 uv : TEXCOORD0) : COLOR0
-{	
-	float3 N = SampleNormal(uv);
-
-	// Normal (view space) to world space
-	N = normalize(mul(N, viewI));	
-
-	float ssao = tex2D(ambientOcclusionSample, uv).r;
+	float3 baseColor = color;
+	float  ambientOcclusion = 0;
 		
-	return float4(SampleSH(N) * intensity * pow(ssao, ambientOcclusionStrength), 0);
-} // ps_mainSHSSAO
+	if (sphericalHarmonicsEnabled)
+	{
+		float3 N = SampleNormal(uv);
+		// Normal (view space) to world space
+		N = normalize(mul(N, viewI));
+		baseColor += SampleSH(N);
+	}
+		
+	if (ambientOcclusionEnabled)
+	{
+		ambientOcclusion = tex2D(ambientOcclusionSample, uv).r;
+	}
+		
+	return float4(baseColor * intensity * pow(ambientOcclusion, ambientOcclusionStrength), 0);
+} // ps_main
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-technique AmbientLightSH
+technique AmbientLightSphericalHarmonics
 {
 	pass p0
 	{
 		VertexShader = compile vs_3_0 vs_main();
-		PixelShader  = compile ps_3_0 ps_mainSH();
+		PixelShader  = compile ps_3_0 ps_main(true, false);
 	}
-} // AmbientLightSH
+} // AmbientLightSphericalHarmonics
 
-technique AmbientLightSHSSAO
+technique AmbientLightSphericalHarmonicsAmbientOcclusion
 {
 	pass p0
 	{
 		VertexShader = compile vs_3_0 vs_main();
-		PixelShader  = compile ps_3_0 ps_mainSHSSAO();
+		PixelShader  = compile ps_3_0 ps_main(true, true);
 	}
-} // AmbientLightSHSSAO
+} // AmbientLightSphericalHarmonicsAmbientOcclusion
+
+technique AmbientLightAmbientOcclusion
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 ps_main(false, true);
+	}
+} // AmbientLightAmbientOcclusion
+
+technique AmbientLight
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 ps_main(false, false);
+	}
+} // AmbientLight

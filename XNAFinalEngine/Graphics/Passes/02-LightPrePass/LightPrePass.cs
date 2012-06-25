@@ -95,7 +95,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the G-Buffer render.
         /// </summary>
-        internal static void Begin(Size size, Color ambientLightColor)
+        internal static void Begin(Size size)
         {
             try
             {
@@ -130,7 +130,7 @@ namespace XNAFinalEngine.Graphics
                         RenderTarget.EnableRenderTargets(renderTargetBinding);
                     #endif*/
 
-                    RenderTarget.ClearCurrentRenderTargets(new Color(ambientLightColor.R, ambientLightColor.G, ambientLightColor.B, 0));
+                    RenderTarget.ClearCurrentRenderTargets(new Color(0, 0, 0, 0));
             } // try
             catch (Exception e)
             {

@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -28,76 +28,61 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
+#region Using directives
+using Microsoft.Xna.Framework.Graphics;
+#endregion
+
 namespace XNAFinalEngine.Assets
 {
     /// <summary>
-    /// Horizon Based Screen Space Ambient Occlusion.
+    /// Ray Marching Screen Space Ambient Occlusion.
     /// </summary>
     /// <remarks>
-    /// Important: I have to put constants in the shader's for sentences.
-    /// If you want to change the number of steps and the number of directions will need to change the properties and the shader code.
+    /// Horizon Based is similar in performance but better in results.
+    /// However this is a good example of how to make raymarching shaders, and the results are not bad either.
     /// 
-    /// This shader is baded in a Shader X 7 article with some minor modifications.
+    /// This shader is baded in a Shader X 7 article.
     /// </remarks>
-    public class HorizonBasedAmbientOcclusion : AmbientOcclusion
+    public class RayMarchingAmbientOcclusion : AmbientOcclusion
     {
-
-        #region Enumerates
-
-        public enum QualityType
-        {   
-            LowQuality,
-            MiddleQuality,
-            HighQuality,
-        } // QualityType
-
-        #endregion
 
         #region Variables
 
+        // The count of assets for naming purposes.
+        private static int nameNumber = 1;
+        
         // Number of Steps.
-        // The far samplers have a lower effect in the result. This controls how faster their weight decay.
-        private int numberSteps = 6;
+        // It’s a sensitive performance parameter.
+        private float numberSteps = 4.0f;
+
+        // Number of Rays.
+        // It’s a sensitive performance parameter.
+        private float numberRays = 4.0f;
 
         // Number of Directions.
-        // The far samplers have a lower effect in the result. This controls how faster their weight decay.
-        private int numberDirections = 10;
+        // It’s a sensitive performance parameter.
+        private float numberDirections = 6.0f;
 
         // Contrast.
-        private float contrast = 0.8f;
+        private float contrast = 1;
 
         // Line Attenuation.
         // The far samplers have a lower effect in the result. This controls how faster their weight decay.
-        private float lineAttenuation = 1.2f;
-        
+        private float lineAttenuation = 1f;
+
         // Radius.
         // Bigger the radius more cache misses will occur. Be careful!!
-        private float radius = 0.015f;
-
-        // Angle Bias (grades).
-        private float angleBias = 30f * 3.1416f / 180f;
-
-        // High quality is the best and the faster I think.
-        private QualityType quality = QualityType.HighQuality;
+        private float radius = 0.01f;
 
         #endregion
 
         #region Properties
-        
-        /// <summary>
-        /// Quality.
-        /// </summary>
-        public QualityType Quality
-        {
-            get { return quality; }
-            set { quality = value; }
-        } // Quality
 
         /// <summary>
-        /// Number of Steps
-        /// The far samplers have a lower effect in the result. This controls how faster their weight decay.
+        /// Number of Steps.
+        /// It’s a sensitive performance parameter.
         /// </summary>
-        public int NumberSteps
+        public float NumberSteps
         {
             get { return numberSteps; }
             set
@@ -109,10 +94,25 @@ namespace XNAFinalEngine.Assets
         } // NumberSteps
 
         /// <summary>
-        /// Number of Directions
-        /// The far samplers have a lower effect in the result. This controls how faster their weight decay.
+        /// Number of Rays.
+        /// It’s a sensitive performance parameter.
         /// </summary>
-        public int NumberDirections
+        public float NumberRays
+        {
+            get { return numberRays; }
+            set
+            {
+                numberRays = value;
+                if (numberRays <= 0)
+                    numberRays = 0;
+            }
+        } // NumberRays
+
+        /// <summary>
+        /// Number of Directions.
+        /// It’s a sensitive performance parameter.
+        /// </summary>
+        public float NumberDirections
         {
             get { return numberDirections; }
             set
@@ -139,6 +139,7 @@ namespace XNAFinalEngine.Assets
 
         /// <summary>
         /// Line Attenuation.
+        /// The far samplers have a lower effect in the result. This controls how faster their weight decay.
         /// </summary>
         public float LineAttenuation
         {
@@ -168,23 +169,17 @@ namespace XNAFinalEngine.Assets
             }
         } // Radius
 
-        /// <summary>
-        /// Angle Bias (grades)
-        /// </summary>
-        public float AngleBias
+        #endregion
+
+        #region Constructor
+
+        public RayMarchingAmbientOcclusion()
         {
-            get { return angleBias; }
-            set
-            {
-                angleBias = value * 3.1416f / 180f;
-                if (angleBias <= 0)
-                    angleBias = 0;
-                if (angleBias > 1)
-                    angleBias = 1;
-            }
-        } // AngleBias
+            Name = "Ray Marching Ambient Occlusion-" + nameNumber;
+            nameNumber++;
+        } // RayMarchingAmbientOcclusion
 
         #endregion
 
-    } // HorizonBasedAmbientOcclusion
+    } // RayMarchingAmbientOcclusion
 } // XNAFinalEngine.Assets

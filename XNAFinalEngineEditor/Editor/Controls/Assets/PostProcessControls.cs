@@ -48,23 +48,23 @@ namespace XNAFinalEngine.Editor
 
             GroupBox groupToneMapping = CommonControls.Group("Tone Mapping", owner);
             // Lens Exposure
-            var sliderLensExposure = CommonControls.SliderNumeric("Lens Exposure", groupToneMapping, asset.ToneMapping.LensExposure, true, true, -10, 10,
+            var sliderLensExposure = CommonControls.SliderNumericFloat("Lens Exposure", groupToneMapping, asset.ToneMapping.LensExposure, true, true, -10, 10,
                                                                   asset.ToneMapping, "LensExposure");
             // Auto Exposure Enabled
             CheckBox checkBoxAutoExposureEnabled = CommonControls.CheckBox("Auto Exposure Enabled", groupToneMapping, asset.ToneMapping.AutoExposureEnabled, 
                                                                            asset.ToneMapping, "AutoExposureEnabled");
             // Auto Exposure Adaptation Time Multiplier
-            var sliderAutoExposureAdaptationTimeMultiplier = CommonControls.SliderNumeric("Adaptation Time Multiplier", groupToneMapping,
+            var sliderAutoExposureAdaptationTimeMultiplier = CommonControls.SliderNumericFloat("Adaptation Time Multiplier", groupToneMapping,
                                                                                           asset.ToneMapping.AutoExposureAdaptationTimeMultiplier,
                                                                                           false, true, 0, 10,
                                                                                           asset.ToneMapping, "AutoExposureAdaptationTimeMultiplier");
             // Auto Exposure Luminance Low Threshold
-            var sliderAutoExposureLuminanceLowThreshold = CommonControls.SliderNumeric("Luminance Low Threshold", groupToneMapping,
+            var sliderAutoExposureLuminanceLowThreshold = CommonControls.SliderNumericFloat("Luminance Low Threshold", groupToneMapping,
                                                                                        asset.ToneMapping.AutoExposureLuminanceLowThreshold, false, true, 0, 0.5f,
                                                                                        asset.ToneMapping, "AutoExposureLuminanceLowThreshold");
             // Auto Exposure Luminance High Threshold
 
-            var sliderAutoExposureLuminanceHighThreshold = CommonControls.SliderNumeric("Luminance High Threshold", groupToneMapping,
+            var sliderAutoExposureLuminanceHighThreshold = CommonControls.SliderNumericFloat("Luminance High Threshold", groupToneMapping,
                 asset.ToneMapping.AutoExposureLuminanceHighThreshold, false, true, 0.5f, 20f, asset.ToneMapping, "AutoExposureLuminanceHighThreshold");
             // Auto Exposure Enabled
             checkBoxAutoExposureEnabled.CheckedChanged += delegate
@@ -101,34 +101,34 @@ namespace XNAFinalEngine.Editor
             #endregion
 
             // White Level
-            var sliderWhiteLevel = CommonControls.SliderNumeric("White Level", groupToneMapping, asset.ToneMapping.ToneMappingWhiteLevel,
+            var sliderWhiteLevel = CommonControls.SliderNumericFloat("White Level", groupToneMapping, asset.ToneMapping.ToneMappingWhiteLevel,
                 false, true, 0f, 50f, asset.ToneMapping, "ToneMappingWhiteLevel");
             // Luminance Saturation
-            var sliderLuminanceSaturation = CommonControls.SliderNumeric("Luminance Saturation", groupToneMapping, asset.ToneMapping.ToneMappingLuminanceSaturation,
+            var sliderLuminanceSaturation = CommonControls.SliderNumericFloat("Luminance Saturation", groupToneMapping, asset.ToneMapping.ToneMappingLuminanceSaturation,
                 false, true, 0f, 2f, asset.ToneMapping, "ToneMappingLuminanceSaturation");
             // Drago Bias
-            var sliderDragoBias = CommonControls.SliderNumeric("Drago Bias", groupToneMapping, asset.ToneMapping.DragoBias,
+            var sliderDragoBias = CommonControls.SliderNumericFloat("Drago Bias", groupToneMapping, asset.ToneMapping.DragoBias,
                 false, true, 0f, 1f, asset.ToneMapping, "DragoBias");
             // Shoulder Strength
-            var sliderShoulderStrength = CommonControls.SliderNumeric("Shoulder Strength", groupToneMapping, asset.ToneMapping.Uncharted2ShoulderStrength,
+            var sliderShoulderStrength = CommonControls.SliderNumericFloat("Shoulder Strength", groupToneMapping, asset.ToneMapping.Uncharted2ShoulderStrength,
                 false, true, 0f, 1f, asset.ToneMapping, "Uncharted2ShoulderStrength");
             // Linear Strength
-            var sliderLinearStrength = CommonControls.SliderNumeric("Linear Strength", groupToneMapping, asset.ToneMapping.Uncharted2LinearStrength,
+            var sliderLinearStrength = CommonControls.SliderNumericFloat("Linear Strength", groupToneMapping, asset.ToneMapping.Uncharted2LinearStrength,
                 false, true, 0f, 1f, asset.ToneMapping, "Uncharted2LinearStrength");
             // Linear Angle
-            var sliderLinearAngle = CommonControls.SliderNumeric("Linear Angle", groupToneMapping, asset.ToneMapping.Uncharted2LinearAngle,
+            var sliderLinearAngle = CommonControls.SliderNumericFloat("Linear Angle", groupToneMapping, asset.ToneMapping.Uncharted2LinearAngle,
                 false, true, 0f, 3f, asset.ToneMapping, "Uncharted2LinearAngle");
             // Toe Strength
-            var sliderToeStrength = CommonControls.SliderNumeric("Toe Strength", groupToneMapping, asset.ToneMapping.Uncharted2ToeStrength,
+            var sliderToeStrength = CommonControls.SliderNumericFloat("Toe Strength", groupToneMapping, asset.ToneMapping.Uncharted2ToeStrength,
                 false, true, 0f, 1f, asset.ToneMapping, "Uncharted2ToeStrength");
             // Toe Numerator
-            var sliderToeNumerator = CommonControls.SliderNumeric("Toe Numerator", groupToneMapping, asset.ToneMapping.Uncharted2ToeNumerator,
+            var sliderToeNumerator = CommonControls.SliderNumericFloat("Toe Numerator", groupToneMapping, asset.ToneMapping.Uncharted2ToeNumerator,
                 false, true, 0f, 0.1f, asset.ToneMapping, "Uncharted2ToeNumerator");
             // Toe Denominator
-            var sliderToeDenominator = CommonControls.SliderNumeric("Toe Denominator", groupToneMapping, asset.ToneMapping.Uncharted2ToeDenominator,
+            var sliderToeDenominator = CommonControls.SliderNumericFloat("Toe Denominator", groupToneMapping, asset.ToneMapping.Uncharted2ToeDenominator,
                 false, true, 0f, 1f, asset.ToneMapping, "Uncharted2ToeDenominator");
             // Linear White
-            var sliderLinearWhite = CommonControls.SliderNumeric("Linear White", groupToneMapping, asset.ToneMapping.Uncharted2LinearWhite,
+            var sliderLinearWhite = CommonControls.SliderNumericFloat("Linear White", groupToneMapping, asset.ToneMapping.Uncharted2LinearWhite,
                 false, true, 0f, 40f, asset.ToneMapping, "Uncharted2LinearWhite");
 
             #region Sliders enabled?
@@ -196,9 +196,9 @@ namespace XNAFinalEngine.Editor
             CheckBox checkBoxBloomEnabled = CommonControls.CheckBox("Enabled", groupBloom, asset.Bloom.Enabled,
                 asset.Bloom, "Enabled", "The effect produces fringes (or feathers) of light around very bright objects in an image.");
             // Scale
-            var sliderBloomScale = CommonControls.SliderNumeric("Scale", groupBloom, asset.Bloom.Scale, false, true, 0, 2,  asset.Bloom, "Scale");
+            var sliderBloomScale = CommonControls.SliderNumericFloat("Scale", groupBloom, asset.Bloom.Scale, false, true, 0, 2,  asset.Bloom, "Scale");
             // Threshold
-            var sliderBloomThreshold = CommonControls.SliderNumeric("Threshold", groupBloom, asset.Bloom.Threshold, false, true, 0, 10, asset.Bloom, "Threshold");
+            var sliderBloomThreshold = CommonControls.SliderNumericFloat("Threshold", groupBloom, asset.Bloom.Threshold, false, true, 0, 10, asset.Bloom, "Threshold");
             // Enabled
             checkBoxBloomEnabled.CheckedChanged += delegate
             {
@@ -249,10 +249,10 @@ namespace XNAFinalEngine.Editor
             #endregion
 
             // Threshold Color
-            var sliderMlaaColorThreshold = CommonControls.SliderNumeric("Color Threshold", groupMlaa, asset.MLAA.ThresholdColor,
+            var sliderMlaaColorThreshold = CommonControls.SliderNumericFloat("Color Threshold", groupMlaa, asset.MLAA.ThresholdColor,
                 false, false, 0, 0.5f, asset.MLAA, "ThresholdColor");
             // Threshold Depth
-            var sliderMlaaDepthThreshold = CommonControls.SliderNumeric("Depth Threshold", groupMlaa, asset.MLAA.ThresholdDepth,
+            var sliderMlaaDepthThreshold = CommonControls.SliderNumericFloat("Depth Threshold", groupMlaa, asset.MLAA.ThresholdDepth,
                 false, false, 0, 0.5f, asset.MLAA, "ThresholdDepth");
 
             checkBoxMlaaEnabled.CheckedChanged += delegate
@@ -274,12 +274,12 @@ namespace XNAFinalEngine.Editor
             CheckBox checkBoxFilmGrainEnabled = CommonControls.CheckBox("Enabled", groupFilmGrain, asset.FilmGrain.Enabled, asset.FilmGrain, "Enabled",
                 "Is the random optical texture of processed photographic film.");
             // Strength
-            var sliderFilmgrainStrength = CommonControls.SliderNumeric("Strength", groupFilmGrain, asset.FilmGrain.Strength, false, true, 0, 0.5f, asset.FilmGrain, "Strength");
+            var sliderFilmgrainStrength = CommonControls.SliderNumericFloat("Strength", groupFilmGrain, asset.FilmGrain.Strength, false, true, 0, 0.5f, asset.FilmGrain, "Strength");
             // Random Noise Strength
-            var sliderFilmGrainRandomNoiseStrength = CommonControls.SliderNumeric("Random Noise Strength", groupFilmGrain, asset.FilmGrain.RandomNoiseStrength, 
+            var sliderFilmGrainRandomNoiseStrength = CommonControls.SliderNumericFloat("Random Noise Strength", groupFilmGrain, asset.FilmGrain.RandomNoiseStrength, 
                 false, false, 0, 5, asset.FilmGrain, "RandomNoiseStrength");
             // Accentuate Dark Noise Power
-            var sliderFilmGrainAccentuateDarkNoisePower = CommonControls.SliderNumeric("Accentuate Dark Noise Power", groupFilmGrain, asset.FilmGrain.AccentuateDarkNoisePower,
+            var sliderFilmGrainAccentuateDarkNoisePower = CommonControls.SliderNumericFloat("Accentuate Dark Noise Power", groupFilmGrain, asset.FilmGrain.AccentuateDarkNoisePower,
                 false, false, 0, 10, asset.FilmGrain, "AccentuateDarkNoisePower");
 
             checkBoxFilmGrainEnabled.CheckedChanged += delegate
@@ -301,19 +301,19 @@ namespace XNAFinalEngine.Editor
             CheckBox checkBoxAdjustLevelsEnabled = CommonControls.CheckBox("Enabled", groupAdjustLevels, asset.AdjustLevels.Enabled,
                 asset.AdjustLevels, "Enabled", "Adjust color levels just like Photoshop.");
             // Input Black
-            var sliderAdjustLevelsInputBlack = CommonControls.SliderNumeric("Input Black", groupAdjustLevels, asset.AdjustLevels.InputBlack,
+            var sliderAdjustLevelsInputBlack = CommonControls.SliderNumericFloat("Input Black", groupAdjustLevels, asset.AdjustLevels.InputBlack,
                 false, false, 0, 0.9f, asset.AdjustLevels, "InputBlack");
             // Input White
-            var sliderAdjustLevelsInputWhite = CommonControls.SliderNumeric("Input White", groupAdjustLevels, asset.AdjustLevels.InputWhite,
+            var sliderAdjustLevelsInputWhite = CommonControls.SliderNumericFloat("Input White", groupAdjustLevels, asset.AdjustLevels.InputWhite,
                 false, false, 0.1f, 1f, asset.AdjustLevels, "InputWhite");
             // Input Gamma
-            var sliderAdjustLevelsInputGamma = CommonControls.SliderNumeric("Input Gamma", groupAdjustLevels, asset.AdjustLevels.InputGamma,
+            var sliderAdjustLevelsInputGamma = CommonControls.SliderNumericFloat("Input Gamma", groupAdjustLevels, asset.AdjustLevels.InputGamma,
                 false, false, 0.01f, 9.99f, asset.AdjustLevels, "InputGamma");
             // Output Black
-            var sliderAdjustLevelsOutputBlack = CommonControls.SliderNumeric("Output Black", groupAdjustLevels, asset.AdjustLevels.OutputBlack,
+            var sliderAdjustLevelsOutputBlack = CommonControls.SliderNumericFloat("Output Black", groupAdjustLevels, asset.AdjustLevels.OutputBlack,
                 false, false, 0, 1, asset.AdjustLevels, "OutputBlack");
             // Output White
-            var sliderAdjustLevelsOutputWhite = CommonControls.SliderNumeric("Output White", groupAdjustLevels, asset.AdjustLevels.OutputWhite,
+            var sliderAdjustLevelsOutputWhite = CommonControls.SliderNumericFloat("Output White", groupAdjustLevels, asset.AdjustLevels.OutputWhite,
                 false, false, 0, 1, asset.AdjustLevels, "OutputWhite");
             
             checkBoxAdjustLevelsEnabled.CheckedChanged += delegate
@@ -335,143 +335,30 @@ namespace XNAFinalEngine.Editor
 
             // Enabled
             CheckBox checkBoxColorCorrectionEnabled = CommonControls.CheckBox("Enabled", groupColorCorrection, asset.ColorCorrection.Enabled, asset.ColorCorrection, "Enabled");
-
-            #region First Lookup Table
-
-            var assetCreatorFirstLookupTable = CommonControls.AssetSelector("First Lookup Table", groupColorCorrection);
-            /*assetCreatorFirstLookupTable.AssetAdded += delegate
-            {
-                LookupTableWindow.CurrentCreatedAssetChanged += delegate
-                {
-                    asset.ColorCorrection.FirstLookupTable = LookupTableWindow.CurrentCreatedAsset;
-                    owner.Invalidate();
-                };
-                LookupTableWindow.Show(null);
-            };
-            assetCreatorFirstLookupTable.AssetEdited += delegate
-            {
-                LookupTableWindow.Show(asset.ColorCorrection.FirstLookupTable);
-            };
-            // Events
-            assetCreatorFirstLookupTable.ItemIndexChanged += delegate
-            {
-                if (assetCreatorFirstLookupTable.ItemIndex <= 0)
-                    asset.ColorCorrection.FirstLookupTable = null;
-                else
-                {
-                    foreach (Asset texture in Asset.LoadedAssets)
-                    {
-                        if (texture is LookupTable && texture.Name == (string)assetCreatorFirstLookupTable.Items[assetCreatorFirstLookupTable.ItemIndex])
-                            asset.ColorCorrection.FirstLookupTable = (LookupTable)texture;
-                    }
-                }
-                assetCreatorFirstLookupTable.EditButtonEnabled = asset.ColorCorrection.FirstLookupTable != null;
-            };
-            assetCreatorFirstLookupTable.Draw += delegate
-            {
-                // Add textures name here because someone could dispose or add new lookup tables.
-                assetCreatorFirstLookupTable.Items.Clear();
-                assetCreatorFirstLookupTable.Items.Add("No texture");
-                foreach (Asset texture in Asset.LoadedAssets)
-                    assetCreatorFirstLookupTable.Items.Add(texture.Name);
-
-                if (assetCreatorFirstLookupTable.ListBoxVisible)
-                    return;
-                // Identify current index
-                if (asset.ColorCorrection.FirstLookupTable == null)
-                    assetCreatorFirstLookupTable.ItemIndex = 0;
-                else
-                {
-                    for (int i = 0; i < assetCreatorFirstLookupTable.Items.Count; i++)
-                        if ((string)assetCreatorFirstLookupTable.Items[i] == asset.ColorCorrection.FirstLookupTable.Name)
-                        {
-                            assetCreatorFirstLookupTable.ItemIndex = i;
-                            break;
-                        }
-                }
-            };
-            */
-            #endregion
-
-            #region Second Lookup Table
-
-            var assetCreatorSecondLookupTable = CommonControls.AssetSelector("Second Lookup Table", groupColorCorrection);
-            // When the add button is pressed.
-            /*assetCreatorSecondLookupTable.AssetAdded += delegate
-            {
-                LookupTableWindow.CurrentCreatedAssetChanged += delegate
-                {
-                    asset.ColorCorrection.SecondLookupTable = LookupTableWindow.CurrentCreatedAsset;
-                    owner.Invalidate();
-                };
-                LookupTableWindow.Show(null);
-            };
-            // When the edit button is pressed.
-            assetCreatorSecondLookupTable.AssetEdited += delegate
-            {
-                LookupTableWindow.Show(asset.ColorCorrection.SecondLookupTable);
-            };
-            // Events
-            assetCreatorSecondLookupTable.ItemIndexChanged += delegate
-            {
-                if (assetCreatorSecondLookupTable.ItemIndex <= 0)
-                    asset.ColorCorrection.SecondLookupTable = null;
-                else
-                {
-                    foreach (Asset texture in Asset.LoadedAssets)
-                    {
-                        if (texture.Name == (string)assetCreatorSecondLookupTable.Items[assetCreatorSecondLookupTable.ItemIndex])
-                            asset.ColorCorrection.SecondLookupTable = (LookupTable)texture;
-                    }
-                }
-                assetCreatorSecondLookupTable.EditButtonEnabled = asset.ColorCorrection.SecondLookupTable != null;
-            };
+            // First Lookup Table
+            var assetCreatorFirstLookupTable = CommonControls.AssetSelector<LookupTable>("First Lookup Table", groupColorCorrection, asset.ColorCorrection, "FirstLookupTable");
+            // Second Lookup Table
+            var assetCreatorSecondLookupTable = CommonControls.AssetSelector<LookupTable>("Second Lookup Table", groupColorCorrection, asset.ColorCorrection, "SecondLookupTable");
             assetCreatorSecondLookupTable.Draw += delegate
             {
-                assetCreatorSecondLookupTable.Enabled = asset.ColorCorrection.FirstLookupTable != null && checkBoxColorCorrectionEnabled.Checked;
-                // Add textures name here because someone could dispose or add new lookup tables.
-                assetCreatorSecondLookupTable.Items.Clear();
-                assetCreatorSecondLookupTable.Items.Add("No texture");
-                foreach (Asset texture in Asset.LoadedAssets)
-                    assetCreatorSecondLookupTable.Items.Add(texture.Name);
-
-                if (assetCreatorSecondLookupTable.ListBoxVisible)
-                    return;
-                // Identify current index
-                if (asset.ColorCorrection.SecondLookupTable == null)
-                    assetCreatorSecondLookupTable.ItemIndex = 0;
-                else
-                {
-                    for (int i = 0; i < assetCreatorSecondLookupTable.Items.Count; i++)
-                        if ((string)assetCreatorSecondLookupTable.Items[i] == asset.ColorCorrection.SecondLookupTable.Name)
-                        {
-                            assetCreatorSecondLookupTable.ItemIndex = i;
-                            break;
-                        }
-                }
+                assetCreatorSecondLookupTable.Enabled = asset.ColorCorrection.FirstLookupTable != null && checkBoxColorCorrectionEnabled.Checked;                
             };
-            */
-            #endregion
-
             // Lerp Original Color Amount
-            var sliderLerpOriginalColorAmount = CommonControls.SliderNumeric("Lerp Original Color", groupColorCorrection, asset.ColorCorrection.LerpOriginalColorAmount, 
+            var sliderLerpOriginalColorAmount = CommonControls.SliderNumericFloat("Lerp Original Color", groupColorCorrection, asset.ColorCorrection.LerpOriginalColorAmount, 
                 false, false, 0, 1, asset.ColorCorrection, "LerpOriginalColorAmount");
             sliderLerpOriginalColorAmount.Draw += delegate
             {
                 sliderLerpOriginalColorAmount.Enabled = asset.ColorCorrection.FirstLookupTable != null && checkBoxColorCorrectionEnabled.Checked;
             };
             // Lerp Lookup Tables Amount
-            var sliderLerpLookupTablesAmount = CommonControls.SliderNumeric("Lerp Lookup Tables", groupColorCorrection, asset.ColorCorrection.LerpLookupTablesAmount,
+            var sliderLerpLookupTablesAmount = CommonControls.SliderNumericFloat("Lerp Lookup Tables", groupColorCorrection, asset.ColorCorrection.LerpLookupTablesAmount,
                 false, false, 0, 1, asset.ColorCorrection, "LerpLookupTablesAmount");
             sliderLerpLookupTablesAmount.Draw += delegate
             {
                 sliderLerpLookupTablesAmount.Enabled = asset.ColorCorrection.SecondLookupTable != null && asset.ColorCorrection.FirstLookupTable != null && checkBoxColorCorrectionEnabled.Checked;
             };
 
-            checkBoxColorCorrectionEnabled.CheckedChanged += delegate
-            {
-                assetCreatorFirstLookupTable.Enabled = asset.ColorCorrection.Enabled;
-            };
+            checkBoxColorCorrectionEnabled.CheckedChanged += delegate { assetCreatorFirstLookupTable.Enabled = asset.ColorCorrection.Enabled; };
 
             groupColorCorrection.AdjustHeightFromChildren();
 

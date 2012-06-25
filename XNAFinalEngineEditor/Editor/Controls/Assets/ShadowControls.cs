@@ -30,37 +30,32 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.Components;
 using XNAFinalEngine.UserInterface;
 #endregion
 
 namespace XNAFinalEngine.Editor
 {
-    public static class CameraControls
+    public static class ShadowControls
     {
-
+        
         /// <summary>
-        /// Creates the configuration controls of this component.
+        /// Creates the configuration controls of this asset.
         /// </summary>
-        public static void AddControls(Camera camera, ClipControl owner)
+        public static void AddControls(Shadow asset, Window owner, ComboBox comboBoxResource)
         {
+            GroupBox groupGeneral = CommonControls.Group("General", owner);
             // Enabled
-            var enabled = CommonControls.CheckBox("Enabled", owner, camera.Enabled, camera, "Enabled");
-            enabled.Top = 10;
-            // Clear Color
-            var clearColor = CommonControls.SliderColor("Clear Color", owner, camera.ClearColor, camera, "ClearColor");
-            var sky = CommonControls.AssetSelector<Sky>("Sky", owner, camera, "Sky");
-            var postProcess = CommonControls.AssetSelector<PostProcess>("Post Process", owner, camera, "PostProcess");
-            var ambientLight = CommonControls.AssetSelector<AmbientLight>("Ambient Light", owner, camera, "AmbientLight");
-            
+            CheckBox enabled = CommonControls.CheckBox("Enabled", groupGeneral, asset.Enabled, asset, "Enabled");
+            // Depth Bias
+            var depthBias = CommonControls.SliderNumericFloat("Depth Bias", groupGeneral, asset.DepthBias, false, false, 0, 0.1f, asset, "DepthBias");
+            // Enabled
             enabled.CheckedChanged += delegate
             {
-                clearColor.Enabled = enabled.Checked;
-                sky.Enabled = enabled.Checked;
-                postProcess.Enabled = enabled.Checked;
-                ambientLight.Enabled = enabled.Checked;
+                depthBias.Enabled = asset.Enabled;
             };
-        } // AddControls
-        
-    } // CameraControls
+            groupGeneral.AdjustHeightFromChildren();
+
+        } // AddControls       
+
+    } // ShadowControls
 } // XNAFinalEngine.Editor

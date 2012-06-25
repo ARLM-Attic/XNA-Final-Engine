@@ -29,38 +29,56 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using XNAFinalEngine.Assets;
-using XNAFinalEngine.Components;
-using XNAFinalEngine.UserInterface;
+using XNAFinalEngine.Helpers;
 #endregion
 
-namespace XNAFinalEngine.Editor
+namespace XNAFinalEngine.Assets
 {
-    public static class CameraControls
+    /// <summary>
+    /// Base class for ambient occlusion effects.
+    /// </summary>
+    /// <remarks>
+    /// There are two options where to apply them: in the ambient light or in the final result, previous to the post process.
+    /// The first is more "correct" but subtle. I choose the first to achieve more photorealistic results.
+    /// </remarks>
+    public abstract class AmbientOcclusion : Asset
     {
 
+        #region Variables
+
+        // Is it enabled?
+        private bool enabled = true;
+
+        // Ambient occlusion resolution, relative to the camera's render target.
+        private Size.TextureSize textureSize = Size.TextureSize.QuarterSize;
+
+        #endregion
+
+        #region Properties
+
         /// <summary>
-        /// Creates the configuration controls of this component.
+        /// Is it enabled?
         /// </summary>
-        public static void AddControls(Camera camera, ClipControl owner)
+        public bool Enabled
         {
-            // Enabled
-            var enabled = CommonControls.CheckBox("Enabled", owner, camera.Enabled, camera, "Enabled");
-            enabled.Top = 10;
-            // Clear Color
-            var clearColor = CommonControls.SliderColor("Clear Color", owner, camera.ClearColor, camera, "ClearColor");
-            var sky = CommonControls.AssetSelector<Sky>("Sky", owner, camera, "Sky");
-            var postProcess = CommonControls.AssetSelector<PostProcess>("Post Process", owner, camera, "PostProcess");
-            var ambientLight = CommonControls.AssetSelector<AmbientLight>("Ambient Light", owner, camera, "AmbientLight");
-            
-            enabled.CheckedChanged += delegate
-            {
-                clearColor.Enabled = enabled.Checked;
-                sky.Enabled = enabled.Checked;
-                postProcess.Enabled = enabled.Checked;
-                ambientLight.Enabled = enabled.Checked;
-            };
-        } // AddControls
-        
-    } // CameraControls
-} // XNAFinalEngine.Editor
+            get { return enabled; }
+            set { enabled = value; }
+        } // Enabled
+
+        /// <summary>
+        /// Ambient occlusion resolution, relative to the camera's render target.
+        /// Ambient occlusion is a costly technique but it produces a low frequency result.
+        /// So there is no need to use a render target of the same dimension as the frame buffer.
+        /// Normally a half resolution buffer produces very good results and if the performance is critical you could use a quarter size buffer.
+        /// </summary>
+        public Size.TextureSize TextureSize
+        {
+            get { return textureSize; }
+            set { textureSize = value; }
+        } // TextureSize
+
+        #endregion
+
+    } // AmbientOcclusion
+} // XNAFinalEngine.Assets
+

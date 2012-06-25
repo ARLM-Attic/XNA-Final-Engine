@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Reflection;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.Helpers;
 using XNAFinalEngine.UserInterface;
 using EventArgs = XNAFinalEngine.UserInterface.EventArgs;
 using EventHandler = XNAFinalEngine.UserInterface.EventHandler;
@@ -172,6 +173,9 @@ namespace XNAFinalEngine.Editor
                         {
                             // This is a disposable asset so...
                             temporalContentManager.Unload();
+                            // To contemplate some assets like Lookup Tables and some textures.
+                            if (!asset.IsDisposed)
+                                asset.Dispose();
                             asset = (Asset)typeof(TAssetType).GetConstructor(new[] { typeof(string) }).Invoke(new object[] { filenames[comboBoxResource.ItemIndex] });
                             CurrentCreatedAsset = asset;
                             window.AssetName = asset.Name;
@@ -185,8 +189,11 @@ namespace XNAFinalEngine.Editor
                         {
                             if ((string)comboBoxResource.Items[i] == (string)nameProperty.GetValue(obj, null))
                             {
-                                comboBoxResource.ItemIndex = i;
-                                break;
+                                if (comboBoxResource.ItemIndex != i)
+                                {
+                                    comboBoxResource.ItemIndex = i;
+                                    break;
+                                }
                             }
                         }
                     };
@@ -242,13 +249,15 @@ namespace XNAFinalEngine.Editor
                     {
                         // Returns null.
                         CurrentCreatedAsset = null;
-                        if (!resourcedAsset)
+                        if (!asset.IsDisposed)
                             asset.Dispose();
                     }
                     else
                     {
                         if (resourcedAsset)
                         {
+                            if (!asset.IsDisposed) // To contemplate some assets like Lookup Tables and some textures.
+                                asset.Dispose();
                             // Search the content manager reference using its name.
                             foreach (ContentManager contenManager in ContentManager.ContentManagers)
                             {
@@ -309,6 +318,14 @@ namespace XNAFinalEngine.Editor
                 TextureControls.AddControls((Texture)asset, window, comboBoxResource);
             else if (typeof(TAssetType) == typeof(PostProcess))
                 PostProcessControls.AddControls((PostProcess) asset, window, comboBoxResource);
+            else if (typeof(TAssetType) == typeof(LookupTable))
+                LookupTableControls.AddControls((LookupTable)asset, window, comboBoxResource);
+            else if (typeof(TAssetType) == typeof(AmbientLight))
+                AmbientLightControls.AddControls((AmbientLight)asset, window, comboBoxResource);
+            else if (typeof(TAssetType) == typeof(HorizonBasedAmbientOcclusion))
+                HorizonBasedAmbientOcclusionControls.AddControls((HorizonBasedAmbientOcclusion)asset, window, comboBoxResource);
+            else if (typeof(TAssetType) == typeof(BasicShadow))
+                ShadowControls.AddControls((BasicShadow)asset, window, comboBoxResource);
 
             #endregion);
 
@@ -341,8 +358,8 @@ namespace XNAFinalEngine.Editor
 
             window.AdjustHeightFromChildren();
             window.Height += 5;
-            if (window.Height > 500)
-                window.Height = 500;
+            if (window.Height > 600)
+                window.Height = 600;
             return window;
         } // Show
 

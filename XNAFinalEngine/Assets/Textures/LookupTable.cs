@@ -9,13 +9,10 @@
 
 #region Using directives
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Helpers;
 #endregion
 
 namespace XNAFinalEngine.Assets
@@ -216,7 +213,7 @@ namespace XNAFinalEngine.Assets
             Texture2D lookupTable2DTexture = new Texture2D(EngineManager.Device, side1, side2, false, SurfaceFormat.Color);
             lookupTable.Resource.GetData(colors);
             lookupTable2DTexture.SetData(colors);
-            return new Texture(lookupTable2DTexture) { Name = lookupTable.Name };
+            return new Texture(lookupTable2DTexture) { Name = lookupTable.Name + "-Texture" };
         } // LookupTextureToTexture
 
         #endregion
@@ -228,6 +225,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected override void DisposeManagedResources()
         {
+            base.DisposeManagedResources();
             Resource.Dispose();
         } // DisposeManagedResources
 

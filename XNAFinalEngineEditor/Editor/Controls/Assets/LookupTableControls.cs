@@ -29,38 +29,66 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.Components;
 using XNAFinalEngine.UserInterface;
+using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.Editor
 {
-    public static class CameraControls
+    public static class LookupTableControls
     {
 
+        #region Show
+
         /// <summary>
-        /// Creates the configuration controls of this component.
+        /// Creates the configuration controls of this asset.
         /// </summary>
-        public static void AddControls(Camera camera, ClipControl owner)
+        public static void AddControls(LookupTable asset, Window owner, ComboBox comboBoxResource)
         {
-            // Enabled
-            var enabled = CommonControls.CheckBox("Enabled", owner, camera.Enabled, camera, "Enabled");
-            enabled.Top = 10;
-            // Clear Color
-            var clearColor = CommonControls.SliderColor("Clear Color", owner, camera.ClearColor, camera, "ClearColor");
-            var sky = CommonControls.AssetSelector<Sky>("Sky", owner, camera, "Sky");
-            var postProcess = CommonControls.AssetSelector<PostProcess>("Post Process", owner, camera, "PostProcess");
-            var ambientLight = CommonControls.AssetSelector<AmbientLight>("Ambient Light", owner, camera, "AmbientLight");
+            // In asset creation I need to look on the CurrentCreatedAsset property to have the last asset.
+            // I can't use CurrentCreatedAsset in edit mode.
+            // However I can use asset for creation (maybe in a disposed state but don't worry) and edit mode,
+            // and only update the values when I know that CurrentCreatedAsset changes.
             
-            enabled.CheckedChanged += delegate
+            #region Group Image
+
+            var groupImage = CommonControls.Group("Image", owner);
+            var imageBoxImage = CommonControls.ImageBox(LookupTable.LookupTableToTexture(asset), groupImage);
+            groupImage.AdjustHeightFromChildren();
+
+            #endregion
+            
+            #region Group Properties
+
+            GroupBox groupProperties = CommonControls.Group("Properties", owner);
+
+            var sizeTextBox = CommonControls.TextBox("Size", groupProperties, asset.Size.ToString());
+            sizeTextBox.Enabled = false;
+
+            groupProperties.AdjustHeightFromChildren();
+
+            #endregion
+
+            // If it is asset creation time.
+            if (comboBoxResource != null)
             {
-                clearColor.Enabled = enabled.Checked;
-                sky.Enabled = enabled.Checked;
-                postProcess.Enabled = enabled.Checked;
-                ambientLight.Enabled = enabled.Checked;
-            };
+                comboBoxResource.ItemIndexChanged += delegate
+                {
+                    imageBoxImage.Texture.Dispose();
+                    imageBoxImage.Texture = LookupTable.LookupTableToTexture((LookupTable)AssetWindow.CurrentCreatedAsset);
+                    sizeTextBox.Text = ((LookupTable)AssetWindow.CurrentCreatedAsset).Size.ToString();
+                };
+                // If the user creates the asset (press the create button) then update the changeable properties.
+                owner.Closed += delegate
+                {
+                    imageBoxImage.Texture.Dispose();
+                };
+            }
         } // AddControls
+
+        #endregion
         
-    } // CameraControls
+    } // LookupTableControls
 } // XNAFinalEngine.Editor

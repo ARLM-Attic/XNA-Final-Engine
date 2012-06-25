@@ -99,8 +99,8 @@
     <Compile Include="Animations\AnimationState.cs" />
     <Compile Include="Animations\ModelAnimationPlayer.cs" />
     <Compile Include="Animations\AnimationManager.cs" />
-    <Compile Include="Assets\AmbientLight\HorizonBasedAmbientOcclusion.cs" />
-    <Compile Include="Assets\AmbientLight\RayMarchingAmbientOcclusion.cs" />
+    <Compile Include="Assets\AmbientOcclusion\HorizonBasedAmbientOcclusion.cs" />
+    <Compile Include="Assets\AmbientOcclusion\RayMarchingAmbientOcclusion.cs" />
     <Compile Include="Assets\Animations\ModelAnimation.cs" />
     <Compile Include="Assets\Animations\RootAnimation.cs" />
     <Compile Include="Assets\Asset.cs" />
@@ -177,7 +177,7 @@
     <Compile Include="Graphics\Passes\01-GBuffer\DepthDownsamplerShader.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBufferShader.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBufferPass.cs" />
-    <Compile Include="Assets\AmbientLight\AmbientOcclusion.cs" />
+    <Compile Include="Assets\AmbientOcclusion\AmbientOcclusion.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\Ambient Occlusion\HorizonBasedAmbientOcclusionShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\Ambient Occlusion\RayMarchingAmbientOcclusionShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\AmbientLightShader.cs" />

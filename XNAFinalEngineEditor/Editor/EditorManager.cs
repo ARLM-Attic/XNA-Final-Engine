@@ -204,6 +204,7 @@ namespace XNAFinalEngine.Editor
             editorCamera.AddComponent<Camera>();
             editorCamera.Camera.AmbientLight = new AmbientLight();
             editorCamera.Camera.PostProcess = new PostProcess();
+            editorCamera.Camera.PostProcess.Name = "Editor Camera Post Process";
             editorCamera.Camera.PostProcess.Bloom.Enabled = false;
             editorCamera.Camera.Enabled = false;
             editorCamera.Camera.RenderHeadUpDisplay = false;
@@ -662,34 +663,7 @@ namespace XNAFinalEngine.Editor
                 if (selectedObject.SpotLight != null)
                 {
                     panel = CommonControls.PanelCollapsible("Spot Light", rightPanelTabControl, 0);
-                    // Visible
-                    CheckBox checkBoxLightEnabled = CommonControls.CheckBox("Enabled", panel, selectedObject.SpotLight.Enabled, selectedObject.SpotLight, "Enabled");
-                    checkBoxLightEnabled.Top = 10;
-                    // Intensity
-                    var sliderLightIntensity = CommonControls.SliderNumeric("Intensity", panel, selectedObject.SpotLight.Intensity,
-                                                                            false, true, 0, 100, selectedObject.SpotLight, "Intensity");
-                    // Diffuse Color
-                    var sliderDiffuseColor = CommonControls.SliderColor("Diffuse Color", panel, selectedObject.SpotLight.DiffuseColor, selectedObject.SpotLight, "DiffuseColor");
-                    // Range
-                    var sliderLightRange = CommonControls.SliderNumeric("Range", panel, selectedObject.SpotLight.Range, false, true, 0, 500, selectedObject.SpotLight, "Range");
-                    // Inner Cone Angle
-                    var sliderLightInnerConeAngle = CommonControls.SliderNumeric("Inner Cone Angle", panel, selectedObject.SpotLight.InnerConeAngle,
-                                                                                 false, false, 0, 175, selectedObject.SpotLight, "InnerConeAngle");
-                    // Outer Cone Angle
-                    var sliderLightOuterConeAngle = CommonControls.SliderNumeric("Outer Cone Angle", panel, selectedObject.SpotLight.OuterConeAngle,
-                                                                                 false, false, 0, 175, selectedObject.SpotLight, "OuterConeAngle");
-                    // Mask Texture
-                    var assetSelectorMaskTexture = CommonControls.AssetSelector<Texture>("Mask Texture", panel, selectedObject.SpotLight, "LightMaskTexture");
-                    // Visible
-                    checkBoxLightEnabled.CheckedChanged += delegate
-                    {
-                        sliderLightIntensity.Enabled = selectedObject.SpotLight.Enabled;
-                        sliderDiffuseColor.Enabled = selectedObject.SpotLight.Enabled;
-                        sliderLightRange.Enabled = selectedObject.SpotLight.Enabled;
-                        sliderLightInnerConeAngle.Enabled = selectedObject.SpotLight.Enabled;
-                        sliderLightOuterConeAngle.Enabled = selectedObject.SpotLight.Enabled;
-                        assetSelectorMaskTexture.Enabled = selectedObject.SpotLight.Enabled;
-                    };
+                    SpotLightControls.AddControls(selectedObject.SpotLight, panel);
                 }
 
                 #endregion

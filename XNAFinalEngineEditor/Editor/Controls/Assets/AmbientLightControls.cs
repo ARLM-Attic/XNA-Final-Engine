@@ -29,56 +29,28 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using XNAFinalEngine.Helpers;
+using XNAFinalEngine.Assets;
+using XNAFinalEngine.UserInterface;
 #endregion
 
-namespace XNAFinalEngine.Assets
+namespace XNAFinalEngine.Editor
 {
-    /// <summary>
-    /// Base class for ambient occlusion effects.
-    /// </summary>
-    /// <remarks>
-    /// There are two options where to apply them: in the ambient light or in the final result, previous to the post process.
-    /// The first is more "correct" but subtle. I choose the first to achieve more photorealistic results.
-    /// </remarks>
-    public abstract class AmbientOcclusion
+    public static class AmbientLightControls
     {
-
-        #region Variables
-
-        // Is it enabled?
-        private bool enabled = true;
-
-        // Ambient occlusion resolution, relative to the camera's render target.
-        private Size.TextureSize textureSize = Size.TextureSize.QuarterSize;
-
-        #endregion
-
-        #region Properties
-
+        
         /// <summary>
-        /// Is it enabled?
+        /// Creates the configuration controls of this asset.
         /// </summary>
-        public bool Enabled
+        public static void AddControls(AmbientLight asset, Window owner, ComboBox comboBoxResource)
         {
-            get { return enabled; }
-            set { enabled = value; }
-        } // Enabled
+            GroupBox groupGeneral = CommonControls.Group("General", owner);
+            var intensity = CommonControls.SliderNumericFloat("Intensity", groupGeneral, asset.Intensity, true, true, 0, 10,
+                                                         asset, "Intensity");
+            var color = CommonControls.SliderColor("Color", groupGeneral, asset.Color, asset, "Color");
+            var ambientOcclusion = CommonControls.AssetSelector<AmbientOcclusion>("Ambient Occlusion", owner, asset, "AmbientOcclusion");
+            groupGeneral.AdjustHeightFromChildren();
 
-        /// <summary>
-        /// Ambient occlusion resolution, relative to the camera's render target.
-        /// Ambient occlusion is a costly technique but it produces a low frequency result.
-        /// So there is no need to use a render target of the same dimension as the frame buffer.
-        /// Normally a half resolution buffer produces very good results and if the performance is critical you could use a quarter size buffer.
-        /// </summary>
-        public Size.TextureSize TextureSize
-        {
-            get { return textureSize; }
-            set { textureSize = value; }
-        } // TextureSize
+        } // AddControls       
 
-        #endregion
-
-    } // AmbientOcclusion
-} // XNAFinalEngine.Assets
-
+    } // AmbientLightControls
+} // XNAFinalEngine.Editor

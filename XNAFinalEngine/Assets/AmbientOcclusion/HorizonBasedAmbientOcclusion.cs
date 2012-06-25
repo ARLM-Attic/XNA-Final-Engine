@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -28,58 +28,79 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
-#region Using directives
-using Microsoft.Xna.Framework.Graphics;
-#endregion
-
 namespace XNAFinalEngine.Assets
 {
     /// <summary>
-    /// Ray Marching Screen Space Ambient Occlusion.
+    /// Horizon Based Screen Space Ambient Occlusion.
     /// </summary>
     /// <remarks>
-    /// Horizon Based is similar in performance but better in results.
-    /// However this is a good example of how to make raymarching shaders, and the results are not bad either.
+    /// Important: I have to put constants in the shader's for sentences.
+    /// If you want to change the number of steps and the number of directions will need to change the properties and the shader code.
     /// 
-    /// This shader is baded in a Shader X 7 article.
+    /// This shader is baded in a Shader X 7 article with some minor modifications.
     /// </remarks>
-    public class RayMarchingAmbientOcclusion : AmbientOcclusion
+    public class HorizonBasedAmbientOcclusion : AmbientOcclusion
     {
 
-        #region Variables
-        
-        // Number of Steps.
-        // It’s a sensitive performance parameter.
-        private float numberSteps = 4.0f;
+        #region Enumerates
 
-        // Number of Rays.
-        // It’s a sensitive performance parameter.
-        private float numberRays = 4.0f;
+        public enum QualityType
+        {   
+            LowQuality,
+            MiddleQuality,
+            HighQuality,
+        } // QualityType
+
+        #endregion
+
+        #region Variables
+
+        // The count of assets for naming purposes.
+        private static int nameNumber = 1;
+
+        // Number of Steps.
+        // The far samplers have a lower effect in the result. This controls how faster their weight decay.
+        private int numberSteps = 6;
 
         // Number of Directions.
-        // It’s a sensitive performance parameter.
-        private float numberDirections = 6.0f;
+        // The far samplers have a lower effect in the result. This controls how faster their weight decay.
+        private int numberDirections = 10;
 
         // Contrast.
-        private float contrast = 1;
+        private float contrast = 0.8f;
 
         // Line Attenuation.
         // The far samplers have a lower effect in the result. This controls how faster their weight decay.
-        private float lineAttenuation = 1f;
-
+        private float lineAttenuation = 1.2f;
+        
         // Radius.
         // Bigger the radius more cache misses will occur. Be careful!!
-        private float radius = 0.01f;
+        private float radius = 0.015f;
+
+        // Angle Bias (grades).
+        private float angleBias = 30f;
+
+        // High quality is the best and the faster I think.
+        private QualityType quality = QualityType.HighQuality;
 
         #endregion
 
         #region Properties
+        
+        /// <summary>
+        /// Quality.
+        /// </summary>
+        public QualityType Quality
+        {
+            get { return quality; }
+            set { quality = value; }
+        } // Quality
 
         /// <summary>
-        /// Number of Steps.
-        /// It’s a sensitive performance parameter.
+        /// Number of Steps
+        /// The far samplers have a lower effect in the result. This controls how faster their weight decay.
         /// </summary>
-        public float NumberSteps
+        public int NumberSteps
         {
             get { return numberSteps; }
             set
@@ -91,25 +112,10 @@ namespace XNAFinalEngine.Assets
         } // NumberSteps
 
         /// <summary>
-        /// Number of Rays.
-        /// It’s a sensitive performance parameter.
+        /// Number of Directions
+        /// The far samplers have a lower effect in the result. This controls how faster their weight decay.
         /// </summary>
-        public float NumberRays
-        {
-            get { return numberRays; }
-            set
-            {
-                numberRays = value;
-                if (numberRays <= 0)
-                    numberRays = 0;
-            }
-        } // NumberRays
-
-        /// <summary>
-        /// Number of Directions.
-        /// It’s a sensitive performance parameter.
-        /// </summary>
-        public float NumberDirections
+        public int NumberDirections
         {
             get { return numberDirections; }
             set
@@ -136,7 +142,6 @@ namespace XNAFinalEngine.Assets
 
         /// <summary>
         /// Line Attenuation.
-        /// The far samplers have a lower effect in the result. This controls how faster their weight decay.
         /// </summary>
         public float LineAttenuation
         {
@@ -151,8 +156,10 @@ namespace XNAFinalEngine.Assets
 
         /// <summary>
         /// Radius.
-        /// Bigger the radius more cache misses will occur. Be careful!!
         /// </summary>
+        /// <remarks>
+        /// Higher the radius more cache misses will occur. Be careful!!
+        /// </remarks>
         public float Radius
         {
             get { return radius; }
@@ -166,7 +173,33 @@ namespace XNAFinalEngine.Assets
             }
         } // Radius
 
+        /// <summary>
+        /// Angle Bias (degrees)
+        /// </summary>
+        public float AngleBias
+        {
+            get { return angleBias; }
+            set
+            {
+                angleBias = value;
+                if (angleBias <= 0)
+                    angleBias = 0;
+                if (angleBias > 90)
+                    angleBias = 90;
+            }
+        } // AngleBias
+
         #endregion
 
-    } // RayMarchingAmbientOcclusion
+        #region Constructor
+
+        public HorizonBasedAmbientOcclusion()
+        {
+            Name = "Horizon Based Ambient Occlusion-" + nameNumber;
+            nameNumber++;
+        } // HorizonBasedAmbientOcclusion
+
+        #endregion
+
+    } // HorizonBasedAmbientOcclusion
 } // XNAFinalEngine.Assets

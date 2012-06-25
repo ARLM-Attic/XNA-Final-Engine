@@ -398,13 +398,9 @@ namespace XNAFinalEngine.Assets
         {
             base.DisposeManagedResources();
             foreach (ModelAnimation modelAnimation in modelAnimations)
-            {
                 modelAnimation.Dispose();
-            }
             foreach (RootAnimation rootAnimation in rootAnimations)
-            {
                 rootAnimation.Dispose();
-            }
         } // DisposeManagedResources
 
         #endregion

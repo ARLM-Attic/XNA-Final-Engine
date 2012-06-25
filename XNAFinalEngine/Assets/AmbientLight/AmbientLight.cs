@@ -38,8 +38,8 @@ namespace XNAFinalEngine.Assets
 
     /// <summary>
     /// An ambient light source represents the light that is not directly influenced by local light sources (point, directional and spot lights).
-    /// This includes spherical harmonic lighting, ambient occlusion and
-    /// clear color (a fixed-intensity and fixed-color light source that affects all objects in the scene equally).
+    /// This includes spherical harmonic lighting, ambient occlusion 
+    /// and clear color (a fixed-intensity and fixed-color light source that affects all objects in the scene equally).
     /// </summary>
     public class AmbientLight : Asset
     {
@@ -79,8 +79,9 @@ namespace XNAFinalEngine.Assets
             get { return intensity; }
             set
             {
-                if (intensity > 0)
-                    intensity = value;
+                intensity = value;
+                if (intensity < 0)
+                    intensity = 0;
             }
         } // Intensity
 
@@ -116,8 +117,6 @@ namespace XNAFinalEngine.Assets
         {
             Name = "Ambient Light-" + nameNumber;
             nameNumber++;
-            SphericalHarmonicLighting = new SphericalHarmonicL2();
-            SphericalHarmonicLighting.Fill(0.5f, 0.5f, 0.5f);
         } // AmbientLight
 
         #endregion

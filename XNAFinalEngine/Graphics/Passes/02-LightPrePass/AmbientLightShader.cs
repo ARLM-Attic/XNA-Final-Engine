@@ -79,6 +79,7 @@ namespace XNAFinalEngine.Graphics
         /// Effect handles
         /// </summary>
         private static EffectParameter epHalfPixel,
+                                       epColor,
                                        epAmbientOcclusionTexture,
                                        epNormalTexture,
                                        epIntensity,
@@ -97,6 +98,20 @@ namespace XNAFinalEngine.Graphics
                 epViewI.SetValue(viewInverseMatrix);
             }
         } // SetViewInverseMatrix
+
+        #endregion
+
+        #region Color
+
+        private static Color lastUsedColor;
+        private static void SetColor(Color color)
+        {
+            if (lastUsedColor != color)
+            {
+                lastUsedColor = color;
+                epColor.SetValue(new Vector3(color.R / 255f, color.G / 255f, color.B / 255f));
+            }
+        } // SetColor
 
         #endregion
 
@@ -217,6 +232,8 @@ namespace XNAFinalEngine.Graphics
             {
                 epHalfPixel                = Resource.Parameters["halfPixel"];
                     epHalfPixel.SetValue(lastUsedHalfPixel);
+                epColor                    = Resource.Parameters["color"];
+                epColor.SetValue(new Vector3(lastUsedColor.R / 255f, lastUsedColor.G / 255f, lastUsedColor.B / 255f));
                 epNormalTexture            = Resource.Parameters["normalTexture"];
                     if (lastUsedNormalTexture != null && !lastUsedNormalTexture.IsDisposed)
                         epNormalTexture.SetValue(lastUsedNormalTexture);
@@ -254,22 +271,45 @@ namespace XNAFinalEngine.Graphics
                 #region Set Parameters
                 
                 SetHalfPixel(new Vector2(-1f / normalTexture.Width, 1f / normalTexture.Height));
-                SetNormalTexture(normalTexture);
-                ambientLight.SphericalHarmonicLighting.GetCoeficients(coeficients);
-                SetSphericalHarmonicBase(coeficients);
+                SetColor(ambientLight.Color);
                 SetIntensity(ambientLight.Intensity);
-                SetViewInverseMatrix(Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix))));
                 
                 #endregion
 
-                if (ambientLight.AmbientOcclusion == null || !ambientLight.AmbientOcclusion.Enabled)
-                    Resource.CurrentTechnique = Resource.Techniques["AmbientLightSH"];
+                #region Select Technique and Set Some Related Parameters
+
+                if (ambientLight.SphericalHarmonicLighting != null)
+                {
+                    SetViewInverseMatrix(Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix))));
+                    SetNormalTexture(normalTexture);
+                    ambientLight.SphericalHarmonicLighting.GetCoeficients(coeficients);
+                    SetSphericalHarmonicBase(coeficients);
+                    // Spherical Harmonics
+                    if (ambientLight.AmbientOcclusion == null || !ambientLight.AmbientOcclusion.Enabled)
+                        Resource.CurrentTechnique = Resource.Techniques["AmbientLightSphericalHarmonics"];
+                    // Spherical Harmonics and Ambient Occlusion
+                    else
+                    {
+                        Resource.CurrentTechnique = Resource.Techniques["AmbientLightSphericalHarmonicsAmbientOcclusion"];
+                        SetAmbientOcclusionTexture(ambientOcclusionTexture);
+                        SetAmbientOcclusionStrength(ambientLight.AmbientOcclusionStrength);
+                    }    
+                }
                 else
                 {
-                    Resource.CurrentTechnique = Resource.Techniques["AmbientLightSHSSAO"];
-                    SetAmbientOcclusionTexture(ambientOcclusionTexture);
-                    SetAmbientOcclusionStrength(ambientLight.AmbientOcclusionStrength);
+                    // Only color
+                    if (ambientLight.AmbientOcclusion == null || !ambientLight.AmbientOcclusion.Enabled)
+                        Resource.CurrentTechnique = Resource.Techniques["AmbientLight"];
+                    // Ambient Occlusion
+                    else
+                    {
+                        Resource.CurrentTechnique = Resource.Techniques["AmbientLightAmbientOcclusion"];
+                        SetAmbientOcclusionTexture(ambientOcclusionTexture);
+                        SetAmbientOcclusionStrength(ambientLight.AmbientOcclusionStrength);
+                    }
                 }
+
+                #endregion
 
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();

@@ -141,6 +141,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected override void DisposeManagedResources()
         {
+            base.DisposeManagedResources();
             if (vertexBuffer != null)
                 vertexBuffer.Dispose();
             if (indexBuffer != null)

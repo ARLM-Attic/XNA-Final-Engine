@@ -93,10 +93,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Editor\Controls\Assets\AmbientLightControls.cs" />
+    <Compile Include="Editor\Controls\Assets\ShadowControls.cs" />
+    <Compile Include="Editor\Controls\Assets\HorizonBasedAmbientOcclusionControls.cs" />
+    <Compile Include="Editor\Controls\Assets\LookupTableControls.cs" />
     <Compile Include="Editor\Controls\Assets\PostProcessControls.cs" />
     <Compile Include="Editor\Controls\Assets\TextureControls.cs" />
     <Compile Include="Editor\Controls\AssetWindow.cs" />
     <Compile Include="Editor\Controls\Components\CameraControls.cs" />
+    <Compile Include="Editor\Controls\Components\SpotLightControls.cs" />
     <Compile Include="Editor\EditableScene.cs" />
     <Compile Include="Editor\EditorManager.cs" />
     <Compile Include="Editor\Gizmos\GizmoRotation.cs" />

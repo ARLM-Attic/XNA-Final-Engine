@@ -435,10 +435,10 @@ namespace XNAFinalEngine.Graphics
                 SetInverseResolution(new Vector2(1 / (float)depthTexture.Width, 1 / (float)depthTexture.Height));
                 SetNumberSteps(hbao.NumberSteps);
                 SetNumberDirections(hbao.NumberDirections);
-                SetContrast(hbao.Contrast / (1.0f - (float)Math.Sin(hbao.AngleBias)));
+                SetContrast(hbao.Contrast / (1.0f - (float)Math.Sin(hbao.AngleBias * (float)Math.PI / 180f)));
                 SetLineAttenuation(hbao.LineAttenuation);
                 SetRadius(hbao.Radius);
-                SetAngleBias(hbao.AngleBias);
+                SetAngleBias(hbao.AngleBias * (float)Math.PI / 180f);
                 SetHalfPixel(new Vector2(-1f / ambientOcclusionTexture.Width, 1f / ambientOcclusionTexture.Height));
                 Vector2 focalLen = new Vector2
                 {
@@ -447,9 +447,9 @@ namespace XNAFinalEngine.Graphics
                 };
                 SetFocalLength(focalLen);
                 SetInverseFocalLength(new Vector2(1 / focalLen.X, 1 / focalLen.Y));
-                SetSquareRadius(hbao.AngleBias * hbao.AngleBias);
-                SetInverseRadius(1 / hbao.AngleBias);
-                SetTanAngleBias((float)Math.Tan(hbao.AngleBias));
+                SetSquareRadius(hbao.AngleBias * (float)Math.PI / 180f * hbao.AngleBias * (float)Math.PI / 180f);
+                SetInverseRadius(1 / (hbao.AngleBias * (float)Math.PI / 180f));
+                SetTanAngleBias((float)Math.Tan(hbao.AngleBias * (float)Math.PI / 180f));
                 
                 switch (hbao.Quality)
                 {

@@ -36,31 +36,43 @@ using XNAFinalEngine.UserInterface;
 
 namespace XNAFinalEngine.Editor
 {
-    public static class CameraControls
+    public static class SpotLightControls
     {
-
+        
         /// <summary>
         /// Creates the configuration controls of this component.
         /// </summary>
-        public static void AddControls(Camera camera, ClipControl owner)
+        public static void AddControls(SpotLight spotLight, ClipControl owner)
         {
             // Enabled
-            var enabled = CommonControls.CheckBox("Enabled", owner, camera.Enabled, camera, "Enabled");
+            CheckBox enabled = CommonControls.CheckBox("Enabled", owner, spotLight.Enabled, spotLight, "Enabled");
             enabled.Top = 10;
-            // Clear Color
-            var clearColor = CommonControls.SliderColor("Clear Color", owner, camera.ClearColor, camera, "ClearColor");
-            var sky = CommonControls.AssetSelector<Sky>("Sky", owner, camera, "Sky");
-            var postProcess = CommonControls.AssetSelector<PostProcess>("Post Process", owner, camera, "PostProcess");
-            var ambientLight = CommonControls.AssetSelector<AmbientLight>("Ambient Light", owner, camera, "AmbientLight");
-            
+            // Intensity
+            var intensity = CommonControls.SliderNumericFloat("Intensity", owner, spotLight.Intensity, false, true, 0, 100, spotLight, "Intensity");
+            // Diffuse Color
+            var diffuseColor = CommonControls.SliderColor("Diffuse Color", owner, spotLight.DiffuseColor, spotLight, "DiffuseColor");
+            // Range
+            var range = CommonControls.SliderNumericFloat("Range", owner, spotLight.Range, false, true, 0, 500, spotLight, "Range");
+            // Inner Cone Angle
+            var innerConeAngle = CommonControls.SliderNumericFloat("Inner Cone Angle", owner, spotLight.InnerConeAngle, false, false, 0, 175, spotLight, "InnerConeAngle");
+            // Outer Cone Angle
+            var outerConeAngle = CommonControls.SliderNumericFloat("Outer Cone Angle", owner, spotLight.OuterConeAngle, false, false, 0, 175, spotLight, "OuterConeAngle");
+            // Mask Texture
+            var maskTexture = CommonControls.AssetSelector<Texture>("Mask Texture", owner, spotLight, "LightMaskTexture");
+            // Shadow
+            var shadow = CommonControls.AssetSelector<BasicShadow>("Shadow", owner, spotLight, "Shadow");
+            // Enabled
             enabled.CheckedChanged += delegate
             {
-                clearColor.Enabled = enabled.Checked;
-                sky.Enabled = enabled.Checked;
-                postProcess.Enabled = enabled.Checked;
-                ambientLight.Enabled = enabled.Checked;
+                intensity.Enabled      = spotLight.Enabled;
+                diffuseColor.Enabled   = spotLight.Enabled;
+                range.Enabled          = spotLight.Enabled;
+                innerConeAngle.Enabled = spotLight.Enabled;
+                outerConeAngle.Enabled = spotLight.Enabled;
+                maskTexture.Enabled    = spotLight.Enabled;
+                shadow.Enabled         = spotLight.Enabled;
             };
         } // AddControls
-        
-    } // CameraControls
+
+    } // SpotLightControls
 } // XNAFinalEngine.Editor

@@ -82,9 +82,9 @@
     <Compile Include="Animations\XNAnimation\SkinnedModelBoneCollection.cs" />
     <Compile Include="Animations\XNAnimation\SkinnedModelBoneDictionary.cs" />
     <Compile Include="Assets\AmbientLight\AmbientLight.cs" />
-    <Compile Include="Assets\AmbientLight\AmbientOcclusion.cs" />
-    <Compile Include="Assets\AmbientLight\HorizonBasedAmbientOcclusion.cs" />
-    <Compile Include="Assets\AmbientLight\RayMarchingAmbientOcclusion.cs" />
+    <Compile Include="Assets\AmbientOcclusion\AmbientOcclusion.cs" />
+    <Compile Include="Assets\AmbientOcclusion\HorizonBasedAmbientOcclusion.cs" />
+    <Compile Include="Assets\AmbientOcclusion\RayMarchingAmbientOcclusion.cs" />
     <Compile Include="Assets\Animations\ModelAnimation.cs" />
     <Compile Include="Assets\Animations\RootAnimation.cs" />
     <Compile Include="Assets\Asset.cs" />

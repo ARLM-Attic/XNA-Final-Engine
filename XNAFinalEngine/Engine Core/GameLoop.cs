@@ -928,7 +928,7 @@ namespace XNAFinalEngine.EngineCore
 
             #region Light Texture
 
-            LightPrePass.Begin(destinationSize, currentCamera.AmbientLight != null ? currentCamera.AmbientLight.Color : Color.Black);
+            LightPrePass.Begin(destinationSize);
 
             #region Ambient Light
 
