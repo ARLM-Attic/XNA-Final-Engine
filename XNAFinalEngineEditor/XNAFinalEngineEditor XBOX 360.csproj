@@ -138,7 +138,6 @@
     <Compile Include="UserInterface\Utilities.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Editor\Controls\Materials\" />
     <Folder Include="Editor\Windows\Assets\" />
     <Folder Include="Editor\Windows\Materials\" />
   </ItemGroup>

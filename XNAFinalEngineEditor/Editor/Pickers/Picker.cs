@@ -92,7 +92,7 @@ namespace XNAFinalEngine.Editor
 
         #endregion
 
-        #region Texture Picking
+        #region Pick
 
         /// <summary>
         /// Pick the object that is on the mouse pointer.
@@ -128,39 +128,15 @@ namespace XNAFinalEngine.Editor
                 foreach (GameObject obj in GameObject.GameObjects)
                 {
                     // Select the next color
-                    if (red < 255)
-                        red++;
-                    else
-                    {
-                        red = 0;
-                        if (green < 255)
-                            green++;
-                        else
-                        {
-                            green = 0;
-                            blue++;
-                        }
-                    }
+                    NextColor(ref red, ref green, ref blue);
                     if (pixel == new Color(red, green, blue))
                         return obj;
                 }
-                // Maybe it is an icon
+                // Maybe it is an icon...
                 foreach (GameObject obj in GameObject.GameObjects)
                 {
                     // Select the next color
-                    if (red < 255)
-                        red++;
-                    else
-                    {
-                        red = 0;
-                        if (green < 255)
-                            green++;
-                        else
-                        {
-                            green = 0;
-                            blue++;
-                        }
-                    }
+                    NextColor(ref red, ref green, ref blue);
                     if (pixel == new Color(red, green, blue))
                         return obj;
                 }
@@ -205,23 +181,17 @@ namespace XNAFinalEngine.Editor
                 foreach (GameObject obj in GameObject.GameObjects)
                 {
                     // Select the next color
-                    if (red < 255)
-                        red++;
-                    else
-                    {
-                        red = 0;
-                        if (green < 255)
-                            green++;
-                        else
-                        {
-                            green = 0;
-                            blue++;
-                        }
-                    }
+                    NextColor(ref red, ref green, ref blue);
                     if (colors.Any(color => color == new Color(red, green, blue)))
-                    {
                         pickedObjects.Add(obj);
-                    }
+                }
+                // Maybe it is an icon
+                foreach (GameObject obj in GameObject.GameObjects)
+                {
+                    // Select the next color
+                    NextColor(ref red, ref green, ref blue);
+                    if (colors.Any(color => color == new Color(red, green, blue)))
+                        pickedObjects.Add(obj);
                 }
 
                 #endregion
@@ -233,6 +203,30 @@ namespace XNAFinalEngine.Editor
             }
             return pickedObjects;
         } // Pick
+
+        #endregion
+
+        #region Next Color
+
+        /// <summary>
+        /// Gives the next color.
+        /// </summary>
+        private static void NextColor(ref byte red, ref byte green, ref byte blue)
+        {
+            if (red < 255)
+                red++;
+            else
+            {
+                red = 0;
+                if (green < 255)
+                    green++;
+                else
+                {
+                    green = 0;
+                    blue++; // If blue is bigger than 255 then overflow.
+                }
+            }
+        } // NextColor
 
         #endregion
 
@@ -248,15 +242,15 @@ namespace XNAFinalEngine.Editor
             this.projectionMatrix = projectionMatrix;
 
             byte red = 0, green = 0, blue = 0;
-            Color colorMaterial = new Color(0, 0, 0);
-
-            // Set Render States.
-            EngineManager.Device.BlendState = BlendState.NonPremultiplied;
-            EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-            EngineManager.Device.DepthStencilState = DepthStencilState.Default;
+            Color colorMaterial;
 
             // Start rendering onto the picker map
             pickerTexture.EnableRenderTarget();
+
+            // Set Render States.
+            EngineManager.Device.BlendState        = BlendState.NonPremultiplied;
+            EngineManager.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
+            EngineManager.Device.DepthStencilState = DepthStencilState.Default;
 
             EngineManager.Device.Viewport = viewport;
 
@@ -269,21 +263,7 @@ namespace XNAFinalEngine.Editor
             foreach (GameObject obj in GameObject.GameObjects)
             {
                 // Select the next color
-                if (colorMaterial.R < 255)
-                    red++;
-                else
-                {
-                    red = 0;
-                    if (colorMaterial.G < 255)
-                        green++;
-                    else
-                    {
-                        green = 0;
-                        if (blue == 255)
-                            throw new Exception("Color out of range.");
-                        blue++;
-                    }
-                }
+                NextColor(ref red, ref green, ref blue);
                 colorMaterial = new Color(red, green, blue);
                 // Render the object with the picker material
                 RenderObjectToPicker(obj, colorMaterial);
@@ -293,21 +273,7 @@ namespace XNAFinalEngine.Editor
             foreach (GameObject obj in GameObject.GameObjects)
             {
                 // Select the next color
-                if (colorMaterial.R < 255)
-                    red++;
-                else
-                {
-                    red = 0;
-                    if (colorMaterial.G < 255)
-                        green++;
-                    else
-                    {
-                        green = 0;
-                        if (blue == 255)
-                            throw new Exception("Color out of range.");
-                        blue++;
-                    }
-                }
+                NextColor(ref red, ref green, ref blue);
                 colorMaterial = new Color(red, green, blue);
                 // Render the object with the picker material
                 RenderIconToPicker(obj, colorMaterial);
@@ -360,6 +326,7 @@ namespace XNAFinalEngine.Editor
             if (gameObject is GameObject3D)
             {
                 GameObject3D gameObject3D = (GameObject3D)gameObject;
+                // Model Renderer
                 if (gameObject3D.ModelFilter != null && gameObject3D.ModelFilter.Model != null)
                 {
                     constantShader.Resource.Parameters["diffuseColor"].SetValue(new Vector3(color.R / 255f, color.G / 255f, color.B / 255f));
@@ -367,22 +334,12 @@ namespace XNAFinalEngine.Editor
                     constantShader.Resource.CurrentTechnique.Passes[0].Apply();
                     gameObject3D.ModelFilter.Model.Render();
                 }
+                // Lines
                 else if (gameObject3D.LineRenderer != null)
                 {
                     LineManager.Begin3D(gameObject3D.LineRenderer.PrimitiveType, viewMatrix, projectionMatrix);
                     for (int j = 0; j < gameObject3D.LineRenderer.Vertices.Length; j++)
                         LineManager.AddVertex(Vector3.Transform(gameObject3D.LineRenderer.Vertices[j].Position, gameObject3D.Transform.WorldMatrix), color);
-                    LineManager.End();
-                }
-            }
-            else if (gameObject is GameObject2D)
-            {
-                GameObject2D gameObject2D = (GameObject2D)gameObject;
-                if (gameObject2D.LineRenderer != null)
-                {
-                    LineManager.Begin2D(gameObject2D.LineRenderer.PrimitiveType);
-                    for (int j = 0; j < gameObject2D.LineRenderer.Vertices.Length; j++)
-                        LineManager.AddVertex(gameObject2D.LineRenderer.Vertices[j].Position, color);
                     LineManager.End();
                 }
             }
@@ -411,41 +368,12 @@ namespace XNAFinalEngine.Editor
                     LineManager.DrawSolid2DPlane(new Rectangle((int)screenPositions.X, (int)screenPositions.Y, 32, 32), color);
                 }
             }
-            else if (gameObject is GameObject2D)
-            {
-                
-            }
         } // RenderIconToPicker
 
         #endregion
 
-        #region Bounding Mesh Methods
-        /*
-        /// <summary>
-        /// Select the objects using the bounding volume method. 
-        /// It wasn't finished.
-        /// </summary>
-        private void PickWithBoundingSpheres(int x, int y)
-        {   
-            Matrix world = Matrix.Identity;
-            Vector3 nearsource = new Vector3(x, y, 0f),
-                    farsource = new Vector3(x, y, 1f),
-                    nearPoint = EngineManager.Device.Viewport.Unproject(nearsource, ApplicationLogic.Camera.ProjectionMatrix, ApplicationLogic.Camera.ViewMatrix, world),
-                    farPoint = EngineManager.Device.Viewport.Unproject(farsource, ApplicationLogic.Camera.ProjectionMatrix, ApplicationLogic.Camera.ViewMatrix, world),
-                    direction = farPoint - nearPoint;
-
-            direction.Normalize();
-            
-            Ray pickRay = new Ray(nearPoint, direction);
-
-            // TODO!!! It wasn't finished.
-
-        } // PickWithBoundingSpheres
-        */
-        #endregion
-
         #region Manual Pick
-        
+
         /// <summary>
         /// Manualy render the picker texture.
         /// This allow us to control deeply the pick operation.
@@ -491,13 +419,12 @@ namespace XNAFinalEngine.Editor
             if (!hasBegun)
                 throw new InvalidOperationException("Line Manager: End was called, but Begin has not yet been called. You must call Begin successfully before you can call End.");
             hasBegun = false;
+            Color[] colors = new Color[region.Width * region.Height];
             try
             {
                 // Activate the frame buffer again.
                 pickerTexture.DisableRenderTarget();
-
-                Color[] colors = new Color[region.Width * region.Height];
-
+                
                 #region Fix out of region
 
                 // Left side
@@ -522,16 +449,40 @@ namespace XNAFinalEngine.Editor
                 #endregion
 
                 pickerTexture.Resource.GetData(0, region, colors, 0, region.Width * region.Height);
-            
-                return colors;
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Picker: operation failed: ", e);
+                //throw new InvalidOperationException("Picker: operation failed: ", e);
             }
+            return colors;
         } // EndManualPicking
 
         #endregion
+        
+        #region Bounding Mesh Methods
+        /*
+        /// <summary>
+        /// Select the objects using the bounding volume method. 
+        /// It wasn't finished.
+        /// </summary>
+        private void PickWithBoundingSpheres(int x, int y)
+        {   
+            Matrix world = Matrix.Identity;
+            Vector3 nearsource = new Vector3(x, y, 0f),
+                    farsource = new Vector3(x, y, 1f),
+                    nearPoint = EngineManager.Device.Viewport.Unproject(nearsource, ApplicationLogic.Camera.ProjectionMatrix, ApplicationLogic.Camera.ViewMatrix, world),
+                    farPoint = EngineManager.Device.Viewport.Unproject(farsource, ApplicationLogic.Camera.ProjectionMatrix, ApplicationLogic.Camera.ViewMatrix, world),
+                    direction = farPoint - nearPoint;
 
+            direction.Normalize();
+            
+            Ray pickRay = new Ray(nearPoint, direction);
+
+            // TODO!!! It wasn't finished.
+
+        } // PickWithBoundingSpheres
+        */
+        #endregion
+        
     } // Picker
 } // XNAFinalEngine.Editor

@@ -151,7 +151,7 @@ namespace XNAFinalEngine.Graphics
                 throw new NotSupportedException("Line Manager: The specified primitiveType is not supported.");
             }
 
-            EngineManager.Device.DepthStencilState = DepthStencilState.None;
+            EngineManager.Device.DepthStencilState = DepthStencilState.Default;
             EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
             EngineManager.Device.BlendState = BlendState.NonPremultiplied;
 
@@ -194,7 +194,7 @@ namespace XNAFinalEngine.Graphics
                 throw new NotSupportedException("Line Manager: The specified primitiveType is not supported.");
             }
 
-            EngineManager.Device.DepthStencilState = DepthStencilState.None;
+            EngineManager.Device.DepthStencilState = DepthStencilState.Default;
             EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
             EngineManager.Device.BlendState = BlendState.NonPremultiplied;
 

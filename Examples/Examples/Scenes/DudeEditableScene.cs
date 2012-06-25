@@ -157,12 +157,12 @@ namespace XNAFinalEngineExamples
                 dude.ModelRenderer.MeshMaterial[4] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
                 dude.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
                 dude.AddComponent<ModelAnimations>();
-                ModelAnimation modelAnimation = new ModelAnimation("dude_attack"); // Be aware to select the correct content processor.
-                modelAnimation.WrapMode = WrapMode.ClampForever;
-                dude.ModelAnimations.AddAnimationClip(modelAnimation);
-                modelAnimation = new ModelAnimation("DudeRun"); // Be aware to select the correct content processor.
-                modelAnimation.WrapMode = WrapMode.Loop;
-                dude.ModelAnimations.AddAnimationClip(modelAnimation);
+                //ModelAnimation modelAnimation = new ModelAnimation("dude_attack"); // Be aware to select the correct content processor.
+                //modelAnimation.WrapMode = WrapMode.ClampForever;
+                //dude.ModelAnimations.AddAnimationClip(modelAnimation);
+                //modelAnimation = new ModelAnimation("DudeRun"); // Be aware to select the correct content processor.
+                //modelAnimation.WrapMode = WrapMode.Loop;
+                //dude.ModelAnimations.AddAnimationClip(modelAnimation);
                 //dude.Transform.Rotate(new Vector3(0, 180, 0));
                 //dude.ModelAnimations.Play("dude_attack");
                 dude.ModelAnimations["Take 001"].WrapMode = WrapMode.Loop;
@@ -239,10 +239,8 @@ namespace XNAFinalEngineExamples
             statistics.AddComponent<ScriptStatisticsDrawer>();
 
             #endregion
-            
-            dude.ModelAnimations.Play("dude_attack");
 
-            //PostProcessWindow.Show(camera.Camera.PostProcess);
+            dude.ModelAnimations.Play("Take 001");
             
         } // Load
 
@@ -257,7 +255,7 @@ namespace XNAFinalEngineExamples
         public override void UpdateTasks()
         {
             base.UpdateTasks();
-
+            /*
             if (Keyboard.KeyPressed(Keys.Space))
             {
                 if (animating <= 0 || animating > 0.05f)
@@ -299,7 +297,7 @@ namespace XNAFinalEngineExamples
                     }
                 }
             }
-            
+            */
 
             rifle.Transform.LocalMatrix = Matrix.Identity;
             rifle.Transform.Translate(new Vector3(1.2767f, 0.5312f, 0.0045f));

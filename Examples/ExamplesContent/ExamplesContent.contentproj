@@ -218,6 +218,11 @@
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
     </Compile>
+    <Compile Include="Models\Rifle.fbx">
+      <Name>Rifle</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>ModelProcessor</Processor>
+    </Compile>
     <Compile Include="Music\01 - Artexflow - Feeling Good.mp3">
       <Name>01 - Artexflow - Feeling Good</Name>
       <Importer>Mp3Importer</Importer>
@@ -342,13 +347,6 @@
       <Project>{D17667E3-C4A6-477E-8F3E-C6A4A9A95DE0}</Project>
       <Name>XNAFinalEngineContentPipelineExtension</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Animations\dude.fbx">
-      <Name>dude</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>SkinnedAnimationProcessor</Processor>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-AirTakes.fbx">
@@ -831,28 +829,6 @@
       <Processor>TextureProcessor</Processor>
       <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
       <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Animations\dude_attack.fbx">
-      <Name>dude_attack</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>SkinnedAnimationProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Animations\DudeRun.fbx">
-      <Name>DudeRun</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>SkinnedAnimationProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\Rifle.fbx">
-      <Name>Rifle</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
