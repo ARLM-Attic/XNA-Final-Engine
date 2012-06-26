@@ -879,7 +879,7 @@ namespace XNAFinalEngineExamples
             
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
-            directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 140);
+            directionalLight.DirectionalLight.Color = new Color(250, 250, 140);
             directionalLight.DirectionalLight.Intensity = 7f;
             directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
@@ -892,42 +892,42 @@ namespace XNAFinalEngineExamples
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
-            pointLight.PointLight.DiffuseColor = new Color(250, 0, 180);
+            pointLight.PointLight.Color = new Color(250, 0, 180);
             pointLight.PointLight.Intensity = 1f;
             pointLight.PointLight.Range = 100;
             pointLight.Transform.Position = new Vector3(-15, 50, 5);
 
             pointLight2 = new GameObject3D();
             pointLight2.AddComponent<PointLight>();
-            pointLight2.PointLight.DiffuseColor = new Color(170, 150, 255);
+            pointLight2.PointLight.Color = new Color(170, 150, 255);
             pointLight2.PointLight.Intensity = 1f;
             pointLight2.PointLight.Range = 100;
             pointLight2.Transform.Position = new Vector3(25, 25, -15);
             
             pointLight3 = new GameObject3D();
             pointLight3.AddComponent<PointLight>();
-            pointLight3.PointLight.DiffuseColor = new Color(70, 250, 55);
+            pointLight3.PointLight.Color = new Color(70, 250, 55);
             pointLight3.PointLight.Intensity = 1f;
             pointLight3.PointLight.Range = 100;
             pointLight3.Transform.Position = new Vector3(15f, 15, -20);
 
             pointLight4 = new GameObject3D();
             pointLight4.AddComponent<PointLight>();
-            pointLight4.PointLight.DiffuseColor = new Color(150, 150, 150);
+            pointLight4.PointLight.Color = new Color(150, 150, 150);
             pointLight4.PointLight.Intensity = 1f;
             pointLight4.PointLight.Range = 100; // I always forget to set the light range lower than the camera far plane.
             pointLight4.Transform.Position = new Vector3(-20, -5, 20);
 
             pointLight5 = new GameObject3D();
             pointLight5.AddComponent<PointLight>();
-            pointLight5.PointLight.DiffuseColor = new Color(220, 150, 155);
+            pointLight5.PointLight.Color = new Color(220, 150, 155);
             pointLight5.PointLight.Intensity = 0.35f;
             pointLight5.PointLight.Range = 200;
             pointLight5.Transform.Position = new Vector3(0f, 0.5f, -50);
 
             pointLight6 = new GameObject3D();
             pointLight6.AddComponent<PointLight>();
-            pointLight6.PointLight.DiffuseColor = new Color(240, 70, 110);
+            pointLight6.PointLight.Color = new Color(240, 70, 110);
             pointLight6.PointLight.Intensity = 0.35f;
             pointLight6.PointLight.Range = 150; // I always forget to set the light range lower than the camera far plane.
             pointLight6.Transform.Position = new Vector3(0, -30f, -10);
@@ -942,7 +942,7 @@ namespace XNAFinalEngineExamples
             */
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
-            spotLight.SpotLight.DiffuseColor = Color.Green;
+            spotLight.SpotLight.Color = Color.Green;
             spotLight.SpotLight.Intensity = 200f;
             spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
             spotLight.Transform.Position = new Vector3(0, 15f, 10);

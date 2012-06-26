@@ -413,8 +413,8 @@ namespace XNAFinalEngine.Audio
         {
             // Update general parameters
             SoundEffect.DistanceScale = DistanceScale;
-            SoundEffect.DopplerScale = DopplerScale;
-            SoundEffect.MasterVolume = MasterVolume;
+            SoundEffect.DopplerScale  = DopplerScale;
+            SoundEffect.MasterVolume  = MasterVolume;
         } // Update
 
         #endregion

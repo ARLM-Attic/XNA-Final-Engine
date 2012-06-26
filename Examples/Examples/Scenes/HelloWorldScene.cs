@@ -80,7 +80,7 @@ namespace XNAFinalEngineExamples
             ((BlinnPhong)body.ModelRenderer.Material).DiffuseColor = Color.Yellow;
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
-            directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 140);
+            directionalLight.DirectionalLight.Color = new Color(250, 250, 140);
             directionalLight.DirectionalLight.Intensity = 1f;
             directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
 

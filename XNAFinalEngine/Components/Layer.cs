@@ -168,17 +168,23 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
-        #region Is Active
+        #region Is Active and Visible
 
         /// <summary>
         /// Indicates if the layer is active.
         /// </summary>
-        /// <param name="layerMask"></param>
-        /// <returns></returns>
         public static bool IsActive(uint layerMask)
         {
-            return (layerMask & CurrentCameraCullingMask & ActiveLayers) != 0;
+            return (layerMask & ActiveLayers) != 0;
         } // IsActive
+
+        /// <summary>
+        /// Indicates if the layer is visible (includes the current camera culling mask in the answer)
+        /// </summary>
+        public static bool IsVisible(uint layerMask)
+        {
+            return (layerMask & CurrentCameraCullingMask & ActiveLayers) != 0;
+        } // IsVisible
 
         #endregion
 

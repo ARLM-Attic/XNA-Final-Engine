@@ -208,14 +208,17 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public RenderTarget RenderTarget
         {
-            get { return renderTarget; }
+            get
+            {
+                if (masterCamera != null)
+                    return masterCamera.renderTarget;
+                return renderTarget;
+            }
             internal set
             {
                 if (masterCamera != null)
                     return;
                 renderTarget = value;
-                for (int i = 0; i < slavesCameras.Count; i++)
-                    slavesCameras[i].renderTarget = value;
             }
         } // RenderTarget
 
@@ -235,15 +238,13 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public Size RenderTargetSize
         {
-            get { return renderTargetSize; }
-            set
+            get
             {
                 if (masterCamera != null)
-                    return;
-                renderTargetSize = value;
-                for (int i = 0; i < slavesCameras.Count; i++)
-                    slavesCameras[i].renderTargetSize = value;
+                    return masterCamera.RenderTargetSize;
+                return renderTargetSize;
             }
+            set { renderTargetSize = value; }
         } // RenderTargetSize
 
         #endregion
@@ -263,27 +264,14 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Camera: A camera can't be master and slave simultaneity.");
                 // Remove this camera from the old master.
                 if (masterCamera != null)
-                {
                     masterCamera.slavesCameras.Remove(this);
-                    // Order slaves
-                    for (int i = 0; i < masterCamera.slavesCameras.Count; i++)
-                    {
-                        if (masterCamera.slavesCameras[i].RenderingOrder > masterCamera.slavesCameras[masterCamera.slavesCameras.Count - 1].RenderingOrder)
-                        {
-                            Camera temp = masterCamera.slavesCameras[masterCamera.slavesCameras.Count - 1];
-                            masterCamera.slavesCameras[masterCamera.slavesCameras.Count - 1] = masterCamera.slavesCameras[i];
-                            masterCamera.slavesCameras[i] = temp;
-                        }
-                    }
-                }
-                    
                 // Set new master.
                 masterCamera = value;
                 // Update master with its new slave.
                 if (value != null)
                 {
                     value.slavesCameras.Add(this);
-                    // Order slaves
+                    // Sorted slaves (remember that this is a sorted list)
                     for (int i = 0; i < value.slavesCameras.Count; i++)
                     {
                         if (value.slavesCameras[i].RenderingOrder > value.slavesCameras[value.slavesCameras.Count - 1].RenderingOrder)
@@ -295,10 +283,7 @@ namespace XNAFinalEngine.Components
                     }
                     if (renderTarget != null)
                         RenderTarget.Release(renderTarget);
-                    // Just to be robust...
-                    // I update the children values so that, in the case of a unparent, the values remain the same as the father.
-                    renderTarget = value.RenderTarget;
-                    renderTargetSize = value.RenderTargetSize;
+                    renderTarget = null;
                 }
             }
         } // MasterCamera
@@ -526,44 +511,33 @@ namespace XNAFinalEngine.Components
             set
             {
                 renderingOrder = value;
-                // Order pool.
+                // Sort the camera pool using the rendering order.
                 for (int i = 0; i < componentPool.Count; i++)
                 {
                     if (componentPool.Elements[i].RenderingOrder > componentPool.Elements[componentPool.Count - 1].RenderingOrder)
-                    {
                         componentPool.Swap(i, componentPool.Count - 1);
-                    }
                 }
             }
         } // RenderingOrder
 
         /// <summary>
-        /// The current camera that renders to the back buffer.
+        /// The current master camera that renders to the back buffer.
         /// </summary>
         public static Camera MainCamera
         {
             get
             {
-                if (OnlyRendereableCamera != null)
-                    return OnlyRendereableCamera;
+                // The components are sorted using the rendering order.
                 for (int i = componentPool.Count - 1; i >= 0; i--)
                 {
-                    // A slave camera could have a bigger value than its master
-                    if (componentPool.Elements[i].MasterCamera == null && componentPool.Elements[i].Enabled)
+                    // A slave camera could have a bigger value than its master.
+                    if (componentPool.Elements[i].MasterCamera == null && componentPool.Elements[i].IsActive)
                         return componentPool.Elements[i];
                 }
                 // The only posible scenerio is a scene with no camera.
                 return null;
             }
         } // MainCamera
-
-        /// <summary>
-        /// If this is different than null the system will render only this camera.
-        /// </summary>
-        /// <remarks>
-        /// The visibility property will be ignored in the camera. 
-        /// </remarks>
-        public static Camera OnlyRendereableCamera { get; set; }
 
         #endregion
 

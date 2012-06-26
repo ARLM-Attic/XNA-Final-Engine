@@ -43,8 +43,10 @@ namespace XNAFinalEngine.Components
 
         #region Variable
         
-        // Indicates if it is available or used by an game object.
-        internal bool available;
+        /// <summary>
+        /// Indicates if it is available to fetch or used by an game object.
+        /// </summary>
+        internal bool assignedToAGameObject;
 
         #endregion
 
@@ -56,7 +58,7 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
-            available = false;
+            assignedToAGameObject = true;
             Load();
         } // Initialize
         
@@ -71,7 +73,7 @@ namespace XNAFinalEngine.Components
         internal override void Uninitialize()
         {
             Unload();
-            available = true;
+            assignedToAGameObject = false;
             // Call this last because the owner information is needed.
             base.Uninitialize();
         } // Uninitialize
@@ -142,7 +144,7 @@ namespace XNAFinalEngine.Components
         {
             for (int i = 0; i < ScriptList.Count; i++)
             {
-                if (ScriptList[i] is TComponentType && ScriptList[i].Owner == owner && !ScriptList[i].available)
+                if (ScriptList[i] is TComponentType && ScriptList[i].Owner == owner && ScriptList[i].assignedToAGameObject)
                 {
                     return ScriptList[i];
                 }
@@ -157,7 +159,7 @@ namespace XNAFinalEngine.Components
         {
             for (int i = 0; i < ScriptList.Count; i++)
             {
-                if (ScriptList[i] is TComponentType && ScriptList[i].available)
+                if (ScriptList[i] is TComponentType && !ScriptList[i].assignedToAGameObject)
                 {
                     return ScriptList[i];
                 }
@@ -172,9 +174,9 @@ namespace XNAFinalEngine.Components
         {
             for (int i = 0; i < ScriptList.Count; i++)
             {
-                if (ScriptList[i] is TComponentType && ScriptList[i].Owner == owner && !ScriptList[i].available)
+                if (ScriptList[i] is TComponentType && ScriptList[i].Owner == owner && ScriptList[i].assignedToAGameObject)
                 {
-                    ScriptList[i].available = true;
+                    ScriptList[i].assignedToAGameObject = true;
                 }
             }
             return null;

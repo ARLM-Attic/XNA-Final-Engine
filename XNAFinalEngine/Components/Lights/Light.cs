@@ -46,7 +46,7 @@ namespace XNAFinalEngine.Components
         #region Variables
 
         // Light diffuse color.
-        private Color diffuseColor;
+        private Color color;
         
         // The Intensity of a light is multiplied with the Light color.
         private float intensity;
@@ -58,13 +58,13 @@ namespace XNAFinalEngine.Components
         #region Properties
 
         /// <summary>
-        /// Light diffuse color.
+        /// Light color.
         /// </summary>
-        public Color DiffuseColor
+        public Color Color
         {
-            get { return diffuseColor; }
-            set { diffuseColor = value; }
-        } // DiffuseColor
+            get { return color; }
+            set { color = value; }
+        } // Color
 
         /// <summary>
         /// The Intensity of a light is multiplied with the Light color.
@@ -101,7 +101,7 @@ namespace XNAFinalEngine.Components
             base.Initialize(owner);
             // Values
             intensity = 1;
-            diffuseColor = Color.White;
+            color = Color.White;
             // Transformation
             if (Owner is GameObject2D)
             {

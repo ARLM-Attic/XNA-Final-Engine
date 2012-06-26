@@ -97,13 +97,13 @@ namespace XNAFinalEngine.EngineCore
             get { return gameDeltaTime; }
             internal set
             {
-                if (!paused)
+                if (paused)
+                    gameDeltaTime = 0;
+                else
                 {
                     gameDeltaTime = value * TimeScale;
                     GameTotalTime += gameDeltaTime;
                 }
-                else
-                    gameDeltaTime = 0;
                 // Update application time with the real elapsed time (not scaled)
                 ApplicationTime += value;
             }

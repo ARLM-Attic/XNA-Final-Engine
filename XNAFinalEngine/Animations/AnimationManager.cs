@@ -105,15 +105,15 @@ namespace XNAFinalEngine.Animations
         #region Update
 
         /// <summary>
-        /// Update the active animations.
+        /// Update the individual active model animations players.
         /// </summary>
-        public static void UpdateAnimationPlayers()
+        public static void UpdateModelAnimationPlayers()
         {
             for (int i = 0; i < modelAnimationPlayerPool.Count; i++)
             {
                 modelAnimationPlayerPool.Elements[i].Update();
             }
-        } // UpdateAnimationPlayers
+        } // UpdateModelAnimationPlayers
 
         /// <summary>
         /// Release unused model animation players.

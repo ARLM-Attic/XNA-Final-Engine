@@ -376,10 +376,7 @@ namespace XNAFinalEngine.Editor
                 Parent = toolBarTopPanel,
                 CanFocus = false,
             };
-            buttonPlay.Click += delegate
-            {
-                buttonPlay.Glyph.Texture = buttonPlay.Glyph.Texture == playTexture ? playPressedTexture : playTexture;
-            };
+            buttonPlay.Click += delegate { buttonPlay.Glyph.Texture = buttonPlay.Glyph.Texture == playTexture ? playPressedTexture : playTexture; };
             Texture pauseTexture = new Texture("Editor\\PauseIconNotPressed");
             Texture pausePressedTexture = new Texture("Editor\\PauseIcon");
             Button buttonPause = new Button
@@ -392,10 +389,7 @@ namespace XNAFinalEngine.Editor
                 Parent = toolBarTopPanel,
                 CanFocus = false,
             };
-            buttonPause.Click += delegate
-            {
-                buttonPause.Glyph.Texture = buttonPause.Glyph.Texture == pauseTexture ? pausePressedTexture : pauseTexture;
-            };
+            buttonPause.Click += delegate { buttonPause.Glyph.Texture = buttonPause.Glyph.Texture == pauseTexture ? pausePressedTexture : pauseTexture; };
             Texture stopTexture = new Texture("Editor\\StopIconNotPressed");
             Texture stopPressedTexture = new Texture("Editor\\StopIcon");
             Button buttonStop = new Button
@@ -408,10 +402,7 @@ namespace XNAFinalEngine.Editor
                 Parent = toolBarTopPanel,
                 CanFocus = false,
             };
-            buttonStop.Click += delegate
-            {
-                buttonStop.Glyph.Texture = buttonStop.Glyph.Texture == stopTexture ? stopPressedTexture : stopTexture;
-            };
+            buttonStop.Click += delegate { buttonStop.Glyph.Texture = buttonStop.Glyph.Texture == stopTexture ? stopPressedTexture : stopTexture; };
             TabControl tabControlRenderSpace = new TabControl
             {
                 Left = 0,
@@ -516,7 +507,6 @@ namespace XNAFinalEngine.Editor
                 return;
             UserInterfaceManager.Visible = false;
             editorModeEnabled = false;
-            Camera.OnlyRendereableCamera = null;
             editorCamera.Camera.Enabled = false;
             gizmoCamera.Camera.Enabled = false;
             // Remove bounding box off the screen.
@@ -682,9 +672,9 @@ namespace XNAFinalEngine.Editor
 
                     #region Diffuse Color
 
-                    var sliderDiffuseColor = CommonControls.SliderColor("Diffuse Color", panel, selectedObject.PointLight.DiffuseColor);
-                    sliderDiffuseColor.ColorChanged += delegate { selectedObject.PointLight.DiffuseColor = sliderDiffuseColor.Color; };
-                    sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = selectedObject.PointLight.DiffuseColor; };
+                    var sliderDiffuseColor = CommonControls.SliderColor("Diffuse Color", panel, selectedObject.PointLight.Color);
+                    sliderDiffuseColor.ColorChanged += delegate { selectedObject.PointLight.Color = sliderDiffuseColor.Color; };
+                    sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = selectedObject.PointLight.Color; };
 
                     #endregion
 
@@ -736,9 +726,9 @@ namespace XNAFinalEngine.Editor
 
                     #region Diffuse Color
 
-                    var sliderDiffuseColor = CommonControls.SliderColor("Diffuse Color", panel, selectedObject.DirectionalLight.DiffuseColor);
-                    sliderDiffuseColor.ColorChanged += delegate { selectedObject.DirectionalLight.DiffuseColor = sliderDiffuseColor.Color; };
-                    sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = selectedObject.DirectionalLight.DiffuseColor; };
+                    var sliderDiffuseColor = CommonControls.SliderColor("Diffuse Color", panel, selectedObject.DirectionalLight.Color);
+                    sliderDiffuseColor.ColorChanged += delegate { selectedObject.DirectionalLight.Color = sliderDiffuseColor.Color; };
+                    sliderDiffuseColor.Draw += delegate { sliderDiffuseColor.Color = selectedObject.DirectionalLight.Color; };
 
                     #endregion
 
@@ -876,7 +866,6 @@ namespace XNAFinalEngine.Editor
 
             if (ViewportMode == ViewportModeType.Scene)
             {
-                Camera.OnlyRendereableCamera = gizmoCamera.Camera;
                 editorCamera.Camera.Enabled = true;
                 gizmoCamera.Camera.Enabled = true;
                 // Restore bounding box to the current selected objects.
@@ -887,7 +876,6 @@ namespace XNAFinalEngine.Editor
             }
             else
             {
-                Camera.OnlyRendereableCamera = null;
                 editorCamera.Camera.Enabled = false;
                 gizmoCamera.Camera.Enabled = false;
                 // Remove the bounding box in game mode.

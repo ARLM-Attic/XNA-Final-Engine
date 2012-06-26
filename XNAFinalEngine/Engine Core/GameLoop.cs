@@ -30,21 +30,20 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using XNAFinalEngine.Animations;
-using XNAFinalEngine.Components;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.Audio;
+using XNAFinalEngine.Components;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Input;
-using XNAFinalEngine.Audio;
-using RootAnimation = XNAFinalEngine.Components.RootAnimations;
-using Camera = XNAFinalEngine.Components.Camera;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
-using System.Collections.Generic;
+using RootAnimation = XNAFinalEngine.Components.RootAnimations;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -65,18 +64,18 @@ namespace XNAFinalEngine.EngineCore
 
         #region Variables
 
-        // It's an auxiliary value that helps avoiding garbage.
+        // They are auxiliary values that helps avoiding garbage.
         private static readonly Vector3[] cornersViewSpace = new Vector3[4];
-
-        private static readonly List<ModelRenderer> modelsToRender = new List<ModelRenderer>(50);
-        private static readonly List<ModelRenderer> modelsToRenderShadow = new List<ModelRenderer>(50);
-
         private static readonly BoundingFrustum cameraBoundingFrustum = new BoundingFrustum(Matrix.Identity);
 
+        // The system can have 0, 1, 2 and 3 audio lister.
+        // These fields are used to avoid garbage in each sound update.
         private static AudioListener oneAudioListener;
-        private static readonly AudioListener[] twoAudioListener = new AudioListener[2];
+        private static readonly AudioListener[] twoAudioListener   = new AudioListener[2];
         private static readonly AudioListener[] threeAudioListener = new AudioListener[3];
-        private static readonly AudioListener[] fourAudioListener = new AudioListener[4];
+        private static readonly AudioListener[] fourAudioListener  = new AudioListener[4];
+
+        private static readonly List<ModelRenderer> modelsToRender = new List<ModelRenderer>(50);
         
         #endregion
 
@@ -183,75 +182,61 @@ namespace XNAFinalEngine.EngineCore
 
             for (int i = 0; i < RootAnimation.ComponentPool.Count; i++)
             {
-                RootAnimation.ComponentPool.Elements[i].Update();
+                RootAnimation component = RootAnimation.ComponentPool.Elements[i];
+                if (component.IsActive)
+                    component.Update();
             }
 
             #endregion
 
             #region Model Animation Processing
 
-            AnimationManager.UpdateAnimationPlayers();
+            // Update the individual active model animation players.
+            AnimationManager.UpdateModelAnimationPlayers();
 
-            // Update every active animation.
-            // The output is a skeletal/rigid pose in local space for each active clip.
-            // The pose might contain information for every joint in the skeleton (a full-body pose),
-            // for only a subset of joints (partial pose), or it might be a difference pose for use in additive blending.
+            // Compose the active model animations.
             for (int i = 0; i < ModelAnimations.ComponentPool.Count; i++)
             {
-                ModelAnimations.ComponentPool.Elements[i].Update();
+                ModelAnimations component = ModelAnimations.ComponentPool.Elements[i];
+                if (component.IsActive)
+                    component.Update();
             }
-
-            AnimationManager.ReleaseUnusedAnimationPlayers();
 
             // The global pose (world space) is generated.
             // However, if no post processing exist (IK, ragdolls, etc.) this stage could be merge with
             // the inverse bind pose multiplication stage in the mesh draw code. And for now the engine will do this.
             // TODO!!
 
+            // The animation players of the individual animations that were finished in the model animation player update,
+            // the individual animations that were discarded by the compose operation and the individual animations that were stopped
+            // are release to be used by other future individual animations.
+            AnimationManager.ReleaseUnusedAnimationPlayers();
+            
             #endregion
             
-            #region Scene Update Tasks
+            #region Logic Update
             
-            if (CurrentScene != null && CurrentScene.Loaded)
-            {
-                CurrentScene.UpdateTasks();
-            }
-
-            #endregion
-
-            #region Scripts Update
-
+            // Update the scene
+            CurrentScene.UpdateTasks();
+            // Update the scripts
             foreach (var script in Script.ScriptList)
             {
-                if (!script.available)
+                if (script.assignedToAGameObject && script.IsActive)
                     script.Update();
             }
-
-            #endregion 
-
-            #region Scene Late Update Tasks
-
-            if (CurrentScene != null && CurrentScene.Loaded)
-            {
-                CurrentScene.LateUpdateTasks();
-            }
-
-            #endregion
-            
-            #region Scripts Late Update
-
+            // Perform the late update of the scene.
+            CurrentScene.LateUpdateTasks();
+            // Perform the late update of the scripts.
             foreach (var script in Script.ScriptList)
             {
-                if (!script.available)
+                if (script.assignedToAGameObject && script.IsActive)
                     script.LateUpdate();
             }
 
             #endregion
 
             #region Sound
-
-            // TODO: layers, and distance activation.
-            
+         
             // Update the sound's general parameters.
             SoundManager.Update();
 
@@ -261,30 +246,27 @@ namespace XNAFinalEngine.EngineCore
             int audioListenerCount = 0;
             for (int i = 0; i < SoundListener.ComponentPool.Count; i++)
             {
-                if (SoundListener.ComponentPool.Elements[i].Enabled)
-                {
+                if (SoundListener.ComponentPool.Elements[i].IsActive)
                     audioListenerCount++;
-                }
             }
             if (audioListenerCount > 4)
-            {
                 throw new InvalidOperationException("Sound Manager: The maximum number of active audio listener is 4");
-            }
             // Update and put into a list.
             int arrayindex = 0;
             for (int i = 0; i < SoundListener.ComponentPool.Count; i++)
             {
-                if (SoundListener.ComponentPool.Elements[i].Enabled)
+                SoundListener component = SoundListener.ComponentPool.Elements[i];
+                if (component.IsActive)
                 {
-                    SoundListener.ComponentPool.Elements[i].UpdateListenerProperties();
+                    component.UpdateListenerProperties();
                     if (audioListenerCount == 1)
-                        oneAudioListener = SoundListener.ComponentPool.Elements[i].audioListener;
+                        oneAudioListener = component.audioListener;
                     else if (audioListenerCount == 2)
-                        twoAudioListener[arrayindex] = SoundListener.ComponentPool.Elements[i].audioListener;
+                        twoAudioListener[arrayindex] = component.audioListener;
                     else if (audioListenerCount == 3)
-                        threeAudioListener[arrayindex] = SoundListener.ComponentPool.Elements[i].audioListener;
+                        threeAudioListener[arrayindex] = component.audioListener;
                     else if (audioListenerCount == 4)
-                        fourAudioListener[arrayindex] = SoundListener.ComponentPool.Elements[i].audioListener;
+                        fourAudioListener[arrayindex] = component.audioListener;
                     arrayindex++;
                 }
             }
@@ -294,16 +276,26 @@ namespace XNAFinalEngine.EngineCore
             #region Emitters
             
             // Update sound emitters.
-            for (int i = 0; i < SoundEmitter.ComponentPool.Count; i++)
+            if (audioListenerCount <= 1)
+                for (int i = 0; i < SoundEmitter.ComponentPool.Count; i++)
+                {
+                    if (SoundEmitter.ComponentPool.Elements[i].IsActive)
+                        SoundEmitter.ComponentPool.Elements[i].Update(oneAudioListener);   
+                }
+            else
             {
-                if (audioListenerCount <= 1)
-                    SoundEmitter.ComponentPool.Elements[i].Update(oneAudioListener);
-                else if (audioListenerCount == 2)
-                    SoundEmitter.ComponentPool.Elements[i].Update(twoAudioListener);
-                else if (audioListenerCount == 3)
-                    SoundEmitter.ComponentPool.Elements[i].Update(threeAudioListener);
-                else if (audioListenerCount == 4)
-                    SoundEmitter.ComponentPool.Elements[i].Update(fourAudioListener);
+                AudioListener[] audioListeners;
+                if (audioListenerCount == 2)
+                    audioListeners = twoAudioListener;
+                else if (audioListenerCount == 3)   
+                    audioListeners = threeAudioListener;
+                else
+                    audioListeners = fourAudioListener;
+                for (int i = 0; i < SoundEmitter.ComponentPool.Count; i++)
+                {
+                    if (SoundEmitter.ComponentPool.Elements[i].IsActive)
+                        SoundEmitter.ComponentPool.Elements[i].Update(audioListeners);   
+                }
             }
             
             #endregion
@@ -323,35 +315,18 @@ namespace XNAFinalEngine.EngineCore
         {
             // Update frame time
             Time.FrameTime = (float)(gameTime.ElapsedGameTime.TotalSeconds);
-
-            #region Reser Frame Statistics
-
             // Reset Frame Statistics
             Statistics.ReserFrameStatistics();
-
-            #endregion
-
-            #region Update Chronometers
-
             // Update the chronometers that work in frame time space.
             Chronometer.UpdateFrameTimeChronometers();
 
-            #endregion
+            #region Logic Update
 
-            #region Scene Pre Render Tasks
-
-            if (CurrentScene != null && CurrentScene.Loaded)
-            {
-                CurrentScene.PreRenderTasks();
-            }
-
-            #endregion
-            
-            #region Scripts Pre Render Update
-
+            // Perform the pre draw update of the scene and scripts.
+            CurrentScene.PreRenderTasks();
             foreach (var script in Script.ScriptList)
             {
-                if (!script.available)
+                if (script.assignedToAGameObject && script.IsActive)
                     script.PreRenderUpdate();
             }
 
@@ -362,95 +337,59 @@ namespace XNAFinalEngine.EngineCore
             // Update particle emitters.
             for (int i = 0; i < ParticleEmitter.ComponentPool.Count; i++)
             {
-                ParticleEmitter.ComponentPool.Elements[i].Update();
+                if (ParticleEmitter.ComponentPool.Elements[i].IsActive)
+                    ParticleEmitter.ComponentPool.Elements[i].Update();
             }
 
             #endregion
             
             #region Render Each Camera
 
-            // For recover all render target.
+            // Release all master camera's render targets (slaves do not have render targets).
             for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
             {
                 Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
                 if (currentCamera.MasterCamera == null && currentCamera.RenderTarget != null)
                         RenderTarget.Release(currentCamera.RenderTarget);
             }
-            
-            // This allows rendering only a camera ignoring the rendering order and visibility. 
-            // However, if the camera is a master or slave camera then all of them will be rendered.
-            if (Camera.OnlyRendereableCamera != null)
+            // For each camera we render the scene in it
+            for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
             {
-                RenderMasterCamera(Camera.OnlyRendereableCamera.MasterCamera ?? Camera.OnlyRendereableCamera);
-            }
-            else
-            {
-                // For each camera we render the scene in it
-                for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
-                {
-                    Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
-                    // If is a master camera
-                    if (currentCamera.MasterCamera == null && currentCamera.Enabled && Layer.IsActive(currentCamera.CachedLayerMask))
-                    {
-                        RenderMasterCamera(currentCamera);
-                    }
-                }
+                Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
+                // Only active master cameras are renderer.
+                if (currentCamera.MasterCamera == null && currentCamera.IsActive)
+                    RenderMasterCamera(currentCamera);
             }
             
-            #endregion
-
-            #region Screenshot Preparations
-
-            RenderTarget screenshotRenderTarget = null;
-            if (ScreenshotCapturer.MakeScreenshot)
-            {
-                // Instead of render into the back buffer we render into a render target.
-                screenshotRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false);
-                screenshotRenderTarget.EnableRenderTarget();
-            }
-
             #endregion
 
             #region Render Main Camera to Back Buffer
 
             EngineManager.Device.Clear(Color.Black);
-            // Render onto back buffer the main camera and the HUD.
+            // Render the main camera onto back buffer.
             if (Camera.MainCamera != null && Camera.MainCamera.RenderTarget != null)
-                SpriteManager.DrawTextureToFullScreen(Camera.MainCamera.RenderTarget);
-
-            #endregion
-
-            #region Scene Post Render Tasks
-
-            if (CurrentScene != null && CurrentScene.Loaded)
             {
-                CurrentScene.PostRenderTasks();
+                SpriteManager.DrawTextureToFullScreen(Camera.MainCamera.RenderTarget);
+                // Screenshot
+                if (ScreenshotCapturer.MakeScreenshot)
+                {
+                    ScreenshotCapturer.MakeScreenshot = false;
+                    ScreenshotCapturer.SaveScreenshot(Camera.MainCamera.RenderTarget);
+                }
             }
 
             #endregion
 
-            #region Scripts Post Render Update
+            #region Logic Update
 
+            CurrentScene.PostRenderTasks();
             foreach (var script in Script.ScriptList)
             {
-                if (!script.available)
+                if (script.assignedToAGameObject && script.IsActive)
                     script.PostRenderUpdate();
             }
 
             #endregion 
-
-            #region Screenshot
-
-            if (ScreenshotCapturer.MakeScreenshot)
-            {
-                screenshotRenderTarget.DisableRenderTarget();
-                ScreenshotCapturer.MakeScreenshot = false;
-                ScreenshotCapturer.SaveScreenshot(screenshotRenderTarget);
-                SpriteManager.DrawTextureToFullScreen(screenshotRenderTarget);
-                screenshotRenderTarget.Dispose();
-            }
-
-            #endregion
             
             #region Release Shadow Light Depth Textures
 
@@ -478,6 +417,78 @@ namespace XNAFinalEngine.EngineCore
             
         } // Draw
 
+        #region Render Master Camera
+
+        /// <summary>
+        /// Render a master camera and its slaves. 
+        /// </summary>
+        private static void RenderMasterCamera(Camera currentCamera)
+        {
+            // If it does not have slaves cameras and it occupied the whole render target...
+            if (currentCamera.slavesCameras.Count == 0 && currentCamera.NormalizedViewport == new RectangleF(0, 0, 1, 1))
+                currentCamera.RenderTarget = RenderCamera(currentCamera);
+            else
+            {
+
+                #region Render Cameras
+
+                // Render each camera to a render target and then merge.
+                currentCamera.PartialRenderTarget = RenderCamera(currentCamera);
+                foreach (Camera slaveCamera in currentCamera.slavesCameras)
+                {
+                    if (slaveCamera.IsActive)
+                        // I store the render of the camera to a partial render target.
+                        // This helps reduce the memory consumption (GBuffer, Light Pass, HDR pass)
+                        // at the expense of a pass that copy this texture to a bigger render target
+                        // and a last pass that copy the cameras’ render target to the back buffer.
+                        // If the performance is critical and there is more memory you should change this behavior.
+                        // It also simplified the render of one camera. 
+                        slaveCamera.PartialRenderTarget = RenderCamera(slaveCamera);
+                }
+
+                #endregion
+
+                #region Composite Cameras
+
+                // Composite cameras
+                currentCamera.RenderTarget = RenderTarget.Fetch(currentCamera.RenderTargetSize, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                currentCamera.RenderTarget.EnableRenderTarget();
+                currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
+
+                // Composite using the rendering order
+                bool masterCamerawasRendered = false;
+                foreach (Camera slaveCamera in currentCamera.slavesCameras)
+                {
+                    // If the master camera needs to be rendered.
+                    if (!masterCamerawasRendered && slaveCamera.RenderingOrder > currentCamera.RenderingOrder)
+                    {
+                        EngineManager.Device.Viewport = new Viewport(currentCamera.Viewport.X, currentCamera.Viewport.Y, currentCamera.Viewport.Width, currentCamera.Viewport.Height);
+                        SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget, true);
+                        RenderTarget.Release(currentCamera.PartialRenderTarget);
+                        masterCamerawasRendered = true;
+                    }
+                    // Render slaves cameras (they are already ordered).
+                    if (slaveCamera.IsActive)
+                    {
+                        EngineManager.Device.Viewport = new Viewport(slaveCamera.Viewport.X, slaveCamera.Viewport.Y, slaveCamera.Viewport.Width, slaveCamera.Viewport.Height);
+                        SpriteManager.DrawTextureToFullScreen(slaveCamera.PartialRenderTarget, true);
+                        RenderTarget.Release(slaveCamera.PartialRenderTarget);
+                    }
+                }
+                // If the master camera was not rendered then we do it here.
+                if (!masterCamerawasRendered)
+                {
+                    EngineManager.Device.Viewport = new Viewport(currentCamera.Viewport.X, currentCamera.Viewport.Y, currentCamera.Viewport.Width, currentCamera.Viewport.Height);
+                    SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget, true);
+                    RenderTarget.Release(currentCamera.PartialRenderTarget);
+                }
+                currentCamera.RenderTarget.DisableRenderTarget();
+
+                #endregion
+
+            }
+        } // RenderMainCamera
+
         #endregion
 
         #region Frustum Culling
@@ -491,105 +502,14 @@ namespace XNAFinalEngine.EngineCore
         {
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
             {
-                ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Enabled && Layer.IsActive(currentModelRenderer.CachedLayerMask))
+                ModelRenderer component = ModelRenderer.ComponentPool.Elements[i];
+                if (component.CachedModel != null && component.IsVisible)
                 {
-                    if (boundingFrustum.Intersects(currentModelRenderer.BoundingSphere))
-                    {
-                        modelsToRender.Add(currentModelRenderer);
-                    }
+                    if (boundingFrustum.Intersects(component.BoundingSphere))
+                        modelsToRender.Add(component);
                 }
             }
         } // FrustumCulling
-
-        #endregion
-
-        #region Render Master Camera
-
-        /// <summary>
-        /// Render a master camera and its slaves. 
-        /// </summary>
-        private static void RenderMasterCamera(Camera currentCamera)
-        {
-            if (currentCamera.RenderTarget != null)
-                RenderTarget.Release(currentCamera.RenderTarget);
-            // If it does not have slaves cameras and it occupied the whole render target...
-            if (currentCamera.slavesCameras.Count == 0 && currentCamera.NormalizedViewport == new RectangleF(0, 0, 1, 1))
-                currentCamera.RenderTarget = RenderCamera(currentCamera);
-            else
-            {
-
-                #region Render Cameras
-                
-                // Render each camera to a render target and then merge.
-                currentCamera.PartialRenderTarget = RenderCamera(currentCamera);
-                for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
-                {
-                    if (currentCamera.slavesCameras[i].Enabled && Layer.IsActive(currentCamera.slavesCameras[i].CachedLayerMask))
-                        // I store the render of the camera to a partial render target.
-                        // This helps reduce the memory consumption (GBuffer, Light Pass, HDR pass)
-                        // at the expense of a pass that copy this texture to a bigger render target
-                        // and a last pass that copy the cameras’ render target to the back buffer.
-                        // If the performance is critical and there is more memory you should change this behavior.
-                        // It also simplified the render of one camera. 
-                        currentCamera.slavesCameras[i].PartialRenderTarget = RenderCamera(currentCamera.slavesCameras[i]);
-                }
-                
-                #endregion
-
-                #region Composite Cameras
-
-                // Composite cameras
-                currentCamera.RenderTarget = RenderTarget.Fetch(currentCamera.RenderTargetSize, SurfaceFormat.Color, DepthFormat.None,
-                                                                RenderTarget.AntialiasingType.NoAntialiasing);
-                currentCamera.RenderTarget.EnableRenderTarget();
-                currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
-                
-                // Composite using the rendering order
-                bool masterCamerawasRendered = false;
-                for (int i = 0; i < currentCamera.slavesCameras.Count; i++)
-                {
-                    // If the master camera needs to be rendered.
-                    if (!masterCamerawasRendered && currentCamera.slavesCameras[i].RenderingOrder > currentCamera.RenderingOrder)
-                    {
-                        EngineManager.Device.Viewport = new Viewport(currentCamera.Viewport.X, currentCamera.Viewport.Y,
-                                                             currentCamera.Viewport.Width, currentCamera.Viewport.Height);
-                        SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget, true);
-                        RenderTarget.Release(currentCamera.PartialRenderTarget);
-                        masterCamerawasRendered = true;
-                    }
-                    // Render slaves cameras (they are already ordered).
-                    if (currentCamera.slavesCameras[i].Enabled && Layer.IsActive(currentCamera.slavesCameras[i].CachedLayerMask))
-                    {
-                        EngineManager.Device.Viewport = new Viewport(currentCamera.slavesCameras[i].Viewport.X, currentCamera.slavesCameras[i].Viewport.Y,
-                                                                     currentCamera.slavesCameras[i].Viewport.Width, currentCamera.slavesCameras[i].Viewport.Height);
-                        SpriteManager.DrawTextureToFullScreen(currentCamera.slavesCameras[i].PartialRenderTarget, true);
-                        RenderTarget.Release(currentCamera.slavesCameras[i].PartialRenderTarget);
-                    }
-                }
-                // If the master camera was not rendered then we do it here.
-                if (!masterCamerawasRendered)
-                {
-                    EngineManager.Device.Viewport = new Viewport(currentCamera.Viewport.X, currentCamera.Viewport.Y,
-                                                             currentCamera.Viewport.Width, currentCamera.Viewport.Height);
-                    SpriteManager.DrawTextureToFullScreen(currentCamera.PartialRenderTarget, true);
-                    RenderTarget.Release(currentCamera.PartialRenderTarget);
-                }
-                
-                // Reset viewport and render HUD
-                EngineManager.Device.Viewport = new Viewport(0, 0, currentCamera.RenderTargetSize.Width, currentCamera.RenderTargetSize.Height);
-                if (currentCamera.RenderHeadUpDisplay)
-                {
-                    Layer.CurrentCameraCullingMask = currentCamera.CullingMask;
-                    RenderHeadsUpDisplay();
-                    Layer.CurrentCameraCullingMask = uint.MaxValue;
-                }
-                currentCamera.RenderTarget.DisableRenderTarget();
-
-                #endregion
-
-            }
-        } // RenderMainCamera
 
         #endregion
 
@@ -616,29 +536,21 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            #region Create Camera Bounding Frustum
-
             // Calculate view space bounding frustum.
             currentCamera.BoundingFrustum(cornersViewSpace);
-
-            #endregion
-
-            #region Camera Culling Mask
-
+            // Set camera culling mask.
             Layer.CurrentCameraCullingMask = currentCamera.CullingMask;
 
-            #endregion
+            #region Calculate Target Size
 
-            #region Calculate Size
-
-            Size destinationSize;
+            Size targetSize;
             if (currentCamera.NeedViewport)
             {
-                destinationSize = new Size(currentCamera.Viewport.Width, currentCamera.Viewport.Height);
-                destinationSize.MakeRelativeIfPosible();
+                targetSize = new Size(currentCamera.Viewport.Width, currentCamera.Viewport.Height);
+                targetSize.MakeRelativeIfPosible();
             }
             else
-                destinationSize = currentCamera.RenderTargetSize;
+                targetSize = currentCamera.RenderTargetSize;
 
             #endregion
 
@@ -673,42 +585,31 @@ namespace XNAFinalEngine.EngineCore
 
             #region GBuffer Pass
 
-            GBufferPass.Begin(destinationSize);
+            GBufferPass.Begin(targetSize);
             GBufferShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane);
-            for (int i = 0; i < modelsToRender.Count; i++)
+            foreach (ModelRenderer modelRenderer in modelsToRender)
             {
-                ModelRenderer currentModelRenderer = modelsToRender[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Enabled && Layer.IsActive(currentModelRenderer.CachedLayerMask))
+                if (modelRenderer.CachedModel != null && modelRenderer.IsVisible)
                 {
                     int currentMeshPart = 0;
                     // Render each mesh
-                    for (int j = 0; j < currentModelRenderer.CachedModel.MeshesCount; j++)
+                    for (int j = 0; j < modelRenderer.CachedModel.MeshesCount; j++)
                     {
-                        // I need to know the total index of the current part for the materials.
                         int meshPartsCount = 1;
-                        if (currentModelRenderer.CachedModel is FileModel)
-                        {
-                            meshPartsCount = ((FileModel)currentModelRenderer.CachedModel).Resource.Meshes[j].MeshParts.Count;
-                        }
+                        if (modelRenderer.CachedModel is FileModel)
+                            meshPartsCount = ((FileModel)modelRenderer.CachedModel).Resource.Meshes[j].MeshParts.Count;
                         for (int k = 0; k < meshPartsCount; k++)
                         {
                             // Find material
                             Material material = null;
-                            if (currentModelRenderer.MeshMaterial != null && currentMeshPart < currentModelRenderer.MeshMaterial.Length && currentModelRenderer.MeshMaterial[currentMeshPart] != null)
-                            {
-                                material = currentModelRenderer.MeshMaterial[currentMeshPart];
-                            }
-                            else if (currentModelRenderer.Material != null)
-                            {
-                                material = currentModelRenderer.Material;
-                            }
+                            if (modelRenderer.MeshMaterial != null && currentMeshPart < modelRenderer.MeshMaterial.Length && modelRenderer.MeshMaterial[currentMeshPart] != null)
+                                material = modelRenderer.MeshMaterial[currentMeshPart];
+                            else if (modelRenderer.Material != null)
+                                material = modelRenderer.Material;
                             if (material != null && material.AlphaBlending == 1)
                             {
                                 // Render mesh with finded material.
-                                GBufferShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
-                                                                    currentModelRenderer.CachedModel,
-                                                                    currentModelRenderer.cachedBoneTransforms,
-                                                                    material, j, k);
+                                GBufferShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms, material, j, k);
                             }
                             currentMeshPart++;
                         }
@@ -716,7 +617,7 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
             gbufferTextures = GBufferPass.End();
-            
+
             #region DownSample GBuffer
 
             halfDepthTexture = DepthDownsamplerShader.Instance.Render(gbufferTextures.RenderTargets[0]);
@@ -727,7 +628,7 @@ namespace XNAFinalEngine.EngineCore
             // If some error occurs them probably the surfaceformat does not support linear filter.)
             try
             {
-                halfNormalTexture = RenderTarget.Fetch(destinationSize.HalfSize(),
+                halfNormalTexture = RenderTarget.Fetch(targetSize.HalfSize(),
                                                        gbufferTextures.RenderTargets[1].SurfaceFormat,
                                                        gbufferTextures.RenderTargets[1].DepthFormat,
                                                        gbufferTextures.RenderTargets[1].Antialiasing);
@@ -736,7 +637,7 @@ namespace XNAFinalEngine.EngineCore
                 SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[1]);
                 halfNormalTexture.DisableRenderTarget();
                 // Downsampled quarter size normal map
-                quarterNormalTexture = RenderTarget.Fetch(destinationSize.HalfSize().HalfSize(),
+                quarterNormalTexture = RenderTarget.Fetch(targetSize.HalfSize().HalfSize(),
                                                           gbufferTextures.RenderTargets[1].SurfaceFormat,
                                                           gbufferTextures.RenderTargets[1].DepthFormat,
                                                           gbufferTextures.RenderTargets[1].Antialiasing);
@@ -751,14 +652,13 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-            
+
             #endregion
 
             #region Light Pre Pass
 
             #region Ambient Occlusion
             
-            // TODO Podria pasar el clear color al shader asi lo puede afectar el ambient occlusion.
             if (currentCamera.AmbientLight != null && currentCamera.AmbientLight.Intensity > 0 &&
                 currentCamera.AmbientLight.AmbientOcclusion != null && currentCamera.AmbientLight.AmbientOcclusion.Enabled)
             {
@@ -797,22 +697,21 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-            
+
             #region Shadow Maps
 
             #region Directional Light Shadows
 
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
-                DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
+                DirectionalLight directionalLight = DirectionalLight.ComponentPool.Elements[i];
                 // If there is a shadow map...
-                if (currentDirectionalLight.Shadow != null && currentDirectionalLight.Shadow.Enabled && currentDirectionalLight.Enabled &&
-                    currentDirectionalLight.Intensity > 0 && Layer.IsActive(currentDirectionalLight.CachedLayerMask))
+                if (directionalLight.Shadow != null && directionalLight.Shadow.Enabled && directionalLight.IsVisible && directionalLight.Intensity > 0)
                 {
                     RenderTarget shadowDepthTexture;
-                    if (currentDirectionalLight.Shadow.TextureSize == Size.TextureSize.FullSize)
+                    if (directionalLight.Shadow.TextureSize == Size.TextureSize.FullSize)
                         shadowDepthTexture = gbufferTextures.RenderTargets[0];
-                    else if (currentDirectionalLight.Shadow.TextureSize == Size.TextureSize.HalfSize)
+                    else if (directionalLight.Shadow.TextureSize == Size.TextureSize.HalfSize)
                         shadowDepthTexture = halfDepthTexture;
                     else
                         shadowDepthTexture = quarterDepthTexture;
@@ -820,27 +719,24 @@ namespace XNAFinalEngine.EngineCore
                     #region Cascaded Shadow
 
                     // If the shadow map is a cascaded shadow map...
-                    if (currentDirectionalLight.Shadow is CascadedShadow)
+                    // A cascaded shadow is influenced by camera transformation.
+                    if (directionalLight.Shadow is CascadedShadow)
                     {
-                        CascadedShadow shadow = (CascadedShadow)currentDirectionalLight.Shadow;
-                        // TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        CascadedShadow shadow = (CascadedShadow)directionalLight.Shadow;
                         if (shadow.LightDepthTexture != null)
                             RenderTarget.Release(shadow.LightDepthTexture);
                         CascadedShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, shadowDepthTexture, shadow.DepthBias, shadow.Filter);
-                        CascadedShadowMapShader.Instance.SetLight(currentDirectionalLight.cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
-                                                                    currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace);
-                        // FrustumCulling(new BoundingFrustum(), modelsToRenderShadow);
-                        // Render all the opaque objects...
+                        CascadedShadowMapShader.Instance.SetLight(directionalLight.cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
+                                                                  currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace);
+                        // FrustumCulling(, modelsToRenderShadow);
+                        // Render the opaque objects...
                         for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
                         {
-                            ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[j];
-                            
-                            if (currentModelRenderer.CachedModel != null)// && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
-                            {
-                                CascadedShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
-                            }
+                            ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[j];
+                            if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
+                                CascadedShadowMapShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
                         }
-                        currentDirectionalLight.ShadowTexture = CascadedShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
+                        directionalLight.ShadowTexture = CascadedShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
                     }
 
                     #endregion
@@ -848,25 +744,24 @@ namespace XNAFinalEngine.EngineCore
                     #region Basic Shadow
 
                     // If the shadow map is a basic shadow map...
-                    else if (currentDirectionalLight.Shadow is BasicShadow)
+                    else if (directionalLight.Shadow is BasicShadow)
                     {
-                        BasicShadow shadow = (BasicShadow)currentDirectionalLight.Shadow;
-                        // TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        BasicShadow shadow = (BasicShadow)directionalLight.Shadow;
                         if (shadow.LightDepthTexture != null)
                             RenderTarget.Release(shadow.LightDepthTexture);
                         BasicShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, shadowDepthTexture, shadow.DepthBias, shadow.Filter);
-                        BasicShadowMapShader.Instance.SetLight(currentDirectionalLight.cachedDirection, currentCamera.ViewMatrix, shadow.Range, cornersViewSpace);
+                        BasicShadowMapShader.Instance.SetLight(directionalLight.cachedDirection, currentCamera.ViewMatrix, shadow.Range, cornersViewSpace);
                         //FrustumCulling(new BoundingFrustum(), modelsToRenderShadow);
                         // Render all the opaque objects...
                         for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
                         {
-                            ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[j];
-                            if (currentModelRenderer.CachedModel != null)// && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                            ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[j];
+                            if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
                             {
-                                BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                                BasicShadowMapShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
                             }
                         }
-                        currentDirectionalLight.ShadowTexture = BasicShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
+                        directionalLight.ShadowTexture = BasicShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
                     }
 
                     #endregion
@@ -880,43 +775,42 @@ namespace XNAFinalEngine.EngineCore
 
             for (int i = 0; i < SpotLight.ComponentPool.Count; i++)
             {
-                SpotLight currentSpotLight = SpotLight.ComponentPool.Elements[i];
+                SpotLight spotLight = SpotLight.ComponentPool.Elements[i];
                 // If there is a shadow map...
-                if (currentSpotLight.Shadow != null && currentSpotLight.Shadow.Enabled && currentSpotLight.Enabled &&
-                    currentSpotLight.Intensity > 0 && Layer.IsActive(currentSpotLight.CachedLayerMask))
+                if (spotLight.Shadow != null && spotLight.Shadow.Enabled && spotLight.IsVisible && spotLight.Intensity > 0)
                 {
                     RenderTarget shadowDepthTexture;
-                    if (currentSpotLight.Shadow.TextureSize == Size.TextureSize.FullSize)
+                    if (spotLight.Shadow.TextureSize == Size.TextureSize.FullSize)
                         shadowDepthTexture = gbufferTextures.RenderTargets[0];
-                    else if (currentSpotLight.Shadow.TextureSize == Size.TextureSize.HalfSize)
+                    else if (spotLight.Shadow.TextureSize == Size.TextureSize.HalfSize)
                         shadowDepthTexture = halfDepthTexture;
                     else
                         shadowDepthTexture = quarterDepthTexture;
 
                     // If the shadow map is a cascaded shadow map...
-                    if (currentSpotLight.Shadow is BasicShadow)
+                    if (spotLight.Shadow is BasicShadow)
                     {
-                        BasicShadow shadow = (BasicShadow)currentSpotLight.Shadow;
+                        BasicShadow shadow = (BasicShadow)spotLight.Shadow;
                         if (shadow.LightDepthTexture == null)
                         {
                             BasicShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, shadowDepthTexture, shadow.DepthBias, shadow.Filter);
-                            BasicShadowMapShader.Instance.SetLight(currentSpotLight.cachedPosition, currentSpotLight.cachedDirection, currentCamera.ViewMatrix, currentSpotLight.OuterConeAngle,
-                                                                   currentSpotLight.Range, cornersViewSpace);
+                            BasicShadowMapShader.Instance.SetLight(spotLight.cachedPosition, spotLight.cachedDirection, currentCamera.ViewMatrix, spotLight.OuterConeAngle,
+                                                                   spotLight.Range, cornersViewSpace);
                             //FrustumCulling(new BoundingFrustum(), modelsToRenderShadow);
                             // Render all the opaque objects...
                             for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
                             {
-                                ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[j];
-                                if (currentModelRenderer.CachedModel != null)// && currentModelRenderer.Material != null && currentModelRenderer.Material.AlphaBlending == 1 && currentModelRenderer.Visible) // && currentModelRenderer.CachedLayerMask)
+                                ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[j];
+                                if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
                                 {
-                                    BasicShadowMapShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix, currentModelRenderer.CachedModel, currentModelRenderer.cachedBoneTransforms);
+                                    BasicShadowMapShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
                                 }
                             }
-                            currentSpotLight.ShadowTexture = BasicShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
+                            spotLight.ShadowTexture = BasicShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
                         }
                         else
                         {
-                            currentSpotLight.ShadowTexture = BasicShadowMapShader.Instance.ProcessWithPrecalculedLightDepthTexture(shadow.LightDepthTexture);
+                            spotLight.ShadowTexture = BasicShadowMapShader.Instance.ProcessWithPrecalculedLightDepthTexture(shadow.LightDepthTexture);
                         }
                     }
                 }
@@ -928,7 +822,7 @@ namespace XNAFinalEngine.EngineCore
 
             #region Light Texture
 
-            LightPrePass.Begin(destinationSize);
+            LightPrePass.Begin(targetSize);
 
             #region Ambient Light
 
@@ -943,7 +837,7 @@ namespace XNAFinalEngine.EngineCore
             RenderTarget.Release(ambientOcclusionTexture);
 
             #endregion
-            
+
             #region Directional Lights
 
             DirectionalLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
@@ -953,18 +847,18 @@ namespace XNAFinalEngine.EngineCore
                                                   cornersViewSpace);
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
-                DirectionalLight currentDirectionalLight = DirectionalLight.ComponentPool.Elements[i];
-                if (currentDirectionalLight.Enabled && currentDirectionalLight.Intensity > 0 && Layer.IsActive(currentDirectionalLight.CachedLayerMask))
+                DirectionalLight directionalLight = DirectionalLight.ComponentPool.Elements[i];
+                if (directionalLight.Intensity > 0 && directionalLight.IsVisible)
                 {
-                    DirectionalLightShader.Instance.RenderLight(currentDirectionalLight.DiffuseColor, currentDirectionalLight.cachedDirection,
-                                                                currentDirectionalLight.Intensity, currentDirectionalLight.ShadowTexture);
+                    DirectionalLightShader.Instance.RenderLight(directionalLight.Color, directionalLight.cachedDirection,
+                                                                directionalLight.Intensity, directionalLight.ShadowTexture);
                 }
             }
 
             #endregion
-            
+
             #region Point Lights
-            
+
             PointLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                             gbufferTextures.RenderTargets[1], // Normal Texture
                                             gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
@@ -974,17 +868,17 @@ namespace XNAFinalEngine.EngineCore
                                             currentCamera.FarPlane);
             for (int i = 0; i < PointLight.ComponentPool.Count; i++)
             {
-                PointLight currentPointLight = PointLight.ComponentPool.Elements[i];
-                if (currentPointLight.Enabled && currentPointLight.Intensity > 0 && Layer.IsActive(currentPointLight.CachedLayerMask))
+                PointLight pointLight = PointLight.ComponentPool.Elements[i];
+                if (pointLight.Intensity > 0 && pointLight.IsVisible)
                 {
-                    PointLightShader.Instance.RenderLight(currentPointLight.DiffuseColor, currentPointLight.cachedPosition, currentPointLight.Intensity, currentPointLight.Range);
+                    PointLightShader.Instance.RenderLight(pointLight.Color, pointLight.cachedPosition, pointLight.Intensity, pointLight.Range);
                 }
             }
 
             #endregion
-            
+
             #region Spot Lights
-            
+
             SpotLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                            gbufferTextures.RenderTargets[1], // Normal Texture
                                            gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
@@ -994,18 +888,18 @@ namespace XNAFinalEngine.EngineCore
                                            currentCamera.FarPlane);
             for (int i = 0; i < SpotLight.ComponentPool.Count; i++)
             {
-                SpotLight currentSpotLight = SpotLight.ComponentPool.Elements[i];
-                if (currentSpotLight.Enabled && currentSpotLight.Intensity > 0 && Layer.IsActive(currentSpotLight.CachedLayerMask))
+                SpotLight spotLight = SpotLight.ComponentPool.Elements[i];
+                if (spotLight.Intensity > 0 && spotLight.IsVisible)
                 {
-                    SpotLightShader.Instance.RenderLight(currentSpotLight.DiffuseColor, currentSpotLight.cachedPosition,
-                                                         currentSpotLight.cachedDirection, currentSpotLight.Intensity,
-                                                         currentSpotLight.Range, currentSpotLight.InnerConeAngle,
-                                                         currentSpotLight.OuterConeAngle, currentSpotLight.ShadowTexture, currentSpotLight.LightMaskTexture);
+                    SpotLightShader.Instance.RenderLight(spotLight.Color, spotLight.cachedPosition,
+                                                         spotLight.cachedDirection, spotLight.Intensity,
+                                                         spotLight.Range, spotLight.InnerConeAngle,
+                                                         spotLight.OuterConeAngle, spotLight.ShadowTexture, spotLight.LightMaskTexture);
                 }
             }
 
             #endregion
-            
+
             lightTexture = LightPrePass.End();
 
             #endregion
@@ -1015,26 +909,29 @@ namespace XNAFinalEngine.EngineCore
             // We can do this from time to time to reduce calculations.
             for (int i = 0; i < SpotLight.ComponentPool.Count; i++)
             {
-                if (SpotLight.ComponentPool.Elements[i].ShadowTexture != null)
+                SpotLight spotLight = SpotLight.ComponentPool.Elements[i];
+                if (spotLight.ShadowTexture != null)
                 {
-                    RenderTarget.Release(SpotLight.ComponentPool.Elements[i].ShadowTexture);
-                    SpotLight.ComponentPool.Elements[i].ShadowTexture = null;
+                    RenderTarget.Release(spotLight.ShadowTexture);
+                    spotLight.ShadowTexture = null;
                 }
             }
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
-                if (DirectionalLight.ComponentPool.Elements[i].ShadowTexture != null)
+                DirectionalLight directionalLight = DirectionalLight.ComponentPool.Elements[i];
+                if (directionalLight.ShadowTexture != null)
                 {
-                    RenderTarget.Release(DirectionalLight.ComponentPool.Elements[i].ShadowTexture);
-                    DirectionalLight.ComponentPool.Elements[i].ShadowTexture = null;
+                    RenderTarget.Release(directionalLight.ShadowTexture);
+                    directionalLight.ShadowTexture = null;
                 }
             }
             for (int i = 0; i < PointLight.ComponentPool.Count; i++)
             {
-                if (PointLight.ComponentPool.Elements[i].ShadowTexture != null)
+                PointLight pointLight = PointLight.ComponentPool.Elements[i];
+                if (pointLight.ShadowTexture != null)
                 {
-                    RenderTarget.Release(PointLight.ComponentPool.Elements[i].ShadowTexture);
-                    PointLight.ComponentPool.Elements[i].ShadowTexture = null;
+                    RenderTarget.Release(pointLight.ShadowTexture);
+                    pointLight.ShadowTexture = null;
                 }
             }
 
@@ -1044,37 +941,36 @@ namespace XNAFinalEngine.EngineCore
 
             #region HDR Linear Space Pass
 
-            ScenePass.Begin(destinationSize, currentCamera.ClearColor);
+            ScenePass.Begin(targetSize, currentCamera.ClearColor);
 
             #region Opaque Objects
 
             // Render all the opaque objects...
-            for (int i = 0; i < modelsToRender.Count; i++)
+            foreach (ModelRenderer modelRenderer in modelsToRender)
             {
-                ModelRenderer currentModelRenderer = modelsToRender[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Enabled && Layer.IsActive(currentModelRenderer.CachedLayerMask))
+                if (modelRenderer.CachedModel != null && modelRenderer.IsVisible)
                 {
                     int currentMeshPart = 0;
                     // Render each mesh
-                    for (int j = 0; j < currentModelRenderer.CachedModel.MeshesCount; j++)
+                    for (int j = 0; j < modelRenderer.CachedModel.MeshesCount; j++)
                     {
                         // I need to know the total index of the current part for the materials.
                         int meshPartsCount = 1;
-                        if (currentModelRenderer.CachedModel is FileModel)
+                        if (modelRenderer.CachedModel is FileModel)
                         {
-                            meshPartsCount = ((FileModel)currentModelRenderer.CachedModel).Resource.Meshes[j].MeshParts.Count;
+                            meshPartsCount = ((FileModel)modelRenderer.CachedModel).Resource.Meshes[j].MeshParts.Count;
                         }
                         for (int k = 0; k < meshPartsCount; k++)
                         {
                             // Find material
                             Material material = null;
-                            if (currentModelRenderer.MeshMaterial != null && currentMeshPart < currentModelRenderer.MeshMaterial.Length && currentModelRenderer.MeshMaterial[currentMeshPart] != null)
+                            if (modelRenderer.MeshMaterial != null && currentMeshPart < modelRenderer.MeshMaterial.Length && modelRenderer.MeshMaterial[currentMeshPart] != null)
                             {
-                                material = currentModelRenderer.MeshMaterial[currentMeshPart];
+                                material = modelRenderer.MeshMaterial[currentMeshPart];
                             }
-                            else if (currentModelRenderer.Material != null)
+                            else if (modelRenderer.Material != null)
                             {
-                                material = currentModelRenderer.Material;
+                                material = modelRenderer.Material;
                             }
                             // Render mesh part with finded material.
                             if (material != null && material.AlphaBlending == 1)
@@ -1082,25 +978,25 @@ namespace XNAFinalEngine.EngineCore
                                 if (material is Constant)
                                 {
                                     ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
-                                    ConstantShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
-                                                                        currentModelRenderer.CachedModel,
-                                                                        currentModelRenderer.cachedBoneTransforms,
+                                    ConstantShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix,
+                                                                        modelRenderer.CachedModel,
+                                                                        modelRenderer.cachedBoneTransforms,
                                                                         (Constant)material, j, k);
                                 }
                                 else if (material is BlinnPhong)
                                 {
                                     BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                                    BlinnPhongShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
-                                                                          currentModelRenderer.CachedModel,
-                                                                          currentModelRenderer.cachedBoneTransforms,
+                                    BlinnPhongShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix,
+                                                                          modelRenderer.CachedModel,
+                                                                          modelRenderer.cachedBoneTransforms,
                                                                           (BlinnPhong)material, j, k);
                                 }
                                 else if (material is CarPaint)
                                 {
                                     CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                                    CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
-                                                                        currentModelRenderer.CachedModel,
-                                                                        currentModelRenderer.cachedBoneTransforms,
+                                    CarPaintShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix,
+                                                                        modelRenderer.CachedModel,
+                                                                        modelRenderer.cachedBoneTransforms,
                                                                         (CarPaint)material, j, k);
                                 }
                             }
@@ -1114,7 +1010,7 @@ namespace XNAFinalEngine.EngineCore
 
             #region Sky
 
-            // The sky is render latter so that the GPU can avoid fragment processing. But it has to be done before the transparent objects.
+            // The sky is render later so that the GPU can avoid fragment processing. But it has to be done before the transparent objects.
             if (currentCamera.Sky != null)
             {
                 if (currentCamera.Sky is Skybox && ((Skybox)currentCamera.Sky).TextureCube != null)
@@ -1135,14 +1031,14 @@ namespace XNAFinalEngine.EngineCore
                                           new Size(currentCamera.Viewport.Width, currentCamera.Viewport.Height), gbufferTextures.RenderTargets[0]);
             for (int i = 0; i < ParticleRenderer.ComponentPool.Count; i++)
             {
-                ParticleRenderer currentParticleRenderer = ParticleRenderer.ComponentPool.Elements[i];
-                if (currentParticleRenderer.cachedParticleSystem != null && currentParticleRenderer.Texture != null &&
-                    currentParticleRenderer.Enabled && Layer.IsActive(currentParticleRenderer.CachedLayerMask))
-                    ParticleShader.Instance.Render(currentParticleRenderer.cachedParticleSystem, currentParticleRenderer.Duration,
-                                                   currentParticleRenderer.BlendState, currentParticleRenderer.DurationRandomness, currentParticleRenderer.Gravity,
-                                                   currentParticleRenderer.EndVelocity, currentParticleRenderer.MinimumColor, currentParticleRenderer.MaximumColor,
-                                                   currentParticleRenderer.RotateSpeed, currentParticleRenderer.StartSize, currentParticleRenderer.EndSize,
-                                                   currentParticleRenderer.Texture, currentParticleRenderer.SoftParticles, currentParticleRenderer.FadeDistance);
+                ParticleRenderer particleRenderer = ParticleRenderer.ComponentPool.Elements[i];
+
+                if (particleRenderer.cachedParticleSystem != null && particleRenderer.Texture != null && particleRenderer.IsVisible)
+                    ParticleShader.Instance.Render(particleRenderer.cachedParticleSystem, particleRenderer.Duration,
+                                                   particleRenderer.BlendState, particleRenderer.DurationRandomness, particleRenderer.Gravity,
+                                                   particleRenderer.EndVelocity, particleRenderer.MinimumColor, particleRenderer.MaximumColor,
+                                                   particleRenderer.RotateSpeed, particleRenderer.StartSize, particleRenderer.EndSize,
+                                                   particleRenderer.Texture, particleRenderer.SoftParticles, particleRenderer.FadeDistance);
             }
 
             #endregion
@@ -1150,61 +1046,60 @@ namespace XNAFinalEngine.EngineCore
             #region Transparent Objects
 
             // The transparent objects will be render in forward fashion.
-            for (int i = 0; i < modelsToRender.Count; i++)
+            foreach (ModelRenderer modelRenderer in modelsToRender)
             {
-                ModelRenderer currentModelRenderer = modelsToRender[i];
-                if (currentModelRenderer.CachedModel != null && currentModelRenderer.Enabled && Layer.IsActive(currentModelRenderer.CachedLayerMask))
+                if (modelRenderer.CachedModel != null && modelRenderer.IsVisible)
                 {
                     int currentMeshPart = 0;
                     // Render each mesh
-                    for (int j = 0; j < currentModelRenderer.CachedModel.MeshesCount; j++)
+                    for (int j = 0; j < modelRenderer.CachedModel.MeshesCount; j++)
                     {
                         // I need to know the total index of the current part for the materials.
                         int meshPartsCount = 1;
-                        if (currentModelRenderer.CachedModel is FileModel)
+                        if (modelRenderer.CachedModel is FileModel)
                         {
-                            meshPartsCount = ((FileModel)currentModelRenderer.CachedModel).Resource.Meshes[j].MeshParts.Count;
+                            meshPartsCount = ((FileModel)modelRenderer.CachedModel).Resource.Meshes[j].MeshParts.Count;
                         }
                         for (int k = 0; k < meshPartsCount; k++)
                         {
                             // Find material
                             Material material = null;
-                            if (currentModelRenderer.MeshMaterial != null && currentMeshPart < currentModelRenderer.MeshMaterial.Length &&
-                                currentModelRenderer.MeshMaterial[currentMeshPart] != null)
+                            if (modelRenderer.MeshMaterial != null && currentMeshPart < modelRenderer.MeshMaterial.Length &&
+                                modelRenderer.MeshMaterial[currentMeshPart] != null)
                             {
-                                material = currentModelRenderer.MeshMaterial[currentMeshPart];
+                                material = modelRenderer.MeshMaterial[currentMeshPart];
                             }
-                            else if (currentModelRenderer.Material != null)
+                            else if (modelRenderer.Material != null)
                             {
-                                material = currentModelRenderer.Material;
+                                material = modelRenderer.Material;
                             }
                             // Render mesh with finded material.
                             if (material != null && material.AlphaBlending < 1)
                             {
 
-                                if (currentModelRenderer.Material is Constant)
+                                if (modelRenderer.Material is Constant)
                                 {
                                     ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
-                                    ConstantShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
-                                                                        currentModelRenderer.CachedModel,
-                                                                        currentModelRenderer.cachedBoneTransforms,
+                                    ConstantShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix,
+                                                                        modelRenderer.CachedModel,
+                                                                        modelRenderer.cachedBoneTransforms,
                                                                         (Constant)material, j, k);
                                 }
-                                else if (currentModelRenderer.Material is BlinnPhong)
+                                else if (modelRenderer.Material is BlinnPhong)
                                 {
                                     ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                                    ForwardBlinnPhongShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
-                                                                                 currentModelRenderer.CachedModel,
-                                                                                 currentModelRenderer.cachedBoneTransforms,
+                                    ForwardBlinnPhongShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix,
+                                                                                 modelRenderer.CachedModel,
+                                                                                 modelRenderer.cachedBoneTransforms,
                                                                                  (BlinnPhong)material,
                                                                                  currentCamera.AmbientLight, j, k);
                                 }
-                                else if (currentModelRenderer.Material is CarPaint)
+                                else if (modelRenderer.Material is CarPaint)
                                 {
                                     CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                                    CarPaintShader.Instance.RenderModel(currentModelRenderer.CachedWorldMatrix,
-                                                                        currentModelRenderer.CachedModel,
-                                                                        currentModelRenderer.cachedBoneTransforms,
+                                    CarPaintShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix,
+                                                                        modelRenderer.CachedModel,
+                                                                        modelRenderer.cachedBoneTransforms,
                                                                         (CarPaint)material, j, k);
                                 }
                             }
@@ -1223,56 +1118,56 @@ namespace XNAFinalEngine.EngineCore
                 SpriteManager.Begin3DLinearSpace(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
                 for (int i = 0; i < HudTexture.ComponentPool3D.Count; i++)
                 {
-                    HudTexture currentHudTexture = HudTexture.ComponentPool3D.Elements[i];
-                    if (currentHudTexture.Enabled && currentHudTexture.Texture != null && currentHudTexture.PostProcessed && Layer.IsActive(currentHudTexture.CachedLayerMask))
+                    HudTexture hudTexture = HudTexture.ComponentPool3D.Elements[i];
+                    if (hudTexture.Texture != null && hudTexture.PostProcessed && hudTexture.IsVisible)
                     {
-                        if (currentHudTexture.Billboard)
+                        if (hudTexture.Billboard)
                         {
-                            if (currentHudTexture.DestinationRectangle != null)
-                                SpriteManager.Draw3DBillboardTexture(currentHudTexture.Texture,
-                                                                     currentHudTexture.CachedWorldMatrix,
-                                                                     currentHudTexture.Color,
+                            if (hudTexture.DestinationRectangle != null)
+                                SpriteManager.Draw3DBillboardTexture(hudTexture.Texture,
+                                                                     hudTexture.CachedWorldMatrix,
+                                                                     hudTexture.Color,
                                                                      currentCamera.Position,
                                                                      currentCamera.Up,
                                                                      currentCamera.Forward);
                             else
-                                SpriteManager.Draw3DBillboardTexture(currentHudTexture.Texture,
-                                                                     currentHudTexture.CachedWorldMatrix,
-                                                                     currentHudTexture.SourceRectangle,
-                                                                     currentHudTexture.Color,
+                                SpriteManager.Draw3DBillboardTexture(hudTexture.Texture,
+                                                                     hudTexture.CachedWorldMatrix,
+                                                                     hudTexture.SourceRectangle,
+                                                                     hudTexture.Color,
                                                                      currentCamera.Position,
                                                                      currentCamera.Up,
                                                                      currentCamera.Forward);
                         }
                         else
                         {
-                            if (currentHudTexture.DestinationRectangle != null)
-                                SpriteManager.Draw3DTexture(currentHudTexture.Texture,
-                                                          currentHudTexture.CachedWorldMatrix,
-                                                          currentHudTexture.SourceRectangle,
-                                                          currentHudTexture.Color);
+                            if (hudTexture.DestinationRectangle != null)
+                                SpriteManager.Draw3DTexture(hudTexture.Texture,
+                                                          hudTexture.CachedWorldMatrix,
+                                                          hudTexture.SourceRectangle,
+                                                          hudTexture.Color);
                             else
-                                SpriteManager.Draw3DTexture(currentHudTexture.Texture,
-                                                          currentHudTexture.CachedWorldMatrix,
-                                                          currentHudTexture.Color);
+                                SpriteManager.Draw3DTexture(hudTexture.Texture,
+                                                          hudTexture.CachedWorldMatrix,
+                                                          hudTexture.Color);
                         }
                     }
                 }
                 for (int i = 0; i < HudText.ComponentPool3D.Count; i++)
                 {
-                    HudText currentHudText = HudText.ComponentPool3D.Elements[i];
-                    if (currentHudText.Enabled && currentHudText.PostProcessed && Layer.IsActive(currentHudText.CachedLayerMask))
+                    HudText hudText = HudText.ComponentPool3D.Elements[i];
+                    if (hudText.PostProcessed && hudText.IsVisible)
                     {
-                        if (currentHudText.Billboard)
-                            SpriteManager.Draw3DBillboardText(currentHudText.Font ?? Font.DefaultFont,
-                                                              currentHudText.Text,
-                                                              currentHudText.CachedWorldMatrix,
-                                                              currentHudText.Color,
+                        if (hudText.Billboard)
+                            SpriteManager.Draw3DBillboardText(hudText.Font ?? Font.DefaultFont,
+                                                              hudText.Text,
+                                                              hudText.CachedWorldMatrix,
+                                                              hudText.Color,
                                                               currentCamera.Position,
                                                               currentCamera.Up,
                                                               currentCamera.Forward);
                         else
-                            SpriteManager.Draw3DText(currentHudText.Font ?? Font.DefaultFont, currentHudText.Text, currentHudText.CachedWorldMatrix, currentHudText.Color);
+                            SpriteManager.Draw3DText(hudText.Font ?? Font.DefaultFont, hudText.Text, hudText.CachedWorldMatrix, hudText.Color);
 
                     }
                 }
@@ -1287,12 +1182,11 @@ namespace XNAFinalEngine.EngineCore
 
             for (int i = 0; i < LineRenderer.ComponentPool3D.Count; i++)
             {
-                LineRenderer currentLineRenderer = LineRenderer.ComponentPool3D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Enabled && currentLineRenderer.PostProcessed && currentLineRenderer.PrimitiveType == PrimitiveType.LineList &&
-                    Layer.IsActive(currentLineRenderer.CachedLayerMask))
+                LineRenderer lineRenderer = LineRenderer.ComponentPool3D.Elements[i];
+                if (lineRenderer.Vertices != null && lineRenderer.IsVisible && lineRenderer.PostProcessed && lineRenderer.PrimitiveType == PrimitiveType.LineList)
                 {
-                    for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
-                        LineManager.AddVertex(Vector3.Transform(currentLineRenderer.Vertices[j].Position, currentLineRenderer.CachedWorldMatrix), currentLineRenderer.Vertices[j].Color);
+                    for (int j = 0; j < lineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(Vector3.Transform(lineRenderer.Vertices[j].Position, lineRenderer.CachedWorldMatrix), lineRenderer.Vertices[j].Color);
                 }
             }
 
@@ -1316,56 +1210,56 @@ namespace XNAFinalEngine.EngineCore
                 SpriteManager.Begin3DGammaSpace(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, gbufferTextures.RenderTargets[0], currentCamera.FarPlane);
                 for (int i = 0; i < HudTexture.ComponentPool3D.Count; i++)
                 {
-                    HudTexture currentHudTexture = HudTexture.ComponentPool3D.Elements[i];
-                    if (currentHudTexture.Enabled && currentHudTexture.Texture != null && !currentHudTexture.PostProcessed && Layer.IsActive(currentHudTexture.CachedLayerMask))
+                    HudTexture hudTexture = HudTexture.ComponentPool3D.Elements[i];
+                    if (hudTexture.IsVisible && hudTexture.Texture != null && !hudTexture.PostProcessed)
                     {
-                        if (currentHudTexture.Billboard)
+                        if (hudTexture.Billboard)
                         {
-                            if (currentHudTexture.DestinationRectangle != null)
-                                SpriteManager.Draw3DBillboardTexture(currentHudTexture.Texture,
-                                                                     currentHudTexture.CachedWorldMatrix,
-                                                                     currentHudTexture.Color,
+                            if (hudTexture.DestinationRectangle != null)
+                                SpriteManager.Draw3DBillboardTexture(hudTexture.Texture,
+                                                                     hudTexture.CachedWorldMatrix,
+                                                                     hudTexture.Color,
                                                                      currentCamera.Position,
                                                                      currentCamera.Up,
                                                                      currentCamera.Forward);
                             else
-                                SpriteManager.Draw3DBillboardTexture(currentHudTexture.Texture,
-                                                                     currentHudTexture.CachedWorldMatrix,
-                                                                     currentHudTexture.SourceRectangle,
-                                                                     currentHudTexture.Color,
+                                SpriteManager.Draw3DBillboardTexture(hudTexture.Texture,
+                                                                     hudTexture.CachedWorldMatrix,
+                                                                     hudTexture.SourceRectangle,
+                                                                     hudTexture.Color,
                                                                      currentCamera.Position,
                                                                      currentCamera.Up,
                                                                      currentCamera.Forward);
                         }
                         else
                         {
-                            if (currentHudTexture.DestinationRectangle != null)
-                                SpriteManager.Draw3DTexture(currentHudTexture.Texture,
-                                                          currentHudTexture.CachedWorldMatrix,
-                                                          currentHudTexture.SourceRectangle,
-                                                          currentHudTexture.Color);
+                            if (hudTexture.DestinationRectangle != null)
+                                SpriteManager.Draw3DTexture(hudTexture.Texture,
+                                                          hudTexture.CachedWorldMatrix,
+                                                          hudTexture.SourceRectangle,
+                                                          hudTexture.Color);
                             else
-                                SpriteManager.Draw3DTexture(currentHudTexture.Texture,
-                                                          currentHudTexture.CachedWorldMatrix,
-                                                          currentHudTexture.Color);
+                                SpriteManager.Draw3DTexture(hudTexture.Texture,
+                                                          hudTexture.CachedWorldMatrix,
+                                                          hudTexture.Color);
                         }
                     }
                 }
                 for (int i = 0; i < HudText.ComponentPool3D.Count; i++)
                 {
-                    HudText currentHudText = HudText.ComponentPool3D.Elements[i];
-                    if (currentHudText.Enabled && !currentHudText.PostProcessed && Layer.IsActive(currentHudText.CachedLayerMask))
+                    HudText hudText = HudText.ComponentPool3D.Elements[i];
+                    if (hudText.IsVisible && !hudText.PostProcessed)
                     {
-                        if (currentHudText.Billboard)
-                            SpriteManager.Draw3DBillboardText(currentHudText.Font ?? Font.DefaultFont,
-                                                              currentHudText.Text,
-                                                              currentHudText.CachedWorldMatrix,
-                                                              currentHudText.Color,
+                        if (hudText.Billboard)
+                            SpriteManager.Draw3DBillboardText(hudText.Font ?? Font.DefaultFont,
+                                                              hudText.Text,
+                                                              hudText.CachedWorldMatrix,
+                                                              hudText.Color,
                                                               currentCamera.Position,
                                                               currentCamera.Up,
                                                               currentCamera.Forward);
                         else
-                            SpriteManager.Draw3DText(currentHudText.Font ?? Font.DefaultFont, currentHudText.Text, currentHudText.CachedWorldMatrix, currentHudText.Color);
+                            SpriteManager.Draw3DText(hudText.Font ?? Font.DefaultFont, hudText.Text, hudText.CachedWorldMatrix, hudText.Color);
 
                     }
                 }
@@ -1382,24 +1276,24 @@ namespace XNAFinalEngine.EngineCore
 
             for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
             {
-                ModelRenderer currentModelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                if (currentModelRenderer.CachedModel != null &&
-                    (currentModelRenderer.RenderNonAxisAlignedBoundingBox || currentModelRenderer.RenderBoundingSphere || currentModelRenderer.RenderAxisAlignedBoundingBox) &&
-                    Layer.IsActive(currentModelRenderer.CachedLayerMask))
+                ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[i];
+                if (modelRenderer.CachedModel != null && 
+                    (modelRenderer.RenderNonAxisAlignedBoundingBox || modelRenderer.RenderBoundingSphere || modelRenderer.RenderAxisAlignedBoundingBox) &&
+                    modelRenderer.IsVisible)
                 {
-                    if (currentModelRenderer.RenderNonAxisAlignedBoundingBox)
+                    if (modelRenderer.RenderNonAxisAlignedBoundingBox)
                     {
                         // Doing this allows to show a more correct bounding box.
                         // But be aware that the axis aligned bounding box calculated in the model renderer component does not match this.
-                        LineManager.DrawBoundingBox(currentModelRenderer.CachedModel.BoundingBox, Color.Gray, currentModelRenderer.CachedWorldMatrix);
+                        LineManager.DrawBoundingBox(modelRenderer.CachedModel.BoundingBox, Color.Gray, modelRenderer.CachedWorldMatrix);
                     }
-                    if (currentModelRenderer.RenderAxisAlignedBoundingBox)
+                    if (modelRenderer.RenderAxisAlignedBoundingBox)
                     {
-                        LineManager.DrawBoundingBox(currentModelRenderer.BoundingBox, Color.Gray);
+                        LineManager.DrawBoundingBox(modelRenderer.BoundingBox, Color.Gray);
                     }
-                    if (currentModelRenderer.RenderBoundingSphere)
+                    if (modelRenderer.RenderBoundingSphere)
                     {
-                        LineManager.DrawBoundingSphere(currentModelRenderer.BoundingSphere, Color.Gray);
+                        LineManager.DrawBoundingSphere(modelRenderer.BoundingSphere, Color.Gray);
                     }
                 }
             }
@@ -1410,12 +1304,11 @@ namespace XNAFinalEngine.EngineCore
 
             for (int i = 0; i < LineRenderer.ComponentPool3D.Count; i++)
             {
-                LineRenderer currentLineRenderer = LineRenderer.ComponentPool3D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Enabled && currentLineRenderer.PrimitiveType == PrimitiveType.LineList && !currentLineRenderer.PostProcessed &&
-                    Layer.IsActive(currentLineRenderer.CachedLayerMask))
+                LineRenderer lineRenderer = LineRenderer.ComponentPool3D.Elements[i];
+                if (lineRenderer.Vertices != null && lineRenderer.IsVisible && lineRenderer.PrimitiveType == PrimitiveType.LineList && !lineRenderer.PostProcessed)
                 {
-                    for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
-                        LineManager.AddVertex(Vector3.Transform(currentLineRenderer.Vertices[j].Position, currentLineRenderer.CachedWorldMatrix), currentLineRenderer.Vertices[j].Color);
+                    for (int j = 0; j < lineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(Vector3.Transform(lineRenderer.Vertices[j].Position, lineRenderer.CachedWorldMatrix), lineRenderer.Vertices[j].Color);
                 }
             }
 
@@ -1431,12 +1324,11 @@ namespace XNAFinalEngine.EngineCore
 
             for (int i = 0; i < LineRenderer.ComponentPool3D.Count; i++)
             {
-                LineRenderer currentLineRenderer = LineRenderer.ComponentPool3D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Enabled &&
-                    currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
+                LineRenderer lineRenderer = LineRenderer.ComponentPool3D.Elements[i];
+                if (lineRenderer.Vertices != null && lineRenderer.IsVisible && lineRenderer.PrimitiveType == PrimitiveType.TriangleList)
                 {
-                    for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
-                        LineManager.AddVertex(Vector3.Transform(currentLineRenderer.Vertices[j].Position, currentLineRenderer.CachedWorldMatrix), currentLineRenderer.Vertices[j].Color);
+                    for (int j = 0; j < lineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(Vector3.Transform(lineRenderer.Vertices[j].Position, lineRenderer.CachedWorldMatrix), lineRenderer.Vertices[j].Color);
                 }
             }
 
@@ -1444,11 +1336,9 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            #region Head Up Display (when render directly to camera render target)
-
-            // We render directly in the camera render target so the user interface needs to be render here.
-            if (currentCamera.MasterCamera == null && currentCamera.slavesCameras.Count == 0 &&
-                currentCamera.NormalizedViewport == new RectangleF(0, 0, 1, 1) && currentCamera.RenderHeadUpDisplay)
+            #region Head Up Display
+            
+            if (currentCamera.RenderHeadUpDisplay)
                 RenderHeadsUpDisplay();
 
             #endregion
@@ -1469,11 +1359,8 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            #region Reset Camera Culling Mask
-
+            // Reset Camera Culling Mask
             Layer.CurrentCameraCullingMask = uint.MaxValue;
-
-            #endregion
 
             return postProcessedSceneTexture;
 
@@ -1500,16 +1387,16 @@ namespace XNAFinalEngine.EngineCore
 
                 #region Videos
 
-                VideoRenderer currentVideo;
+                VideoRenderer video;
                 for (int i = 0; i < VideoRenderer.ComponentPool.Count; i++)
                 {
-                    currentVideo = VideoRenderer.ComponentPool.Elements[i];
-                    currentVideo.Update();
-                    if (currentVideo.Enabled && currentVideo.State != MediaState.Stopped && Layer.IsActive(currentVideo.CachedLayerMask))
+                    video = VideoRenderer.ComponentPool.Elements[i];
+                    video.Update();
+                    if (video.IsVisible && video.State != MediaState.Stopped)
                     {
                         // Aspect ratio
                         Rectangle screenRectangle;
-                        float videoAspectRatio = (float)currentVideo.Texture.Width / (float)currentVideo.Texture.Height,
+                        float videoAspectRatio = (float)video.Texture.Width / (float)video.Texture.Height,
                               screenAspectRatio = (float)Screen.Width / (float)Screen.Height;
 
                         if (videoAspectRatio > screenAspectRatio)
@@ -1524,13 +1411,7 @@ namespace XNAFinalEngine.EngineCore
                             int blackStripe = (int)((Screen.Width - (Screen.Width / vsAspectRatio)) / 2);
                             screenRectangle = new Rectangle(0 + blackStripe, 0, Screen.Width - blackStripe * 2, Screen.Height);
                         }
-                        SpriteManager.Draw2DTexture(currentVideo.Texture,
-                                                    currentVideo.CachedPosition.Z,
-                                                    screenRectangle,
-                                                    null,
-                                                    Color.White,
-                                                    0,
-                                                    Vector2.Zero);
+                        SpriteManager.Draw2DTexture(video.Texture, video.CachedPosition.Z, screenRectangle, null, Color.White, 0, Vector2.Zero);
                     }
                 }
 
@@ -1544,12 +1425,11 @@ namespace XNAFinalEngine.EngineCore
             LineManager.Begin2D(PrimitiveType.TriangleList);
             for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
             {
-                LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Enabled &&
-                    currentLineRenderer.PrimitiveType == PrimitiveType.TriangleList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
+                LineRenderer lineRenderer = LineRenderer.ComponentPool2D.Elements[i];
+                if (lineRenderer.Vertices != null && lineRenderer.IsVisible && lineRenderer.PrimitiveType == PrimitiveType.TriangleList)
                 {
-                    for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
-                        LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
+                    for (int j = 0; j < lineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(lineRenderer.Vertices[j].Position, lineRenderer.Vertices[j].Color);
                 }
             }
             LineManager.End();
@@ -1558,8 +1438,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < LineRenderer.ComponentPool2D.Count; i++)
             {
                 LineRenderer currentLineRenderer = LineRenderer.ComponentPool2D.Elements[i];
-                if (currentLineRenderer.Vertices != null && currentLineRenderer.Enabled &&
-                    currentLineRenderer.PrimitiveType == PrimitiveType.LineList && Layer.IsActive(currentLineRenderer.CachedLayerMask))
+                if (currentLineRenderer.Vertices != null && currentLineRenderer.IsVisible && currentLineRenderer.PrimitiveType == PrimitiveType.LineList)
                 {
                     for (int j = 0; j < currentLineRenderer.Vertices.Length; j++)
                         LineManager.AddVertex(currentLineRenderer.Vertices[j].Position, currentLineRenderer.Vertices[j].Color);
@@ -1574,19 +1453,14 @@ namespace XNAFinalEngine.EngineCore
 
                 #region HUD Text
 
-                HudText currentHudText;
+                HudText hudText;
                 for (int i = 0; i < HudText.ComponentPool2D.Count; i++)
                 {
-                    currentHudText = HudText.ComponentPool2D.Elements[i];
-                    if (currentHudText.Enabled && Layer.IsActive(currentHudText.CachedLayerMask))
+                    hudText = HudText.ComponentPool2D.Elements[i];
+                    if (hudText.IsVisible)
                     {
-                        SpriteManager.Draw2DText(currentHudText.Font ?? Font.DefaultFont,
-                                               currentHudText.Text,
-                                               currentHudText.CachedPosition,
-                                               currentHudText.Color,
-                                               currentHudText.CachedRotation,
-                                               Vector2.Zero,
-                                               currentHudText.CachedScale);
+                        SpriteManager.Draw2DText(hudText.Font ?? Font.DefaultFont, hudText.Text, hudText.CachedPosition, hudText.Color, 
+                                                 hudText.CachedRotation, Vector2.Zero, hudText.CachedScale);
                     }
                 }
 
@@ -1594,40 +1468,32 @@ namespace XNAFinalEngine.EngineCore
 
                 #region HUD Texture
 
-                HudTexture currentHudTexture;
+                HudTexture hudTexture;
                 for (int i = 0; i < HudTexture.ComponentPool2D.Count; i++)
                 {
-                    currentHudTexture = HudTexture.ComponentPool2D.Elements[i];
-                    if (currentHudTexture.Enabled && currentHudTexture.Texture != null && Layer.IsActive(currentHudTexture.CachedLayerMask))
+                    hudTexture = HudTexture.ComponentPool2D.Elements[i];
+                    if (hudTexture.IsVisible && hudTexture.Texture != null)
                     {
-                        if (currentHudTexture.DestinationRectangle != null)
-                            SpriteManager.Draw2DTexture(currentHudTexture.Texture,
-                                                      currentHudTexture.CachedPosition.Z,
-                                                      currentHudTexture.DestinationRectangle.Value,
-                                                      currentHudTexture.SourceRectangle,
-                                                      currentHudTexture.Color,
-                                                      currentHudTexture.CachedRotation,
-                                                      Vector2.Zero);
+                        if (hudTexture.DestinationRectangle != null)
+                            SpriteManager.Draw2DTexture(hudTexture.Texture, hudTexture.CachedPosition.Z, hudTexture.DestinationRectangle.Value, hudTexture.SourceRectangle,
+                                                        hudTexture.Color, hudTexture.CachedRotation, Vector2.Zero);
                         else
-                            SpriteManager.Draw2DTexture(currentHudTexture.Texture,
-                                                      currentHudTexture.CachedPosition,
-                                                      currentHudTexture.SourceRectangle,
-                                                      currentHudTexture.Color,
-                                                      currentHudTexture.CachedRotation,
-                                                      Vector2.Zero,
-                                                      currentHudTexture.CachedScale);
+                            SpriteManager.Draw2DTexture(hudTexture.Texture, hudTexture.CachedPosition, hudTexture.SourceRectangle, hudTexture.Color, hudTexture.CachedRotation,
+                                                        Vector2.Zero, hudTexture.CachedScale);
                     }
                 }
 
                 #endregion
-                
+
             }
             SpriteManager.End();
         } // RenderHeadsUpDisplay
 
         #endregion
 
-        #region Unload Content
+        #endregion
+
+        #region End Run
 
         internal static void EndRun()
         {

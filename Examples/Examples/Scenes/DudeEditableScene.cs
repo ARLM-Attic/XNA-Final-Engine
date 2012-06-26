@@ -93,7 +93,7 @@ namespace XNAFinalEngineExamples
             camera.AddComponent<Camera>();
             camera.AddComponent<SoundListener>();
             camera.Camera.RenderTargetSize = Size.FullScreen;
-            camera.Camera.FarPlane = 5000;
+            camera.Camera.FarPlane = 500;
             camera.Camera.NearPlane = 0.1f;
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
             //ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
@@ -198,7 +198,7 @@ namespace XNAFinalEngineExamples
 
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
-            directionalLight.DirectionalLight.DiffuseColor = new Color(250, 250, 140);
+            directionalLight.DirectionalLight.Color = new Color(250, 250, 140);
             directionalLight.DirectionalLight.Intensity = 5f;
             directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
@@ -211,14 +211,14 @@ namespace XNAFinalEngineExamples
 
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
-            pointLight.PointLight.DiffuseColor = new Color(250, 0, 180);
+            pointLight.PointLight.Color = new Color(250, 0, 180);
             pointLight.PointLight.Intensity = 1f;
             pointLight.PointLight.Range = 100;
             pointLight.Transform.Position = new Vector3(-15, 50, 5);
 
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
-            spotLight.SpotLight.DiffuseColor = Color.Green;
+            spotLight.SpotLight.Color = Color.Green;
             spotLight.SpotLight.Intensity = 300f;
             spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
             spotLight.Transform.Position = new Vector3(0, 15f, -10);

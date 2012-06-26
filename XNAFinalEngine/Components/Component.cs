@@ -42,6 +42,18 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public bool Enabled { get; set; }
 
+        /// <summary>
+        /// Indicates if the layer is active.
+        /// I.e. if it is enable, the owner is active and its layer is active.
+        /// </summary>
+        public bool IsActive { get { return Layer.IsActive(CachedLayerMask) && CachedOwnerActive && Enabled; } }
+
+        /// <summary>
+        /// Indicates if the layer is visible.
+        /// I.e. if it is enable, the owner is active and its layer is visible (includes the current camera culling mask in the answer).
+        /// </summary>
+        public bool IsVisible { get { return Layer.IsVisible(CachedLayerMask) && CachedOwnerActive && Enabled; } }
+
         #endregion
 
         #region Constructor

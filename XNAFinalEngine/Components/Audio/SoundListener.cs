@@ -60,15 +60,6 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
-        #region Properties
-
-        /// <summary>
-        /// Enabled.
-        /// </summary>
-        public bool Enabled { get; set; }
-
-        #endregion
-
         #region Initialize
 
         /// <summary>
@@ -78,7 +69,6 @@ namespace XNAFinalEngine.Components
         {
             base.Initialize(owner);
             // Default values.
-            Enabled = true;
             // Cache transform matrix. It will be the view matrix.
             cachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
@@ -109,8 +99,8 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal void UpdateListenerProperties()
         {
-            audioListener.Forward = cachedWorldMatrix.Forward;
-            audioListener.Up = cachedWorldMatrix.Up;
+            audioListener.Forward  = cachedWorldMatrix.Forward;
+            audioListener.Up       = cachedWorldMatrix.Up;
             audioListener.Position = cachedWorldMatrix.Translation;
             if (Time.SmoothFrameTime > 0)
                 audioListener.Velocity = (audioListener.Position - oldPosition) / Time.SmoothFrameTime; // Distance / Time
