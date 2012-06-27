@@ -111,7 +111,7 @@ namespace XNAFinalEngine.EngineCore
             ContentManager.RecreateContentManagers();
 
             // Call the DeviceDisposed method only when the the device was disposed.
-            if (CurrentScene.Loaded)
+            if (CurrentScene.ContentLoaded)
                 CurrentScene.DeviceDisposed();
 
             // Collect all garbage.
@@ -133,12 +133,22 @@ namespace XNAFinalEngine.EngineCore
         internal static void BeginRun()
         {
             // Initialize managers that are not related to the device.
-            Layer.Initialize(); // Create the 32 layers.
             InputManager.Initialize();
             MusicManager.Initialize();
             
-            // Load scene.
-            CurrentScene.Load();
+            // Begin run the scene.
+            CurrentScene.Initialize();
+            CurrentScene.BeginRun();
+            // Start scripts.
+            for (int i = 0; i < Script.ScriptList.Count; i++) // The for sentence is needed because the script list could be modified by some script.
+            {
+                var script = Script.ScriptList[i];
+                if (script.assignedToAGameObject && script.IsActive)
+                {
+                    if (!script.Started)
+                        script.Start();
+                }
+            }
 
             // Init statistics counting.
             Statistics.InitStatistics();
@@ -219,18 +229,28 @@ namespace XNAFinalEngine.EngineCore
             // Update the scene
             CurrentScene.UpdateTasks();
             // Update the scripts
-            foreach (var script in Script.ScriptList)
+            for (int i = 0; i < Script.ScriptList.Count; i++) // The for sentence is needed because the script list could be modified by some script.
             {
+                var script = Script.ScriptList[i];
                 if (script.assignedToAGameObject && script.IsActive)
+                {
+                    if (!script.Started)
+                        script.Start();
                     script.Update();
+                }
             }
             // Perform the late update of the scene.
             CurrentScene.LateUpdateTasks();
             // Perform the late update of the scripts.
-            foreach (var script in Script.ScriptList)
+            for (int i = 0; i < Script.ScriptList.Count; i++) // The for sentence is needed because the script list could be modified by some script.
             {
+                var script = Script.ScriptList[i];
                 if (script.assignedToAGameObject && script.IsActive)
+                {
+                    if (!script.Started)
+                        script.Start();
                     script.LateUpdate();
+                }
             }
 
             #endregion
@@ -324,10 +344,15 @@ namespace XNAFinalEngine.EngineCore
 
             // Perform the pre draw update of the scene and scripts.
             CurrentScene.PreRenderTasks();
-            foreach (var script in Script.ScriptList)
+            for (int i = 0; i < Script.ScriptList.Count; i++) // The for sentence is needed because the script list could be modified by some script.
             {
+                var script = Script.ScriptList[i];
                 if (script.assignedToAGameObject && script.IsActive)
+                {
+                    if (!script.Started)
+                        script.Start();
                     script.PreRenderUpdate();
+                }
             }
 
             #endregion 
@@ -383,10 +408,15 @@ namespace XNAFinalEngine.EngineCore
             #region Logic Update
 
             CurrentScene.PostRenderTasks();
-            foreach (var script in Script.ScriptList)
+            for (int i = 0; i < Script.ScriptList.Count; i++) // The for sentence is needed because the script list could be modified by some script.
             {
+                var script = Script.ScriptList[i];
                 if (script.assignedToAGameObject && script.IsActive)
+                {
+                    if (!script.Started)
+                        script.Start();
                     script.PostRenderUpdate();
+                }
             }
 
             #endregion 
@@ -1497,6 +1527,8 @@ namespace XNAFinalEngine.EngineCore
 
         internal static void EndRun()
         {
+            CurrentScene.EndRun();
+            CurrentScene.Unitialize();
             // Disable wiimote and keyboard hook.
             InputManager.UnloadInputDevices();
         } // UnloadContent

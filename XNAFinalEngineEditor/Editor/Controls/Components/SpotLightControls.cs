@@ -50,7 +50,7 @@ namespace XNAFinalEngine.Editor
             // Intensity
             var intensity = CommonControls.SliderNumericFloat("Intensity", owner, spotLight.Intensity, false, true, 0, 100, spotLight, "Intensity");
             // Diffuse Color
-            var diffuseColor = CommonControls.SliderColor("Diffuse Color", owner, spotLight.Color, spotLight, "DiffuseColor");
+            var diffuseColor = CommonControls.SliderColor("Color", owner, spotLight.Color, spotLight, "Color");
             // Range
             var range = CommonControls.SliderNumericFloat("Range", owner, spotLight.Range, false, true, 0, 500, spotLight, "Range");
             // Inner Cone Angle

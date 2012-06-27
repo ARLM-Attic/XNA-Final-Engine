@@ -91,7 +91,7 @@ namespace XNAFinalEngineExamples
         /// Load the resources.
         /// </summary>
         /// <remarks>Remember to call the base implementation of this method.</remarks>
-        public override void Load()
+        public override void LoadContent()
         {
             UserInterfaceManager.Initialize();
 
@@ -99,7 +99,7 @@ namespace XNAFinalEngineExamples
             
             InitControls();
 
-            base.Load();
+            base.LoadContent();
         } // Load
 
         #endregion

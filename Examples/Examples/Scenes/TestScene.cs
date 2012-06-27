@@ -55,7 +55,7 @@ namespace XNAFinalEngineExamples
         /// Load the resources.
         /// </summary>
         /// <remarks>Remember to call the base implementation of this method.</remarks>
-        public override void Load()
+        public override void LoadContent()
         {
 
             #region Sound Instance Test
@@ -70,7 +70,7 @@ namespace XNAFinalEngineExamples
 
             #endregion
 
-            base.Load();
+            base.LoadContent();
         } // Load
 
         #endregion

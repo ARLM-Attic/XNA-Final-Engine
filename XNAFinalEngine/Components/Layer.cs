@@ -103,6 +103,31 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
+        #region Initialize Layers
+
+        /// <summary>
+        /// Init the layer array and base layer information.
+        /// </summary>
+        static Layer()
+        {
+            for (int i = 0; i < 32; i++)
+            {
+                layerList[i] = new Layer();
+                if (i == 0)
+                    layerList[0].Name = "Default Layer";
+                else if (i == 31)
+                    layerList[i].Name = "Editor Layer";
+                else
+                    layerList[i].Name = "Layer-" + i;
+                layerList[i].Number = i;
+                layerList[i].Mask = (uint)(Math.Pow(2, i));
+                layerList[i].Enabled = true;
+            }
+            CurrentCameraCullingMask = uint.MaxValue;
+        } // Layer
+
+        #endregion
+
         #region Constructor
 
         /// <summary>
@@ -111,7 +136,7 @@ namespace XNAFinalEngine.Components
         private Layer() { }
 
         #endregion
-
+        
         #region Get Layer
 
         /// <summary>
@@ -185,31 +210,6 @@ namespace XNAFinalEngine.Components
         {
             return (layerMask & CurrentCameraCullingMask & ActiveLayers) != 0;
         } // IsVisible
-
-        #endregion
-
-        #region Initialize Layers
-
-        /// <summary>
-        /// Init the layer array and base layer information.
-        /// </summary>
-        internal static void Initialize()
-        {
-            for (int i = 0; i < 32; i++)
-            {
-                layerList[i] = new Layer();
-                if (i == 0)
-                    layerList[0].Name = "Default Layer";
-                else if (i == 31)
-                    layerList[i].Name = "Editor Layer";
-                else
-                    layerList[i].Name = "Layer-" + i;
-                layerList[i].Number = i;
-                layerList[i].Mask = (uint)(Math.Pow(2, i));
-                layerList[i].Enabled = true;
-            }
-            CurrentCameraCullingMask = uint.MaxValue;
-        } // Initialize
 
         #endregion
 

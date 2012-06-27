@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
 #endregion
@@ -38,53 +39,72 @@ namespace XNAFinalEngine.Editor
 {
 
     /// <summary>
-    /// Use this scene if you want to work with the editor.
+    /// If you want to work with the XNA Final Engine Editor the main scene needs to inherit from this class.
     /// </summary>
     public abstract class EditableScene : Scene
     {
 
+        #region Script
+
+        /// <summary>
+        /// This script is used so that the user does not need to call the base methods of this class.
+        /// </summary>
+        private class HiddenEditorUpdateScript : Script
+        {
+
+            private bool beginInEditorMode = true;
+
+            /// <summary>
+            /// Load the Editor Manager.
+            /// </summary>
+            public override void Start()
+            {
+                EditorManager.Initialize();
+            } // Start
+
+            /// <summary>
+            /// Tasks executed during the update.
+            /// This is the place to put the application logic.
+            /// </summary>
+            public override void Update()
+            {
+                if (beginInEditorMode)
+                {
+                    EditorManager.EnableEditorMode();
+                    beginInEditorMode = false;
+                }
+                // Enable editor mode
+                if (Keyboard.KeyJustPressed(Keys.E) && Keyboard.KeyPressed(Keys.LeftControl))
+                {
+                    if (EditorManager.EditorModeEnabled)
+                        EditorManager.DisableEditorMode();
+                    else
+                        EditorManager.EnableEditorMode();
+                }
+            } // UpdateTasks
+
+        } // HiddenEditorUpdateScript
+
+        #endregion
+
         #region Variables
 
-        private bool beginInEditorMode = true;
+        // This script is used so that the user does not need to call the base methods of this class.
+        private readonly GameObject3D editorHiddenUpdateScript;
 
         #endregion
 
-        #region Load
+        #region Constructor
 
         /// <summary>
-        /// Load the resources.
+        /// If you want to work with the XNA Final Engine Editor the main scene needs to inherit from this class.
         /// </summary>
-        /// <remarks>Remember to call the base implementation of this method at the end.</remarks>
-        public override void Load()
+        protected EditableScene()
         {
-            EditorManager.Initialize();
-            base.Load();
-        } // Load
-
-        #endregion
-
-        #region Update Tasks
-
-        /// <summary>
-        /// Tasks executed during the update.
-        /// This is the place to put the application logic.
-        /// </summary>
-        public override void UpdateTasks()
-        {
-            if (beginInEditorMode)
-            {
-                EditorManager.EnableEditorMode();
-                beginInEditorMode = false;
-            }
-            // Enable editor mode
-            if (Keyboard.KeyJustPressed(Keys.E) && Keyboard.KeyPressed(Keys.LeftControl))
-            {
-                if (EditorManager.EditorModeEnabled)
-                    EditorManager.DisableEditorMode();
-                else
-                    EditorManager.EnableEditorMode();
-            }
-        } // UpdateTasks
+            // The engine is not initialized yet but it works.
+            editorHiddenUpdateScript = new GameObject3D();
+            editorHiddenUpdateScript.AddComponent<HiddenEditorUpdateScript>();
+        } // EditableScene
 
         #endregion
 

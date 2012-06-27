@@ -58,7 +58,7 @@ namespace XNAFinalEngineExamples
         /// Load the resources.
         /// </summary>
         /// <remarks>Remember to call the base implementation of this method.</remarks>
-        public override void Load()
+        public override void LoadContent()
         {
             // Hello World
             camera = new GameObject3D();
@@ -87,7 +87,7 @@ namespace XNAFinalEngineExamples
             camera.Camera.PostProcess = new PostProcess();
             camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
 
-            base.Load();
+            base.LoadContent();
         } // Load
 
         #endregion

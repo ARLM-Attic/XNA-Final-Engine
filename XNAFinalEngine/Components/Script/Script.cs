@@ -50,6 +50,15 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        /// Indicate if the script was started.
+        /// </summary>
+        public bool Started { get; internal set; }
+
+        #endregion
+
         #region Initialize
 
         /// <summary>
@@ -59,6 +68,7 @@ namespace XNAFinalEngine.Components
         {
             base.Initialize(owner);
             assignedToAGameObject = true;
+            Started = false;
             Load();
         } // Initialize
         
@@ -86,6 +96,24 @@ namespace XNAFinalEngine.Components
         /// Tasks executed during the creation of this component.
         /// </summary>
         public virtual void Load() { }
+
+        #endregion
+
+        #region Start
+
+        /// <summary>
+        /// Start is called just before any of the Update methods is called the first time.
+        /// </summary>
+        public virtual void Start() { }
+
+        #endregion
+
+        #region Reset
+
+        /// <summary>
+        /// Reset to default values.
+        /// </summary>
+        public virtual void Reset() { }
 
         #endregion
 

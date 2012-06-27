@@ -137,10 +137,7 @@
     <Compile Include="UserInterface\UserInterfaceManager.cs" />
     <Compile Include="UserInterface\Utilities.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Editor\Windows\Assets\" />
-    <Folder Include="Editor\Windows\Materials\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Reference Include="Microsoft.Xna.Framework">
       <Private>False</Private>

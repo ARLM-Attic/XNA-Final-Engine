@@ -29,6 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -37,45 +39,90 @@ namespace XNAFinalEngine.EngineCore
 
     /// <summary>
     /// The application logic is stored in scenes. 
-    /// When the engine starts one scene is loaded and its code is executed in a very specific order.
     /// </summary>
+    /// <remarks>
+    /// The scene code is executed in a very specific order:
+    /// When the scene is loading:
+    ///     * Load Content: load the resources
+    ///     * Begin Run (the editor will call this method again when you play a stopped scene or when the user reset the scene).
+    /// In each update:
+    ///     * UpdateTasks
+    ///     * LateUpdateTasks
+    /// In each frame draw:
+    ///     * PreRenderTasks
+    ///     * PostRenderTasks
+    /// When the scene is finishing its execution or when the application is closing:
+    ///     * EndRun
+    ///     * Unload Content.
+    /// In case the device was disposed (very rare):
+    ///     *  DeviceDisposed
+    /// Also, the editor and the user can reset the scene, when this happens the system will execute:
+    ///     * Reset.
+    ///     * Begin Run.
+    /// </remarks>
     public abstract class Scene : Disposable
     {
 
         #region Properties
 
         /// <summary>
-        /// Indicates if the scene was load.
+        /// Indicates if the scene's resources were loaded.
         /// </summary>
-        public bool Loaded { get; protected set; }
+        public bool ContentLoaded { get; private set; }
+
+        /// <summary>
+        /// Scene Content Manager.
+        /// You can create and use another content manager.
+        /// </summary>
+        public ContentManager ContentManager { get; private set; }
 
         #endregion
 
-        #region Load
+        #region Initialize
+
+        /// <summary>
+        /// Creates the scene content manager and loads the user content.
+        /// </summary>
+        internal void Initialize()
+        {
+            ContentManager = new ContentManager(GetType().Name + " Content Manager");
+            ContentManager.CurrentContentManager = ContentManager;
+            LoadContent();
+            ContentLoaded = true;
+        } // Initialize
+
+        #endregion
+
+        #region Uninitialize
+
+        /// <summary>
+        /// Unloads the user content and disposes the scene content manager.
+        /// </summary>
+        internal void Unitialize()
+        {
+            UnloadContent();
+            ContentManager.Dispose();
+            ContentLoaded = false;
+        } // Unitialize
+
+        #endregion
+
+        #region Load Content
 
         /// <summary>
         /// Load the resources.
         /// </summary>
-        /// <remarks>Remember to call the base implementation of this method.</remarks>
-        public virtual void Load()
-        {
-            Loaded = true;            
-        } // Load
+        public virtual void LoadContent() { }
 
         #endregion
 
-        #region Device Disposed
+        #region Begin Run
 
         /// <summary>
-        /// Tasks executed during a device dispose condition.
-        /// This is a very rare scenario in which the device is disposed. The system will try to recreate everything to their last state.
-        /// Be aware that the sound will stop playing, music and videos will start over and
-        /// custom textures and render targets can’t be recreated to their last values.
+        /// Called after all components are initialized but before the first update in the game loop.
+        /// The editor needs that you place the logic here.
         /// </summary>
-        public virtual void DeviceDisposed()
-        {
-            // Overrite it!!
-        } // DeviceDisposed
+        public virtual void BeginRun() { }
 
         #endregion
 
@@ -85,19 +132,13 @@ namespace XNAFinalEngine.EngineCore
         /// Tasks executed during the update before scripts update.
         /// This is the place to put the application logic.
         /// </summary>
-        public virtual void UpdateTasks()
-        {
-            // Overrite it!!
-        } // UpdateTasks
+        public virtual void UpdateTasks() { }
 
         /// <summary>
         /// Tasks executed during the update, but after the scripts update.
         /// This is another place to put the application logic.
         /// </summary>
-        public virtual void LateUpdateTasks()
-        {
-            // Overrite it!!
-        } // LateUpdateTasks
+        public virtual void LateUpdateTasks() { }
 
         #endregion
 
@@ -110,19 +151,58 @@ namespace XNAFinalEngine.EngineCore
         /// for that reason the pre render task exists.
         /// For example, is more correct to update the HUD information here because is related with the rendering.
         /// </summary>
-        public virtual void PreRenderTasks()
-        {
-            // Overrite it!!
-        } // PreRenderTasks
+        public virtual void PreRenderTasks() { }
 
         /// <summary>
         /// Tasks after the engine render.
         /// Probably you won’t need to place any task here.
         /// </summary>
-        public virtual void PostRenderTasks()
-        {
-            // Overrite it!!
-        } // PostRenderTasks
+        public virtual void PostRenderTasks() { }
+
+        #endregion
+
+        #region End Run
+
+        /// <summary>
+        /// Called after all components are initialized but before the first update in the game loop.
+        /// The editor needs that you place the logic here.
+        /// </summary>
+        public virtual void EndRun() { }
+
+        #endregion
+
+        #region Unload Content
+
+        /// <summary>
+        /// Called when the scene resources need to be unloaded.
+        /// Override this method to unload any game-specific resources.
+        /// </summary>
+        /// <remarks>Remember to call the base implementation of this method.</remarks>
+        public virtual void UnloadContent() { }
+
+        #endregion
+
+        #region Reset
+
+        /// <summary>
+        /// The editor and the user can reset the scene.
+        /// When this happens the system will execute:
+        ///     * Reset.
+        ///     * Begin Run.
+        /// </summary>
+        public virtual void Reset() { }
+
+        #endregion
+
+        #region Device Disposed
+
+        /// <summary>
+        /// Tasks executed during a device dispose condition.
+        /// This is a very rare scenario in which the device is disposed in which the system will try to recreate everything to their last state.
+        /// Normally the system will take care of everything, but sometimes you still can need to perform some tasks.
+        /// Be aware that the sound will stop playing, music and videos will start over and custom textures and render targets can’t be recreated to their last values.
+        /// </summary>
+        public virtual void DeviceDisposed() { }
 
         #endregion
 

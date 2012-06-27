@@ -29,18 +29,12 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Animations;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
-using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Editor;
-using XNAFinalEngine.Helpers;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
-using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Size = XNAFinalEngine.Helpers.Size;
 using Texture = XNAFinalEngine.Assets.Texture;
 using TextureCube = XNAFinalEngine.Assets.TextureCube;
@@ -82,11 +76,8 @@ namespace XNAFinalEngineExamples
         /// Load the resources.
         /// </summary>
         /// <remarks>Remember to call the base implementation of this method.</remarks>
-        public override void Load()
+        public override void LoadContent()
         {
-            // Call it before anything.
-            base.Load();
-
             #region Camera
 
             camera = new GameObject3D();
@@ -254,7 +245,6 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
-            base.UpdateTasks();
             /*
             if (Keyboard.KeyPressed(Keys.Space))
             {

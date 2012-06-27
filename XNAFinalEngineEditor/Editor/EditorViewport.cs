@@ -29,68 +29,70 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.Assets;
+using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Graphics;
+using XNAFinalEngine.Helpers;
+using XNAFinalEngine.Undo;
+using XNAFinalEngine.UserInterface;
+using Keyboard = XNAFinalEngine.Input.Keyboard;
+using Mouse = XNAFinalEngine.Input.Mouse;
+using Size = XNAFinalEngine.Helpers.Size;
+using Microsoft.Xna.Framework.Graphics;
+using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
-namespace XNAFinalEngineExamples
+namespace XNAFinalEngine.Editor
 {
-
     /// <summary>
-    /// Empty scene.
+    ///
     /// </summary>
-    public class EmptyScene : Scene
+    public static class EditorViewport
     {
 
-        #region Load
+        #region Enumerates
 
         /// <summary>
-        /// Load the resources.
+        /// This indicate the mode of the viewport (scene, game, etc.).
         /// </summary>
-        /// <remarks>Remember to call the base implementation of this method.</remarks>
-        public override void LoadContent()
+        private enum ViewportModeType
         {
-            base.LoadContent();
-        } // Load
+            /// <summary>
+            /// The editor camera.
+            /// </summary>
+            Scene,
+            /// <summary>
+            /// The game camera.
+            /// </summary>
+            Game,
+        } // ViewportModeType
 
         #endregion
 
-        #region Update Tasks
+        #region Variables
 
-        /// <summary>
-        /// Tasks executed during the update.
-        /// This is the place to put the application logic.
-        /// </summary>
-        public override void UpdateTasks()
-        {
-            
-        } // UpdateTasks
+        // The editor camera.
+        private static GameObject3D viewportCamera, gizmoViewportCamera;
+        private static ScriptEditorCamera editorCameraScript;
+        
+        // The picker to select an object from the screen.
+        private static Picker picker;
 
         #endregion
 
-        #region Render Tasks
+        #region Properties
 
         /// <summary>
-        /// Tasks before the engine render.
-        /// Some tasks are more related to the frame rendering than the update,
-        /// or maybe the update frequency is too high to waste time in this kind of tasks,
-        /// for that reason the pre render task exists.
-        /// For example, is more correct to update the HUD information here because is related with the rendering.
+        /// This indicate the mode of the viewport (scene, game, etc.).
         /// </summary>
-        public override void PreRenderTasks()
-        {
-            
-        } // PreRenderTasks
-
-        /// <summary>
-        /// Tasks after the engine render.
-        /// Probably you won’t need to place any task here.
-        /// </summary>
-        public override void PostRenderTasks()
-        {
-            
-        } // PostRenderTasks
+        private static ViewportModeType ViewportMode { get; set; }
 
         #endregion
 
-    } // EmptyScene
-} // XNAFinalEngineExamples
+    } // EditorViewport
+} // XNAFinalEngine.Editor
