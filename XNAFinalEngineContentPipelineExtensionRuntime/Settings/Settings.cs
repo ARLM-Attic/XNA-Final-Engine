@@ -60,11 +60,6 @@ namespace XNAFinalEngineContentPipelineExtensionRuntime.Settings
         public int WindowHeight = 600;
 
         /// <summary>
-        /// An aspect ratio of 0 means that the aspect ratio will be width/height.
-        /// </summary>
-        public float AspectRatio = 0;
-
-        /// <summary>
         /// Fullscreen mode enabled?
         /// </summary>
         public bool Fullscreen = false;

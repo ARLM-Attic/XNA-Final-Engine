@@ -466,17 +466,10 @@ namespace XNAFinalEngine.Editor
             Size size;
             float renderTargetAspectRatio = Camera.AspectRatio,
                   renderSpaceAspectRatio = ClientArea.Width / (float)ClientArea.Height;
-
             if (renderTargetAspectRatio > renderSpaceAspectRatio)
-            {
-                float vsAspectRatio = renderTargetAspectRatio / renderSpaceAspectRatio;
-                size = new Size(ClientArea.Width, (int)(ClientArea.Height / vsAspectRatio));
-            }
+                size = new Size(ClientArea.Width, (int)(ClientArea.Width / renderTargetAspectRatio));
             else
-            {
-                float vsAspectRatio = renderSpaceAspectRatio / renderTargetAspectRatio;
-                size = new Size((int)(ClientArea.Width / vsAspectRatio), ClientArea.Height);
-            }
+                size = new Size((int)(renderTargetAspectRatio * ClientArea.Height), ClientArea.Height);
             viewportCamera.Camera.RenderTargetSize = size;
         } // CloneMainCamera
 
@@ -506,17 +499,10 @@ namespace XNAFinalEngine.Editor
                     Size size;
                     float renderTargetAspectRatio = Camera.AspectRatio,
                           renderSpaceAspectRatio = ClientArea.Width / (float)ClientArea.Height;
-
                     if (renderTargetAspectRatio > renderSpaceAspectRatio)
-                    {
-                        float vsAspectRatio = renderTargetAspectRatio / renderSpaceAspectRatio;
-                        size = new Size(ClientArea.Width, (int)(ClientArea.Height / vsAspectRatio));
-                    }
+                        size = new Size(ClientArea.Width, (int)(ClientArea.Width / renderTargetAspectRatio));
                     else
-                    {
-                        float vsAspectRatio = renderSpaceAspectRatio / renderTargetAspectRatio;
-                        size = new Size((int)(ClientArea.Width / vsAspectRatio), ClientArea.Height);
-                    }
+                        size = new Size((int)(renderTargetAspectRatio * ClientArea.Height), ClientArea.Height);
                     viewportCamera.Camera.RenderTargetSize = size;
                 }
                     

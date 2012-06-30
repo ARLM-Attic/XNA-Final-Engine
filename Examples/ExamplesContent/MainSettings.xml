@@ -4,7 +4,6 @@
     <WindowName>XNA FINAL ENGINE</WindowName>
     <WindowWidth>0</WindowWidth>
     <WindowHeight>0</WindowHeight>
-    <AspectRatio>0</AspectRatio>
     <Fullscreen>false</Fullscreen>
     <VSync>false</VSync>    
     <ChangeWindowSize>true</ChangeWindowSize>

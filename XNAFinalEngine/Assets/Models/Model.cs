@@ -130,7 +130,6 @@ namespace XNAFinalEngine.Assets
             {
                 if (loadedModel is Model && loadedModel.ContentManager == null && loadedModel is PrimitiveModel)
                 {
-                    loadedModel.Dispose();
                     loadedModel.RecreateResource();
                 }
             }

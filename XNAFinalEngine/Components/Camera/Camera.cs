@@ -257,6 +257,7 @@ namespace XNAFinalEngine.Components
                     RenderTarget = new RenderTarget(value, RenderTarget.SurfaceFormat, RenderTarget.DepthFormat, RenderTarget.Antialiasing);
                 }
                 renderTargetSize = value;
+                CalculateProjectionMatrix(); // The render target size could affect the aspect ratio.
             }
         } // RenderTargetSize
 
@@ -344,7 +345,7 @@ namespace XNAFinalEngine.Components
 
         /// <summary>
         /// The camera's aspect ratio (width divided by height).
-        /// Default value: system aspect ratio.
+        /// Default value: viewport.width / viewport.height.
         /// If you modify the aspect ratio of the camera, the value will stay until you call camera.ResetAspect(); which resets the aspect to the screen's aspect ratio.
         /// If the aspect ratio is set to system aspect ratio then the result will consider the viewport selected.
         /// </summary>
@@ -360,10 +361,6 @@ namespace XNAFinalEngine.Components
             {
                 if (value <= 0)
                     throw new Exception("Camera: the aspect ratio has to be a positive real number.");
-                if (aspectRatio == 0)
-                    Screen.AspectRatioChanged -= OnAspectRatioChanged;
-                if (value == 0)
-                    Screen.AspectRatioChanged += OnAspectRatioChanged;
                 aspectRatio = value;
                 CalculateProjectionMatrix();
             }
@@ -582,10 +579,10 @@ namespace XNAFinalEngine.Components
             CullingMask = uint.MaxValue & ~(uint)(Math.Pow(2, 31)); // All layers minus the last because it's a reserved layer.
             // Generate the projection matrix.
             CalculateProjectionMatrix();
-            Screen.AspectRatioChanged += OnAspectRatioChanged;
             // Cache transform matrix. It will be the view matrix.
             ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
             OnWorldMatrixChanged(((GameObject3D) Owner).Transform.WorldMatrix);
+            Screen.ScreenSizeChanged += OnScreenSizeChanged;
         } // Initialize
         
         #endregion
@@ -598,9 +595,8 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
-            if (aspectRatio == 0)
-                Screen.AspectRatioChanged -= OnAspectRatioChanged;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
+            Screen.ScreenSizeChanged -= OnScreenSizeChanged;
             // Allows the garbage collector collected them.
             postProcess = null;
             AmbientLight = null;
@@ -706,18 +702,6 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
-        #region On Aspect Ratio Changed
-
-        /// <summary>
-        /// When the system aspect ratio changes then the projection matrix has to be recalculated.
-        /// </summary>
-        private void OnAspectRatioChanged(object sender, EventArgs e)
-        {
-            CalculateProjectionMatrix();
-        } // OnAspectRatioChanged
-
-        #endregion
-
         #region On World Matrix Changed
 
         /// <summary>
@@ -731,6 +715,18 @@ namespace XNAFinalEngine.Components
             Up = worldMatrix.Up;
             Forward = worldMatrix.Forward;
         } // OnWorldMatrixChanged
+
+        #endregion
+
+        #region On Screen Size Changed
+
+        /// <summary>
+        /// Reset the viewport dimensions and adjust the viewport camera's render target size.
+        /// </summary>
+        private void OnScreenSizeChanged(object caller, EventArgs eventArgs)
+        {
+            CalculateProjectionMatrix();
+        } // OnScreenSizeChanged
 
         #endregion
 

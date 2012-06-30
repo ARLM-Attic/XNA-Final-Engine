@@ -189,7 +189,7 @@ namespace XNAFinalEngine.EngineCore
 
             // Window minimum size.
             #if (WINDOWS)
-                Control.FromHandle(Window.Handle).MinimumSize = new System.Drawing.Size(64, 64);
+                Control.FromHandle(Window.Handle).MinimumSize = new System.Drawing.Size(800, 600);
             #endif
             
             IsMouseVisible = mainSettings.IsMouseVisible;
@@ -217,9 +217,6 @@ namespace XNAFinalEngine.EngineCore
             graphicsDeviceManager.PreferredBackBufferHeight = height;
 
             #endregion
-
-            // Aspect Ratio
-            Screen.AspectRatio = mainSettings.AspectRatio;
             
             // Fullscreen
             graphicsDeviceManager.IsFullScreen = mainSettings.Fullscreen;

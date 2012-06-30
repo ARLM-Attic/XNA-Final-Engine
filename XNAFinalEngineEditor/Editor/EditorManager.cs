@@ -609,26 +609,13 @@ namespace XNAFinalEngine.Editor
                 if (editorViewport.Enabled)
                 {
                     // Aspect ratio
-                    Rectangle screenRectangle;
-                    float renderTargetAspectRatio = editorViewport.Camera.AspectRatio,
-                          renderSpaceAspectRatio = editorViewport.ClientArea.Width / (float)editorViewport.ClientArea.Height;
-
-                    if (renderTargetAspectRatio > renderSpaceAspectRatio)
-                    {
-                        float vsAspectRatio = renderTargetAspectRatio / renderSpaceAspectRatio;
-                        int blackStripe = (int)((editorViewport.ClientArea.Height - (editorViewport.ClientArea.Height / vsAspectRatio)) / 2);
-                        screenRectangle = new Rectangle(editorViewport.ClientArea.ControlLeftAbsoluteCoordinate, editorViewport.ClientArea.ControlTopAbsoluteCoordinate + blackStripe,
-                                                        editorViewport.ClientArea.Width, editorViewport.ClientArea.Height - blackStripe * 2);
-                    }
-                    else
-                    {
-                        float vsAspectRatio = renderSpaceAspectRatio / renderTargetAspectRatio;
-                        int blackStripe = (int)((editorViewport.ClientArea.Width - (editorViewport.ClientArea.Width / vsAspectRatio)) / 2);
-                        screenRectangle = new Rectangle(editorViewport.ClientArea.ControlLeftAbsoluteCoordinate + blackStripe, editorViewport.ClientArea.ControlTopAbsoluteCoordinate,
-                                                        editorViewport.ClientArea.Width - blackStripe * 2, editorViewport.ClientArea.Height);
-                    }
+                    int horizontalOffset = (editorViewport.ClientArea.Width - editorViewport.Camera.RenderTargetSize.Width) / 2;
+                    int verticalOffset = (editorViewport.ClientArea.Height - editorViewport.Camera.RenderTargetSize.Height) / 2;
                     SpriteManager.Draw2DTexture(editorViewport.Camera.RenderTarget, 0,
-                                                screenRectangle, //new Rectangle(editorViewport.ClientLeft, editorViewport.ClientTop, editorViewport.ClientWidth, editorViewport.ClientHeight),
+                                                new Rectangle(editorViewport.ClientLeft + horizontalOffset, 
+                                                              editorViewport.ClientTop + verticalOffset,
+                                                              editorViewport.Camera.RenderTarget.Width, 
+                                                              editorViewport.Camera.RenderTarget.Height),
                                                 null, Color.White, 0, Vector2.Zero);
                 }
 

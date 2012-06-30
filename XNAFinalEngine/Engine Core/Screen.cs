@@ -173,32 +173,7 @@ namespace XNAFinalEngine.EngineCore
         } // Resolution
 
         #endregion
-
-        #region Aspect Ratio
-
-        /// <summary>
-        /// This is the default aspect ratio for cameras.
-        /// Some cameras could ask to work only in the default aspect ratio, even if the default aspect ratio changes.
-        /// Value 0 = Width / Height and it will be updated if the resolution changes.
-        /// </summary>
-        public static float AspectRatio
-        {
-            get
-            {
-                if (aspectRatio == 0)
-                    return (float)Width / Height;
-                return aspectRatio;
-            }
-            set
-            {
-                aspectRatio = value;
-                if (AspectRatioChanged != null)
-                    AspectRatioChanged(null, EventArgs.Empty);
-            }
-        } // AspectRatio
-
-        #endregion
-
+        
         #endregion
 
         #region Toggle Fullscreen
@@ -220,11 +195,6 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static event EventHandler ScreenSizeChanged;
 
-        /// <summary>
-        /// Raised when the system aspect ratio changes.
-        /// </summary>
-        public static event EventHandler AspectRatioChanged;
-
         #endregion
 
         #region On Screen Size Changed
@@ -234,12 +204,6 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         internal static void OnScreenSizeChanged(object sender, EventArgs e)
         {
-            // If the aspect ratio is calculated using the width / height formula then in someway it changes its value.
-            if (aspectRatio == 0)
-            {
-                if (AspectRatioChanged != null)
-                    AspectRatioChanged(null, EventArgs.Empty);
-            }
             if (ScreenSizeChanged != null)
                 ScreenSizeChanged(sender, EventArgs.Empty);
         } // OnScreenSizeChanged

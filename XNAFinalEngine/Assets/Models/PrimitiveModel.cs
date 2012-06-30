@@ -149,7 +149,22 @@ namespace XNAFinalEngine.Assets
         } // DisposeManagedResources
 
         #endregion
-                        
+
+        #region Recreate Resource
+
+        /// <summary>
+        /// Useful when the XNA device is disposed.
+        /// </summary>
+        internal override void RecreateResource()
+        {
+            if (vertexBuffer != null)
+                vertexBuffer.Dispose();
+            if (indexBuffer != null)
+                indexBuffer.Dispose();
+        } // RecreateResource
+
+        #endregion
+
     } // PrimitiveModel
 
     #region Sphere Clas
@@ -186,6 +201,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
+            base.RecreateResource();
             // Calculates the resulting number of vertices and indices
             numberVertices = (stacks + 1) * (slices + 1);
             numberIndices = (3 * stacks * (slices + 1)) * 2;
@@ -289,6 +305,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
+            base.RecreateResource();
             // Calculates the resulting number of vertices and indices  
             numberVertices = 36;
             numberIndices = 36;
@@ -454,6 +471,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
+            base.RecreateResource();
             // Calculates the resulting number of vertices and indices  
             numberVertices = 4;
             numberIndices = 6;
@@ -525,6 +543,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
+            base.RecreateResource();
             float sliceStep = MathHelper.TwoPi / slices;
             float textureStep = 1.0f / slices;
             // Calculates the resulting number of vertices and indices
@@ -663,6 +682,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
+            base.RecreateResource();
             float sliceStep = MathHelper.TwoPi / slices;
             // Calculates the resulting number of vertices and indices  
             numberVertices = 2 + (slices * 2);// +2;
