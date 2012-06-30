@@ -576,7 +576,7 @@ namespace XNAFinalEngine.Components
             orthographicVerticalSize = 10;
             RenderingOrder = 0;
             RenderHeadUpDisplay = true;
-            CullingMask = uint.MaxValue & ~(uint)(Math.Pow(2, 31)); // All layers minus the last because it's a reserved layer.
+            CullingMask = uint.MaxValue & ~(uint)(Math.Pow(2, 31)) & ~(uint)(Math.Pow(2, 30)); // All layers minus the last because it's a reserved layer.
             // Generate the projection matrix.
             CalculateProjectionMatrix();
             // Cache transform matrix. It will be the view matrix.

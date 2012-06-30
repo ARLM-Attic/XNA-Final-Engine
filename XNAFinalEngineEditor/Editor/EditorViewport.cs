@@ -81,12 +81,9 @@ namespace XNAFinalEngine.Editor
         #region Variables
 
         // The editor and gizmo camera.
-        private readonly GameObject3D viewportCamera, gizmoViewportCamera;
+        private readonly GameObject3D viewportCamera, helperCamera;
         private readonly ScriptEditorCamera editorCameraScript;
         
-        // The picker to select an object from the screen.
-        private static Picker picker;
-
         private bool enabled = true;
 
         private readonly Container viewportControl;
@@ -151,6 +148,11 @@ namespace XNAFinalEngine.Editor
         /// Viewport Camera.
         /// </summary>
         public Camera Camera { get { return viewportCamera.Camera; } }
+
+        /// <summary>
+        /// A helper camera that draw editor elements..
+        /// </summary>
+        public Camera HelperCamera { get { return helperCamera.Camera; } }
 
         /// <summary>
         /// Absolute left position of viewport.
@@ -273,16 +275,16 @@ namespace XNAFinalEngine.Editor
             editorCameraScript = (ScriptEditorCamera)viewportCamera.AddComponent<ScriptEditorCamera>();
             editorCameraScript.Mode = ScriptEditorCamera.ModeType.Maya;
             editorCameraScript.ClientArea = viewportControl.ClientArea;
-            // Camera to render the gizmos.
+            // Camera to render the gizmos and other editor elements.
             // This is done because the gizmos need to be in front of everything and I can't clear the ZBuffer wherever I want.
-            gizmoViewportCamera = new GameObject3D();
-            gizmoViewportCamera.AddComponent<Camera>();
-            gizmoViewportCamera.Camera.Enabled = true;
-            gizmoViewportCamera.Camera.CullingMask = Layer.GetLayerByNumber(31).Mask; // The editor layer.
-            gizmoViewportCamera.Camera.ClearColor = Color.Transparent;
-            gizmoViewportCamera.Layer = Layer.GetLayerByNumber(31);
+            helperCamera = new GameObject3D();
+            helperCamera.AddComponent<Camera>();
+            helperCamera.Camera.Enabled = true;
+            helperCamera.Camera.CullingMask = Layer.GetLayerByNumber(31).Mask; // The editor layer.
+            helperCamera.Camera.ClearColor = Color.Transparent;
+            helperCamera.Layer = Layer.GetLayerByNumber(31);
             // Set the viewport camara as master of the gizmo camera.
-            gizmoViewportCamera.Camera.MasterCamera = viewportCamera.Camera;
+            helperCamera.Camera.MasterCamera = viewportCamera.Camera;
 
             #endregion
 
@@ -313,7 +315,7 @@ namespace XNAFinalEngine.Editor
         protected override void DisposeManagedResources()
         {
             viewportCamera.Dispose();
-            gizmoViewportCamera.Dispose();
+            helperCamera.Dispose();
             viewportControl.Dispose();
             Screen.ScreenSizeChanged -= OnScreenSizeChanged;
         } // DisposeManagedResources
@@ -329,7 +331,7 @@ namespace XNAFinalEngine.Editor
         {
             if (Mode == ViewportMode.Game)
                 CloneMainCamera();
-            gizmoViewportCamera.Transform.WorldMatrix = viewportCamera.Transform.WorldMatrix;
+            helperCamera.Transform.WorldMatrix = viewportCamera.Transform.WorldMatrix;
         } // Update
 
         #endregion
@@ -400,12 +402,12 @@ namespace XNAFinalEngine.Editor
             if (mode == ViewportMode.Game)
             {
                 editorCameraScript.Enabled = false;
-                gizmoViewportCamera.Camera.Enabled = false;
+                helperCamera.Camera.Enabled = false;
                 return;
             }
             // Viewport camera configuration.
             editorCameraScript.Enabled = true;
-            gizmoViewportCamera.Camera.Enabled = true;
+            helperCamera.Camera.Enabled = true;
             viewportCamera.Camera.AmbientLight = ambientLight;
             viewportCamera.Camera.PostProcess = postProcess;
             viewportCamera.Camera.ClearColor = Color.Black;

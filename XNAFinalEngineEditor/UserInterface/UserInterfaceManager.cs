@@ -1112,6 +1112,8 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public static bool IsOverThisControl(Control control, Point pos)
         {
+            if (!control.Visible)
+                return false;
             if (!CheckPosition(control, pos))
                 return false;
             for (int i = OrderList.Count - 1; i > OrderList.IndexOf(control); i--)

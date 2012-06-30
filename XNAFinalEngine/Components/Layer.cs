@@ -85,7 +85,7 @@ namespace XNAFinalEngine.Components
             set
             {
                 // The last layer is reserved and can not be disable.
-                if (Number == 31)
+                if (Number == 31 || Number == 30)
                     return;
                 active = value;
                 // Update the active layers mask.
@@ -105,7 +105,7 @@ namespace XNAFinalEngine.Components
             set
             {
                 // The last layer is reserved and can not be disable.
-                if (Number == 31)
+                if (Number == 31 || Number == 30)
                     return;
                 visible = value;
                 // Update the visible layers mask.
@@ -125,8 +125,8 @@ namespace XNAFinalEngine.Components
             get { return activeLayers; }
             set
             {
-                // The last layer is reserved and can not be disable.
-                activeLayers = value | GetLayerByNumber(31).Mask;
+                // The last two layers are reserved and can not be disable.
+                activeLayers = value | GetLayerByNumber(31).Mask | GetLayerByNumber(30).Mask;
             }
         } // ActiveLayers
         
@@ -139,8 +139,8 @@ namespace XNAFinalEngine.Components
             get { return visibleLayers; }
             set
             {
-                // The last layer is reserved and can not be disable.
-                visibleLayers = value | GetLayerByNumber(31).Mask;
+                // The last two layers are reserved and can not be disable.
+                visibleLayers = value | GetLayerByNumber(31).Mask | GetLayerByNumber(30).Mask;
             }
         } // VisibleLayers
 
@@ -164,6 +164,8 @@ namespace XNAFinalEngine.Components
                 layerList[i] = new Layer();
                 if (i == 0)
                     layerList[0].Name = "Default Layer";
+                else if (i == 30)
+                    layerList[i].Name = "Editor Layer";
                 else if (i == 31)
                     layerList[i].Name = "Editor Layer";
                 else

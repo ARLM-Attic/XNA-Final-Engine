@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
@@ -39,6 +40,8 @@ using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Undo;
 using XNAFinalEngine.UserInterface;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
+using Mouse = XNAFinalEngine.Input.Mouse;
+using Size = XNAFinalEngine.Helpers.Size;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -81,13 +84,13 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// The different gizmos.
         /// </summary>
-        private enum GizmoSelected
+        private enum Gizmos
         {
             None,
             Scale,
             Rotation,
             Translation
-        }; // GizmoSelected
+        }; // Gizmos
 
         /// <summary>
         /// The different layout options.
@@ -103,6 +106,9 @@ namespace XNAFinalEngine.Editor
 
         #region Variables
 
+        // The selected object.
+        private static readonly List<GameObject> selectedObjects = new List<GameObject>();
+
         // To avoid more than one initialization.
         private static bool initialized;
 
@@ -117,6 +123,19 @@ namespace XNAFinalEngine.Editor
         // Layout information.
         private static LayoutOptions currentLayout, previousLayout;
         private static EditorViewport currentWideViewport;
+
+        // Indicates if we start draging the mouse on the viewport.
+        private static bool canSelect;
+
+        // This is used to know if a text box just lost its focus because escape was pressed.
+        private static Control previousFocusedControl;
+
+        private static GameObject2D selectionRectangle, selectionRectangleBackground;
+
+        // The picker to select an object from the screen.
+        private static Picker picker;
+
+        private static EditorViewport viewportMouseOver;
 
         #endregion
 
@@ -144,6 +163,16 @@ namespace XNAFinalEngine.Editor
         /// Used to restore the previous active mask when the editor is disable. 
         /// </summary>
         public static uint GameActiveMask { get; private set; }
+
+        /// <summary>
+        /// The selected objects.
+        /// </summary>
+        public static List<GameObject> SelectedObjects { get { return selectedObjects; } }
+
+        /// <summary>
+        /// Indicates if the user is selecting game objects.
+        /// </summary>
+        public static bool SelectingObjects { get { return selectionRectangleBackground.LineRenderer.Enabled; } }
 
         #endregion
 
@@ -173,8 +202,25 @@ namespace XNAFinalEngine.Editor
             editorViewports.Add(new EditorViewport(new RectangleF(0, 0.5f, 0.5f, 0.5f), EditorViewport.ViewportMode.Game));
             editorViewports.Add(new EditorViewport(new RectangleF(0.5f, 0.5f, 0.5f, 0.5f), EditorViewport.ViewportMode.Right));
             Layout = LayoutOptions.ThreeSplit;
+            
+            #region Selection Rectangle
 
-            MainWindow.AddGameObjectControlsToInspector(GameObject.GameObjects[1]);
+            // Selection game objects.
+            selectionRectangle = new GameObject2D();
+            selectionRectangle.AddComponent<LineRenderer>();
+            selectionRectangle.LineRenderer.Vertices = new VertexPositionColor[4 * 2];
+            selectionRectangle.LineRenderer.Enabled = false;
+            selectionRectangle.Layer = Layer.GetLayerByNumber(30);
+            selectionRectangleBackground = new GameObject2D();
+            selectionRectangleBackground.AddComponent<LineRenderer>();
+            selectionRectangleBackground.LineRenderer.PrimitiveType = PrimitiveType.TriangleList;
+            selectionRectangleBackground.LineRenderer.Vertices = new VertexPositionColor[6];
+            selectionRectangleBackground.LineRenderer.Enabled = false;
+            selectionRectangleBackground.Layer = Layer.GetLayerByNumber(30);
+
+            #endregion
+
+            picker = new Picker(Size.FullScreen);
             
         } // Initialize
 
@@ -199,6 +245,11 @@ namespace XNAFinalEngine.Editor
             Layer.ActiveLayers = Layer.GetLayerByNumber(31).Mask; // Update just the editor
 
             GameLoop.RenderMainCameraToScreen = false;
+
+            foreach (GameObject selectedObject in SelectedObjects)
+            {
+                ShowGameObjectSelected(selectedObject);    
+            }
         } // EnableEditorMode
 
         /// <summary>
@@ -217,7 +268,44 @@ namespace XNAFinalEngine.Editor
             Layer.ActiveLayers = GameActiveMask;
 
             GameLoop.RenderMainCameraToScreen = true;
+
+            foreach (GameObject selectedObject in SelectedObjects)
+            {
+                HideGameObjectSelected(selectedObject);
+            }
         } // DisableEditorMode
+
+        #endregion
+
+        #region Show and Hide Game Object Selected
+
+        /// <summary>
+        /// This activates a visual feedback that shows that the game object was selected.
+        /// </summary>
+        private static void ShowGameObjectSelected(GameObject gameObject)
+        {
+            if (gameObject is GameObject3D)
+            {
+                GameObject3D gameObject3D = (GameObject3D)gameObject;
+                // If it is a model.
+                if (gameObject3D.ModelRenderer != null)
+                    gameObject3D.ModelRenderer.RenderNonAxisAlignedBoundingBox = true;
+            }
+        } // ShowGameObjectSelected
+
+        /// <summary>
+        /// This activates a visual feedback that shows that the game object was selected.
+        /// </summary>
+        private static void HideGameObjectSelected(GameObject gameObject)
+        {
+            if (gameObject is GameObject3D)
+            {
+                GameObject3D gameObject3D = (GameObject3D)gameObject;
+                // If it is a model.
+                if (gameObject3D.ModelRenderer != null)
+                    gameObject3D.ModelRenderer.RenderNonAxisAlignedBoundingBox = false;
+            }
+        } // HideGameObjectSelected
 
         #endregion
 
@@ -229,13 +317,29 @@ namespace XNAFinalEngine.Editor
         public static void Update()
         {
 
+            #region Search Viewport Mouse Over
+
+            // Search the editor viewport in which the mouse is over. It does not have to be in game mode.
+            if (!SelectingObjects && !Gizmo.Active)
+            {
+                viewportMouseOver = null;
+                foreach (EditorViewport editorViewport in editorViewports)
+                {
+                    if (editorViewport.Enabled && editorViewport.Mode != EditorViewport.ViewportMode.Game &&
+                        UserInterfaceManager.IsOverThisControl(editorViewport.ClientArea, new Point(Mouse.Position.X, Mouse.Position.Y)))
+                        viewportMouseOver = editorViewport;
+                }
+            }
+
+            #endregion
+
             #region If no update is needed...
 
             if (!editorModeEnabled)
             {
-                //UserInterfaceManager.InputEnabled = true;
-                /*canSelect = false;
-                previousFocusedControl = UserInterfaceManager.FocusedControl;*/
+                UserInterfaceManager.InputEnabled = true;
+                canSelect = false;
+                previousFocusedControl = UserInterfaceManager.FocusedControl;
                 return;
             }
 
@@ -248,6 +352,9 @@ namespace XNAFinalEngine.Editor
                 if (editorViewport.Enabled)
                     editorViewport.Update();
             }
+            // Only one camara will draw the selection rectangle.
+            if (SelectingObjects)
+                viewportMouseOver.HelperCamera.AddLayer(Layer.GetLayerByNumber(30));
 
             #endregion
 
@@ -284,67 +391,34 @@ namespace XNAFinalEngine.Editor
             #endregion
 
             #region If no update is needed...
-            /*
-            // Keyboard shortcuts, camera movement and similar should be ignored when the text box is active.
-            if (!UserInterfaceManager.IsOverThisControl(renderSpace, new Point(Mouse.Position.X, Mouse.Position.Y)) && !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Enabled)
+            
+            // When we are outside of some viewport and we are not doing somethng viewport related...
+            if (viewportMouseOver == null && !Gizmo.Active && !SelectingObjects)
             {
                 UserInterfaceManager.InputEnabled = true;
                 canSelect = false;
                 previousFocusedControl = UserInterfaceManager.FocusedControl;
                 return;
             }
-            */
+            
             #endregion
-
-            #region Frame Object
-            /*
-            // Adjust the look at position and distance to frame the selected objects.
-            // The orientation is not afected.
-            if (Keyboard.KeyJustPressed(Keys.F) && !(UserInterfaceManager.FocusedControl is TextBox))
-            {
-                FrameObjects(selectedObjects);
-            }
-            // Frame all objects.
-            if (Keyboard.KeyJustPressed(Keys.A) && !(UserInterfaceManager.FocusedControl is TextBox))
-            {
-                List<GameObject3D> gameObject3Ds = new List<GameObject3D>();
-                // We only need the 3D game objects.
-                foreach (GameObject gameObject in GameObject.GameObjects)
-                {
-                    if (gameObject is GameObject3D && gameObject.Layer != Layer.GetLayerByNumber(31))
-                        gameObject3Ds.Add((GameObject3D)gameObject);
-                }
-                FrameObjects(gameObject3Ds);
-            }
-            */
-            #endregion
-
-            #region Reset Camera
-            /*
-            // Reset camera to default position and orientation.
-            if (Keyboard.KeyJustPressed(Keys.R) && Keyboard.KeyPressed(Keys.LeftControl) && !(UserInterfaceManager.FocusedControl is TextBox))
-            {
-                ResetEditorCamera();
-            }
-            */
-            #endregion
-
+            
             #region If no update is needed... (besides gizmo feedback, frame object and reset camera)
-            /*
-            if (editorCameraScript.Manipulating)
+
+            if (ScriptEditorCamera.CameraBeingManipulated != null)
             {
                 UserInterfaceManager.InputEnabled = true;
                 canSelect = false;
                 previousFocusedControl = UserInterfaceManager.FocusedControl;
                 return;
             }
-            */
+            
             #endregion
-
+            
             #region No Gizmo Active
-            /*
+            
             // If no gizmo is active…
-            if (activeGizmo == GizmoType.None)
+            //if (activeGizmo == Gizmos.None)
             {
                 
                 #region Selection Rectangle
@@ -353,39 +427,43 @@ namespace XNAFinalEngine.Editor
                     canSelect = true;
                 if (Mouse.LeftButtonPressed && canSelect)
                 {
+                    int mouseDraggingRectangleX = Mouse.DraggingRectangle.X - viewportMouseOver.ClientLeft;
+                    int mouseDraggingRectangleY = Mouse.DraggingRectangle.Y - viewportMouseOver.ClientTop;
+                    
                     Color lineColor = new Color(0.3f, 0.3f, 0.3f, 1f);
                     Color backgroundColor = new Color(0.3f, 0.3f, 0.3f, 0.2f);
                     selectionRectangle.LineRenderer.Enabled = true;
-                    selectionRectangle.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y, 0), lineColor);
-                    selectionRectangle.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y, 0), lineColor);
-                    selectionRectangle.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y, 0), lineColor);
-                    selectionRectangle.LineRenderer.Vertices[3] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, 0), lineColor);
-                    selectionRectangle.LineRenderer.Vertices[4] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, 0), lineColor);
-                    selectionRectangle.LineRenderer.Vertices[5] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, 0), lineColor);
-                    selectionRectangle.LineRenderer.Vertices[6] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, 0), lineColor);
-                    selectionRectangle.LineRenderer.Vertices[7] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3(mouseDraggingRectangleX,                                 mouseDraggingRectangleY, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3(mouseDraggingRectangleX + Mouse.DraggingRectangle.Width, mouseDraggingRectangleY, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3(mouseDraggingRectangleX + Mouse.DraggingRectangle.Width, mouseDraggingRectangleY, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[3] = new VertexPositionColor(new Vector3(mouseDraggingRectangleX + Mouse.DraggingRectangle.Width, mouseDraggingRectangleY + Mouse.DraggingRectangle.Height, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[4] = new VertexPositionColor(new Vector3(mouseDraggingRectangleX + Mouse.DraggingRectangle.Width, mouseDraggingRectangleY + Mouse.DraggingRectangle.Height, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[5] = new VertexPositionColor(new Vector3(mouseDraggingRectangleX,                                 mouseDraggingRectangleY + Mouse.DraggingRectangle.Height, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[6] = new VertexPositionColor(new Vector3(mouseDraggingRectangleX,                                 mouseDraggingRectangleY + Mouse.DraggingRectangle.Height, 0), lineColor);
+                    selectionRectangle.LineRenderer.Vertices[7] = new VertexPositionColor(new Vector3(mouseDraggingRectangleX,                                 mouseDraggingRectangleY, 0), lineColor);
                     selectionRectangleBackground.LineRenderer.Enabled = true;
-                    selectionRectangleBackground.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y, -0.1f), backgroundColor);
-                    selectionRectangleBackground.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, -0.1f), backgroundColor);
-                    selectionRectangleBackground.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y, -0.1f), backgroundColor);
-                    selectionRectangleBackground.LineRenderer.Vertices[4] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y, -0.1f), backgroundColor);
-                    selectionRectangleBackground.LineRenderer.Vertices[3] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, -0.1f), backgroundColor);
-                    selectionRectangleBackground.LineRenderer.Vertices[5] = new VertexPositionColor(new Vector3(Mouse.DraggingRectangle.X + Mouse.DraggingRectangle.Width, Mouse.DraggingRectangle.Y + Mouse.DraggingRectangle.Height, -0.1f), backgroundColor);
+                    selectionRectangleBackground.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3(mouseDraggingRectangleX,                                 mouseDraggingRectangleY, -0.1f), backgroundColor);
+                    selectionRectangleBackground.LineRenderer.Vertices[2] = new VertexPositionColor(new Vector3(mouseDraggingRectangleX,                                 mouseDraggingRectangleY + Mouse.DraggingRectangle.Height, -0.1f), backgroundColor);
+                    selectionRectangleBackground.LineRenderer.Vertices[1] = new VertexPositionColor(new Vector3(mouseDraggingRectangleX + Mouse.DraggingRectangle.Width, mouseDraggingRectangleY, -0.1f), backgroundColor);
+                    selectionRectangleBackground.LineRenderer.Vertices[4] = new VertexPositionColor(new Vector3(mouseDraggingRectangleX + Mouse.DraggingRectangle.Width, mouseDraggingRectangleY, -0.1f), backgroundColor);
+                    selectionRectangleBackground.LineRenderer.Vertices[3] = new VertexPositionColor(new Vector3(mouseDraggingRectangleX,                                 mouseDraggingRectangleY + Mouse.DraggingRectangle.Height, -0.1f), backgroundColor);
+                    selectionRectangleBackground.LineRenderer.Vertices[5] = new VertexPositionColor(new Vector3(mouseDraggingRectangleX + Mouse.DraggingRectangle.Width, mouseDraggingRectangleY + Mouse.DraggingRectangle.Height, -0.1f), backgroundColor);
                 }
                 else
                 {
                     selectionRectangleBackground.LineRenderer.Enabled = false;
                     selectionRectangle.LineRenderer.Enabled = false;
+                    viewportMouseOver.HelperCamera.RemoveLayer(Layer.GetLayerByNumber(30));
                 }
 
                 #endregion
                 
                 #region Selection of objects
 
-                if (Mouse.LeftButtonJustReleased && canSelect)
+                if (Mouse.LeftButtonJustReleased && canSelect && viewportMouseOver != null)
                 {
-                    
-                    RemoveControlsFromInspector();
+
+                    MainWindow.RemoveGameObjectControlsFromInspector();
 
                     #region Clear selection list when control keys and shift keys are not pressed
 
@@ -404,18 +482,18 @@ namespace XNAFinalEngine.Editor
 
                     #region Pick objects
 
-                    Viewport viewport = new Viewport(editorCamera.Camera.Viewport.X, editorCamera.Camera.Viewport.Y, 
-                                                     editorCamera.Camera.Viewport.Width, editorCamera.Camera.Viewport.Height);
+                    Viewport viewport = new Viewport(viewportMouseOver.ClientLeft, viewportMouseOver.ClientTop,
+                                                     viewportMouseOver.ClientWidth, viewportMouseOver.ClientHeight);
                     List<GameObject3D> newSelectedObjects = new List<GameObject3D>();
                     if (Mouse.NoDragging)
                     {
-                        GameObject gameObject = picker.Pick(editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix, viewport);
+                        GameObject gameObject = picker.Pick(viewportMouseOver.Camera.ViewMatrix, viewportMouseOver.Camera.ProjectionMatrix, viewport);
                         if (gameObject != null && gameObject is GameObject3D)
                             newSelectedObjects.Add((GameObject3D)gameObject);
                     }
                     else
                     {
-                        List<GameObject> pickedObjects = picker.Pick(Mouse.DraggingRectangle, editorCamera.Camera.ViewMatrix, editorCamera.Camera.ProjectionMatrix, viewport);
+                        List<GameObject> pickedObjects = picker.Pick(Mouse.DraggingRectangle, viewportMouseOver.Camera.ViewMatrix, viewportMouseOver.Camera.ProjectionMatrix, viewport);
                         foreach (GameObject pickedObject in pickedObjects)
                         {
                             if (pickedObject is GameObject3D)
@@ -474,7 +552,8 @@ namespace XNAFinalEngine.Editor
 
                     #endregion
 
-                    AddControlsToInspector();
+                    if (SelectedObjects.Count > 0)
+                        MainWindow.AddGameObjectControlsToInspector(SelectedObjects[0]);
                 }
 
                 #endregion
@@ -483,7 +562,7 @@ namespace XNAFinalEngine.Editor
 
                 if (Keyboard.EscapeJustPressed && !(previousFocusedControl is TextBox))
                 {
-                    RemoveControlsFromInspector();
+                    MainWindow.RemoveGameObjectControlsFromInspector();
                     // Remove bounding box off the screen.
                     foreach (var gameObject in selectedObjects)
                     {
@@ -495,7 +574,7 @@ namespace XNAFinalEngine.Editor
                 #endregion
                 
             }
-            */
+            
             #endregion
 
             #region Gizmo Active
@@ -574,7 +653,7 @@ namespace XNAFinalEngine.Editor
             */
             #endregion
 
-            //previousFocusedControl = UserInterfaceManager.FocusedControl;
+            previousFocusedControl = UserInterfaceManager.FocusedControl;
             
         } // Update
 
@@ -600,12 +679,12 @@ namespace XNAFinalEngine.Editor
                 return;
 
             EngineManager.Device.Clear(Color.Black);
-            // Render viewport cameras.
+
+            #region Render Viewports
+
             SpriteManager.Begin2D();
             foreach (EditorViewport editorViewport in editorViewports)
             {
-                #region Render Viewport
-
                 if (editorViewport.Enabled)
                 {
                     // Aspect ratio
@@ -618,10 +697,10 @@ namespace XNAFinalEngine.Editor
                                                               editorViewport.Camera.RenderTarget.Height),
                                                 null, Color.White, 0, Vector2.Zero);
                 }
-
-                #endregion
             }
             SpriteManager.End();
+
+            #endregion
 
             UserInterfaceManager.RenderUserInterfaceToScreen();
         } // PostRenderTasks
@@ -700,14 +779,14 @@ namespace XNAFinalEngine.Editor
         public static void ToggleLayout()
         {
             // Search if we are pressing F12 on an active viewport
-            EditorViewport editorViewportSelected = null;
+            EditorViewport editorViewportMouseOver = null;
             foreach (EditorViewport editorViewport in editorViewports)
             {
-                if (editorViewport.Enabled && UserInterfaceManager.IsOverThisControl(editorViewport.ClientArea, new Point(Input.Mouse.Position.X, Input.Mouse.Position.Y)))
-                    editorViewportSelected = editorViewport;
+                if (editorViewport.Enabled && UserInterfaceManager.IsOverThisControl(editorViewport.ClientArea, new Point(Mouse.Position.X, Mouse.Position.Y)))
+                    editorViewportMouseOver = editorViewport;
             }
             // If we are...
-            if (editorViewportSelected != null)
+            if (editorViewportMouseOver != null)
             {
                 if (Layout == LayoutOptions.Wide)
                 {
@@ -716,7 +795,7 @@ namespace XNAFinalEngine.Editor
                 else
                 {
                     previousLayout = Layout;
-                    currentWideViewport = editorViewportSelected;
+                    currentWideViewport = editorViewportMouseOver;
                     Layout = LayoutOptions.Wide;
                 }
             }

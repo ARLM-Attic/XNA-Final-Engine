@@ -423,5 +423,25 @@ namespace XNAFinalEngine.Editor
 
         #endregion
 
+        #region Remove Game Object Controls
+
+        /// <summary>
+        /// Remove User Interface controls from inspector panel.
+        /// </summary>
+        public static void RemoveGameObjectControlsFromInspector()
+        {
+            inspector.RemoveControlsFromClientArea();
+        } // RemoveGameObjectControlsFromInspector
+
+        /// <summary>
+        /// Remove User Interface controls from a clip control.
+        /// </summary>
+        public static void RemoveGameObjectControls(ClipControl control)
+        {
+            control.RemoveControlsFromClientArea();
+        } // RemoveGameObjectControls
+
+        #endregion
+
     } // MainWindow
 } // XNAFinalEngine.Editor

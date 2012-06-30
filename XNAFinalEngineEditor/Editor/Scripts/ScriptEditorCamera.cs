@@ -85,7 +85,7 @@ namespace XNAFinalEngine.Editor
         /// If the S key is just pressed, the camera enter in manipulation mode until the space or escape key is pressed or the S key is pressed again.
         /// </summary>
         private bool sJustPressed;
-        private static ScriptEditorCamera manipulating;
+        private static ScriptEditorCamera cameraBeingManipulated;
         private float sJustPressedTime;
 
         // Default values.
@@ -140,7 +140,7 @@ namespace XNAFinalEngine.Editor
                 mode = value;
                 sJustPressed = false;
                 if (Manipulating)
-                    manipulating = null;
+                    cameraBeingManipulated = null;
             }
         } // Mode
 
@@ -152,7 +152,12 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Is it the camera being manipulated?
         /// </summary>
-        public bool Manipulating { get { return manipulating == this; } }
+        public bool Manipulating { get { return cameraBeingManipulated == this; } }
+
+        /// <summary>
+        /// Camara being in use.
+        /// </summary>
+        public static ScriptEditorCamera CameraBeingManipulated { get { return cameraBeingManipulated; } }
 
         /// <summary>
         /// Does it work on orthographic mode?
@@ -220,7 +225,7 @@ namespace XNAFinalEngine.Editor
                         // To exit the manipulation mode.
                         if (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed)
                         {
-                            manipulating = null;
+                            cameraBeingManipulated = null;
                         }
                     }
                     // To enter or exit the manipulation mode using the s key.
@@ -236,7 +241,7 @@ namespace XNAFinalEngine.Editor
                             sJustPressed = false;
                             if (Time.ApplicationTime - sJustPressedTime < 0.3f)
                             {
-                                manipulating = Manipulating ? null : this;
+                                cameraBeingManipulated = Manipulating ? null : this;
                             }
                         }
                     }
@@ -278,10 +283,9 @@ namespace XNAFinalEngine.Editor
 
                     #region Maya mode
 
-                    if ((Keyboard.KeyPressed(Keys.LeftAlt) || Keyboard.KeyPressed(Keys.RightAlt)) &&
-                        (Mouse.LeftButtonPressed || Mouse.RightButtonPressed || Mouse.MiddleButtonPressed))
+                    if ((Keyboard.KeyPressed(Keys.LeftAlt) || Keyboard.KeyPressed(Keys.RightAlt)))
                     {
-                        manipulating = this;
+                        cameraBeingManipulated = this;
                         // Translation
                         if (Mouse.MiddleButtonPressed)
                         {
@@ -302,7 +306,7 @@ namespace XNAFinalEngine.Editor
                     }
                     else
                     {
-                        manipulating = null;
+                        cameraBeingManipulated = null;
                     }
                     // Distance or zoom
                     Distance -= Mouse.WheelDelta * Distance / 1300; // 1300 is an arbitrary number.
@@ -374,8 +378,10 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         internal bool CouldBeManipulated()
         {
-            return UserInterfaceManager.IsOverThisControl(ClientArea, new Point(Mouse.Position.X, Mouse.Position.Y)) && manipulating == null &&
-                   !Gizmo.Active /*&& !selectionRectangleBackground.LineRenderer.Enabled*/;
+            return UserInterfaceManager.IsOverThisControl(ClientArea, new Point(Mouse.Position.X, Mouse.Position.Y)) &&
+                   cameraBeingManipulated == null &&
+                   !Gizmo.Active &&
+                   !EditorManager.SelectingObjects;
         } // CouldBeManipulated
 
         #endregion
