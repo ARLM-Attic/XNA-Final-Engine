@@ -1029,7 +1029,6 @@ namespace XNAFinalEngine.Components
                     throw new ArgumentException("Game Object 3D: Unable to remove the script component. There is not one.");
                 }
                 script.Uninitialize();
-                Components.Script.ReleaseScript<TComponentType>(this);
             }
 
             #endregion

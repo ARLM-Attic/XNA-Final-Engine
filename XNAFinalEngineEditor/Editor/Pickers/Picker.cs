@@ -54,7 +54,7 @@ namespace XNAFinalEngine.Editor
     /// Possible addition: render in a render target of only one pixel.  Maybe it isn’t a good option.
     /// Besides, the picker efficiency is not critical.
     /// </remarks>
-    public class Picker
+    internal class Picker
     {
 
         #region Variables

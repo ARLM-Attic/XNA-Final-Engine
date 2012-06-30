@@ -86,6 +86,17 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         public static Scene CurrentScene { get; internal set; }
 
+        /// <summary>
+        /// This indicates the cameras to render and their order, ignoring the camera component settings.
+        /// The camera component provides an interface to set this information but the editor and maybe some user testing will benefit with this functionality.
+        /// </summary>
+        public static List<Camera> CamerasToRender { get; set; }
+        
+        /// <summary>
+        /// You can avoid the rendering of the main camera to the back buffer.
+        /// </summary>
+        public static bool RenderMainCameraToScreen { get; set; }
+
         #endregion
 
         #region Load Content
@@ -98,6 +109,8 @@ namespace XNAFinalEngine.EngineCore
         /// </remarks>
         internal static void LoadContent()
         {
+            RenderMainCameraToScreen = true;
+
             // Initialize managers that are related to the device.
             SpriteManager.Initialize();
             LineManager.Initialize();
@@ -367,40 +380,64 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-            
-            #region Render Each Camera
 
-            // Release all master camera's render targets (slaves do not have render targets).
-            for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
+            Camera mainCamera;
+
+            if (CamerasToRender == null || CamerasToRender.Count == 0)
             {
-                Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
-                if (currentCamera.MasterCamera == null && currentCamera.RenderTarget != null)
-                        RenderTarget.Release(currentCamera.RenderTarget);
-            }
-            // For each camera we render the scene in it
-            for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
-            {
-                Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
-                // Only active master cameras are renderer.
-                if (currentCamera.MasterCamera == null && currentCamera.IsActive)
-                    RenderMasterCamera(currentCamera);
-            }
+                #region Render Each Camera
+
+                // For each camera we render the scene in it
+                for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
+                {
+                    Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
+                    // Only active master cameras are renderer.
+                    if (currentCamera.MasterCamera == null && currentCamera.IsActive)
+                        RenderMasterCamera(currentCamera);
+                }
             
+                #endregion
+
+                mainCamera = Camera.MainCamera;
+            }
+            else
+            {
+                #region Render CamerasToRender Cameras
+
+                // For each camera we render the scene in it
+                for (int cameraIndex = 0; cameraIndex < CamerasToRender.Count; cameraIndex++)
+                {
+                    Camera currentCamera = CamerasToRender[cameraIndex];
+                    // Only active master cameras are renderer.
+                    if (currentCamera.MasterCamera == null && currentCamera.IsActive)
+                        RenderMasterCamera(currentCamera);
+                }
+
+                #endregion
+
+                mainCamera = CamerasToRender[CamerasToRender.Count - 1];
+            }
+
+            #region Screenshot Preparations
+
+            RenderTarget screenshotRenderTarget = null;
+            if (ScreenshotCapturer.MakeScreenshot)
+            {
+                // Instead of render into the back buffer we render into a render target.
+                screenshotRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false);
+                screenshotRenderTarget.EnableRenderTarget();
+            }
+
             #endregion
 
             #region Render Main Camera to Back Buffer
 
-            EngineManager.Device.Clear(Color.Black);
-            // Render the main camera onto back buffer.
-            if (Camera.MainCamera != null && Camera.MainCamera.RenderTarget != null)
+            if (RenderMainCameraToScreen)
             {
-                SpriteManager.DrawTextureToFullScreen(Camera.MainCamera.RenderTarget);
-                // Screenshot
-                if (ScreenshotCapturer.MakeScreenshot)
-                {
-                    ScreenshotCapturer.MakeScreenshot = false;
-                    ScreenshotCapturer.SaveScreenshot(Camera.MainCamera.RenderTarget);
-                }
+                EngineManager.Device.Clear(Color.Black);
+                // Render the main camera onto back buffer.
+                if (mainCamera != null && mainCamera.RenderTarget != null)
+                    SpriteManager.DrawTextureToFullScreen(Camera.MainCamera.RenderTarget);
             }
 
             #endregion
@@ -420,6 +457,19 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion 
+
+            #region Screenshot
+
+            if (ScreenshotCapturer.MakeScreenshot)
+            {
+                screenshotRenderTarget.DisableRenderTarget();
+                ScreenshotCapturer.MakeScreenshot = false;
+                ScreenshotCapturer.SaveScreenshot(screenshotRenderTarget);
+                SpriteManager.DrawTextureToFullScreen(screenshotRenderTarget);
+                screenshotRenderTarget.Dispose();
+            }
+
+            #endregion
             
             #region Release Shadow Light Depth Textures
 
@@ -454,26 +504,35 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         private static void RenderMasterCamera(Camera currentCamera)
         {
+            // If the camera does not have a render target we create one for the user.
+            if (currentCamera.RenderTarget == null)
+                currentCamera.RenderTarget = new RenderTarget(currentCamera.RenderTargetSize, SurfaceFormat.Color, DepthFormat.None);
             // If it does not have slaves cameras and it occupied the whole render target...
             if (currentCamera.slavesCameras.Count == 0 && currentCamera.NormalizedViewport == new RectangleF(0, 0, 1, 1))
-                currentCamera.RenderTarget = RenderCamera(currentCamera);
+                RenderCamera(currentCamera, currentCamera.RenderTarget);
             else
             {
 
                 #region Render Cameras
 
                 // Render each camera to a render target and then merge.
-                currentCamera.PartialRenderTarget = RenderCamera(currentCamera);
+                currentCamera.PartialRenderTarget = RenderTarget.Fetch(CalculatePartialRenderTargetSize(currentCamera), SurfaceFormat.Color, DepthFormat.None, 
+                                                                       RenderTarget.AntialiasingType.NoAntialiasing);
+                RenderCamera(currentCamera, currentCamera.PartialRenderTarget);
                 foreach (Camera slaveCamera in currentCamera.slavesCameras)
                 {
                     if (slaveCamera.IsActive)
+                    {
                         // I store the render of the camera to a partial render target.
                         // This helps reduce the memory consumption (GBuffer, Light Pass, HDR pass)
                         // at the expense of a pass that copy this texture to a bigger render target
                         // and a last pass that copy the cameras’ render target to the back buffer.
                         // If the performance is critical and there is more memory you should change this behavior.
                         // It also simplified the render of one camera. 
-                        slaveCamera.PartialRenderTarget = RenderCamera(slaveCamera);
+                        slaveCamera.PartialRenderTarget = RenderTarget.Fetch(CalculatePartialRenderTargetSize(currentCamera), SurfaceFormat.Color, DepthFormat.None,
+                                                                             RenderTarget.AntialiasingType.NoAntialiasing);
+                        RenderCamera(slaveCamera, slaveCamera.PartialRenderTarget);
+                    }
                 }
 
                 #endregion
@@ -481,7 +540,6 @@ namespace XNAFinalEngine.EngineCore
                 #region Composite Cameras
 
                 // Composite cameras
-                currentCamera.RenderTarget = RenderTarget.Fetch(currentCamera.RenderTargetSize, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
                 currentCamera.RenderTarget.EnableRenderTarget();
                 currentCamera.RenderTarget.Clear(currentCamera.ClearColor);
 
@@ -543,13 +601,35 @@ namespace XNAFinalEngine.EngineCore
 
         #endregion
 
+        #region Calculate Render Target Size
+
+        /// <summary>
+        /// Calculate partial render target size.
+        /// </summary>
+        private static Size CalculatePartialRenderTargetSize(Camera camera)
+        {
+            Size targetSize;
+            if (camera.NeedViewport)
+            {
+                targetSize = new Size(camera.Viewport.Width, camera.Viewport.Height);
+                targetSize.MakeRelativeIfPosible();
+            }
+            else
+                targetSize = camera.RenderTargetSize;
+            return targetSize;
+        } // CalculatePartialRenderTargetSize
+
+        #endregion
+
         #region Render Camera
 
         /// <summary>
         /// Deferred lighting pipeline for one camera.
         /// </summary>
-        private static RenderTarget RenderCamera(Camera currentCamera)
+        private static void RenderCamera(Camera currentCamera, RenderTarget renderTarget)
         {
+            if (renderTarget == null)
+                throw new ArgumentNullException("renderTarget");
 
             #region Buffers Declarations
 
@@ -557,7 +637,6 @@ namespace XNAFinalEngine.EngineCore
             RenderTarget.RenderTargetBinding gbufferTextures;
             RenderTarget lightTexture = null;
             RenderTarget sceneTexture = null;
-            RenderTarget postProcessedSceneTexture = null;
             RenderTarget ambientOcclusionTexture = null;
             RenderTarget halfNormalTexture = null;
             RenderTarget halfDepthTexture = null;
@@ -570,19 +649,6 @@ namespace XNAFinalEngine.EngineCore
             currentCamera.BoundingFrustum(cornersViewSpace);
             // Set camera culling mask.
             Layer.CurrentCameraCullingMask = currentCamera.CullingMask;
-
-            #region Calculate Target Size
-
-            Size targetSize;
-            if (currentCamera.NeedViewport)
-            {
-                targetSize = new Size(currentCamera.Viewport.Width, currentCamera.Viewport.Height);
-                targetSize.MakeRelativeIfPosible();
-            }
-            else
-                targetSize = currentCamera.RenderTargetSize;
-
-            #endregion
 
             #region Frustum Culling
 
@@ -615,7 +681,7 @@ namespace XNAFinalEngine.EngineCore
 
             #region GBuffer Pass
 
-            GBufferPass.Begin(targetSize);
+            GBufferPass.Begin(renderTarget.Size);
             GBufferShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane);
             foreach (ModelRenderer modelRenderer in modelsToRender)
             {
@@ -658,7 +724,7 @@ namespace XNAFinalEngine.EngineCore
             // If some error occurs them probably the surfaceformat does not support linear filter.)
             try
             {
-                halfNormalTexture = RenderTarget.Fetch(targetSize.HalfSize(),
+                halfNormalTexture = RenderTarget.Fetch(renderTarget.Size.HalfSize(),
                                                        gbufferTextures.RenderTargets[1].SurfaceFormat,
                                                        gbufferTextures.RenderTargets[1].DepthFormat,
                                                        gbufferTextures.RenderTargets[1].Antialiasing);
@@ -667,7 +733,7 @@ namespace XNAFinalEngine.EngineCore
                 SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[1]);
                 halfNormalTexture.DisableRenderTarget();
                 // Downsampled quarter size normal map
-                quarterNormalTexture = RenderTarget.Fetch(targetSize.HalfSize().HalfSize(),
+                quarterNormalTexture = RenderTarget.Fetch(renderTarget.Size.HalfSize().HalfSize(),
                                                           gbufferTextures.RenderTargets[1].SurfaceFormat,
                                                           gbufferTextures.RenderTargets[1].DepthFormat,
                                                           gbufferTextures.RenderTargets[1].Antialiasing);
@@ -852,7 +918,7 @@ namespace XNAFinalEngine.EngineCore
 
             #region Light Texture
 
-            LightPrePass.Begin(targetSize);
+            LightPrePass.Begin(renderTarget.Size);
 
             #region Ambient Light
 
@@ -971,7 +1037,7 @@ namespace XNAFinalEngine.EngineCore
 
             #region HDR Linear Space Pass
 
-            ScenePass.Begin(targetSize, currentCamera.ClearColor);
+            ScenePass.Begin(renderTarget.Size, currentCamera.ClearColor);
 
             #region Opaque Objects
 
@@ -1230,7 +1296,7 @@ namespace XNAFinalEngine.EngineCore
 
             #region Post Process Pass
 
-            PostProcessingPass.BeginAndProcess(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess, ref currentCamera.LuminanceTexture);
+            PostProcessingPass.BeginAndProcess(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess, ref currentCamera.LuminanceTexture, renderTarget);
             // Render in gamma space
 
             #region Textures and Text
@@ -1373,7 +1439,7 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            postProcessedSceneTexture = PostProcessingPass.End();
+            PostProcessingPass.End();
 
             #endregion
 
@@ -1391,14 +1457,6 @@ namespace XNAFinalEngine.EngineCore
 
             // Reset Camera Culling Mask
             Layer.CurrentCameraCullingMask = uint.MaxValue;
-
-            return postProcessedSceneTexture;
-
-            #region For Testing
-            //RenderTarget.Release(postProcessedSceneTexture);
-            //return gbufferTextures.RenderTargets[1];
-            //return lightTexture;
-            #endregion
 
         } // RenderCamera
 

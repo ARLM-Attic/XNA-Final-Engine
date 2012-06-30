@@ -227,8 +227,8 @@ namespace XNAFinalEngine.UserInterface
             MenuItem i113 = new MenuItem();
             
             mnuListBox.Items.AddRange(new MenuItem[] { i1, i2, i3, i4 });
-            i2.ChildrenItems.AddRange(new MenuItem[] { i11, i12, i13, i14 });
-            i13.ChildrenItems.AddRange(new MenuItem[] { i111, i112, i113 });
+            i2.Items.AddRange(new MenuItem[] { i11, i12, i13, i14 });
+            i13.Items.AddRange(new MenuItem[] { i111, i112, i113 });
             
             lstMain = new ListBox
             {

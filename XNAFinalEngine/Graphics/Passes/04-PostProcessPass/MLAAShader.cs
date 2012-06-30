@@ -281,7 +281,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render.
         /// </summary>
-        public RenderTarget Render(RenderTarget texture, Texture depthTexture, PostProcess postProcess)
+        public RenderTarget Render(RenderTarget texture, Texture depthTexture, PostProcess postProcess, RenderTarget destinationTexture)
         {
             if (texture == null || texture.Resource == null)
                 throw new ArgumentNullException("texture");
@@ -293,7 +293,6 @@ namespace XNAFinalEngine.Graphics
             {
                 // Fetch render targets.
                 RenderTarget blendingWeightTexture = RenderTarget.Fetch(texture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-                RenderTarget destinationTexture = RenderTarget.Fetch(texture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
                 
                 // Set render states
                 EngineManager.Device.BlendState = BlendState.Opaque;

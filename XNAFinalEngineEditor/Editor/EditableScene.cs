@@ -102,7 +102,7 @@ namespace XNAFinalEngine.Editor
         protected EditableScene()
         {
             // The engine is not initialized yet but it works.
-            editorHiddenUpdateScript = new GameObject3D();
+            editorHiddenUpdateScript = new GameObject3D { Layer = Layer.GetLayerByNumber(31) };
             editorHiddenUpdateScript.AddComponent<HiddenEditorUpdateScript>();
         } // EditableScene
 

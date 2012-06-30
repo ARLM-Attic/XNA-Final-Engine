@@ -67,8 +67,8 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
-            assignedToAGameObject = true;
             Started = false;
+            assignedToAGameObject = true;
             Load();
         } // Initialize
         
@@ -194,21 +194,6 @@ namespace XNAFinalEngine.Components
             }
             return null;
         } // FetchScript
-
-        /// <summary>
-        /// Try to fetch an available script from the currently created scripts.
-        /// </summary>
-        internal static Script ReleaseScript<TComponentType>(GameObject owner) where TComponentType : Component
-        {
-            for (int i = 0; i < ScriptList.Count; i++)
-            {
-                if (ScriptList[i] is TComponentType && ScriptList[i].Owner == owner && ScriptList[i].assignedToAGameObject)
-                {
-                    ScriptList[i].assignedToAGameObject = true;
-                }
-            }
-            return null;
-        } // ReleaseScript
 
         #endregion
 

@@ -152,7 +152,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Enable or Disable Input.
         /// </summary>
-        public static bool InputEnable { get; set; }
+        public static bool InputEnabled { get; set; }
         
         #endregion
 
@@ -308,7 +308,7 @@ namespace XNAFinalEngine.UserInterface
             try
             {
                 Visible = true;
-                InputEnable = true;
+                InputEnabled = true;
                 initialized = true;
                 // Set some public parameters.
                 TextureResizeIncrement = 32;
@@ -573,7 +573,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public static void Update()
         {
-            if (!Visible || !InputEnable)
+            if (!Visible || !InputEnabled)
                 return;
             try
             {

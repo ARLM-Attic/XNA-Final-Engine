@@ -46,7 +46,7 @@ namespace XNAFinalEngine.Editor
     /// I need to find a common denominator a CSS for my editor, so I made this helper class.
     /// I also add methods and properties that help placing new components.
     /// </summary>
-    public static class CommonControls
+    internal static class CommonControls
     {
 
         #region Variables
@@ -926,15 +926,15 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Returns a panel collapsible control placed in the first free spot of a tab of a tab control.
         /// </summary>
-        public static PanelCollapsible PanelCollapsible(string name, TabControl parent, int page)
+        public static PanelCollapsible PanelCollapsible(string name, ClipControl parent, int page)
         {
             PanelCollapsible panelCollapsible = new PanelCollapsible
             {
                 Anchor = Anchors.Left | Anchors.Right | Anchors.Top,
-                Width = parent.TabPages[0].ClientWidth,
-                Top = parent.TabPages[0].AvailablePositionInsideControl + ControlSeparation,
+                Width = parent.ClientWidth,
+                Top = parent.AvailablePositionInsideControl + ControlSeparation,
                 Text = name,
-                Parent = parent.TabPages[page],
+                Parent = parent,
             };
 
             return panelCollapsible;

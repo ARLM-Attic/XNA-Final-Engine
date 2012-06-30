@@ -37,7 +37,7 @@ using Texture = XNAFinalEngine.Assets.Texture;
 
 namespace XNAFinalEngine.Editor
 {
-    public static class TextureControls
+    internal static class TextureControls
     {
 
         #region Variables

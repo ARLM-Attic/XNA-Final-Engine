@@ -40,7 +40,7 @@ using EventHandler = XNAFinalEngine.UserInterface.EventHandler;
 
 namespace XNAFinalEngine.Editor
 {
-    public static class AssetWindow
+    internal static class AssetWindow
     {
 
         #region Variables

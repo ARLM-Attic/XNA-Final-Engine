@@ -116,7 +116,7 @@ namespace XNAFinalEngine.UserInterface
                 int top = rect.Top + layerControl.ContentMargins.Top + (i * verticalSize) + mod;
 
 
-                if (Items[i].Separated && i > 0)
+                if (Items[i].SeparationLine && i > 0)
                 {
                     Rectangle rectangle = new Rectangle(left, rect.Top + layerControl.ContentMargins.Top + (i * verticalSize), LineWidth() - verticalSize + 4, 1);
                     Renderer.Draw(Skin.Controls["Control"].Layers[0].Image.Texture.Resource, rectangle, layerControl.Text.Colors.Enabled);
@@ -212,7 +212,7 @@ namespace XNAFinalEngine.UserInterface
                     Renderer.Draw(Items[i].Icon, r, Color.White);
                 }
 
-                if (Items[i].ChildrenItems != null && Items[i].ChildrenItems.Count > 0)
+                if (Items[i].Items != null && Items[i].Items.Count > 0)
                 {
                     Renderer.Draw(Skin.Images["Shared.ArrowRight"].Texture.Resource, rect.Left + LineWidth() - 4, rect.Top + layerControl.ContentMargins.Top + (i * verticalSize) + 8, color);
                 }
@@ -338,7 +338,7 @@ namespace XNAFinalEngine.UserInterface
 
             long time = (long)TimeSpan.FromTicks(DateTime.Now.Ticks).TotalMilliseconds;
 
-            if (timer != 0 && time - timer >= UserInterfaceManager.MenuDelay && ItemIndex >= 0 && Items[ItemIndex].ChildrenItems.Count > 0 && ChildMenu == null)
+            if (timer != 0 && time - timer >= UserInterfaceManager.MenuDelay && ItemIndex >= 0 && Items[ItemIndex].Items.Count > 0 && ChildMenu == null)
             {
                 OnClick(new MouseEventArgs(new MouseState(), MouseButton.Left, Point.Zero));
             }
@@ -376,7 +376,7 @@ namespace XNAFinalEngine.UserInterface
             {
                 if (ItemIndex >= 0 && Items[ItemIndex].Enabled)
                 {
-                    if (ItemIndex >= 0 && Items[ItemIndex].ChildrenItems != null && Items[ItemIndex].ChildrenItems.Count > 0)
+                    if (ItemIndex >= 0 && Items[ItemIndex].Items != null && Items[ItemIndex].Items.Count > 0)
                     {
                         if (ChildMenu == null)
                         {
@@ -384,7 +384,7 @@ namespace XNAFinalEngine.UserInterface
                             (ChildMenu as ContextMenu).RootMenu = RootMenu;
                             (ChildMenu as ContextMenu).ParentMenu = this;
                             (ChildMenu as ContextMenu).sender = sender;
-                            ChildMenu.Items.AddRange(Items[ItemIndex].ChildrenItems);
+                            ChildMenu.Items.AddRange(Items[ItemIndex].Items);
                             (ChildMenu as ContextMenu).AutoSize();
                         }
                         int y = ControlTopAbsoluteCoordinate + SkinInformation.Layers["Control"].ContentMargins.Top + (ItemIndex * LineHeight());
@@ -428,7 +428,7 @@ namespace XNAFinalEngine.UserInterface
             if (ItemIndex > Items.Count - 1) ItemIndex = 0;
             if (ItemIndex < 0) ItemIndex = Items.Count - 1;
 
-            if (e.Key == Keys.Right && Items[ItemIndex].ChildrenItems.Count > 0)
+            if (e.Key == Keys.Right && Items[ItemIndex].Items.Count > 0)
             {
                 e.Handled = true;
                 OnClick(new MouseEventArgs(new MouseState(), MouseButton.None, Point.Zero));

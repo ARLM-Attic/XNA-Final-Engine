@@ -123,6 +123,7 @@ namespace XNAFinalEngine.UserInterface
                     mainMenu.Resize += Bars_Resize;
                 }
                 Invalidate();
+                AdjustMargins();
             }
         } // MainMenu
 
@@ -147,6 +148,7 @@ namespace XNAFinalEngine.UserInterface
                     toolBarPanel.Resize += Bars_Resize;
                 }
                 Invalidate();
+                AdjustMargins();
             }
         } // ToolBarPanel
 
@@ -171,6 +173,7 @@ namespace XNAFinalEngine.UserInterface
                     statusBar.Resize += Bars_Resize;
                 }
                 Invalidate();
+                AdjustMargins();
             }
         } // StatusBar
 

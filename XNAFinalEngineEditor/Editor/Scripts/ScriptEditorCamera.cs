@@ -84,8 +84,8 @@ namespace XNAFinalEngine.Editor
         /// If the S key is pressed the camera is in manipulation mode.
         /// If the S key is just pressed, the camera enter in manipulation mode until the space or escape key is pressed or the S key is pressed again.
         /// </summary>
-        private bool sJustPressed,
-                     manipulationing;
+        private bool sJustPressed;
+        private static ScriptEditorCamera manipulating;
         private float sJustPressedTime;
 
         // Default values.
@@ -139,15 +139,26 @@ namespace XNAFinalEngine.Editor
             {
                 mode = value;
                 sJustPressed = false;
-                manipulationing = false;
+                if (Manipulating)
+                    manipulating = null;
             }
         } // Mode
 
         /// <summary>
+        /// The area in which the camera works.
+        /// </summary>
+        public Control ClientArea { get; set; }
+
+        /// <summary>
         /// Is it the camera being manipulated?
         /// </summary>
-        public bool Manipulating { get { return manipulationing; } }
+        public bool Manipulating { get { return manipulating == this; } }
 
+        /// <summary>
+        /// Does it work on orthographic mode?
+        /// </summary>
+        public bool OrthographicMode { get; set; }
+        
         #endregion
 
         #region Load
@@ -195,7 +206,7 @@ namespace XNAFinalEngine.Editor
         {
             if (!((GameObject3D)Owner).Camera.Enabled)
                 return;
-            if (EditorManager.CouldBeManipulated(this) || manipulationing)
+            if (CouldBeManipulated() || Manipulating)
             {
                 if (mode == ModeType.Softimage || mode == ModeType.NoManipulationKey)
                 {
@@ -203,13 +214,13 @@ namespace XNAFinalEngine.Editor
                     #region Softimage mode
 
                     #region Is it in manipulation mode?
-                    
-                    if (manipulationing)
+
+                    if (Manipulating)
                     {
                         // To exit the manipulation mode.
                         if (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed)
                         {
-                            manipulationing = false;
+                            manipulating = null;
                         }
                     }
                     // To enter or exit the manipulation mode using the s key.
@@ -224,7 +235,9 @@ namespace XNAFinalEngine.Editor
                         {
                             sJustPressed = false;
                             if (Time.ApplicationTime - sJustPressedTime < 0.3f)
-                                manipulationing = !manipulationing;
+                            {
+                                manipulating = Manipulating ? null : this;
+                            }
                         }
                     }
 
@@ -232,18 +245,18 @@ namespace XNAFinalEngine.Editor
 
                     #region Manipulate
 
-                    if (manipulationing || Keyboard.KeyPressed(Keys.S) || mode == ModeType.NoManipulationKey)
+                    if (Manipulating || Keyboard.KeyPressed(Keys.S) || mode == ModeType.NoManipulationKey)
                     {
                         // Translation
                         if (Mouse.LeftButtonPressed)
                         {
-                            LookAtPosition -= ((GameObject3D)Owner).Transform.Right * Mouse.XMovement * Distance / 2000;
-                            LookAtPosition += ((GameObject3D)Owner).Transform.Up    * Mouse.YMovement * Distance / 2000;
+                            LookAtPosition -= ((GameObject3D)Owner).Transform.Right * Mouse.XMovement * Distance / 1000;
+                            LookAtPosition += ((GameObject3D)Owner).Transform.Up    * Mouse.YMovement * Distance / 1000;
                         }
                         // Orientation
-                        if (Mouse.RightButtonPressed)
+                        if (Mouse.RightButtonPressed && !OrthographicMode)
                         {
-                            Yaw   += Mouse.XMovement * 0.005f;
+                            Yaw += Mouse.XMovement * 0.005f;
                             Pitch += Mouse.YMovement * 0.005f;
                         }
                         // Zoom
@@ -265,17 +278,18 @@ namespace XNAFinalEngine.Editor
 
                     #region Maya mode
 
-                    if (Keyboard.KeyPressed(Keys.LeftAlt) || Keyboard.KeyPressed(Keys.RightAlt))
+                    if ((Keyboard.KeyPressed(Keys.LeftAlt) || Keyboard.KeyPressed(Keys.RightAlt)) &&
+                        (Mouse.LeftButtonPressed || Mouse.RightButtonPressed || Mouse.MiddleButtonPressed))
                     {
-                        manipulationing = true;
+                        manipulating = this;
                         // Translation
                         if (Mouse.MiddleButtonPressed)
                         {
-                            LookAtPosition -= ((GameObject3D)Owner).Transform.Right * Mouse.XMovement * Distance / 2000;
-                            LookAtPosition += ((GameObject3D)Owner).Transform.Up * Mouse.YMovement * Distance / 2000;
+                            LookAtPosition -= ((GameObject3D)Owner).Transform.Right * Mouse.XMovement * Distance / 1000;
+                            LookAtPosition += ((GameObject3D)Owner).Transform.Up * Mouse.YMovement * Distance / 1000;
                         }
                         // Orientation
-                        if (Mouse.LeftButtonPressed)
+                        if (Mouse.LeftButtonPressed && !OrthographicMode)
                         {
                             Yaw += Mouse.XMovement * 0.005f;
                             Pitch += Mouse.YMovement * 0.005f;
@@ -288,7 +302,7 @@ namespace XNAFinalEngine.Editor
                     }
                     else
                     {
-                        manipulationing = false;
+                        manipulating = null;
                     }
                     // Distance or zoom
                     Distance -= Mouse.WheelDelta * Distance / 1300; // 1300 is an arbitrary number.
@@ -297,8 +311,6 @@ namespace XNAFinalEngine.Editor
 
                 }
             }
-            else
-                manipulationing = false;
 
             #region Gamepad
 
@@ -349,7 +361,22 @@ namespace XNAFinalEngine.Editor
             // Now the position.
             Matrix rotationMatrix = Matrix.CreateFromQuaternion(rotation);   
             ((GameObject3D)Owner).Transform.Position = LookAtPosition + new Vector3(rotationMatrix.M13, rotationMatrix.M23, rotationMatrix.M33) * Distance;
+            if (OrthographicMode)
+                ((GameObject3D) Owner).Camera.OrthographicVerticalSize = Distance;
         } // Update
+
+        #endregion
+
+        #region Could Be Manipulated
+
+        /// <summary>
+        /// Indicates if the camera could perform a camera movement.
+        /// </summary>
+        internal bool CouldBeManipulated()
+        {
+            return UserInterfaceManager.IsOverThisControl(ClientArea, new Point(Mouse.Position.X, Mouse.Position.Y)) && manipulating == null &&
+                   !Gizmo.Active /*&& !selectionRectangleBackground.LineRenderer.Enabled*/;
+        } // CouldBeManipulated
 
         #endregion
 

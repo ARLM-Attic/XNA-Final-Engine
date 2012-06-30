@@ -33,7 +33,7 @@ namespace XNAFinalEngine.UserInterface
         private bool enabled = true;
 
         // Children Items.
-        public List<MenuItem> childrenItems = new List<MenuItem>();
+        private List<MenuItem> items = new List<MenuItem>();
 
         #endregion
 
@@ -59,7 +59,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// A separeted item has a line over it.
         /// </summary>
-        public bool Separated { get; set; }
+        public bool SeparationLine { get; set; }
 
         /// <summary>
         /// Enabled?
@@ -69,7 +69,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Children Items.
         /// </summary>
-        public List<MenuItem> ChildrenItems { get { return childrenItems; } set { childrenItems = value; } }
+        public List<MenuItem> Items { get { return items; } set { items = value; } }
 
         #endregion
 
@@ -98,7 +98,7 @@ namespace XNAFinalEngine.UserInterface
         public MenuItem(string text = "Menu Item", bool separated = false)
         {
             Text = text;
-            Separated = separated;
+            SeparationLine = separated;
         } // MenuItem
 
         #endregion

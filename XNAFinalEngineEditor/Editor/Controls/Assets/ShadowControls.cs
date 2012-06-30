@@ -35,7 +35,7 @@ using XNAFinalEngine.UserInterface;
 
 namespace XNAFinalEngine.Editor
 {
-    public static class ShadowControls
+    internal static class ShadowControls
     {
         
         /// <summary>

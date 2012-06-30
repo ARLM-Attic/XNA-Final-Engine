@@ -132,7 +132,7 @@ namespace XNAFinalEngine.Components
         private bool orthographic;
 
         // Camera's vertical size when in orthographic mode.
-        private int orthographicVerticalSize;
+        private float orthographicVerticalSize;
         
         #endregion
 
@@ -214,11 +214,13 @@ namespace XNAFinalEngine.Components
                     return masterCamera.renderTarget;
                 return renderTarget;
             }
-            internal set
+            set
             {
                 if (masterCamera != null)
                     return;
                 renderTarget = value;
+                if (value != null)
+                    renderTargetSize = value.Size;
             }
         } // RenderTarget
 
@@ -244,7 +246,18 @@ namespace XNAFinalEngine.Components
                     return masterCamera.RenderTargetSize;
                 return renderTargetSize;
             }
-            set { renderTargetSize = value; }
+            set
+            {
+                if (masterCamera != null)
+                    return;
+                if (RenderTarget != null && renderTargetSize != value)
+                {
+                    // Recreate render target with new size
+                    RenderTarget.Dispose();
+                    RenderTarget = new RenderTarget(value, RenderTarget.SurfaceFormat, RenderTarget.DepthFormat, RenderTarget.Antialiasing);
+                }
+                renderTargetSize = value;
+            }
         } // RenderTargetSize
 
         #endregion
@@ -417,9 +430,9 @@ namespace XNAFinalEngine.Components
 
         /// <summary>
         /// Camera's vertical size when in orthographic mode. 
-        /// The horizontal value} is calculated automaticaly with the aspect ratio property. 
+        /// The horizontal value is calculated automaticaly with the aspect ratio property. 
         /// </summary>
-        public int OrthographicVerticalSize
+        public float OrthographicVerticalSize
         {
             get { return orthographicVerticalSize; }
             set
@@ -444,8 +457,8 @@ namespace XNAFinalEngine.Components
             {
                 if (viewportExpressedInClipSpace)
                     return normalizedViewport;
-                return new RectangleF((float)viewport.X / (float)Screen.Width, (float)viewport.Y / (float)Screen.Height,
-                                      (float)viewport.Width / (float)Screen.Width, (float)viewport.Height / (float)Screen.Height);
+                return new RectangleF((float)viewport.X / (float)RenderTargetSize.Width, (float)viewport.Y / (float)RenderTargetSize.Height,
+                                      (float)viewport.Width / (float)RenderTargetSize.Width, (float)viewport.Height / (float)RenderTargetSize.Height);
             }
             set
             {
@@ -467,8 +480,8 @@ namespace XNAFinalEngine.Components
             get
             {
                 if (viewportExpressedInClipSpace)
-                    return new Rectangle((int)(normalizedViewport.X * Screen.Width), (int)(normalizedViewport.Y * Screen.Height),
-                                         (int)(normalizedViewport.Width * Screen.Width), (int)(normalizedViewport.Height * Screen.Height));
+                    return new Rectangle((int)(normalizedViewport.X * RenderTargetSize.Width), (int)(normalizedViewport.Y * RenderTargetSize.Height),
+                                         (int)(normalizedViewport.Width * RenderTargetSize.Width), (int)(normalizedViewport.Height * RenderTargetSize.Height));
                 // Check for viewport dimensions?
                 return viewport;
             }

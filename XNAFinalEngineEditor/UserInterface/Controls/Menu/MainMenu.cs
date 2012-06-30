@@ -118,7 +118,7 @@ namespace XNAFinalEngine.UserInterface
 
             TrackItem(e.State.X - Root.ControlLeftAbsoluteCoordinate, e.State.Y - Root.ControlTopAbsoluteCoordinate);
 
-            if (ItemIndex >= 0 && (i == -1 || i != ItemIndex) && Items[ItemIndex].ChildrenItems != null && Items[ItemIndex].ChildrenItems.Count > 0 && ChildMenu != null)
+            if (ItemIndex >= 0 && (i == -1 || i != ItemIndex) && Items[ItemIndex].Items != null && Items[ItemIndex].Items.Count > 0 && ChildMenu != null)
             {
                 HideSubMenu();
                 lastIndex = ItemIndex;
@@ -205,7 +205,7 @@ namespace XNAFinalEngine.UserInterface
             {
                 if (ItemIndex >= 0 && Items[ItemIndex].Enabled)
                 {
-                    if (ItemIndex >= 0 && Items[ItemIndex].ChildrenItems != null && Items[ItemIndex].ChildrenItems.Count > 0)
+                    if (ItemIndex >= 0 && Items[ItemIndex].Items != null && Items[ItemIndex].Items.Count > 0)
                     {
                         if (ChildMenu != null)
                         {
@@ -216,7 +216,7 @@ namespace XNAFinalEngine.UserInterface
                         (ChildMenu as ContextMenu).RootMenu = this;
                         (ChildMenu as ContextMenu).ParentMenu = this;
                         (ChildMenu as ContextMenu).Sender = Root;
-                        ChildMenu.Items.AddRange(Items[ItemIndex].ChildrenItems);
+                        ChildMenu.Items.AddRange(Items[ItemIndex].Items);
 
                         int y = Root.ControlTopAbsoluteCoordinate + rectangle[ItemIndex].Bottom + 1;
                         (ChildMenu as ContextMenu).Show(Root, Root.ControlLeftAbsoluteCoordinate + rectangle[ItemIndex].Left, y);
@@ -256,7 +256,7 @@ namespace XNAFinalEngine.UserInterface
             if (ItemIndex > Items.Count - 1) ItemIndex = 0;
             if (ItemIndex < 0) ItemIndex = Items.Count - 1;
 
-            if (e.Key == Keys.Down && Items.Count > 0 && Items[ItemIndex].ChildrenItems.Count > 0)
+            if (e.Key == Keys.Down && Items.Count > 0 && Items[ItemIndex].Items.Count > 0)
             {
                 e.Handled = true;
                 OnClick(new MouseEventArgs(new MouseState(), MouseButton.None, Point.Zero));

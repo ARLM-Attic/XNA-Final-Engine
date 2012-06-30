@@ -36,7 +36,7 @@ using XNAFinalEngine.UserInterface;
 
 namespace XNAFinalEngine.Editor
 {
-    public static class SpotLightControls
+    internal static class SpotLightControls
     {
         
         /// <summary>

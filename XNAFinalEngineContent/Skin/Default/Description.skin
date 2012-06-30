@@ -306,15 +306,15 @@
         <Layer Name="Control" Image="TextBox" Width="8" Height="8">
           <SizingMargins Left="1" Top="1" Right="1" Bottom="1"/>
           <States>
-            <Enabled Index="0"/>
-            <Hovered Index="1"/>
-            <Pressed Index="2"/>
-            <Focused Index="3"/>
-            <Disabled Index="4"/>
+            <Enabled Index="0" />
+            <Hovered Index="1" />
+            <Pressed Index="2" />
+            <Focused Index="3" />
+            <Disabled Index="4" />
           </States>
           <Text Font="Default" Alignment="TopLeft" OffsetX="0" OffsetY="0">
             <Colors>
-              <Enabled Color="32;32;32;255"/>
+              <Enabled Color="12;12;12;255"/>
               <Focused Color="32;32;32;255"/>
               <Pressed Color="32;32;32;255"/>
               <Hovered Color="32;32;32;255"/>

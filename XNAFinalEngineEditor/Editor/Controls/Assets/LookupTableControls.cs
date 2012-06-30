@@ -37,7 +37,7 @@ using Texture = XNAFinalEngine.Assets.Texture;
 
 namespace XNAFinalEngine.Editor
 {
-    public static class LookupTableControls
+    internal static class LookupTableControls
     {
 
         #region Show

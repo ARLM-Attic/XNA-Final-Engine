@@ -46,11 +46,14 @@ namespace XNAFinalEngine.Components
 
         #region Variables
         
-        // Layer list.
+        // All layers.
         private static readonly Layer[] layerList = new Layer[32];
 
-        // Enabled?
-        private bool enabled = true;
+        private bool active = true;
+        private bool visible = true;
+
+        private static uint activeLayers;
+        private static uint visibleLayers;
                                
         #endregion
 
@@ -74,26 +77,72 @@ namespace XNAFinalEngine.Components
         public uint Mask { get; private set; }
 
         /// <summary>
-        /// Is it enabled?
+        /// Is it active?
         /// </summary>
-        public bool Enabled
+        public bool Active
         {
-            get { return enabled; }
+            get { return active; }
             set
             {
-                enabled = value;
+                // The last layer is reserved and can not be disable.
+                if (Number == 31)
+                    return;
+                active = value;
                 // Update the active layers mask.
                 if (value)
                     ActiveLayers = ActiveLayers | Mask;
                 else
                     ActiveLayers = ActiveLayers & ~Mask;
             }
-        } // Enabled
+        } // Active
 
         /// <summary>
-        /// Indicates the active layers in a mask format.
+        /// Is it visible?
         /// </summary>
-        public static uint ActiveLayers { get; private set; }
+        public bool Visible
+        {
+            get { return visible; }
+            set
+            {
+                // The last layer is reserved and can not be disable.
+                if (Number == 31)
+                    return;
+                visible = value;
+                // Update the visible layers mask.
+                if (value)
+                    VisibleLayers = VisibleLayers | Mask;
+                else
+                    VisibleLayers = VisibleLayers & ~Mask;
+            }
+        } // Visible
+        
+        /// <summary>
+        /// Indicates the active layers in a mask format.
+        /// The active layers are updated in each update stage.
+        /// </summary>
+        public static uint ActiveLayers
+        {
+            get { return activeLayers; }
+            set
+            {
+                // The last layer is reserved and can not be disable.
+                activeLayers = value | GetLayerByNumber(31).Mask;
+            }
+        } // ActiveLayers
+        
+        /// <summary>
+        /// Indicates the visible layers in a mask format.
+        /// The visible layers are rendered in each frame.
+        /// </summary>
+        public static uint VisibleLayers
+        {
+            get { return visibleLayers; }
+            set
+            {
+                // The last layer is reserved and can not be disable.
+                visibleLayers = value | GetLayerByNumber(31).Mask;
+            }
+        } // VisibleLayers
 
         /// <summary>
         /// The culling mask of the current camera.
@@ -121,8 +170,9 @@ namespace XNAFinalEngine.Components
                     layerList[i].Name = "Layer-" + i;
                 layerList[i].Number = i;
                 layerList[i].Mask = (uint)(Math.Pow(2, i));
-                layerList[i].Enabled = true;
             }
+            ActiveLayers = uint.MaxValue;
+            VisibleLayers = uint.MaxValue;
             CurrentCameraCullingMask = uint.MaxValue;
         } // Layer
 
@@ -208,7 +258,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public static bool IsVisible(uint layerMask)
         {
-            return (layerMask & CurrentCameraCullingMask & ActiveLayers) != 0;
+            return (layerMask & CurrentCameraCullingMask & VisibleLayers) != 0;
         } // IsVisible
 
         #endregion

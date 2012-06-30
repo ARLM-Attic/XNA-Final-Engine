@@ -78,6 +78,7 @@ namespace XNAFinalEngineExamples
         /// <remarks>Remember to call the base implementation of this method.</remarks>
         public override void LoadContent()
         {
+
             #region Camera
 
             camera = new GameObject3D();

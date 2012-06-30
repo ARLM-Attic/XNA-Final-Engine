@@ -51,6 +51,9 @@ namespace XNAFinalEngine.Graphics
         // Destination render target.
         private static RenderTarget postProcessedSceneTexture;
 
+        // Destination render target.
+        private static RenderTarget mlaaTexture;
+
         // Stores for use with the end method.
         private static Texture depthTexture;
         private static PostProcess postProcess;
@@ -66,9 +69,12 @@ namespace XNAFinalEngine.Graphics
         /// <param name="depthTexture">Depth texture.</param>
         /// <param name="postProcess">Post process parameters.</param>
         /// <param name="luminanceTexture">This texture stores the previous luminance information.</param>
-        /// <returns>The gamma space post process texture of the linear space scene texture.</returns>
-        public static void BeginAndProcess(Texture sceneTexture, Texture depthTexture, PostProcess postProcess, ref RenderTarget luminanceTexture)
+        /// <param name="destinationTexture">The gamma space post process texture of the linear space scene texture.</param>
+        public static void BeginAndProcess(Texture sceneTexture, Texture depthTexture, PostProcess postProcess,
+                                           ref RenderTarget luminanceTexture, RenderTarget destinationTexture)
         {
+            if (destinationTexture == null)
+                throw new ArgumentNullException("destinationTexture");
             if (sceneTexture == null || sceneTexture.Resource == null)
                 throw new ArgumentNullException("sceneTexture");
             if (sceneTexture == null || sceneTexture.Resource == null)
@@ -98,7 +104,15 @@ namespace XNAFinalEngine.Graphics
                     RenderTarget.Release(currentLuminanceTexture);
                 }
 
-                postProcessedSceneTexture = RenderTarget.Fetch(sceneTexture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                // If MLAA is active the shader needs an extra render target.
+                if (postProcess != null && postProcess.MLAA != null && postProcess.MLAA.Enabled)
+                {
+                    postProcessedSceneTexture = RenderTarget.Fetch(sceneTexture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                    mlaaTexture = destinationTexture;
+                }
+                else
+                    postProcessedSceneTexture = destinationTexture;
+
                 postProcessedSceneTexture.EnableRenderTarget();
                 // Post process the scene texture.
                 postProcessingShader.Render(sceneTexture, postProcess, bloomTexture, luminanceTexture);
@@ -119,7 +133,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Resolve render targets and return a texture with the scene.
         /// </summary>
-        internal static RenderTarget End()
+        internal static void End()
         {
             try
             {
@@ -127,11 +141,9 @@ namespace XNAFinalEngine.Graphics
                 // Process MLAA
                 if (postProcess != null && postProcess.MLAA != null && postProcess.MLAA.Enabled)
                 {
-                    RenderTarget mlaaTexture = MLAAShader.Instance.Render(postProcessedSceneTexture, depthTexture, postProcess);
+                    MLAAShader.Instance.Render(postProcessedSceneTexture, depthTexture, postProcess, mlaaTexture);
                     RenderTarget.Release(postProcessedSceneTexture);
-                    return mlaaTexture;
                 }
-                return postProcessedSceneTexture;
             }
             catch (Exception e)
             {

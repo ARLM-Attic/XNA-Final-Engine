@@ -102,6 +102,10 @@
     <Compile Include="Editor\Controls\AssetWindow.cs" />
     <Compile Include="Editor\Controls\Components\CameraControls.cs" />
     <Compile Include="Editor\Controls\Components\SpotLightControls.cs" />
+    <Compile Include="Editor\Controls\MainWindow.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Editor\EditorViewport.cs" />
     <Compile Include="Editor\EditableScene.cs" />
     <Compile Include="Editor\EditorManager.cs" />
     <Compile Include="Editor\Gizmos\GizmoRotation.cs" />
