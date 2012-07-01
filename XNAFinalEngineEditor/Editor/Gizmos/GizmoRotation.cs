@@ -36,6 +36,8 @@ using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Input;
 using XNAFinalEngine.Undo;
+using XNAFinalEngine.UserInterface;
+
 #endregion
 
 namespace XNAFinalEngine.Editor
@@ -62,14 +64,8 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Rotation gizmo based in Softimage XSI.
         /// </summary>
-        internal RotationGizmo(GameObject3D camera)
+        internal RotationGizmo()
         {
-            if (camera == null)
-                throw new ArgumentNullException("camera");
-            if (camera.Camera == null)
-                throw new ArgumentException("Translation Gizmo: The game object has not a camera component.", "camera");
-            gizmoCamera = camera;
-
             // Create the gizmo parts.
             redLine   = new GameObject3D { Layer = Layer.GetLayerByNumber(31) };
             greenLine = new GameObject3D { Layer = Layer.GetLayerByNumber(31) };
@@ -113,15 +109,13 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Enable the gizmo for manipulation.
         /// </summary>
-        public void EnableGizmo(List<GameObject3D> _selectedObjects, Picker picker)
+        public void EnableGizmo(List<GameObject3D> _selectedObjects)
         {
             Active = false;
 
             redLine.LineRenderer.Enabled = true;
             greenLine.LineRenderer.Enabled = true;
             blueLine.LineRenderer.Enabled = true;
-
-            this.picker = picker;
 
             selectedObject = _selectedObjects[0];
             selectedObjects = _selectedObjects;
@@ -155,7 +149,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Update.
         /// </summary>
-        internal void Update()
+        internal void Update(GameObject3D gizmoCamera, Control clientArea)
         {
 
             #region Active
@@ -253,11 +247,12 @@ namespace XNAFinalEngine.Editor
 
                 // Perform a pick around the mouse pointer.
 
-                Viewport viewport = new Viewport(gizmoCamera.Camera.Viewport.X, gizmoCamera.Camera.Viewport.Y,
+                Viewport viewport = new Viewport(gizmoCamera.Camera.Viewport.X + clientArea.ControlLeftAbsoluteCoordinate,
+                                                 gizmoCamera.Camera.Viewport.Y + clientArea.ControlTopAbsoluteCoordinate,
                                                  gizmoCamera.Camera.Viewport.Width, gizmoCamera.Camera.Viewport.Height);
-                picker.BeginManualPicking(gizmoCamera.Camera.ViewMatrix, gizmoCamera.Camera.ProjectionMatrix, viewport);
-                    RenderGizmoForPicker();
-                Color[] colorArray = picker.EndManualPicking(new Rectangle(Mouse.Position.X - RegionSize / 2, Mouse.Position.Y - RegionSize / 2, RegionSize, RegionSize));
+                Picker.BeginManualPicking(gizmoCamera.Camera.ViewMatrix, gizmoCamera.Camera.ProjectionMatrix, viewport);
+                RenderGizmoForPicker(gizmoCamera);
+                Color[] colorArray = Picker.EndManualPicking(new Rectangle(Mouse.Position.X - 5, Mouse.Position.Y - 5, RegionSize, RegionSize));
 
                 #region Find Selected Axis
 
@@ -307,7 +302,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Render the gizmo to the picker.
         /// </summary>
-        private void RenderGizmoForPicker()
+        private void RenderGizmoForPicker(GameObject3D gizmoCamera)
         {
             // Calculate the center, scale and orientation of the gizmo.
             Vector3 center;
@@ -324,29 +319,26 @@ namespace XNAFinalEngine.Editor
             redLine.Transform.LocalMatrix = Matrix.Identity;
             redLine.Transform.Rotate(new Vector3(0, -90, 0));
             redLine.Transform.LocalMatrix = redLine.Transform.LocalMatrix * transformationMatrix;
-            picker.RenderObjectToPicker(redLine, Color.Red);
+            Picker.RenderObjectToPicker(redLine, Color.Red);
             
             greenLine.Transform.LocalMatrix = Matrix.Identity;
             greenLine.Transform.Rotate(new Vector3(90, 0, 0));
             greenLine.Transform.LocalMatrix = greenLine.Transform.LocalMatrix * transformationMatrix;
-            picker.RenderObjectToPicker(greenLine, new Color(0, 255, 0)); // Color.Green is not 0, 255, 0
+            Picker.RenderObjectToPicker(greenLine, new Color(0, 255, 0)); // Color.Green is not 0, 255, 0
             
             blueLine.Transform.LocalMatrix = Matrix.Identity;
             blueLine.Transform.LocalMatrix = blueLine.Transform.LocalMatrix * transformationMatrix;
-            picker.RenderObjectToPicker(blueLine, Color.Blue);
-            
-            // This is used to avoid problems in the gizmo rendering.
-            UpdateRenderingInformation();
+            Picker.RenderObjectToPicker(blueLine, Color.Blue);
         } // RenderGizmoForPicker
 
         #endregion
 
-        #region Update Rendering Information
+        #region Render Gizmo
 
         /// <summary>
         /// Update Rendering Information.
         /// </summary>
-        public void UpdateRenderingInformation()
+        public void UpdateRenderingInformation(GameObject3D gizmoCamera)
         {
 
             #region Find Color

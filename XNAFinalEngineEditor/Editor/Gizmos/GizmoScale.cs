@@ -38,6 +38,7 @@ using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Input;
 using XNAFinalEngine.Undo;
+using XNAFinalEngine.UserInterface;
 using Plane = XNAFinalEngine.Assets.Plane;
 #endregion
 
@@ -76,14 +77,8 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Scale gizmo based in Softimage XSI.
         /// </summary>
-        internal ScaleGizmo(GameObject3D camera)
+        internal ScaleGizmo()
         {
-            if (camera == null)
-                throw new ArgumentNullException("camera");
-            if (camera.Camera == null)
-                throw new ArgumentException("Translation Gizmo: The game object has not a camera component.", "camera");
-            gizmoCamera = camera;
-
             // Create the gizmo parts.
             Box box = new Box(0.15f, 0.15f, 0.15f);
             redBox   = new GameObject3D(box, new Constant()) { Layer = Layer.GetLayerByNumber(31) };
@@ -129,7 +124,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Enable the gizmo for manipulation.
         /// </summary>
-        public void EnableGizmo(List<GameObject3D> _selectedObjects, Picker picker)
+        public void EnableGizmo(List<GameObject3D> _selectedObjects)
         {
             Active = false;
 
@@ -138,8 +133,6 @@ namespace XNAFinalEngine.Editor
             blueBox.ModelRenderer.Enabled = true;
             lines.LineRenderer.Enabled = true;
             planeAll.LineRenderer.Enabled = true;
-
-            this.picker = picker;
 
             selectedObject = _selectedObjects[0];
             selectedObjects = _selectedObjects;
@@ -175,7 +168,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Update.
         /// </summary>
-        internal void Update()
+        internal void Update(GameObject3D gizmoCamera, Control clientArea)
         {
 
             #region Active
@@ -299,18 +292,19 @@ namespace XNAFinalEngine.Editor
                 }
 
                 // Perform a pick around the mouse pointer.
-
-                Viewport viewport = new Viewport(gizmoCamera.Camera.Viewport.X, gizmoCamera.Camera.Viewport.Y,
+                Viewport viewport = new Viewport(gizmoCamera.Camera.Viewport.X + clientArea.ControlLeftAbsoluteCoordinate,
+                                                 gizmoCamera.Camera.Viewport.Y + clientArea.ControlTopAbsoluteCoordinate,
                                                  gizmoCamera.Camera.Viewport.Width, gizmoCamera.Camera.Viewport.Height);
-                picker.BeginManualPicking(gizmoCamera.Camera.ViewMatrix, gizmoCamera.Camera.ProjectionMatrix, viewport);
-                    RenderGizmoForPicker();
-                Color[] colorArray = picker.EndManualPicking(new Rectangle(Mouse.Position.X - RegionSize / 2, Mouse.Position.Y - RegionSize / 2, RegionSize, RegionSize));
+                Picker.BeginManualPicking(gizmoCamera.Camera.ViewMatrix, gizmoCamera.Camera.ProjectionMatrix, viewport);
+                    RenderGizmoForPicker(gizmoCamera);
+                Color[] colorArray = Picker.EndManualPicking(new Rectangle(Mouse.Position.X - 5, Mouse.Position.Y - 5, RegionSize, RegionSize));
 
                 #region Find Selected Axis
 
-                redAxisSelected   = true;
+                redAxisSelected = true;
                 greenAxisSelected = true;
-                blueAxisSelected  = true;
+                blueAxisSelected = true;
+                bool allAxis = false;
                 for (int i = 0; i < RegionSize * RegionSize; i++)
                 {
                     // This is the order of preference:
@@ -369,8 +363,16 @@ namespace XNAFinalEngine.Editor
                         redAxisSelected   = true;
                         greenAxisSelected = true;
                         blueAxisSelected  = true;
+                        allAxis = true;
                         i = RegionSize * RegionSize; // Or break.
                     }
+                }
+
+                if (redAxisSelected && greenAxisSelected && blueAxisSelected && !allAxis)
+                {
+                    redAxisSelected = false;
+                    greenAxisSelected = false;
+                    blueAxisSelected = false;
                 }
 
                 #endregion
@@ -388,7 +390,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Render the gizmo to the picker.
         /// </summary>
-        private void RenderGizmoForPicker()
+        private void RenderGizmoForPicker(GameObject3D gizmoCamera)
         {
             // Calculate the center, scale and orientation of the gizmo.
             Vector3 center;
@@ -412,17 +414,19 @@ namespace XNAFinalEngine.Editor
             planeRedGreen.Transform .LocalMatrix = transformationMatrix;
             planeGreenBlue.Transform .LocalMatrix = transformationMatrix;
             planeBlueRed.Transform .LocalMatrix = transformationMatrix;
-            picker.RenderObjectToPicker(planeRedGreen, new Color(255, 255, 0));
-            picker.RenderObjectToPicker(planeGreenBlue, new Color(0, 255, 255));
-            picker.RenderObjectToPicker(planeBlueRed, new Color(255, 0, 255));
+            Picker.RenderObjectToPicker(planeRedGreen, new Color(255, 255, 0));
+            Picker.RenderObjectToPicker(planeGreenBlue, new Color(0, 255, 255));
+            Picker.RenderObjectToPicker(planeBlueRed, new Color(255, 0, 255));
             // Render a second time but from the other side.
             planeRedGreenInv.Transform .LocalMatrix = transformationMatrix;
             planeGreenBlueInv.Transform.LocalMatrix = transformationMatrix;
             planeBlueRedInv.Transform.LocalMatrix = transformationMatrix;
-            picker.RenderObjectToPicker(planeRedGreenInv, new Color(255, 255, 0));
-            picker.RenderObjectToPicker(planeGreenBlueInv, new Color(0, 255, 255));
-            picker.RenderObjectToPicker(planeBlueRedInv, new Color(255, 0, 255));
-            
+            Picker.RenderObjectToPicker(planeRedGreenInv, new Color(255, 255, 0));
+            Picker.RenderObjectToPicker(planeGreenBlueInv, new Color(0, 255, 255));
+            Picker.RenderObjectToPicker(planeBlueRedInv, new Color(255, 0, 255));
+
+            EngineManager.Device.Clear(ClearOptions.DepthBuffer, Color.White, 1, 0);
+
             // Update Axis Lines
             lines.LineRenderer.Vertices[0] = new VertexPositionColor(vertices[0], Color.Red);
             lines.LineRenderer.Vertices[1] = new VertexPositionColor(vertices[1], Color.Red);
@@ -430,25 +434,25 @@ namespace XNAFinalEngine.Editor
             lines.LineRenderer.Vertices[3] = new VertexPositionColor(vertices[2], new Color(0, 255, 0));
             lines.LineRenderer.Vertices[4] = new VertexPositionColor(vertices[0], Color.Blue);
             lines.LineRenderer.Vertices[5] = new VertexPositionColor(vertices[3], Color.Blue);
-            picker.RenderObjectToPicker(lines);
+            Picker.RenderObjectToPicker(lines);
             
             // Update Cones
             redBox.Transform.LocalMatrix = Matrix.Identity;
             redBox.Transform.LocalPosition = new Vector3(1, 0, 0);
             redBox.Transform.Rotate(new Vector3(0, 0, -90));
             redBox.Transform.LocalMatrix = redBox.Transform.LocalMatrix * transformationMatrix;
-            picker.RenderObjectToPicker(redBox, Color.Red);
+            Picker.RenderObjectToPicker(redBox, Color.Red);
             
             greenBox.Transform.LocalMatrix = Matrix.Identity;
             greenBox.Transform.LocalPosition = new Vector3(0, 1, 0);
             greenBox.Transform.LocalMatrix = greenBox.Transform.LocalMatrix * transformationMatrix;
-            picker.RenderObjectToPicker(greenBox, new Color(0, 255, 0)); // Color.Green is not 0, 255, 0
+            Picker.RenderObjectToPicker(greenBox, new Color(0, 255, 0)); // Color.Green is not 0, 255, 0
             
             blueBox.Transform.LocalMatrix = Matrix.Identity;
             blueBox.Transform.LocalPosition = new Vector3(0, 0, 1);
             blueBox.Transform.Rotate(new Vector3(90, 0, 0));
             blueBox.Transform.LocalMatrix = blueBox.Transform.LocalMatrix * transformationMatrix;
-            picker.RenderObjectToPicker(blueBox, Color.Blue);
+            Picker.RenderObjectToPicker(blueBox, Color.Blue);
             
             Vector3 screenPositions = EngineManager.Device.Viewport.Project(vertices[0], gizmoCamera.Camera.ProjectionMatrix, gizmoCamera.Camera.ViewMatrix, Matrix.Identity);
             planeAll.LineRenderer.Vertices[0] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), Color.White);
@@ -459,26 +463,23 @@ namespace XNAFinalEngine.Editor
             planeAll.LineRenderer.Vertices[5] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y + RegionSize / 2, 0), Color.White);
             planeAll.LineRenderer.Vertices[6] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y + RegionSize / 2, 0), Color.White);
             planeAll.LineRenderer.Vertices[7] = new VertexPositionColor(new Vector3((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, 0), Color.White);
-            picker.RenderObjectToPicker(planeAll, Color.White);
+            Picker.RenderObjectToPicker(planeAll, Color.White);
             
             // The plane used to select all axis.
             /*LineManager.Begin2D(PrimitiveType.LineList);
                 Vector3 screenPositions = EngineManager.Device.Viewport.Project(vertices[0], gizmoCamera.Camera.ProjectionMatrix, gizmoCamera.Camera.ViewMatrix, Matrix.Identity);
                 LineManager.DrawSolid2DPlane(new Rectangle((int)screenPositions.X - RegionSize / 2, (int)screenPositions.Y - RegionSize / 2, RegionSize, RegionSize), Color.White);
             LineManager.End();*/
-            
-            // This is used to avoid problems in the gizmo rendering.
-            UpdateRenderingInformation();
         } // RenderGizmoForPicker
 
         #endregion
 
-        #region Update Rendering Information
+        #region Render Gizmo
 
         /// <summary>
         /// Update Rendering Information.
         /// </summary>
-        public void UpdateRenderingInformation()
+        public void RenderGizmo(GameObject3D gizmoCamera)
         {
 
             #region Find Color

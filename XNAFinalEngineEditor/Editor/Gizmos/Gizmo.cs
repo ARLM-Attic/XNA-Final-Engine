@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 #endregion
@@ -77,9 +78,6 @@ namespace XNAFinalEngine.Editor
 
         protected static List<Matrix> selectedObjectsLocalMatrix;
         
-        // The camera used for render the gizmo.
-        protected GameObject3D gizmoCamera;
-        
         // Indicates what axis is selected.
         protected bool redAxisSelected,
                        greenAxisSelected,
@@ -88,9 +86,9 @@ namespace XNAFinalEngine.Editor
         // Auxiliary structure.
         protected static Vector3[] vertices = new Vector3[7];
 
-        // Picker to select gizmo axis.
-        protected Picker picker;
-
+        // Shader to render the gizmo.
+        protected static Shader constantShader;
+        
         #endregion
 
         #region Properties
@@ -104,6 +102,11 @@ namespace XNAFinalEngine.Editor
         /// Local or World Space.
         /// </summary>
         public static SpaceMode Space { get; set; }
+
+        /// <summary>
+        /// Picker to select gizmo axis.
+        /// </summary>
+        public static Picker Picker { get; set; }
 
         #endregion
 

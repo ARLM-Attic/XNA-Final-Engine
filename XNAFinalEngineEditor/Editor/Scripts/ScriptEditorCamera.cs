@@ -283,7 +283,8 @@ namespace XNAFinalEngine.Editor
 
                     #region Maya mode
 
-                    if ((Keyboard.KeyPressed(Keys.LeftAlt) || Keyboard.KeyPressed(Keys.RightAlt)))
+                    if ((Keyboard.KeyPressed(Keys.LeftAlt) || Keyboard.KeyPressed(Keys.RightAlt)) &&
+                        (Mouse.LeftButtonPressed || Mouse.RightButtonPressed || Mouse.MiddleButtonPressed))
                     {
                         cameraBeingManipulated = this;
                         // Translation

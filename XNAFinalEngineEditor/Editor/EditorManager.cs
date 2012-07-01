@@ -30,9 +30,11 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
@@ -137,6 +139,14 @@ namespace XNAFinalEngine.Editor
 
         private static EditorViewport viewportMouseOver;
 
+        // The active gizmo.
+        private static Gizmos activeGizmo = Gizmos.None;
+
+        // The gizmos.
+        private static TranslationGizmo translationGizmo;
+        private static ScaleGizmo scaleGizmo;
+        private static RotationGizmo rotationGizmo;
+
         #endregion
 
         #region Properties
@@ -221,7 +231,10 @@ namespace XNAFinalEngine.Editor
             #endregion
 
             picker = new Picker(Size.FullScreen);
-            
+            Gizmo.Picker = picker;
+            translationGizmo = new TranslationGizmo();
+            scaleGizmo = new ScaleGizmo();
+            rotationGizmo = new RotationGizmo();
         } // Initialize
 
         #endregion
@@ -376,19 +389,6 @@ namespace XNAFinalEngine.Editor
             UserInterfaceManager.Update();
 
             #endregion
-            
-            #region Update Gizmo Rendering Information
-            /*
-            gizmoCamera.Transform.WorldMatrix = editorCamera.Transform.WorldMatrix;
-            gizmoCamera.Camera.ProjectionMatrix = editorCamera.Camera.ProjectionMatrix;
-            switch (activeGizmo)
-            {
-                case GizmoType.Scale       : scaleGizmo.UpdateRenderingInformation(); break;
-                case GizmoType.Rotation    : rotationGizmo.UpdateRenderingInformation(); break;
-                case GizmoType.Translation : translationGizmo.UpdateRenderingInformation(); break;
-            }*/
-
-            #endregion
 
             #region If no update is needed...
             
@@ -418,12 +418,12 @@ namespace XNAFinalEngine.Editor
             #region No Gizmo Active
             
             // If no gizmo is active…
-            //if (activeGizmo == Gizmos.None)
+            if (activeGizmo == Gizmos.None)
             {
                 
                 #region Selection Rectangle
 
-                if (Mouse.LeftButtonJustPressed)
+                if (Mouse.LeftButtonJustPressed && !Keyboard.KeyPressed(Keys.LeftAlt) && !Keyboard.KeyPressed(Keys.RightAlt))
                     canSelect = true;
                 if (Mouse.LeftButtonPressed && canSelect)
                 {
@@ -554,6 +554,7 @@ namespace XNAFinalEngine.Editor
 
                     if (SelectedObjects.Count > 0)
                         MainWindow.AddGameObjectControlsToInspector(SelectedObjects[0]);
+                    canSelect = false;
                 }
 
                 #endregion
@@ -569,6 +570,7 @@ namespace XNAFinalEngine.Editor
                         HideGameObjectSelected(gameObject);
                     }
                     selectedObjects.Clear();
+                    canSelect = false;
                 }
 
                 #endregion
@@ -578,79 +580,81 @@ namespace XNAFinalEngine.Editor
             #endregion
 
             #region Gizmo Active
-            /*
-            if (activeGizmo != GizmoType.None && (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed) && !(Gizmo.Active) && !(UserInterfaceManager.FocusedControl is TextBox) && !(previousFocusedControl is TextBox))
+
+            if (activeGizmo != Gizmos.None && (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed) && !(Gizmo.Active) &&
+                !(UserInterfaceManager.FocusedControl is TextBox) && !(previousFocusedControl is TextBox))
             {
                 switch (activeGizmo)
                 {
-                    case GizmoType.Scale       : scaleGizmo.DisableGizmo(); break;
-                    case GizmoType.Rotation    : rotationGizmo.DisableGizmo(); break;
-                    case GizmoType.Translation : translationGizmo.DisableGizmo(); break;
+                    case Gizmos.Scale       : scaleGizmo.DisableGizmo(); break;
+                    case Gizmos.Rotation    : rotationGizmo.DisableGizmo(); break;
+                    case Gizmos.Translation : translationGizmo.DisableGizmo(); break;
                 }
-                activeGizmo = GizmoType.None;
+                activeGizmo = Gizmos.None;
             }
-            */
+            
             #endregion
 
             #region Activate Gizmo
-            /*
-            bool isPosibleToSwich = selectedObjects.Count > 0 && ((activeGizmo == GizmoType.None) || !(Gizmo.Active));
+
+            bool isPosibleToSwich = selectedObjects.Count > 0 && ((activeGizmo == Gizmos.None) || !(Gizmo.Active));
             if (Keyboard.KeyJustPressed(Keys.W) && isPosibleToSwich)
             {
                 switch (activeGizmo)
                 {
-                    case GizmoType.Scale       : scaleGizmo.DisableGizmo(); break;
-                    case GizmoType.Rotation    : rotationGizmo.DisableGizmo(); break;
-                    case GizmoType.Translation : translationGizmo.DisableGizmo(); break;
+                    case Gizmos.Scale       : scaleGizmo.DisableGizmo(); break;
+                    case Gizmos.Rotation    : rotationGizmo.DisableGizmo(); break;
+                    case Gizmos.Translation : translationGizmo.DisableGizmo(); break;
                 }
-                activeGizmo = GizmoType.Translation;
-                translationGizmo.EnableGizmo(selectedObjects, picker);
+                activeGizmo = Gizmos.Translation;
+                translationGizmo.EnableGizmo(selectedObjects.OfType<GameObject3D>().ToList());
             }
             if (Keyboard.KeyJustPressed(Keys.E) && isPosibleToSwich)
             {
                 switch (activeGizmo)
                 {
-                    case GizmoType.Scale       : scaleGizmo.DisableGizmo(); break;
-                    case GizmoType.Rotation    : rotationGizmo.DisableGizmo(); break;
-                    case GizmoType.Translation : translationGizmo.DisableGizmo(); break;
+                    case Gizmos.Scale       : scaleGizmo.DisableGizmo(); break;
+                    case Gizmos.Rotation    : rotationGizmo.DisableGizmo(); break;
+                    case Gizmos.Translation : translationGizmo.DisableGizmo(); break;
                 }
-                activeGizmo = GizmoType.Rotation;
-                rotationGizmo.EnableGizmo(selectedObjects, picker);
+                activeGizmo = Gizmos.Rotation;
+                rotationGizmo.EnableGizmo(selectedObjects.OfType<GameObject3D>().ToList());
             }
             if (Keyboard.KeyJustPressed(Keys.R) && !Keyboard.KeyPressed(Keys.LeftControl) && isPosibleToSwich)
             {
                 switch (activeGizmo)
                 {
-                    case GizmoType.Scale       : scaleGizmo.DisableGizmo(); break;
-                    case GizmoType.Rotation    : rotationGizmo.DisableGizmo(); break;
-                    case GizmoType.Translation : translationGizmo.DisableGizmo(); break;
+                    case Gizmos.Scale       : scaleGizmo.DisableGizmo(); break;
+                    case Gizmos.Rotation    : rotationGizmo.DisableGizmo(); break;
+                    case Gizmos.Translation : translationGizmo.DisableGizmo(); break;
                 }
-                activeGizmo = GizmoType.Scale;
-                scaleGizmo.EnableGizmo(selectedObjects, picker);
+                activeGizmo = Gizmos.Scale;
+                scaleGizmo.EnableGizmo(selectedObjects.OfType<GameObject3D>().ToList());
             }
-            */
+            
             #endregion
 
             #region Update Gizmo
-            /*
+            
+            if (viewportMouseOver != null)
             switch (activeGizmo)
             {
-                case GizmoType.Scale:
-                    scaleGizmo.Update();
-                    vector3BoxScale.Invalidate();
+                case Gizmos.Scale:
+                    scaleGizmo.Update((GameObject3D)viewportMouseOver.Camera.Owner, viewportMouseOver.ClientArea);
+                    UserInterfaceManager.Invalidate();
                     break;
-                case GizmoType.Rotation: 
-                    rotationGizmo.Update();
-                    vector3BoxRotation.Invalidate();
+                case Gizmos.Rotation:
+                    rotationGizmo.Update((GameObject3D)viewportMouseOver.Camera.Owner, viewportMouseOver.ClientArea);
+                    UserInterfaceManager.Invalidate();
                     break;
-                case GizmoType.Translation: 
-                    translationGizmo.Update();
-                    vector3BoxPosition.Invalidate();
+                case Gizmos.Translation:
+                    translationGizmo.Update((GameObject3D)viewportMouseOver.Camera.Owner, viewportMouseOver.ClientArea);
+                    UserInterfaceManager.Invalidate();
                     break;
             }
             
             UserInterfaceManager.InputEnabled = !Gizmo.Active && !selectionRectangleBackground.LineRenderer.Enabled;
-            */
+            
             #endregion
 
             previousFocusedControl = UserInterfaceManager.FocusedControl;
@@ -690,7 +694,7 @@ namespace XNAFinalEngine.Editor
                     // Aspect ratio
                     int horizontalOffset = (editorViewport.ClientArea.Width - editorViewport.Camera.RenderTargetSize.Width) / 2;
                     int verticalOffset = (editorViewport.ClientArea.Height - editorViewport.Camera.RenderTargetSize.Height) / 2;
-                    SpriteManager.Draw2DTexture(editorViewport.Camera.RenderTarget, 0,
+                    SpriteManager.Draw2DTexture(editorViewport.Camera.RenderTarget, 1,
                                                 new Rectangle(editorViewport.ClientLeft + horizontalOffset, 
                                                               editorViewport.ClientTop + verticalOffset,
                                                               editorViewport.Camera.RenderTarget.Width, 
@@ -701,6 +705,20 @@ namespace XNAFinalEngine.Editor
             SpriteManager.End();
 
             #endregion
+            
+            foreach (EditorViewport editorViewport in editorViewports)
+            {
+                if (editorViewport.Enabled && editorViewport.Mode != EditorViewport.ViewportMode.Game)
+                {
+                    // Render Gizmos
+                    switch (activeGizmo)
+                    {
+                        /*case Gizmos.Scale       : scaleGizmo.UpdateRenderingInformation((GameObject3D)viewportMouseOver.Camera.Owner); break;
+                        case Gizmos.Rotation    : rotationGizmo.UpdateRenderingInformation((GameObject3D)viewportMouseOver.Camera.Owner); break;*/
+                        case Gizmos.Translation: translationGizmo.RenderGizmo((GameObject3D)editorViewport.Camera.Owner, editorViewport.ClientArea); break;
+                    }
+                }
+            }
 
             UserInterfaceManager.RenderUserInterfaceToScreen();
         } // PostRenderTasks

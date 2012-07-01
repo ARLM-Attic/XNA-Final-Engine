@@ -343,6 +343,17 @@ namespace XNAFinalEngine.Editor
                     LineManager.End();
                 }
             }
+            else
+            {
+                GameObject2D gameObject2D = (GameObject2D)gameObject;
+                if (gameObject2D.LineRenderer != null)
+                {
+                    LineManager.Begin2D(gameObject2D.LineRenderer.PrimitiveType);
+                    for (int j = 0; j < gameObject2D.LineRenderer.Vertices.Length; j++)
+                        LineManager.AddVertex(Vector3.Transform(gameObject2D.LineRenderer.Vertices[j].Position, gameObject2D.Transform.WorldMatrix), color);
+                    LineManager.End();
+                }
+            }
         } // RenderObjectToPicker
 
         #endregion
