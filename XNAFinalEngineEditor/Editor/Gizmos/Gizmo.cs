@@ -79,24 +79,30 @@ namespace XNAFinalEngine.Editor
         protected static List<Matrix> selectedObjectsLocalMatrix;
         
         // Indicates what axis is selected.
-        protected bool redAxisSelected,
-                       greenAxisSelected,
-                       blueAxisSelected;
+        protected static  bool redAxisSelected,
+                               greenAxisSelected,
+                               blueAxisSelected;
 
         // Auxiliary structure.
         protected static Vector3[] vertices = new Vector3[7];
 
         // Shader to render the gizmo.
         protected static Shader constantShader;
+
+        private static bool active;
         
         #endregion
 
         #region Properties
-
+        
         /// <summary>
         /// Indicates if a gizmo is being manipulated or not.
         /// </summary>
-        public static bool Active { get; protected set; }
+        public static bool Active
+        {
+            get { return active && (redAxisSelected || greenAxisSelected || blueAxisSelected); }
+            protected set { active = value; }
+        } // Active
 
         /// <summary>
         /// Local or World Space.
@@ -120,17 +126,22 @@ namespace XNAFinalEngine.Editor
             center = Vector3.Zero;
             orientation = new Quaternion();
             // Center
-            if (selectedObject.ModelRenderer != null)
-                center = selectedObject.ModelRenderer.BoundingSphere.Center;
-            else
-                center = selectedObject.Transform.Position;
+            center = selectedObject.Transform.Position;
+            
             // Orientation
             orientation = selectedObject.Transform.Rotation;
 
             // Calculate the distance from the object to camera position.
-            Vector3 cameraToCenter = gizmoCamera.Camera.Position - center;
-            float distanceToCamera = cameraToCenter.Length();
-            scale = distanceToCamera / 14; // Arbitrary number.
+            if (gizmoCamera.Camera.OrthographicProjection)
+            {
+                scale = gizmoCamera.Camera.OrthographicVerticalSize / 5;
+            }
+            else
+            {
+                Vector3 cameraToCenter = gizmoCamera.Camera.Position - center;
+                float distanceToCamera = cameraToCenter.Length();
+                scale = (distanceToCamera / 16) / (gizmoCamera.Camera.RenderTargetSize.Width / 1400f); // Arbitrary number.
+            }
         } // GizmoScaleCenterOrientation
 
         #endregion

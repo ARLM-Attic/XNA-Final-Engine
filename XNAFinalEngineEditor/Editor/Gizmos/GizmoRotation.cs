@@ -33,10 +33,14 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Components;
-using XNAFinalEngine.Input;
+using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Undo;
 using XNAFinalEngine.UserInterface;
+using Keyboard = XNAFinalEngine.Input.Keyboard;
+using Mouse = XNAFinalEngine.Input.Mouse;
 
 #endregion
 
@@ -113,10 +117,6 @@ namespace XNAFinalEngine.Editor
         {
             Active = false;
 
-            redLine.LineRenderer.Enabled = true;
-            greenLine.LineRenderer.Enabled = true;
-            blueLine.LineRenderer.Enabled = true;
-
             selectedObject = _selectedObjects[0];
             selectedObjects = _selectedObjects;
             selectedObjectsLocalMatrix = new List<Matrix>(_selectedObjects.Count);
@@ -132,10 +132,6 @@ namespace XNAFinalEngine.Editor
         public void DisableGizmo()
         {
             Active = false;
-
-            redLine.LineRenderer.Enabled = false;
-            greenLine.LineRenderer.Enabled = false;
-            blueLine.LineRenderer.Enabled = false;
 
             selectedObject = null;
             selectedObjects = null;
@@ -234,61 +230,70 @@ namespace XNAFinalEngine.Editor
             
             else            
             {
-                // If we press the left mouse button the manipulator activates.
-                if (Mouse.LeftButtonJustPressed)
+                if (!Keyboard.KeyPressed(Keys.LeftAlt) && !Keyboard.KeyPressed(Keys.RightAlt))
                 {
-                    Active = true;
-                    // Stores initial matrix because maybe the user press escape; i.e. maybe he cancel the transformation.
-                    for (int i = 0; i < selectedObjects.Count; i++)
+                    // If we press the left mouse button the manipulator activates.
+                    if (Mouse.LeftButtonJustPressed)
                     {
-                        selectedObjectsLocalMatrix[i] = selectedObjects[i].Transform.LocalMatrix;
+                        Active = true;
+                        // Stores initial matrix because maybe the user press escape; i.e. maybe he cancel the transformation.
+                        for (int i = 0; i < selectedObjects.Count; i++)
+                        {
+                            selectedObjectsLocalMatrix[i] = selectedObjects[i].Transform.LocalMatrix;
+                        }
                     }
+
+                    // Perform a pick around the mouse pointer.
+
+                    Viewport viewport = new Viewport(gizmoCamera.Camera.Viewport.X + clientArea.ControlLeftAbsoluteCoordinate,
+                                                     gizmoCamera.Camera.Viewport.Y + clientArea.ControlTopAbsoluteCoordinate,
+                                                     gizmoCamera.Camera.Viewport.Width, gizmoCamera.Camera.Viewport.Height);
+                    Picker.BeginManualPicking(gizmoCamera.Camera.ViewMatrix, gizmoCamera.Camera.ProjectionMatrix, viewport);
+                    RenderGizmoForPicker(gizmoCamera);
+                    Color[] colorArray = Picker.EndManualPicking(new Rectangle(Mouse.Position.X - 5, Mouse.Position.Y - 5, RegionSize, RegionSize));
+
+                    #region Find Selected Axis
+
+                    redAxisSelected   = false;
+                    greenAxisSelected = false;
+                    blueAxisSelected  = false;
+                    for (int i = 0; i < RegionSize * RegionSize; i++)
+                    {
+                        // X axis.
+                        if (colorArray[i].R == 255 && colorArray[i].G == 0 && colorArray[i].B == 0)
+                        {
+                            redAxisSelected   = true;
+                            greenAxisSelected = false;
+                            blueAxisSelected  = false;
+                            break;
+                        }
+                        // Y axis.
+                        if (colorArray[i].R == 0 && colorArray[i].G == 255 && colorArray[i].B == 0)
+                        {
+                            redAxisSelected   = false;
+                            greenAxisSelected = true;
+                            blueAxisSelected  = false;
+                            break;
+                        }
+                        // Z axis.
+                        if (colorArray[i].R == 0 && colorArray[i].G == 0 && colorArray[i].B == 255)
+                        {
+                            redAxisSelected   = false;
+                            greenAxisSelected = false;
+                            blueAxisSelected  = true;
+                            break;
+                        }
+                    }
+
+                    #endregion
+
                 }
-
-                // Perform a pick around the mouse pointer.
-
-                Viewport viewport = new Viewport(gizmoCamera.Camera.Viewport.X + clientArea.ControlLeftAbsoluteCoordinate,
-                                                 gizmoCamera.Camera.Viewport.Y + clientArea.ControlTopAbsoluteCoordinate,
-                                                 gizmoCamera.Camera.Viewport.Width, gizmoCamera.Camera.Viewport.Height);
-                Picker.BeginManualPicking(gizmoCamera.Camera.ViewMatrix, gizmoCamera.Camera.ProjectionMatrix, viewport);
-                RenderGizmoForPicker(gizmoCamera);
-                Color[] colorArray = Picker.EndManualPicking(new Rectangle(Mouse.Position.X - 5, Mouse.Position.Y - 5, RegionSize, RegionSize));
-
-                #region Find Selected Axis
-
-                redAxisSelected   = false;
-                greenAxisSelected = false;
-                blueAxisSelected  = false;
-                for (int i = 0; i < RegionSize * RegionSize; i++)
+                else
                 {
-                    // X axis.
-                    if (colorArray[i].R == 255 && colorArray[i].G == 0 && colorArray[i].B == 0)
-                    {
-                        redAxisSelected   = true;
-                        greenAxisSelected = false;
-                        blueAxisSelected  = false;
-                        break;
-                    }
-                    // Y axis.
-                    if (colorArray[i].R == 0 && colorArray[i].G == 255 && colorArray[i].B == 0)
-                    {
-                        redAxisSelected   = false;
-                        greenAxisSelected = true;
-                        blueAxisSelected  = false;
-                        break;
-                    }
-                    // Z axis.
-                    if (colorArray[i].R == 0 && colorArray[i].G == 0 && colorArray[i].B == 255)
-                    {
-                        redAxisSelected   = false;
-                        greenAxisSelected = false;
-                        blueAxisSelected  = true;
-                        break;
-                    }
+                    redAxisSelected = false;
+                    greenAxisSelected = false;
+                    blueAxisSelected = false;
                 }
-
-                #endregion
-
             }
             
             #endregion
@@ -336,9 +341,9 @@ namespace XNAFinalEngine.Editor
         #region Render Gizmo
 
         /// <summary>
-        /// Update Rendering Information.
+        /// Render Gizmo.
         /// </summary>
-        public void UpdateRenderingInformation(GameObject3D gizmoCamera)
+        public void RenderGizmo(GameObject3D gizmoCamera, Control clientArea)
         {
 
             #region Find Color
@@ -366,18 +371,36 @@ namespace XNAFinalEngine.Editor
             Matrix transformationMatrix = Matrix.CreateScale(scale);
             transformationMatrix *= Matrix.CreateFromQuaternion(orientation);
             transformationMatrix *= Matrix.CreateTranslation(center);
+
+            EngineManager.Device.Viewport = new Viewport(gizmoCamera.Camera.Viewport.X + clientArea.ControlLeftAbsoluteCoordinate,
+                                                         gizmoCamera.Camera.Viewport.Y + clientArea.ControlTopAbsoluteCoordinate,
+                                                         gizmoCamera.Camera.Viewport.Width, gizmoCamera.Camera.Viewport.Height);
             
             // Update Cones
             redLine.Transform.LocalMatrix = Matrix.Identity;
             redLine.Transform.Rotate(new Vector3(0, -90, 0));
             redLine.Transform.LocalMatrix = redLine.Transform.LocalMatrix * transformationMatrix;
+            LineManager.Begin3D(redLine.LineRenderer.PrimitiveType, gizmoCamera.Camera.ViewMatrix, gizmoCamera.Camera.ProjectionMatrix);
+                for (int j = 0; j < redLine.LineRenderer.Vertices.Length; j++)
+                    LineManager.AddVertex(Vector3.Transform(redLine.LineRenderer.Vertices[j].Position, redLine.Transform.LocalMatrix), redLine.LineRenderer.Vertices[j].Color);
+            LineManager.End();
             
             greenLine.Transform.LocalMatrix = Matrix.Identity;
             greenLine.Transform.Rotate(new Vector3(90, 0, 0));
             greenLine.Transform.LocalMatrix = greenLine.Transform.LocalMatrix * transformationMatrix;
+            LineManager.Begin3D(greenLine.LineRenderer.PrimitiveType, gizmoCamera.Camera.ViewMatrix, gizmoCamera.Camera.ProjectionMatrix);
+                for (int j = 0; j < greenLine.LineRenderer.Vertices.Length; j++)
+                    LineManager.AddVertex(Vector3.Transform(greenLine.LineRenderer.Vertices[j].Position, greenLine.Transform.LocalMatrix), greenLine.LineRenderer.Vertices[j].Color);
+            LineManager.End();
             
             blueLine.Transform.LocalMatrix = Matrix.Identity;
             blueLine.Transform.LocalMatrix = blueLine.Transform.LocalMatrix * transformationMatrix;
+            LineManager.Begin3D(blueLine.LineRenderer.PrimitiveType, gizmoCamera.Camera.ViewMatrix, gizmoCamera.Camera.ProjectionMatrix);
+                for (int j = 0; j < blueLine.LineRenderer.Vertices.Length; j++)
+                    LineManager.AddVertex(Vector3.Transform(blueLine.LineRenderer.Vertices[j].Position, blueLine.Transform.LocalMatrix), blueLine.LineRenderer.Vertices[j].Color);
+            LineManager.End();
+
+            EngineManager.Device.Viewport = new Viewport(0, 0, Screen.Width, Screen.Height);
         } // UpdateRenderingInformation
 
         #endregion

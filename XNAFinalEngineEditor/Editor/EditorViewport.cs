@@ -360,7 +360,7 @@ namespace XNAFinalEngine.Editor
                 if (mode == ViewportMode.Top)
                 {
                     editorCameraScript.Yaw = 0;
-                    editorCameraScript.Pitch = 1;
+                    editorCameraScript.Pitch = MathHelper.Pi / 2;
                 }
                 if (mode == ViewportMode.Right)
                 {

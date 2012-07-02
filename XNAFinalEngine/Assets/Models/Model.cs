@@ -29,7 +29,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using XNABoundingBox    = Microsoft.Xna.Framework.BoundingBox;
 using XNABoundingSphere = Microsoft.Xna.Framework.BoundingSphere;

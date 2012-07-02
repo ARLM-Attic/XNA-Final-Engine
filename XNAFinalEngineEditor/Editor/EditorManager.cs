@@ -34,7 +34,6 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
@@ -302,7 +301,9 @@ namespace XNAFinalEngine.Editor
                 GameObject3D gameObject3D = (GameObject3D)gameObject;
                 // If it is a model.
                 if (gameObject3D.ModelRenderer != null)
+                {
                     gameObject3D.ModelRenderer.RenderNonAxisAlignedBoundingBox = true;
+                }
             }
         } // ShowGameObjectSelected
 
@@ -713,9 +714,9 @@ namespace XNAFinalEngine.Editor
                     // Render Gizmos
                     switch (activeGizmo)
                     {
-                        /*case Gizmos.Scale       : scaleGizmo.UpdateRenderingInformation((GameObject3D)viewportMouseOver.Camera.Owner); break;
-                        case Gizmos.Rotation    : rotationGizmo.UpdateRenderingInformation((GameObject3D)viewportMouseOver.Camera.Owner); break;*/
-                        case Gizmos.Translation: translationGizmo.RenderGizmo((GameObject3D)editorViewport.Camera.Owner, editorViewport.ClientArea); break;
+                        case Gizmos.Scale       : scaleGizmo.RenderGizmo((GameObject3D)editorViewport.Camera.Owner, editorViewport.ClientArea, editorViewport.Mode); break;
+                        case Gizmos.Rotation    : rotationGizmo.RenderGizmo((GameObject3D)editorViewport.Camera.Owner, editorViewport.ClientArea); break;
+                        case Gizmos.Translation : translationGizmo.RenderGizmo((GameObject3D)editorViewport.Camera.Owner, editorViewport.ClientArea, editorViewport.Mode); break;
                     }
                 }
             }

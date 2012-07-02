@@ -217,6 +217,8 @@ namespace XNAFinalEngine.UserInterface
                 SkinLayer selectedLayer = SkinInformation.Layers["ListBox.Selection"];
                 int fontHeight = (int)fontLayer.Font.Font.MeasureString(items[0].ToString()).Y;
                 int v = (scrollBarVertical.Value / 10);
+                if (!scrollBarVertical.Visible) // If the scrooll bar is invisible then this value should be 0 (first page).
+                    v = 0;
                 int p = (scrollBarVertical.PageSize / 10);
                 int d = (int)(((scrollBarVertical.Value % 10) / 10f) * fontHeight);
                 // Draw elements
@@ -265,9 +267,14 @@ namespace XNAFinalEngine.UserInterface
             if (items != null && items.Count > 0 && (pane.ControlRectangleRelativeToParent.Contains(new Point(x, y))))
             {
                 SkinText font = SkinInformation.Layers["Control"].Text;
-                int h = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
-                int i = (int)Math.Floor((scrollBarVertical.Value / 10f) + ((float)y / h));
-                if (i >= 0 && i < Items.Count && i >= (int)Math.Floor((float)scrollBarVertical.Value / 10f) && i < (int)Math.Ceiling((float)(scrollBarVertical.Value + scrollBarVertical.PageSize) / 10f)) ItemIndex = i;
+                int fontHeight = (int)font.Font.Font.MeasureString(items[0].ToString()).Y;
+                int scrollbarValue = scrollBarVertical.Value;
+                if (!scrollBarVertical.Visible)
+                    scrollbarValue = 0;
+                int i = (int)Math.Floor((scrollbarValue / 10f) + ((float)y / fontHeight));
+                if (i >= 0 && i < Items.Count && i >= (int)Math.Floor((float)scrollbarValue / 10f) &&
+                    i < (int)Math.Ceiling((float)(scrollbarValue + scrollBarVertical.PageSize) / 10f))
+                    ItemIndex = i;
                 Focused = true;
             }
         } // TrackItem

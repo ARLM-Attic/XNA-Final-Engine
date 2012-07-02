@@ -34,7 +34,6 @@ using XNAFinalEngine.Animations;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Editor;
-using XNAFinalEngine.EngineCore;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Size = XNAFinalEngine.Helpers.Size;
 using Texture = XNAFinalEngine.Assets.Texture;
@@ -138,7 +137,7 @@ namespace XNAFinalEngineExamples
             #region Models
 
             #region Dude
-
+            
             //for (int i = 0; i < 20; i++)
             //{
                 dude = new GameObject3D(new FileModel("DudeWalk"), new BlinnPhong());
@@ -165,12 +164,9 @@ namespace XNAFinalEngineExamples
             rifle = new GameObject3D(new FileModel("Rifle"), 
                 new BlinnPhong
                     {
-                        DiffuseColor = new Color(50, 50, 50),
-                        //DiffuseTexture = new Texture("Cutter\\Floor1_D"),
-                        /*NormalTexture = new Texture("Cutter\\cutter_N"),
-                        SpecularTexture = new Texture("Cutter\\cutter_s"),*/
+                        DiffuseColor = new Color(50, 50, 50),                        
                     });
-
+            
             #endregion
 
             #region Floor
@@ -290,7 +286,7 @@ namespace XNAFinalEngineExamples
                 }
             }
             */
-
+            
             rifle.Transform.LocalMatrix = Matrix.Identity;
             rifle.Transform.Translate(new Vector3(1.2767f, 0.5312f, 0.0045f));
             rifle.Transform.Rotate(new Vector3(0, 45, 90));

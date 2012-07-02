@@ -298,9 +298,9 @@ namespace XNAFinalEngine.Components
             else
             {
                 // Bounding Sphere
-                BoundingSphere modelBoundingSphere = ((GameObject3D) Owner).ModelFilter.Model.BoundingSphere;
+                BoundingSphere modelBoundingSphere = ((GameObject3D)Owner).ModelFilter.Model.BoundingSphere;
                 float maxScale;
-                Vector3 scale = ((GameObject3D) Owner).Transform.Scale;
+                Vector3 scale = ((GameObject3D)Owner).Transform.Scale;
                 // This allows us to support non uniform scaling.
                 if (scale.X >= scale.Y && scale.X >= scale.Z)
                 {

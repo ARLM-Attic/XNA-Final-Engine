@@ -60,10 +60,13 @@ namespace XNAFinalEngine.UserInterface
                 if (this.value != value)
                 {
                     this.value = value;
-                    if (this.value < 0) this.value = 0;
-                    if (this.value > range - pageSize) this.value = range - pageSize;
+                    if (this.value < 0) 
+                        this.value = 0;
+                    if (this.value > range - pageSize) 
+                        this.value = range - pageSize;
                     Invalidate();
-                    if (!Suspended) OnValueChanged(new EventArgs());
+                    if (!Suspended) 
+                        OnValueChanged(new EventArgs());
                 }
             }
         } // Value

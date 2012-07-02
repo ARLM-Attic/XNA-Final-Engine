@@ -51,7 +51,7 @@ namespace XNAFinalEngine.Editor
     ///                      if we press the right mouse button and move the mouse the orientation around the look at position changes.
     /// If we move the mouse wheel the zoom of distance to the look at position changes.
     /// </summary>
-    public sealed class ScriptEditorCamera : Script
+    internal sealed class ScriptEditorCamera : Script
     {
 
         #region Enumerates
@@ -139,7 +139,7 @@ namespace XNAFinalEngine.Editor
             {
                 mode = value;
                 sJustPressed = false;
-                if (Manipulating)
+                if (ThisCameraIsBeingManipulated)
                     cameraBeingManipulated = null;
             }
         } // Mode
@@ -152,7 +152,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Is it the camera being manipulated?
         /// </summary>
-        public bool Manipulating { get { return cameraBeingManipulated == this; } }
+        private bool ThisCameraIsBeingManipulated { get { return cameraBeingManipulated == this; } }
 
         /// <summary>
         /// Camara being in use.
@@ -211,7 +211,7 @@ namespace XNAFinalEngine.Editor
         {
             if (!((GameObject3D)Owner).Camera.Enabled)
                 return;
-            if (CouldBeManipulated() || Manipulating)
+            if (CouldBeManipulated() || ThisCameraIsBeingManipulated)
             {
                 if (mode == ModeType.Softimage || mode == ModeType.NoManipulationKey)
                 {
@@ -220,7 +220,7 @@ namespace XNAFinalEngine.Editor
 
                     #region Is it in manipulation mode?
 
-                    if (Manipulating)
+                    if (ThisCameraIsBeingManipulated)
                     {
                         // To exit the manipulation mode.
                         if (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed)
@@ -241,7 +241,7 @@ namespace XNAFinalEngine.Editor
                             sJustPressed = false;
                             if (Time.ApplicationTime - sJustPressedTime < 0.3f)
                             {
-                                cameraBeingManipulated = Manipulating ? null : this;
+                                cameraBeingManipulated = ThisCameraIsBeingManipulated ? null : this;
                             }
                         }
                     }
@@ -250,7 +250,7 @@ namespace XNAFinalEngine.Editor
 
                     #region Manipulate
 
-                    if (Manipulating || Keyboard.KeyPressed(Keys.S) || mode == ModeType.NoManipulationKey)
+                    if (ThisCameraIsBeingManipulated || Keyboard.KeyPressed(Keys.S) || mode == ModeType.NoManipulationKey)
                     {
                         // Translation
                         if (Mouse.LeftButtonPressed)
