@@ -15,6 +15,8 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.EngineCore;
+
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -42,6 +44,11 @@ namespace XNAFinalEngine.UserInterface
                     Height = (int)size.Y + SkinInformation.Layers[0].ContentMargins.Vertical;
                     Left = Mouse.GetState().X;
                     Top = Mouse.GetState().Y + 24;
+                    // If it is outside the screen...
+                    if (Left + Width > Screen.Width)
+                        Left = Screen.Width - Width;
+                    if (Top + Height > Screen.Height)
+                        Top = Screen.Height - Height;
                     base.Visible = true;
                 }
                 else

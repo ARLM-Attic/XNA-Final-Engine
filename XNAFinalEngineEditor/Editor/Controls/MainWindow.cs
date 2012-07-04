@@ -314,6 +314,7 @@ namespace XNAFinalEngine.Editor
                 Text = "Active",
                 Height = 10,
             };
+            label.ToolTip.Text = "Active layers are updated.";
             label = new Label
             {
                 Parent = rightPanelTabControl.TabPages[1],
@@ -323,6 +324,7 @@ namespace XNAFinalEngine.Editor
                 Text = "Visible",
                 Height = 10,
             };
+            label.ToolTip.Text = "Visible layers are rendered.";
             for (int i = 0; i < 30; i++)
             {
                 CommonControls.LayerBox(i, rightPanelTabControl.TabPages[1]);

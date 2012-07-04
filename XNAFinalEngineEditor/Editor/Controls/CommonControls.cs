@@ -33,12 +33,14 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Input;
 using XNAFinalEngine.Undo;
 using XNAFinalEngine.UserInterface;
+using Mouse = XNAFinalEngine.Input.Mouse;
+
 #endregion
 
 namespace XNAFinalEngine.Editor
@@ -903,39 +905,6 @@ namespace XNAFinalEngine.Editor
             return textBox;
         } // TextBox
 
-        /// <summary>
-        /// Returns a text box control placed in the first free spot.
-        /// </summary>
-        /// <param name="name">Label name.</param>
-        /// <param name="parent">Parent.</param>
-        /// <param name="initialValue">Initial value.</param>
-        /// <param name="propertyOwner">The object to manipualte</param>
-        /// <param name="propertyName">The property name.</param>
-        public static TextBox TextBox(string name, ClipControl parent, string initialValue, object propertyOwner, string propertyName)
-        {
-            TextBox textBox = TextBox(name, parent, initialValue);
-            
-            PropertyInfo property = propertyOwner.GetType().GetProperty(propertyName);
-            textBox.TextChanged += delegate
-            {
-                if (textBox.Text != (string)property.GetValue(propertyOwner, null))
-                {
-                    using (Transaction.Create())
-                    {
-                        // Apply the command and store for the undo feature.
-                        ActionManager.SetProperty(propertyOwner, propertyName, textBox.Text);
-                        ActionManager.CallMethod(// Redo
-                                                 UserInterfaceManager.Invalidate,
-                                                 // Undo
-                                                 UserInterfaceManager.Invalidate);
-                    }
-                }
-            };
-            textBox.Draw += delegate { textBox.Text = (string)property.GetValue(propertyOwner, null); };
-
-            return textBox;
-        } // TextBox
-
         #endregion
 
         #region Layer Box
@@ -972,6 +941,7 @@ namespace XNAFinalEngine.Editor
                 Checked = layer.Active,
                 Text = " ",
             };
+            checkBoxActive.ToolTip.Text = "Active layers are updated.";
             var checkBoxVisible = new CheckBox
             {
                 Left = parent.ClientWidth - 60,
@@ -981,6 +951,7 @@ namespace XNAFinalEngine.Editor
                 Checked = layer.Visible,
                 Text = " ",
             };
+            checkBoxVisible.ToolTip.Text = "Visible layers are rendered.";
             // Top
             if (parent.AvailablePositionInsideControl == 0)
                 textBox.Top = label.Top = checkBoxActive.Top = checkBoxVisible.Top = 25;
@@ -992,10 +963,39 @@ namespace XNAFinalEngine.Editor
             textBox.Parent = label.Parent = checkBoxActive.Parent = checkBoxVisible.Parent = parent;
 
             // Name
-            textBox.TextChanged += delegate
+            var lastSetName = layer.Name;
+            textBox.KeyDown += delegate(object sender, KeyEventArgs e)
             {
-                if (textBox.Text != layer.Name)
+                if (e.Key == Keys.Enter)
                 {
+                    string oldName = layer.Name;
+                    layer.Name = textBox.Text; //asset.SetUniqueName(window.AssetName);
+                    if (oldName != layer.Name)
+                    {
+                        textBox.Text = layer.Name; // The name could be change if the name entered was not unique.
+                        layer.Name = oldName; // This is done for the undo.
+                        using (Transaction.Create())
+                        {
+                            // Apply the command and store for the undo feature.
+                            ActionManager.SetProperty(layer, "Name", textBox.Text);
+                            ActionManager.CallMethod(// Redo
+                                                     UserInterfaceManager.Invalidate,
+                                                     // Undo
+                                                     UserInterfaceManager.Invalidate);
+                        }
+
+                    }
+                    lastSetName = layer.Name;
+                }
+            };
+            textBox.FocusLost += delegate
+            {
+                string oldName = layer.Name;
+                layer.Name = textBox.Text; //asset.SetUniqueName(window.AssetName);
+                if (oldName != layer.Name)
+                {
+                    textBox.Text = layer.Name; // The name could be change if the name entered was not unique.
+                    layer.Name = oldName; // This is done for the undo.
                     using (Transaction.Create())
                     {
                         // Apply the command and store for the undo feature.
@@ -1005,12 +1005,16 @@ namespace XNAFinalEngine.Editor
                                                  // Undo
                                                  UserInterfaceManager.Invalidate);
                     }
+                    lastSetName = layer.Name;
                 }
             };
             textBox.Draw += delegate
             {
-                if (textBox.Text != layer.Name)
+                if (lastSetName != layer.Name)
+                {
+                    lastSetName = layer.Name;
                     textBox.Text = layer.Name;
+                }
             };
             
             // Active

@@ -1413,7 +1413,8 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private void ToolTipUpdate()
         {
-            if (UserInterfaceManager.ToolTipsEnabled && toolTip != null && tooltipTimer > 0 && (TimeSpan.FromTicks(DateTime.Now.Ticks).TotalMilliseconds - tooltipTimer) >= UserInterfaceManager.ToolTipDelay)
+            if (UserInterfaceManager.ToolTipsEnabled && toolTip != null && tooltipTimer > 0 &&
+                (TimeSpan.FromTicks(DateTime.Now.Ticks).TotalMilliseconds - tooltipTimer) >= UserInterfaceManager.ToolTipDelay)
             {
                 tooltipTimer = 0;
                 toolTip.Visible = true;
