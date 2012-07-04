@@ -376,7 +376,6 @@ namespace XNAFinalEngine.Editor
                                                          gizmoCamera.Camera.Viewport.Y + clientArea.ControlTopAbsoluteCoordinate,
                                                          gizmoCamera.Camera.Viewport.Width, gizmoCamera.Camera.Viewport.Height);
             
-            // Update Cones
             redLine.Transform.LocalMatrix = Matrix.Identity;
             redLine.Transform.Rotate(new Vector3(0, -90, 0));
             redLine.Transform.LocalMatrix = redLine.Transform.LocalMatrix * transformationMatrix;

@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Input;
 using XNAFinalEngine.Undo;
@@ -444,12 +445,11 @@ namespace XNAFinalEngine.Editor
             {
                 Parent = parent,
                 Left = 10,
-                Height = 25,
+                Height = 20,
                 Width = 250,
                 Anchor = Anchors.Left | Anchors.Top,
                 Checked = initialValue,
                 Text = " " + name,
-                
             };
             checkBox.ToolTip.Text = toolTip;
             if (parent.AvailablePositionInsideControl == 0)
@@ -491,7 +491,10 @@ namespace XNAFinalEngine.Editor
                     }
                 }
             };
-            checkBox.Draw += delegate { checkBox.Checked = (bool)property.GetValue(propertyOwner, null); };
+            checkBox.Draw += delegate
+            {
+                checkBox.Checked = (bool)property.GetValue(propertyOwner, null);
+            };
 
             return checkBox;
         } // CheckBox
@@ -613,6 +616,18 @@ namespace XNAFinalEngine.Editor
                         assetTypeListBox.Dispose();
                     };
                 }
+                else if (typeof(TAssetType) == typeof(Shadow))
+                {
+                    var assetTypeListBox = AssetTypeListBox(assetSelector, propertyOwner, propertyName, new[] { "Basic Shadow", "Cascaded" });
+                    assetTypeListBox.Click += delegate
+                    {
+                        if (assetTypeListBox.ItemIndex == 0)
+                            CreateAsset<BasicShadow>(assetSelector, propertyOwner, propertyName);
+                        else
+                            CreateAsset<CascadedShadow>(assetSelector, propertyOwner, propertyName);
+                        assetTypeListBox.Dispose();
+                    };
+                }
                 else
                     CreateAsset<TAssetType>(assetSelector, propertyOwner, propertyName);
             };
@@ -633,6 +648,8 @@ namespace XNAFinalEngine.Editor
                     AssetWindow.Show<RayMarchingAmbientOcclusion>((Asset)property.GetValue(propertyOwner, null));
                 else if (property.GetValue(propertyOwner, null) is BasicShadow)
                     AssetWindow.Show<BasicShadow>((Asset)property.GetValue(propertyOwner, null));
+                else if (property.GetValue(propertyOwner, null) is CascadedShadow)
+                    AssetWindow.Show<CascadedShadow>((Asset)property.GetValue(propertyOwner, null));
                 else
                     AssetWindow.Show<TAssetType>((Asset)property.GetValue(propertyOwner, null));
             };
@@ -918,6 +935,141 @@ namespace XNAFinalEngine.Editor
 
             return textBox;
         } // TextBox
+
+        #endregion
+
+        #region Layer Box
+
+        /// <summary>
+        /// Returns a text box control placed in the first free spot use for the layer inspector.
+        /// You need to update the value manually.
+        /// </summary>
+        /// <param name="number">Label number.</param>
+        /// <param name="parent">Parent.</param>
+        public static TextBox LayerBox(int number, ClipControl parent)
+        {
+            Layer layer = Layer.GetLayerByNumber(number);
+            var label = new Label
+            {
+                Left = 10,
+                Width = 30,
+                Text = number.ToString(),
+                Height = 10,
+            };
+            var textBox = new TextBox
+            {
+                Width = parent.ClientWidth - label.Width - 150,
+                Anchor = Anchors.Left | Anchors.Top | Anchors.Right,
+                Text = layer.Name,
+                Left = 30,
+            };
+            var checkBoxActive = new CheckBox
+            {
+                Left = parent.ClientWidth - 120,
+                Height = 15,
+                Width = 40,
+                Anchor = Anchors.Left | Anchors.Top,
+                Checked = layer.Active,
+                Text = " ",
+            };
+            var checkBoxVisible = new CheckBox
+            {
+                Left = parent.ClientWidth - 60,
+                Height = 15,
+                Width = 40,
+                Anchor = Anchors.Left | Anchors.Top,
+                Checked = layer.Visible,
+                Text = " ",
+            };
+            // Top
+            if (parent.AvailablePositionInsideControl == 0)
+                textBox.Top = label.Top = checkBoxActive.Top = checkBoxVisible.Top = 25;
+            else
+                textBox.Top = label.Top = checkBoxActive.Top = checkBoxVisible.Top = parent.AvailablePositionInsideControl + ControlSeparation;
+            label.Top = label.Top + 7;
+            checkBoxActive.Top = checkBoxVisible.Top = checkBoxVisible.Top + 3;
+            // Parent
+            textBox.Parent = label.Parent = checkBoxActive.Parent = checkBoxVisible.Parent = parent;
+
+            // Name
+            textBox.TextChanged += delegate
+            {
+                if (textBox.Text != layer.Name)
+                {
+                    using (Transaction.Create())
+                    {
+                        // Apply the command and store for the undo feature.
+                        ActionManager.SetProperty(layer, "Name", textBox.Text);
+                        ActionManager.CallMethod(// Redo
+                                                 UserInterfaceManager.Invalidate,
+                                                 // Undo
+                                                 UserInterfaceManager.Invalidate);
+                    }
+                }
+            };
+            textBox.Draw += delegate
+            {
+                if (textBox.Text != layer.Name)
+                    textBox.Text = layer.Name;
+            };
+            
+            // Active
+            checkBoxActive.CheckedChanged += delegate
+            {
+                if (checkBoxActive.Checked != ((layer.Mask & EditorManager.GameActiveMask) != 0))
+                {
+                    using (Transaction.Create())
+                    {
+                        ActionManager.CallMethod(// Redo
+                                                 delegate { ChangeActiveLayerValue(layer, ((layer.Mask & EditorManager.GameActiveMask) == 0)); },
+                                                 // Undo
+                                                 delegate { ChangeActiveLayerValue(layer, ((layer.Mask & EditorManager.GameActiveMask) == 0)); });
+                    }
+                }
+            };
+            checkBoxActive.Draw += delegate
+            {
+                if (checkBoxActive.Checked != ((layer.Mask & EditorManager.GameActiveMask) != 0))
+                    checkBoxActive.Checked = ((layer.Mask & EditorManager.GameActiveMask) != 0);
+            };
+
+            // Visible
+            checkBoxVisible.CheckedChanged += delegate
+            {
+                if (checkBoxVisible.Checked != layer.Visible)
+                {
+                    using (Transaction.Create())
+                    {
+                        // Apply the command and store for the undo feature.
+                        ActionManager.SetProperty(layer, "Visible", checkBoxVisible.Checked);
+                        ActionManager.CallMethod(// Redo
+                                                 UserInterfaceManager.Invalidate,
+                                                 // Undo
+                                                 UserInterfaceManager.Invalidate);
+                    }
+                }
+            };
+            checkBoxVisible.Draw += delegate
+            {
+                if (checkBoxVisible.Checked != layer.Visible)
+                    checkBoxVisible.Checked = layer.Visible;
+            };
+
+            return textBox;
+        } // Layer3Box
+
+        /// <summary>
+        /// When the editor is active the layer information is on the game active mask property.
+        /// This method restores the layers, changes the values and restores the editor configuration.
+        /// </summary>
+        private static void ChangeActiveLayerValue(Layer layer, bool value)
+        {
+            Layer.ActiveLayers = EditorManager.GameActiveMask;
+            layer.Active = value;
+            EditorManager.GameActiveMask = Layer.ActiveLayers;
+            Layer.ActiveLayers = Layer.GetLayerByNumber(31).Mask;
+            UserInterfaceManager.Invalidate();
+        } // ChangeActiveLayerValue
 
         #endregion
 

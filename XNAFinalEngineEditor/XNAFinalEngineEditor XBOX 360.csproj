@@ -56,6 +56,8 @@
     <Compile Include="Editor\Controls\Assets\ShadowControls.cs" />
     <Compile Include="Editor\Controls\Assets\TextureControls.cs" />
     <Compile Include="Editor\Controls\Components\CameraControls.cs" />
+    <Compile Include="Editor\Controls\Components\DirectionalLightControls.cs" />
+    <Compile Include="Editor\Controls\Components\PointLightControls.cs" />
     <Compile Include="Editor\Controls\Components\SpotLightControls.cs" />
     <Compile Include="Editor\Controls\MainWindow.cs" />
     <Compile Include="Editor\EditorViewport.cs" />

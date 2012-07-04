@@ -29,11 +29,14 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
@@ -146,6 +149,13 @@ namespace XNAFinalEngine.Editor
         private static ScaleGizmo scaleGizmo;
         private static RotationGizmo rotationGizmo;
 
+        // Icons.
+        private static Texture lightIcon, lightIconDisable, cameraIcon, cameraIconDisable;
+
+        // Used to render point light range, camera frustum.
+        private static VertexPositionColor[] pointLightLines, frustumLines;
+        private const int pointLightLinesNumberOfVerticesPerCurve = 50;
+
         #endregion
 
         #region Properties
@@ -171,7 +181,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Used to restore the previous active mask when the editor is disable. 
         /// </summary>
-        public static uint GameActiveMask { get; private set; }
+        internal static uint GameActiveMask { get; set; }
 
         /// <summary>
         /// The selected objects.
@@ -181,7 +191,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Indicates if the user is selecting game objects.
         /// </summary>
-        public static bool SelectingObjects { get { return selectionRectangleBackground.LineRenderer.Enabled; } }
+        internal static bool SelectingObjects { get { return selectionRectangleBackground.LineRenderer.Enabled; } }
 
         #endregion
 
@@ -229,6 +239,45 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
+            #region Icons
+
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
+            ContentManager.CurrentContentManager = new ContentManager("Editor Content Manager", true);
+            // Load Icons
+            lightIcon = new Texture("Editor\\LightIcon");
+            lightIconDisable = new Texture("Editor\\LightIconDisable");
+            cameraIcon = new Texture("Editor\\CameraIcon");
+            cameraIconDisable = new Texture("Editor\\CameraIconDisable");
+            ContentManager.CurrentContentManager = userContentManager;
+
+            #endregion
+
+            #region Feedback
+            
+            pointLightLines = new VertexPositionColor[pointLightLinesNumberOfVerticesPerCurve * 2 * 3];
+            pointLightLines[0] = new VertexPositionColor(Vector3.Transform(new Vector3((float)Math.Sin(0), (float)Math.Cos(0), 0), Matrix.Identity), Color.Red);
+            pointLightLines[2 * pointLightLinesNumberOfVerticesPerCurve] = new VertexPositionColor(Vector3.Transform(new Vector3((float)Math.Sin(0), (float)Math.Cos(0), 0), Matrix.CreateFromAxisAngle(new Vector3(0, 1, 0), (float)Math.PI / 2)), new Color(0, 1f, 0));
+            pointLightLines[4 * pointLightLinesNumberOfVerticesPerCurve] = new VertexPositionColor(Vector3.Transform(new Vector3((float)Math.Sin(0), (float)Math.Cos(0), 0), Matrix.CreateFromAxisAngle(new Vector3(1, 0, 0), (float)Math.PI / 2)), Color.Blue);
+            for (int i = 1; i < pointLightLinesNumberOfVerticesPerCurve; i++)
+            {
+                float angle = i * (3.1416f * 2 / pointLightLinesNumberOfVerticesPerCurve);
+                float x = (float)Math.Sin(angle) * 1;
+                float y = (float)Math.Cos(angle) * 1;
+                pointLightLines[i * 2 - 1] = new VertexPositionColor(Vector3.Transform(new Vector3(x, y, 0), Matrix.Identity), Color.Red);
+                pointLightLines[i * 2 - 1 + 2 * pointLightLinesNumberOfVerticesPerCurve] = new VertexPositionColor(Vector3.Transform(new Vector3(x, y, 0), Matrix.CreateFromAxisAngle(new Vector3(0, 1, 0), (float)Math.PI / 2)), new Color(0, 1f, 0));
+                pointLightLines[i * 2 - 1 + 4 * pointLightLinesNumberOfVerticesPerCurve] = new VertexPositionColor(Vector3.Transform(new Vector3(x, y, 0), Matrix.CreateFromAxisAngle(new Vector3(1, 0, 0), (float)Math.PI / 2)), Color.Blue);
+                pointLightLines[i * 2] = new VertexPositionColor(Vector3.Transform(new Vector3(x, y, 0), Matrix.Identity), Color.Red);
+                pointLightLines[i * 2 + 2 * pointLightLinesNumberOfVerticesPerCurve] = new VertexPositionColor(Vector3.Transform(new Vector3(x, y, 0), Matrix.CreateFromAxisAngle(new Vector3(0, 1, 0), (float)Math.PI / 2)), new Color(0, 1f, 0));
+                pointLightLines[i * 2 + 4 * pointLightLinesNumberOfVerticesPerCurve] = new VertexPositionColor(Vector3.Transform(new Vector3(x, y, 0), Matrix.CreateFromAxisAngle(new Vector3(1, 0, 0), (float)Math.PI / 2)), Color.Blue);
+            }
+            pointLightLines[pointLightLinesNumberOfVerticesPerCurve * 2 - 1] = new VertexPositionColor(Vector3.Transform(new Vector3((float)Math.Sin(0), (float)Math.Cos(0), 0), Matrix.Identity), Color.Red);
+            pointLightLines[pointLightLinesNumberOfVerticesPerCurve * 2 - 1 + 2 * pointLightLinesNumberOfVerticesPerCurve] = new VertexPositionColor(Vector3.Transform(new Vector3((float)Math.Sin(0), (float)Math.Cos(0), 0), Matrix.CreateFromAxisAngle(new Vector3(0, 1, 0), (float)Math.PI / 2)), new Color(0, 1f, 0));
+            pointLightLines[pointLightLinesNumberOfVerticesPerCurve * 2 - 1 + 4 * pointLightLinesNumberOfVerticesPerCurve] = new VertexPositionColor(Vector3.Transform(new Vector3((float)Math.Sin(0), (float)Math.Cos(0), 0), Matrix.CreateFromAxisAngle(new Vector3(1, 0, 0), (float)Math.PI / 2)), Color.Blue);
+
+            
+
+            #endregion
+
             picker = new Picker(Size.FullScreen);
             Gizmo.Picker = picker;
             translationGizmo = new TranslationGizmo();
@@ -254,7 +303,7 @@ namespace XNAFinalEngine.Editor
             // Just render the viewport cameras
             SetLayout();
             GameActiveMask = Layer.ActiveLayers;
-            Layer.ActiveLayers = Layer.GetLayerByNumber(31).Mask; // Update just the editor
+            Layer.ActiveLayers = Layer.GetLayerByNumber(31).Mask; // Update just the editor layer
 
             GameLoop.RenderMainCameraToScreen = false;
 
@@ -686,12 +735,12 @@ namespace XNAFinalEngine.Editor
             EngineManager.Device.Clear(Color.Black);
 
             #region Render Viewports
-
-            SpriteManager.Begin2D();
+            
             foreach (EditorViewport editorViewport in editorViewports)
             {
                 if (editorViewport.Enabled)
                 {
+                    SpriteManager.Begin2D();
                     // Aspect ratio
                     int horizontalOffset = (editorViewport.ClientArea.Width - editorViewport.Camera.RenderTargetSize.Width) / 2;
                     int verticalOffset = (editorViewport.ClientArea.Height - editorViewport.Camera.RenderTargetSize.Height) / 2;
@@ -701,12 +750,106 @@ namespace XNAFinalEngine.Editor
                                                               editorViewport.Camera.RenderTarget.Width, 
                                                               editorViewport.Camera.RenderTarget.Height),
                                                 null, Color.White, 0, Vector2.Zero);
+                    SpriteManager.End();
+                    
+                    // Draw components icons.
+                    if (editorViewport.Mode != EditorViewport.ViewportMode.Game)
+                    {
+
+                        #region Render Icons
+
+                        SpriteManager.Begin2D();
+                        EngineManager.Device.Viewport = new Viewport(editorViewport.Camera.Viewport.X + editorViewport.ClientArea.ControlLeftAbsoluteCoordinate,
+                                                                     editorViewport.Camera.Viewport.Y + editorViewport.ClientArea.ControlTopAbsoluteCoordinate,
+                                                                     editorViewport.Camera.Viewport.Width, editorViewport.Camera.Viewport.Height);
+                        foreach (GameObject gameObject in GameObject.GameObjects)
+                        {
+                            if (gameObject.Layer != Layer.GetLayerByNumber(30) && gameObject.Layer != Layer.GetLayerByNumber(31) && // Exclude editor elements.
+                                Layer.IsVisible(gameObject.Layer.Mask) && gameObject.Active) 
+                            {
+                                if (gameObject is GameObject3D)
+                                {
+                                    GameObject3D gameObject3D = (GameObject3D) gameObject;
+                                    // Camera
+                                    if (gameObject3D.Camera != null)
+                                        RenderIcon(gameObject3D.Camera.Enabled ? cameraIcon : cameraIconDisable,
+                                                   gameObject3D.Transform.Position, editorViewport.Camera,
+                                                   editorViewport.ClientArea);
+                                    // Light
+                                    else if (gameObject3D.Light != null)
+                                    {
+                                        RenderIcon(gameObject3D.Light.Enabled ? lightIcon : lightIconDisable,
+                                                   gameObject3D.Transform.Position, editorViewport.Camera,
+                                                   editorViewport.ClientArea);
+                                    }
+                                }
+                            }
+                        }
+                        SpriteManager.End();
+                        EngineManager.Device.Viewport = new Viewport(0, 0, Screen.Width, Screen.Height);
+
+                        #endregion
+
+                        #region Render Feedback Lines
+                        
+                        LineManager.Begin3D(PrimitiveType.LineList, editorViewport.Camera.ViewMatrix, editorViewport.Camera.ProjectionMatrix);
+                        EngineManager.Device.Viewport = new Viewport(editorViewport.Camera.Viewport.X + editorViewport.ClientArea.ControlLeftAbsoluteCoordinate,
+                                                                     editorViewport.Camera.Viewport.Y + editorViewport.ClientArea.ControlTopAbsoluteCoordinate,
+                                                                     editorViewport.Camera.Viewport.Width, editorViewport.Camera.Viewport.Height);
+                        foreach (GameObject gameObject in SelectedObjects)
+                        {
+                            if (gameObject.Layer != Layer.GetLayerByNumber(30) && gameObject.Layer != Layer.GetLayerByNumber(31) && // Exclude editor elements.
+                                Layer.IsVisible(gameObject.Layer.Mask) && gameObject.Active) 
+                            {
+                                if (gameObject is GameObject3D)
+                                {
+                                    GameObject3D gameObject3D = (GameObject3D)gameObject;
+                                    if (gameObject3D.Light != null)
+                                    {
+                                        if (gameObject3D.PointLight != null && gameObject3D.PointLight.Enabled)
+                                        {
+                                            Matrix worldMatrix = Matrix.CreateScale(gameObject3D.PointLight.Range) * Matrix.CreateTranslation(gameObject3D.Transform.Position);
+                                            for (int j = 0; j < pointLightLines.Length; j++)
+                                                LineManager.AddVertex(Vector3.Transform(pointLightLines[j].Position, worldMatrix), gameObject3D.PointLight.Color);
+                                        }
+                                    }
+                                    if (gameObject3D.Camera != null && gameObject3D.Camera.Enabled)
+                                    {
+                                        Vector3[] farPlaneFrustum = new Vector3[4];
+                                        gameObject3D.Camera.BoundingFrustum(farPlaneFrustum);
+                                        LineManager.AddVertex(farPlaneFrustum[0], Color.Gray);
+                                        LineManager.AddVertex(farPlaneFrustum[1], Color.Gray);
+                                        LineManager.AddVertex(farPlaneFrustum[1], Color.Gray);
+                                        LineManager.AddVertex(farPlaneFrustum[3], Color.Gray);
+                                        LineManager.AddVertex(farPlaneFrustum[3], Color.Gray);
+                                        LineManager.AddVertex(farPlaneFrustum[2], Color.Gray);
+                                        LineManager.AddVertex(farPlaneFrustum[2], Color.Gray);
+                                        LineManager.AddVertex(farPlaneFrustum[0], Color.Gray);
+                                        LineManager.AddVertex(farPlaneFrustum[0], Color.Gray);
+                                        LineManager.AddVertex(gameObject3D.Camera.Position, Color.Gray);
+                                        LineManager.AddVertex(farPlaneFrustum[1], Color.Gray);
+                                        LineManager.AddVertex(gameObject3D.Camera.Position, Color.Gray);
+                                        LineManager.AddVertex(farPlaneFrustum[2], Color.Gray);
+                                        LineManager.AddVertex(gameObject3D.Camera.Position, Color.Gray);
+                                        LineManager.AddVertex(farPlaneFrustum[3], Color.Gray);
+                                        LineManager.AddVertex(gameObject3D.Camera.Position, Color.Gray);
+                                    }
+                                }
+                            }
+                        }
+                        LineManager.End();
+                        EngineManager.Device.Viewport = new Viewport(0, 0, Screen.Width, Screen.Height);
+
+                        #endregion
+
+                    }
                 }
             }
-            SpriteManager.End();
 
             #endregion
-            
+
+            #region Gizmos
+
             foreach (EditorViewport editorViewport in editorViewports)
             {
                 if (editorViewport.Enabled && editorViewport.Mode != EditorViewport.ViewportMode.Game)
@@ -721,28 +864,33 @@ namespace XNAFinalEngine.Editor
                 }
             }
 
+            #endregion
+
             UserInterfaceManager.RenderUserInterfaceToScreen();
         } // PostRenderTasks
 
         #endregion
 
+        #region Render Icons
+
         /// <summary>
-        /// Render Icon over game object.
+        /// Render an icon over game object to indicate visually if it is a light, a camera, etc.
         /// </summary>
-        /// <param name="texture"></param>
-        /// <param name="position"></param>
-        private static void RenderIcon(Texture texture, Vector3 position)
+        private static void RenderIcon(Texture texture, Vector3 position, Camera camera, Control clientArea)
         {
-            /*// Component's screen position.
-            Viewport editorViewport = new Viewport(editorCamera.Camera.Viewport.X, editorCamera.Camera.Viewport.Y,
-                                                   editorCamera.Camera.Viewport.Width, editorCamera.Camera.Viewport.Height);
-            Vector3 screenPositions = editorViewport.Project(position, editorCamera.Camera.ProjectionMatrix, editorCamera.Camera.ViewMatrix, Matrix.Identity);
+            // Component's screen position.
+            Viewport editorViewport = new Viewport(camera.Viewport.X,
+                                                   camera.Viewport.Y,
+                                                   camera.Viewport.Width, camera.Viewport.Height);
+            Vector3 screenPositions = editorViewport.Project(position, camera.ProjectionMatrix, camera.ViewMatrix, Matrix.Identity);
             // Center the icon.
             screenPositions.X -= 16;
             screenPositions.Y -= 16;
             // Draw.
-            SpriteManager.Draw2DTexture(texture, screenPositions, null, Color.White, 0, Vector2.Zero, 1);*/
+            SpriteManager.Draw2DTexture(texture, screenPositions, null, Color.White, 0, Vector2.Zero, 1);
         } // RenderIcon
+
+        #endregion
 
         #region Layout
 

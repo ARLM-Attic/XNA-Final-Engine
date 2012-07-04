@@ -230,7 +230,7 @@ namespace XNAFinalEngine.Editor
                 Width = 200,
                 Top = 2,
             };
-            modeComboBox.Items.AddRange(new [] {"Perpective", "Top", "Front", "Right", "Game"});
+            modeComboBox.Items.AddRange(new [] {"Perspective", "Top", "Front", "Right", "Game"});
             modeComboBox.ItemIndex = 0;
             modeComboBox.ItemIndexChanged += delegate
             {

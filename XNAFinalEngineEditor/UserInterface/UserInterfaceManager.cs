@@ -697,7 +697,7 @@ namespace XNAFinalEngine.UserInterface
             if ((RootControls != null))
             {
                 Renderer.Begin();
-                Renderer.Draw(renderTarget.Resource, new Rectangle(0, 0, EngineCore.Screen.Width, EngineCore.Screen.Height), Color.White);
+                Renderer.Draw(renderTarget.Resource, new Rectangle(0, 0, Screen.Width, Screen.Height), Color.White);
                 Renderer.End();
             }
         } // DrawTextureToScreen

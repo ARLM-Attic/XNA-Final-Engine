@@ -127,6 +127,10 @@ namespace XNAFinalEngine.Components
             {
                 // The last two layers are reserved and can not be disable.
                 activeLayers = value | GetLayerByNumber(31).Mask | GetLayerByNumber(30).Mask;
+                foreach (Layer layer in layerList)
+                {
+                    layer.active = (layer.Mask & activeLayers) != 0;
+                }
             }
         } // ActiveLayers
         
@@ -141,6 +145,10 @@ namespace XNAFinalEngine.Components
             {
                 // The last two layers are reserved and can not be disable.
                 visibleLayers = value | GetLayerByNumber(31).Mask | GetLayerByNumber(30).Mask;
+                foreach (Layer layer in layerList)
+                {
+                    layer.visible = (layer.Mask & visibleLayers) != 0;
+                }
             }
         } // VisibleLayers
 

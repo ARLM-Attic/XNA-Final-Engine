@@ -204,6 +204,11 @@ namespace XNAFinalEngineExamples
             pointLight.PointLight.Intensity = 1f;
             pointLight.PointLight.Range = 100;
             pointLight.Transform.Position = new Vector3(-15, 50, 5);
+            
+            camera.AddComponent<PointLight>();
+            camera.PointLight.Color = new Color(150, 150, 150);
+            camera.PointLight.Intensity = 1f;
+            camera.PointLight.Range = 50;
 
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();

@@ -322,7 +322,7 @@ namespace XNAFinalEngine.UserInterface
 
         #endregion
 
-        #region OnMouseDown, OnMouseMove, OnKeyPress, OnResize, OnItemIndexChanged, OnHotTrackChanged, OnHideSelectionChanged
+        #region On Events
 
         protected override void OnMouseDown(MouseEventArgs e)
         {

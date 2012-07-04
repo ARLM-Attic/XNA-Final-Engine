@@ -1461,9 +1461,7 @@ namespace XNAFinalEngine.UserInterface
                 if (renderTarget == null || renderTarget.Width < ControlAndMarginsWidth || renderTarget.Height < ControlAndMarginsHeight)
                 {
                     if (renderTarget != null)
-                    {
                         renderTarget.Dispose();
-                    }
 
                     int w = ControlAndMarginsWidth  + (UserInterfaceManager.TextureResizeIncrement - (ControlAndMarginsWidth  % UserInterfaceManager.TextureResizeIncrement));
                     int h = ControlAndMarginsHeight + (UserInterfaceManager.TextureResizeIncrement - (ControlAndMarginsHeight % UserInterfaceManager.TextureResizeIncrement));
@@ -1523,13 +1521,11 @@ namespace XNAFinalEngine.UserInterface
             Renderer.Begin();
 
             DrawingRectangle = rectangle;
-            DrawControl(rectangle);
 
-            DrawEventArgs args = new DrawEventArgs
-            {
-                Rectangle = rectangle,
-            };
+            DrawEventArgs args = new DrawEventArgs { Rectangle = rectangle, };
             OnDraw(args);
+
+            DrawControl(rectangle);
 
             Renderer.End();
 
@@ -1584,13 +1580,12 @@ namespace XNAFinalEngine.UserInterface
 
                         Renderer.Begin();
                         childControl.DrawingRectangle = rect;
-                        childControl.DrawControl(rect);
 
-                        DrawEventArgs args = new DrawEventArgs
-                        {
-                            Rectangle = rect,
-                        };
+                        DrawEventArgs args = new DrawEventArgs { Rectangle = rect, };
                         childControl.OnDraw(args);
+
+                        childControl.DrawControl(rect);
+                        
                         Renderer.End();
 
                         childControl.DrawChildControls(firstDetachedLevel);
@@ -1612,7 +1607,9 @@ namespace XNAFinalEngine.UserInterface
                 {
                     if (c.Detached && c.Visible)
                     {
-                        c.DrawControls(new Rectangle(c.ControlAndMarginsLeftAbsoluteCoordinate, c.ControlAndMarginsTopAbsoluteCoordinate, c.ControlAndMarginsWidth, c.ControlAndMarginsHeight), true);
+                        c.DrawControls(new Rectangle(c.ControlAndMarginsLeftAbsoluteCoordinate,
+                                                     c.ControlAndMarginsTopAbsoluteCoordinate, 
+                                                     c.ControlAndMarginsWidth, c.ControlAndMarginsHeight), true);
                     }
                 }
             }

@@ -265,8 +265,9 @@ namespace XNAFinalEngine.Editor
                 // Select the next color
                 NextColor(ref red, ref green, ref blue);
                 colorMaterial = new Color(red, green, blue);
-                // Render the object with the picker material
-                RenderObjectToPicker(obj, colorMaterial);
+                // Editor elements or not visible game objects should not be picked.
+                if (obj.Layer != Layer.GetLayerByNumber(30) && obj.Layer != Layer.GetLayerByNumber(31) && Layer.IsVisible(obj.Layer.Mask) && obj.Active)
+                    RenderObjectToPicker(obj, colorMaterial);
             }
             // Render icons
             LineManager.Begin2D(PrimitiveType.TriangleList);
@@ -275,8 +276,9 @@ namespace XNAFinalEngine.Editor
                 // Select the next color
                 NextColor(ref red, ref green, ref blue);
                 colorMaterial = new Color(red, green, blue);
-                // Render the object with the picker material
-                RenderIconToPicker(obj, colorMaterial);
+                // Editor elements or not visible game objects should not be picked.
+                if (obj.Layer != Layer.GetLayerByNumber(30) && obj.Layer != Layer.GetLayerByNumber(31) && Layer.IsVisible(obj.Layer.Mask) && obj.Active)
+                    RenderIconToPicker(obj, colorMaterial);
             }
             LineManager.End();
 
@@ -326,7 +328,7 @@ namespace XNAFinalEngine.Editor
             if (gameObject is GameObject3D)
             {
                 GameObject3D gameObject3D = (GameObject3D)gameObject;
-                // Model Renderer
+                // Model Renderer)
                 if (gameObject3D.ModelFilter != null && gameObject3D.ModelFilter.Model != null)
                 {
                     constantShader.Resource.Parameters["diffuseColor"].SetValue(new Vector3(color.R / 255f, color.G / 255f, color.B / 255f));

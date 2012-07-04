@@ -141,7 +141,8 @@ namespace XNAFinalEngine.UserInterface
 
         protected virtual void OnCheckedChanged(EventArgs e)
         {
-            if (CheckedChanged != null) CheckedChanged.Invoke(this, e);
+            if (CheckedChanged != null) 
+                CheckedChanged.Invoke(this, e);
         } // OnCheckedChanged
 
         #endregion

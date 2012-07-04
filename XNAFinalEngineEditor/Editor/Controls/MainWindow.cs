@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
@@ -182,7 +183,7 @@ namespace XNAFinalEngine.Editor
             {
                 Text = "Global",
                 Left = 10,
-                Top = 5,
+                Top = 10,
                 Height = 15,
                 Parent = toolBarTopPanel,
                 CanFocus = false,
@@ -302,6 +303,30 @@ namespace XNAFinalEngine.Editor
             rightPanelTabControl.AddPage();
             rightPanelTabControl.TabPages[0].Text = "Inspector";
             inspector = rightPanelTabControl.TabPages[0];
+            rightPanelTabControl.AddPage();
+            rightPanelTabControl.TabPages[1].Text = "Layers";
+            var label = new Label
+            {
+                Parent = rightPanelTabControl.TabPages[1],
+                Width = 50,
+                Top = 15,
+                Left = rightPanelTabControl.TabPages[1].ClientWidth - 132,
+                Text = "Active",
+                Height = 10,
+            };
+            label = new Label
+            {
+                Parent = rightPanelTabControl.TabPages[1],
+                Width = 50,
+                Top = 15,
+                Left = rightPanelTabControl.TabPages[1].ClientWidth - 72,
+                Text = "Visible",
+                Height = 10,
+            };
+            for (int i = 0; i < 30; i++)
+            {
+                CommonControls.LayerBox(i, rightPanelTabControl.TabPages[1]);
+            }
             
             #endregion
 
@@ -328,6 +353,124 @@ namespace XNAFinalEngine.Editor
                 throw new ArgumentNullException("gameObject");
             if (control == null)
                 throw new ArgumentNullException("control");
+            
+            #region Name
+
+            var nameLabel = new Label
+            {
+                Parent = control,
+                Text = "Name",
+                Left = 10,
+                Top = 10,
+                Height = 25,
+                Alignment = Alignment.BottomCenter,
+            };
+            var nameTextBox = new TextBox
+            {
+                Parent = control,
+                Width = control.ClientWidth - nameLabel.Width - 12,
+                Text = gameObject.Name,
+                Left = 60,
+                Top = 10,
+                Anchor = Anchors.Left | Anchors.Top | Anchors.Right
+            };
+            var lastSetName = gameObject.Name;
+            nameTextBox.KeyDown += delegate(object sender, KeyEventArgs e)
+            {
+                if (e.Key == Keys.Enter)
+                {
+                    string oldName = gameObject.Name;
+                    gameObject.Name = nameTextBox.Text; //asset.SetUniqueName(window.AssetName);
+                    if (oldName != gameObject.Name)
+                    {
+                        nameTextBox.Text = gameObject.Name; // The name could be change if the name entered was not unique.
+                        gameObject.Name = oldName; // This is done for the undo.
+                        using (Transaction.Create())
+                        {
+                            // Apply the command and store for the undo feature.
+                            ActionManager.SetProperty(gameObject, "Name", nameTextBox.Text);
+                            ActionManager.CallMethod(// Redo
+                                                     UserInterfaceManager.Invalidate,
+                                                     // Undo
+                                                     UserInterfaceManager.Invalidate);
+                        }
+
+                    }
+                    lastSetName = gameObject.Name;
+                }
+            };
+            nameTextBox.FocusLost += delegate
+            {
+                string oldName = gameObject.Name;
+                gameObject.Name = nameTextBox.Text; //asset.SetUniqueName(window.AssetName);
+                if (oldName != gameObject.Name)
+                {
+                    nameTextBox.Text = gameObject.Name; // The name could be change if the name entered was not unique.
+                    gameObject.Name = oldName; // This is done for the undo.
+                    using (Transaction.Create())
+                    {
+                        // Apply the command and store for the undo feature.
+                        ActionManager.SetProperty(gameObject, "Name", nameTextBox.Text);
+                        ActionManager.CallMethod(// Redo
+                                                 UserInterfaceManager.Invalidate,
+                                                 // Undo
+                                                 UserInterfaceManager.Invalidate);
+                    }
+                    lastSetName = gameObject.Name;
+                }
+            };
+            nameTextBox.Draw += delegate
+            {
+                if (lastSetName != gameObject.Name)
+                {
+                    lastSetName = gameObject.Name;
+                    nameTextBox.Text = gameObject.Name;
+                }
+            };
+
+            #endregion
+
+            #region Layer
+
+            var comboBoxLayer = CommonControls.ComboBox("", control);
+            comboBoxLayer.ItemIndexChanged += delegate
+            {
+                // Store new asset.
+                if (gameObject.Layer.Number != comboBoxLayer.ItemIndex) // If it change
+                {
+                    using (Transaction.Create())
+                    {
+                        // Apply the command and store for the undo feature.
+                        ActionManager.SetProperty(gameObject, "Layer", Layer.GetLayerByNumber(comboBoxLayer.ItemIndex));
+                        ActionManager.CallMethod(// Redo
+                                                 UserInterfaceManager.Invalidate,
+                                                 // Undo
+                                                 UserInterfaceManager.Invalidate);
+                    }
+                }
+            };
+            comboBoxLayer.Draw += delegate
+            {
+                // Add layer names here because someone could change them.
+                comboBoxLayer.Items.Clear();
+                for (int i = 0; i < 30; i++)
+                {
+                    comboBoxLayer.Items.Add(Layer.GetLayerByNumber(i).Name);
+                }
+                if (comboBoxLayer.ListBoxVisible)
+                    return;
+                // Identify current index
+                comboBoxLayer.ItemIndex = gameObject.Layer.Number;
+            };
+
+            #endregion)
+
+            #region Active
+
+            CheckBox active = CommonControls.CheckBox("Active", control, gameObject.Active, gameObject, "Active");
+            active.Top = comboBoxLayer.Top + 5;
+
+            #endregion
 
             if (gameObject is GameObject3D)
             {
@@ -409,6 +552,16 @@ namespace XNAFinalEngine.Editor
                     {
                         var panelSpotLight = CommonControls.PanelCollapsible("Spot Light", control, 0);
                         SpotLightControls.AddControls(gameObject3D.SpotLight, panelSpotLight);
+                    }
+                    if (gameObject3D.PointLight != null)
+                    {
+                        var panelPointLight = CommonControls.PanelCollapsible("Point Light", control, 0);
+                        PointLightControls.AddControls(gameObject3D.PointLight, panelPointLight);
+                    }
+                    if (gameObject3D.DirectionalLight != null)
+                    {
+                        var panelDirectionalLight = CommonControls.PanelCollapsible("Directional Light", control, 0);
+                        DirectionalLightControls.AddControls(gameObject3D.DirectionalLight, panelDirectionalLight);
                     }
                 }
 

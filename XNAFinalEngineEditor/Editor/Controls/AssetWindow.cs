@@ -33,6 +33,7 @@ using System;
 using System.Reflection;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
+using XNAFinalEngine.Undo;
 using XNAFinalEngine.UserInterface;
 using EventArgs = XNAFinalEngine.UserInterface.EventArgs;
 using EventHandler = XNAFinalEngine.UserInterface.EventHandler;
@@ -123,8 +124,23 @@ namespace XNAFinalEngine.Editor
             };
             window.AssetNameChanged += delegate
             {
+                string oldName = asset.Name;
                 asset.SetUniqueName(window.AssetName);
-                window.AssetName = asset.Name; // If the new name is not unique
+                if (asset.Name != oldName)
+                {
+                    window.AssetName = asset.Name; // The window name could be change if the name was not unique.
+                    asset.Name = oldName; // This is done for the undo.
+                    using (Transaction.Create())
+                    {
+                        // Apply the command and store for the undo feature.
+                        ActionManager.SetProperty(asset, "Name", window.AssetName);
+                        ActionManager.CallMethod(// Redo
+                                                 UserInterfaceManager.Invalidate,
+                                                 // Undo
+                                                 UserInterfaceManager.Invalidate);
+                    }
+                   
+                }
             };
             window.Draw += delegate { window.AssetName = asset.Name; };
             // In creation I don't want that the user mess with other things.)
