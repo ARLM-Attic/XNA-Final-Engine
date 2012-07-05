@@ -36,19 +36,26 @@ using XNAFinalEngine.UserInterface;
 
 namespace XNAFinalEngine.Editor
 {
-    internal static class ModelFilterControls
+    internal static class ModelRendererControls
     {
 
         /// <summary>
         /// Creates the configuration controls of this component.
         /// </summary>
-        public static void AddControls(ModelFilter modelFilter, ClipControl owner)
+        public static void AddControls(ModelRenderer modelRenderer, ClipControl owner)
         {
-            // Model
-            var model = CommonControls.AssetSelector<Model>("Model", owner, modelFilter, "Model");
-            model.Top = 10;
+            // Enabled
+            CheckBox enabled = CommonControls.CheckBox("Enabled", owner, modelRenderer.Enabled, modelRenderer, "Enabled");
+            enabled.Top = 10;
+            // Material
+            var material = CommonControls.AssetSelector<Material>("Material", owner, modelRenderer, "Material");
+            // Enabled
+            enabled.CheckedChanged += delegate
+            {
+                material.Enabled = modelRenderer.Enabled;
+            };
             owner.AdjustHeightFromChildren();
         } // AddControls
 
-    } // ModelFilterControls
+    } // ModelRendererControls
 } // XNAFinalEngine.Editor

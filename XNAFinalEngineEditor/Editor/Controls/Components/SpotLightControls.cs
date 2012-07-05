@@ -72,6 +72,7 @@ namespace XNAFinalEngine.Editor
                 maskTexture.Enabled    = spotLight.Enabled;
                 shadow.Enabled         = spotLight.Enabled;
             };
+            owner.AdjustHeightFromChildren();
         } // AddControls
 
     } // SpotLightControls

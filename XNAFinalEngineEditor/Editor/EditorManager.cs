@@ -816,7 +816,7 @@ namespace XNAFinalEngine.Editor
                                     if (gameObject3D.Camera != null && gameObject3D.Camera.Enabled)
                                     {
                                         Vector3[] farPlaneFrustum = new Vector3[4];
-                                        gameObject3D.Camera.BoundingFrustum(farPlaneFrustum);
+                                        gameObject3D.Camera.BoundingFrustumWorldSpace(farPlaneFrustum);
                                         LineManager.AddVertex(farPlaneFrustum[0], Color.Gray);
                                         LineManager.AddVertex(farPlaneFrustum[1], Color.Gray);
                                         LineManager.AddVertex(farPlaneFrustum[1], Color.Gray);

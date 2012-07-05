@@ -60,6 +60,7 @@ namespace XNAFinalEngine.Editor
                 diffuseColor.Enabled   = directionalLight.Enabled;
                 shadow.Enabled         = directionalLight.Enabled;
             };
+            owner.AdjustHeightFromChildren();
         } // AddControls
 
     } // DirectionalLightControls

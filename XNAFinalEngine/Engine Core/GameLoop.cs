@@ -646,7 +646,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             // Calculate view space bounding frustum.
-            currentCamera.BoundingFrustum(cornersViewSpace);
+            currentCamera.BoundingFrustumViewSpace(cornersViewSpace);
             // Set camera culling mask.
             Layer.CurrentCameraCullingMask = currentCamera.CullingMask;
 

@@ -37,7 +37,7 @@ namespace XNAFinalEngine.UserInterface
         private bool hotTrack;
         private int itemsCount;
         private bool hideSelection = true;
-        
+
         #endregion
 
         #region Properties
@@ -222,6 +222,13 @@ namespace XNAFinalEngine.UserInterface
                     v = 0;
                 int p = (scrollBarVertical.PageSize / 10);
                 int d = (int)(((scrollBarVertical.Value % 10) / 10f) * fontHeight);
+                // This is done to show all last elements in the same page.
+                if (v + p + 1 > items.Count)
+                {
+                    v = items.Count - p;
+                    if (v < 0)
+                        v = 0;
+                }
                 // Draw elements
                 for (int i = v; i <= v + p + 1; i++)
                 {
@@ -252,6 +259,20 @@ namespace XNAFinalEngine.UserInterface
         {
             base.Update();
 
+            // Scrool up and down with mouse wheel.
+            if (XNAFinalEngine.Input.Mouse.WheelDelta != 0)
+            {
+                if (XNAFinalEngine.Input.Mouse.WheelDelta > 50)
+                    itemIndex -= scrollBarVertical.PageSize / 10;
+                else if (XNAFinalEngine.Input.Mouse.WheelDelta < -50)
+                    itemIndex += scrollBarVertical.PageSize / 10;
+                if (itemIndex < 0)
+                    itemIndex = 0;
+                else if (itemIndex >= Items.Count)
+                    itemIndex = Items.Count - 1;
+                ItemIndex = itemIndex;
+            }
+
             if (Visible && items != null && items.Count != itemsCount)
             {
                 itemsCount = items.Count;
@@ -263,6 +284,9 @@ namespace XNAFinalEngine.UserInterface
 
         #region Track Item
 
+        /// <summary>
+        /// This method select the element that is under the mouse pointer (if any).
+        /// </summary>
         private void TrackItem(int x, int y)
         {
             if (items != null && items.Count > 0 && (pane.ControlRectangleRelativeToParent.Contains(new Point(x, y))))
@@ -272,9 +296,21 @@ namespace XNAFinalEngine.UserInterface
                 int scrollbarValue = scrollBarVertical.Value;
                 if (!scrollBarVertical.Visible)
                     scrollbarValue = 0;
-                int i = (int)Math.Floor((scrollbarValue / 10f) + ((float)y / fontHeight));
-                if (i >= 0 && i < Items.Count && i >= (int)Math.Floor((float)scrollbarValue / 10f) &&
-                    i < (int)Math.Ceiling((float)(scrollbarValue + scrollBarVertical.PageSize) / 10f))
+                
+                int lowerBound = (int)Math.Floor((float)scrollbarValue / 10f);
+                int upperBound = (int) Math.Ceiling((float) (scrollbarValue + scrollBarVertical.PageSize)/10f);
+                // Last page is special.
+                if (upperBound > itemsCount)
+                {
+                    lowerBound = items.Count - (int)Math.Ceiling(scrollBarVertical.PageSize / 10f);
+                    upperBound = items.Count;
+                    if (lowerBound < 0)
+                        lowerBound = 0;
+                }
+                // Calculate current item (without considering bounds or out of range)
+                int i = (int)Math.Floor(lowerBound + ((float)y / fontHeight));
+                
+                if (i >= 0 && i < Items.Count && i >= lowerBound && i < upperBound)
                     ItemIndex = i;
                 Focused = true;
             }
@@ -372,8 +408,10 @@ namespace XNAFinalEngine.UserInterface
                 itemIndex = items.Count - 1;
             }
 
-            if (itemIndex < 0) itemIndex = 0;
-            else if (itemIndex >= Items.Count) itemIndex = Items.Count - 1;
+            if (itemIndex < 0) 
+                itemIndex = 0;
+            else if (itemIndex >= Items.Count) 
+                itemIndex = Items.Count - 1;
 
             ItemIndex = itemIndex;
 

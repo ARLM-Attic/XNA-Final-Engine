@@ -60,6 +60,7 @@ namespace XNAFinalEngine.Editor
                 postProcess.Enabled = enabled.Checked;
                 ambientLight.Enabled = enabled.Checked;
             };
+            owner.AdjustHeightFromChildren();
         } // AddControls
         
     } // CameraControls

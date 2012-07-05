@@ -102,11 +102,8 @@ namespace XNAFinalEngineExamples
         /// <summary>
         /// Load the resources.
         /// </summary>
-        /// <remarks>Remember to call the base implementation of this method.</remarks>
         public override void LoadContent()
         {
-            // Call it before anything.
-            base.LoadContent();
 
             #region Camera
             
@@ -114,8 +111,8 @@ namespace XNAFinalEngineExamples
             camera.AddComponent<Camera>();
             camera.AddComponent<SoundListener>();
             camera.Camera.RenderTargetSize = Size.FullScreen;
-            camera.Camera.FarPlane = 5000;
-            camera.Camera.NearPlane = 0.1f;
+            camera.Camera.FarPlane = 500;
+            camera.Camera.NearPlane = 0.5f;
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
             ScriptCustomCamera script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
             // Test script list.
@@ -910,45 +907,6 @@ namespace XNAFinalEngineExamples
             statistics.AddComponent<ScriptStatisticsDrawer>();
 
             #endregion
-            
-            #region Testing
-
-            ContentManager testContentManager = new ContentManager("Just for testing", false);
-            ContentManager.CurrentContentManager = testContentManager;
-
-            // The user interface is separated and manually called because its GPL license.
-            //UserInterfaceManager.Initialize();
-            //murcielagoBody.ModelRenderer.Material = new Constant { DiffuseTexture = new Texture("Caption") { PreferredSamplerState = new SamplerState { MaxMipLevel = 2 }}};
-            //ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
-            //BlinnPhongWindow.Show((BlinnPhong)murcielagoFrontLeftBrakeCaliper.ModelRenderer.Material);
-            //CarPaintWindow.Show(carPaint);
-
-
-            LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
-            //LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
-            LookupTable testLookupTable3 = LookupTable.Identity(32);
-
-            //PostProcessWindow.Show(camera.Camera.PostProcess);
-
-            //murcielagoBody.Layer = Layer.GetLayerByNumber(1);
-            //Layer.GetLayerByNumber(1).Enabled = false;
-
-            #endregion
-            
-            //dude = new GameObject3D(new FileModel("dude_attack"), new BlinnPhong());
-            GameObject3D dude = new GameObject3D(new FileModel("dude_attack"), new BlinnPhong());
-            dude.ModelRenderer.MeshMaterial = new Material[5];
-            dude.ModelRenderer.MeshMaterial[0] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\head"), NormalTexture = new Texture("Dude\\headN"), SpecularTexture = new Texture("Dude\\headS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-            dude.ModelRenderer.MeshMaterial[1] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\jacket"), NormalTexture = new Texture("Dude\\jacketN"), SpecularTexture = new Texture("Dude\\jacketS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-            dude.ModelRenderer.MeshMaterial[2] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\pants"), NormalTexture = new Texture("Dude\\pantsN"), SpecularTexture = new Texture("Dude\\pantsS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-            dude.ModelRenderer.MeshMaterial[3] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-            dude.ModelRenderer.MeshMaterial[4] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-            dude.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
-            /*dude.AddComponent<ModelAnimations>();
-            //ModelAnimation modelAnimation = new ModelAnimation("dude"); // Be aware to select the correct content processor.
-            //dude.ModelAnimations.AddAnimationClip(modelAnimation);
-            dude.ModelAnimations.Play("Take 001");
-            dude.Transform.Rotate(new Vector3(0, 180, 0));*/
             
         } // Load
 

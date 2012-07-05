@@ -60,6 +60,7 @@ namespace XNAFinalEngine.Editor
                 diffuseColor.Enabled   = pointLight.Enabled;
                 range.Enabled          = pointLight.Enabled;
             };
+            owner.AdjustHeightFromChildren();
         } // AddControls
 
     } // PointLightControls

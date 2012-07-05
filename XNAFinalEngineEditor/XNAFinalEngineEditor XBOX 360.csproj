@@ -59,6 +59,7 @@
     <Compile Include="Editor\Controls\Components\CameraControls.cs" />
     <Compile Include="Editor\Controls\Components\DirectionalLightControls.cs" />
     <Compile Include="Editor\Controls\Components\ModelFilterControls.cs" />
+    <Compile Include="Editor\Controls\Components\ModelRendererControls.cs" />
     <Compile Include="Editor\Controls\Components\PointLightControls.cs" />
     <Compile Include="Editor\Controls\Components\SpotLightControls.cs" />
     <Compile Include="Editor\Controls\MainWindow.cs" />

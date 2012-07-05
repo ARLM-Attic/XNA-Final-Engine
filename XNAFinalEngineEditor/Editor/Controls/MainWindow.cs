@@ -557,6 +557,16 @@ namespace XNAFinalEngine.Editor
 
                 #endregion
 
+                #region Model Renderer
+
+                if (gameObject3D.ModelRenderer != null)
+                {
+                    var panelModelRenderer = CommonControls.PanelCollapsible("Model Renderer", control, 0);
+                    ModelRendererControls.AddControls(gameObject3D.ModelRenderer, panelModelRenderer);
+                }
+
+                #endregion
+
                 #region Light
 
                 if (gameObject3D.Light != null)
