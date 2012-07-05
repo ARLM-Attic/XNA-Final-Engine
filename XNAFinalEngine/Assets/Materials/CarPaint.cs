@@ -240,7 +240,7 @@ namespace XNAFinalEngine.Assets
 
         public CarPaint()
         {
-            Name = "Bling Phong-" + nameNumber;
+            Name = "Car Paint-" + nameNumber;
             nameNumber++;
         } // CarPaint
 

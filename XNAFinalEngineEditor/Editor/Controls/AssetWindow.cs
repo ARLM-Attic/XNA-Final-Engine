@@ -340,6 +340,12 @@ namespace XNAFinalEngine.Editor
                 PrimitiveControls.AddControls((Cylinder)asset, window, assetCreation);
             else if (typeof(TAssetType) == typeof(Cone))
                 PrimitiveControls.AddControls((Cone)asset, window, assetCreation);
+            else if (typeof(TAssetType) == typeof(BlinnPhong))
+                BlinnPhongControls.AddControls((BlinnPhong)asset, window);
+            else if (typeof(TAssetType) == typeof(Constant))
+                ConstantControls.AddControls((Constant)asset, window);
+            else if (typeof(TAssetType) == typeof(CarPaint))
+                CarPaintControls.AddControls((CarPaint)asset, window);
 
             #endregion);
 

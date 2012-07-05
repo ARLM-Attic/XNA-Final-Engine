@@ -94,6 +94,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Editor\Controls\Assets\AmbientLightControls.cs" />
+    <Compile Include="Editor\Controls\Assets\BlinnPhongControls.cs" />
+    <Compile Include="Editor\Controls\Assets\ConstantControls.cs" />
+    <Compile Include="Editor\Controls\Assets\CarPaintControls.cs" />
     <Compile Include="Editor\Controls\Assets\PrimitiveControls.cs" />
     <Compile Include="Editor\Controls\Assets\ShadowControls.cs" />
     <Compile Include="Editor\Controls\Assets\HorizonBasedAmbientOcclusionControls.cs" />
@@ -196,6 +199,7 @@
       <Name>XNAFinalEngine</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

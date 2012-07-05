@@ -82,11 +82,6 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         ///  A list with all texture' filenames on the cube texture directory.
         /// </summary>
-        public static string[] TexturesFilename { get; private set; }
-
-        /// <summary>
-        ///  A list with all texture' filenames on the cube texture directory.
-        /// </summary>
         /// <remarks>
         /// If there are memory limitations, this list could be eliminated for the release version.
         /// This is use only useful for the editor.
@@ -100,14 +95,12 @@ namespace XNAFinalEngine.Assets
 	    /// <summary>
 	    /// Create cube map from given filename.
 	    /// </summary>
-	    /// <param name="filename">Set filename, must be relative and be a valid file in the textures directory.</param>
-	    /// <param name="isRgbm">is in RGBM format?</param>
-        /// <param name="rgbmMaxRange">RGBM Max Range.</param>
-	    public TextureCube(string filename, bool isRgbm = false, float rgbmMaxRange = 50.0f)
+	    /// <param name="filename">Set filename, must be relative and be a valid file in the textures cube directory.</param>
+	    public TextureCube(string filename)
 		{
             Name = filename;
-		    IsRgbm = isRgbm;
-	        RgbmMaxRange = rgbmMaxRange;
+		    IsRgbm = false;
+	        RgbmMaxRange = 50;
             Filename = ContentManager.GameDataDirectory + "Textures\\CubeTextures\\" + filename;
             if (File.Exists(Filename + ".xnb") == false)
             {

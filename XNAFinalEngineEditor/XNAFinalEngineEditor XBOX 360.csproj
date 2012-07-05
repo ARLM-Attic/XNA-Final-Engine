@@ -50,6 +50,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Editor\Controls\Assets\AmbientLightControls.cs" />
+    <Compile Include="Editor\Controls\Assets\BlinnPhongControls.cs" />
+    <Compile Include="Editor\Controls\Assets\CarPaintControls.cs" />
+    <Compile Include="Editor\Controls\Assets\ConstantControls.cs" />
     <Compile Include="Editor\Controls\Assets\HorizonBasedAmbientOcclusionControls.cs" />
     <Compile Include="Editor\Controls\Assets\LookupTableControls.cs" />
     <Compile Include="Editor\Controls\Assets\PostProcessControls.cs" />

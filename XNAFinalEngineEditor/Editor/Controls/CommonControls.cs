@@ -650,6 +650,20 @@ namespace XNAFinalEngine.Editor
                         assetTypeListBox.Dispose();
                     };
                 }
+                if (typeof(TAssetType) == typeof(Material))
+                {
+                    var assetTypeListBox = AssetTypeListBox(assetSelector, new[] { "Blinn Phong", "Constant", "Car Paint" });
+                    assetTypeListBox.Click += delegate
+                    {
+                        if (assetTypeListBox.ItemIndex == 0)
+                            CreateAsset<BlinnPhong>(assetSelector, propertyOwner, propertyName);
+                        else if (assetTypeListBox.ItemIndex == 1)
+                            CreateAsset<Constant>(assetSelector, propertyOwner, propertyName);
+                        else if (assetTypeListBox.ItemIndex == 2)
+                            CreateAsset<CarPaint>(assetSelector, propertyOwner, propertyName);
+                        assetTypeListBox.Dispose();
+                    };
+                }
                 else
                     CreateAsset<TAssetType>(assetSelector, propertyOwner, propertyName);
             };
@@ -684,6 +698,12 @@ namespace XNAFinalEngine.Editor
                     AssetWindow.Show<Cylinder>((Asset)property.GetValue(propertyOwner, null));
                 else if (property.GetValue(propertyOwner, null) is Cone)
                     AssetWindow.Show<Cone>((Asset)property.GetValue(propertyOwner, null));
+                else if (property.GetValue(propertyOwner, null) is BlinnPhong)
+                    AssetWindow.Show<BlinnPhong>((Asset)property.GetValue(propertyOwner, null));
+                else if (property.GetValue(propertyOwner, null) is Constant)
+                    AssetWindow.Show<Constant>((Asset)property.GetValue(propertyOwner, null));
+                else if (property.GetValue(propertyOwner, null) is CarPaint)
+                    AssetWindow.Show<CarPaint>((Asset)property.GetValue(propertyOwner, null));
                 else
                     AssetWindow.Show<TAssetType>((Asset)property.GetValue(propertyOwner, null));
             };

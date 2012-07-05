@@ -98,13 +98,13 @@ namespace XNAFinalEngineExamples
             camera.Camera.PostProcess.MLAA.Enabled = true;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Color;
             camera.Camera.PostProcess.Bloom.Threshold = 2;
-            camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM", true, 50)),
+            camera.Camera.AmbientLight = new AmbientLight { SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
                                                             //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
                                                             Color = new Color(50, 50, 50),
                                                             Intensity = 5f,
                                                             AmbientOcclusionStrength = 5f };
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
-            camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM", true, 50) };
+            camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, } };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.

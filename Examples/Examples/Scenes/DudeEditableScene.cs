@@ -105,7 +105,7 @@ namespace XNAFinalEngineExamples
                 AmbientOcclusionStrength = 5f
             };
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
-            camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM", true, 50) };
+            camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, } };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
