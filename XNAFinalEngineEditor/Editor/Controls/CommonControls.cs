@@ -630,7 +630,7 @@ namespace XNAFinalEngine.Editor
                         assetTypeListBox.Dispose();
                     };
                 }
-                if (typeof(TAssetType) == typeof(Model))
+                else if (typeof(TAssetType) == typeof(Model))
                 {
                     var assetTypeListBox = AssetTypeListBox(assetSelector, new[] { "File Model", "Sphere", "Box", "Plane", "Cylinder", "Cone" });
                     assetTypeListBox.Click += delegate
@@ -650,7 +650,7 @@ namespace XNAFinalEngine.Editor
                         assetTypeListBox.Dispose();
                     };
                 }
-                if (typeof(TAssetType) == typeof(Material))
+                else if (typeof(TAssetType) == typeof(Material))
                 {
                     var assetTypeListBox = AssetTypeListBox(assetSelector, new[] { "Blinn Phong", "Constant", "Car Paint" });
                     assetTypeListBox.Click += delegate

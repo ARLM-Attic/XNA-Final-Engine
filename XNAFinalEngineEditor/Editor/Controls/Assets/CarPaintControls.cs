@@ -112,7 +112,6 @@ namespace XNAFinalEngine.Editor
 
             #endregion
 
-            owner.AdjustHeightFromChildren();
         } // AddControls
 
     } // CarPaintControls
