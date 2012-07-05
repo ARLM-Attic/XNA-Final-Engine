@@ -165,7 +165,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         public virtual void AdjustHeightFromChildren()
         {
-            Height = AvailablePositionInsideControl + ClientMargins.Top + 6;
+            Height = AvailablePositionInsideControl + ClientMargins.Top + ClientMargins.Bottom + 6;
         } // AdjustHeightFromChildren
 
         #endregion

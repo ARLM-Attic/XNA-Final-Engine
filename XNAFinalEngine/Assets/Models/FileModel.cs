@@ -219,6 +219,19 @@ namespace XNAFinalEngine.Assets
         public bool IsSkinned { get; private set; }
 
         #endregion
+
+        #region Model Filenames
+
+        /// <summary>
+        ///  A list with all models' filenames on the texture directory.
+        /// </summary>
+        /// <remarks>
+        /// If there are memory limitations, this list could be eliminated for the release version.
+        /// This is use only useful for the editor.
+        /// </remarks>
+        public static string[] Filenames { get; private set; }
+
+        #endregion
        
         #endregion
 
@@ -288,6 +301,18 @@ namespace XNAFinalEngine.Assets
             {
                 throw new InvalidOperationException("Failed to load model: " + filename, e);
             }
+        } // FileModel
+        
+        #endregion
+
+        #region Static Constructor
+
+        /// <summary>
+        /// Search the available models
+        /// </summary>
+        static FileModel()
+        {
+            Filenames = SearchAssetsFilename(ContentManager.GameDataDirectory + "Models");
         } // FileModel
 
         #endregion

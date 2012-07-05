@@ -133,7 +133,7 @@ namespace XNAFinalEngine.Editor
                     widthTextBox.Text     = ((Texture)AssetWindow.CurrentCreatedAsset).Width.ToString();
                     heightTextBox.Text    = ((Texture)AssetWindow.CurrentCreatedAsset).Height.ToString();
                 };
-                // If the user creates the asset (press the create button) then update the changeable properties.
+                // If the user creates the asset (pressed the create button) then update the changeable properties.
                 owner.Closed += delegate
                 {
                     if (owner.ModalResult != ModalResult.Cancel)

@@ -435,6 +435,7 @@ namespace XNAFinalEngine.Editor
             #region Layer
 
             var comboBoxLayer = CommonControls.ComboBox("", control);
+            comboBoxLayer.MaxItemsShow = 30;
             comboBoxLayer.ItemIndexChanged += delegate
             {
                 // Store new asset.
@@ -535,13 +536,23 @@ namespace XNAFinalEngine.Editor
                 var vector3BoxScale = CommonControls.Vector3Box("Scale", panel, gameObject3D.Transform.LocalScale, gameObject3D.Transform, "LocalScale");
 
                 #endregion
-
+                
                 #region Camera
 
                 if (gameObject3D.Camera != null)
                 {
                     var panelCamera = CommonControls.PanelCollapsible("Camera", control, 0);
                     CameraControls.AddControls(gameObject3D.Camera, panelCamera);
+                }
+
+                #endregion
+
+                #region Model Filter
+
+                if (gameObject3D.ModelFilter != null)
+                {
+                    var panelModelFilter = CommonControls.PanelCollapsible("Model Filter", control, 0);
+                    ModelFilterControls.AddControls(gameObject3D.ModelFilter, panelModelFilter);
                 }
 
                 #endregion

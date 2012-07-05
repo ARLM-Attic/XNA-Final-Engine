@@ -40,7 +40,7 @@ using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Undo;
 using XNAFinalEngine.UserInterface;
 using Mouse = XNAFinalEngine.Input.Mouse;
-
+using Plane = XNAFinalEngine.Assets.Plane;
 #endregion
 
 namespace XNAFinalEngine.Editor
@@ -372,7 +372,7 @@ namespace XNAFinalEngine.Editor
 
         /// <summary>
         /// Returns a color slider control placed in the first free spot.
-        /// You need to update the value manually.
+        /// It automatically manages the property setting, undo and redo.
         /// </summary>
         /// <param name="name">Label name.</param>
         /// <param name="parent">Parent.</param>
@@ -465,7 +465,7 @@ namespace XNAFinalEngine.Editor
 
         /// <summary>
         /// Returns a check box control placed in the first free spot.
-        /// You need to update the value manually.
+        /// It automatically manages the property setting, undo and redo.
         /// </summary>
         /// <param name="name">Label name.</param>
         /// <param name="parent">Parent.</param>
@@ -596,7 +596,7 @@ namespace XNAFinalEngine.Editor
             {
                 if (typeof(TAssetType) == typeof(Sky))
                 {
-                    var assetTypeListBox = AssetTypeListBox(assetSelector, propertyOwner, propertyName, new[] { "Skybox", "Skydome" });
+                    var assetTypeListBox = AssetTypeListBox(assetSelector, new[] { "Skybox", "Skydome" });
                     assetTypeListBox.Click += delegate
                     {
                         if (assetTypeListBox.ItemIndex == 0)
@@ -608,7 +608,7 @@ namespace XNAFinalEngine.Editor
                 }
                 else if (typeof(TAssetType) == typeof(AmbientOcclusion))
                 {
-                    var assetTypeListBox = AssetTypeListBox(assetSelector, propertyOwner, propertyName, new[] { "Horizon Based Ambient Occlusion", "Ray Marching Ambient Occlusion" });
+                    var assetTypeListBox = AssetTypeListBox(assetSelector, new[] { "Horizon Based Ambient Occlusion", "Ray Marching Ambient Occlusion" });
                     assetTypeListBox.Click += delegate
                     {
                         if (assetTypeListBox.ItemIndex == 0)
@@ -620,13 +620,33 @@ namespace XNAFinalEngine.Editor
                 }
                 else if (typeof(TAssetType) == typeof(Shadow))
                 {
-                    var assetTypeListBox = AssetTypeListBox(assetSelector, propertyOwner, propertyName, new[] { "Basic Shadow", "Cascaded" });
+                    var assetTypeListBox = AssetTypeListBox(assetSelector, new[] { "Basic Shadow", "Cascaded" });
                     assetTypeListBox.Click += delegate
                     {
                         if (assetTypeListBox.ItemIndex == 0)
                             CreateAsset<BasicShadow>(assetSelector, propertyOwner, propertyName);
                         else
                             CreateAsset<CascadedShadow>(assetSelector, propertyOwner, propertyName);
+                        assetTypeListBox.Dispose();
+                    };
+                }
+                if (typeof(TAssetType) == typeof(Model))
+                {
+                    var assetTypeListBox = AssetTypeListBox(assetSelector, new[] { "File Model", "Sphere", "Box", "Plane", "Cylinder", "Cone" });
+                    assetTypeListBox.Click += delegate
+                    {
+                        if (assetTypeListBox.ItemIndex == 0)
+                            CreateAsset<FileModel>(assetSelector, propertyOwner, propertyName);
+                        else if (assetTypeListBox.ItemIndex == 1)
+                            CreateAsset<Sphere>(assetSelector, propertyOwner, propertyName);
+                        else if (assetTypeListBox.ItemIndex == 2)
+                            CreateAsset<Box>(assetSelector, propertyOwner, propertyName);
+                        else if (assetTypeListBox.ItemIndex == 3)
+                            CreateAsset<Plane>(assetSelector, propertyOwner, propertyName);
+                        else if (assetTypeListBox.ItemIndex == 4)
+                            CreateAsset<Cylinder>(assetSelector, propertyOwner, propertyName);
+                        else if (assetTypeListBox.ItemIndex == 5)
+                            CreateAsset<Cone>(assetSelector, propertyOwner, propertyName);
                         assetTypeListBox.Dispose();
                     };
                 }
@@ -652,6 +672,18 @@ namespace XNAFinalEngine.Editor
                     AssetWindow.Show<BasicShadow>((Asset)property.GetValue(propertyOwner, null));
                 else if (property.GetValue(propertyOwner, null) is CascadedShadow)
                     AssetWindow.Show<CascadedShadow>((Asset)property.GetValue(propertyOwner, null));
+                else if (property.GetValue(propertyOwner, null) is FileModel)
+                    AssetWindow.Show<FileModel>((Asset)property.GetValue(propertyOwner, null));
+                else if (property.GetValue(propertyOwner, null) is Sphere)
+                    AssetWindow.Show<Sphere>((Asset)property.GetValue(propertyOwner, null));
+                else if (property.GetValue(propertyOwner, null) is Box)
+                    AssetWindow.Show<Box>((Asset)property.GetValue(propertyOwner, null));
+                else if (property.GetValue(propertyOwner, null) is Plane)
+                    AssetWindow.Show<Plane>((Asset)property.GetValue(propertyOwner, null));
+                else if (property.GetValue(propertyOwner, null) is Cylinder)
+                    AssetWindow.Show<Cylinder>((Asset)property.GetValue(propertyOwner, null));
+                else if (property.GetValue(propertyOwner, null) is Cone)
+                    AssetWindow.Show<Cone>((Asset)property.GetValue(propertyOwner, null));
                 else
                     AssetWindow.Show<TAssetType>((Asset)property.GetValue(propertyOwner, null));
             };
@@ -797,8 +829,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Get a list box used to select asset types.
         /// </summary>
-        private static ListBox AssetTypeListBox(AssetSelector assetSelector, object propertyOwner, string propertyName,
-                                                     IEnumerable<string> assetTypes)
+        private static ListBox AssetTypeListBox(AssetSelector assetSelector, IEnumerable<string> assetTypes)
         {
             ListBox assetTypeListBox = new ListBox
             {
@@ -815,7 +846,7 @@ namespace XNAFinalEngine.Editor
             assetTypeListBox.SkinInformation = new SkinControlInformation(Skin.Controls["ComboBox.ListBox"]);
             assetTypeListBox.Items.AddRange(assetTypes);
             ((Container)assetSelector.Root).Add(assetTypeListBox, false);
-            assetTypeListBox.AutoHeight(5);
+            assetTypeListBox.AutoHeight(10);
 
             UserInterfaceManager.InputSystem.MouseDown += delegate
             {
@@ -905,6 +936,108 @@ namespace XNAFinalEngine.Editor
             return textBox;
         } // TextBox
 
+        /// <summary>
+        /// Returns a text box control placed in the first free spot.
+        /// 
+        /// </summary>
+        /// <param name="name">Label name.</param>
+        /// <param name="parent">Parent.</param>
+        /// <param name="initialValue">Initial value.</param>
+        /// <param name="propertyOwner">The object to manipualte</param>
+        /// <param name="propertyName">The property name.</param>
+        /// <param name="toolTip">Tool tip text.</param>
+        public static TextBox TextBox(string name, ClipControl parent, string initialValue, object propertyOwner, string propertyName, string toolTip = "")
+        {
+            TextBox textBox = TextBox(name, parent, initialValue);
+
+            PropertyInfo property = propertyOwner.GetType().GetProperty(propertyName);
+
+            bool isFloat = property.GetValue(propertyOwner, null).GetType() == typeof(float);
+            bool isInt = property.GetValue(propertyOwner, null).GetType() == typeof(int);
+
+            string lastSetText = property.GetValue(propertyOwner, null).ToString();
+            textBox.KeyDown += delegate(object sender, KeyEventArgs e)
+            {
+                if (e.Key == Keys.Enter)
+                {
+                    if (textBox.Text != property.GetValue(propertyOwner, null).ToString())
+                    {
+                        // If the value is not numeric we use the last correct value.
+                        try
+                        {
+                            float floatTest;
+                            int intTest;
+                            if (isFloat)
+                                floatTest = (float) double.Parse(textBox.Text);
+                            else if (isInt)
+                                intTest = (int)double.Parse(textBox.Text);
+                        }
+                        catch (Exception)
+                        {
+                            textBox.Text = lastSetText;
+                        }
+                        using (Transaction.Create())
+                        {
+                            // Apply the command and store for the undo feature.
+                            if (isFloat)
+                                ActionManager.SetProperty(propertyOwner, propertyName, (float)double.Parse(textBox.Text));
+                            else if (isInt)
+                                ActionManager.SetProperty(propertyOwner, propertyName, (int)double.Parse(textBox.Text));
+                            else
+                                ActionManager.SetProperty(propertyOwner, propertyName, textBox.Text);
+                            ActionManager.CallMethod(// Redo
+                                                     UserInterfaceManager.Invalidate,
+                                                     // Undo
+                                                     UserInterfaceManager.Invalidate);
+                        }
+                        lastSetText = property.GetValue(propertyOwner, null).ToString();
+                    }
+                }
+            };
+            textBox.FocusLost += delegate
+            {
+                if (textBox.Text != property.GetValue(propertyOwner, null).ToString())
+                {
+                    // If the value is not numeric we use the last correct value.
+                    try
+                    {
+                        float floatTest;
+                        int intTest;
+                        if (isFloat)
+                            floatTest = (float)double.Parse(textBox.Text);
+                        else if (isInt)
+                            intTest = (int)double.Parse(textBox.Text);
+                    }
+                    catch (Exception)
+                    {
+                        textBox.Text = lastSetText;
+                    }
+                    using (Transaction.Create())
+                    {
+                        // Apply the command and store for the undo feature.
+                        if (isFloat)
+                            ActionManager.SetProperty(propertyOwner, propertyName, (float)double.Parse(textBox.Text));
+                        else if (isInt)
+                            ActionManager.SetProperty(propertyOwner, propertyName, (int)double.Parse(textBox.Text));
+                        else
+                            ActionManager.SetProperty(propertyOwner, propertyName, textBox.Text);
+                        ActionManager.CallMethod(// Redo
+                                                 UserInterfaceManager.Invalidate,
+                            // Undo
+                                                 UserInterfaceManager.Invalidate);
+                    }
+                    lastSetText = property.GetValue(propertyOwner, null).ToString();
+                }
+            };
+            textBox.Draw += delegate
+            {
+                if (lastSetText != property.GetValue(propertyOwner, null).ToString())
+                    lastSetText = textBox.Text = property.GetValue(propertyOwner, null).ToString();
+            };
+
+            return textBox;
+        } // TextBox
+
         #endregion
 
         #region Layer Box
@@ -968,12 +1101,8 @@ namespace XNAFinalEngine.Editor
             {
                 if (e.Key == Keys.Enter)
                 {
-                    string oldName = layer.Name;
-                    layer.Name = textBox.Text; //asset.SetUniqueName(window.AssetName);
-                    if (oldName != layer.Name)
+                    if (textBox.Text != layer.Name)
                     {
-                        textBox.Text = layer.Name; // The name could be change if the name entered was not unique.
-                        layer.Name = oldName; // This is done for the undo.
                         using (Transaction.Create())
                         {
                             // Apply the command and store for the undo feature.
@@ -983,19 +1112,14 @@ namespace XNAFinalEngine.Editor
                                                      // Undo
                                                      UserInterfaceManager.Invalidate);
                         }
-
+                        lastSetName = layer.Name;
                     }
-                    lastSetName = layer.Name;
                 }
             };
             textBox.FocusLost += delegate
             {
-                string oldName = layer.Name;
-                layer.Name = textBox.Text; //asset.SetUniqueName(window.AssetName);
-                if (oldName != layer.Name)
+                if (textBox.Text != layer.Name)
                 {
-                    textBox.Text = layer.Name; // The name could be change if the name entered was not unique.
-                    layer.Name = oldName; // This is done for the undo.
                     using (Transaction.Create())
                     {
                         // Apply the command and store for the undo feature.
@@ -1011,10 +1135,7 @@ namespace XNAFinalEngine.Editor
             textBox.Draw += delegate
             {
                 if (lastSetName != layer.Name)
-                {
-                    lastSetName = layer.Name;
-                    textBox.Text = layer.Name;
-                }
+                    lastSetName = textBox.Text = layer.Name;
             };
             
             // Active

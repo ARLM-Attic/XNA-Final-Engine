@@ -167,15 +167,77 @@ namespace XNAFinalEngine.Assets
 
     } // PrimitiveModel
 
-    #region Sphere Clas
+    #region Sphere Class
 
     public class Sphere : PrimitiveModel
     {
 
-        private readonly int stacks, slices;
-        private readonly float radius;
+        #region Variables
+
+        private int stacks;
+        private int slices;
+        private float radius;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Stacks.
+        /// </summary>
+        /// <remarks>
+        /// This operation requires the disposal of the vertex and index buffer.
+        /// </remarks>
+        public int Stacks
+        {
+            get { return stacks; }
+            set
+            {
+                stacks = value;
+                RecreateResource();
+            }
+        } // Stacks
+
+        /// <summary>
+        /// Slices.
+        /// </summary>
+        /// <remarks>
+        /// This operation requires the disposal of the vertex and index buffer.
+        /// </remarks>
+        public int Slices
+        {
+            get { return slices; }
+            set
+            {
+                slices = value;
+                RecreateResource();
+            }
+        } // Slices
+        
+        /// <summary>
+        /// Radius.
+        /// </summary>
+        /// <remarks>
+        /// This operation requires the disposal of the vertex and index buffer.
+        /// </remarks>
+        public float Radius
+        {
+            get { return radius; }
+            set
+            {
+                radius = value;
+                RecreateResource();
+            }
+        } // Radius
+
+        #endregion
 
         #region Constructor
+
+        /// <summary>
+        /// Creates a sphere model.
+        /// </summary>
+        public Sphere() : this(20, 20, 1) { }
 
         /// <summary>
         /// Creates a sphere model.
@@ -203,51 +265,51 @@ namespace XNAFinalEngine.Assets
         {
             base.RecreateResource();
             // Calculates the resulting number of vertices and indices
-            numberVertices = (stacks + 1) * (slices + 1);
-            numberIndices = (3 * stacks * (slices + 1)) * 2;
+            numberVertices = (Stacks + 1) * (Slices + 1);
+            numberIndices = (3 * Stacks * (Slices + 1)) * 2;
             int[] indices = new int[numberIndices];
             VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[numberVertices];
 
-            float stackAngle = MathHelper.Pi / stacks;
-            float sliceAngle = (float)(Math.PI * 2.0) / slices;
+            float stackAngle = MathHelper.Pi / Stacks;
+            float sliceAngle = (float)(Math.PI * 2.0) / Slices;
 
             // Generate the group of Stacks for the sphere  
             int wVertexIndex = 0;
             int vertexCount = 0;
             int indexCount = 0;
 
-            for (int stack = 0; stack < (stacks + 1); stack++)
+            for (int stack = 0; stack < (Stacks + 1); stack++)
             {
 
                 float r = (float)Math.Sin(stack * stackAngle);
                 float y = (float)Math.Cos(stack * stackAngle);
 
                 // Generate the group of segments for the current Stack  
-                for (int slice = 0; slice < (slices + 1); slice++)
+                for (int slice = 0; slice < (Slices + 1); slice++)
                 {
                     float x = r * (float)Math.Sin(slice * sliceAngle);
                     float z = r * (float)Math.Cos(slice * sliceAngle);
-                    vertices[vertexCount].Position = new Vector3(x * radius, y * radius, z * radius);
+                    vertices[vertexCount].Position = new Vector3(x * Radius, y * Radius, z * Radius);
 
                     vertices[vertexCount].Normal = Vector3.Normalize(new Vector3(x, y, z));
 
-                    vertices[vertexCount].TextureCoordinate = new Vector2((float)slice / (float)slices, (float)stack / (float)stacks);
+                    vertices[vertexCount].TextureCoordinate = new Vector2((float)slice / (float)Slices, (float)stack / (float)Stacks);
                     vertexCount++;
-                    if (stack != (stacks - 1))
+                    if (stack != (Stacks - 1))
                     {
                         // First Face
-                        indices[indexCount++] = wVertexIndex + (slices + 1);
+                        indices[indexCount++] = wVertexIndex + (Slices + 1);
 
                         indices[indexCount++] = wVertexIndex;
 
                         indices[indexCount++] = wVertexIndex + 1;
 
                         // Second Face
-                        indices[indexCount++] = wVertexIndex + (slices);
+                        indices[indexCount++] = wVertexIndex + (Slices);
 
                         indices[indexCount++] = wVertexIndex;
 
-                        indices[indexCount++] = wVertexIndex + (slices + 1);
+                        indices[indexCount++] = wVertexIndex + (Slices + 1);
 
                         wVertexIndex++;
                     }
@@ -265,13 +327,77 @@ namespace XNAFinalEngine.Assets
 
     #endregion
 
-    #region Box Clas
+    #region Box Class
 
     public class Box : PrimitiveModel
     {
-        private readonly float width, height, depth;
+
+        #region Variables
+
+        private float width;
+        private float height;
+        private float depth;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Width.
+        /// </summary>
+        /// <remarks>
+        /// This operation requires the disposal of the vertex and index buffer.
+        /// </remarks>
+        public float Width
+        {
+            get { return width; }
+            set
+            {
+                width = value;
+                RecreateResource();
+            }
+        } // Width
+
+        /// <summary>
+        /// Height.
+        /// </summary>
+        /// <remarks>
+        /// This operation requires the disposal of the vertex and index buffer.
+        /// </remarks>
+        public float Height
+        {
+            get { return height; }
+            set
+            {
+                height = value;
+                RecreateResource();
+            }
+        } // Height
+
+        /// <summary>
+        /// Depth.
+        /// </summary>
+        /// <remarks>
+        /// This operation requires the disposal of the vertex and index buffer.
+        /// </remarks>
+        public float Depth
+        {
+            get { return depth; }
+            set
+            {
+                depth = value;
+                RecreateResource();
+            }
+        } // Depth
+
+        #endregion
 
         #region Constructors
+
+        /// <summary>
+        /// Creates a box model.
+        /// </summary>
+        public Box() : this(1, 1, 1) { }
 
         /// <summary>
         /// Creates a box model.
@@ -313,9 +439,9 @@ namespace XNAFinalEngine.Assets
             VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[numberVertices];
 
             // Because the box is centered at the origin, we need to divide by two to find the + and - offsets
-            float halfWidth = width / 2.0f;
-            float halfHeight = height / 2.0f;
-            float halfDepth = depth / 2.0f;
+            float halfWidth = Width / 2.0f;
+            float halfHeight = Height / 2.0f;
+            float halfDepth = Depth / 2.0f;
 
             Vector3 topLeftFront = new Vector3(-halfWidth, halfHeight, halfDepth);
             Vector3 bottomLeftFront = new Vector3(-halfWidth, -halfHeight, halfDepth);
@@ -403,14 +529,68 @@ namespace XNAFinalEngine.Assets
 
     #endregion
 
-    #region Plane Clas
+    #region Plane Class
 
     public class Plane : PrimitiveModel
     {
 
-        private readonly Vector3 topLeft, bottomLeft, topRight, bottomRight;
+        #region Variables
+
+        private Vector3 topLeft, bottomLeft, topRight, bottomRight;
+        private float width, height;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Width.
+        /// </summary>
+        /// <remarks>
+        /// This operation requires the disposal of the vertex and index buffer.
+        /// </remarks>
+        public float Width
+        {
+            get { return width; }
+            set
+            {
+                width = value;
+                topLeft = new Vector3(-width / 2.0f, 0, height / 2.0f);
+                bottomLeft = new Vector3(-width / 2.0f, 0, -height / 2.0f);
+                topRight = new Vector3(width / 2.0f, 0, height / 2.0f);
+                bottomRight = new Vector3(width / 2.0f, 0, -height / 2.0f);
+                RecreateResource();
+            }
+        } // Width
+
+        /// <summary>
+        /// Height.
+        /// </summary>
+        /// <remarks>
+        /// This operation requires the disposal of the vertex and index buffer.
+        /// </remarks>
+        public float Height
+        {
+            get { return height; }
+            set
+            {
+                height = value;
+                topLeft = new Vector3(-width / 2.0f, 0, height / 2.0f);
+                bottomLeft = new Vector3(-width / 2.0f, 0, -height / 2.0f);
+                topRight = new Vector3(width / 2.0f, 0, height / 2.0f);
+                bottomRight = new Vector3(width / 2.0f, 0, -height / 2.0f);
+                RecreateResource();
+            }
+        } // Height
+
+        #endregion
 
         #region Constructor
+
+        /// <summary>
+        /// Creates a XY plane model.
+        /// </summary>
+        public Plane() : this(1, 1) { }
                 
         /// <summary>
         /// Creates a XY plane model.
@@ -421,18 +601,13 @@ namespace XNAFinalEngine.Assets
         {
             Name = "Plane Primitive";
             // Because the plane is centered at the origin, need to divide by two to find the + and - offsets
-            width = width / 2.0f;
-            height = height / 2.0f;
+            this.width = width;
+            this.height = height;
 
-            Vector3 topLeft = new Vector3(-width, 0, height);
-            Vector3 bottomLeft = new Vector3(-width, 0, -height);
-            Vector3 topRight = new Vector3(width, 0, height);
-            Vector3 bottomRight = new Vector3(width, 0, -height);
-
-            this.topLeft = topLeft;
-            this.bottomLeft = bottomLeft;
-            this.topRight = topRight;
-            this.bottomRight = bottomRight;
+            topLeft = new Vector3(-width / 2.0f, 0, height / 2.0f);
+            bottomLeft = new Vector3(-width / 2.0f, 0, -height / 2.0f);
+            topRight = new Vector3(width / 2.0f, 0, height / 2.0f);
+            bottomRight = new Vector3(width / 2.0f, 0, -height / 2.0f);
             
             RecreateResource();
         } // Plane
@@ -510,14 +685,77 @@ namespace XNAFinalEngine.Assets
 
     #endregion
 
-    #region Cylinder Clas
+    #region Cylinder Class
 
     public class Cylinder : PrimitiveModel
     {
-        private readonly float radius, length;
-        private readonly int slices;
+
+        #region Variables
+
+        private float length;
+        private int slices;
+        private float radius;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Length.
+        /// </summary>
+        /// <remarks>
+        /// This operation requires the disposal of the vertex and index buffer.
+        /// </remarks>
+        public float Length
+        {
+            get { return length; }
+            set
+            {
+                length = value;
+                RecreateResource();
+            }
+        } // Length
+
+        /// <summary>
+        /// Slices.
+        /// </summary>
+        /// <remarks>
+        /// This operation requires the disposal of the vertex and index buffer.
+        /// </remarks>
+        public int Slices
+        {
+            get { return slices; }
+            set
+            {
+                slices = value;
+                RecreateResource();
+            }
+        } // Slices
+
+        /// <summary>
+        /// Radius.
+        /// </summary>
+        /// <remarks>
+        /// This operation requires the disposal of the vertex and index buffer.
+        /// </remarks>
+        public float Radius
+        {
+            get { return radius; }
+            set
+            {
+                radius = value;
+                RecreateResource();
+            }
+        } // Radius
+
+        #endregion
 
         #region Constructor
+
+        /// <summary>
+        /// Creates a cylinder model.
+        /// </summary>
+        public Cylinder() : this(1, 1, 20) { }
 
         /// <summary>
         /// Creates a cylinder model.
@@ -544,36 +782,36 @@ namespace XNAFinalEngine.Assets
         internal override void RecreateResource()
         {
             base.RecreateResource();
-            float sliceStep = MathHelper.TwoPi / slices;
-            float textureStep = 1.0f / slices;
+            float sliceStep = MathHelper.TwoPi / Slices;
+            float textureStep = 1.0f / Slices;
             // Calculates the resulting number of vertices and indices
-            numberVertices = 2 + (slices * 4) + 2;
-            numberIndices = slices * 3 * 2 + slices * 3 * 2;
+            numberVertices = 2 + (Slices * 4) + 2;
+            numberIndices = Slices * 3 * 2 + Slices * 3 * 2;
             int[] indices = new int[numberIndices];
             VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[numberVertices];
 
             // The center top and center bottom vertices //
-            vertices[0] = new VertexPositionNormalTexture(new Vector3(0, length / 2.0f, 0), Vector3.Up, new Vector2(0.5f, 0.5f));
-            vertices[1] = new VertexPositionNormalTexture(new Vector3(0, -length / 2.0f, 0), Vector3.Down, new Vector2(0.5f, 0.5f));
+            vertices[0] = new VertexPositionNormalTexture(new Vector3(0, Length / 2.0f, 0), Vector3.Up, new Vector2(0.5f, 0.5f));
+            vertices[1] = new VertexPositionNormalTexture(new Vector3(0, -Length / 2.0f, 0), Vector3.Down, new Vector2(0.5f, 0.5f));
 
             // The other vertices
             int currentVertex = 2;
             int indexCount = 0;
 
             float sliceAngle = 0;
-            for (int i = 0; i < slices; i++)
+            for (int i = 0; i < Slices; i++)
             {
                 float x = (float)Math.Cos(sliceAngle);
                 float z = (float)Math.Sin(sliceAngle);
 
                 #region Top
-                vertices[currentVertex] = new VertexPositionNormalTexture(new Vector3(radius * x, length / 2, radius * z),
+                vertices[currentVertex] = new VertexPositionNormalTexture(new Vector3(Radius * x, Length / 2, Radius * z),
                                                                           Vector3.Up,
                                                                           new Vector2(x / 2.0f + 0.5f, z / 2.0f + 0.5f));
 
                 indices[indexCount++] = 0;
                 indices[indexCount++] = currentVertex;
-                if (i == slices - 1)
+                if (i == Slices - 1)
                     indices[indexCount++] = 2;
                 else
                     indices[indexCount++] = currentVertex + 1;
@@ -581,55 +819,55 @@ namespace XNAFinalEngine.Assets
 
                 #region Bottom
 
-                vertices[currentVertex + slices] = new VertexPositionNormalTexture(new Vector3(radius * x, -length / 2, radius * z),
+                vertices[currentVertex + Slices] = new VertexPositionNormalTexture(new Vector3(Radius * x, -Length / 2, Radius * z),
                                                                                    Vector3.Down,
                                                                                    new Vector2(-x / 2.0f + 0.5f, z / 2.0f + 0.5f));
 
                 indices[indexCount++] = 1;
-                if (i == slices - 1)
-                    indices[indexCount++] = slices + 2;
+                if (i == Slices - 1)
+                    indices[indexCount++] = Slices + 2;
                 else
-                    indices[indexCount++] = currentVertex + slices + 1;
-                indices[indexCount++] = currentVertex + slices;
+                    indices[indexCount++] = currentVertex + Slices + 1;
+                indices[indexCount++] = currentVertex + Slices;
 
                 #endregion
 
                 #region Side
 
-                vertices[currentVertex + 2 * slices] = new VertexPositionNormalTexture(new Vector3(radius * x, length / 2, radius * z),
+                vertices[currentVertex + 2 * Slices] = new VertexPositionNormalTexture(new Vector3(Radius * x, Length / 2, Radius * z),
                                                                                           new Vector3(x, 0, z),
                                                                                           new Vector2(textureStep * i, 1));
 
-                vertices[currentVertex + 3 * slices] = new VertexPositionNormalTexture(new Vector3(radius * x, -length / 2, radius * z),
+                vertices[currentVertex + 3 * Slices] = new VertexPositionNormalTexture(new Vector3(Radius * x, -Length / 2, Radius * z),
                                                                                        new Vector3(x, 0, z),
                                                                                        new Vector2(textureStep * i, 0));
                 // First Face
-                indices[indexCount++] = currentVertex + 2 * slices;
-                indices[indexCount++] = currentVertex + 3 * slices;
-                if (i == slices - 1)
+                indices[indexCount++] = currentVertex + 2 * Slices;
+                indices[indexCount++] = currentVertex + 3 * Slices;
+                if (i == Slices - 1)
                 {
-                    vertices[currentVertex + 3 * slices + 1] = new VertexPositionNormalTexture(new Vector3(radius, length / 2, 0),
+                    vertices[currentVertex + 3 * Slices + 1] = new VertexPositionNormalTexture(new Vector3(Radius, Length / 2, 0),
                                                                                                   new Vector3(x, 0, z),
                                                                                                   new Vector2(1, 1));
 
-                    vertices[currentVertex + 3 * slices + 2] = new VertexPositionNormalTexture(new Vector3(radius, -length / 2, 0),
+                    vertices[currentVertex + 3 * Slices + 2] = new VertexPositionNormalTexture(new Vector3(Radius, -Length / 2, 0),
                                                                                                new Vector3(x, 0, z),
                                                                                                new Vector2(1, 0));
-                    indices[indexCount++] = currentVertex + 3 * slices + 1;
+                    indices[indexCount++] = currentVertex + 3 * Slices + 1;
                 }
                 else
-                    indices[indexCount++] = currentVertex + 2 * slices + 1;
+                    indices[indexCount++] = currentVertex + 2 * Slices + 1;
                 // Second Face                
-                indices[indexCount++] = currentVertex + 3 * slices;
-                if (i == slices - 1)
+                indices[indexCount++] = currentVertex + 3 * Slices;
+                if (i == Slices - 1)
                 {
-                    indices[indexCount++] = currentVertex + 3 * slices + 2;
-                    indices[indexCount++] = currentVertex + 3 * slices + 1;
+                    indices[indexCount++] = currentVertex + 3 * Slices + 2;
+                    indices[indexCount++] = currentVertex + 3 * Slices + 1;
                 }
                 else
                 {
-                    indices[indexCount++] = currentVertex + 3 * slices + 1;
-                    indices[indexCount++] = currentVertex + 2 * slices + 1;
+                    indices[indexCount++] = currentVertex + 3 * Slices + 1;
+                    indices[indexCount++] = currentVertex + 2 * Slices + 1;
                 }
                 #endregion
 
@@ -653,10 +891,64 @@ namespace XNAFinalEngine.Assets
 
     public class Cone : PrimitiveModel
     {
-        private readonly float radius, length;
-        private readonly int slices;
+
+        #region Variables
+
+        private float length;
+        private int slices;
+        private float radius;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Length.
+        /// </summary>
+        public float Length
+        {
+            get { return length; }
+            set
+            {
+                length = value;
+                RecreateResource();
+            }
+        } // Length
+
+        /// <summary>
+        /// Slices.
+        /// </summary>
+        public int Slices
+        {
+            get { return slices; }
+            set
+            {
+                slices = value;
+                RecreateResource();
+            }
+        } // Slices
+
+        /// <summary>
+        /// Radius.
+        /// </summary>
+        public float Radius
+        {
+            get { return radius; }
+            set
+            {
+                radius = value;
+                RecreateResource();
+            }
+        } // Radius
+
+        #endregion
 
         #region Constructor
+
+         /// <summary>
+        /// Creates a cone model
+        /// </summary>
+        public Cone() : this(1, 1, 20) { }
 
         /// <summary>
         /// Creates a cone model
@@ -666,7 +958,7 @@ namespace XNAFinalEngine.Assets
         /// <param name="slices">Slices</param>
         public Cone(float radius, float length, int slices)
         {
-            Name = "Cylinder Primitive";
+            Name = "Cone Primitive";
             this.radius = radius;
             this.length = length;
             this.slices = slices;
@@ -683,15 +975,15 @@ namespace XNAFinalEngine.Assets
         internal override void RecreateResource()
         {
             base.RecreateResource();
-            float sliceStep = MathHelper.TwoPi / slices;
+            float sliceStep = MathHelper.TwoPi / Slices;
             // Calculates the resulting number of vertices and indices  
-            numberVertices = 2 + (slices * 2);// +2;
-            numberIndices = slices * 3 * 2;
+            numberVertices = 2 + (Slices * 2);// +2;
+            numberIndices = Slices * 3 * 2;
             int[] indices = new int[numberIndices];
             VertexPositionNormalTexture[] vertices = new VertexPositionNormalTexture[numberVertices];
 
             // The center top and center bottom vertices //
-            vertices[0] = new VertexPositionNormalTexture(new Vector3(0, length, 0), Vector3.Up, new Vector2(0.5f, 0.5f));
+            vertices[0] = new VertexPositionNormalTexture(new Vector3(0, Length, 0), Vector3.Up, new Vector2(0.5f, 0.5f));
             vertices[1] = new VertexPositionNormalTexture(new Vector3(0, 0, 0), Vector3.Down, new Vector2(0.5f, 0.5f));
 
             // The other vertices
@@ -699,20 +991,20 @@ namespace XNAFinalEngine.Assets
             int indexCount = 0;
             float sliceAngle = 0;
 
-            for (int i = 0; i < slices; i++)
+            for (int i = 0; i < Slices; i++)
             {
                 float x = (float)Math.Cos(sliceAngle);
                 float z = (float)Math.Sin(sliceAngle);
 
                 #region Top
 
-                vertices[currentVertex] = new VertexPositionNormalTexture(new Vector3(radius * x, 0, radius * z),
+                vertices[currentVertex] = new VertexPositionNormalTexture(new Vector3(Radius * x, 0, Radius * z),
                                                                           Vector3.Up,
                                                                           new Vector2(x / 2.0f + 0.5f, z / 2.0f + 0.5f));
 
                 indices[indexCount++] = 0;
                 indices[indexCount++] = currentVertex;
-                if (i == slices - 1)
+                if (i == Slices - 1)
                     indices[indexCount++] = 2;
                 else
                     indices[indexCount++] = currentVertex + 1;
@@ -721,16 +1013,16 @@ namespace XNAFinalEngine.Assets
 
                 #region Bottom
 
-                vertices[currentVertex + slices] = new VertexPositionNormalTexture(new Vector3(radius * x, 0, radius * z),
+                vertices[currentVertex + Slices] = new VertexPositionNormalTexture(new Vector3(Radius * x, 0, Radius * z),
                                                                                    Vector3.Down,
                                                                                    new Vector2(-x / 2.0f + 0.5f, z / 2.0f + 0.5f));
 
                 indices[indexCount++] = 1;
-                if (i == slices - 1)
-                    indices[indexCount++] = slices + 2;
+                if (i == Slices - 1)
+                    indices[indexCount++] = Slices + 2;
                 else
-                    indices[indexCount++] = currentVertex + slices + 1;
-                indices[indexCount++] = currentVertex + slices;
+                    indices[indexCount++] = currentVertex + Slices + 1;
+                indices[indexCount++] = currentVertex + Slices;
 
                 #endregion
 

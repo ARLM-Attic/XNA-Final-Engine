@@ -56,7 +56,8 @@ namespace XNAFinalEngine.UserInterface
                 if (hotTrack != value)
                 {
                     hotTrack = value;
-                    if (!Suspended) OnHotTrackChanged(new EventArgs());
+                    if (!Suspended) 
+                        OnHotTrackChanged(new EventArgs());
                 }
             }
         } // HotTrack

@@ -175,17 +175,11 @@ namespace XNAFinalEngine.Editor
                 if (resourcedAsset)
                 {
                     comboBoxResource.Items.AddRange(filenames);
-
-                    // Get Asset.Resource.Name.
-                    // I need reflection to get it because all Resource properties have a different type.
-                    PropertyInfo resourceProperty = asset.GetType().GetProperty("Resource");
-                    Object obj = resourceProperty.GetValue(asset, null);
-                    PropertyInfo nameProperty = resourceProperty.GetValue(asset, null).GetType().GetProperty("Name");
-
+                    comboBoxResource.ItemIndex = 0;
                     // Events
                     comboBoxResource.ItemIndexChanged += delegate
                     {
-                        if (filenames[comboBoxResource.ItemIndex] != (string)nameProperty.GetValue(obj, null))
+                        if (filenames[comboBoxResource.ItemIndex] != asset.Filename)
                         {
                             // This is a disposable asset so...
                             temporalContentManager.Unload();
@@ -203,7 +197,7 @@ namespace XNAFinalEngine.Editor
                             return;
                         for (int i = 0; i < comboBoxResource.Items.Count; i++)
                         {
-                            if ((string)comboBoxResource.Items[i] == (string)nameProperty.GetValue(obj, null))
+                            if ((string)comboBoxResource.Items[i] == asset.Filename)
                             {
                                 if (comboBoxResource.ItemIndex != i)
                                 {
@@ -308,13 +302,7 @@ namespace XNAFinalEngine.Editor
                 // Fill Resource Combo Box.
                 if (resourcedAsset)
                 {
-                    // Get Asset.Resource.Name.
-                    // I need reflection to get it because all Resource properties have a different type.
-                    PropertyInfo resourceProperty = asset.GetType().GetProperty("Resource");
-                    Object obj = resourceProperty.GetValue(asset, null);
-                    PropertyInfo nameProperty = resourceProperty.GetValue(asset, null).GetType().GetProperty("Name");
-                    Object name = nameProperty.GetValue(obj, null);
-                    comboBoxResource.Items.Add(name);
+                    comboBoxResource.Items.Add(asset.Filename);
                     comboBoxResource.ItemIndex = 0;
                     comboBoxResource.Enabled = false;
                     // Fill Content Manager Combo Box.
@@ -342,6 +330,16 @@ namespace XNAFinalEngine.Editor
                 HorizonBasedAmbientOcclusionControls.AddControls((HorizonBasedAmbientOcclusion)asset, window, comboBoxResource);
             else if (typeof(TAssetType) == typeof(BasicShadow))
                 ShadowControls.AddControls((BasicShadow)asset, window, comboBoxResource);
+            else if (typeof(TAssetType) == typeof(Sphere))
+                PrimitiveControls.AddControls((Sphere)asset, window, assetCreation);
+            else if (typeof(TAssetType) == typeof(Box))
+                PrimitiveControls.AddControls((Box)asset, window, assetCreation);
+            else if (typeof(TAssetType) == typeof(Plane))
+                PrimitiveControls.AddControls((Plane)asset, window, assetCreation);
+            else if (typeof(TAssetType) == typeof(Cylinder))
+                PrimitiveControls.AddControls((Cylinder)asset, window, assetCreation);
+            else if (typeof(TAssetType) == typeof(Cone))
+                PrimitiveControls.AddControls((Cone)asset, window, assetCreation);
 
             #endregion);
 
@@ -349,13 +347,15 @@ namespace XNAFinalEngine.Editor
             {
                 #region Buttons
 
+                window.StatusBar = new StatusBar();
                 var buttonApply = new Button
                 {
                     Anchor = Anchors.Top | Anchors.Right,
-                    Top = window.AvailablePositionInsideControl + CommonControls.ControlSeparation,
+                    //Top = window.AvailablePositionInsideControl + CommonControls.ControlSeparation,
+                    Top = 5,
                     Left = window.ClientWidth - 4 - 70 * 2 - 8,
                     Text = "Create",
-                    Parent = window,
+                    Parent = window.StatusBar,
                 };
                 buttonApply.Click += delegate { window.Close(); };
 
@@ -366,8 +366,9 @@ namespace XNAFinalEngine.Editor
                     ModalResult = ModalResult.Cancel,
                     Top = buttonApply.Top,
                     Left = window.ClientWidth - 70 - 8,
-                    Parent = window,
+                    Parent = window.StatusBar
                 };
+                window.StatusBar.Height = buttonApply.Top + buttonApply.Height + 5;
 
                 #endregion
             }
