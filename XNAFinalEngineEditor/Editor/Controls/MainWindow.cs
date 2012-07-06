@@ -32,11 +32,13 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Undo;
 using XNAFinalEngine.UserInterface;
+using Plane = XNAFinalEngine.Assets.Plane;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -112,42 +114,213 @@ namespace XNAFinalEngine.Editor
                 Anchor = Anchors.Left | Anchors.Top,
                 CanFocus = false
             };
-            // File
+
+            #region File
+
             MenuItem menuItemFile = new MenuItem("File", true);
             canvas.MainMenu.Items.Add(menuItemFile);
             menuItemFile.Items.AddRange(new[]
             {
-                new MenuItem("New Scene"),
-                new MenuItem("Open Scene"), new MenuItem("Exit", true),
+                new MenuItem("New Scene") { RightSideText = "Ctrl+N"},
+                new MenuItem("Open Scene") { RightSideText = "Ctrl+O"}, 
+                new MenuItem("Save Scene") { RightSideText = "Ctrl+S", SeparationLine = true }, 
+                new MenuItem("Save Scene as...") { RightSideText = "Ctrl+Shift+S"},
+                new MenuItem("Exit", true) { SeparationLine = true },
             });
-            // Edit
+
+            #endregion
+
+            #region Edit
+            
             MenuItem menuItemEdit = new MenuItem("Edit", true);
             canvas.MainMenu.Items.Add(menuItemEdit);
             menuItemEdit.Items.AddRange(new[]
             {
                 new MenuItem("Undo") { RightSideText = "Ctrl+Z"},
                 new MenuItem("Redo") { RightSideText = "Ctrl+Y" },
-                new MenuItem("Frame Selected") { RightSideText = "F", SeparationLine = true },
-                new MenuItem("Frame All")      { RightSideText = "A" },
+                new MenuItem("Frame Selected (All 3D Views)") { RightSideText = "Shift+F", SeparationLine = true },
+                new MenuItem("Frame All (All 3D Views)")      { RightSideText = "Shift+A" },
+                new MenuItem("Reset (All 3D Views)")          { RightSideText = "Shift+R" },
             });
             menuItemEdit.Items[0].Click += delegate { ActionManager.Undo(); };
             menuItemEdit.Items[1].Click += delegate { ActionManager.Redo(); };
-            // Game Object
+            menuItemEdit.Items[2].Click += delegate
+            {
+                foreach (var editorViewport in EditorManager.EditorViewports)
+                    editorViewport.FrameObjects(EditorManager.SelectedObjects);
+            };
+            menuItemEdit.Items[3].Click += delegate
+            {
+                foreach (var editorViewport in EditorManager.EditorViewports)
+                    editorViewport.FrameObjects(GameObject.GameObjects);
+            };
+            menuItemEdit.Items[4].Click += delegate 
+            {
+                foreach (var editorViewport in EditorManager.EditorViewports)
+                    editorViewport.Reset();
+            };
+
+            #endregion
+
+            #region Game Object
+
             MenuItem menuItemGameObject = new MenuItem("Game Object", true);
             canvas.MainMenu.Items.Add(menuItemGameObject);
             menuItemGameObject.Items.AddRange(new[]
             {
-                new MenuItem("Create Empty") { RightSideText = "Ctrl+Shift+N"},
+                new MenuItem("Create Empty 3D Game Object") { RightSideText = "Ctrl+Shift+N"},
+                new MenuItem("Create Empty 2D Game Object") { RightSideText = "Ctrl+Shift+M"},
+                new MenuItem("Create Other"),
             });
-            // Component
+            menuItemGameObject.Items[2].Items.AddRange(new[]
+            {
+                new MenuItem("Camera"),
+                new MenuItem("Particle System"),
+                new MenuItem("HUD Texture"),
+                new MenuItem("HUD Text"),
+                new MenuItem("Directional Light") { SeparationLine = true },
+                new MenuItem("Point Light"),
+                new MenuItem("Spot Light"),
+                new MenuItem("Sphere") { SeparationLine = true },
+                new MenuItem("Box"),
+                new MenuItem("Plane"),
+                new MenuItem("Cylinder"),
+                new MenuItem("Cone"),
+                new MenuItem("Empty Model"),
+            });
+            // Create Empty 3D Game Object
+            menuItemGameObject.Items[0].Click += delegate
+            {
+                GameObject3D gameObject3D = new GameObject3D();
+                EditorManager.RemoveAllObjectFromSelection();
+                EditorManager.AddObjectToSelection(gameObject3D);
+            };
+            // Camera
+            menuItemGameObject.Items[2].Items[0].Click += delegate
+            {
+                GameObject3D gameObject3D = new GameObject3D();
+                gameObject3D.AddComponent<Camera>();
+                EditorManager.RemoveAllObjectFromSelection();
+                EditorManager.AddObjectToSelection(gameObject3D);
+            };
+            // Particle System
+            menuItemGameObject.Items[2].Items[1].Click += delegate
+            {
+                GameObject3D gameObject3D = new GameObject3D();
+                gameObject3D.AddComponent<ParticleEmitter>();
+                gameObject3D.AddComponent<ParticleRenderer>();
+                EditorManager.RemoveAllObjectFromSelection();
+                EditorManager.AddObjectToSelection(gameObject3D);
+            };
+            // HUD Texture
+            menuItemGameObject.Items[2].Items[2].Click += delegate
+            {
+                GameObject3D gameObject3D = new GameObject3D();
+                gameObject3D.AddComponent<HudTexture>();
+                EditorManager.RemoveAllObjectFromSelection();
+                EditorManager.AddObjectToSelection(gameObject3D);
+            };
+            // HUD Text
+            menuItemGameObject.Items[2].Items[3].Click += delegate
+            {
+                GameObject3D gameObject3D = new GameObject3D();
+                gameObject3D.AddComponent<HudText>();
+                EditorManager.RemoveAllObjectFromSelection();
+                EditorManager.AddObjectToSelection(gameObject3D);
+            };
+            // Directional Light
+            menuItemGameObject.Items[2].Items[4].Click += delegate
+            {
+                GameObject3D gameObject3D = new GameObject3D();
+                gameObject3D.AddComponent<DirectionalLight>();
+                EditorManager.RemoveAllObjectFromSelection();
+                EditorManager.AddObjectToSelection(gameObject3D);
+            };
+            // Point Light
+            menuItemGameObject.Items[2].Items[5].Click += delegate
+            {
+                GameObject3D gameObject3D = new GameObject3D();
+                gameObject3D.AddComponent<PointLight>();
+                EditorManager.RemoveAllObjectFromSelection();
+                EditorManager.AddObjectToSelection(gameObject3D);
+            };
+            // Spot Light
+            menuItemGameObject.Items[2].Items[6].Click += delegate
+            {
+                GameObject3D gameObject3D = new GameObject3D();
+                gameObject3D.AddComponent<SpotLight>();
+                EditorManager.RemoveAllObjectFromSelection();
+                EditorManager.AddObjectToSelection(gameObject3D);
+            };
+            // Sphere
+            menuItemGameObject.Items[2].Items[7].Click += delegate
+            {
+                GameObject3D gameObject3D = new GameObject3D(new Sphere(), Material.DefaultMaterial);
+                EditorManager.RemoveAllObjectFromSelection();
+                EditorManager.AddObjectToSelection(gameObject3D);
+            };
+            // Box
+            menuItemGameObject.Items[2].Items[8].Click += delegate
+            {
+                GameObject3D gameObject3D = new GameObject3D(new Box(), Material.DefaultMaterial);
+                EditorManager.RemoveAllObjectFromSelection();
+                EditorManager.AddObjectToSelection(gameObject3D);
+            };
+            // Plane
+            menuItemGameObject.Items[2].Items[9].Click += delegate
+            {
+                GameObject3D gameObject3D = new GameObject3D(new Plane(), Material.DefaultMaterial);
+                EditorManager.RemoveAllObjectFromSelection();
+                EditorManager.AddObjectToSelection(gameObject3D);
+            };
+            // Cylinder
+            menuItemGameObject.Items[2].Items[10].Click += delegate
+            {
+                GameObject3D gameObject3D = new GameObject3D(new Cylinder(), Material.DefaultMaterial);
+                EditorManager.RemoveAllObjectFromSelection();
+                EditorManager.AddObjectToSelection(gameObject3D);
+            };
+            // Cone
+            menuItemGameObject.Items[2].Items[11].Click += delegate
+            {
+                GameObject3D gameObject3D = new GameObject3D(new Cone(), Material.DefaultMaterial);
+                EditorManager.RemoveAllObjectFromSelection();
+                EditorManager.AddObjectToSelection(gameObject3D);
+            };
+            // Empty Model
+            menuItemGameObject.Items[2].Items[12].Click += delegate
+            {
+                GameObject3D gameObject3D = new GameObject3D(null, Material.DefaultMaterial);
+                EditorManager.RemoveAllObjectFromSelection();
+                EditorManager.AddObjectToSelection(gameObject3D);
+            };
+
+            #endregion
+
+            #region Component
+
             MenuItem menuItemComponent = new MenuItem("Component", true);
             canvas.MainMenu.Items.Add(menuItemComponent);
-            // Window
+            menuItemComponent.Items.AddRange(new[]
+            {
+                new MenuItem("Model"),
+                new MenuItem("Particles"),
+                new MenuItem("Physics"),
+                new MenuItem("Audio"),
+                new MenuItem("Rendering"),
+            });
+
+            #endregion
+
+            #region Window
+
             MenuItem menuItemWindow = new MenuItem("Window", true);
             canvas.MainMenu.Items.Add(menuItemWindow);
             menuItemWindow.Items.AddRange(new[]
             {
                 new MenuItem("Layouts"),
+                new MenuItem("Hierarchy") { RightSideText = "Ctrl+6", SeparationLine = true, },
+                new MenuItem("Heads Up Display Editor") { RightSideText = "Ctrl+7" },
             });
             menuItemWindow.Items[0].Items.AddRange(new []
             {
@@ -160,9 +333,21 @@ namespace XNAFinalEngine.Editor
             menuItemWindow.Items[0].Items[1].Click += delegate { EditorManager.Layout = EditorManager.LayoutOptions.ThreeSplit; };
             menuItemWindow.Items[0].Items[2].Click += delegate { EditorManager.Layout = EditorManager.LayoutOptions.Wide; };
             menuItemWindow.Items[0].Items[3].Click += delegate { EditorManager.ToggleLayout(); };
-            // Help
+
+            #endregion
+
+            #region Help
+            
             MenuItem menuItemHelp = new MenuItem("Help", true);
             canvas.MainMenu.Items.Add(menuItemHelp);
+            menuItemHelp.Items.AddRange(new[]
+            {
+                new MenuItem("About"),
+                new MenuItem("Documentation") { RightSideText = "F1", SeparationLine = true, }, 
+            });
+            menuItemHelp.Items[1].Click += delegate { System.Diagnostics.Process.Start("http://xnafinalengine.codeplex.com/documentation"); };
+
+            #endregion
 
             #endregion
 

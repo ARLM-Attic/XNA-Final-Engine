@@ -37,6 +37,7 @@ using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.UserInterface;
 using Size = XNAFinalEngine.Helpers.Size;
+using System.Collections.Generic;
 #endregion
 
 namespace XNAFinalEngine.Editor
@@ -336,6 +337,47 @@ namespace XNAFinalEngine.Editor
 
         #endregion
 
+        #region Frame Objects
+
+        /// <summary>
+        /// Adjust the look at position and distance to frame the selected objects.
+        /// The orientation is not afected.
+        /// </summary>
+        public void FrameObjects(List<GameObject> gameObjects)
+        {
+            BoundingSphere? frameBoundingSphere = null; // Garbage is not an issue in the editor.
+            foreach (var gameObject in gameObjects)
+            {
+                if (EditorManager.IsGameObjectVisible(gameObject) && gameObject is GameObject3D)
+                {
+                    GameObject3D gameObject3D = (GameObject3D)gameObject;
+                    if (gameObject3D.ModelRenderer != null && gameObject3D.ModelRenderer.Enabled)
+                    {
+                        if (frameBoundingSphere == null)
+                            frameBoundingSphere = gameObject3D.ModelRenderer.BoundingSphere;
+                        else
+                            frameBoundingSphere = BoundingSphere.CreateMerged(frameBoundingSphere.Value, gameObject3D.ModelRenderer.BoundingSphere);
+                    }
+                    // The rest of objects
+                    else
+                    {
+                        if (frameBoundingSphere == null)
+                            frameBoundingSphere = new BoundingSphere(gameObject3D.Transform.Position, 0);
+                        else
+                            frameBoundingSphere = BoundingSphere.CreateMerged(frameBoundingSphere.Value, new BoundingSphere(gameObject3D.Transform.Position, 0));
+                    }
+                }
+            }
+            // If at least one object is there...
+            if (frameBoundingSphere != null)
+            {
+                editorCameraScript.LookAtPosition = frameBoundingSphere.Value.Center;
+                editorCameraScript.Distance = frameBoundingSphere.Value.Radius * 2 * Camera.AspectRatio + Camera.NearPlane + 0.1f;
+            }
+        } // FrameObjects
+
+        #endregion
+
         #region Reset Viewport Camera
 
         /// <summary>
@@ -417,7 +459,7 @@ namespace XNAFinalEngine.Editor
             viewportCamera.Camera.RenderingOrder = int.MinValue;
             viewportCamera.Camera.AspectRatio = ClientWidth / (float)ClientHeight;
             viewportCamera.Camera.FieldOfView = 36;
-            viewportCamera.Camera.NearPlane = 1;
+            viewportCamera.Camera.NearPlane = 0.1f;
             viewportCamera.Camera.FarPlane = 2000;
             viewportCamera.Camera.RenderHeadUpDisplay = false;
             viewportCamera.Camera.ResetProjectionMatrix();

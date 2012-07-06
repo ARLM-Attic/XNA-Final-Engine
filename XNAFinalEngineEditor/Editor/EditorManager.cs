@@ -29,7 +29,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -139,6 +138,7 @@ namespace XNAFinalEngine.Editor
         // The picker to select an object from the screen.
         private static Picker picker;
 
+        // The viewport in which the mouse pointer is on.
         private static EditorViewport viewportMouseOver;
 
         // The active gizmo.
@@ -153,7 +153,7 @@ namespace XNAFinalEngine.Editor
         private static Texture lightIcon, lightIconDisable, cameraIcon, cameraIconDisable;
 
         // Used to render point light range, camera frustum.
-        private static VertexPositionColor[] pointLightLines, frustumLines;
+        private static VertexPositionColor[] pointLightLines;
         private const int pointLightLinesNumberOfVerticesPerCurve = 50;
 
         #endregion
@@ -179,20 +179,30 @@ namespace XNAFinalEngine.Editor
         } // Layout
 
         /// <summary>
-        /// Used to restore the previous active mask when the editor is disable. 
-        /// </summary>
-        internal static uint GameActiveMask { get; set; }
-
-        /// <summary>
         /// The selected objects.
         /// </summary>
         public static List<GameObject> SelectedObjects { get { return selectedObjects; } }
 
         /// <summary>
-        /// Indicates if the user is selecting game objects.
+        /// The viewport in which the mouse pointer is on.
+        /// </summary>
+        internal static EditorViewport ViewportMouseOver { get { return viewportMouseOver; } }
+
+        /// <summary>
+        /// Used to restore the previous active mask when the editor is disable. 
+        /// </summary>
+        internal static uint GameActiveMask { get; set; }
+
+        /// <summary>
+        /// Editor's viewports.
+        /// </summary>
+        internal static List<EditorViewport> EditorViewports { get { return editorViewports; } }
+
+        /// <summary>
+        /// Indicates if the user is selecting game objects right now.
         /// </summary>
         internal static bool SelectingObjects { get { return selectionRectangleBackground.LineRenderer.Enabled; } }
-
+        
         #endregion
 
         #region Initialize
@@ -422,15 +432,54 @@ namespace XNAFinalEngine.Editor
             #endregion
 
             #region Keyboard Shortcuts
-
-            // Toggle Layout
-            if (Keyboard.KeyJustPressed(Keys.F12))
-                ToggleLayout();
-            // Undo System
-            if (Keyboard.KeyPressed(Keys.LeftControl) && Keyboard.KeyJustPressed(Keys.Z))
-                ActionManager.Undo();
-            if (Keyboard.KeyPressed(Keys.LeftControl) && Keyboard.KeyJustPressed(Keys.Y))
-                ActionManager.Redo();
+            
+            // Ctrl
+            if (Keyboard.KeyPressed(Keys.LeftControl) || Keyboard.KeyPressed(Keys.RightControl))
+            {
+                // Ctrl-Z (Undo)
+                if (Keyboard.KeyJustPressed(Keys.Z))
+                    ActionManager.Undo();
+                // Ctrl-Y (Redo)
+                if (Keyboard.KeyJustPressed(Keys.Y))
+                    ActionManager.Redo();
+                // Ctrl-R (reset Viewport)
+                if (Keyboard.KeyJustPressed(Keys.R) && viewportMouseOver != null)
+                    viewportMouseOver.Reset();
+            }
+            // Shift
+            if (Keyboard.KeyPressed(Keys.LeftShift) || Keyboard.KeyPressed(Keys.RightShift))
+            {
+                // Shift+F (frame all views)
+                if (Keyboard.KeyJustPressed(Keys.F))
+                    foreach (var editorViewport in EditorManager.EditorViewports)
+                        editorViewport.FrameObjects(EditorManager.SelectedObjects);
+                // Shift+A (frame all in all views)
+                if (Keyboard.KeyJustPressed(Keys.A))
+                    foreach (var editorViewport in EditorManager.EditorViewports)
+                        editorViewport.FrameObjects(GameObject.GameObjects);
+                // Shift+R (reset all views)
+                if (Keyboard.KeyJustPressed(Keys.R))
+                    foreach (var editorViewport in EditorManager.EditorViewports)
+                        editorViewport.Reset();
+            }
+            // No Ctrl, Alt or Shift
+            if (!Keyboard.KeyPressed(Keys.LeftControl) && !Keyboard.KeyPressed(Keys.RightControl) &&
+                !Keyboard.KeyPressed(Keys.LeftAlt) && !Keyboard.KeyPressed(Keys.RightAlt) &&
+                !Keyboard.KeyPressed(Keys.LeftShift) && !Keyboard.KeyPressed(Keys.RightShift))
+            {
+                // F1 (Documentation)
+                if (Keyboard.KeyJustPressed(Keys.F1))
+                    System.Diagnostics.Process.Start("http://xnafinalengine.codeplex.com/documentation");
+                // R (Frame selected objects)
+                if (Keyboard.KeyJustPressed(Keys.F) && viewportMouseOver != null)
+                    viewportMouseOver.FrameObjects(SelectedObjects);
+                // A (Frame all objects)
+                if (Keyboard.KeyJustPressed(Keys.A) && viewportMouseOver != null)
+                    viewportMouseOver.FrameObjects(GameObject.GameObjects);
+                // F12 (Toggle Layout)
+                if (Keyboard.KeyJustPressed(Keys.F12))
+                    ToggleLayout();
+            }
 
             #endregion
             
@@ -634,13 +683,7 @@ namespace XNAFinalEngine.Editor
             if (activeGizmo != Gizmos.None && (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed) && !(Gizmo.Active) &&
                 !(UserInterfaceManager.FocusedControl is TextBox) && !(previousFocusedControl is TextBox))
             {
-                switch (activeGizmo)
-                {
-                    case Gizmos.Scale       : scaleGizmo.DisableGizmo(); break;
-                    case Gizmos.Rotation    : rotationGizmo.DisableGizmo(); break;
-                    case Gizmos.Translation : translationGizmo.DisableGizmo(); break;
-                }
-                activeGizmo = Gizmos.None;
+                DisableGizmo();
             }
             
             #endregion
@@ -650,34 +693,19 @@ namespace XNAFinalEngine.Editor
             bool isPosibleToSwich = selectedObjects.Count > 0 && ((activeGizmo == Gizmos.None) || !(Gizmo.Active));
             if (Keyboard.KeyJustPressed(Keys.W) && isPosibleToSwich)
             {
-                switch (activeGizmo)
-                {
-                    case Gizmos.Scale       : scaleGizmo.DisableGizmo(); break;
-                    case Gizmos.Rotation    : rotationGizmo.DisableGizmo(); break;
-                    case Gizmos.Translation : translationGizmo.DisableGizmo(); break;
-                }
+                DisableGizmo();
                 activeGizmo = Gizmos.Translation;
                 translationGizmo.EnableGizmo(selectedObjects.OfType<GameObject3D>().ToList());
             }
             if (Keyboard.KeyJustPressed(Keys.E) && isPosibleToSwich)
             {
-                switch (activeGizmo)
-                {
-                    case Gizmos.Scale       : scaleGizmo.DisableGizmo(); break;
-                    case Gizmos.Rotation    : rotationGizmo.DisableGizmo(); break;
-                    case Gizmos.Translation : translationGizmo.DisableGizmo(); break;
-                }
+                DisableGizmo();
                 activeGizmo = Gizmos.Rotation;
                 rotationGizmo.EnableGizmo(selectedObjects.OfType<GameObject3D>().ToList());
             }
             if (Keyboard.KeyJustPressed(Keys.R) && !Keyboard.KeyPressed(Keys.LeftControl) && isPosibleToSwich)
             {
-                switch (activeGizmo)
-                {
-                    case Gizmos.Scale       : scaleGizmo.DisableGizmo(); break;
-                    case Gizmos.Rotation    : rotationGizmo.DisableGizmo(); break;
-                    case Gizmos.Translation : translationGizmo.DisableGizmo(); break;
-                }
+                DisableGizmo();
                 activeGizmo = Gizmos.Scale;
                 scaleGizmo.EnableGizmo(selectedObjects.OfType<GameObject3D>().ToList());
             }
@@ -967,6 +995,88 @@ namespace XNAFinalEngine.Editor
                 }
             }
         } // ToggleLayout
+
+        #endregion
+
+        #region Is Game Object Visible
+
+        /// <summary>
+        /// Indicates if the game object is a visible object that is not part of the editor's game objects.
+        /// </summary>
+        internal static bool IsGameObjectVisible(GameObject gameObject)
+        {
+            return (gameObject.Active && gameObject.Layer.Number != 31 && gameObject.Layer.Number != 30 && Layer.IsVisible(gameObject.Layer.Mask));
+        } // IsGameObjectVisible
+
+        #endregion
+
+        #region Disable Gizmo
+
+        /// <summary>
+        /// Disable active gizmo.
+        /// </summary>
+        internal static void DisableGizmo()
+        {
+            switch (activeGizmo)
+            {
+                case Gizmos.Scale: scaleGizmo.DisableGizmo(); break;
+                case Gizmos.Rotation: rotationGizmo.DisableGizmo(); break;
+                case Gizmos.Translation: translationGizmo.DisableGizmo(); break;
+            }
+            activeGizmo = Gizmos.None;
+        } // DisableGizmo
+
+        #endregion
+
+        #region Selection
+
+        /// <summary>
+        /// Add game object to selection.
+        /// </summary>
+        public static void AddObjectToSelection(GameObject gameObject)
+        {
+            selectedObjects.Add(gameObject);
+            ShowGameObjectSelected(gameObject);
+            if (selectedObjects.Count == 1)
+            {
+                MainWindow.AddGameObjectControlsToInspector(gameObject);
+            }
+        } // AddObjectToSelection
+
+        /// <summary>
+        /// Remove game object from selection.
+        /// </summary>
+        public static void RemoveObjectFromSelection(GameObject gameObject)
+        {
+            DisableGizmo();
+            if (selectedObjects.Count > 0 && selectedObjects[0] == gameObject)
+            {
+                MainWindow.RemoveGameObjectControlsFromInspector();
+            }
+            selectedObjects.Remove(gameObject);
+            HideGameObjectSelected(gameObject);
+            if (selectedObjects.Count > 0)
+            {
+                MainWindow.AddGameObjectControlsToInspector(selectedObjects[0]);
+            }
+        } // RemoveObjectFromSelection
+
+        /// <summary>
+        /// Remove all game object from selection.
+        /// </summary>
+        public static void RemoveAllObjectFromSelection()
+        {
+            DisableGizmo();
+            if (selectedObjects.Count > 0)
+            {
+                MainWindow.RemoveGameObjectControlsFromInspector();
+            }
+            foreach (var selectedObject in selectedObjects)
+            {
+                HideGameObjectSelected(selectedObject);
+            }
+            selectedObjects.Clear();
+        } // RemoveAllObjectFromSelection
 
         #endregion
 
