@@ -263,7 +263,7 @@ namespace XNAFinalEngine.Editor
             #region Cameras
 
             // Assets
-            ambientLight = new AmbientLight { Name = "Editor Camara Ambient Light "};
+            ambientLight = new AmbientLight { Name = "Editor Camara Ambient Light ", Color = Color.White, Intensity = 5f };
             postProcess = new PostProcess   { Name = "Editor Camera Post Process" };
             postProcess.Bloom.Enabled = false;
 
@@ -372,7 +372,7 @@ namespace XNAFinalEngine.Editor
             if (frameBoundingSphere != null)
             {
                 editorCameraScript.LookAtPosition = frameBoundingSphere.Value.Center;
-                editorCameraScript.Distance = frameBoundingSphere.Value.Radius * 2 * Camera.AspectRatio + Camera.NearPlane + 0.1f;
+                editorCameraScript.Distance = frameBoundingSphere.Value.Radius * 3 * Camera.AspectRatio + Camera.NearPlane + 0.1f;
             }
         } // FrameObjects
 

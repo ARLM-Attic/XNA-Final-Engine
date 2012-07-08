@@ -371,7 +371,7 @@ namespace XNAFinalEngine.UserInterface
                     if (!updatingRGB)
                         UpdateRGBFromColor();
                 updatingColor = false;
-                if (colorPickerDialog != null && !colorPickerDialog.IsDisposed)
+                if (colorPickerDialog != null && !colorPickerDialog.IsDisposed && colorPickerDialog.Color != Color)
                     colorPickerDialog.Color = Color;
             };
 

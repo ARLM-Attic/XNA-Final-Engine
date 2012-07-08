@@ -33,11 +33,10 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using XNAFinalEngine.Assets;
+using XNAFinalEngine.Editor; // This can be avoided and ideally I have to avoid this.
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
-using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.UserInterface
@@ -62,6 +61,8 @@ namespace XNAFinalEngine.UserInterface
         #endregion
 
         #region Variables
+
+        private bool updatingColorSquareAndIntensityBar;
 
         // The initial color.
         private readonly Color oldColor;
@@ -95,6 +96,24 @@ namespace XNAFinalEngine.UserInterface
         private readonly TextBox textBoxRed, textBoxGreen, textBoxBlue;
         private readonly Control intensityLevelBar, background;
         
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Gets or sets the color for the control.
+        /// </summary>
+        public override Color Color
+        {
+            get { return base.Color; }
+            set
+            {
+                base.Color = value;
+                if (!updatingColorSquareAndIntensityBar)
+                    positionSquareColor = PositionFromColor(Color);
+            }
+        } // Color
+
         #endregion
 
         #region Events
@@ -143,14 +162,14 @@ namespace XNAFinalEngine.UserInterface
                                              {
                                                  if (isPicking)
                                                  {
-                                                    /*picker.BeginManualRenderPickerTexture();
-                                                    //UIManager.BeginDraw(); // Don't want this. It's already do.
-                                                    ApplicationLogic.Render();
-                                                    SpriteManager.DrawSprites();
-                                                    UserInterfaceManager.EndDraw();
-                                                    picker.EndManualRenderPickerTexture();
-                                                    Color = picker.ManualPickFromCurrentPickerTexture(1)[0];
-                                                    positionSquareColor = PositionFromColor(Color);*/
+                                                    // If you want to use the user interface outside my engine you will need to change 
+                                                    // only the following two lines (I presume the compiler it is telling this right now)
+                                                    // Create an event in the dialog called like "PickRequested"
+                                                    // In the color slider you will need to have the same event (to propagate this)
+                                                    // And then you read the event and do whatever you need to do.
+                                                    // The editor should read this event and not the other way around.
+                                                    EditorManager.colorPickerNeedsToPick = true;
+                                                    EditorManager.colorPickerDialog = this;
                                                     isPicking = false;
                                                     // The background control takes the first place (z order), now it needs to be in second.
                                                     background.StayOnTop = false;  // We need to change this so that the main control can take first place.
@@ -165,15 +184,12 @@ namespace XNAFinalEngine.UserInterface
 
             #region Buttons
 
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
             // Button pick
             buttonPick = new Button
             {
                 Top = 8,
-                Glyph = new Glyph(new Texture("Skin\\Default\\Dropper")) { SizeMode = SizeMode.Centered }, // It needs to be store in the skin file, I know.
+                Glyph = new Glyph(Skin.Images["Dropper"].Texture) { SizeMode = SizeMode.Centered },
             };
-            ContentManager.CurrentContentManager = userContentManager;
 
             buttonPick.Left = (BottomPanel.ClientWidth / 2) - buttonPick.Width - 4;
             BottomPanel.Add(buttonPick);
@@ -237,7 +253,7 @@ namespace XNAFinalEngine.UserInterface
 
             // R
             var labelRed = new Label
-                               {
+            {
                 Parent = this,
                 Text = " R",
                 Width = 40,
@@ -338,16 +354,18 @@ namespace XNAFinalEngine.UserInterface
             // When the user clicks in the square color control
             squareColorPalette.MouseDown += delegate(object sender, MouseEventArgs e)
             {
+                updatingColorSquareAndIntensityBar = true;
                 Color = ColorFromPositionWithIntensity(e.Position);
                 positionSquareColor = e.Position;
                 positionBeginningMovement = e.Position;
-                UpdateRGBFromColor();
+                updatingColorSquareAndIntensityBar = false;
             };
             // When the user clicks and without releasing it he moves the mouse.
             squareColorPalette.Move += delegate(object sender, MoveEventArgs e)
             {
                 if (update)
                 {
+                    updatingColorSquareAndIntensityBar = true;
                     Point position = new Point(positionBeginningMovement.X + (e.Left - squareColorLeft), positionBeginningMovement.Y + (e.Top - squareColorTop));
                     if (position.X < 0)
                         position.X = 0;
@@ -355,11 +373,11 @@ namespace XNAFinalEngine.UserInterface
                         position.X = squareColorlenght;
                     if (position.Y < 0)
                         position.Y = 0;
-                    else if (position.Y > squareColorlenght)
+                    else if (position.Y >= squareColorlenght)
                         position.Y = squareColorlenght;
                     Color = ColorFromPositionWithIntensity(position);
                     positionSquareColor = position;
-                    UpdateRGBFromColor();
+                    updatingColorSquareAndIntensityBar = false;
                 }
             };
             squareColorPalette.MoveEnd += delegate
@@ -380,19 +398,21 @@ namespace XNAFinalEngine.UserInterface
             #endregion
 
             #region Intensity Level
-
+            
             // Intensity Level
             intensityLevelBar.MouseDown += delegate(object sender, MouseEventArgs e)
             {
+                updatingColorSquareAndIntensityBar = true;
                 intensityLevel = 1 - (e.Position.Y / (float)squareColorlenght);
-                Color = ColorFromPositionWithIntensity(positionSquareColor);
                 intensityLevelValueBeginningMovement = intensityLevel;
-                UpdateRGBFromColor();
+                Color = ColorFromPositionWithIntensity(positionSquareColor);
+                updatingColorSquareAndIntensityBar = false;
             };
             intensityLevelBar.Move += delegate(object sender, MoveEventArgs e)
             {
                 if (update)
                 {
+                    updatingColorSquareAndIntensityBar = true;
                     float intensity = 1 - (intensityLevelValueBeginningMovement - (e.Top - squareColorTop) / (float)squareColorlenght);
                     if (intensity < 0)
                         intensity = 0;
@@ -400,7 +420,7 @@ namespace XNAFinalEngine.UserInterface
                         intensity = 1;
                     intensityLevel = 1 - intensity;
                     Color = ColorFromPositionWithIntensity(positionSquareColor);
-                    UpdateRGBFromColor();
+                    updatingColorSquareAndIntensityBar = false;
                 }
             };
             intensityLevelBar.MoveEnd += delegate
@@ -411,13 +431,13 @@ namespace XNAFinalEngine.UserInterface
                 update = true;
             };
             intensityLevelBar.KeyPress += delegate(object sender, KeyEventArgs e)
-                                              {
-                                                  if (e.Key == Keys.Escape)
-                                                  {
-                                                      Close();
-                                                  }
-                                              };
-
+            {
+                if (e.Key == Keys.Escape)
+                {
+                    Close();
+                }
+            };
+            
             #endregion
 
             #region R
@@ -565,7 +585,7 @@ namespace XNAFinalEngine.UserInterface
             for (int i = 0; i < squareColorlenght; i++)
             {
                 int j = i % (squareColorlenght / 6); // the position in the current step
-                float porcentaje = (j / (squareColorlenght / 6f - 1)); // The porcentaje of advance in the current step
+                float porcentaje = (j / (squareColorlenght / 6f)); // The porcentaje of advance in the current step
                 if (i < squareColorlenght / 6f)                    // Red to Yellow
                 {
                     color.G = (byte)(255 * porcentaje);
@@ -636,7 +656,6 @@ namespace XNAFinalEngine.UserInterface
             textBoxRed.Text = Math.Round(Color.R / 255f, 3).ToString();
             textBoxGreen.Text = Math.Round(Color.G / 255f, 3).ToString();
             textBoxBlue.Text = Math.Round(Color.B / 255f, 3).ToString();
-            positionSquareColor = PositionFromColor(Color);
         } // UpdateRGBFromColor
 
         #endregion
@@ -667,7 +686,7 @@ namespace XNAFinalEngine.UserInterface
             Color color = new Color(0, 0, 0, 255);
             // the position in the step or band (unknown for now)
             int j = position.X % (squareColorlenght / 6);
-            float porcentaje = (j / (squareColorlenght / 6f - 1)); // The porcentaje of advance in the step
+            float porcentaje = (j / (squareColorlenght / 6f/* - 1*/)); // The porcentaje of advance in the step
             if (position.X < squareColorlenght / 6f)               // Red to Yellow
             {
                 color.R = 255;
@@ -698,11 +717,14 @@ namespace XNAFinalEngine.UserInterface
                 color.G = 0;
                 color.B = 255;
             }
-            else                                        // violet to red
+            else                                                  // violet to red
             {
                 color.R = 255;
                 color.G = 0;
-                color.B = (byte)(255 - 255 * porcentaje);
+                if (position.X == squareColorlenght) // Last column is a special case.
+                    color.B = 0;
+                else
+                    color.B = (byte)(255 - 255 * porcentaje);
             }
             return color;
         } // ColorFromPosition

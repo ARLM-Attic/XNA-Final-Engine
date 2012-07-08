@@ -156,6 +156,10 @@ namespace XNAFinalEngine.Editor
         private static VertexPositionColor[] pointLightLines;
         private const int pointLightLinesNumberOfVerticesPerCurve = 50;
 
+        // Color Picker.
+        internal static bool colorPickerNeedsToPick;
+        internal static ColorPickerDialog colorPickerDialog;
+
         #endregion
 
         #region Properties
@@ -760,6 +764,15 @@ namespace XNAFinalEngine.Editor
             if (!editorModeEnabled)
                 return;
 
+            // When the color picker need to pick a color the result is render in a temporal render target.
+            // This render target then will be read to retrieve the color in the current mouse position.
+            RenderTarget editorRenderTarget = null;
+            if (colorPickerNeedsToPick)
+            {
+                editorRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false);
+                editorRenderTarget.EnableRenderTarget();
+            }
+
             EngineManager.Device.Clear(Color.Black);
 
             #region Render Viewports
@@ -895,6 +908,17 @@ namespace XNAFinalEngine.Editor
             #endregion
 
             UserInterfaceManager.RenderUserInterfaceToScreen();
+
+            if (colorPickerNeedsToPick)
+            {
+                editorRenderTarget.DisableRenderTarget();
+                Color[] color = new Color[1];
+                editorRenderTarget.Resource.GetData(0, new Rectangle(Mouse.Position.X, Mouse.Position.Y, 1, 1), color, 0, 1);
+                colorPickerDialog.Color = color[0];
+                colorPickerNeedsToPick = false;
+                SpriteManager.DrawTextureToFullScreen(editorRenderTarget);
+                editorRenderTarget.Dispose();
+            }
         } // PostRenderTasks
 
         #endregion

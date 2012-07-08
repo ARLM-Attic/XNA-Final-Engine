@@ -32,7 +32,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 #endregion
@@ -66,9 +65,6 @@ namespace XNAFinalEngine.Assets
         // The user can use it as the current content manager but it can’t be unload or dispose.
         private static ContentManager systemContentManager;
 
-        // Current content manager.
-        private static ContentManager currentContentManager;
-
         // Content Manager name.
         private string name;
 
@@ -81,7 +77,7 @@ namespace XNAFinalEngine.Assets
         /// This content manager is used for load certain assets that are persistent like shaders and some other minor assets.
         /// The user can use it as the current content manager but it can’t be unload or dispose.
         /// </summary>
-        public static ContentManager SystemContentManager
+        internal static ContentManager SystemContentManager
         {
             get
             {
@@ -90,24 +86,12 @@ namespace XNAFinalEngine.Assets
                 return systemContentManager;
             }
         } // SystemContentManager
-        
+
         /// <summary>
         /// Current content manager. 
         /// It uses the system content by default but you can assign different content managers (for example one for each level)
         /// </summary>
-        public static ContentManager CurrentContentManager
-        {
-            get
-            {
-                if (currentContentManager == null)
-                    return SystemContentManager;
-                return currentContentManager;
-            }
-            set
-            {
-                currentContentManager = value;
-            }
-        } // CurrentContent
+        public static ContentManager CurrentContentManager { get; set; }
         
         /// <summary>
         /// The name of the content manager.
@@ -150,7 +134,7 @@ namespace XNAFinalEngine.Assets
         public List<Asset> Assets { get; private set; }
 
         /// <summary>
-        /// If the content manager is hidden then the content loaded is inaccessible outside the owner.
+        /// This is a flag that tells the editor that this content manager has to be hiding from the user.
         /// </summary>
         public bool Hidden { get; private set; }
 

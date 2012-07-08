@@ -1042,7 +1042,6 @@
     </Control>
     ////////////////////////////////////////////////////////////////////////////
 
-
   </Controls>
 
   //// Fonts /////////////////////////////////////////////////////////////////
@@ -1137,6 +1136,8 @@
     <Image Name="Shared.PageUp" Asset="Shared.PageUp"></Image>
     <Image Name="Shared.PageDown" Asset="Shared.PageDown"></Image>
     <Image Name="Shared.Glyph" Asset="Shared.Glyph"></Image>
+
+    <Image Name="Dropper" Asset="Dropper"></Image>
 
   </Images>
   ////////////////////////////////////////////////////////////////////////////

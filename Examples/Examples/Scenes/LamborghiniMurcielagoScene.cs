@@ -29,10 +29,13 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System;
+using System.IO;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Storage;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
-using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Editor;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
@@ -50,6 +53,20 @@ namespace XNAFinalEngineExamples
     /// </summary>
     public class LamborghiniMurcielagoScene : EditableScene
     {
+        public class Toto
+        {
+            public int number = 2;
+        }
+
+        [Serializable]
+        public struct SaveGameData
+        {
+            public string PlayerName;
+            public Vector2 AvatarPosition;
+            public int Level;
+            public int Score;
+            public Toto Toto;
+        }
 
         #region Variables
         
@@ -909,7 +926,55 @@ namespace XNAFinalEngineExamples
             statistics.AddComponent<ScriptStatisticsDrawer>();
 
             #endregion
-            
+
+            #region Storage Test
+            /*
+            // If a save is pending, save as soon as the storage device is chosen.
+            IAsyncResult result = StorageDevice.BeginShowSelector(PlayerIndex.One, null, null);
+            while (!result.IsCompleted) {}
+            StorageDevice device = StorageDevice.EndShowSelector(result);
+
+            // Create the data to save.
+            SaveGameData data = new SaveGameData();
+            data.PlayerName = "Hiro";
+            data.AvatarPosition = new Vector2(360, 360);
+            data.Level = 11;
+            data.Score = 4200;
+            data.Toto = new Toto();
+
+            // Open a storage container.
+            result = device.BeginOpenContainer("StorageDemo", null, null);
+
+            // Wait for the WaitHandle to become signaled.
+            result.AsyncWaitHandle.WaitOne();
+
+            StorageContainer container = device.EndOpenContainer(result);
+
+            // Close the wait handle.
+            result.AsyncWaitHandle.Close();
+
+            string filename = "savegame.sav";
+
+            // Check to see whether the save exists.
+            if (container.FileExists(filename))
+                // Delete it so that we can create one fresh.
+                container.DeleteFile(filename);
+
+            // Create the file.
+            Stream stream = container.CreateFile(filename);
+
+            // Convert the object to XML data and put it in the stream.
+            XmlSerializer serializer = new XmlSerializer(typeof(SaveGameData));
+            serializer.Serialize(stream, data);
+
+            // Close the file.
+            stream.Close();
+
+            // Dispose the container, to commit changes.
+            container.Dispose();
+            */
+            #endregion
+
         } // Load
 
         #endregion

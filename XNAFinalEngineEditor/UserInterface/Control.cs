@@ -1206,7 +1206,7 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         protected void CheckLayer(SkinControlInformation skinControl, string layer)
         {
-            if (!(skinControl != null && skinControl.Layers != null && skinControl.Layers.Count > 0 && skinControl.Layers[layer] != null))
+            if (skinControl == null || skinControl.Layers == null || skinControl.Layers.Count == 0 || skinControl.Layers[layer] == null)
             {
                 throw new InvalidOperationException("User Interface: Unable to read skin layer \"" + layer + "\" for control \"" + Utilities.ControlTypeName(this) + "\".");
             }
