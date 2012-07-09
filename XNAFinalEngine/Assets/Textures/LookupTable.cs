@@ -117,7 +117,7 @@ namespace XNAFinalEngine.Assets
         {
             // If I use a create-dispose method, the texture can't be used again, that could mean a potential ObjectDisposedException.
             ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager temporalContentManager = new ContentManager("Temporal Content Manager", true);
+            ContentManager temporalContentManager = new ContentManager { Name = "Temporal Content Manager", Hidden = true };
             ContentManager.CurrentContentManager = temporalContentManager;
             Texture lookupTableTexture2D = new Texture("LookupTables\\" + filename);
             // SideSize is inaccurate because Math.Pow is a bad way to calculate cube roots.

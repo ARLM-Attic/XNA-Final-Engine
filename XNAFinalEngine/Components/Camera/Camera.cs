@@ -254,7 +254,7 @@ namespace XNAFinalEngine.Components
                 {
                     // Recreate render target with new size
                     RenderTarget.Dispose();
-                    RenderTarget = new RenderTarget(value, RenderTarget.SurfaceFormat, RenderTarget.DepthFormat, RenderTarget.Antialiasing);
+                    RenderTarget = new RenderTarget(value, RenderTarget.SurfaceFormat, RenderTarget.DepthFormat, RenderTarget.Antialiasing) { Hidden = RenderTarget.Hidden };
                 }
                 renderTargetSize = value;
                 CalculateProjectionMatrix(); // The render target size could affect the aspect ratio.

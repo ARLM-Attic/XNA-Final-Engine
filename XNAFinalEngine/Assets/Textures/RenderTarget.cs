@@ -539,7 +539,7 @@ namespace XNAFinalEngine.Assets
                 }
             }
             // If there is not one unlook or present we create one.
-            renderTarget = new RenderTarget(size, surfaceFormat, depthFormat, antialiasingType, mipMap);
+            renderTarget = new RenderTarget(size, surfaceFormat, depthFormat, antialiasingType, mipMap) { Hidden = true };
             renderTargets.Add(renderTarget);
             renderTarget.looked = true;
             return renderTarget;
@@ -599,8 +599,8 @@ namespace XNAFinalEngine.Assets
                 }
             }
             // If there is not one unlook or present we create one.
-            RenderTarget renderTarget1 = new RenderTarget(size, surfaceFormat1, depthFormat, AntialiasingType.NoAntialiasing);
-            RenderTarget renderTarget2 = new RenderTarget(size, surfaceFormat2, false, AntialiasingType.NoAntialiasing);
+            RenderTarget renderTarget1 = new RenderTarget(size, surfaceFormat1, depthFormat, AntialiasingType.NoAntialiasing) { Hidden = true };
+            RenderTarget renderTarget2 = new RenderTarget(size, surfaceFormat2, false, AntialiasingType.NoAntialiasing) { Hidden = true };
             renderTargetBinding = BindRenderTargets(renderTarget1, renderTarget2);
             multipleRenderTargets.Add(renderTargetBinding);
             renderTargetBinding.RenderTargets[0].looked = true;
@@ -631,9 +631,9 @@ namespace XNAFinalEngine.Assets
                 }
             }
             // If there is not one unlook or present we create one.
-            RenderTarget renderTarget1 = new RenderTarget(size, surfaceFormat1, depthFormat, AntialiasingType.NoAntialiasing);
-            RenderTarget renderTarget2 = new RenderTarget(size, surfaceFormat2, false, AntialiasingType.NoAntialiasing);
-            RenderTarget renderTarget3 = new RenderTarget(size, surfaceFormat3, false, AntialiasingType.NoAntialiasing);
+            RenderTarget renderTarget1 = new RenderTarget(size, surfaceFormat1, depthFormat, AntialiasingType.NoAntialiasing) { Hidden = true };
+            RenderTarget renderTarget2 = new RenderTarget(size, surfaceFormat2, false, AntialiasingType.NoAntialiasing) { Hidden = true };
+            RenderTarget renderTarget3 = new RenderTarget(size, surfaceFormat3, false, AntialiasingType.NoAntialiasing) { Hidden = true };
             renderTargetBinding = BindRenderTargets(renderTarget1, renderTarget2, renderTarget3);
             multipleRenderTargets.Add(renderTargetBinding);
             renderTargetBinding.RenderTargets[0].looked = true;

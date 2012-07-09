@@ -63,6 +63,8 @@ namespace XNAFinalEngine.Assets
         // The content manager that stores this asset.
         private ContentManager contentManager;
 
+        private bool hidden;
+
         // Loaded assets of this type.
         private static readonly List<Asset> loadedAssets = new List<Asset>();
 
@@ -116,8 +118,26 @@ namespace XNAFinalEngine.Assets
                     value.Assets.Add(this);
             }
         } // ContentManager
+        
+        /// <summary>
+        /// This is a flag that tells to the editor that it has to be hiding from the user.
+        /// Hidden objects are not saved.
+        /// </summary>
+        /// <remarks>
+        /// If the assets is managed by a content manager then the asset has the visibility of it.
+        /// </remarks>
+        public bool Hidden
+        {
+            get
+            {
+                if (ContentManager != null)
+                    return ContentManager.Hidden;
+                return hidden;
+            }
+            set { hidden = value; }
+        } // Hidden
 
-        #region Loaded Textures
+        #region Loaded Assets
 
         /// <summary>
         /// Loaded textures.

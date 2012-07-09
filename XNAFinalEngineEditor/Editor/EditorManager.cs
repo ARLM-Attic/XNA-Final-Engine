@@ -223,6 +223,10 @@ namespace XNAFinalEngine.Editor
             UserInterfaceManager.Initialize(false);
             UserInterfaceManager.Visible = false;
 
+            // Load all resources in a hidden content manager.
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
+            ContentManager.CurrentContentManager = new ContentManager { Name = "Editor Content Manager", Hidden = true };
+            
             // Call the manager's update and render methods in the correct order without explicit calls. 
             editorManagerGameObject = new GameObject2D { Layer = Layer.GetLayerByNumber(31) };
             editorManagerGameObject.AddComponent<ScripEditorManager>();
@@ -254,15 +258,11 @@ namespace XNAFinalEngine.Editor
             #endregion
 
             #region Icons
-
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = new ContentManager("Editor Content Manager", true);
-            // Load Icons
+            
             lightIcon = new Texture("Editor\\LightIcon");
             lightIconDisable = new Texture("Editor\\LightIconDisable");
             cameraIcon = new Texture("Editor\\CameraIcon");
             cameraIconDisable = new Texture("Editor\\CameraIconDisable");
-            ContentManager.CurrentContentManager = userContentManager;
 
             #endregion
 
@@ -297,6 +297,8 @@ namespace XNAFinalEngine.Editor
             translationGizmo = new TranslationGizmo();
             scaleGizmo = new ScaleGizmo();
             rotationGizmo = new RotationGizmo();
+
+            ContentManager.CurrentContentManager = userContentManager;
         } // Initialize
 
         #endregion
@@ -769,7 +771,7 @@ namespace XNAFinalEngine.Editor
             RenderTarget editorRenderTarget = null;
             if (colorPickerNeedsToPick)
             {
-                editorRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false);
+                editorRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false) { Hidden = true, };
                 editorRenderTarget.EnableRenderTarget();
             }
 

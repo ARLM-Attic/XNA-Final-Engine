@@ -984,31 +984,7 @@ namespace XNAFinalEngineExamples
             xnaFinalEngineLogo.Transform.LocalScale = 0.5f;
 
             #endregion
-
-            #region Testing
-
-            ContentManager testContentManager = new ContentManager("Just for testing", false);
-            ContentManager.CurrentContentManager = testContentManager;
-
-            // The user interface is separated and manually called because its GPL license.
-            //UserInterfaceManager.Initialize();
-            //murcielagoBody.ModelRenderer.Material = new Constant { DiffuseTexture = new Texture("Caption") { PreferredSamplerState = new SamplerState { MaxMipLevel = 2 }}};
-            //ConstantWindow.Show((Constant)murcielagoBody.ModelRenderer.Material);
-            //BlinnPhongWindow.Show((BlinnPhong)murcielagoFrontLeftBrakeCaliper.ModelRenderer.Material);
-            //CarPaintWindow.Show(carPaint);
             
-
-            LookupTable testLookupTable = new LookupTable("LookupTableHueChanged");
-            //LookupTable testLookupTable2 = new LookupTable("LookupTableIdentity");
-            LookupTable testLookupTable3 = LookupTable.Identity(32);
-
-            //PostProcessWindow.Show(camera.Camera.PostProcess);
-
-            //murcielagoBody.Layer = Layer.GetLayerByNumber(1);
-            //Layer.GetLayerByNumber(1).Enabled = false;
-
-            #endregion
-
             #region Sound Test
 
             // Just a test to see exactly how it works internally.

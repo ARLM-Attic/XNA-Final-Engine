@@ -60,13 +60,24 @@ namespace XNAFinalEngine.Assets
 
         #region Variables
 
-        // A reference to the content manager that is always loaded. 
-        // This content manager is used for load certain assets that are persistent like shaders and some other minor assets.
-        // The user can use it as the current content manager but it can’t be unload or dispose.
-        private static ContentManager systemContentManager;
+        // A simple but effective way of having unique ids.
+        // We can have 18.446.744.073.709.551.616 game object creations before the system "collapse". Almost infinite in practice. 
+        // If a more robust system is needed (networking/threading) then you can use the guid structure: http://msdn.microsoft.com/en-us/library/system.guid.aspx
+        // However this method is slightly simpler, slightly faster and has slightly lower memory requirements.
+        // If performance is critical consider the int type (4.294.967.294 unique values).
+        private static long uniqueIdCounter = long.MinValue;
 
         // Content Manager name.
         private string name;
+
+        // A reference to the content manager that is always loaded. 
+        // This content manager is used for load certain assets that are persistent like shaders and some other minor assets.
+        private static ContentManager systemContentManager;
+
+        // We only sorted if we need to do it. Don't need to wast time in game mode.
+        private static bool areContentManagersSorted;
+
+        private static List<ContentManager> contentManagers = new List<ContentManager>();
 
         #endregion
 
@@ -75,14 +86,13 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// A reference to the content manager that is always loaded. 
         /// This content manager is used for load certain assets that are persistent like shaders and some other minor assets.
-        /// The user can use it as the current content manager but it can’t be unload or dispose.
         /// </summary>
         internal static ContentManager SystemContentManager
         {
             get
             {
                 if (systemContentManager == null)
-                    systemContentManager = new ContentManager("System Content Manager");
+                    systemContentManager = new ContentManager { Name = "System Content Manager", Hidden = true };
                 return systemContentManager;
             }
         } // SystemContentManager
@@ -92,28 +102,28 @@ namespace XNAFinalEngine.Assets
         /// It uses the system content by default but you can assign different content managers (for example one for each level)
         /// </summary>
         public static ContentManager CurrentContentManager { get; set; }
-        
+
+        /// <summary>
+        /// Identification number. Every asset has a unique ID.
+        /// </summary>
+        public long Id { get; private set; }
+
         /// <summary>
         /// The name of the content manager.
-        /// If the name already exists then we add one to its name and we call it again.
         /// </summary>
-        public string Name
+        /// <remarks>
+        /// The name is not unique. 
+        /// Consequently it can be used to identify the content manager, use Id instead.
+        /// </remarks>
+        public virtual string Name
         {
             get { return name; }
             set
             {
-                if (value != name)
+                if (!string.IsNullOrEmpty(value) && name != value)
                 {
-                    // Is the name unique?
-                    bool isUnique = ContentManagers.All(contentManagerFromList => contentManagerFromList == this || contentManagerFromList.Name != value);
-                    if (isUnique)
-                    {
-                        name = value;
-                        ContentManagers.Sort(CompareContentManagers);
-                    }
-                    // If not then we add one to its name and find out if is unique.
-                    else
-                        Name = value.PlusOne();
+                    name = value;
+                    areContentManagersSorted = false;
                 }
             }
         } // Name
@@ -124,19 +134,44 @@ namespace XNAFinalEngine.Assets
         internal Microsoft.Xna.Framework.Content.ContentManager XnaContentManager { get; private set; }
 
         /// <summary>
-        /// Loaded Content Managers
-        /// </summary>
-        public static List<ContentManager> ContentManagers { get; private set; }
-
-        /// <summary>
         /// The list of loaded assets in this content manager.
         /// </summary>
         public List<Asset> Assets { get; private set; }
 
         /// <summary>
-        /// This is a flag that tells the editor that this content manager has to be hiding from the user.
+        /// This is a flag that tells to the editor that it has to be hiding from the user.
+        /// Hidden objects are not saved.
         /// </summary>
-        public bool Hidden { get; private set; }
+        public bool Hidden { get; set; }
+
+        #region Content Managers
+
+        /// <summary>
+        /// Loaded Content Managers.
+        /// </summary>
+        public static List<ContentManager> ContentManagers { get { return contentManagers; } }
+
+        /// <summary>
+        /// Sorted content manager list.
+        /// If the list is already sorted this operation is O(c).
+        /// </summary>
+        public static List<ContentManager> SortedContentManagers
+        {
+            get
+            {
+                if (!areContentManagersSorted)
+                {
+                    // The assets are sorted by name.
+                    // But they are only sorted when it is needed .
+                    // This won't affect game performance, just the editor performance.
+                    areContentManagersSorted = true;
+                    ContentManagers.Sort(CompareContentManagers);
+                }
+                return ContentManagers;
+            }
+        } // SortedContentManagers
+
+        #endregion
 
         #endregion
 
@@ -148,23 +183,17 @@ namespace XNAFinalEngine.Assets
         /// property of this class so that references the newly created ContentManager instance. 
         /// All the assets that you load latter will be automatically managed by this content manager.
         /// You can unload or dispose it. In any case the loaded assets will be disposed.
-        /// By default the system content manager is the current content manager.
         /// </summary>
-        /// <param name="name">Name.</param>
-        /// <param name="hidden">If the content manager is hidden then the content loaded is inaccessible outside the owner.</param>
-        public ContentManager(string name, bool hidden = false)
+        public ContentManager()
         {
-            Hidden = hidden;
+            // Create a unique ID
+            Id = uniqueIdCounter;
+            uniqueIdCounter++;
             XnaContentManager = new Microsoft.Xna.Framework.Content.ContentManager(EngineManager.GameServices);
-            Name = name;
+            Name = "Content Manager";
             ContentManagers.Add(this);
-            ContentManagers.Sort(CompareContentManagers);
             Assets = new List<Asset>();
-        } // ContentManager
-
-        static ContentManager()
-        {
-            ContentManagers = new List<ContentManager>();
+            areContentManagersSorted = false;
         } // ContentManager
 
         #endregion
@@ -180,6 +209,7 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("Content Manager: System Content Manager can not be disposed.");
             XnaContentManager.Dispose();
             ContentManagers.Remove(this);
+            areContentManagersSorted = false;
             // Dispose assets
             foreach (Asset asset in Assets)
             {
@@ -219,52 +249,43 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected static int CompareContentManagers(ContentManager contentManager1, ContentManager contentManager2)
         {
+            // If they are the same asset then return equals.
+            if (contentManager1 == contentManager2)
+                return 0;
+
             string x = contentManager1.Name;
             string y = contentManager2.Name;
             if (x == null)
             {
                 if (y == null)
-                {
-                    // If x is null and y is null, they're
-                    // equal. 
+                    // If x is null and y is null, they're equal. 
                     return 0;
-                }
                 else
-                {
-                    // If x is null and y is not null, y
-                    // is greater. 
+                    // If x is null and y is not null, y is greater. 
                     return -1;
-                }
             }
             else
             {
                 // If x is not null...
-                //
                 if (y == null)
-                // ...and y is null, x is greater.
-                {
+                    // ...and y is null, x is greater.
                     return 1;
-                }
                 else
                 {
-                    // ...and y is not null, compare the 
-                    // lengths of the two strings.
-                    //
+                    // ...and y is not null, compare the two strings.
                     int retval = x.CompareTo(y);
-                    //int retval = x.Length.CompareTo(y.Length);
 
                     if (retval != 0)
-                    {
                         // If the strings are not of equal length,
                         // the longer string is greater.
-                        //
                         return retval;
-                    }
                     else
                     {
+                        // Create a new unique name for the second asset and do a comparation again.
+                        contentManager2.SetUniqueName(y);
+                        y = contentManager2.Name;
                         // If the strings are of equal length,
                         // sort them with ordinary string comparison.
-                        //
                         return x.CompareTo(y);
                     }
                 }
@@ -273,6 +294,30 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
+        #region Set Unique Name
+
+        /// <summary>
+        /// Set a unique texture name.
+        /// </summary>
+        public void SetUniqueName(string newName)
+        {
+            // Is the name unique?
+            bool isUnique = ContentManagers.All(contentManagerFromList => contentManagerFromList == this || contentManagerFromList.Name != newName);
+            if (isUnique)
+            {
+                if (name != newName)
+                {
+                    name = newName;
+                    areContentManagersSorted = false;
+                }
+            }
+            // If not then we add one to its name and search again to see if is unique.
+            else
+                SetUniqueName(newName.PlusOne());
+        } // SetUniqueName
+
+        #endregion
+        
         #region Recreate Content Managers
 
         /// <summary>

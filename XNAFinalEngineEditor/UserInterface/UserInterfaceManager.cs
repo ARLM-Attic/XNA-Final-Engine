@@ -345,7 +345,8 @@ namespace XNAFinalEngine.UserInterface
                 // Final render target.
                 renderTarget = new RenderTarget(Helpers.Size.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing)
                 {
-                    Name = "User Interface Render Target"
+                    Name = "User Interface Render Target",
+                    Hidden = true
                 };
 
                 // Init User Interface Renderer.
@@ -575,7 +576,7 @@ namespace XNAFinalEngine.UserInterface
         {
             if (!Visible || !InputEnabled)
                 return;
-            try
+            //try
             {
                 // Init new controls.
                 Control.InitializeNewControls();
@@ -591,10 +592,10 @@ namespace XNAFinalEngine.UserInterface
                 OrderList.Clear();
                 SortLevel(RootControls);
             }
-            catch (Exception exception)
+            /*catch (Exception exception)
             {
                 throw new InvalidOperationException("User Interface Manager: Update failed.", exception);
-            }
+            }*/
         } // Update
 
         /// <summary>

@@ -56,6 +56,7 @@ namespace XNAFinalEngine.Editor
 
             var groupImage = CommonControls.Group("Image", owner);
             var imageBoxImage = CommonControls.ImageBox(LookupTable.LookupTableToTexture(asset), groupImage);
+            imageBoxImage.Texture.Hidden = true;
             groupImage.AdjustHeightFromChildren();
 
             #endregion
@@ -78,6 +79,7 @@ namespace XNAFinalEngine.Editor
                 {
                     imageBoxImage.Texture.Dispose();
                     imageBoxImage.Texture = LookupTable.LookupTableToTexture((LookupTable)AssetWindow.CurrentCreatedAsset);
+                    imageBoxImage.Texture.Hidden = true;
                     sizeTextBox.Text = ((LookupTable)AssetWindow.CurrentCreatedAsset).Size.ToString();
                 };
                 // If the user creates the asset (press the create button) then update the changeable properties.

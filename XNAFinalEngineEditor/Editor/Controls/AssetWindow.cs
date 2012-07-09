@@ -102,7 +102,7 @@ namespace XNAFinalEngine.Editor
                         return null;
                     }
                     userContentManager = ContentManager.CurrentContentManager;
-                    temporalContentManager = new ContentManager("Temporal Content Manager", true);
+                    temporalContentManager = new ContentManager { Name = "Temporal Content Manager", Hidden = true };
                     ContentManager.CurrentContentManager = temporalContentManager;
 
                     // Create a temporal asset with the first resource in the list.
@@ -219,7 +219,7 @@ namespace XNAFinalEngine.Editor
                     // The names of the content manager are added here because we want to place the item index in the current content manager.
                     comboBoxContentManager.Items.Clear();
                     // Add content names.
-                    foreach (ContentManager contentManager in ContentManager.ContentManagers)
+                    foreach (ContentManager contentManager in ContentManager.SortedContentManagers)
                     {
                         if (!contentManager.Hidden)
                             comboBoxContentManager.Items.Add(contentManager.Name);
@@ -228,7 +228,7 @@ namespace XNAFinalEngine.Editor
                     comboBoxContentManager.ItemIndex = 0;
                     for (int i = 0; i < comboBoxContentManager.Items.Count; i++)
                     {
-                        if (ContentManager.ContentManagers[i] == userContentManager)
+                        if (ContentManager.SortedContentManagers[i] == userContentManager)
                         {
                             comboBoxContentManager.ItemIndex = i;
                             break;
@@ -239,7 +239,7 @@ namespace XNAFinalEngine.Editor
                         // The names of the content manager are added here because someone could dispose or add a new one.
                         comboBoxContentManager.Items.Clear();
                         // Add names
-                        foreach (ContentManager contentManager in ContentManager.ContentManagers)
+                        foreach (ContentManager contentManager in ContentManager.SortedContentManagers)
                         {
                             if (!contentManager.Hidden)
                                 comboBoxContentManager.Items.Add(contentManager.Name);
@@ -269,7 +269,7 @@ namespace XNAFinalEngine.Editor
                             if (!asset.IsDisposed) // To contemplate some assets like Lookup Tables and some textures.
                                 asset.Dispose();
                             // Search the content manager reference using its name.
-                            foreach (ContentManager contenManager in ContentManager.ContentManagers)
+                            foreach (ContentManager contenManager in ContentManager.SortedContentManagers)
                             {
                                 if (contenManager.Name == (string)(comboBoxContentManager.Items[comboBoxContentManager.ItemIndex]))
                                 {

@@ -36,6 +36,7 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
+using XNAFinalEngine.Storage;
 using XNAFinalEngine.Undo;
 using XNAFinalEngine.UserInterface;
 using Plane = XNAFinalEngine.Assets.Plane;
@@ -127,6 +128,7 @@ namespace XNAFinalEngine.Editor
                 new MenuItem("Save Scene as...") { RightSideText = "Ctrl+Shift+S"},
                 new MenuItem("Exit", true) { SeparationLine = true },
             });
+            menuItemFile.Items[2].Click += delegate { StorageManager.SaveScene(); };
 
             #endregion
 

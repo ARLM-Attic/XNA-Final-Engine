@@ -85,7 +85,7 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         internal void Initialize()
         {
-            ContentManager = new ContentManager(GetType().Name + " Content Manager");
+            ContentManager = new ContentManager { Name = (GetType().Name + " Content Manager") };
             ContentManager.CurrentContentManager = ContentManager;
             LoadContent();
             ContentLoaded = true;

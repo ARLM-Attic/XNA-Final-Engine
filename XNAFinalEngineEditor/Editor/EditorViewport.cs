@@ -263,8 +263,9 @@ namespace XNAFinalEngine.Editor
             #region Cameras
 
             // Assets
-            ambientLight = new AmbientLight { Name = "Editor Camara Ambient Light ", Color = Color.White, Intensity = 5f };
-            postProcess = new PostProcess   { Name = "Editor Camera Post Process" };
+            ambientLight = new AmbientLight { Name = "Editor Camara Ambient Light ", Color = Color.White, Intensity = 5f, Hidden = true };
+            postProcess = new PostProcess   { Name = "Editor Camera Post Process", Hidden = true };
+            postProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
             postProcess.Bloom.Enabled = false;
 
             // Editor Camera

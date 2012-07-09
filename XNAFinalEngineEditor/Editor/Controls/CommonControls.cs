@@ -735,7 +735,6 @@ namespace XNAFinalEngine.Editor
                     Asset assetToChange = null;
                     foreach (Asset asset in Asset.LoadedAssets)
                     {
-                        // You can filter some assets here.
                         if (asset is TAssetType && asset.Name == (string)assetSelector.Items[assetSelector.ItemIndex])
                             assetToChange = asset;
                     }
@@ -770,7 +769,7 @@ namespace XNAFinalEngine.Editor
                 foreach (Asset asset in Asset.SortedLoadedAssets)
                 {
                     // You can filter some assets here.
-                    if (asset is TAssetType && (asset.ContentManager == null || !asset.ContentManager.Hidden))
+                    if (asset is TAssetType && (asset.ContentManager == null || !asset.Hidden))
                         assetSelector.Items.Add(asset.Name);
                 }
 

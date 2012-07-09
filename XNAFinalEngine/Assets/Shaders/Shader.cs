@@ -67,7 +67,7 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
-        #region Load Shader
+        #region Constructor
 
         /// <summary>
         /// Load the shader.

@@ -54,7 +54,7 @@ namespace XNAFinalEngine.Components
         private float volume;
         
         // The current frame.
-        private readonly Texture texture = new Texture();
+        private readonly Texture texture = new Texture { Hidden = true };
 
         #endregion
 

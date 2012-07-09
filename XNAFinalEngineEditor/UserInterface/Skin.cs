@@ -547,7 +547,7 @@ namespace XNAFinalEngine.UserInterface
             #endif
 
             if (skinContentManager == null)
-                skinContentManager = new ContentManager("Skin Content Manager", true);
+                skinContentManager = new ContentManager { Name = "Skin Content Manager", Hidden = true };
             else
                 skinContentManager.Unload();
             ContentManager.CurrentContentManager = skinContentManager;
@@ -599,7 +599,7 @@ namespace XNAFinalEngine.UserInterface
                 #endif
                 foreach (SkinImage skinImage in Images)
                 {
-                    skinImage.Texture = new Texture("Skin\\" + skinName + "\\" + skinImage.Filename);
+                    skinImage.Texture = new Texture("Skin\\" + skinName + "\\" + skinImage.Filename) { Hidden = true };
                 }
                 foreach (SkinControlInformation skinControl in Controls)
                 {

@@ -332,7 +332,7 @@ namespace XNAFinalEngine.Audio
                     musicContentManager.Unload();
                 else
                     // Creates a new content manager and load the new song.
-                    musicContentManager = new ContentManager("Temporal Content Manager", true);
+                    musicContentManager = new ContentManager { Name = "Temporal Content Manager", Hidden = true };
 
                 ContentManager.CurrentContentManager = musicContentManager;
                 Song song = new Song(_currentSongFilename);

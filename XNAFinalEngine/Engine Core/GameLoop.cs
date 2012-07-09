@@ -424,7 +424,7 @@ namespace XNAFinalEngine.EngineCore
             if (ScreenshotCapturer.MakeScreenshot)
             {
                 // Instead of render into the back buffer we render into a render target.
-                screenshotRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false);
+                screenshotRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false) { Hidden = true };
                 screenshotRenderTarget.EnableRenderTarget();
             }
 
