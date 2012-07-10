@@ -59,11 +59,23 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public static Font DefaultFont
         {
-            get { return defaultFont; }
+            get
+            {
+                if (defaultFont == null)
+                {
+                    ContentManager userContentManager = ContentManager.CurrentContentManager;
+                    ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                    defaultFont = new Font("Default");
+                    ContentManager.CurrentContentManager = userContentManager;
+                }
+                return defaultFont;
+            }
             set
             {
                 if (value == null)
                     throw new ArgumentNullException("value");
+                if (defaultFont != null && defaultFont.ContentManager == ContentManager.SystemContentManager)
+                    defaultFont.Dispose();
                 defaultFont = value;
             }
         } // DefaultFont
@@ -125,7 +137,6 @@ namespace XNAFinalEngine.Assets
             try
             {
                 Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SpriteFont>(Filename);
-                ContentManager = ContentManager.CurrentContentManager;
             }
             catch (ObjectDisposedException e)
             {
@@ -135,17 +146,6 @@ namespace XNAFinalEngine.Assets
             {
                 throw new Exception("Failed to load font: " + filename, e);
             }
-        } // Font
-
-        /// <summary>
-        /// This execute the first time a font is required.
-        /// </summary>
-        static Font()
-        {
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
-            defaultFont = new Font("Default");
-            ContentManager.CurrentContentManager = userContentManager;
         } // Font
 
         #endregion

@@ -54,7 +54,7 @@ namespace XNAFinalEngine.Components
         private float volume;
         
         // The current frame.
-        private readonly Texture texture = new Texture { Hidden = true };
+        private readonly Texture texture;
 
         #endregion
 
@@ -247,6 +247,21 @@ namespace XNAFinalEngine.Components
                 }
             }
         } // Update
+
+        #endregion
+
+        #region Constructor
+
+        /// <summary>
+        /// Video Renderer.
+        /// </summary>
+        public VideoRenderer()
+        {
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
+            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            texture = new Texture();
+            ContentManager.CurrentContentManager = userContentManager;
+        } // VideoRenderer
 
         #endregion
 

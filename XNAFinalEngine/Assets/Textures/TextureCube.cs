@@ -109,7 +109,6 @@ namespace XNAFinalEngine.Assets
             try
             {
                 xnaTextureCube = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Graphics.TextureCube>(Filename);
-                ContentManager = ContentManager.CurrentContentManager;
                 size = xnaTextureCube.Size;
                 Resource.Name = filename;
             }

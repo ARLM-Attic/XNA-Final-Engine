@@ -769,7 +769,7 @@ namespace XNAFinalEngine.Editor
                 foreach (Asset asset in Asset.SortedLoadedAssets)
                 {
                     // You can filter some assets here.
-                    if (asset is TAssetType && (asset.ContentManager == null || !asset.Hidden))
+                    if (asset is TAssetType && !asset.Hidden)
                         assetSelector.Items.Add(asset.Name);
                 }
 

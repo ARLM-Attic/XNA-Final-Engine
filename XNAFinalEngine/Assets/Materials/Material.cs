@@ -39,7 +39,7 @@ namespace XNAFinalEngine.Assets
     /// <summary>
     /// Base class for materials.
     /// </summary>
-    public abstract class Material : Asset
+    public abstract class Material : AssetWhitoutResource
     {
 
         #region Variables
@@ -48,7 +48,7 @@ namespace XNAFinalEngine.Assets
         private float alphaBlending = 1.0f;
 
         // default material.
-        private static Material defaultMaterial = new BlinnPhong { Name = "Default Material", DiffuseColor = Color.Gray };
+        private static Material defaultMaterial;
 
         #endregion
 
@@ -89,11 +89,23 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public static Material DefaultMaterial
         {
-            get { return defaultMaterial; }
+            get
+            {
+                if (defaultMaterial == null)
+                {
+                    ContentManager userContentManager = ContentManager.CurrentContentManager;
+                    ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                    defaultMaterial = new BlinnPhong { Name = "Default Material", DiffuseColor = Color.Gray };
+                    ContentManager.CurrentContentManager = userContentManager;
+                }
+                return defaultMaterial;
+            }
             set
             {
                 if (value == null)
                     throw new ArgumentNullException("value");
+                if (defaultMaterial != null && defaultMaterial.ContentManager == ContentManager.SystemContentManager)
+                    defaultMaterial.Dispose();
                 defaultMaterial = value;
             }
         } // DefaultMaterial

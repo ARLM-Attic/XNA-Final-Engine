@@ -83,7 +83,6 @@ namespace XNAFinalEngine.Assets
             try
             {
                 Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Media.Song>(Filename);
-                ContentManager = ContentManager.CurrentContentManager;
             }
             catch (ObjectDisposedException e)
             {

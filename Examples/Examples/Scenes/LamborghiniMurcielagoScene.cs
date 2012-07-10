@@ -53,20 +53,6 @@ namespace XNAFinalEngineExamples
     /// </summary>
     public class LamborghiniMurcielagoScene : EditableScene
     {
-        public class Toto
-        {
-            public int number = 2;
-        }
-
-        [Serializable]
-        public struct SaveGameData
-        {
-            public string PlayerName;
-            public Vector2 AvatarPosition;
-            public int Level;
-            public int Score;
-            public Toto Toto;
-        }
 
         #region Variables
         
@@ -870,7 +856,7 @@ namespace XNAFinalEngineExamples
             directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
-                Filter = Shadow.FilterType.PCF5x5,
+                Filter = Shadow.FilterType.Pcf5X5,
                 LightDepthTextureSize = Size.Square512X512,
                 TextureSize = Size.TextureSize.FullSize,
                 Range = 50,

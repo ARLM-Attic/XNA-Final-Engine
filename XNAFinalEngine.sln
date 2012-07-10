@@ -19,9 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Examples XBOX 360", "Exampl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XNAFinalEngineEditor", "XNAFinalEngineEditor\XNAFinalEngineEditor.csproj", "{AD41E75E-4492-416C-B8BC-2DA3BAE1648B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XNAFinalEngineEditor XBOX 360", "XNAFinalEngineEditor\XNAFinalEngineEditor XBOX 360.csproj", "{C540C326-CA22-4903-ADF0-5E8AB9783A3C}"
-EndProject
-Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "XNAFinalEngineContent", "XNAFinalEngineContent\XNAFinalEngineContent.contentproj", "{93D209C6-BF21-42E8-A538-CE0E0D5CCDF5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XNAFinalEngineContent", "XNAFinalEngineContent\XNAFinalEngineContent.contentproj", "{93D209C6-BF21-42E8-A538-CE0E0D5CCDF5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -147,18 +145,6 @@ Global
 		{AD41E75E-4492-416C-B8BC-2DA3BAE1648B}.Release|x86.ActiveCfg = Release|x86
 		{AD41E75E-4492-416C-B8BC-2DA3BAE1648B}.Release|x86.Build.0 = Release|x86
 		{AD41E75E-4492-416C-B8BC-2DA3BAE1648B}.Release|Xbox 360.ActiveCfg = Release|x86
-		{C540C326-CA22-4903-ADF0-5E8AB9783A3C}.Debug|Any CPU.ActiveCfg = Debug|Xbox 360
-		{C540C326-CA22-4903-ADF0-5E8AB9783A3C}.Debug|Mixed Platforms.ActiveCfg = Debug|Xbox 360
-		{C540C326-CA22-4903-ADF0-5E8AB9783A3C}.Debug|Mixed Platforms.Build.0 = Debug|Xbox 360
-		{C540C326-CA22-4903-ADF0-5E8AB9783A3C}.Debug|x86.ActiveCfg = Debug|Xbox 360
-		{C540C326-CA22-4903-ADF0-5E8AB9783A3C}.Debug|Xbox 360.ActiveCfg = Debug|Xbox 360
-		{C540C326-CA22-4903-ADF0-5E8AB9783A3C}.Debug|Xbox 360.Build.0 = Debug|Xbox 360
-		{C540C326-CA22-4903-ADF0-5E8AB9783A3C}.Release|Any CPU.ActiveCfg = Release|Xbox 360
-		{C540C326-CA22-4903-ADF0-5E8AB9783A3C}.Release|Mixed Platforms.ActiveCfg = Release|Xbox 360
-		{C540C326-CA22-4903-ADF0-5E8AB9783A3C}.Release|Mixed Platforms.Build.0 = Release|Xbox 360
-		{C540C326-CA22-4903-ADF0-5E8AB9783A3C}.Release|x86.ActiveCfg = Release|Xbox 360
-		{C540C326-CA22-4903-ADF0-5E8AB9783A3C}.Release|Xbox 360.ActiveCfg = Release|Xbox 360
-		{C540C326-CA22-4903-ADF0-5E8AB9783A3C}.Release|Xbox 360.Build.0 = Release|Xbox 360
 		{93D209C6-BF21-42E8-A538-CE0E0D5CCDF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{93D209C6-BF21-42E8-A538-CE0E0D5CCDF5}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{93D209C6-BF21-42E8-A538-CE0E0D5CCDF5}.Debug|x86.ActiveCfg = Debug|Any CPU

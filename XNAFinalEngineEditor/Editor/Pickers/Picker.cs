@@ -86,7 +86,7 @@ namespace XNAFinalEngine.Editor
         public Picker(Size size)
         {            
             // No antialiasing because the colors can change.
-            pickerTexture = new RenderTarget(size) { Hidden = true };
+            pickerTexture = new RenderTarget(size);
             constantShader = new Shader("Materials\\PickerConstant");
         } // Picker
 

@@ -82,7 +82,7 @@ namespace XNAFinalEngine.Editor
         internal ScaleGizmo()
         {
             // Create the gizmo parts.
-            Box box = new Box(0.15f, 0.15f, 0.15f) { Hidden = true };
+            Box box = new Box(0.15f, 0.15f, 0.15f);
             redBox   = new GameObject3D(box, new Constant()) { Layer = Layer.GetLayerByNumber(31) };
             greenBox = new GameObject3D(box, new Constant()) { Layer = Layer.GetLayerByNumber(31) };
             blueBox  = new GameObject3D(box, new Constant()) { Layer = Layer.GetLayerByNumber(31) };

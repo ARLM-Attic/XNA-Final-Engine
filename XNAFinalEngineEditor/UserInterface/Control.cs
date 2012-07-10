@@ -1472,8 +1472,13 @@ namespace XNAFinalEngine.UserInterface
                     
                     if (width > 0 && height > 0)
                     {
+                        ContentManager userContentManager = ContentManager.CurrentContentManager;
+                        ContentManager.CurrentContentManager = UserInterfaceManager.UserInterfaceContentManager;
                         renderTarget = new RenderTarget(new Helpers.Size(w, h), SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing)
-                                           { Name = "User Interface Render Target", Hidden = true };
+                        {
+                            Name = "User Interface Render Target"
+                        };
+                        ContentManager.CurrentContentManager = userContentManager;
                     }
                     else 
                         renderTarget = null;

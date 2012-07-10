@@ -116,11 +116,7 @@ namespace XNAFinalEngine.EngineCore
             LineManager.Initialize();
             SoundManager.Initialize();
             
-            // Recreate assets that does not use content managers and are related to the device.
-            Texture.RecreateTexturesWithoutContentManager();
-            Assets.Model.RecreateModelsWithoutContentManager();
-            LookupTable.RecreateLookupTablesWithoutContentManager();
-            // Recreate assets that use content managers.
+            // Recreate assets.
             ContentManager.RecreateContentManagers();
 
             // Call the DeviceDisposed method only when the the device was disposed.
@@ -424,7 +420,10 @@ namespace XNAFinalEngine.EngineCore
             if (ScreenshotCapturer.MakeScreenshot)
             {
                 // Instead of render into the back buffer we render into a render target.
-                screenshotRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false) { Hidden = true };
+                ContentManager userContentManager = ContentManager.CurrentContentManager;
+                ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                screenshotRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false);
+                ContentManager.CurrentContentManager = userContentManager;
                 screenshotRenderTarget.EnableRenderTarget();
             }
 

@@ -88,6 +88,7 @@
     <Compile Include="Assets\Animations\ModelAnimation.cs" />
     <Compile Include="Assets\Animations\RootAnimation.cs" />
     <Compile Include="Assets\Asset.cs" />
+    <Compile Include="Assets\AssetWhitoutResource.cs" />
     <Compile Include="Assets\Audio\Song.cs" />
     <Compile Include="Assets\Audio\Sound.cs" />
     <Compile Include="Assets\ContentManager.cs" />

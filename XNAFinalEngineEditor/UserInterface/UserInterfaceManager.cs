@@ -263,6 +263,11 @@ namespace XNAFinalEngine.UserInterface
                     focusedControl = null;
             }
         } // FocusedControl
+
+        /// <summary>
+        /// User Interface Content Manager.
+        /// </summary>
+        internal static ContentManager UserInterfaceContentManager { get; private set; }
         
         #endregion
 
@@ -343,11 +348,14 @@ namespace XNAFinalEngine.UserInterface
                 InputSystem.KeyPress   += KeyPressProcess;
 
                 // Final render target.
+                ContentManager userContentManager = ContentManager.CurrentContentManager;
+                UserInterfaceContentManager = new ContentManager { Name = "User Interface Content Manager", Hidden = true };
+                ContentManager.CurrentContentManager = UserInterfaceContentManager;
                 renderTarget = new RenderTarget(Helpers.Size.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing)
                 {
                     Name = "User Interface Render Target",
-                    Hidden = true
                 };
+                ContentManager.CurrentContentManager = userContentManager;
 
                 // Init User Interface Renderer.
                 Renderer.Initialize();

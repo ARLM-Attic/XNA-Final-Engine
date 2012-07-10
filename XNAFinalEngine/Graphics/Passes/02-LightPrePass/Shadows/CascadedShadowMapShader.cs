@@ -414,10 +414,10 @@ namespace XNAFinalEngine.Graphics
 
             switch (filterType)
             {
-                case Shadow.FilterType.PCF2x2: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap2x2PCF"]; break;
-                case Shadow.FilterType.PCF3x3: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap3x3PCF"]; break;
-                case Shadow.FilterType.PCF5x5: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap5x5PCF"]; break;
-                case Shadow.FilterType.PCF7x7: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap7x7PCF"]; break;
+                case Shadow.FilterType.Pcf2X2: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap2x2PCF"]; break;
+                case Shadow.FilterType.Pcf3X3: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap3x3PCF"]; break;
+                case Shadow.FilterType.Pcf5X5: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap5x5PCF"]; break;
+                case Shadow.FilterType.Pcf7X7: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap7x7PCF"]; break;
                 default: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMapPoisonPCF"]; break;
             }
 

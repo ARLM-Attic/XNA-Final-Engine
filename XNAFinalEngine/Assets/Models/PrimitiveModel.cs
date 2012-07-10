@@ -141,6 +141,8 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected override void DisposeManagedResources()
         {
+            // This type of resource can be disposed ignoring the content manager.
+            ContentManager = null; // This is done to avoid an exception.
             base.DisposeManagedResources();
             if (vertexBuffer != null)
                 vertexBuffer.Dispose();

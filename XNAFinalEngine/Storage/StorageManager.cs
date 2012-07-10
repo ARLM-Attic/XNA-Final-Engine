@@ -61,7 +61,7 @@ namespace XNAFinalEngine.Storage
     /// <summary>
     /// Assets that have XNB resources.
     /// </summary>
-    public class ResourcedAssetData : AssetData
+    public class AssetWithResourceData : AssetData
     {
         public string FileName;
     } // ResourcedAssetData
@@ -70,7 +70,7 @@ namespace XNAFinalEngine.Storage
     public struct SceneData
     {
         public List<ContentManagerData> ContentManagers;
-        public List<AssetData> Assets;
+        public List<Asset> Assets;
     } // SceneData
 
     /// <summary>
@@ -88,7 +88,7 @@ namespace XNAFinalEngine.Storage
             SceneData sceneData = new SceneData
             {
                 ContentManagers = new List<ContentManagerData>(),
-                Assets = new List<AssetData>(),
+                Assets = new List<Asset>(),
             };
 
             #region Content Managers
@@ -125,6 +125,8 @@ namespace XNAFinalEngine.Storage
                 // Next time you load the scene this information will be (possible) already loaded.
                 if (!asset.Hidden)
                 {
+                    sceneData.Assets.Add(asset);
+                    break;
                     /*AssetData assetData = new AssetData();
 
                     assetData.Id = asset.Id;
@@ -140,7 +142,7 @@ namespace XNAFinalEngine.Storage
             return sceneData;
         } // CreateSaveData
 
-        #region Storage Test
+        #region Save Scene
 
         public static void SaveScene()
         {

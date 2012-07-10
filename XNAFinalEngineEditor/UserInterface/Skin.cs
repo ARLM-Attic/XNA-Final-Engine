@@ -599,7 +599,7 @@ namespace XNAFinalEngine.UserInterface
                 #endif
                 foreach (SkinImage skinImage in Images)
                 {
-                    skinImage.Texture = new Texture("Skin\\" + skinName + "\\" + skinImage.Filename) { Hidden = true };
+                    skinImage.Texture = new Texture("Skin\\" + skinName + "\\" + skinImage.Filename);
                 }
                 foreach (SkinControlInformation skinControl in Controls)
                 {

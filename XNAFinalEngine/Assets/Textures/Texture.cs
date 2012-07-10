@@ -30,9 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.EngineCore;
@@ -85,13 +83,10 @@ namespace XNAFinalEngine.Assets
             // Doing something to avoid this “set” is unnecessary and probably will make more complex some classes just for this special case. 
             // Besides, an internal statement elegantly prevents a bad use of this set.
             // Just don’t dispose this texture because the resource is managed by the video.
-            internal set 
+            internal set
             {
                 xnaTexture = value;
-                if (value == null)
-                    Size = new Size(0, 0);
-                else
-                    Size = new Size(xnaTexture.Width, xnaTexture.Height);
+                Size = value == null ? new Size(0, 0) : new Size(xnaTexture.Width, xnaTexture.Height);
             }
         } // Resource
 
@@ -185,7 +180,6 @@ namespace XNAFinalEngine.Assets
             try
             {
                 xnaTexture = ContentManager.CurrentContentManager.XnaContentManager.Load<Texture2D>(Filename);
-                ContentManager = ContentManager.CurrentContentManager;
                 Size = new Size(xnaTexture.Width, xnaTexture.Height);
                 Resource.Name = filename;
             }
@@ -268,6 +262,11 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected override void DisposeManagedResources()
         {
+            if (String.IsNullOrEmpty(Filename))
+            {
+                // This type of resource can be disposed ignoring the content manager.
+                ContentManager = null; // This is done to avoid an exception.
+            }
             base.DisposeManagedResources();
             if (xnaTexture != null && !xnaTexture.IsDisposed)
                 Resource.Dispose();
@@ -282,32 +281,15 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
+            if (Resource == null)
+                return;
             if (string.IsNullOrEmpty(Filename))
                 xnaTexture = new Texture2D(EngineManager.Device, Size.Width, Size.Height);
             else
                 xnaTexture = ContentManager.CurrentContentManager.XnaContentManager.Load<Texture2D>(Filename);
         } // RecreateResource
 
-        /// <summary>
-        /// Recreate textures created without using a content manager.
-        /// </summary>
-        internal static void RecreateTexturesWithoutContentManager()
-        {
-            foreach (Asset loadedTexture in LoadedAssets)
-            {
-                if (loadedTexture is Texture && loadedTexture.ContentManager == null)
-                {
-                    if (((Texture)loadedTexture).Resource != null)
-                    {
-                        ((Texture)loadedTexture).Resource.Dispose();
-                        loadedTexture.RecreateResource();
-                    }
-                }
-            }
-        } // RecreateTexturesWithoutContentManager
-
         #endregion
 
     } // Texture
 } // XNAFinalEngine.Assets
-

@@ -38,7 +38,7 @@ namespace XNAFinalEngine.Assets
 	/// <summary>
 	/// Shadows.
 	/// </summary>
-    public abstract class Shadow : Asset
+    public abstract class Shadow : AssetWhitoutResource
 	{
 
         #region Enumerates
@@ -50,11 +50,11 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public enum FilterType
         {
-            PCF2x2,
-            PCF3x3,
-            PCF5x5,
-            PCF7x7,
-            PCFPosion
+            Pcf2X2,
+            Pcf3X3,
+            Pcf5X5,
+            Pcf7X7,
+            PcfPosion
         } // FilterType
 
         #endregion
@@ -63,7 +63,7 @@ namespace XNAFinalEngine.Assets
         
         // Default values.
         private Size lightDepthTextureSize = Size.Square1024X1024;
-        private FilterType filter = FilterType.PCF5x5;
+        private FilterType filter = FilterType.Pcf5X5;
         private float depthBias = 0.0025f;
         private Size.TextureSize textureSize = Size.TextureSize.HalfSize;
 	    private float range = 50;

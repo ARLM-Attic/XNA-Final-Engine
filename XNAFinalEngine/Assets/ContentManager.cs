@@ -77,7 +77,7 @@ namespace XNAFinalEngine.Assets
         // We only sorted if we need to do it. Don't need to wast time in game mode.
         private static bool areContentManagersSorted;
 
-        private static List<ContentManager> contentManagers = new List<ContentManager>();
+        private static readonly List<ContentManager> contentManagers = new List<ContentManager>();
 
         #endregion
 
@@ -211,12 +211,13 @@ namespace XNAFinalEngine.Assets
             ContentManagers.Remove(this);
             areContentManagersSorted = false;
             // Dispose assets
-            foreach (Asset asset in Assets)
+            List<Asset> assetsTemporalList = new List<Asset>(); // An auxiliary list is needed because the original will be modified for each asset.
+            assetsTemporalList.AddRange(Assets);
+            foreach (Asset asset in assetsTemporalList)
             {
                 asset.ContentManager = null;
                 asset.Dispose();
             }
-            Assets.Clear();
         } // DisposeManagedResources
 
         #endregion
@@ -232,12 +233,13 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("Content Manager: System Content Manager can not be unloaded.");
             XnaContentManager.Unload();
             // Dispose assets
-            foreach (Asset asset in Assets)
+            List<Asset> assetsTemporalList = new List<Asset>(); // An auxiliary list is needed because the original will be modified for each asset.
+            assetsTemporalList.AddRange(Assets);
+            foreach (Asset asset in assetsTemporalList)
             {
-                asset.ContentManager = null;
+                asset.ContentManager = null; 
                 asset.Dispose();
             }
-            Assets.Clear();
         } // Unload
         
         #endregion

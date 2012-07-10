@@ -276,7 +276,10 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private PointLightShader() : base("LightPrePass\\PointLight")
         {
-            boundingLightObject = new Sphere(8, 8, 1) { Hidden = true };
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
+            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            boundingLightObject = new Sphere(8, 8, 1);
+            ContentManager.CurrentContentManager = userContentManager;
         } // PointLightShader
 
         #endregion

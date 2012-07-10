@@ -886,7 +886,7 @@ namespace XNAFinalEngineExamples
             directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
-                Filter = Shadow.FilterType.PCF3x3,
+                Filter = Shadow.FilterType.Pcf3X3,
                 LightDepthTextureSize = Size.Square1024X1024,
                 TextureSize = Size.TextureSize.HalfSize,
                 Range = 50,
@@ -952,7 +952,7 @@ namespace XNAFinalEngineExamples
             spotLight.SpotLight.LightMaskTexture = new Texture("LightMasks\\Crysis2TestLightMask");
             spotLight.SpotLight.Shadow = new BasicShadow
             {
-                Filter = Shadow.FilterType.PCF3x3,
+                Filter = Shadow.FilterType.Pcf3X3,
                 LightDepthTextureSize = Size.Square1024X1024,
                 TextureSize = Size.TextureSize.FullSize
             };

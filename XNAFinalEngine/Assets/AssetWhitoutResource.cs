@@ -31,30 +31,25 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 namespace XNAFinalEngine.Assets
 {
 	/// <summary>
-    ///  Base class for sky. I.e. skybox, skydome, daynightskydome, etc.
+    /// Not Resourced Asset.
+    /// They have a content manager but can be disposed independently.
 	/// </summary>
-    public abstract class Sky : AssetWhitoutResource
+    public abstract class AssetWhitoutResource : Asset
 	{
 
-        #region Variables
+        #region Dispose
 
-        // Is it enabled?
-        private bool enabled = true;
+        /// <summary>
+        /// Dispose managed resources.
+        /// </summary>
+        protected override void DisposeManagedResources()
+        {
+            // This type of resource can be disposed ignoring the content manager.
+            ContentManager = null; // This is done to avoid an exception.
+            base.DisposeManagedResources();
+        } // DisposeManagedResources
 
         #endregion
 
-        #region Properties
-
-        /// <summary>
-        /// Is it enabled?
-        /// </summary>
-        public bool Enabled
-        {
-            get { return enabled; }
-            set { enabled = value; }
-        } // Enabled
-
-	    #endregion
-
-    } // Sky
+    } // AssetWhitoutResource
 } // XNAFinalEngine.Assets

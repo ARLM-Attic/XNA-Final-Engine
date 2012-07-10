@@ -89,6 +89,7 @@ namespace XNAFinalEngine.Assets
         {
             Name = name;
             Resource = resource;
+            ContentManager = null; // This is controled by the own file model.
         } // ModelAnimation
 
         /// <summary>
@@ -105,7 +106,6 @@ namespace XNAFinalEngine.Assets
             try
             {
                 Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<ModelAnimationClip>(Filename);
-                ContentManager = ContentManager.CurrentContentManager;
             }
             catch (ObjectDisposedException)
             {
@@ -126,8 +126,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
-            if (ContentManager != null)
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<ModelAnimationClip>(Filename);
+            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<ModelAnimationClip>(Filename);
         } // RecreateResource
 
         #endregion

@@ -45,6 +45,7 @@ namespace XNAFinalEngine.Assets
     /// However, some resources could be managed by the XNA content pipeline and the content manager does not allow individual disposes in all type of assets.
     /// If you want to dispose this unmanaged resource use the unload method of the content manager.
     /// </summary>
+    [Serializable]
     public abstract class Asset : Disposable
     {
 
@@ -62,9 +63,7 @@ namespace XNAFinalEngine.Assets
 
         // The content manager that stores this asset.
         private ContentManager contentManager;
-
-        private bool hidden;
-
+        
         // Loaded assets of this type.
         private static readonly List<Asset> loadedAssets = new List<Asset>();
 
@@ -113,6 +112,8 @@ namespace XNAFinalEngine.Assets
             get { return contentManager; }
             internal set
             {
+                if (contentManager != null)
+                    contentManager.Assets.Remove(this);
                 contentManager = value;
                 if (value != null)
                     value.Assets.Add(this);
@@ -120,22 +121,18 @@ namespace XNAFinalEngine.Assets
         } // ContentManager
         
         /// <summary>
-        /// This is a flag that tells to the editor that it has to be hiding from the user.
-        /// Hidden objects are not saved.
+        /// This is a flag controled by the content manager that tells to the editor that the asset has to be hiding from the user.
+        /// Hidden objects are also not saved.
         /// </summary>
-        /// <remarks>
-        /// If the assets is managed by a content manager then the asset has the visibility of it.
-        /// </remarks>
         public bool Hidden
         {
             get
             {
-                if (ContentManager != null)
-                    return ContentManager.Hidden;
-                return hidden;
+                if (ContentManager == null)
+                    return true;
+                return ContentManager.Hidden;
             }
-            set { hidden = value; }
-        } // Hidden
+        }
 
         #region Loaded Assets
 
@@ -177,6 +174,7 @@ namespace XNAFinalEngine.Assets
             uniqueIdCounter++;
             LoadedAssets.Add(this);
             areLoadedAssetsSorted = false;
+            ContentManager = ContentManager.CurrentContentManager;
         } // Asset
 
         #endregion

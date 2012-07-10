@@ -225,6 +225,8 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected override void DisposeManagedResources()
         {
+            // This type of resource can be disposed ignoring the content manager.
+            ContentManager = null; // This is done to avoid an exception.
             base.DisposeManagedResources();
             Resource.Dispose();
         } // DisposeManagedResources
@@ -245,21 +247,6 @@ namespace XNAFinalEngine.Assets
             else
                 Create(Filename.Substring(30)); // Removes "Textures\\"
         } // RecreateResource
-
-        /// <summary>
-        /// Recreate lookup tables created without using a content manager.
-        /// </summary>
-        internal static void RecreateLookupTablesWithoutContentManager()
-        {
-            foreach (Asset lookupTable in LoadedAssets)
-            {
-                if (lookupTable is LookupTable)
-                {
-                    ((LookupTable)lookupTable).Resource.Dispose();
-                    lookupTable.RecreateResource();
-                }
-            }
-        } // RecreateLookupTablesWithoutContentManager
 
         #endregion
 
