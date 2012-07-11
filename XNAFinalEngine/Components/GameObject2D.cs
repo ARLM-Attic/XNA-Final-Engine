@@ -178,16 +178,7 @@ namespace XNAFinalEngine.Components
         #region Constructor
 
         /// <summary>
-        /// 
-        /// </summary>
-        public GameObject2D(string name)
-        {
-            Name = name;
-            Initialize();
-        } // GameObject2D
-
-        /// <summary>
-        /// 
+        /// Game Object 2D.
         /// </summary>
         public GameObject2D()
         {
@@ -233,6 +224,7 @@ namespace XNAFinalEngine.Components
         /// <typeparam name="TComponentType">Component Type</typeparam>
         public override Component AddComponent<TComponentType>()
         {
+            Component result = null;
 
             #region Transform
 
@@ -262,7 +254,7 @@ namespace XNAFinalEngine.Components
                 HudText = HudText.ComponentPool2D[hudTextAccessor];
                 // Initialize the component to the default values.
                 HudText.Initialize(this);
-                return HudText;
+                result = HudText;
             }
 
             #endregion
@@ -281,7 +273,7 @@ namespace XNAFinalEngine.Components
                 HudTexture = HudTexture.ComponentPool2D[hudTextureAccessor];
                 // Initialize the component to the default values.
                 HudTexture.Initialize(this);
-                return HudTexture;
+                result = HudTexture;
             }
 
             #endregion
@@ -300,7 +292,7 @@ namespace XNAFinalEngine.Components
                 videoRenderer = VideoRenderer.ComponentPool[videoRendererAccessor];
                 // Initialize the component to the default values.
                 videoRenderer.Initialize(this);
-                return videoRenderer;
+                result = videoRenderer;
             }
 
             #endregion
@@ -319,34 +311,37 @@ namespace XNAFinalEngine.Components
                 lineRenderer = LineRenderer.ComponentPool2D[lineRendererAccessor];
                 // Initialize the component to the default values.
                 lineRenderer.Initialize(this);
-                return lineRenderer;
+                result = lineRenderer;
             }
 
             #endregion
 
             #region Script
 
-            // Hacerlo de otra manera, creo. Algo como add script y remove script. Los script se comportan diferente que el resto de los componentes.
             if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
             {
-                Component script = Script.ContainScript<TComponentType>(this);
+                Component script = XNAFinalEngine.Components.Script.ContainScript<TComponentType>(this);
                 if (script != null)
                 {
-                    throw new ArgumentException("Game Object 2D: Unable to create the script component. There is one already.");
+                    throw new ArgumentException("Game Object 3D: Unable to create the script component. There is one already.");
                 }
-                script = Script.FetchScript<TComponentType>();
+                script = XNAFinalEngine.Components.Script.FetchScript<TComponentType>();
                 if (script == null)
                 {
                     script = new TComponentType();
-                    Script.ScriptList.Add((Script)script);
+                    XNAFinalEngine.Components.Script.ScriptList.Add((Script)script);
                 }
                 script.Initialize(this);
-                return script;
+                scripts.Add((Script)script);
+                result = script;
             }
 
             #endregion
 
-            throw new ArgumentException("Game Object 2D: Unknown component type.");
+            if (result == null)
+                throw new ArgumentException("Game Object 2D: Unknown component type.");
+            Components.Add(result);
+            return result;
         } // AddComponent
 
         #endregion
@@ -385,6 +380,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 2D: Unable to remove the HUD text component. There is not one.");
                 }
                 HudText.Uninitialize();
+                Components.Remove(HudText);
                 HudText.ComponentPool2D.Release(hudTextAccessor);
                 HudText = null;
                 hudTextAccessor = null;
@@ -401,6 +397,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 2D: Unable to remove the HUD texture component. There is not one.");
                 }
                 HudTexture.Uninitialize();
+                Components.Remove(HudTexture);
                 HudTexture.ComponentPool2D.Release(hudTextureAccessor);
                 HudTexture = null;
                 hudTextureAccessor = null;
@@ -417,6 +414,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 2D: Unable to remove the video renderer component. There is not one.");
                 }
                 VideoRenderer.Uninitialize();
+                Components.Remove(VideoRenderer);
                 VideoRenderer.ComponentPool.Release(videoRendererAccessor);
                 VideoRenderer = null;
                 videoRendererAccessor = null;
@@ -433,6 +431,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 2D: Unable to remove the line renderer component. There is not one.");
                 }
                 LineRenderer.Uninitialize();
+                Components.Remove(LineRenderer);
                 LineRenderer.ComponentPool2D.Release(lineRendererAccessor);
                 LineRenderer = null;
                 lineRendererAccessor = null;
@@ -444,12 +443,14 @@ namespace XNAFinalEngine.Components
 
             if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
             {
-                Component script = Script.ContainScript<TComponentType>(this);
+                Component script = XNAFinalEngine.Components.Script.ContainScript<TComponentType>(this);
                 if (script == null)
                 {
-                    throw new ArgumentException("Game Object 3D: Unable to remove the script component. There is not one.");
+                    throw new ArgumentException("Game Object 2D: Unable to remove the script component. There is not one.");
                 }
                 script.Uninitialize();
+                Components.Remove(script);
+                scripts.Remove((Script)script);
             }
 
             #endregion
@@ -473,10 +474,9 @@ namespace XNAFinalEngine.Components
                 RemoveComponent<VideoRenderer>();
             if (LineRenderer != null)
                 RemoveComponent<LineRenderer>();
-            while (Script.ContainScript<Script>(this) != null)
-            {
-                Script.ContainScript<Script>(this).Uninitialize();
-            }
+            foreach (var script in scripts)
+                script.Uninitialize();
+            scripts.Clear();
         } // RemoveAllComponents
 
         #endregion

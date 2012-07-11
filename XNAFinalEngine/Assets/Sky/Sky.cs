@@ -33,7 +33,7 @@ namespace XNAFinalEngine.Assets
 	/// <summary>
     ///  Base class for sky. I.e. skybox, skydome, daynightskydome, etc.
 	/// </summary>
-    public abstract class Sky : AssetWhitoutResource
+    public abstract class Sky : AssetWithoutResource
 	{
 
         #region Variables

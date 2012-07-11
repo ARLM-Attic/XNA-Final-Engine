@@ -33,6 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Serialization;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -45,7 +46,6 @@ namespace XNAFinalEngine.Assets
     /// However, some resources could be managed by the XNA content pipeline and the content manager does not allow individual disposes in all type of assets.
     /// If you want to dispose this unmanaged resource use the unload method of the content manager.
     /// </summary>
-    [Serializable]
     public abstract class Asset : Disposable
     {
 
@@ -77,11 +77,13 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Identification number. Every asset has a unique ID.
         /// </summary>
+        [XmlIgnore]
         public long Id { get; private set; }
 
         /// <summary>
         /// Asset Filename (if any).
         /// </summary>
+        [XmlIgnore]
         public string Filename { get; protected set; }
 
         /// <summary>
@@ -107,7 +109,8 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// The content manager that stores this asset.
         /// </summary>
-        public ContentManager ContentManager
+        [XmlIgnore]
+        public virtual ContentManager ContentManager
         {
             get { return contentManager; }
             internal set
@@ -124,6 +127,7 @@ namespace XNAFinalEngine.Assets
         /// This is a flag controled by the content manager that tells to the editor that the asset has to be hiding from the user.
         /// Hidden objects are also not saved.
         /// </summary>
+        [XmlIgnore]
         public bool Hidden
         {
             get

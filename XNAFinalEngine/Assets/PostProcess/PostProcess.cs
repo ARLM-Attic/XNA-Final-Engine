@@ -34,7 +34,7 @@ namespace XNAFinalEngine.Assets
     /// <summary>
     /// This is used to add post process effects like tone mapping, bloom, MLAA, film grain, and color grading.
     /// </summary>
-    public class PostProcess : AssetWhitoutResource
+    public class PostProcess : AssetWithoutResource
     {
 
         #region Variables

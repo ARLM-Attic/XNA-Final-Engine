@@ -34,6 +34,8 @@ namespace XNAFinalEngine.Components
         // Default layer mask = 1 (the default layer).
         private uint layerMask = 1;
 
+        protected readonly List<Script> scripts = new List<Script>(2);
+
         #endregion
 
         #region Properties
@@ -76,6 +78,25 @@ namespace XNAFinalEngine.Components
                     LayerChanged(this, layerMask);
             }
         } // Layer
+
+        /// <summary>
+        /// Gets a script of certain type associated with this game object.
+        /// </summary>
+        public Script Script<TComponentType>() where TComponentType : Component
+        {
+            foreach (var script in scripts)
+            {
+                if (typeof(TComponentType) == script.GetType())
+                    return script;
+            }
+            return null;
+            //return XNAFinalEngine.Components.Script.ContainScript<TComponentType>(this);
+        } // Script
+
+        /// <summary>
+        /// Components of this game object.
+        /// </summary>
+        public List<Component> Components { get; protected set; }
 
         /// <summary>
         /// Loaded game objects
@@ -136,6 +157,7 @@ namespace XNAFinalEngine.Components
             Id = uniqueIdCounter;
             uniqueIdCounter++;
             GameObjects.Add(this);
+            Components = new List<Component>(5);
         } // GameObject
 
         /// <summary>

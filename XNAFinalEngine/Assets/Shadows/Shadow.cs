@@ -38,7 +38,7 @@ namespace XNAFinalEngine.Assets
 	/// <summary>
 	/// Shadows.
 	/// </summary>
-    public abstract class Shadow : AssetWhitoutResource
+    public abstract class Shadow : AssetWithoutResource
 	{
 
         #region Enumerates

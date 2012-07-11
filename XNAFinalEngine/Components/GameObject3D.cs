@@ -57,7 +57,6 @@ namespace XNAFinalEngine.Components
         private Light light;
         private ParticleEmitter particleEmitter;
         private ParticleRenderer particleRenderer;
-        private readonly List<Script> scripts = new List<Script>(2);
         private SoundEmitter soundEmitter;
         private SoundListener soundListener;
         private HudText hudText;
@@ -363,18 +362,6 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
-        #region Script
-
-        /// <summary>
-        /// Gets a script of certain type associated with this game object.
-        /// </summary>
-        public Script Script<TComponentType>() where TComponentType : Component
-        {
-            return Components.Script.ContainScript<TComponentType>(this);
-        } // Script
-
-        #endregion
-
         #endregion
 
         #region Events
@@ -451,33 +438,11 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Base class for all entities in the scenes.
         /// </summary>
-        public GameObject3D(string name)
-        {
-            Name = name;
-            Initialize();
-        } // GameObject3D
-
-        /// <summary>
-        /// Base class for all entities in the scenes.
-        /// </summary>
         public GameObject3D()
         {
             Name = "GameObject3D-" + nameNumber;
             nameNumber++;
             Initialize();
-        } // GameObject3D
-
-        /// <summary>
-        /// Base class for all entities in the scenes.
-        /// </summary>
-        public GameObject3D(string name, Model model, Material material)
-        {
-            Name = name;
-            Initialize();
-            AddComponent<ModelRenderer>();
-            AddComponent<ModelFilter>();
-            ModelFilter.Model = model;
-            ModelRenderer.Material = material;
         } // GameObject3D
 
         /// <summary>
@@ -540,6 +505,7 @@ namespace XNAFinalEngine.Components
         /// <typeparam name="TComponentType">Component Type</typeparam>
         public override Component AddComponent<TComponentType>()
         {
+            Component result = null;
 
             #region Transform
 
@@ -569,7 +535,7 @@ namespace XNAFinalEngine.Components
                 ModelFilter = ModelFilter.ComponentPool[modelFilterAccessor];
                 // Initialize the component to the default values.
                 ModelFilter.Initialize(this);
-                return ModelFilter;
+                result = ModelFilter;
             }
 
             #endregion
@@ -588,7 +554,7 @@ namespace XNAFinalEngine.Components
                 ModelRenderer = ModelRenderer.ComponentPool[modelRendererAccessor];
                 // Initialize the component to the default values.
                 ModelRenderer.Initialize(this);
-                return ModelRenderer;
+                result = ModelRenderer;
             }
 
             #endregion
@@ -607,7 +573,7 @@ namespace XNAFinalEngine.Components
                 RootAnimations = RootAnimations.ComponentPool[rootAnimationAccessor];
                 // Initialize the component to the default values.
                 RootAnimations.Initialize(this);
-                return RootAnimations;
+                result = RootAnimations;
             }
 
             #endregion
@@ -626,7 +592,7 @@ namespace XNAFinalEngine.Components
                 ModelAnimations = ModelAnimations.ComponentPool[modelAnimationAccessor];
                 // Initialize the component to the default values.
                 ModelAnimations.Initialize(this);
-                return ModelAnimations;
+                result = ModelAnimations;
             }
 
             #endregion
@@ -645,7 +611,7 @@ namespace XNAFinalEngine.Components
                 Camera = Camera.ComponentPool[cameraAccessor];
                 // Initialize the component to the default values.
                 Camera.Initialize(this);
-                return Camera;
+                result = Camera;
             }
 
             #endregion
@@ -686,7 +652,7 @@ namespace XNAFinalEngine.Components
                     throw new ArgumentException("Game Object 3D: Unable to create the light component.");
                 // Initialize the component to the default values.
                 Light.Initialize(this);
-                return Light;
+                result = Light;
             }
 
             #endregion
@@ -706,7 +672,7 @@ namespace XNAFinalEngine.Components
 
                 // Initialize the component to the default values.
                 ParticleEmitter.Initialize(this);
-                return ParticleEmitter;
+                result = ParticleEmitter;
             }
 
             #endregion
@@ -725,7 +691,7 @@ namespace XNAFinalEngine.Components
                 ParticleRenderer = ParticleRenderer.ComponentPool[particleRendererAccessor];
                 // Initialize the component to the default values.
                 ParticleRenderer.Initialize(this);
-                return ParticleRenderer;
+                result = ParticleRenderer;
             }
 
             #endregion
@@ -734,19 +700,20 @@ namespace XNAFinalEngine.Components
             
             if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
             {
-                Component script = Components.Script.ContainScript<TComponentType>(this);
+                Component script = XNAFinalEngine.Components.Script.ContainScript<TComponentType>(this);
                 if (script != null)
                 {
                     throw new ArgumentException("Game Object 3D: Unable to create the script component. There is one already.");
                 }
-                script = Components.Script.FetchScript<TComponentType>();
+                script = XNAFinalEngine.Components.Script.FetchScript<TComponentType>();
                 if (script == null)
                 {
                     script = new TComponentType();
-                    Components.Script.ScriptList.Add((Script)script);
+                    XNAFinalEngine.Components.Script.ScriptList.Add((Script)script);
                 }
                 script.Initialize(this);
-                return script;
+                scripts.Add((Script)script);
+                result = script;
             }
 
             #endregion
@@ -765,7 +732,7 @@ namespace XNAFinalEngine.Components
                 SoundEmitter = SoundEmitter.ComponentPool[soundEmitterAccessor];
                 // Initialize the component to the default values.
                 SoundEmitter.Initialize(this);
-                return SoundEmitter;
+                result = SoundEmitter;
             }
 
             #endregion
@@ -784,7 +751,7 @@ namespace XNAFinalEngine.Components
                 SoundListener = SoundListener.ComponentPool[soundListenerAccessor];
                 // Initialize the component to the default values.
                 SoundListener.Initialize(this);
-                return SoundListener;
+                result = SoundListener;
             }
 
             #endregion
@@ -803,7 +770,7 @@ namespace XNAFinalEngine.Components
                 HudText = HudText.ComponentPool3D[hudTextAccessor];
                 // Initialize the component to the default values.
                 HudText.Initialize(this);
-                return HudText;
+                result = HudText;
             }
 
             #endregion
@@ -822,7 +789,7 @@ namespace XNAFinalEngine.Components
                 HudTexture = HudTexture.ComponentPool3D[hudTextureAccessor];
                 // Initialize the component to the default values.
                 HudTexture.Initialize(this);
-                return HudTexture;
+                result = HudTexture;
             }
 
             #endregion
@@ -841,12 +808,15 @@ namespace XNAFinalEngine.Components
                 lineRenderer = LineRenderer.ComponentPool3D[lineRendererAccessor];
                 // Initialize the component to the default values.
                 lineRenderer.Initialize(this);
-                return lineRenderer;
+                result = lineRenderer;
             }
 
             #endregion
 
-            throw new ArgumentException("Game Object 3D: Unknown component type.");
+            if (result == null)
+                throw new ArgumentException("Game Object 3D: Unknown component type.");
+            Components.Add(result);
+            return result;
         } // AddComponent
 
         #endregion
@@ -885,6 +855,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the model filter component. There is not one.");
                 }
                 ModelFilter.Uninitialize();
+                Components.Remove(ModelFilter);
                 ModelFilter.ComponentPool.Release(modelFilterAccessor);
                 ModelFilter = null;
                 modelFilterAccessor = null;
@@ -901,6 +872,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the model renderer component. There is not one.");
                 }
                 ModelRenderer.Uninitialize();
+                Components.Remove(ModelRenderer);
                 ModelRenderer.ComponentPool.Release(modelRendererAccessor);
                 ModelRenderer = null;
                 modelRendererAccessor = null;
@@ -917,6 +889,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the root animation component. There is not one.");
                 }
                 RootAnimations.Uninitialize();
+                Components.Remove(RootAnimations);
                 RootAnimations.ComponentPool.Release(rootAnimationAccessor);
                 RootAnimations = null;
                 rootAnimationAccessor = null;
@@ -928,6 +901,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the model animation component. There is not one.");
                 }
                 ModelAnimations.Uninitialize();
+                Components.Remove(ModelAnimations);
                 ModelAnimations.ComponentPool.Release(modelAnimationAccessor);
                 ModelAnimations = null;
                 modelAnimationAccessor = null;
@@ -944,9 +918,11 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the camera component. There is not one.");
                 }
                 Camera.Uninitialize();
+                Components.Remove(Camera);
                 Camera.ComponentPool.Release(cameraAccessor);
                 Camera = null;
                 cameraAccessor = null;
+                Camera.SortCamerasByRenderingOrder();
             }
 
             #endregion
@@ -982,6 +958,7 @@ namespace XNAFinalEngine.Components
                 {
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the light component.");
                 }
+                Components.Remove(Light);
                 Light = null;
             }
 
@@ -996,6 +973,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the particle emitter component. There is not one.");
                 }
                 ParticleEmitter.Uninitialize();
+                Components.Remove(ParticleEmitter);
                 ParticleEmitter.ComponentPool.Release(particleEmitterAccessor);
                 ParticleEmitter = null;
                 particleEmitterAccessor = null;
@@ -1012,6 +990,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the particle renderer component. There is not one.");
                 }
                 ParticleRenderer.Uninitialize();
+                Components.Remove(ParticleRenderer);
                 ParticleRenderer.ComponentPool.Release(particleRendererAccessor);
                 ParticleRenderer = null;
                 particleRendererAccessor = null;
@@ -1023,12 +1002,14 @@ namespace XNAFinalEngine.Components
 
             if (typeof(Script).IsAssignableFrom(typeof(TComponentType)))
             {
-                Component script = Components.Script.ContainScript<TComponentType>(this);
+                Component script = XNAFinalEngine.Components.Script.ContainScript<TComponentType>(this);
                 if (script == null)
                 {
                     throw new ArgumentException("Game Object 3D: Unable to remove the script component. There is not one.");
                 }
                 script.Uninitialize();
+                Components.Remove(script);
+                scripts.Remove((Script)script);
             }
 
             #endregion
@@ -1042,6 +1023,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the sound emitter component. There is not one.");
                 }
                 SoundEmitter.Uninitialize();
+                Components.Remove(SoundEmitter);
                 SoundEmitter.ComponentPool.Release(soundEmitterAccessor);
                 SoundEmitter = null;
                 soundEmitterAccessor = null;
@@ -1058,6 +1040,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the sound listener component. There is not one.");
                 }
                 SoundListener.Uninitialize();
+                Components.Remove(SoundListener);
                 SoundListener.ComponentPool.Release(soundListenerAccessor);
                 SoundListener = null;
                 soundListenerAccessor = null;
@@ -1074,6 +1057,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the HUD text component. There is not one.");
                 }
                 HudText.Uninitialize();
+                Components.Remove(HudText);
                 HudText.ComponentPool3D.Release(hudTextAccessor);
                 HudText = null;
                 hudTextAccessor = null;
@@ -1090,6 +1074,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the HUD texture component. There is not one.");
                 }
                 HudTexture.Uninitialize();
+                Components.Remove(HudTexture);
                 HudTexture.ComponentPool3D.Release(hudTextureAccessor);
                 HudTexture = null;
                 hudTextureAccessor = null;
@@ -1106,6 +1091,7 @@ namespace XNAFinalEngine.Components
                     throw new InvalidOperationException("Game Object 3D: Unable to remove the line renderer component. There is not one.");
                 }
                 LineRenderer.Uninitialize();
+                Components.Remove(LineRenderer);
                 LineRenderer.ComponentPool3D.Release(lineRendererAccessor);
                 LineRenderer = null;
                 lineRendererAccessor = null;
@@ -1154,10 +1140,9 @@ namespace XNAFinalEngine.Components
                 RemoveComponent<HudTexture>();
             if (LineRenderer != null)
                 RemoveComponent<LineRenderer>();
-            while (Components.Script.ContainScript<Script>(this) != null)
-            {
-                Components.Script.ContainScript<Script>(this).Uninitialize();
-            }
+            foreach (var script in scripts)
+                script.Uninitialize();
+            scripts.Clear();
         } // RemoveAllComponents
 
         #endregion

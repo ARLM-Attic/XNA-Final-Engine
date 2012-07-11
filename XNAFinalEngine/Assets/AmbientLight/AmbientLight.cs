@@ -29,7 +29,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using System;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Graphics;
 #endregion
@@ -42,8 +42,7 @@ namespace XNAFinalEngine.Assets
     /// This includes spherical harmonic lighting, ambient occlusion 
     /// and clear color (a fixed-intensity and fixed-color light source that affects all objects in the scene equally).
     /// </summary>
-    [Serializable]
-    public class AmbientLight : AssetWhitoutResource
+    public class AmbientLight : AssetWithoutResource
     {
         
         #region Variables
@@ -100,6 +99,7 @@ namespace XNAFinalEngine.Assets
         /// Ambient Occlusion Effect.
         /// If null no ambient occlusion will be used.
         /// </summary>
+        [XmlIgnore]
         public AmbientOcclusion AmbientOcclusion { get; set; }
 
         /// <summary>

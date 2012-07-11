@@ -34,7 +34,7 @@ namespace XNAFinalEngine.Assets
     /// Not Resourced Asset.
     /// They have a content manager but can be disposed independently.
 	/// </summary>
-    public abstract class AssetWhitoutResource : Asset
+    public abstract class AssetWithoutResource : Asset
 	{
 
         #region Dispose
@@ -51,5 +51,17 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
-    } // AssetWhitoutResource
+        #region Change Content Manager
+
+        /// <summary>
+        /// Change the content manager.
+        /// </summary>
+        public void ChangeContentManager(ContentManager contentManager)
+        {
+            ContentManager = contentManager;
+        } // ChangeContentManager
+
+        #endregion
+
+    } // AssetWithoutResource
 } // XNAFinalEngine.Assets

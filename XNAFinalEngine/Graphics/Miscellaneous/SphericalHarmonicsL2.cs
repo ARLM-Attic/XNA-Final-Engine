@@ -50,47 +50,47 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Spherical Harmonic RGB coefficient.
         /// </summary>
-        public Vector3 C0 { get { return c0; } }
+        public Vector3 C0 { get { return c0; } set { c0 = value; } }
 
         /// <summary>
         /// Spherical Harmonic RGB coefficient.
         /// </summary>
-        public Vector3 C1 { get { return c1; } }
+        public Vector3 C1 { get { return c1; } set { c1 = value; } }
 
         /// <summary>
         /// Spherical Harmonic RGB coefficient.
         /// </summary>
-        public Vector3 C2 { get { return c2; } }
+        public Vector3 C2 { get { return c2; } set { c2 = value; } }
 
         /// <summary>
         /// Spherical Harmonic RGB coefficient.
         /// </summary>
-        public Vector3 C3 { get { return c3; } }
+        public Vector3 C3 { get { return c3; } set { c3 = value; } }
 
         /// <summary>
         /// Spherical Harmonic RGB coefficient.
         /// </summary>
-        public Vector3 C4 { get { return c4; } }
+        public Vector3 C4 { get { return c4; } set { c4 = value; } }
 
         /// <summary>
         /// Spherical Harmonic RGB coefficient.
         /// </summary>
-        public Vector3 C5 { get { return c5; } }
+        public Vector3 C5 { get { return c5; } set { c5 = value; } }
 
         /// <summary>
         /// Spherical Harmonic RGB coefficient.
         /// </summary>
-        public Vector3 C6 { get { return c6; } }
+        public Vector3 C6 { get { return c6; } set { c6 = value; } }
 
         /// <summary>
         /// Spherical Harmonic RGB coefficient.
         /// </summary>
-        public Vector3 C7 { get { return c7; } }
+        public Vector3 C7 { get { return c7; } set { c7 = value; } }
 
         /// <summary>
         /// Spherical Harmonic RGB coefficient.
         /// </summary>
-        public Vector3 C8 { get { return c8; } }
+        public Vector3 C8 { get { return c8; } set { c8 = value; } }
         
         #endregion
 

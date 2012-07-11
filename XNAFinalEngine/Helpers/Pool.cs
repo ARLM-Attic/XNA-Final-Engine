@@ -221,7 +221,7 @@ namespace XNAFinalEngine.Helpers
             T accesorPoolElement = Elements[accessor.Index]; // If T is a type by reference we can lost its value
             Elements[accessor.Index] = Elements[Count - 1];
             Elements[Count - 1] = accesorPoolElement;
-            // The indices have the wrong value. The indices have the wrong value. The last has to index its new place and vice versa.
+            // The indices have the wrong value.The last has to index its new place and vice versa.
             int accesorOldIndex = accessor.Index;
             accessor.Index = Count - 1;
             accessors[Count - 1].Index = accesorOldIndex;
@@ -245,6 +245,14 @@ namespace XNAFinalEngine.Helpers
             T temp = Elements[i];
             Elements[i] = Elements[j];
             Elements[j] = temp;
+            // The indices have the wrong value.The last has to index its new place and vice versa.
+            int accesorOldIndex = accessors[i].Index;
+            accessors[i].Index = j;
+            accessors[j].Index = accesorOldIndex;
+            // Also the accessor array has to be sorted. If not the fetch method will give a used accessor element.
+            Accessor lastActiveAccessor = accessors[i]; // Accessor is a reference type.
+            accessors[i] = accessors[j];
+            accessors[j] = lastActiveAccessor;
         } // Swap
 
         #endregion

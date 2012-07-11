@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
@@ -550,7 +551,13 @@ namespace XNAFinalEngine.Editor
                         size = new Size((int)(renderTargetAspectRatio * ClientArea.Height), ClientArea.Height);
                     viewportCamera.Camera.RenderTargetSize = size;
                 }
-                    
+                if (viewportCamera.Camera.RenderTarget == null)
+                {
+                    ContentManager userContentManager = ContentManager.CurrentContentManager;
+                    ContentManager.CurrentContentManager = EditorManager.EditorContentManager;
+                    viewportCamera.Camera.RenderTarget = new RenderTarget(viewportCamera.Camera.RenderTargetSize, SurfaceFormat.Color, false);
+                    ContentManager.CurrentContentManager = userContentManager;
+                }
             }
         } // OnScreenSizeChanged
 

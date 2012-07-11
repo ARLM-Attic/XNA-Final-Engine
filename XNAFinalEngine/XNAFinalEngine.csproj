@@ -123,7 +123,7 @@
     <Compile Include="Assets\Shaders\Shader.cs" />
     <Compile Include="Assets\Shadows\CascadedShadow.cs" />
     <Compile Include="Assets\Shadows\BasicShadow.cs" />
-    <Compile Include="Assets\AssetWhitoutResource.cs" />
+    <Compile Include="Assets\AssetWithoutResource.cs" />
     <Compile Include="Assets\Sky\Skydome.cs" />
     <Compile Include="Assets\Sky\Skybox.cs" />
     <Compile Include="Assets\Sky\Sky.cs" />

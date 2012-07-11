@@ -203,7 +203,7 @@ namespace XNAFinalEngine.Assets
         static Texture()
         {
             #if XBOX
-                TexturesFilenames = new string[0];
+                Filenames = new string[0];
             #else
                 const string texturesDirectoryPath = ContentManager.GameDataDirectory + "Textures";
                 // Search the texture files //

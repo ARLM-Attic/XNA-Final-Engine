@@ -4,6 +4,10 @@
 //          Schefer, Gustavo Martin (Under Microsoft Permisive License)
 #endregion
 
+#region Using directives
+using System.Xml.Serialization;
+#endregion
+
 namespace XNAFinalEngine.Components
 {
 
@@ -15,26 +19,40 @@ namespace XNAFinalEngine.Components
 
         #region Variables
 
+        // A simple but effective way of having unique ids.
+        // We can have 18.446.744.073.709.551.616 game object creations before the system "collapse". Almost infinite in practice. 
+        // If a more robust system is needed (networking/threading) then you can use the guid structure: http://msdn.microsoft.com/en-us/library/system.guid.aspx
+        // However this method is slightly simpler, slightly faster and has slightly lower memory requirements.
+        // If performance is critical consider the int type (4.294.967.294 unique values).
+        private static long uniqueIdCounter = long.MinValue;
+
         /// <summary>
         /// Chaded game object's layer mask value.
         /// Every component tests if its layer mask is currently valid.
         /// </summary>
-        internal uint CachedLayerMask;
+        private uint cachedLayerMask;
 
         /// <summary>
         /// Chaded game object's active value.
         /// Every component tests if its owner is currently active.
         /// </summary>
-        internal bool CachedOwnerActive;
+        private bool cachedOwnerActive;
 
         #endregion
 
         #region Properties
 
         /// <summary>
+        /// Identification number. Every game object has a unique ID.
+        /// </summary>
+        [XmlIgnore]
+        public long Id { get; private set; }
+
+        /// <summary>
         /// The game object this component is attached to.
         /// A component is always attached to one game object.
         /// </summary>
+        [XmlIgnore]
         public GameObject Owner { get; internal set; }
 
         /// <summary>
@@ -46,13 +64,15 @@ namespace XNAFinalEngine.Components
         /// Indicates if the layer is active.
         /// I.e. if it is enable, the owner is active and its layer is active.
         /// </summary>
-        public bool IsActive { get { return Layer.IsActive(CachedLayerMask) && CachedOwnerActive && Enabled; } }
+        [XmlIgnore]
+        public bool IsActive { get { return Layer.IsActive(cachedLayerMask) && cachedOwnerActive && Enabled; } }
 
         /// <summary>
         /// Indicates if the layer is visible.
         /// I.e. if it is enable, the owner is active and its layer is visible (includes the current camera culling mask in the answer).
         /// </summary>
-        public bool IsVisible { get { return Layer.IsVisible(CachedLayerMask) && CachedOwnerActive && Enabled; } }
+        [XmlIgnore]
+        public bool IsVisible { get { return Layer.IsVisible(cachedLayerMask) && cachedOwnerActive && Enabled; } }
 
         #endregion
 
@@ -65,6 +85,9 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal Component()
         {
+            // Create a unique ID
+            Id = uniqueIdCounter;
+            uniqueIdCounter++;
         } // Component
 
         #endregion
@@ -79,10 +102,10 @@ namespace XNAFinalEngine.Components
             Owner = owner;
             Enabled = true;
             // Set Owner's layer.
-            CachedLayerMask = Owner.Layer.Mask;
+            cachedLayerMask = Owner.Layer.Mask;
             Owner.LayerChanged += OnLayerChanged;
             // Set Owner's active state.
-            CachedOwnerActive = Owner.Active;
+            cachedOwnerActive = Owner.Active;
             Owner.ActiveChanged += OnActiveChanged;
         } // Initialize
 
@@ -110,7 +133,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         private void OnLayerChanged(object sender, uint layerMask)
         {
-            CachedLayerMask = layerMask;
+            cachedLayerMask = layerMask;
         } // OnLayerChanged
 
         #endregion
@@ -122,7 +145,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         private void OnActiveChanged(object sender, bool active)
         {
-            CachedOwnerActive = active;
+            cachedOwnerActive = active;
         } // OnActiveChanged
 
         #endregion

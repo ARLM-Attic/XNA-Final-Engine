@@ -33,7 +33,6 @@ using Microsoft.Xna.Framework;
 using XNAFinalEngine.Animations;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
-using XNAFinalEngine.Editor;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
@@ -220,13 +219,6 @@ namespace XNAFinalEngineExamples
                 LightDepthTextureSize = Size.Square1024X1024,
                 TextureSize = Size.TextureSize.HalfSize
             };
-
-            #endregion
-            
-            #region Statistics
-            
-            statistics = new GameObject2D();
-            statistics.AddComponent<ScriptStatisticsDrawer>();
 
             #endregion
 

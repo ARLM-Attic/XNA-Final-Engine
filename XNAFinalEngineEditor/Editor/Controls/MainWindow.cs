@@ -128,6 +128,8 @@ namespace XNAFinalEngine.Editor
                 new MenuItem("Save Scene as...") { RightSideText = "Ctrl+Shift+S"},
                 new MenuItem("Exit", true) { SeparationLine = true },
             });
+            menuItemFile.Items[0].Click += delegate { StorageManager.ClearScene(); };
+            menuItemFile.Items[1].Click += delegate { StorageManager.LoadScene(); };
             menuItemFile.Items[2].Click += delegate { StorageManager.SaveScene(); };
 
             #endregion

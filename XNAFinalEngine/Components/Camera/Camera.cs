@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
@@ -163,6 +164,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Ambient light.
         /// </summary>
+        [XmlIgnore]
         public AmbientLight AmbientLight { get; set; }
 
         #endregion
@@ -172,6 +174,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// The background sky shader.
         /// </summary>
+        [XmlIgnore]
         public Sky Sky { get; set; }
 
         #endregion
@@ -181,6 +184,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Post process effects applied to this camera.
         /// </summary>
+        [XmlIgnore]
         public PostProcess PostProcess
         {
             get { return postProcess; }
@@ -206,6 +210,7 @@ namespace XNAFinalEngine.Components
         /// This render target stores both, the master camera’s result and its slaves camera’s results.
         /// The render target is automatically set.
         /// </summary>
+        [XmlIgnore]
         public RenderTarget RenderTarget
         {
             get
@@ -253,8 +258,11 @@ namespace XNAFinalEngine.Components
                 if (RenderTarget != null && renderTargetSize != value)
                 {
                     // Recreate render target with new size
+                    ContentManager userContentManager = ContentManager.CurrentContentManager;
+                    ContentManager.CurrentContentManager = RenderTarget.ContentManager;
                     RenderTarget.Dispose();
                     RenderTarget = new RenderTarget(value, RenderTarget.SurfaceFormat, RenderTarget.DepthFormat, RenderTarget.Antialiasing);
+                    ContentManager.CurrentContentManager = userContentManager;
                 }
                 renderTargetSize = value;
                 CalculateProjectionMatrix(); // The render target size could affect the aspect ratio.
@@ -315,14 +323,17 @@ namespace XNAFinalEngine.Components
 
         /// <summary>Camera position.</summary>
         /// <remarks>The view matrix is the inverse of the camera's world matrix. Consequently the view matrix can't be used directly.</remarks>
+        [XmlIgnore]
         public Vector3 Position { get; private set; }
 
         /// <summary>Camera up vector.</summary>
         /// <remarks>The view matrix is the inverse of the camera's world matrix. Consequently the view matrix can't be used directly.</remarks>
+        [XmlIgnore]
         public Vector3 Up { get; private set; }
 
         /// <summary>Camera forward vector.</summary>
         /// <remarks>The view matrix is the inverse of the camera's world matrix. Consequently the view matrix can't be used directly.</remarks>
+        [XmlIgnore]
         public Vector3 Forward { get; private set; }
 
         #endregion
@@ -496,6 +507,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// True if the camera needs a viewport (split screen) for render.
         /// </summary>
+        [XmlIgnore]
         public bool NeedViewport { get { return NormalizedViewport != new RectangleF(0, 0, 1, 1); } }
 
         #endregion
@@ -521,12 +533,7 @@ namespace XNAFinalEngine.Components
             set
             {
                 renderingOrder = value;
-                // Sort the camera pool using the rendering order.
-                for (int i = 0; i < componentPool.Count; i++)
-                {
-                    if (componentPool.Elements[i].RenderingOrder > componentPool.Elements[componentPool.Count - 1].RenderingOrder)
-                        componentPool.Swap(i, componentPool.Count - 1);
-                }
+                SortCamerasByRenderingOrder();
             }
         } // RenderingOrder
 
@@ -749,6 +756,23 @@ namespace XNAFinalEngine.Components
         {
             CalculateProjectionMatrix();
         } // OnScreenSizeChanged
+
+        #endregion
+
+        #region Sort Cameras By Rendering Order
+
+        /// <summary>
+        /// Sort cameras by rendering order.
+        /// </summary>
+        internal static void SortCamerasByRenderingOrder()
+        {
+            // Sort the camera pool using the rendering order.
+            for (int i = 0; i < componentPool.Count; i++)
+            {
+                if (componentPool.Elements[i].RenderingOrder > componentPool.Elements[componentPool.Count - 1].RenderingOrder)
+                    componentPool.Swap(i, componentPool.Count - 1);
+            }
+        } // SortCamerasByRenderingOrder
 
         #endregion
 

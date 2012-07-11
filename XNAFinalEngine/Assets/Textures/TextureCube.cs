@@ -30,11 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using XNAFinalEngine.Helpers;
-
 #endregion
 
 namespace XNAFinalEngine.Assets
@@ -121,6 +117,11 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("Failed to load cube map: " + filename, e);
             }
 		} // TextureCube
+
+        /// <summary>
+        /// Used for serialization.
+        /// </summary>
+        private TextureCube() {}
 
 		#endregion
 

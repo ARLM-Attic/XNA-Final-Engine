@@ -159,9 +159,7 @@ namespace XNAFinalEngine.Editor
         // Color Picker.
         internal static bool colorPickerNeedsToPick;
         internal static ColorPickerDialog colorPickerDialog;
-
-        private static ContentManager editorContentManager;
-
+        
         #endregion
 
         #region Properties
@@ -208,6 +206,11 @@ namespace XNAFinalEngine.Editor
         /// Indicates if the user is selecting game objects right now.
         /// </summary>
         internal static bool SelectingObjects { get { return selectionRectangleBackground.LineRenderer.Enabled; } }
+
+        /// <summary>
+        /// Editor Content Manager.
+        /// </summary>
+        internal static ContentManager EditorContentManager { get; private set; }
         
         #endregion
 
@@ -227,8 +230,8 @@ namespace XNAFinalEngine.Editor
 
             // Load all resources in a hidden content manager.
             ContentManager userContentManager = ContentManager.CurrentContentManager;
-            editorContentManager = new ContentManager { Name = "Editor Content Manager", Hidden = true };
-            ContentManager.CurrentContentManager = editorContentManager;
+            EditorContentManager = new ContentManager { Name = "Editor Content Manager", Hidden = true };
+            ContentManager.CurrentContentManager = EditorContentManager;
             
             // Call the manager's update and render methods in the correct order without explicit calls. 
             editorManagerGameObject = new GameObject2D { Layer = Layer.GetLayerByNumber(31) };
@@ -775,7 +778,7 @@ namespace XNAFinalEngine.Editor
             if (colorPickerNeedsToPick)
             {
                 ContentManager userContentManager = ContentManager.CurrentContentManager;
-                ContentManager.CurrentContentManager = editorContentManager;
+                ContentManager.CurrentContentManager = EditorContentManager;
                 editorRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false);
                 ContentManager.CurrentContentManager = userContentManager;
                 editorRenderTarget.EnableRenderTarget();

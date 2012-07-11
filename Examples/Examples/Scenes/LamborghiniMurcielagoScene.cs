@@ -29,11 +29,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using System;
-using System.IO;
-using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Storage;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Graphics;
@@ -122,13 +118,13 @@ namespace XNAFinalEngineExamples
             //camera.RemoveComponent<ScriptCustomCamera>();
             //script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
             script.SetPosition(new Vector3(-8, 0, 9), Vector3.Zero);
-            camera.Camera.ClearColor = Color.Black;
+            /*camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 6f;
             camera.Camera.PostProcess = new PostProcess();
             camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicUncharted2;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
             camera.Camera.PostProcess.Bloom.Threshold = 2;
-            camera.Camera.PostProcess.FilmGrain.Enabled = true;
+            camera.Camera.PostProcess.FilmGrain.Enabled = true;*/
             camera.Camera.AmbientLight = new AmbientLight
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
@@ -148,9 +144,9 @@ namespace XNAFinalEngineExamples
             };
 
             #endregion
-
+            
             #region Materials
-
+            /*
             CarPaint carPaint = new CarPaint
             {
                 SpecularIntensity = 10000f,
@@ -161,16 +157,16 @@ namespace XNAFinalEngineExamples
                 FlakesColor = new Color(100, 100, 100),
                 ReflectionTexture = new TextureCube("Showroom"),
                 //ReflectionTexture = new TextureCube("FactoryCatwalkRGBM", true, 50),
-            };
-
+            };*/
+            
             #endregion
-
+            /*
             #region Models
             
             #region Body
-
-            murcielagoBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), carPaint);
-
+            */
+            //murcielagoBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), carPaint);
+            /*
             murcielagoTablero = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Tablero"),
                                                              new Constant
                                                              {
@@ -911,56 +907,8 @@ namespace XNAFinalEngineExamples
             statistics = new GameObject2D();
             statistics.AddComponent<ScriptStatisticsDrawer>();
 
-            #endregion
-
-            #region Storage Test
-            /*
-            // If a save is pending, save as soon as the storage device is chosen.
-            IAsyncResult result = StorageDevice.BeginShowSelector(PlayerIndex.One, null, null);
-            while (!result.IsCompleted) {}
-            StorageDevice device = StorageDevice.EndShowSelector(result);
-
-            // Create the data to save.
-            SaveGameData data = new SaveGameData();
-            data.PlayerName = "Hiro";
-            data.AvatarPosition = new Vector2(360, 360);
-            data.Level = 11;
-            data.Score = 4200;
-            data.Toto = new Toto();
-
-            // Open a storage container.
-            result = device.BeginOpenContainer("StorageDemo", null, null);
-
-            // Wait for the WaitHandle to become signaled.
-            result.AsyncWaitHandle.WaitOne();
-
-            StorageContainer container = device.EndOpenContainer(result);
-
-            // Close the wait handle.
-            result.AsyncWaitHandle.Close();
-
-            string filename = "savegame.sav";
-
-            // Check to see whether the save exists.
-            if (container.FileExists(filename))
-                // Delete it so that we can create one fresh.
-                container.DeleteFile(filename);
-
-            // Create the file.
-            Stream stream = container.CreateFile(filename);
-
-            // Convert the object to XML data and put it in the stream.
-            XmlSerializer serializer = new XmlSerializer(typeof(SaveGameData));
-            serializer.Serialize(stream, data);
-
-            // Close the file.
-            stream.Close();
-
-            // Dispose the container, to commit changes.
-            container.Dispose();
-            */
-            #endregion
-
+            #endregion*/
+            
         } // Load
 
         #endregion

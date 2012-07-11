@@ -41,7 +41,7 @@ namespace XNAFinalEngine.Assets
     /// There are two options where to apply them: in the ambient light or in the final result, previous to the post process.
     /// The first is more "correct" but subtle. I choose the first to achieve more photorealistic results.
     /// </remarks>
-    public abstract class AmbientOcclusion : AssetWhitoutResource
+    public abstract class AmbientOcclusion : AssetWithoutResource
     {
 
         #region Variables

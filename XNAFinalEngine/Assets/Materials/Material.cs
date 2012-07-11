@@ -39,7 +39,7 @@ namespace XNAFinalEngine.Assets
     /// <summary>
     /// Base class for materials.
     /// </summary>
-    public abstract class Material : AssetWhitoutResource
+    public abstract class Material : AssetWithoutResource
     {
 
         #region Variables

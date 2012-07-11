@@ -29,6 +29,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 #endregion
 
@@ -78,6 +79,9 @@ namespace XNAFinalEngine.Assets
         // Specular Intensity.
         private float specularIntensity = 1.0f;
 
+        private float flakesScale = 50;
+        private float flakesExponent = 16;
+
         #endregion
 
         #region Properties
@@ -118,6 +122,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Normal map texture.
         /// </summary>
+        [XmlIgnore]
         public Texture NormalTexture { get; set; }
 
         #endregion
@@ -147,6 +152,7 @@ namespace XNAFinalEngine.Assets
         /// RGB: specular intensity.
         /// A:   specular power.
         /// </summary>
+        [XmlIgnore]
         public Texture SpecularTexture { get; set; }
 
         /// <summary>
@@ -158,6 +164,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Reflection Texture.
         /// </summary>
+        [XmlIgnore]
         public TextureCube ReflectionTexture { get; set; }
 
         #endregion
@@ -174,16 +181,12 @@ namespace XNAFinalEngine.Assets
         } // FlakesColor
 
         #endregion
-
-        private float flakesScale = 50;
-
+        
         public float FlakesScale
         {
             get { return flakesScale; }
             set { flakesScale = value; }
         }
-
-        private float flakesExponent = 16;
 
         public float FlakesExponent
         {
