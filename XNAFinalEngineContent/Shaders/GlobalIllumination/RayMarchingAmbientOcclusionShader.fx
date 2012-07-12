@@ -118,12 +118,14 @@ float4 PixelShaderFunction(VS_OUTPUT IN) : COLOR0
 	{
 		Discard();
 	}
-	float3 P = float3(depth * IN.tex, depth);		
+	// The point P is the view space position.
+	float3 P = float3(depth * IN.tex, depth);
 		
 	// Get the basis per pixel	    
 	float3 N = SampleNormal(IN.texUV);	
 	N.z = -N.z; // I'm not sure about this, but it works. I suppose that this happen because DirectX is left handed and XNA is not.
 
+	// Generate tangent basis aproximation to sample position using spherical coordinates.
     float3 Tan   = float3(-1, 0, 0);
     float3 BiTan = normalize(cross(N, Tan));
     Tan          = cross(BiTan, N);

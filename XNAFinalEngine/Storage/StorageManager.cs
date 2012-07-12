@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Storage;
@@ -81,7 +82,12 @@ namespace XNAFinalEngine.Storage
         public bool Active;
         public int LayerNumber;
         public long ParentId;
-        public List<long> ComponentsId = new List<long>();
+        public Matrix LocalMatrix;
+        
+        // Used in loading.
+        public GameObject NewGameObject;
+
+        public List<ComponentData> ComponentData = new List<ComponentData>();
     } // ContentManagerData
 
     /// <summary>
@@ -103,7 +109,6 @@ namespace XNAFinalEngine.Storage
         public List<ContentManagerData> ContentManagersData = new List<ContentManagerData>();
         public List<AssetWithoutResourceData> AssetsWithoutResourceData = new List<AssetWithoutResourceData>();
         public List<GameObjectData> GameObjectData = new List<GameObjectData>();
-        public List<ComponentData> ComponentData = new List<ComponentData>();
     } // SceneData
 
     /// <summary>
@@ -164,8 +169,11 @@ namespace XNAFinalEngine.Storage
                         };
                         if (asset is AmbientLight)
                         {
-                            assetData.InternalAssetsId.Add(((AmbientLight) asset).AmbientOcclusion.Id);
-                            assetData.InternalAssetPropertyNames.Add("AmbientOcclusion");
+                            if (((AmbientLight)asset).AmbientOcclusion != null)
+                            {
+                                assetData.InternalAssetsId.Add(((AmbientLight) asset).AmbientOcclusion.Id);
+                                assetData.InternalAssetPropertyNames.Add("AmbientOcclusion");
+                            }
                         }
                         sceneData.AssetsWithoutResourceData.Add(assetData);    
                     }
@@ -194,33 +202,26 @@ namespace XNAFinalEngine.Storage
                     };
                     // Parent
                     if (gameObject is GameObject3D)
-                        gameObjectData.ParentId = ((GameObject3D)gameObject).Parent != null ? ((GameObject3D) gameObject).Parent.Id : long.MaxValue;
-                    else
-                        gameObjectData.ParentId = ((GameObject2D)gameObject).Parent != null ? ((GameObject2D)gameObject).Parent.Id : long.MaxValue;
-                    foreach (var components in gameObject.Components)
                     {
-                        gameObjectData.ComponentsId.Add(components.Id);
+                        gameObjectData.ParentId = ((GameObject3D)gameObject).Parent != null ? ((GameObject3D) gameObject).Parent.Id : long.MaxValue;
+                        gameObjectData.LocalMatrix = ((GameObject3D)gameObject).Transform.LocalMatrix;
+                    }
+                    else
+                    {
+                        gameObjectData.ParentId = ((GameObject2D)gameObject).Parent != null ? ((GameObject2D)gameObject).Parent.Id : long.MaxValue;
+                        gameObjectData.LocalMatrix = ((GameObject2D)gameObject).Transform.LocalMatrix;
+                    }
+                    // Components
+                    foreach (var component in gameObject.Components)
+                    {
+                        ComponentData componentData = new ComponentData
+                        {
+                            Id = component.Id,
+                            Component = component
+                        };
+                        gameObjectData.ComponentData.Add(componentData);
                     }
                     sceneData.GameObjectData.Add(gameObjectData);
-                }
-            }
-
-            #endregion
-
-            #region Components
-
-            // Save assets data.
-            for (int i = 0; i < Camera.ComponentPool.Count; i++)
-            {
-                Camera camera = Camera.ComponentPool.Elements[i];
-                if (camera.Owner.Layer.Number != 31 && camera.Owner.Layer.Number != 30)
-                {
-                    ComponentData componentData = new ComponentData
-                    {
-                        Id = camera.Id,
-                        Component = camera
-                    };
-                    sceneData.ComponentData.Add(componentData);
                 }
             }
 
@@ -257,20 +258,78 @@ namespace XNAFinalEngine.Storage
                     }
                 }
             }
-
-            // Generate game object data.
+            // Recreate game objects (and the transform component)
             foreach (var gameObjectData in sceneData.GameObjectData)
             {
                 GameObject gameObject;
                 if (gameObjectData.is3D)
+                {
                     gameObject = new GameObject3D();
+                    ((GameObject3D)gameObject).Transform.LocalMatrix = gameObjectData.LocalMatrix;
+                }
                 else
+                {
                     gameObject = new GameObject2D();
+                    ((GameObject2D)gameObject).Transform.LocalMatrix = gameObjectData.LocalMatrix;
+                }
                 gameObject.Name = gameObjectData.Name;
                 gameObject.Layer = Layer.GetLayerByNumber(gameObjectData.LayerNumber);
                 gameObject.Active = gameObjectData.Active;
+                gameObjectData.NewGameObject = gameObject; // Use to recreate the hierarchy.
+                foreach (var componentData in gameObjectData.ComponentData)
+                {
+                    // Create the component.
+                    // Reflection is needed because we can't know the type in compiler time and I don't want to use an inflexible big switch sentence.
+                    gameObject.GetType().GetMethod("AddComponent").MakeGenericMethod(componentData.Component.GetType()).Invoke(gameObject, null);
+                    // Each serializable property will be copy to the new component.
+                    PropertyInfo componentProperty = gameObject.GetType().GetProperty(componentData.Component.GetType().Name);
+                    List<PropertyInfo> propertiesName = GetSerializableProperties(componentData.Component.GetType());
+                    for (int i = 0; i < propertiesName.Count; i++)
+                    {
+                        var property = propertiesName[i];
+                        Component component = (Component) componentProperty.GetValue(gameObject, null);
+                        Object value = property.GetValue(componentData.Component, null);
+                        property.SetValue(component, value, null);
+                    }
+                }
+            }
+            // Recreate hierarchy.
+            foreach (var gameObjectData in sceneData.GameObjectData)
+            {
+                // If it is has a parent.
+                if (gameObjectData.ParentId != long.MaxValue)
+                {
+                    // Search all loaded game objects
+                    foreach (var searchedGameObjectData in sceneData.GameObjectData)
+                    {
+                        if (searchedGameObjectData.Id == gameObjectData.ParentId)
+                        {
+                            if (gameObjectData.is3D)
+                                ((GameObject3D)gameObjectData.NewGameObject).Parent = (GameObject3D)searchedGameObjectData.NewGameObject;
+                            else
+                                ((GameObject2D)gameObjectData.NewGameObject).Parent = (GameObject2D)searchedGameObjectData.NewGameObject;
+                            break;
+                        }
+                    }
+                }
             }
         } // CreateSaveData
+
+        /// <summary>
+        /// Get the serializable properties of a type.
+        /// </summary>
+        public static List<PropertyInfo> GetSerializableProperties(Type type)
+        {
+            List<PropertyInfo> serializableProperties = new List<PropertyInfo>();
+            PropertyInfo[] properties = type.GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                if (!property.IsDefined(typeof(XmlIgnoreAttribute), false) && property.CanWrite && property.CanRead && !property.GetSetMethod().IsStatic)
+                    serializableProperties.Add(property);
+            }
+
+            return serializableProperties;
+        } // GetSerializableProperties
 
         #endregion
 

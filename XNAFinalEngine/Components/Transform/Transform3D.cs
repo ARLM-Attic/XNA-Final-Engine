@@ -36,36 +36,7 @@ using System;
 namespace XNAFinalEngine.Components
 {
 
-    #region Enumerates
-
-    /// <summary>
-    /// The coordinate space in which to operate.
-    /// </summary>
-    public enum Space
-    {
-        /// <summary>
-        /// Applies transformation relative to the local coordinate system
-        /// </summary>
-        Local,
-        /// <summary>
-        /// Applies transformation relative to the world coordinate system
-        /// </summary>
-        World
-    } // Space
-
-    public enum AngularMeasure
-    {
-        /// <summary>
-        /// Degrees.
-        /// </summary>
-        Degrees,
-        /// <summary>
-        /// Radians.
-        /// </summary>
-        Radians
-    }
-
-    #endregion
+    
 
     /// <summary>
     /// Every entity in a scene has a Transform.
@@ -76,26 +47,18 @@ namespace XNAFinalEngine.Components
     {
 
         #region Variables
-
-        /// <summary>
-        /// The position in local space.
-        /// </summary>
+        
+        // The position in local space.
         private Vector3 localPosition;
 
-        /// <summary>
-        /// The rotation in local space and in degrees unit. 
-        /// </summary>
+        // The rotation in local space and in degrees unit. 
         private Quaternion localRotation = Quaternion.Identity;
 
-        /// <summary>
-        /// The scale in local space.
-        /// </summary>
+        // The scale in local space.
         private Vector3 localScale = new Vector3(1, 1, 1);
-
-        /// <summary>
-        /// The parent of this transform component.
-        /// In effect this field stores the game object parent.
-        /// </summary>
+        
+        // The parent of this transform component.
+        // In effect this field stores the game object parent.
         private Transform3D parent;
 
         #endregion
@@ -290,7 +253,6 @@ namespace XNAFinalEngine.Components
                     return localScale * parent.Scale;
                 }
                 return localScale;
-
             }
         } // Scale
 

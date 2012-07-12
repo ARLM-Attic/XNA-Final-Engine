@@ -125,9 +125,9 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Field of view, near plane and far plane.
         /// </summary>
-        private float nearPlane,
-                      farPlane,
-                      fieldOfView;
+        private float nearPlane = 1,
+                      farPlane = 100,
+                      fieldOfView = 36;
         
         // Is the camera orthographic (true) or perspective (false)?
         private bool orthographic;
@@ -319,6 +319,7 @@ namespace XNAFinalEngine.Components
         /// If you change this matrix, the camera no longer updates its rendering based on its Transform.
         /// This lasts until you call ResetWorldToCameraMatrix.
         /// </summary>
+        [XmlIgnore]
         public Matrix ViewMatrix { get { return cachedWorldMatrix; } }
 
         /// <summary>Camera position.</summary>

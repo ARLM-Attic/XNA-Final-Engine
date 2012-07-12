@@ -44,26 +44,18 @@ namespace XNAFinalEngine.Components
     {
 
         #region Variables
-
-        /// <summary>
-        /// The position in local space.
-        /// </summary>
+        
+        // The position in local space.
         private Vector3 localPosition;
 
-        /// <summary>
-        /// The rotation in local space and in degrees unit.
-        /// </summary>
+        // The rotation in local space and in degrees unit.
         private float localRotation;
 
-        /// <summary>
-        /// The scale in local space.
-        /// </summary>
-        private float localScale = 1;
-
-        /// <summary>
-        /// The parent of this transform component.
-        /// In effect this field stores the game object parent.
-        /// </summary>
+        // The scale in local space.
+        private Vector2 localScale;
+        
+        // The parent of this transform component.
+        // In effect this field stores the game object parent.
         private Transform2D parent;
 
         #endregion
@@ -152,12 +144,16 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// The scale in local space.
         /// </summary>
-        public float LocalScale
+        public Vector2 LocalScale
         {
             get { return localScale; }
             set
             {
                 localScale = value;
+                if (localScale.X <= 0.0001f)
+                    localScale.X = 0.0001f;
+                if (localScale.Y <= 0.0001f)
+                    localScale.Y = 0.0001f;
                 UpdateLocalMatrix();
             }
         } // LocalScale
@@ -211,7 +207,6 @@ namespace XNAFinalEngine.Components
                 if (Parent != null)
                     return localRotation + parent.Rotation; // Quaternion.Concatenate(parent.Rotation, localRotation); // Matrix equivalent: localRotation * parent.Rotation
                 return localRotation;
-                // Alternative: WorldMatrix.Decompose(); But this is slower.
             }
             set
             {
@@ -222,14 +217,15 @@ namespace XNAFinalEngine.Components
             }
         } // Rotation
 
-        public float Scale
+        public Vector2 Scale
         {
             get
             {
                 if (Parent != null)
+                    // Alternative: WorldMatrix.Decompose(); But this is slower.
                     return localScale * parent.Scale;
                 return localScale;
-                // Alternative: WorldMatrix.Decompose(); But this is slower.
+                
             }
         } // Scale
         
@@ -241,10 +237,13 @@ namespace XNAFinalEngine.Components
 
         #region Translate
 
+        // TODO!!
 
         #endregion
 
         #region Rotate
+
+        // TODO!!
 
         #endregion
 
@@ -260,8 +259,8 @@ namespace XNAFinalEngine.Components
         protected override void UpdateLocalMatrix()
         {
             // Don't use the property LocalMatrix to avoid an unnecessary decompose.
-            localMatrix = Matrix.CreateScale(new Vector3(localScale, localScale, 1)) * Matrix.CreateRotationZ(localRotation * 3.1416f / 180f);
-            localMatrix.Translation = localPosition; // * Matrix.CreateTranslation(localPosition);
+            localMatrix = Matrix.CreateScale(new Vector3(localScale.X, localScale.Y, 1)) * Matrix.CreateRotationZ(localRotation * 3.1416f / 180f);
+            localMatrix.Translation = localPosition;
             UpdateWorldMatrix();
         } // UpdateLocalMatrix
 

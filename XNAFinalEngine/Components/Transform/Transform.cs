@@ -35,6 +35,37 @@ using Microsoft.Xna.Framework;
 namespace XNAFinalEngine.Components
 {
 
+    #region Enumerates
+
+    /// <summary>
+    /// The coordinate space in which to operate.
+    /// </summary>
+    public enum Space
+    {
+        /// <summary>
+        /// Applies transformation relative to the local coordinate system
+        /// </summary>
+        Local,
+        /// <summary>
+        /// Applies transformation relative to the world coordinate system
+        /// </summary>
+        World
+    } // Space
+
+    public enum AngularMeasure
+    {
+        /// <summary>
+        /// Degrees.
+        /// </summary>
+        Degrees,
+        /// <summary>
+        /// Radians.
+        /// </summary>
+        Radians
+    }
+
+    #endregion
+
     /// <summary>
     /// Every entity in a scene has a Transform.
     /// It's used to store and manipulate the position, rotation and scale of the object.
