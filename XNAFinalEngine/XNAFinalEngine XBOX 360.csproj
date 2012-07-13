@@ -126,6 +126,7 @@
     <Compile Include="Engine Core\ScreenshotCapturer.cs" />
     <Compile Include="Engine Core\Statistics.cs" />
     <Compile Include="Engine Core\Time.cs" />
+    <Compile Include="Graphics\Filters\BilinearBlurShader.cs" />
     <Compile Include="Graphics\Filters\BlurShader.cs" />
     <Compile Include="Graphics\Filters\DilateShader.cs" />
     <Compile Include="Graphics\Lines\LineManager.cs" />

@@ -27,8 +27,11 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 //////////////////////////////////////////////
 
 float2 halfPixel;
+
 float2 textureResolution;
-float blurWidth;
+
+float blurWidth = 1.0f;
+
 const float Weights8[8] =
 {
 	// more strength to middle to reduce effect of lighten up shadowed areas due mixing and bluring!
@@ -88,9 +91,9 @@ struct VS_OutputPoint
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
-VS_Output VS_BlurLinear(float4 position : POSITION, 
-	                    float2 texCoord : TEXCOORD0,
-	                    uniform float2 dir)
+VS_Output VS_Blur(float4 position : POSITION, 
+	              float2 texCoord : TEXCOORD0,
+	              uniform float2 dir)
 {
 	VS_Output output = (VS_Output)0;
 	
@@ -98,7 +101,7 @@ VS_Output VS_BlurLinear(float4 position : POSITION,
 	output.position.xy += halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
 			
 	float2 texelSize = 1.0 / textureResolution;
-	float2 s = texCoord - texelSize * (8 - 1) * 0.5 * dir * blurWidth;
+	float2 s = texCoord - texelSize*(8-1) *0.5 * dir * blurWidth;
 	[unroll]
 	for(int i = 0; i < 8; i++)
 	{
@@ -131,7 +134,8 @@ VS_OutputPoint VS_BlurPoint(float4 position : POSITION,
 /////////////// Pixel Shader /////////////////
 //////////////////////////////////////////////
 
-float4 PS_BlurLinear(VS_Output In) : COLOR
+// 8 linear samples (few cache misses)
+float4 PS_Blur(VS_Output In) : COLOR
 {	
 	float4 ret = 0;
 	[unroll]
@@ -142,6 +146,7 @@ float4 PS_BlurLinear(VS_Output In) : COLOR
 	return ret;
 }
 
+// 7 point samples (few cache misses)
 float4 PS_BlurPoint(VS_OutputPoint In) : COLOR
 {	
 	float4 ret = 0;
@@ -159,28 +164,20 @@ float4 PS_BlurPoint(VS_OutputPoint In) : COLOR
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-// Simple fullscreen blurs.
-// It does not use depth information and therefore they are not suited for shadows.
-
-// This technique uses linear sampling. 
-// With linear sampling you can read and weight more than one texel at the time
-// and it is possible to use an arbitrary blur width.
 technique BlurLinear
 {
 	pass BlurHorizontal
 	{
-		VertexShader = compile vs_3_0 VS_BlurLinear(float2(1, 0));		
-		PixelShader  = compile ps_3_0 PS_BlurLinear();
+		VertexShader = compile vs_3_0 VS_Blur(float2(1, 0));		
+		PixelShader  = compile ps_3_0 PS_Blur();
 	}
 	pass BlurVertical
 	{
-		VertexShader = compile vs_3_0 VS_BlurLinear(float2(0, 1));		
-		PixelShader  = compile ps_3_0 PS_BlurLinear();
+		VertexShader = compile vs_3_0 VS_Blur(float2(0, 1));		
+		PixelShader  = compile ps_3_0 PS_Blur();
 	}
-} // BlurLinear
+}
 
-// A more simple and inflexible blur but some render targets can be sampled only with point sampling 
-// consequently this option can be the only option to blur a rendertarget.
 technique BlurPoint
 {
 	pass BlurHorizontal
@@ -193,4 +190,4 @@ technique BlurPoint
 		VertexShader = compile vs_3_0 VS_BlurPoint(float2(0, 1));
 		PixelShader  = compile ps_3_0 PS_BlurPoint();
 	}
-} // BlurPoint
+}

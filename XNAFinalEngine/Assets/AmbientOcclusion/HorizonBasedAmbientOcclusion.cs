@@ -67,18 +67,18 @@ namespace XNAFinalEngine.Assets
         private int numberDirections = 10;
 
         // Contrast.
-        private float contrast = 0.8f;
+        private float contrast = 1f;
 
         // Line Attenuation.
         // The far samplers have a lower effect in the result. This controls how faster their weight decay.
-        private float lineAttenuation = 1.2f;
+        private float lineAttenuation = 1f;
         
         // Radius.
         // Bigger the radius more cache misses will occur. Be careful!!
-        private float radius = 0.015f;
+        private float radius = 0.003f;
 
         // Angle Bias (grades).
-        private float angleBias = 30f;
+        private float angleBias = 5f;
 
         // High quality is the best and the faster I think.
         private QualityType quality = QualityType.HighQuality;
@@ -168,8 +168,8 @@ namespace XNAFinalEngine.Assets
                 radius = value;
                 if (radius <= 0)
                     radius = 0;
-                if (radius > 1)
-                    radius = 1;
+                if (radius > 0.5f)
+                    radius = 0.5f;
             }
         } // Radius
 

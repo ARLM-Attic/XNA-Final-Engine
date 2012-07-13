@@ -80,7 +80,7 @@ namespace XNAFinalEngine.Editor
             var numberDirections = CommonControls.SliderNumericInt("Number Directions", groupGeneral, asset.NumberDirections, false, true, 0, 36, asset, "NumberDirections");
             var contrast = CommonControls.SliderNumericFloat("Contrast", groupGeneral, asset.Contrast, true, true, 0, 2, asset, "Contrast");
             var lineAttenuation = CommonControls.SliderNumericFloat("LineAttenuation", groupGeneral, asset.LineAttenuation, false, false, 0, 2, asset, "LineAttenuation");
-            var radius = CommonControls.SliderNumericFloat("Radius", groupGeneral, asset.Radius, false, false, 0, 1, asset, "Radius");
+            var radius = CommonControls.SliderNumericFloat("Radius", groupGeneral, asset.Radius, false, false, 0, 0.5f, asset, "Radius");
             var angleBias = CommonControls.SliderNumericFloat("AngleBias", groupGeneral, asset.AngleBias, false, false, 0, 90, asset, "AngleBias");
 
             groupGeneral.AdjustHeightFromChildren();

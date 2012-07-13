@@ -505,8 +505,11 @@ namespace XNAFinalEngine.Editor
             viewportCamera.Camera.Sky = mainCamera.Sky;
             viewportCamera.Camera.PostProcess = mainCamera.PostProcess;
             viewportCamera.Transform.WorldMatrix = ((GameObject3D)mainCamera.Owner).Transform.WorldMatrix; // ViewMatrix
-            viewportCamera.Camera.ProjectionMatrix = mainCamera.ProjectionMatrix;
+            viewportCamera.Camera.NearPlane = mainCamera.NearPlane;
+            viewportCamera.Camera.FarPlane = mainCamera.FarPlane;
+            viewportCamera.Camera.FieldOfView = mainCamera.FieldOfView;
             viewportCamera.Camera.AspectRatio = mainCamera.AspectRatio;
+            viewportCamera.Camera.ProjectionMatrix = mainCamera.ProjectionMatrix;
             viewportCamera.Camera.NormalizedViewport = mainCamera.NormalizedViewport;
             viewportCamera.Camera.CullingMask = mainCamera.CullingMask;
             Size size;

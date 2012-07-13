@@ -381,6 +381,7 @@ namespace XNAFinalEngine.EngineCore
 
             if (CamerasToRender == null || CamerasToRender.Count == 0)
             {
+
                 #region Render Each Camera
 
                 // For each camera we render the scene in it
@@ -622,6 +623,16 @@ namespace XNAFinalEngine.EngineCore
 
         #region Render Camera
 
+        // Render Targets used in the deferred lighting pipeline.
+        private static RenderTarget.RenderTargetBinding gbufferTextures;
+        private static RenderTarget lightTexture;
+        private static RenderTarget sceneTexture;
+        private static RenderTarget ambientOcclusionTexture;
+        private static RenderTarget halfNormalTexture;
+        private static RenderTarget halfDepthTexture;
+        private static RenderTarget quarterNormalTexture;
+        private static RenderTarget quarterDepthTexture;
+
         /// <summary>
         /// Deferred lighting pipeline for one camera.
         /// </summary>
@@ -629,20 +640,6 @@ namespace XNAFinalEngine.EngineCore
         {
             if (renderTarget == null)
                 throw new ArgumentNullException("renderTarget");
-
-            #region Buffers Declarations
-
-            // This is here to allow the rendering of these render targets for testing.
-            RenderTarget.RenderTargetBinding gbufferTextures;
-            RenderTarget lightTexture = null;
-            RenderTarget sceneTexture = null;
-            RenderTarget ambientOcclusionTexture = null;
-            RenderTarget halfNormalTexture = null;
-            RenderTarget halfDepthTexture = null;
-            RenderTarget quarterNormalTexture = null;
-            RenderTarget quarterDepthTexture = null;
-
-            #endregion
 
             // Calculate view space bounding frustum.
             currentCamera.BoundingFrustumViewSpace(cornersViewSpace);
@@ -715,6 +712,7 @@ namespace XNAFinalEngine.EngineCore
 
             #region DownSample GBuffer
 
+            // TODO I have to implement a shader that downsample the two buffers at the same time to improve performance.
             halfDepthTexture = DepthDownsamplerShader.Instance.Render(gbufferTextures.RenderTargets[0]);
             quarterDepthTexture = DepthDownsamplerShader.Instance.Render(halfDepthTexture);
 
@@ -754,6 +752,7 @@ namespace XNAFinalEngine.EngineCore
 
             #region Ambient Occlusion
             
+            // If the ambient occlusion pass is requested...
             if (currentCamera.AmbientLight != null && currentCamera.AmbientLight.Intensity > 0 &&
                 currentCamera.AmbientLight.AmbientOcclusion != null && currentCamera.AmbientLight.AmbientOcclusion.Enabled)
             {
@@ -780,7 +779,7 @@ namespace XNAFinalEngine.EngineCore
                     ambientOcclusionTexture = HorizonBasedAmbientOcclusionShader.Instance.Render(aoDepthTexture,
                                                                                                  aoNormalTexture,
                                                                                                  (HorizonBasedAmbientOcclusion)currentCamera.AmbientLight.AmbientOcclusion,
-                                                                                                 currentCamera.FieldOfView);
+                                                                                                 currentCamera.FieldOfView, renderTarget.Size);
                 }
                 if (currentCamera.AmbientLight.AmbientOcclusion is RayMarchingAmbientOcclusion)
                 {
@@ -789,13 +788,22 @@ namespace XNAFinalEngine.EngineCore
                                                                                                 (RayMarchingAmbientOcclusion)currentCamera.AmbientLight.AmbientOcclusion,
                                                                                                 currentCamera.FieldOfView);
                 }
+                
+                renderTarget.EnableRenderTarget();
+                SpriteManager.DrawTextureToFullScreen(ambientOcclusionTexture);
+                if (currentCamera.RenderHeadUpDisplay)
+                    RenderHeadsUpDisplay();
+                renderTarget.DisableRenderTarget();
+                Layer.CurrentCameraCullingMask = uint.MaxValue;
+                ReleaseUnusedRenderTargets();
+                return;
             }
 
             #endregion
 
             #region Shadow Maps
 
-            #region Directional Light Shadows
+            #region Directional Light Shadows);
 
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
@@ -1442,22 +1450,55 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            #region Release Uused Render Targets
-
-            // They are not needed anymore.
-            RenderTarget.Release(sceneTexture);
-            RenderTarget.Release(gbufferTextures);
-            RenderTarget.Release(halfNormalTexture);
-            RenderTarget.Release(halfDepthTexture);
-            RenderTarget.Release(quarterNormalTexture);
-            RenderTarget.Release(quarterDepthTexture);
-
-            #endregion
+            ReleaseUnusedRenderTargets();
 
             // Reset Camera Culling Mask
             Layer.CurrentCameraCullingMask = uint.MaxValue;
 
         } // RenderCamera
+
+        /// <summary>
+        /// Release Unused Render Targets.
+        /// </summary>
+        private static void ReleaseUnusedRenderTargets()
+        {
+            RenderTarget.Release(gbufferTextures);
+            if (halfDepthTexture != null)
+            {
+                RenderTarget.Release(halfDepthTexture);
+                halfDepthTexture = null;
+            }
+            if (halfNormalTexture != null)
+            {
+                RenderTarget.Release(halfNormalTexture);
+                halfNormalTexture = null;
+            }
+            if (quarterDepthTexture != null)
+            {
+                RenderTarget.Release(quarterDepthTexture);
+                quarterDepthTexture = null;
+            }
+            if (quarterNormalTexture != null)
+            {
+                RenderTarget.Release(quarterNormalTexture);
+                quarterNormalTexture = null;
+            }
+            if (lightTexture != null)
+            {
+                RenderTarget.Release(lightTexture);
+                lightTexture = null;
+            }
+            if (sceneTexture != null)
+            {
+                RenderTarget.Release(sceneTexture);
+                sceneTexture = null;
+            }
+            if (ambientOcclusionTexture != null)
+            {
+                RenderTarget.Release(ambientOcclusionTexture);
+                ambientOcclusionTexture = null;
+            }
+        } // ReleaseUnusedRenderTargets
 
         #endregion
 

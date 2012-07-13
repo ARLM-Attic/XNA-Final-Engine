@@ -52,7 +52,7 @@ namespace XNAFinalEngine.Components
         private float localRotation;
 
         // The scale in local space.
-        private Vector2 localScale;
+        private Vector2 localScale = new Vector2(1, 1);
         
         // The parent of this transform component.
         // In effect this field stores the game object parent.

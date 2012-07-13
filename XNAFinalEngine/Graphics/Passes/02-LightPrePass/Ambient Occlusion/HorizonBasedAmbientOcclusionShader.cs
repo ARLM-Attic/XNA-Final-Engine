@@ -34,6 +34,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Helpers;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -417,15 +418,22 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Generate ambient occlusion texture.
 		/// </summary>
-        internal RenderTarget Render(RenderTarget depthTexture, RenderTarget normalTexture, HorizonBasedAmbientOcclusion hbao, float fieldOfView)
+        internal RenderTarget Render(RenderTarget depthTexture, RenderTarget normalTexture, HorizonBasedAmbientOcclusion hbao, float fieldOfView, Size destinationSize)
         {
             try
             {
-                // Alpha8 doesn't work in my G92 GPU processor and I opt to work with half single. Color is another good choice because support texture filtering.
-                // XBOX 360 Xbox does not support 16 bit render targets (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
-                // Color would be the better choice for the XBOX 360.
-                // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.
-                RenderTarget ambientOcclusionTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                // I decided to work with Color format for a number of reasons.
+                // First, this format is very used so chances are that I can reuse it latter in another shader.
+                // Second, GPUs tend to work faster in non-floating point render targets. 
+                // Third, I can blur it with linear sampling.
+                // Last, I could need to return a color if I use directional occlusion.
+                // The main disadvantage is that I am wasting three channels (or just one in SSDO). 
+                // A single 8 bit channel render target is not available in XNA 4.0 and I have two options for 16 bits render targets.
+                // First, the compressed 4 channels formats, the compression is visible and the results are not satisfactory.
+                // Last we have the half single format, it is a good option but I prefer to have linear sampling.
+                // Alternatively, I can pack several shadows result in only one texture and blurred fourth results at the same time.
+                // But I will do it only for shadows. I want to leave this shader simple. At least until a heavy optimization task needs to be performed.
+                RenderTarget ambientOcclusionTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
                 
                 // Set shader atributes
                 SetNormalTexture(normalTexture);
@@ -438,17 +446,17 @@ namespace XNAFinalEngine.Graphics
                 SetContrast(hbao.Contrast / (1.0f - (float)Math.Sin(hbao.AngleBias * (float)Math.PI / 180f)));
                 SetLineAttenuation(hbao.LineAttenuation);
                 SetRadius(hbao.Radius);
-                SetAngleBias(hbao.AngleBias * (float)Math.PI / 180f);
+                SetSquareRadius(hbao.Radius * hbao.Radius);
+                SetInverseRadius(1 / hbao.Radius);
                 SetHalfPixel(new Vector2(-1f / ambientOcclusionTexture.Width, 1f / ambientOcclusionTexture.Height));
                 Vector2 focalLen = new Vector2
                 {
-                    X = 1.0f / (float)Math.Tan(fieldOfView * (3.1416f / 180) * 0.5f) * (float)ambientOcclusionTexture.Height / (float)ambientOcclusionTexture.Width,
-                    Y = 1.0f / (float)Math.Tan(fieldOfView * (3.1416f / 180) * 0.5f)
+                    X = 1.0f / (float)Math.Tan(fieldOfView * (Math.PI / 180) * 0.5f) * (float)ambientOcclusionTexture.Height / (float)ambientOcclusionTexture.Width,
+                    Y = 1.0f / (float)Math.Tan(fieldOfView * (Math.PI / 180) * 0.5f)
                 };
                 SetFocalLength(focalLen);
                 SetInverseFocalLength(new Vector2(1 / focalLen.X, 1 / focalLen.Y));
-                SetSquareRadius(hbao.AngleBias * (float)Math.PI / 180f * hbao.AngleBias * (float)Math.PI / 180f);
-                SetInverseRadius(1 / (hbao.AngleBias * (float)Math.PI / 180f));
+                SetAngleBias(hbao.AngleBias * (float)Math.PI / 180f);
                 SetTanAngleBias((float)Math.Tan(hbao.AngleBias * (float)Math.PI / 180f));
                 
                 switch (hbao.Quality)
@@ -471,8 +479,13 @@ namespace XNAFinalEngine.Graphics
                 RenderScreenPlane();
                 ambientOcclusionTexture.DisableRenderTarget();
 
-                BlurShader.Instance.Filter(ambientOcclusionTexture, true, 5);
-                return ambientOcclusionTexture;
+                // The blured texture has fullscreen size to improve the quality. 
+                // This pass is a lot cheaper than the ambient occlusion pass so the performance penalty is acceptable.
+                RenderTarget bluredAmbientOcclusionTexture = RenderTarget.Fetch(destinationSize, ambientOcclusionTexture.SurfaceFormat,
+                                                                                DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                BlurShader.Instance.Filter(ambientOcclusionTexture, bluredAmbientOcclusionTexture, 1);
+                RenderTarget.Release(ambientOcclusionTexture);
+                return bluredAmbientOcclusionTexture;
             }
             catch (Exception e)
             {

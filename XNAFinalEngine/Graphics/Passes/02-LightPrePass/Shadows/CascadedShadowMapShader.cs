@@ -425,7 +425,7 @@ namespace XNAFinalEngine.Graphics
             RenderScreenPlane();
             shadowTexture.DisableRenderTarget();
 
-            BlurShader.Instance.Filter(shadowTexture, true, 1);
+            //BlurShader.Instance.Filter(shadowTexture, true, 1); // TODO!!! Volver a activarla
         } // Process
 
         #endregion

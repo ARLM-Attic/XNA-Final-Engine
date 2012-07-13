@@ -67,10 +67,13 @@ namespace XNAFinalEngine.Assets
 
         /// <summary>
         /// Ambient occlusion resolution, relative to the camera's render target.
+        /// </summary>
+        /// <remarks>
         /// Ambient occlusion is a costly technique but it produces a low frequency result.
         /// So there is no need to use a render target of the same dimension as the frame buffer.
-        /// Normally a half resolution buffer produces very good results and if the performance is critical you could use a quarter size buffer.
-        /// </summary>
+        /// Normally a half resolution buffer produces very good results and if the performance is critical you could use a quarter size buffer. 
+        /// The blur is performed in full screen.
+        /// </remarks>
         public Size.TextureSize TextureSize
         {
             get { return textureSize; }

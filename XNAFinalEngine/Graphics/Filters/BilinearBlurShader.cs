@@ -40,16 +40,15 @@ using Texture = XNAFinalEngine.Assets.Texture;
 namespace XNAFinalEngine.Graphics
 {
 	/// <summary>
-    /// Simple fullscreen blurs.
-    /// It does not use depth information and therefore they are not suited for shadows.
+	/// Blur shader.
 	/// </summary>
-    public class BlurShader : Shader
+    public class BilinearBlurShader : Shader
 	{
 
 		#region Variables
         
         // Singleton reference.
-	    private static BlurShader instance;
+	    private static BilinearBlurShader instance;
         
         #endregion
 
@@ -58,12 +57,12 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// A singleton of a blur shader.
         /// </summary>
-	    public static BlurShader Instance
+	    public static BilinearBlurShader Instance
 	    {
 	        get
 	        {
 	            if (instance == null)
-                    instance = new BlurShader();
+                    instance = new BilinearBlurShader();
 	            return instance;
 	        }
 	    } // Instance
@@ -142,9 +141,9 @@ namespace XNAFinalEngine.Graphics
         #region Constructor
 
         /// <summary>
-        /// Blur shader.
+        /// Bilinear Blur shader.
         /// </summary>
-        private BlurShader() : base("Filters\\Blur") { }
+        private BilinearBlurShader() : base("Filters\\BilinearBlurShader") { }
 
 		#endregion
 
@@ -249,5 +248,5 @@ namespace XNAFinalEngine.Graphics
 
 		#endregion
         
-    } // BlurShader
+    } // BilinearBlurShader
 } // XNAFinalEngine.Graphics

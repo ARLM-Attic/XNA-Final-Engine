@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Editor;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
@@ -110,10 +111,10 @@ namespace XNAFinalEngineExamples
             camera.AddComponent<Camera>();
             //camera.AddComponent<SoundListener>();
             camera.Camera.RenderTargetSize = Size.FullScreen;
-            camera.Camera.FarPlane = 500;
+            camera.Camera.FarPlane = 50;
             camera.Camera.NearPlane = 0.5f;
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
-            /*ScriptCustomCamera script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
+            ScriptCustomCamera script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
             // Test script list.
             //camera.RemoveComponent<ScriptCustomCamera>();
             //script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
@@ -121,30 +122,30 @@ namespace XNAFinalEngineExamples
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 6f;
             camera.Camera.PostProcess = new PostProcess();
-            camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicUncharted2;
+            camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
             camera.Camera.PostProcess.Bloom.Threshold = 2;
-            camera.Camera.PostProcess.FilmGrain.Enabled = true;*/
+            //camera.Camera.PostProcess.FilmGrain.Enabled = true;
             camera.Camera.AmbientLight = new AmbientLight
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
-                                                            Color = new Color(20, 20, 20),
-                                                            Intensity = 5f,
+                                                            Color = new Color(250, 250, 250),
+                                                            Intensity = 2f,
                                                             AmbientOcclusionStrength = 2f };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
-                Radius = 0.000002f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
-                LineAttenuation = 0.75f,
-                Contrast = 1.0f,
-                AngleBias = 1.25f,
+                Radius = 0.003f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                LineAttenuation = 1f,
+                Contrast = 1f,
+                AngleBias = 5f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
             };
 
             #endregion
-            /*
+            
             #region Materials
 
             CarPaint carPaint = new CarPaint
@@ -833,7 +834,7 @@ namespace XNAFinalEngineExamples
                            new BlinnPhong
                            {
                                SpecularPower = 300,
-                               DiffuseColor = new Color(0, 0, 0),
+                               DiffuseColor = new Color(200, 200, 200),
                                SpecularIntensity = 0.0f,
                            }) 
             { Transform = { LocalScale = new Vector3(5, 5, 5) } };
@@ -908,7 +909,7 @@ namespace XNAFinalEngineExamples
             statistics.AddComponent<ScriptStatisticsDrawer>();
 
             #endregion
-            */
+            
         } // Load
 
         #endregion

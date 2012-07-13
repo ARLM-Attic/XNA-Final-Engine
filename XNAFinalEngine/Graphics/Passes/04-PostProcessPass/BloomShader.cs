@@ -233,7 +233,7 @@ namespace XNAFinalEngine.Graphics
                 bloomTexture.DisableRenderTarget();
 
                 // Blur it.
-                BlurShader.Instance.Filter(bloomTexture, false, 1);
+                //BlurShader.Instance.Filter(bloomTexture, false, 1); // TODO!!! Volver a activarla
 
                 return bloomTexture;
             }

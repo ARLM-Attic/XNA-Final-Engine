@@ -127,7 +127,8 @@ float4 HighQualityPixelShaderFunction(VS_OUTPUT input) : COLOR0
 		ao += AccumulatedHorizonOcclusionHighQuality(deltaUV, input.uv, P, numSteps, rand.z, dPdu, dPdv);
 	}
 		
-	return float4(1.0 - ao / numberDirections * contrast, 1, 1, 1);
+	float result = 1.0 - ao / numberDirections * contrast;
+	return float4(result, result, result, 1);
 }
 
 //////////////////////////////////////////////

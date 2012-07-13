@@ -316,11 +316,16 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                // Alpha8 doesn't work in my G92 GPU processor and I opt to work with half single. Color is another good choice because support texture filtering.
-                // XBOX 360 Xbox does not support 16 bit render targets (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
-                // Color would be the better choice for the XBOX 360.
-                // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.
-                RenderTarget ambientOcclusionTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                // I decided to work with Color format for a number of reasons.
+                // First, this format is very used so chances are that I can reuse it latter in another shader.
+                // Second, GPUs tend to work faster in non-floating point render targets. 
+                // Third, I can blur it with linear sampling.
+                // The main disadvantage is that I am wasting three channels. 
+                // A single 8 bit channel render target is not available in XNA 4.0 and I have two options for 16 bits render targets.
+                // First, the compressed 4 channels formats, the compression is visible and the results are not satisfactory.
+                // Last we have the half single format, it is a good option but I prefer to have linear sampling.
+                RenderTarget ambientOcclusionTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle,
+                                                                          DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
 
                 // Set shader atributes
                 SetNormalTexture(normalTexture);
@@ -355,8 +360,11 @@ namespace XNAFinalEngine.Graphics
                 RenderScreenPlane();
                 ambientOcclusionTexture.DisableRenderTarget();
 
-                BlurShader.Instance.Filter(ambientOcclusionTexture, true, 2);
-                return ambientOcclusionTexture;
+                RenderTarget bluredAmbientOcclusionTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle,
+                                                                                DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                BlurShader.Instance.Filter(ambientOcclusionTexture, bluredAmbientOcclusionTexture, 1);
+                RenderTarget.Release(ambientOcclusionTexture);
+                return bluredAmbientOcclusionTexture;
             }
             catch (Exception e)
             {

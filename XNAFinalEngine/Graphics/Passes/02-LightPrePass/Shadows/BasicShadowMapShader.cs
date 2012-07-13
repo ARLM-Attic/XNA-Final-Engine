@@ -367,7 +367,7 @@ namespace XNAFinalEngine.Graphics
             Resource.CurrentTechnique.Passes[0].Apply();
             RenderScreenPlane();
             deferredShadowResult.DisableRenderTarget();
-            BlurShader.Instance.Filter(deferredShadowResult, true, 1);
+            //BlurShader.Instance.Filter(deferredShadowResult, true, 1); // TODO!!! Volver a activarla
         } // Process
 
         #endregion
