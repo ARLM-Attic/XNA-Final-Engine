@@ -779,7 +779,8 @@ namespace XNAFinalEngine.EngineCore
                     ambientOcclusionTexture = HorizonBasedAmbientOcclusionShader.Instance.Render(aoDepthTexture,
                                                                                                  aoNormalTexture,
                                                                                                  (HorizonBasedAmbientOcclusion)currentCamera.AmbientLight.AmbientOcclusion,
-                                                                                                 currentCamera.FieldOfView, renderTarget.Size);
+                                                                                                 currentCamera.FieldOfView, renderTarget.Size,
+                                                                                                 gbufferTextures.RenderTargets[0]);
                 }
                 if (currentCamera.AmbientLight.AmbientOcclusion is RayMarchingAmbientOcclusion)
                 {
@@ -788,7 +789,7 @@ namespace XNAFinalEngine.EngineCore
                                                                                                 (RayMarchingAmbientOcclusion)currentCamera.AmbientLight.AmbientOcclusion,
                                                                                                 currentCamera.FieldOfView);
                 }
-                
+                /*
                 renderTarget.EnableRenderTarget();
                 SpriteManager.DrawTextureToFullScreen(ambientOcclusionTexture);
                 if (currentCamera.RenderHeadUpDisplay)
@@ -796,7 +797,7 @@ namespace XNAFinalEngine.EngineCore
                 renderTarget.DisableRenderTarget();
                 Layer.CurrentCameraCullingMask = uint.MaxValue;
                 ReleaseUnusedRenderTargets();
-                return;
+                return;*/
             }
 
             #endregion

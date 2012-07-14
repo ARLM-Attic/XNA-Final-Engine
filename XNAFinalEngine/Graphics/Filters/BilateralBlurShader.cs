@@ -40,15 +40,15 @@ using Texture = XNAFinalEngine.Assets.Texture;
 namespace XNAFinalEngine.Graphics
 {
 	/// <summary>
-	/// Blur shader.
+    /// Bilateral Blur Shader.
 	/// </summary>
-    public class BilinearBlurShader : Shader
+    public class BilateralBlurShader : Shader
 	{
 
 		#region Variables
         
         // Singleton reference.
-	    private static BilinearBlurShader instance;
+	    private static BilateralBlurShader instance;
         
         #endregion
 
@@ -57,12 +57,12 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// A singleton of a blur shader.
         /// </summary>
-	    public static BilinearBlurShader Instance
+	    public static BilateralBlurShader Instance
 	    {
 	        get
 	        {
 	            if (instance == null)
-                    instance = new BilinearBlurShader();
+                    instance = new BilateralBlurShader();
 	            return instance;
 	        }
 	    } // Instance
@@ -74,24 +74,55 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
 	    /// Effect handles
 	    /// </summary>
-	    private static EffectParameter epTextureResolution,
-	                                   epBlurWidth,
+	    private static EffectParameter epInvTextureResolution,
+	                                   epBlurRadius,
+                                       epBlurFalloff,
+                                       epSharpness,
 	                                   epTexture,
+                                       epDepthTexture,
                                        epHalfPixel;
 
-        #region Blur Width
+        #region Blur Radius
 
-        private static float lastUsedBlurWidth;
-        private static void SetBlurWidth(float _blurWidth)
+        private static float lastUsedBlurRadius;
+        private static void SetBlurRadius(float blurRadius)
         {
-            if (lastUsedBlurWidth != _blurWidth)
+            if (lastUsedBlurRadius != blurRadius)
             {
-                lastUsedBlurWidth = _blurWidth;
-                epBlurWidth.SetValue(_blurWidth);
+                lastUsedBlurRadius = blurRadius;
+                epBlurRadius.SetValue(blurRadius);
             }
-        } // SetBlurWidth
+        }
 
 		#endregion
+
+        #region Blur Falloff
+
+        private static float lastUsedBlurFalloff;
+        private static void SetBlurFalloff(float blurFalloff)
+        {
+            if (lastUsedBlurFalloff != blurFalloff)
+            {
+                lastUsedBlurFalloff = blurFalloff;
+                epBlurFalloff.SetValue(blurFalloff);
+            }
+        }
+
+        #endregion
+
+        #region Sharpness
+
+        private static float lastUsedSharpness;
+        private static void SetSharpness(float sharpness)
+        {
+            if (lastUsedSharpness != sharpness)
+            {
+                lastUsedSharpness = sharpness;
+                epSharpness.SetValue(sharpness);
+            }
+        }
+
+        #endregion
 
         #region Half Pixel
 
@@ -103,7 +134,21 @@ namespace XNAFinalEngine.Graphics
                 lastUsedHalfPixel = halfPixel;
                 epHalfPixel.SetValue(halfPixel);
             }
-        } // SetHalfPixel
+        }
+
+        #endregion
+
+        #region Texture Resolution
+
+        private static Vector2 lastUsedInvTextureResolution;
+        private static void SetInvTextureResolution(Vector2 invTextureResolution)
+        {
+            if (lastUsedInvTextureResolution != invTextureResolution)
+            {
+                lastUsedInvTextureResolution = invTextureResolution;
+                epInvTextureResolution.SetValue(invTextureResolution);
+            }
+        } // SetInvTextureResolution
 
         #endregion
 
@@ -112,6 +157,7 @@ namespace XNAFinalEngine.Graphics
         private static Texture2D lastUsedTexture;
         private static void SetTexture(Texture texture)
         {
+            EngineManager.Device.SamplerStates[5] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
             if (lastUsedTexture != texture.Resource)
             {
@@ -122,17 +168,19 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Texture Resolution
+        #region Depth Texture
 
-        private static Vector2 lastUsedTextureResolution;
-        private static void SetTextureResolution(Vector2 textureResolution)
+        private static Texture2D lastUsedDepthTexture;
+        private static void SetDepthTexture(Texture depthTexture)
         {
-            if (lastUsedTextureResolution != textureResolution)
+            EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedDepthTexture != depthTexture.Resource)
             {
-                lastUsedTextureResolution = textureResolution;
-                epTextureResolution.SetValue(textureResolution);
+                lastUsedDepthTexture = depthTexture.Resource;
+                epDepthTexture.SetValue(depthTexture.Resource);
             }
-        } // SetTextureResolution
+        } // SetDepthTexture
 
         #endregion
 
@@ -141,9 +189,9 @@ namespace XNAFinalEngine.Graphics
         #region Constructor
 
         /// <summary>
-        /// Bilinear Blur shader.
+        /// Bilateral Blur Shader.
         /// </summary>
-        private BilinearBlurShader() : base("Filters\\BilinearBlurShader") { }
+        private BilateralBlurShader() : base("Filters\\BilateralBlur") { }
 
 		#endregion
 
@@ -156,17 +204,24 @@ namespace XNAFinalEngine.Graphics
         /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
         /// </remarks>
         protected override void GetParametersHandles()
-		{
+		{                          
             try
             {
-                epTextureResolution = Resource.Parameters["textureResolution"];
-                    epTextureResolution.SetValue(lastUsedTextureResolution);
-                epBlurWidth         = Resource.Parameters["blurWidth"];
-                    epBlurWidth.SetValue(lastUsedBlurWidth);
-                epTexture           = Resource.Parameters["sceneTexture"];
+                epInvTextureResolution = Resource.Parameters["invTextureResolution"];
+                    epInvTextureResolution.SetValue(lastUsedInvTextureResolution);
+                epBlurRadius           = Resource.Parameters["blurRadius"];
+                    epBlurRadius.SetValue(lastUsedBlurRadius);
+                 epBlurFalloff         = Resource.Parameters["blurFalloff"];
+                    epBlurFalloff.SetValue(lastUsedBlurFalloff);
+                 epSharpness           = Resource.Parameters["sharpness"];
+                    epSharpness.SetValue(lastUsedSharpness);
+                epTexture              = Resource.Parameters["sceneTexture"];
                     if (lastUsedTexture != null && !lastUsedTexture.IsDisposed)
                         epTexture.SetValue(lastUsedTexture);
-                epHalfPixel         = Resource.Parameters["halfPixel"];
+                epDepthTexture         = Resource.Parameters["depthTexture"];
+                    if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
+                        epDepthTexture.SetValue(lastUsedDepthTexture);
+                epHalfPixel            = Resource.Parameters["halfPixel"];
                     epHalfPixel.SetValue(lastUsedHalfPixel);
             }
             catch
@@ -184,9 +239,8 @@ namespace XNAFinalEngine.Graphics
 	    /// </summary>
 	    /// <param name="texture">The texture to blur.</param>
 	    /// <param name="destionationTexture">The blured texture.</param>
-	    /// <param name="width">Blur Width. A value of 1 gives normally the better results and the better performance.</param>
-        /// <param name="linearFilter">Use point filter or linear filter. Some render targets only works in point filter.</param>
-	    public void Filter(RenderTarget texture, RenderTarget destionationTexture, float width = 1.0f, bool linearFilter = true)
+	    /// <param name="radius">Blur Radius.</param>
+        public void Filter(Texture texture, RenderTarget destionationTexture, Texture depthTexture, float radius = 5.0f, float sharpness = 15)
 		{
             if (texture == null || texture.Resource == null)
                 throw new ArgumentNullException("texture");
@@ -201,22 +255,15 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 EngineManager.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
 
-                // Works with point or linear filter?
-                if (linearFilter)
-                {
-                    Resource.CurrentTechnique = Resource.Techniques["BlurLinear"];
-                    EngineManager.Device.SamplerStates[6] = SamplerState.LinearClamp;
-                }
-                else
-                {
-                    Resource.CurrentTechnique = Resource.Techniques["BlurPoint"];
-                    EngineManager.Device.SamplerStates[5] = SamplerState.PointClamp;
-                }
-
                 // Set shader parameters
-                SetBlurWidth(width);
-                SetTextureResolution(new Vector2(destionationTexture.Width, destionationTexture.Height));
+                SetBlurRadius(radius);
+                float sigma = (radius + 1) / 2;
+                float invSigma2 = 1.0f / (2 * sigma * sigma);
+                SetBlurFalloff(invSigma2);
+                SetSharpness(sharpness * sharpness / 500);
+                SetInvTextureResolution(new Vector2(1f / destionationTexture.Width, 1f / destionationTexture.Height));
                 SetTexture(texture);
+                SetDepthTexture(depthTexture);
                 SetHalfPixel(new Vector2(-1f / destionationTexture.Width, 1f / destionationTexture.Height));
 
                 foreach (EffectPass pass in Resource.CurrentTechnique.Passes)
@@ -242,11 +289,11 @@ namespace XNAFinalEngine.Graphics
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Blur Shader: Unable to render.", e);
+                throw new InvalidOperationException("Bilateral Blur Shader: Unable to render.", e);
             }
         } // Filter
 
 		#endregion
-        
-    } // BilinearBlurShader
+
+    } // BilateralBlurShader
 } // XNAFinalEngine.Graphics

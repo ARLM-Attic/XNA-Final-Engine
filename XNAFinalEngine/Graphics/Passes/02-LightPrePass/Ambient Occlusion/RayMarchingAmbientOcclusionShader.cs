@@ -32,8 +32,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
+using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -362,7 +364,7 @@ namespace XNAFinalEngine.Graphics
 
                 RenderTarget bluredAmbientOcclusionTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle,
                                                                                 DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-                BlurShader.Instance.Filter(ambientOcclusionTexture, bluredAmbientOcclusionTexture, 1);
+                BilateralBlurShader.Instance.Filter(ambientOcclusionTexture, bluredAmbientOcclusionTexture, depthTexture);
                 RenderTarget.Release(ambientOcclusionTexture);
                 return bluredAmbientOcclusionTexture;
             }

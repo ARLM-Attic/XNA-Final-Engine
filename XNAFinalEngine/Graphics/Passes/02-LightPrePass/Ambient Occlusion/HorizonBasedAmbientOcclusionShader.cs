@@ -32,9 +32,11 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
+using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -418,7 +420,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Generate ambient occlusion texture.
 		/// </summary>
-        internal RenderTarget Render(RenderTarget depthTexture, RenderTarget normalTexture, HorizonBasedAmbientOcclusion hbao, float fieldOfView, Size destinationSize)
+        internal RenderTarget Render(RenderTarget depthTexture, RenderTarget normalTexture, HorizonBasedAmbientOcclusion hbao, float fieldOfView, Size destinationSize, RenderTarget fullscreenDepthTexture)
         {
             try
             {
@@ -483,7 +485,7 @@ namespace XNAFinalEngine.Graphics
                 // This pass is a lot cheaper than the ambient occlusion pass so the performance penalty is acceptable.
                 RenderTarget bluredAmbientOcclusionTexture = RenderTarget.Fetch(destinationSize, ambientOcclusionTexture.SurfaceFormat,
                                                                                 DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-                BlurShader.Instance.Filter(ambientOcclusionTexture, bluredAmbientOcclusionTexture, 1);
+                BilateralBlurShader.Instance.Filter(ambientOcclusionTexture, bluredAmbientOcclusionTexture, fullscreenDepthTexture, 7, 15);
                 RenderTarget.Release(ambientOcclusionTexture);
                 return bluredAmbientOcclusionTexture;
             }

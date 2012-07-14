@@ -29,6 +29,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 float2 halfPixel;
 float2 textureResolution;
 float blurWidth;
+
 const float Weights8[8] =
 {
 	// more strength to middle to reduce effect of lighten up shadowed areas due mixing and bluring!

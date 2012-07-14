@@ -22,35 +22,23 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
+#include <..\GBuffer\GBufferReader.fxh>
+
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
 //////////////////////////////////////////////
 
 float2 halfPixel;
-
-float2 textureResolution;
-
-float blurWidth = 1.0f;
-
-const float Weights8[8] =
-{
-	// more strength to middle to reduce effect of lighten up shadowed areas due mixing and bluring!
-	0.035,
-	0.09,
-	0.125,
-	0.25,
-	0.25,
-	0.125,
-	0.09,
-	0.035,
-};
+float2 invTextureResolution;
+float blurRadius;
+float blurFalloff;
+float sharpness;
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
 texture sceneTexture : register(t5);
-
 sampler sceneTextureSamplerPoint : register(s5) = sampler_state 
 {
     texture = <sceneTexture>;
@@ -61,16 +49,6 @@ sampler sceneTextureSamplerPoint : register(s5) = sampler_state
     MAGFILTER = POINT;*/
 };
 
-sampler sceneTextureSamplerLinear : register(s6) = sampler_state 
-{
-    texture = <sceneTexture>;
-	/*AddressU  = CLAMP;
-    AddressV  = CLAMP;
-    MIPFILTER = NONE;
-    MINFILTER = LINEAR;
-    MAGFILTER = LINEAR;*/
-};
-
 //////////////////////////////////////////////
 ////////////// Data Structs //////////////////
 //////////////////////////////////////////////
@@ -78,55 +56,21 @@ sampler sceneTextureSamplerLinear : register(s6) = sampler_state
 struct VS_Output
 {
    	float4 position    : POSITION;
-    float2 texCoord[8] : TEXCOORD0;
-};
-
-struct VS_OutputPoint
-{
-   	float4 position    : POSITION;
-    float2 texCoord[7] : TEXCOORD0;
+	float2 uv			: TEXCOORD0;
 };
 
 //////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
-VS_Output VS_Blur(float4 position : POSITION, 
-	              float2 texCoord : TEXCOORD0,
-	              uniform float2 dir)
+VS_Output VS_Blur(float4 position : POSITION, float2 uv : TEXCOORD0)
 {
 	VS_Output output = (VS_Output)0;
 	
 	output.position = position;
-	output.position.xy += halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
-			
-	float2 texelSize = 1.0 / textureResolution;
-	float2 s = texCoord - texelSize*(8-1) *0.5 * dir * blurWidth;
-	[unroll]
-	for(int i = 0; i < 8; i++)
-	{
-		output.texCoord[i] = s + texelSize * i * dir * blurWidth;
-	}
-	return output;
-}
-
-VS_OutputPoint VS_BlurPoint(float4 position : POSITION, 
-	                        float2 texCoord : TEXCOORD0,
-	                        uniform float2 dir)
-{
-	VS_OutputPoint output = (VS_OutputPoint)0;
+	output.position.xy += halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/	
+	output.uv = uv; 		
 	
-	output.position = position;
-	output.position.xy += halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
-			
-	float2 texelSize = 1.0 / textureResolution;
-	output.texCoord[0] = texCoord - 3 * texelSize * dir;
-	output.texCoord[1] = texCoord - 2 * texelSize * dir;
-	output.texCoord[2] = texCoord -     texelSize * dir;
-	output.texCoord[3] = texCoord;
-	output.texCoord[4] = texCoord +     texelSize * dir;
-	output.texCoord[5] = texCoord + 2 * texelSize * dir;	
-	output.texCoord[6] = texCoord + 3 * texelSize * dir;	
 	return output;
 }
 
@@ -134,60 +78,66 @@ VS_OutputPoint VS_BlurPoint(float4 position : POSITION,
 /////////////// Pixel Shader /////////////////
 //////////////////////////////////////////////
 
-// 8 linear samples (few cache misses)
-float4 PS_Blur(VS_Output In) : COLOR
-{	
-	float4 ret = 0;
-	[unroll]
-	for (int i = 0; i < 8; i++)
-	{
-		ret += tex2D(sceneTextureSamplerLinear, In.texCoord[i]) * Weights8[i];
-	}
-	return ret;
-}
+float BlurFunction(float2 uv, float r, float center_c, float center_d, inout float w_total)
+{
+    float c = tex2Dlod(sceneTextureSamplerPoint, float4(uv, 0, 0));
+    float d = tex2Dlod(sceneTextureSamplerPoint, float4(uv, 0, 0)).r;
 
-// 7 point samples (few cache misses)
-float4 PS_BlurPoint(VS_OutputPoint In) : COLOR
+    float ddiff = d - center_d;
+    float w = exp(-r * r * blurFalloff - ddiff * ddiff * sharpness);
+    w_total += w;
+
+    return w*c;
+} // BlurFunction
+
+float4 PS_BlurX(VS_Output input) : COLOR
 {	
-	float4 ret = 0;
-	ret += tex2D(sceneTextureSamplerPoint, In.texCoord[0]) * 0.05;
-	ret += tex2D(sceneTextureSamplerPoint, In.texCoord[1]) * 0.1;
-	ret += tex2D(sceneTextureSamplerPoint, In.texCoord[2]) * 0.2;
-	ret += tex2D(sceneTextureSamplerPoint, In.texCoord[3]) * 0.3;
-	ret += tex2D(sceneTextureSamplerPoint, In.texCoord[4]) * 0.2;
-    ret += tex2D(sceneTextureSamplerPoint, In.texCoord[5]) * 0.1;
-	ret += tex2D(sceneTextureSamplerPoint, In.texCoord[6]) * 0.05;
-	return ret;
-}
+	float b = 0;
+    float w_total = 0;
+    float center_c = tex2D(sceneTextureSamplerPoint, input.uv);
+    float center_d = tex2D(depthSampler, input.uv).r;
+    	
+    for (float r = -blurRadius; r <= blurRadius; ++r)
+    {
+        float2 uv = input.uv.xy + float2(r * invTextureResolution.x , 0);
+        b += BlurFunction(uv, r, center_c, center_d, w_total);	
+    }
+
+    return b/w_total;
+} // PS_BlurX
+
+float4 PS_BlurY(VS_Output input) : COLOR
+{
+    float b = 0;
+    float w_total = 0;
+    float center_c = tex2D(sceneTextureSamplerPoint, input.uv);
+    float center_d = tex2D(depthSampler, input.uv).r;
+    
+    for (float r = -blurRadius; r <= blurRadius; ++r)
+    {
+        float2 uv = input.uv.xy + float2(0, r * invTextureResolution.y); 
+        b += BlurFunction(uv, r, center_c, center_d, w_total);
+    }
+	    
+    return b/w_total;	
+} // PS_BlurY
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-technique BlurLinear
+// When a shadow is blured is important to leave edges untoached.
+// Moreover this shader allows to a more aggressive and configurable blurring with just a little more processing cost.
+technique BilateralBlur
 {
 	pass BlurHorizontal
 	{
-		VertexShader = compile vs_3_0 VS_Blur(float2(1, 0));		
-		PixelShader  = compile ps_3_0 PS_Blur();
+		VertexShader = compile vs_3_0 VS_Blur();		
+		PixelShader  = compile ps_3_0 PS_BlurX();
 	}
 	pass BlurVertical
 	{
-		VertexShader = compile vs_3_0 VS_Blur(float2(0, 1));		
-		PixelShader  = compile ps_3_0 PS_Blur();
+		VertexShader = compile vs_3_0 VS_Blur();		
+		PixelShader  = compile ps_3_0 PS_BlurY();
 	}
-}
-
-technique BlurPoint
-{
-	pass BlurHorizontal
-	{
-		VertexShader = compile vs_3_0 VS_BlurPoint(float2(1, 0));		
-		PixelShader  = compile ps_3_0 PS_BlurPoint();
-	}
-	pass BlurVertical
-	{
-		VertexShader = compile vs_3_0 VS_BlurPoint(float2(0, 1));
-		PixelShader  = compile ps_3_0 PS_BlurPoint();
-	}
-}
+} // BilateralBlur

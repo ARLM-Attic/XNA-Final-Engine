@@ -111,7 +111,7 @@ namespace XNAFinalEngineExamples
             camera.AddComponent<Camera>();
             //camera.AddComponent<SoundListener>();
             camera.Camera.RenderTargetSize = Size.FullScreen;
-            camera.Camera.FarPlane = 50;
+            camera.Camera.FarPlane = 500;
             camera.Camera.NearPlane = 0.5f;
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
             ScriptCustomCamera script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
@@ -129,14 +129,14 @@ namespace XNAFinalEngineExamples
             camera.Camera.AmbientLight = new AmbientLight
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
-                                                            Color = new Color(250, 250, 250),
-                                                            Intensity = 2f,
-                                                            AmbientOcclusionStrength = 2f };
+                                                            Color = new Color(10, 10, 10),
+                                                            Intensity = 7f,
+                                                            AmbientOcclusionStrength = 5f };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
-                Radius = 0.003f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                Radius = 0.0005f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 1f,
                 Contrast = 1f,
                 AngleBias = 5f,
