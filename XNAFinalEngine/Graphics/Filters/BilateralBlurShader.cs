@@ -40,7 +40,12 @@ using Texture = XNAFinalEngine.Assets.Texture;
 namespace XNAFinalEngine.Graphics
 {
 	/// <summary>
-    /// Bilateral Blur Shader.
+    /// When a shadow is blured is important to avoid leaks in the edges.
+    /// Moreover this shader allows to a more aggressive and configurable blurring with just a little more processing cost.
+    /// This shader is baded on NVIDIA example.
+    /// Chapter 7 of Game Engine Gems 2 talk about bilateral shaders. 
+    /// This chapter introduce also a cool technique that could help to acchive good performance
+    /// with complex low frecuency shaders (SSAO, shadows, etc.) running on the Xbox 360.
 	/// </summary>
     public class BilateralBlurShader : Shader
 	{

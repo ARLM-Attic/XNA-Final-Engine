@@ -84,7 +84,7 @@ namespace XNAFinalEngine.Graphics
         /// Effect handles
         /// </summary>
         private static EffectParameter epHalfPixel,
-                                       epLightRadius,
+                                       epInvLightRadius,
                                        epDepthTexture,
                                        epNormalTexture,
                                        epMotionVectorSpecularPowerTexture,
@@ -224,17 +224,17 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Radius
+        #region Inverse Light Radius
 
-        private static float lastUsedLightRadius;
-        private static void SetLightRadius(float lightRadius)
+        private static float lastUsedInvLightRadius;
+        private static void SetInvLightRadius(float lightRadius)
         {
-            if (lastUsedLightRadius != lightRadius)
+            if (lastUsedInvLightRadius != lightRadius)
             {
-                lastUsedLightRadius = lightRadius;
-                epLightRadius.SetValue(lightRadius);
+                lastUsedInvLightRadius = lightRadius;
+                epInvLightRadius.SetValue(lightRadius);
             }
-        } // SetLightRadius
+        } // SetInvLightRadius
 
         #endregion
 
@@ -395,8 +395,8 @@ namespace XNAFinalEngine.Graphics
                     epLightPosition.SetValue(lastUsedLightPosition);
                 epLlightIntensity                  = Resource.Parameters["lightIntensity"];
                     epLlightIntensity.SetValue(lastUsedLightIntensity);
-                epLightRadius                      = Resource.Parameters["lightRadius"];
-                    epLightRadius.SetValue(lastUsedLightRadius);
+                epInvLightRadius = Resource.Parameters["invLightRadius"];
+                    epInvLightRadius.SetValue(lastUsedInvLightRadius);
                 epLightDirection                   = Resource.Parameters["lightDirection"];
                     epLightDirection.SetValue(lastUsedLightDirection);
                 epLightOuterConeAngle              = Resource.Parameters["lightOuterAngle"];
@@ -487,7 +487,7 @@ namespace XNAFinalEngine.Graphics
                 SetLightColor(diffuseColor);
                 SetLightPosition(Vector3.Transform(position, viewMatrix));
                 SetLightIntensity(intensity);
-                SetLightRadius(range);
+                SetInvLightRadius(1 / range);
                 Vector3 directionVS = Vector3.TransformNormal(direction, viewMatrix);
                 directionVS.Normalize();
                 SetLightDirection(directionVS);

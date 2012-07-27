@@ -25,6 +25,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #include <..\GBuffer\GBufferReader.fxh>
 #include <..\Helpers\GammaLinearSpace.fxh>
 #include <..\Helpers\Discard.fxh>
+#include <..\Helpers\Attenuation.fxh>
 
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
@@ -40,7 +41,7 @@ float farPlane;
 float3 lightPosition;
 float3 lightDirection;
 float3 lightColor;
-float lightRadius;
+float invLightRadius;
 float lightIntensity;
 float lightInnerAngle;
 float lightOuterAngle;	
@@ -201,26 +202,14 @@ float4 ps_main(uniform bool hasShadows, uniform bool hasLightMask, VS_OUT input)
     float NL = max(dot(N, normalize(L)), 0);
 	
 	// Compute attenuation
-		// Basic attenuation
-		//float attenuation = saturate(1.0f - dot(L, L) / pow(lightRadius, 2)); // length(L)
-		// Natural light attenuation (http://fools.slindev.com/viewtopic.php?f=11&t=21&view=unread#unread)
-		float attenuationFactor = 30;
-		float attenuation = dot(L, L) / pow(lightRadius, 2);
-		attenuation = 1 / (attenuation * attenuationFactor + 1);
-		// Second we move down the function therewith it reaches zero at abscissa 1:
-		attenuationFactor = 1/ (attenuationFactor + 1); //att_s contains now the value we have to subtract
-		attenuation = max(attenuation - attenuationFactor, 0); // The max fixes a bug.
-		// Finally we expand the equation along the y-axis so that it starts with a function value of 1 again.
-		attenuation /= 1 - attenuationFactor;
+	float attenuation = Attenuation(L, invLightRadius);
 
 	// In "Experimental Validation of Analytical BRDF Models" (Siggraph2004) the autors arrive to the conclusion that half vector lobe is better than mirror lobe.
 	float3 V = normalize(-positionVS);
 	float3 H  = normalize(V + normalize(L));
 	// Compute specular light
     float specular = pow(saturate(dot(N, H)), DecompressSpecularPower(tex2D(motionVectorSpecularPowerSampler, uv).b));
-	
-
-
+		
 	// Fill the light buffer:
 	// R: Color.r * N.L // The color need to be in linear space and right now it's in gamma.
 	// G: Color.g * N.L

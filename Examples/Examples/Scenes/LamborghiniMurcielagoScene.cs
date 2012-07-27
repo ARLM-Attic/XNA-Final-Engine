@@ -48,7 +48,7 @@ namespace XNAFinalEngineExamples
     /// This was used to test most of the new version's features.
     /// It’s a mess, really, but it’s the best start point to understand the new version.
     /// </summary>
-    public class LamborghiniMurcielagoScene : EditableScene
+    public class LamborghiniMurcielagoScene : Scene
     {
 
         #region Variables

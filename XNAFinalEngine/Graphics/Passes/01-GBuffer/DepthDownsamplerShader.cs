@@ -168,7 +168,7 @@ namespace XNAFinalEngine.Graphics
             {
                 // Set Parameters
                 SetHalfPixel(new Vector2(-1f / (depthTexture.Width / 2), 1f / (depthTexture.Height / 2))); // Use size of destinantion render target.
-                SetQuarterTexel(new Vector2(0.5f / depthTexture.Width, 0.5f / depthTexture.Height));
+                SetQuarterTexel(new Vector2(0.25f / depthTexture.Width, 0.25f / depthTexture.Height));
                 SetDepthTexture(depthTexture);
                 // Set Render States
                 EngineManager.Device.BlendState = BlendState.Opaque;
@@ -176,7 +176,8 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
 
                 RenderTarget destinationRenderTarget = RenderTarget.Fetch(depthTexture.Size.HalfSize(),
-                                                                          depthTexture.SurfaceFormat, depthTexture.DepthFormat,
+                                                                          depthTexture.SurfaceFormat, // HalfSingle produces too many artifacts.
+                                                                          depthTexture.DepthFormat,
                                                                           depthTexture.Antialiasing);
 
                 destinationRenderTarget.EnableRenderTarget();

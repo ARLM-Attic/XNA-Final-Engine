@@ -84,7 +84,7 @@ namespace XNAFinalEngine.Graphics
         /// Effect handles
         /// </summary>
         private static EffectParameter epHalfPixel,
-                                       epLightRadius,
+                                       epInvLightRadius,
                                        epDepthTexture,
                                        epNormalTexture,
                                        epMotionVectorSpecularPowerTexture,
@@ -201,17 +201,17 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Radius
+        #region Inverse Light Radius
 
-        private static float lastUsedLightRadius;
-        private static void SetLightRadius(float lightRadius)
+        private static float lastUsedInvLightRadius;
+        private static void SetInvLightRadius(float lightRadius)
         {
-            if (lastUsedLightRadius != lightRadius)
+            if (lastUsedInvLightRadius != lightRadius)
             {
-                lastUsedLightRadius = lightRadius;
-                epLightRadius.SetValue(lightRadius);
+                lastUsedInvLightRadius = lightRadius;
+                epInvLightRadius.SetValue(lightRadius);
             }
-        } // SetLightRadius
+        } // SetInvLightRadius
 
         #endregion
 
@@ -304,8 +304,8 @@ namespace XNAFinalEngine.Graphics
                     epLightPosition.SetValue(lastUsedLightPosition);
                 epLlightIntensity                  = Resource.Parameters["lightIntensity"];
                     epLlightIntensity.SetValue(lastUsedLightIntensity);
-                epLightRadius                      = Resource.Parameters["lightRadius"];
-                    epLightRadius.SetValue(lastUsedLightRadius);
+                epInvLightRadius                      = Resource.Parameters["invLightRadius"];
+                    epInvLightRadius.SetValue(lastUsedInvLightRadius);
                 epDepthTexture                     = Resource.Parameters["depthTexture"];
                     if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
                         epDepthTexture.SetValue(lastUsedDepthTexture);
@@ -380,7 +380,7 @@ namespace XNAFinalEngine.Graphics
                 SetLightColor(diffuseColor);
                 SetLightPosition(Vector3.Transform(position, viewMatrix));
                 SetLightIntensity(intensity);
-                SetLightRadius(radius);
+                SetInvLightRadius(1 / radius);
 
                 // Compute the light world matrix.
                 // Scale according to light radius, and translate it to light position.

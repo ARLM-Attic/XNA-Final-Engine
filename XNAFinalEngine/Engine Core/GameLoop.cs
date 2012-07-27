@@ -710,6 +710,16 @@ namespace XNAFinalEngine.EngineCore
             }
             gbufferTextures = GBufferPass.End();
 
+            /*
+            renderTarget.EnableRenderTarget();
+            SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[1]);
+            if (currentCamera.RenderHeadUpDisplay)
+                RenderHeadsUpDisplay();
+            renderTarget.DisableRenderTarget();
+            Layer.CurrentCameraCullingMask = uint.MaxValue;
+            ReleaseUnusedRenderTargets();
+            return;*/
+
             #region DownSample GBuffer
 
             // TODO I have to implement a shader that downsample the two buffers at the same time to improve performance.

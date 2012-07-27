@@ -126,7 +126,7 @@ float4 PS_BlurY(VS_Output input) : COLOR
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-// When a shadow is blured is important to leave edges untoached.
+// When a shadow is blured is important to avoid leaks in the edges.
 // Moreover this shader allows to a more aggressive and configurable blurring with just a little more processing cost.
 technique BilateralBlur
 {
