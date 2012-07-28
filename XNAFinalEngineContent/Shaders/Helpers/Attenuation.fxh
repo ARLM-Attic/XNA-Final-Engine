@@ -26,7 +26,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 // IMPORTANT: Do not normalize the L (light) vector. The attenuation function needs the distance.
 // dot(L, L) = length(L)^2
-// The easiest optimization is to calculate on the CPU: 1 / (pow(lightRadius, 2)
 
 // Same as Just Cause 2 and Crysis 2 (you can read GPU Pro 1 book for more information)
 float BasicAttenuation(float3 L, float invLightRadius)

@@ -154,11 +154,11 @@ float4 ps_main(VS_OUT input) : COLOR0
     float specular = pow(saturate(dot(N, H)), DecompressSpecularPower(tex2D(motionVectorSpecularPowerSampler, uv).b));
 
     /*// Reflexion vector
-    float3 R = normalize(reflect(-L, N));
-    // Camera-to-surface vector
+	// Camera-to-surface vector
     float3 V = normalize(-positionVS);
+    float3 R = reflect(-V, N);
 	// Compute specular light
-    float specular = pow(saturate(dot(R, V)), specularPower);*/
+    float specular = pow(saturate(dot(L, R)), specularPower);*/
 		
 	// Fill the light buffer:
 	// R: Color.r * N.L // The color need to be in linear space and right now it's in gamma.
