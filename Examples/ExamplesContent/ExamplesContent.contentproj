@@ -352,7 +352,7 @@
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-AirTakes.fbx">
       <Name>Murcielago-AirTakes</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-AirTakesDark.fbx">
       <Name>Murcielago-AirTakesDark</Name>
@@ -367,7 +367,7 @@
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-CarbonFiber.fbx">
       <Name>Murcielago-CarbonFiber</Name>
       <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
+      <Processor>RigidModelProcessor</Processor>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-InteriorLeather.fbx">
       <Name>Murcielago-InteriorLeather</Name>

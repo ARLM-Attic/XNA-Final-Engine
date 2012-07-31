@@ -22,17 +22,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
+#define INCLUDE_BINORMALS
+
 //////////////////////////////////////////////
 ////////////// Data Structs //////////////////
 //////////////////////////////////////////////
 
-struct WithoutTextureVS_INPUT 
-{
-   float4 position : POSITION;
-   float3 normal   : NORMAL;
-};
-
-struct WithTextureVS_INPUT
+struct SimpleVS_INPUT
 {
    float4 position : POSITION;
    float3 normal   : NORMAL;
@@ -44,22 +40,39 @@ struct WithTangentVS_INPUT
    float4 position : POSITION;
    float3 normal   : NORMAL;
    float3 tangent  : TANGENT;
-   // I can eliminate the binormals so that this vertex declaration fits in 32 bytes. Still, it is more fast to just pass the value.
+#if defined(INCLUDE_BINORMALS)
+   // I can eliminate the binormals so that this vertex declaration fits in 32 bytes. Still, it is more fast to just pass the value (at least in my system).
+   // Still it is better to test in different configurations, especially on Xbox 360.
    float3 binormal : BINORMAL; 
+#endif
    float2 uv       : TEXCOORD0;
 };
 
-struct WithoutTextureVS_OUTPUT 
+struct SkinnedSimpleVS_INPUT
 {
-   float4 position    : POSITION0;
-   float4 normalDepth : TEXCOORD0;   
+   float4 position : POSITION;
+   float3 normal   : NORMAL;
+   float2 uv       : TEXCOORD0;
+   int4   indices  : BLENDINDICES0;
+   float4 weights  : BLENDWEIGHT0;
 };
 
-struct WithTextureVS_OUTPUT 
+struct SkinnedWithTangentVS_INPUT
 {
-   float4 position         : POSITION0;
-   float4 normalDepth      : TEXCOORD0;  
-   float2 uv			   : TEXCOORD1;
+   float4 position : POSITION;
+   float3 normal   : NORMAL;
+   float3 tangent  : TANGENT;
+   float3 binormal : BINORMAL; // Not need to exclude binormals. We have space left in the second 32 bytes chunk.
+   float2 uv       : TEXCOORD0;
+   int4   indices  : BLENDINDICES0;
+   float4 weights  : BLENDWEIGHT0;
+};
+
+struct SimpleVS_OUTPUT 
+{
+   float4 position         : POSITION0;   
+   float3 uvDepth	       : TEXCOORD0;
+   float3 normal           : TEXCOORD1;
 };
 
 struct WithTangentVS_OUTPUT 

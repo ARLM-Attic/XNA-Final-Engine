@@ -191,7 +191,9 @@ float4 ps_main(uniform bool hasShadows, uniform bool hasLightMask, VS_OUT input)
 
     // Surface-to-light vector (in view space)
     float3 L = lightPosition - positionVS; // Don't normalize, the attenuation function needs the distance.	
-	float3 N = SampleNormal(uv);
+	
+	float3 normalCompressed = tex2Dlod(normalSampler, float4(uv, 0, 0)).xyz;
+	float3 N = DecompressNormal(normalCompressed);
 	
 	// Cone attenuation
 	float DL           = dot(-lightDirection, normalize(L));

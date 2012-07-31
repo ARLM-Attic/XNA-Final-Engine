@@ -563,7 +563,8 @@ namespace XNAFinalEngine.Graphics
 
                     if (material is Constant)
                     {
-                        Resource.CurrentTechnique = Resource.Techniques["GBufferWithoutTexture"];
+                        SetSpecularTextured(false);
+                        Resource.CurrentTechnique = Resource.Techniques["GBufferSimple"];
                     }
 
                     #endregion
@@ -573,24 +574,22 @@ namespace XNAFinalEngine.Graphics
                     else if (material is BlinnPhong)
                     {
                         BlinnPhong blinnPhongMaterial = ((BlinnPhong)material);
-                        bool textured = false;
                         // Specular texture
                         if (blinnPhongMaterial.SpecularTexture != null && blinnPhongMaterial.SpecularPowerFromTexture)
                         {
                             SetSpecularTexture(blinnPhongMaterial.SpecularTexture);
                             SetSpecularTextured(true);
-                            textured = true;
-                            Resource.CurrentTechnique = Resource.Techniques["GBufferWithSpecularTexture"];
+                            Resource.CurrentTechnique = Resource.Techniques["GBufferSimple"];
                         }
                         else
                         {
                             SetSpecularPower(blinnPhongMaterial.SpecularPower);
                             SetSpecularTextured(false);
+                            Resource.CurrentTechnique = Resource.Techniques["GBufferSimple"];
                         }
                         // Normal texture
                         if (blinnPhongMaterial.NormalTexture != null)
                         {
-                            textured = true;
                             SetObjectNormalTexture(blinnPhongMaterial.NormalTexture);
                             if (blinnPhongMaterial.ParallaxEnabled)
                             {
@@ -605,8 +604,6 @@ namespace XNAFinalEngine.Graphics
                                 Resource.CurrentTechnique = Resource.Techniques["GBufferWithNormalMap"];
                             }
                         }
-                        if (!textured)
-                            Resource.CurrentTechnique = Resource.Techniques["GBufferWithoutTexture"];
                     }
 
                     #endregion
@@ -623,7 +620,7 @@ namespace XNAFinalEngine.Graphics
                             SetSpecularTexture(blinnPhongMaterial.SpecularTexture);
                             SetSpecularTextured(true);
                             textured = true;
-                            Resource.CurrentTechnique = Resource.Techniques["GBufferWithSpecularTexture"];
+                            Resource.CurrentTechnique = Resource.Techniques["GBufferSimple"];
                         }
                         else
                         {
@@ -638,7 +635,7 @@ namespace XNAFinalEngine.Graphics
                             Resource.CurrentTechnique = Resource.Techniques["GBufferWithNormalMap"];
                         }
                         if (!textured)
-                            Resource.CurrentTechnique = Resource.Techniques["GBufferWithoutTexture"];
+                            Resource.CurrentTechnique = Resource.Techniques["GBufferSimple"];
                     }
 
                     #endregion

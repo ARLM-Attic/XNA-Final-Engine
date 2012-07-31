@@ -100,21 +100,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
         /// </summary>
         protected override void ProcessVertexChannel(GeometryContent geometry, int vertexChannelIndex, ContentProcessorContext context)
         {
-
-            #region No compressed Vertex Data
-            /*
-            bool isWeights = geometry.Vertices.Channels[vertexChannelIndex].Name == VertexChannelNames.Weights();
-            base.ProcessVertexChannel(geometry, vertexChannelIndex, context);
-            if (isWeights)
-            {
-                geometry.Vertices.Channels.ConvertChannelContent<Vector4>("BlendIndices0");
-                geometry.Vertices.Channels.ConvertChannelContent<Vector4>("BlendWeight0");
-            }
-            */
-            #endregion
-
-            #region Compressed Vertex Data
-            
+            // Compressed Vertex Data
             VertexChannelCollection channels = geometry.Vertices.Channels;
             string name = channels[vertexChannelIndex].Name;
 
@@ -149,6 +135,8 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             }
             else if (name == VertexChannelNames.Binormal(0))
             {
+                // Not need to get rid of the binormal data because the model will use more than 32 bytes per vertex.
+                // We can actually try to align the data to 64 bytes per vertex.
                 channels.ConvertChannelContent<NormalizedShort4>(vertexChannelIndex);
             }
             else
@@ -156,12 +144,9 @@ namespace XNAFinalEngineContentPipelineExtension.Models
                 // Blend indices, blend weights and everything else.
                 // Don't use "BlendWeight0" as a name, nor weights0. Both names don't work.
                 base.ProcessVertexChannel(geometry, vertexChannelIndex, context);
-                geometry.Vertices.Channels.ConvertChannelContent<Byte4>("BlendIndices0");
-                geometry.Vertices.Channels.ConvertChannelContent<NormalizedShort4>(VertexChannelNames.EncodeName(VertexElementUsage.BlendWeight, 0)); 
+                channels.ConvertChannelContent<Byte4>("BlendIndices0");
+                channels.ConvertChannelContent<NormalizedShort4>(VertexChannelNames.EncodeName(VertexElementUsage.BlendWeight, 0));
             }
-            
-            #endregion
-
         } // ProcessVertexChannel
 
         #endregion

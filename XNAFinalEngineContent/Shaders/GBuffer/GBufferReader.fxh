@@ -22,6 +22,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
+#include <..\Helpers\NormalsSpecularPower.fxh>
+
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
@@ -58,44 +60,3 @@ sampler2D motionVectorSpecularPowerSampler : register(s2) = sampler_state
 	MINFILTER = POINT;
 	MIPFILTER = NONE;*/
 };
-
-//////////////////////////////////////////////
-/////////////// Sample Normal ////////////////
-//////////////////////////////////////////////
-
-float3 SampleNormal(float2 uv, sampler2D textureSampler)
-{
-	float2 normalInformation = tex2Dlod(textureSampler, float4(uv, 0, 0)).xy;
-	float3 N;
-	
-	// Spheremap Transform (not working)
-	/*N.z = dot(normalInformation, normalInformation) * 2 - 1; // lenght2 = dot(v, v)
-	N.xy = normalize(normalInformation) * sqrt(1 - N.z * N.z);	*/	
-
-	// Spherical Coordinates
-	N.xy = -normalInformation * normalInformation + normalInformation;
-	N.z = -1;
-	float f = dot(N, float3(1, 1, 0.25));
-	float m = sqrt(f);
-	N.xy = (normalInformation * 8 - 4) * m;
-	N.z = -(1 - 8 * f);
-	
-	// Basic form
-	//float3 N = tex2D(normalSampler2, uv).xyz * 2 - 1;
-	
-	return N; // Already normalized
-} // SampleNormal
-
-float3 SampleNormal(float2 uv)
-{
-	return SampleNormal(uv, normalSampler);
-} // SampleNormal
-
-//////////////////////////////////////////////
-/////////////// Specular Power ///////////////
-//////////////////////////////////////////////
-
-float DecompressSpecularPower(float compressedSpecularPower)
-{
-	return pow(2, compressedSpecularPower * 10.5);
-} // DecompressSpecularPower

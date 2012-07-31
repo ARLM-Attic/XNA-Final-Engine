@@ -133,7 +133,8 @@ float4 ps_main(VS_OUT input) : COLOR0
     // Surface-to-light vector (in view space)
     float3 L = lightPosition - positionVS; // Don't normalize, the attenuation function needs the distance.	
 		
-	float3 N = SampleNormal(uv);
+	float3 normalCompressed = tex2Dlod(normalSampler, float4(uv, 0, 0)).xyz;
+	float3 N = DecompressNormal(normalCompressed);
 
     // Compute diffuse light
     float NL = max(dot(N, normalize(L)), 0);

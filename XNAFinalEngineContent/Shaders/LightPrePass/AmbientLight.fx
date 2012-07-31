@@ -88,7 +88,8 @@ float4 ps_main(uniform bool sphericalHarmonicsEnabled, uniform bool ambientOcclu
 		
 	if (sphericalHarmonicsEnabled)
 	{
-		float3 N = SampleNormal(uv);
+		float3 normalCompressed = tex2Dlod(normalSampler, float4(uv, 0, 0)).xyz;
+		float3 N = DecompressNormal(normalCompressed);
 		// Normal (view space) to world space
 		N = normalize(mul(N, viewI));
 		baseColor += SampleSH(N);

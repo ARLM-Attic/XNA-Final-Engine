@@ -15,7 +15,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content.Pipeline;
 using Microsoft.Xna.Framework.Content.Pipeline.Graphics;
 using Microsoft.Xna.Framework.Content.Pipeline.Processors;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
 using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 #endregion
@@ -84,62 +83,67 @@ namespace XNAFinalEngineContentPipelineExtension.Models
         /// </summary>
         protected override void ProcessVertexChannel(GeometryContent geometry, int vertexChannelIndex, ContentProcessorContext context)
         {
-
-            #region No compressed Vertex Data
-            
-            //base.ProcessVertexChannel(geometry, vertexChannelIndex, context);
-            
-            #endregion
-
-            #region Compressed Vertex Data
-
             VertexChannelCollection channels = geometry.Vertices.Channels;
-            string name = channels[vertexChannelIndex].Name;
 
-            if (name == VertexChannelNames.Normal())
+            // If the model has only position and normals a UV channel is added.
+            // http://xnafinalengine.codeplex.com/wikipage?title=Compressed%20Vertex%20Data
+            if (channels.Count == 1 && channels.Contains(VertexChannelNames.Normal()))
             {
-                channels.ConvertChannelContent<NormalizedShort4>(vertexChannelIndex);
-            }
-            else if (name == VertexChannelNames.TextureCoordinate(0))
-            {
-                // If the resource has texture coordinates outside the range [-1, 1] the values will be clamped.
-                channels.ConvertChannelContent<NormalizedShort2>(vertexChannelIndex);
-            }
-            else if (name == VertexChannelNames.TextureCoordinate(1))
-                channels.Remove(VertexChannelNames.TextureCoordinate(1));
-            else if (name == VertexChannelNames.TextureCoordinate(2))
-                channels.Remove(VertexChannelNames.TextureCoordinate(2));
-            else if (name == VertexChannelNames.TextureCoordinate(3))
-                channels.Remove(VertexChannelNames.TextureCoordinate(3));
-            else if (name == VertexChannelNames.TextureCoordinate(4))
-                channels.Remove(VertexChannelNames.TextureCoordinate(4));
-            else if (name == VertexChannelNames.TextureCoordinate(5))
-                channels.Remove(VertexChannelNames.TextureCoordinate(5));
-            else if (name == VertexChannelNames.TextureCoordinate(6))
-                channels.Remove(VertexChannelNames.TextureCoordinate(6));
-            else if (name == VertexChannelNames.TextureCoordinate(7))
-                channels.Remove(VertexChannelNames.TextureCoordinate(7));
-            else if (name == VertexChannelNames.Color(0))
-                channels.Remove(VertexChannelNames.Color(0));
-            else if (name == VertexChannelNames.Tangent(0))
-            {
-                channels.ConvertChannelContent<NormalizedShort4>(vertexChannelIndex);
-            }
-            else if (name == VertexChannelNames.Binormal(0))
-            {
-                channels.ConvertChannelContent<NormalizedShort4>(vertexChannelIndex);
-                // If the binormal is removed then the position, the normal,
-                // the tangent and the texture coordinate can be fetched in one single block of 32 bytes.
-                // Still, it is more fast to just pass the value.
-                //channels.Remove(VertexChannelNames.Binormal(0));
-            }
-            else
-            {
-                base.ProcessVertexChannel(geometry, vertexChannelIndex, context);
+                channels.Add<Vector2>(VertexChannelNames.TextureCoordinate(0), null);
             }
 
-            #endregion
+            // If the model has position, normal and UV then the data is packed on 32 bytes aliagned vertex data.
+            if (channels.Count == 2 && channels.Contains(VertexChannelNames.Normal()) && channels.Contains(VertexChannelNames.TextureCoordinate(0)))
+            {
+                // No compressed Vertex Data
+                base.ProcessVertexChannel(geometry, vertexChannelIndex, context);    
+            }
+            else // If not then the data is compressed.
+            {
+                string name = channels[vertexChannelIndex].Name;
 
+                if (name == VertexChannelNames.Normal())
+                {
+                    channels.ConvertChannelContent<NormalizedShort4>(vertexChannelIndex);
+                }
+                else if (name == VertexChannelNames.TextureCoordinate(0))
+                {
+                    // If the resource has texture coordinates outside the range [-1, 1] the values will be clamped.
+                    channels.ConvertChannelContent<NormalizedShort2>(vertexChannelIndex);
+                }
+                else if (name == VertexChannelNames.TextureCoordinate(1))
+                    channels.Remove(VertexChannelNames.TextureCoordinate(1));
+                else if (name == VertexChannelNames.TextureCoordinate(2))
+                    channels.Remove(VertexChannelNames.TextureCoordinate(2));
+                else if (name == VertexChannelNames.TextureCoordinate(3))
+                    channels.Remove(VertexChannelNames.TextureCoordinate(3));
+                else if (name == VertexChannelNames.TextureCoordinate(4))
+                    channels.Remove(VertexChannelNames.TextureCoordinate(4));
+                else if (name == VertexChannelNames.TextureCoordinate(5))
+                    channels.Remove(VertexChannelNames.TextureCoordinate(5));
+                else if (name == VertexChannelNames.TextureCoordinate(6))
+                    channels.Remove(VertexChannelNames.TextureCoordinate(6));
+                else if (name == VertexChannelNames.TextureCoordinate(7))
+                    channels.Remove(VertexChannelNames.TextureCoordinate(7));
+                else if (name == VertexChannelNames.Color(0))
+                    channels.Remove(VertexChannelNames.Color(0));
+                else if (name == VertexChannelNames.Tangent(0))
+                {
+                    channels.ConvertChannelContent<NormalizedShort4>(vertexChannelIndex);
+                }
+                else if (name == VertexChannelNames.Binormal(0))
+                {
+                    channels.ConvertChannelContent<NormalizedShort4>(vertexChannelIndex);
+                    // If the binormal is removed then the position, the normal,
+                    // the tangent and one texture coordinate can be fetched in one single block of 32 bytes.
+                    // Still, it is more fast to just pass the value. At least on the test I made.
+                    //channels.Remove(VertexChannelNames.Binormal(0));
+                }
+                else
+                {
+                    base.ProcessVertexChannel(geometry, vertexChannelIndex, context);
+                }
+            }
         } // ProcessVertexChannel
 
         #endregion

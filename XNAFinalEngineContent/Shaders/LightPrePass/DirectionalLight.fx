@@ -115,7 +115,8 @@ float4 ps_main(uniform bool hasShadows, in float2 uv : TEXCOORD0, in float3 frus
 		Discard();
 	}
 	
-	float3 N = SampleNormal(uv);
+	float3 normalCompressed = tex2Dlod(normalSampler, float4(uv, 0, 0)).xyz;
+	float3 N = DecompressNormal(normalCompressed);	
 	
 	// Light vector
 	float3 L = -lightDirection;
