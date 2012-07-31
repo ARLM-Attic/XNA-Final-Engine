@@ -49,14 +49,3 @@ sampler2D normalSampler : register(s1) = sampler_state
 	MINFILTER = POINT;
 	MIPFILTER = NONE;*/
 };
-
-texture motionVectorSpecularPowerTexture   : register(t2);
-sampler2D motionVectorSpecularPowerSampler : register(s2) = sampler_state
-{
-	Texture = <motionVectorSpecularPowerTexture>;
-    /*ADDRESSU = CLAMP;
-	ADDRESSV = CLAMP;
-	MAGFILTER = POINT;
-	MINFILTER = POINT;
-	MIPFILTER = NONE;*/
-};

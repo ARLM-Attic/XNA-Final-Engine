@@ -192,8 +192,8 @@ float4 ps_main(uniform bool hasShadows, uniform bool hasLightMask, VS_OUT input)
     // Surface-to-light vector (in view space)
     float3 L = lightPosition - positionVS; // Don't normalize, the attenuation function needs the distance.	
 	
-	float3 normalCompressed = tex2Dlod(normalSampler, float4(uv, 0, 0)).xyz;
-	float3 N = DecompressNormal(normalCompressed);
+	float4 normalCompressed = tex2Dlod(normalSampler, float4(uv, 0, 0));
+	float3 N = DecompressNormal(normalCompressed.xyz);
 	
 	// Cone attenuation
 	float DL           = dot(-lightDirection, normalize(L));
@@ -210,7 +210,7 @@ float4 ps_main(uniform bool hasShadows, uniform bool hasLightMask, VS_OUT input)
 	float3 V = normalize(-positionVS);
 	float3 H  = normalize(V + normalize(L));
 	// Compute specular light
-    float specular = pow(saturate(dot(N, H)), DecompressSpecularPower(tex2D(motionVectorSpecularPowerSampler, uv).b));
+    float specular = pow(saturate(dot(N, H)), DecompressSpecularPower(normalCompressed.w));
 		
 	// Fill the light buffer:
 	// R: Color.r * N.L // The color need to be in linear space and right now it's in gamma.

@@ -115,8 +115,8 @@ float4 ps_main(uniform bool hasShadows, in float2 uv : TEXCOORD0, in float3 frus
 		Discard();
 	}
 	
-	float3 normalCompressed = tex2Dlod(normalSampler, float4(uv, 0, 0)).xyz;
-	float3 N = DecompressNormal(normalCompressed);	
+	float4 normalCompressed = tex2Dlod(normalSampler, float4(uv, 0, 0));
+	float3 N = DecompressNormal(normalCompressed.xyz);	
 	
 	// Light vector
 	float3 L = -lightDirection;
@@ -141,7 +141,7 @@ float4 ps_main(uniform bool hasShadows, in float2 uv : TEXCOORD0, in float3 frus
 	// In "Experimental Validation of Analytical BRDF Models" (Siggraph2004) the autors arrive to the conclusion that half vector lobe is better than mirror lobe.
 	float3 H  = normalize(V + L);
 	// Compute specular light
-    float specular = pow(saturate(dot(N, H)), DecompressSpecularPower(tex2D(motionVectorSpecularPowerSampler, uv).b));
+    float specular = pow(saturate(dot(N, H)), DecompressSpecularPower(normalCompressed.w));
 
 	// Fill the light buffer:
 	// R: Color.r * N.L // The color need to be in linear space and right now it's in gamma.

@@ -87,7 +87,6 @@ namespace XNAFinalEngine.Graphics
                                        epInvLightRadius,
                                        epDepthTexture,
                                        epNormalTexture,
-                                       epMotionVectorSpecularPowerTexture,
                                        epLightColor,
                                        epLightPosition,
                                        epLlightIntensity,
@@ -140,22 +139,6 @@ namespace XNAFinalEngine.Graphics
                 epNormalTexture.SetValue(normalTexture.Resource);
             }
         } // SetNormalTexture
-
-        #endregion
-
-        #region Motion Vector Specular Power Texture
-
-        private static Texture2D lastUsedMotionVectorSpecularPower;
-        private static void SetMotionVectorSpecularPower(Texture motionVectorSpecularPower)
-        {
-            EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedMotionVectorSpecularPower != motionVectorSpecularPower.Resource)
-            {
-                lastUsedMotionVectorSpecularPower = motionVectorSpecularPower.Resource;
-                epMotionVectorSpecularPowerTexture.SetValue(motionVectorSpecularPower.Resource);
-            }
-        } // SetMotionVectorSpecularPower
 
         #endregion
 
@@ -312,9 +295,6 @@ namespace XNAFinalEngine.Graphics
                 epNormalTexture                    = Resource.Parameters["normalTexture"];
                     if (lastUsedNormalTexture != null && !lastUsedNormalTexture.IsDisposed)
                         epNormalTexture.SetValue(lastUsedNormalTexture);
-                epMotionVectorSpecularPowerTexture = Resource.Parameters["motionVectorSpecularPowerTexture"];
-                    if (lastUsedMotionVectorSpecularPower != null && !lastUsedMotionVectorSpecularPower.IsDisposed)
-                        epMotionVectorSpecularPowerTexture.SetValue(lastUsedMotionVectorSpecularPower);
                 epFarPlane                         = Resource.Parameters["farPlane"];
                     epFarPlane.SetValue(lastUsedFarPlane);
                 epWorldViewProj                    = Resource.Parameters["worldViewProj"];
@@ -339,19 +319,17 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         /// <param name="depthTexture">Gbuffer's depth buffer.</param>
         /// <param name="normalTexture">Gbuffer's normal map.</param>
-        /// <param name="motionVectorSpecularPowerTexture">Gbuffer's motion vector and specular power texture.</param>
         /// <param name="viewMatrix">Camera view matrix.</param>
         /// <param name="projectionMatrix">Camera projection matrix.</param>
         /// <param name="nearPlane">Camera near plane.</param>
         /// <param name="farPlane">Camera far plane.</param>
-        internal void Begin(RenderTarget depthTexture, RenderTarget normalTexture, RenderTarget motionVectorSpecularPowerTexture,
+        internal void Begin(RenderTarget depthTexture, RenderTarget normalTexture,
                             Matrix viewMatrix, Matrix projectionMatrix, float nearPlane, float farPlane)
         {
             try
             {
                 SetDepthTexture(depthTexture);
                 SetNormalTexture(normalTexture);
-                SetMotionVectorSpecularPower(motionVectorSpecularPowerTexture);
                 SetHalfPixel(new Vector2(0.5f / depthTexture.Width, 0.5f / depthTexture.Height)); // I use the depth texture, but I just need the destination render target dimension.
                 SetFarPlane(farPlane);
                 this.nearPlane = nearPlane;

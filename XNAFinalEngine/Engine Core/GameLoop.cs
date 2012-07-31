@@ -955,7 +955,6 @@ namespace XNAFinalEngine.EngineCore
 
             DirectionalLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                                   gbufferTextures.RenderTargets[1], // Normal Texture
-                                                  gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
                                                   currentCamera.ViewMatrix,
                                                   cornersViewSpace);
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
@@ -974,7 +973,6 @@ namespace XNAFinalEngine.EngineCore
 
             PointLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                             gbufferTextures.RenderTargets[1], // Normal Texture
-                                            gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
                                             currentCamera.ViewMatrix,
                                             currentCamera.ProjectionMatrix,
                                             currentCamera.NearPlane,
@@ -994,7 +992,6 @@ namespace XNAFinalEngine.EngineCore
 
             SpotLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                            gbufferTextures.RenderTargets[1], // Normal Texture
-                                           gbufferTextures.RenderTargets[2], // Motion Vector Specular Power
                                            currentCamera.ViewMatrix,
                                            currentCamera.ProjectionMatrix,
                                            currentCamera.NearPlane,

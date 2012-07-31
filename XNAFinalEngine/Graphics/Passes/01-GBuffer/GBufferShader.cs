@@ -55,6 +55,8 @@ namespace XNAFinalEngine.Graphics
 
         // Singleton reference.
         private static GBufferShader instance;
+
+        private static Texture normalsFittingTexture;
         
         #endregion
 
@@ -381,7 +383,19 @@ namespace XNAFinalEngine.Graphics
         /// The depth texture has a texture with a 32 bits single channel precision, and the normal has a half vector 2 format (r16f g16f). 
         /// The normals are store with spherical coordinates and the depth is store using the equation: -DepthVS / FarPlane.
         /// </summary>
-        internal GBufferShader() : base("GBuffer\\GBuffer") { }
+        internal GBufferShader() : base("GBuffer\\GBuffer")
+        {
+            ContentManager userContentManager = ContentManager.CurrentContentManager;
+            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            // Set the random normal map. Helps to make the samplers more random.
+            #if (WINDOWS)
+                normalsFittingTexture = new Texture("Shaders\\NormalsFitting1024");
+            #else
+                normalsFittingTexture = new Texture("Shaders\\NormalsFitting512");
+            #endif
+            Resource.Parameters["normalsFittingTexture"].SetValue(normalsFittingTexture.Resource);
+            ContentManager.CurrentContentManager = userContentManager;
+        } // GBufferShader
 
         #endregion
 

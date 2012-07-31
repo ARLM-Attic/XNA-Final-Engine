@@ -22,7 +22,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
-//#define BEST_FIT_NORMALS
+#define BEST_FIT_NORMALS
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
@@ -116,7 +116,7 @@ half3 CompressNormalBestFit(half3 vNormal)
 
 	// Squeeze to unsigned.
     vNormal.rgb = vNormal.rgb * .5h + .5h;
-
+	
 	return vNormal;
 } // CompressNormalBestFit
 

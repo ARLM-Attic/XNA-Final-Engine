@@ -62,21 +62,17 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         internal static void Begin(Size size)
         {
-            //try
+            try
             {
                 // Multisampling on normal and depth maps makes no physical sense!!
                 // Depth Texture: Single Z-Buffer texture with 32 bits single channel precision. Equation: -DepthVS / FarPlane
                 //
-                // Normal map: Normal Map in half vector 2 format (r16f g16f) and using spherical coordinates.
+                // Normal Map was half vector 2 format (r16f g16f) and using spherical coordinates.
                 // Half vector 2 format (r16f g16f). Be careful, in some GPUs this surface format is changed to the RGBA1010102 format.
                 // The XBOX 360 supports it though (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
-                //
-                // Motion Vector and Specular Power texture:
-                // R: Motion vector X
-                // G: Motion vector Y
-                // B: Specular Power.
-                // A: Unused... yet.
-                renderTargetBinding = RenderTarget.Fetch(size, SurfaceFormat.Single, DepthFormat.Depth24, SurfaceFormat.HalfVector2, SurfaceFormat.Color);
+                // Now the normal map is stored with the best fit normals technique. That allows storing  the normals in 24 bits.
+                // The other 8 bits will be used to store the specular power.
+                renderTargetBinding = RenderTarget.Fetch(size, SurfaceFormat.Single, DepthFormat.Depth24, SurfaceFormat.Color);
 
                 // Set Render States.
                 EngineManager.Device.BlendState        = BlendState.Opaque;
@@ -89,10 +85,10 @@ namespace XNAFinalEngine.Graphics
                 RenderTarget.EnableRenderTargets(renderTargetBinding);
                 RenderTarget.ClearCurrentRenderTargets(Color.White);
             }
-            /*catch (Exception e)
+            catch (Exception e)
             {
                 throw new InvalidOperationException("GBuffer Pass: Unable to begin the rendering.", e);
-            }*/
+            }
         } // Begin
         
         #endregion
