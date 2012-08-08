@@ -132,7 +132,7 @@ namespace XNAFinalEngineExamples
                                                             Color = new Color(10, 10, 10),
                                                             Intensity = 7f,
                                                             AmbientOcclusionStrength = 5f };
-            camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
+            /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
@@ -142,7 +142,7 @@ namespace XNAFinalEngineExamples
                 AngleBias = 5f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
-            };
+            };*/
 
             #endregion
             
@@ -440,7 +440,7 @@ namespace XNAFinalEngineExamples
                                                              });
 
             #endregion
-
+            
             #region Front Left Wheel
 
             murcielagoLP670FrontLeftRim = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP670-FrontRim"),
@@ -827,7 +827,7 @@ namespace XNAFinalEngineExamples
             murcielagoRearRightTyre02.Parent = rearRightRim;
 
             #endregion
-
+            
             #region Floor
 
             floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
@@ -851,13 +851,13 @@ namespace XNAFinalEngineExamples
             directionalLight.DirectionalLight.Color = new Color(250, 250, 220);
             directionalLight.DirectionalLight.Intensity = 10f;
             directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
-            directionalLight.DirectionalLight.Shadow = new CascadedShadow
+            /*directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
                 Filter = Shadow.FilterType.Pcf5X5,
                 LightDepthTextureSize = Size.Square512X512,
                 TextureSize = Size.TextureSize.FullSize,
                 Range = 50,
-            };
+            };*/
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();

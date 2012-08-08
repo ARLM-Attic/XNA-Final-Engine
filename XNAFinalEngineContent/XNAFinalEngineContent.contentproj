@@ -72,8 +72,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Shaders\GBuffer\DownsampleDepth.fx">
-      <Name>DownsampleDepth</Name>
+    <Compile Include="Shaders\GBuffer\DownsampleGBuffer.fx">
+      <Name>DownsampleGBuffer</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
     </Compile>

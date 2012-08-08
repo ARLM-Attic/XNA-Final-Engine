@@ -625,13 +625,11 @@ namespace XNAFinalEngine.EngineCore
 
         // Render Targets used in the deferred lighting pipeline.
         private static RenderTarget.RenderTargetBinding gbufferTextures;
+        private static RenderTarget.RenderTargetBinding gbufferHalfTextures;
+        private static RenderTarget.RenderTargetBinding gbufferQuarterTextures;
         private static RenderTarget lightTexture;
         private static RenderTarget sceneTexture;
         private static RenderTarget ambientOcclusionTexture;
-        private static RenderTarget halfNormalTexture;
-        private static RenderTarget halfDepthTexture;
-        private static RenderTarget quarterNormalTexture;
-        private static RenderTarget quarterDepthTexture;
 
         /// <summary>
         /// Deferred lighting pipeline for one camera.
@@ -709,6 +707,9 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
             gbufferTextures = GBufferPass.End();
+            
+            // Downsample GBuffer
+            gbufferHalfTextures = DownsamplerGBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], gbufferTextures.RenderTargets[1]);
             /*
             renderTarget.EnableRenderTarget();
             SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[1]);
@@ -718,42 +719,6 @@ namespace XNAFinalEngine.EngineCore
             Layer.CurrentCameraCullingMask = uint.MaxValue;
             ReleaseUnusedRenderTargets();
             return;*/
-            
-            #region DownSample GBuffer
-
-            // TODO I have to implement a shader that downsample the two buffers at the same time to improve performance.
-            halfDepthTexture = DepthDownsamplerShader.Instance.Render(gbufferTextures.RenderTargets[0]);
-            quarterDepthTexture = DepthDownsamplerShader.Instance.Render(halfDepthTexture);
-
-            // Donwsample normal map. Applying typical color filters in normal maps is not the best way course of action, but is simple, fast and the resulting error is subtle.
-            // In this case the buffer is downsampled using the sprite manager. Is important that the filter type is linear, not point.
-            // If some error occurs them probably the surfaceformat does not support linear filter.)
-            try
-            {
-                halfNormalTexture = RenderTarget.Fetch(renderTarget.Size.HalfSize(),
-                                                       gbufferTextures.RenderTargets[1].SurfaceFormat,
-                                                       gbufferTextures.RenderTargets[1].DepthFormat,
-                                                       gbufferTextures.RenderTargets[1].Antialiasing);
-                // Downsampled half size normal map
-                halfNormalTexture.EnableRenderTarget();
-                SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[1]);
-                halfNormalTexture.DisableRenderTarget();
-                // Downsampled quarter size normal map
-                quarterNormalTexture = RenderTarget.Fetch(renderTarget.Size.HalfSize().HalfSize(),
-                                                          gbufferTextures.RenderTargets[1].SurfaceFormat,
-                                                          gbufferTextures.RenderTargets[1].DepthFormat,
-                                                          gbufferTextures.RenderTargets[1].Antialiasing);
-                quarterNormalTexture.EnableRenderTarget();
-                SpriteManager.DrawTextureToFullScreen(halfNormalTexture);
-                quarterNormalTexture.DisableRenderTarget();
-            }
-            catch (Exception e)
-            {
-                // Maybe an error could occur if the surface format that XNA gives you doesn't support linear filtering. It needs further testing.
-                throw new InvalidOperationException("Unable to downsample the normal map. ", e);
-            }
-
-            #endregion
 
             #endregion
 
@@ -774,13 +739,15 @@ namespace XNAFinalEngine.EngineCore
                 }
                 else if (currentCamera.AmbientLight.AmbientOcclusion.TextureSize == Size.TextureSize.HalfSize)
                 {
-                    aoDepthTexture = halfDepthTexture;
-                    aoNormalTexture = halfNormalTexture;
+                    aoDepthTexture = gbufferHalfTextures.RenderTargets[0];
+                    aoNormalTexture = gbufferHalfTextures.RenderTargets[1];
                 }
                 else
                 {
-                    aoDepthTexture = quarterDepthTexture;
-                    aoNormalTexture = quarterNormalTexture;
+                    // We need to downsample again the gbuffer.
+                    gbufferQuarterTextures = DownsamplerGBufferShader.Instance.Render(gbufferHalfTextures.RenderTargets[0], gbufferHalfTextures.RenderTargets[1]);
+                    aoDepthTexture = gbufferQuarterTextures.RenderTargets[0];
+                    aoNormalTexture = gbufferQuarterTextures.RenderTargets[1];
                 }
                 // Produce occlusion texture. The result will be used in the light pass.
                 if (currentCamera.AmbientLight.AmbientOcclusion is HorizonBasedAmbientOcclusion)
@@ -821,13 +788,13 @@ namespace XNAFinalEngine.EngineCore
                 // If there is a shadow map...
                 if (directionalLight.Shadow != null && directionalLight.Shadow.Enabled && directionalLight.IsVisible && directionalLight.Intensity > 0)
                 {
-                    RenderTarget shadowDepthTexture;
+                    RenderTarget depthTexture;
                     if (directionalLight.Shadow.TextureSize == Size.TextureSize.FullSize)
-                        shadowDepthTexture = gbufferTextures.RenderTargets[0];
+                        depthTexture = gbufferTextures.RenderTargets[0];
                     else if (directionalLight.Shadow.TextureSize == Size.TextureSize.HalfSize)
-                        shadowDepthTexture = halfDepthTexture;
+                        depthTexture = gbufferHalfTextures.RenderTargets[0];
                     else
-                        shadowDepthTexture = quarterDepthTexture;
+                        depthTexture = gbufferQuarterTextures.RenderTargets[0];
 
                     #region Cascaded Shadow
 
@@ -838,7 +805,7 @@ namespace XNAFinalEngine.EngineCore
                         CascadedShadow shadow = (CascadedShadow)directionalLight.Shadow;
                         if (shadow.LightDepthTexture != null)
                             RenderTarget.Release(shadow.LightDepthTexture);
-                        CascadedShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, shadowDepthTexture, shadow.DepthBias, shadow.Filter);
+                        CascadedShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, depthTexture, shadow.DepthBias, shadow.Filter);
                         CascadedShadowMapShader.Instance.SetLight(directionalLight.cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
                                                                   currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace);
                         // FrustumCulling(, modelsToRenderShadow);
@@ -862,7 +829,7 @@ namespace XNAFinalEngine.EngineCore
                         BasicShadow shadow = (BasicShadow)directionalLight.Shadow;
                         if (shadow.LightDepthTexture != null)
                             RenderTarget.Release(shadow.LightDepthTexture);
-                        BasicShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, shadowDepthTexture, shadow.DepthBias, shadow.Filter);
+                        BasicShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, depthTexture, shadow.DepthBias, shadow.Filter);
                         BasicShadowMapShader.Instance.SetLight(directionalLight.cachedDirection, currentCamera.ViewMatrix, shadow.Range, cornersViewSpace);
                         //FrustumCulling(new BoundingFrustum(), modelsToRenderShadow);
                         // Render all the opaque objects...
@@ -892,13 +859,13 @@ namespace XNAFinalEngine.EngineCore
                 // If there is a shadow map...
                 if (spotLight.Shadow != null && spotLight.Shadow.Enabled && spotLight.IsVisible && spotLight.Intensity > 0)
                 {
-                    RenderTarget shadowDepthTexture;
+                    RenderTarget depthTexture;
                     if (spotLight.Shadow.TextureSize == Size.TextureSize.FullSize)
-                        shadowDepthTexture = gbufferTextures.RenderTargets[0];
+                        depthTexture = gbufferTextures.RenderTargets[0];
                     else if (spotLight.Shadow.TextureSize == Size.TextureSize.HalfSize)
-                        shadowDepthTexture = halfDepthTexture;
+                        depthTexture = gbufferHalfTextures.RenderTargets[0];
                     else
-                        shadowDepthTexture = quarterDepthTexture;
+                        depthTexture = gbufferQuarterTextures.RenderTargets[0];
 
                     // If the shadow map is a cascaded shadow map...
                     if (spotLight.Shadow is BasicShadow)
@@ -906,7 +873,7 @@ namespace XNAFinalEngine.EngineCore
                         BasicShadow shadow = (BasicShadow)spotLight.Shadow;
                         if (shadow.LightDepthTexture == null)
                         {
-                            BasicShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, shadowDepthTexture, shadow.DepthBias, shadow.Filter);
+                            BasicShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, depthTexture, shadow.DepthBias, shadow.Filter);
                             BasicShadowMapShader.Instance.SetLight(spotLight.cachedPosition, spotLight.cachedDirection, currentCamera.ViewMatrix, spotLight.OuterConeAngle,
                                                                    spotLight.Range, cornersViewSpace);
                             //FrustumCulling(new BoundingFrustum(), modelsToRenderShadow);
@@ -1470,26 +1437,8 @@ namespace XNAFinalEngine.EngineCore
         private static void ReleaseUnusedRenderTargets()
         {
             RenderTarget.Release(gbufferTextures);
-            if (halfDepthTexture != null)
-            {
-                RenderTarget.Release(halfDepthTexture);
-                halfDepthTexture = null;
-            }
-            if (halfNormalTexture != null)
-            {
-                RenderTarget.Release(halfNormalTexture);
-                halfNormalTexture = null;
-            }
-            if (quarterDepthTexture != null)
-            {
-                RenderTarget.Release(quarterDepthTexture);
-                quarterDepthTexture = null;
-            }
-            if (quarterNormalTexture != null)
-            {
-                RenderTarget.Release(quarterNormalTexture);
-                quarterNormalTexture = null;
-            }
+            RenderTarget.Release(gbufferHalfTextures);
+            RenderTarget.Release(gbufferQuarterTextures);
             if (lightTexture != null)
             {
                 RenderTarget.Release(lightTexture);

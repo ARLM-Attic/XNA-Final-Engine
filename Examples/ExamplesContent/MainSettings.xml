@@ -2,12 +2,12 @@
 <XnaContent>
   <Asset Type="XNAFinalEngineContentPipelineExtensionRuntime.Settings.MainSettings">
     <WindowName>XNA FINAL ENGINE</WindowName>
-    <WindowWidth>0</WindowWidth>
-    <WindowHeight>0</WindowHeight>
-    <Fullscreen>false</Fullscreen>
+    <WindowWidth>1024</WindowWidth>
+    <WindowHeight>600</WindowHeight>
+    <Fullscreen>true</Fullscreen>
     <VSync>false</VSync>    
     <ChangeWindowSize>true</ChangeWindowSize>
-    <UpdateFrequency>0</UpdateFrequency>
+    <UpdateFrequency>30</UpdateFrequency>
     <IsMouseVisible>true</IsMouseVisible>
   </Asset>
 </XnaContent>

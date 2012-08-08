@@ -39,7 +39,7 @@ namespace XNAFinalEngine.Assets
     /// <summary>
     /// Base class for materials.
     /// </summary>
-    public abstract class Material : AssetWithoutResource
+    public class Material : AssetWithoutResource
     {
 
         #region Variables
@@ -53,6 +53,12 @@ namespace XNAFinalEngine.Assets
         #endregion
 
         #region Properties
+
+        // Transparencia
+        // BRDF
+        // Normals
+        // Parallax
+        // Reflection
 
         #region Transparency
 
@@ -81,6 +87,8 @@ namespace XNAFinalEngine.Assets
         public bool BothSides { get; set; }
 
         #endregion
+
+        public 
 
         #region Default Material
 

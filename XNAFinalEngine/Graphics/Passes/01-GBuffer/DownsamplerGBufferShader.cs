@@ -34,24 +34,25 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
+using XNAFinalEngine.Helpers;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.Graphics
 {
     /// <summary>
-    /// Downsample a depth map to half size. 
+    /// Downsample a depth and normal texture to half size. 
     /// A special depth downsampler is need because the average of depth values doesn’t have physical sense. 
     /// Instead is better to take the maximum depth value of the four samples. This has the effect of shrinking the object silhouettes.
     /// Of course this isn’t perfect, but normally a depth downsampled buffer is used for low frequency effects.
     /// </summary>
-    internal class DepthDownsamplerShader : Shader
+    internal class DownsamplerGBufferShader : Shader
     {
 
         #region Variables
 
         // Singleton reference.
-        private static DepthDownsamplerShader instance;
+        private static DownsamplerGBufferShader instance;
 
         #endregion
 
@@ -60,12 +61,12 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// A singleton of this shader.
         /// </summary>
-        public static DepthDownsamplerShader Instance
+        public static DownsamplerGBufferShader Instance
         {
             get
             {
                 if (instance == null)
-                    instance = new DepthDownsamplerShader();
+                    instance = new DownsamplerGBufferShader();
                 return instance;
             }
         } // Instance
@@ -79,7 +80,8 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private static EffectParameter epHalfPixel,
                                        epQuarterTexel,
-                                       epDepthTexture;
+                                       epDepthTexture,
+                                       epNormalTexture;
 
 
         private static Vector2 lastUsedHalfPixel;
@@ -118,6 +120,22 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
+        #region Normal Texture
+
+        private static Texture2D lastUsedNormalTexture;
+        private static void SetNormalTexture(Texture normalTexture)
+        {
+            EngineManager.Device.SamplerStates[2] = SamplerState.LinearClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedNormalTexture != normalTexture.Resource)
+            {
+                lastUsedNormalTexture = normalTexture.Resource;
+                epNormalTexture.SetValue(normalTexture.Resource);
+            }
+        } // SetNormalTexture
+
+        #endregion
+
         #endregion
 
         #region Constructor
@@ -125,7 +143,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Depth Downsampler Shader
         /// </summary>
-        private DepthDownsamplerShader() : base("GBuffer\\DownsampleDepth") { }
+        private DownsamplerGBufferShader() : base("GBuffer\\DownsampleGBuffer") { }
 
         #endregion
 
@@ -148,6 +166,9 @@ namespace XNAFinalEngine.Graphics
                 epDepthTexture = Resource.Parameters["depthTexture"];
                     if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
                         epDepthTexture.SetValue(lastUsedDepthTexture);
+                epNormalTexture = Resource.Parameters["normalTexture"];
+                    if (lastUsedNormalTexture != null && !lastUsedNormalTexture.IsDisposed)
+                        epNormalTexture.SetValue(lastUsedNormalTexture);
             }
             catch
             {
@@ -157,12 +178,12 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Downsample
+        #region Render
 
         /// <summary>
         /// Downsample depth map.
         /// </summary>
-        internal RenderTarget Render(RenderTarget depthTexture)
+        internal RenderTarget.RenderTargetBinding Render(RenderTarget depthTexture, RenderTarget normalTexture)
         {
             try
             {
@@ -170,31 +191,30 @@ namespace XNAFinalEngine.Graphics
                 SetHalfPixel(new Vector2(-1f / (depthTexture.Width / 2), 1f / (depthTexture.Height / 2))); // Use size of destinantion render target.
                 SetQuarterTexel(new Vector2(0.25f / depthTexture.Width, 0.25f / depthTexture.Height));
                 SetDepthTexture(depthTexture);
+                SetNormalTexture(normalTexture);
                 // Set Render States
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
 
-                RenderTarget destinationRenderTarget = RenderTarget.Fetch(depthTexture.Size.HalfSize(),
-                                                                          depthTexture.SurfaceFormat, // HalfSingle produces too many artifacts.
-                                                                          depthTexture.DepthFormat,
-                                                                          depthTexture.Antialiasing);
+                RenderTarget.RenderTargetBinding renderTargetBinding = RenderTarget.Fetch(new Size(depthTexture.Width / 2, depthTexture.Height / 2), 
+                                                                                          SurfaceFormat.Single, DepthFormat.None, SurfaceFormat.Color);
 
-                destinationRenderTarget.EnableRenderTarget();
-                Resource.CurrentTechnique = Resource.Techniques["DownsampleDepth"];
+                RenderTarget.EnableRenderTargets(renderTargetBinding);
+                Resource.CurrentTechnique = Resource.Techniques["DownsampleGBuffer"];
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
-                destinationRenderTarget.DisableRenderTarget();
+                RenderTarget.DisableCurrentRenderTargets();
 
-                return destinationRenderTarget;
+                return renderTargetBinding;
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Depth Downsampler Shader: Unable to render.", e);
+                throw new InvalidOperationException("Downsampler Shader: Unable to render.", e);
             }
         } // Render
 
         #endregion
 
-    } // DepthDownsampler
+    } // DownsamplerGBufferShader
 } // XNAFinalEngine.Graphics

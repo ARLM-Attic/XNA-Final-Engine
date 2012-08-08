@@ -32,6 +32,20 @@ float2 halfPixel;
 float2 quarterTexel;
 
 //////////////////////////////////////////////
+///////////////// Textures ///////////////////
+//////////////////////////////////////////////
+
+sampler2D normalLinearSampler : register(s2) = sampler_state
+{
+	Texture = <normalTexture>;
+    /*ADDRESSU = CLAMP;
+	ADDRESSV = CLAMP;
+	MAGFILTER = POINT;
+	MINFILTER = POINT;
+	MIPFILTER = NONE;*/
+};
+
+//////////////////////////////////////////////
 ////////////// Data Structs //////////////////
 //////////////////////////////////////////////
 
@@ -41,12 +55,18 @@ struct VS_Output
     float2 texCoord    : TEXCOORD0;
 };
 
+struct PixelShader_OUTPUT
+{
+    float4 depth                     : COLOR0;
+    float4 normal                    : COLOR1;
+};
+
 //////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
 VS_Output VS(float4 position : POSITION, 
-	                float2 texCoord : TEXCOORD0)
+	         float2 texCoord : TEXCOORD0)
 {
 	VS_Output output = (VS_Output)0;
 	
@@ -61,22 +81,30 @@ VS_Output VS(float4 position : POSITION,
 /////////////// Pixel Shader /////////////////
 //////////////////////////////////////////////
 
-float4 PS(VS_Output input) : COLOR
+PixelShader_OUTPUT PS(VS_Output input)
 {		
+	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
+    // Downsample depth.
 	// Read in the 4 samples, doing a depth check for each
-	float fSamples[4];	
+	float fSamples[4];
 	fSamples[0] = tex2D(depthSampler, input.texCoord + float2(-quarterTexel.x,  quarterTexel.y)).x;
 	fSamples[1] = tex2D(depthSampler, input.texCoord + float2(-quarterTexel.x, -quarterTexel.y)).x;
 	fSamples[2] = tex2D(depthSampler, input.texCoord + float2( quarterTexel.x,  quarterTexel.y)).x;  
 	fSamples[3] = tex2D(depthSampler, input.texCoord + float2( quarterTexel.x, -quarterTexel.y)).x;  
-	return max(max(fSamples[0], fSamples[1]), max( fSamples[2], fSamples[3]));
+	output.depth = float4(max(max(fSamples[0], fSamples[1]), max( fSamples[2], fSamples[3])), 1, 1, 1);
+	// Donwsample normals. 
+	// Applying typical color filters in normal maps is not the best way course of action, but is simple, fast and the resulting error is subtle.
+	// Is important that the filter type is linear, not point.
+    // If some error occurs them probably the surfaceformat does not support linear filter.
+	output.normal = tex2D(normalLinearSampler, input.texCoord).rgba;
+	return output;
 }
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-technique DownsampleDepth
+technique DownsampleGBuffer
 {
 	pass p0	
 	{
