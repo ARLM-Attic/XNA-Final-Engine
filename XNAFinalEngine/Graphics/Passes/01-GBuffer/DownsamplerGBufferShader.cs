@@ -193,9 +193,7 @@ namespace XNAFinalEngine.Graphics
                 SetDepthTexture(depthTexture);
                 SetNormalTexture(normalTexture);
                 // Set Render States
-                EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
-                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
 
                 RenderTarget.RenderTargetBinding renderTargetBinding = RenderTarget.Fetch(new Size(depthTexture.Width / 2, depthTexture.Height / 2), 
                                                                                           SurfaceFormat.Single, DepthFormat.None, SurfaceFormat.Color);

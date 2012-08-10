@@ -132,7 +132,7 @@ namespace XNAFinalEngineExamples
                                                             Color = new Color(10, 10, 10),
                                                             Intensity = 7f,
                                                             AmbientOcclusionStrength = 5f };
-            /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
+            camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
@@ -142,21 +142,22 @@ namespace XNAFinalEngineExamples
                 AngleBias = 5f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
-            };*/
+            };
 
             #endregion
             
             #region Materials
 
-            CarPaint carPaint = new CarPaint
+            Material carPaint = new Material
             {
-                SpecularIntensity = 10000f,
+                Brdf = new BlinnPhong(),
+                /*SpecularIntensity = 10000f,
                 SpecularPower = 20,
                 BasePaintColor = new Color(250, 250, 250),
                 SecondBasePaintColor = new Color(220, 220, 220),
                 FlakeLayerColor1 = new Color(170, 170, 170),
                 FlakesColor = new Color(100, 100, 100),
-                ReflectionTexture = new TextureCube("Showroom"),
+                ReflectionTexture = new TextureCube("Showroom"),*/
                 //ReflectionTexture = new TextureCube("FactoryCatwalkRGBM", true, 50),
             };
             
@@ -165,17 +166,15 @@ namespace XNAFinalEngineExamples
             #region Models
             
             #region Body
-            
+
             murcielagoBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), carPaint);
-            
+
             murcielagoTablero = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Tablero"),
-                                                             new Constant
-                                                             {
-                                                                 DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Tablero"),
-                                                                 //SpecularIntensity = 1f,
-                                                                 //SpecularPower = 100,
-                                                             });
-            murcielagoLights = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Lights"),
+                                                 new Material
+                                                 {
+                                                     Brdf = new Constant { DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Tablero"), },
+                                                 });
+            /*murcielagoLights = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Lights"),
                                                              new BlinnPhong
                                                              {
                                                                  DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Lights"),
@@ -362,9 +361,9 @@ namespace XNAFinalEngineExamples
                                                      SpecularIntensity = 0.1f,
                                                      SpecularPower = 300,
                                                  });
-            
+            */
             #endregion
-            
+            /*
             #region Left Door
 
             murcielagoLeftDoorBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorBody"), carPaint);
@@ -827,15 +826,14 @@ namespace XNAFinalEngineExamples
             murcielagoRearRightTyre02.Parent = rearRightRim;
 
             #endregion
-            
+            */
             #region Floor
 
             floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
-                           new BlinnPhong
+                           new Material
                            {
-                               SpecularPower = 300,
-                               DiffuseColor = new Color(200, 200, 200),
-                               SpecularIntensity = 0.0f,
+                               Brdf = new BlinnPhong(),
+                               NormalTexture = new Texture("Stones-NormalHeightMap"),
                            }) 
             { Transform = { LocalScale = new Vector3(5, 5, 5) } };
             floor.Transform.Position = new Vector3(0, -1.17f, 0);

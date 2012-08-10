@@ -100,7 +100,6 @@
       <Name>Murcielago-Body</Name>
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-BrakeCaliper.fbx">
       <Name>Murcielago-BrakeCaliper</Name>
@@ -486,6 +485,7 @@
       <Name>TerrainLOD0Grid</Name>
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\Terrain\TerrainLOD1Grid.fbx">
       <Name>TerrainLOD1Grid</Name>

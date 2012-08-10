@@ -248,10 +248,11 @@ PixelShader_OUTPUT SimplePS(SimpleVS_OUTPUT input)
 	output.normal.xyz = CompressNormal(input.normal.xyz);
 
 	// Specular Power
+	[branch]
 	if (specularTextured)
 		output.normal.w = CompressSpecularPower(tex2D(objectSpecularSampler, input.uvDepth.xy).a);
 	else
-		output.normal.w = CompressSpecularPower(specularPower);	
+		output.normal.w = CompressSpecularPower(specularPower);
 
 	return output;
 } // WithSpecularTexturePS
@@ -269,6 +270,7 @@ PixelShader_OUTPUT WithNormalMapPS(WithTangentVS_OUTPUT input)
 	output.normal.xyz = CompressNormal(output.normal.xyz);	
 
 	// Specular Power
+	[branch]
 	if (specularTextured)
 		output.normal.w = CompressSpecularPower(tex2D(objectSpecularSampler, input.uvDepth.xy).a);
 	else
@@ -291,6 +293,7 @@ PixelShader_OUTPUT WithParallaxPS(WithParallaxVS_OUTPUT input)
 	output.normal.xyz = CompressNormal(output.normal.xyz);
 	
 	// Specular Power
+	[branch]
 	if (specularTextured)
 		output.normal.w = CompressSpecularPower(tex2D(objectSpecularSampler, input.uvDepth.xy).a);
 	else

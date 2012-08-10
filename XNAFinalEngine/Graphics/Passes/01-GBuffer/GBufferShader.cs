@@ -484,14 +484,75 @@ namespace XNAFinalEngine.Graphics
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Light Pre Pass Directional Light:: Unable to begin the rendering.", e);
+                throw new InvalidOperationException("G-Buffer: Unable to begin the rendering.", e);
             }
         } // Begin
 
         #endregion
-
+        
         #region Render Model
 
+        /// <summary>
+        /// Common parameters to all techniques.
+        /// </summary>
+        private void SetCommonParameters(Matrix worldMatrix, Material material)
+        {
+            // Set Matrices
+            SetTransposeInverseWorldViewMatrix(Matrix.Transpose(Matrix.Invert(worldMatrix * viewMatrix)));
+            SetWorldViewMatrix(worldMatrix * viewMatrix);
+            SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
+
+            // Specular texture
+            if (material.SpecularTexture != null && material.SpecularPowerFromTexture)
+            {
+                SetSpecularTexture(material.SpecularTexture);
+                SetSpecularTextured(true);
+            }
+            else
+            {
+                SetSpecularPower(material.SpecularPower);
+                SetSpecularTextured(false);
+            }
+        } // SetCommonParameters
+
+        /// <summary>
+        /// Begins the G Buffer simple technique.
+        /// </summary>
+        internal void RenderModelSimple(Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart)
+        {
+            try
+            {
+                Resource.CurrentTechnique = Resource.Techniques["GBufferSimple"]; // Does not produce a graphic call.
+                SetCommonParameters(worldMatrix, material);
+                Resource.CurrentTechnique.Passes[0].Apply();
+                model.RenderMeshPart(meshIndex, meshPart);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("G-Buffer: Unable to render model.", e);
+            }
+        } // RenderModelSimple
+
+        /// <summary>
+        /// Begins the G Buffer "with normals" technique.
+        /// </summary>
+        internal void RenderModelWithNormals(Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart)
+        {
+            try
+            {
+                Resource.CurrentTechnique = Resource.Techniques["GBufferWithNormalMap"]; // Does not produce a graphic call.
+                SetCommonParameters(worldMatrix, material);
+                SetObjectNormalTexture(material.NormalTexture);
+                Resource.CurrentTechnique.Passes[0].Apply();
+                model.RenderMeshPart(meshIndex, meshPart);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("G-Buffer: Unable to render model.", e);
+            }
+        } // RenderSimpleModel
+
+        /*
         /// <summary>
         /// Render a model into the GBuffer.
         /// </summary>
@@ -666,7 +727,7 @@ namespace XNAFinalEngine.Graphics
                         SetObjectNormalTexture(TerrainMaterial.NormalTexture);
                         SetSpecularPower(500);
                         Effect.CurrentTechnique = Effect.Techniques["GBufferTerrain"];
-                    }*/
+                    }*//*
 
                     #endregion
 
@@ -680,9 +741,9 @@ namespace XNAFinalEngine.Graphics
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("GBuffer: Unable to render model.", e);
+                throw new InvalidOperationException("G-Buffer: Unable to render model.", e);
             }
-        } // RenderModel
+        } // RenderModel*/
 
         #endregion
 

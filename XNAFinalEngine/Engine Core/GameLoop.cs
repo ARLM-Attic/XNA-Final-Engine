@@ -43,6 +43,7 @@ using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Input;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
+using Model = XNAFinalEngine.Assets.Model;
 using RootAnimation = XNAFinalEngine.Components.RootAnimations;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
@@ -62,6 +63,20 @@ namespace XNAFinalEngine.EngineCore
     public static class GameLoop
     {
 
+        #region Structs
+
+        private struct MeshPartToRender
+        {
+            public Matrix WorldMatrix;
+            public Model Model;
+            public Matrix[] boneTransform;
+            public Material Material;
+            public int MeshIndex;
+            public int MeshPart;
+        } // MeshPartToRender
+
+        #endregion
+
         #region Variables
 
         // They are auxiliary values that helps avoiding garbage.
@@ -75,7 +90,15 @@ namespace XNAFinalEngine.EngineCore
         private static readonly AudioListener[] threeAudioListener = new AudioListener[3];
         private static readonly AudioListener[] fourAudioListener  = new AudioListener[4];
 
-        private static readonly List<ModelRenderer> modelsToRender = new List<ModelRenderer>(50);
+        // Frustum Culling
+        private static readonly List<ModelRenderer> modelsToRender = new List<ModelRenderer>(100);
+
+        // G-Buffer ordered lists
+        private static readonly List<MeshPartToRender> gbufferSimple = new List<MeshPartToRender>(50);
+        private static readonly List<MeshPartToRender> gBufferWithNormalMap = new List<MeshPartToRender>(50);
+        private static readonly List<MeshPartToRender> gBufferWithParallax = new List<MeshPartToRender>(50);
+        private static readonly List<MeshPartToRender> gBufferSkinnedSimple = new List<MeshPartToRender>(50);
+        private static readonly List<MeshPartToRender> gBufferSkinnedWithNormalMap = new List<MeshPartToRender>(50);
         
         #endregion
 
@@ -677,42 +700,108 @@ namespace XNAFinalEngine.EngineCore
 
             GBufferPass.Begin(renderTarget.Size);
             GBufferShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane);
+
+            #region  Sorting
+
+            gBufferSkinnedSimple.Clear();
+            gBufferSkinnedWithNormalMap.Clear();
+            gBufferWithParallax.Clear();
+            gbufferSimple.Clear();
+            gBufferWithNormalMap.Clear();
+
+            // Sort by G-Buffer techniques.
             foreach (ModelRenderer modelRenderer in modelsToRender)
             {
                 if (modelRenderer.CachedModel != null && modelRenderer.IsVisible)
                 {
                     int currentMeshPart = 0;
-                    // Render each mesh
-                    for (int j = 0; j < modelRenderer.CachedModel.MeshesCount; j++)
+                    // Each mesh is sorted individually.
+                    for (int mesh = 0; mesh < modelRenderer.CachedModel.MeshesCount; mesh++)
                     {
                         int meshPartsCount = 1;
                         if (modelRenderer.CachedModel is FileModel)
-                            meshPartsCount = ((FileModel)modelRenderer.CachedModel).Resource.Meshes[j].MeshParts.Count;
-                        for (int k = 0; k < meshPartsCount; k++)
+                            meshPartsCount = ((FileModel)modelRenderer.CachedModel).Resource.Meshes[mesh].MeshParts.Count;
+                        // Each mesh part is sorted individiually.
+                        for (int meshPart = 0; meshPart < meshPartsCount; meshPart++)
                         {
-                            // Find material
+                            // Find material (the mesh part could have a custom material or use the model material)
                             Material material = null;
                             if (modelRenderer.MeshMaterial != null && currentMeshPart < modelRenderer.MeshMaterial.Length && modelRenderer.MeshMaterial[currentMeshPart] != null)
                                 material = modelRenderer.MeshMaterial[currentMeshPart];
                             else if (modelRenderer.Material != null)
                                 material = modelRenderer.Material;
-                            if (material != null && material.AlphaBlending == 1)
+                            // Once the material is felt then the classification begins.
+                            if (material != null && material.AlphaBlending == 1) // Only opaque models are rendered on the G-Buffer.
                             {
-                                // Render mesh with finded material.
-                                GBufferShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms, material, j, k);
+                                // If it is a skinned model.
+                                if (modelRenderer.CachedModel is FileModel && ((FileModel)modelRenderer.CachedModel).IsSkinned && modelRenderer.cachedBoneTransforms != null)
+                                {
+                                    MeshPartToRender meshPartToRender = new MeshPartToRender
+                                    {
+                                        WorldMatrix = modelRenderer.CachedWorldMatrix,
+                                        Model = modelRenderer.CachedModel,
+                                        boneTransform = modelRenderer.cachedBoneTransforms,
+                                        Material = modelRenderer.Material,
+                                        MeshIndex = mesh,
+                                        MeshPart = meshPart,
+                                    };
+                                    if (material.NormalTexture == null)
+                                        gBufferSkinnedSimple.Add(meshPartToRender);
+                                    else
+                                        gBufferSkinnedWithNormalMap.Add(meshPartToRender);
+                                }
+                                else
+                                {
+                                    Matrix worldMatrix;
+                                    if (modelRenderer.cachedBoneTransforms != null)
+                                        worldMatrix = modelRenderer.cachedBoneTransforms[mesh + 1] * modelRenderer.CachedWorldMatrix;
+                                    else
+                                        worldMatrix = modelRenderer.CachedWorldMatrix;
+                                    MeshPartToRender meshPartToRender = new MeshPartToRender
+                                    {
+                                        WorldMatrix = worldMatrix,
+                                        Model = modelRenderer.CachedModel,
+                                        boneTransform = null,
+                                        Material = modelRenderer.Material,
+                                        MeshIndex = mesh,
+                                        MeshPart = meshPart,
+                                    };
+                                    if (material.NormalTexture == null)
+                                        gbufferSimple.Add(meshPartToRender);
+                                    else if (material.ParallaxEnabled)
+                                        gBufferWithParallax.Add(meshPartToRender);
+                                    else
+                                        gBufferWithNormalMap.Add(meshPartToRender);
+                                }
                             }
                             currentMeshPart++;
                         }
                     }
                 }
             }
+
+            #endregion
+
+            #region Render
+
+            foreach (MeshPartToRender meshPartToRender in gbufferSimple)
+            {
+                GBufferShader.Instance.RenderModelSimple(meshPartToRender.WorldMatrix, meshPartToRender.Model, meshPartToRender.Material, meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
+            }
+            foreach (MeshPartToRender meshPartToRender in gBufferWithNormalMap)
+            {
+                GBufferShader.Instance.RenderModelWithNormals(meshPartToRender.WorldMatrix, meshPartToRender.Model, meshPartToRender.Material, meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
+            }
+
+            #endregion
+
             gbufferTextures = GBufferPass.End();
             
             // Downsample GBuffer
             gbufferHalfTextures = DownsamplerGBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], gbufferTextures.RenderTargets[1]);
             /*
             renderTarget.EnableRenderTarget();
-            SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[1]);
+            SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[0]);
             if (currentCamera.RenderHeadUpDisplay)
                 RenderHeadsUpDisplay();
             renderTarget.DisableRenderTarget();
@@ -721,7 +810,7 @@ namespace XNAFinalEngine.EngineCore
             return;*/
 
             #endregion
-
+            
             #region Light Pre Pass
 
             #region Ambient Occlusion
@@ -765,8 +854,8 @@ namespace XNAFinalEngine.EngineCore
                                                                                                 (RayMarchingAmbientOcclusion)currentCamera.AmbientLight.AmbientOcclusion,
                                                                                                 currentCamera.FieldOfView);
                 }
-                /*
-                renderTarget.EnableRenderTarget();
+                
+                /*renderTarget.EnableRenderTarget();
                 SpriteManager.DrawTextureToFullScreen(ambientOcclusionTexture);
                 if (currentCamera.RenderHeadUpDisplay)
                     RenderHeadsUpDisplay();
@@ -777,7 +866,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-
+            
             #region Shadow Maps
 
             #region Directional Light Shadows);
@@ -1014,6 +1103,15 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            renderTarget.EnableRenderTarget();
+            SpriteManager.DrawTextureToFullScreen(lightTexture);
+            if (currentCamera.RenderHeadUpDisplay)
+                RenderHeadsUpDisplay();
+            renderTarget.DisableRenderTarget();
+            Layer.CurrentCameraCullingMask = uint.MaxValue;
+            ReleaseUnusedRenderTargets();
+            return;
+
             #endregion
 
             #region HDR Linear Space Pass
@@ -1021,7 +1119,7 @@ namespace XNAFinalEngine.EngineCore
             ScenePass.Begin(renderTarget.Size, currentCamera.ClearColor);
 
             #region Opaque Objects
-
+            /*
             // Render all the opaque objects...
             foreach (ModelRenderer modelRenderer in modelsToRender)
             {
@@ -1082,7 +1180,7 @@ namespace XNAFinalEngine.EngineCore
                     }
                 }
             }
-
+            */
             #endregion
 
             #region Sky
@@ -1121,7 +1219,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Transparent Objects
-
+            /*
             // The transparent objects will be render in forward fashion.
             foreach (ModelRenderer modelRenderer in modelsToRender)
             {
@@ -1185,7 +1283,7 @@ namespace XNAFinalEngine.EngineCore
                     }
                 }
             }
-
+            */
             #endregion
 
             #region Textures and Text
@@ -1428,7 +1526,7 @@ namespace XNAFinalEngine.EngineCore
 
             // Reset Camera Culling Mask
             Layer.CurrentCameraCullingMask = uint.MaxValue;
-
+            
         } // RenderCamera
 
         /// <summary>
