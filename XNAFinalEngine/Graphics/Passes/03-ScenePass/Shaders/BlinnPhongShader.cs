@@ -569,7 +569,7 @@ namespace XNAFinalEngine.Graphics
                 {
                     if (!blinnPhongMaterial.ParallaxEnabled)
                     {
-                        Resource.CurrentTechnique = isSkinned ? Resource.Techniques["SkinnedBlinnPhongWithoutTexture"] : Resource.Techniques["BlinnPhongWithoutTexture"];
+                        Resource.CurrentTechnique = isSkinned ? Resource.Techniques["BlinnPhongSkinned"] : Resource.Techniques["BlinnPhongSimple"];
                     }
                     SetSpecularTextured(false);
                     SetDiffuseTextured(false);
@@ -577,7 +577,7 @@ namespace XNAFinalEngine.Graphics
                 else
                 {
                     if (!blinnPhongMaterial.ParallaxEnabled)
-                        Resource.CurrentTechnique = isSkinned ? Resource.Techniques["SkinnedBlinnPhongWithTexture"] : Resource.Techniques["BlinnPhongWithTexture"];
+                        Resource.CurrentTechnique = isSkinned ? Resource.Techniques["BlinnPhongSkinned"] : Resource.Techniques["BlinnPhongSimple"];
                     if (blinnPhongMaterial.DiffuseTexture != null)
                     {
                         SetDiffuseTextured(true);
@@ -595,7 +595,7 @@ namespace XNAFinalEngine.Graphics
                 }
                 if (blinnPhongMaterial.ParallaxEnabled)
                 {
-                    Resource.CurrentTechnique = isSkinned ? Resource.Techniques["SkinnedBlinnPhongWithParrallax"] : Resource.Techniques["BlinnPhongWithParrallax"];
+                    Resource.CurrentTechnique = isSkinned ? Resource.Techniques["BlinnPhongSkinned"] : Resource.Techniques["BlinnPhongWithParrallax"];
                     SetNormalTexture(blinnPhongMaterial.NormalTexture);
                     SetLODThreshold(blinnPhongMaterial.ParallaxLodThreshold);
                     SetMinimumNumberSamples(blinnPhongMaterial.ParallaxMinimumNumberSamples);

@@ -831,7 +831,8 @@ namespace XNAFinalEngineExamples
             floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
                            new BlinnPhong
                            {
-                               //NormalTexture = new Texture("Stones-NormalHeightMap"),
+                               NormalTexture = new Texture("Stones-NormalHeightMap"),
+                               ParallaxEnabled = true,
                            }) 
             { Transform = { LocalScale = new Vector3(5, 5, 5) } };
             floor.Transform.Position = new Vector3(0, -1.17f, 0);

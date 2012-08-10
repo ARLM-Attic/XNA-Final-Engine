@@ -22,6 +22,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
+#include <..\Helpers\VertexAndFragmentDeclarations.fxh>
 #include <..\Helpers\GammaLinearSpace.fxh>
 
 //////////////////////////////////////////////
@@ -56,18 +57,7 @@ sampler2D diffuseSampler : register(s0) = sampler_state
 ////////////// Data Structs //////////////////
 //////////////////////////////////////////////
 
-struct vertexInput
-{
-    float4 position	: POSITION;
-    float4 uv		: TEXCOORD0;
-};
-
 struct vertexOutput
-{
-    float4 position	: POSITION;
-};
-
-struct vertexOutputWT
 {
     float4 position	: POSITION;
 	float2 uv		: TEXCOORD0;
@@ -77,20 +67,13 @@ struct vertexOutputWT
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
-vertexOutput VSConstantWithoutTexture(float4 position : POSITION)
+vertexOutput VSConstant(SimpleVS_INPUT input)
 {	
     vertexOutput output;
-    output.position = mul(position, worldViewProj);
-    return output;
-}
-
-vertexOutputWT VSConstantWithTexture(vertexInput input)
-{	
-    vertexOutputWT output;
     output.position = mul(input.position, worldViewProj);	
 	output.uv = input.uv;
     return output;
-}
+} // VSConstant
 
 //////////////////////////////////////////////
 /////////////// Pixel Shader /////////////////
@@ -101,7 +84,7 @@ float4 PSConstantWithoutTexture() : COLOR
     return float4(GammaToLinear(diffuseColor), alphaBlending);
 }
 
-float4 PSConstantWithTexture(vertexOutputWT input) : COLOR
+float4 PSConstantWithTexture(vertexOutput input) : COLOR
 {
     return float4(GammaToLinear(tex2D(diffuseSampler, input.uv).rgb), alphaBlending);
 }
@@ -114,7 +97,7 @@ technique ConstantWithoutTexture
 {
 	pass P0
 	{
-		VertexShader = compile vs_3_0 VSConstantWithoutTexture();
+		VertexShader = compile vs_3_0 VSConstant();
 		PixelShader = compile ps_3_0 PSConstantWithoutTexture();
 	}
 }
@@ -123,7 +106,7 @@ technique ConstantWithTexture
 {
 	pass P0
 	{
-		VertexShader = compile vs_3_0 VSConstantWithTexture();
+		VertexShader = compile vs_3_0 VSConstant();
 		PixelShader = compile ps_3_0 PSConstantWithTexture();
 	}
 }

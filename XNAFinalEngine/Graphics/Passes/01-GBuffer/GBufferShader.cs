@@ -540,7 +540,7 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                Resource.CurrentTechnique = Resource.Techniques["GBufferWithNormalMap"]; // Does not produce a graphic call.
+                Resource.CurrentTechnique = Resource.Techniques["GBufferWithNormalMap"];
                 SetCommonParameters(worldMatrix, material);
                 SetObjectNormalTexture(material.NormalTexture);
                 Resource.CurrentTechnique.Passes[0].Apply();
@@ -550,7 +550,69 @@ namespace XNAFinalEngine.Graphics
             {
                 throw new InvalidOperationException("G-Buffer: Unable to render model.", e);
             }
-        } // RenderSimpleModel
+        } // RenderModelWithNormals
+
+        /// <summary>
+        /// Begins the G Buffer "with parallax" technique.
+        /// </summary>
+        internal void RenderModelWithParallax(Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart)
+        {
+            try
+            {
+                Resource.CurrentTechnique = Resource.Techniques["GBufferWithParallax"];
+                SetCommonParameters(worldMatrix, material);
+                SetObjectNormalTexture(material.NormalTexture);
+                SetLODThreshold(material.ParallaxLodThreshold);
+                SetMinimumNumberSamples(material.ParallaxMinimumNumberSamples);
+                SetMaximumNumberSamples(material.ParallaxMaximumNumberSamples);
+                SetHeightMapScale(material.ParallaxHeightMapScale);
+                Resource.CurrentTechnique.Passes[0].Apply();
+                model.RenderMeshPart(meshIndex, meshPart);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("G-Buffer: Unable to render model.", e);
+            }
+        } // RenderModelWithParallax
+
+        /// <summary>
+        /// Begins the G Buffer "skinned simple" technique.
+        /// </summary>
+        internal void RenderModelSkinnedSimple(Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart, Matrix[] boneTransform)
+        {
+            try
+            {
+                Resource.CurrentTechnique = Resource.Techniques["GBufferSkinnedSimple"];
+                SetCommonParameters(worldMatrix, material);
+                SetBones(boneTransform);
+                Resource.CurrentTechnique.Passes[0].Apply();
+                model.RenderMeshPart(meshIndex, meshPart);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("G-Buffer: Unable to render model.", e);
+            }
+        } // RenderModelSkinnedSimple
+
+        /// <summary>
+        /// Begins the G Buffer "skinned normals" technique.
+        /// </summary>
+        internal void RenderModelSkinnedWithNormals(Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart, Matrix[] boneTransform)
+        {
+            try
+            {
+                Resource.CurrentTechnique = Resource.Techniques["GBufferSkinnedWithNormalMap"];
+                SetCommonParameters(worldMatrix, material);
+                SetObjectNormalTexture(material.NormalTexture);
+                SetBones(boneTransform);
+                Resource.CurrentTechnique.Passes[0].Apply();
+                model.RenderMeshPart(meshIndex, meshPart);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("G-Buffer: Unable to render model.", e);
+            }
+        } // RenderModelSkinnedWithNormals
 
         /*
         /// <summary>

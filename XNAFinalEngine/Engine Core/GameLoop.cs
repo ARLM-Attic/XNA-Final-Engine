@@ -69,7 +69,7 @@ namespace XNAFinalEngine.EngineCore
         {
             public Matrix WorldMatrix;
             public Model Model;
-            public Matrix[] boneTransform;
+            public Matrix[] BoneTransform;
             public Material Material;
             public int MeshIndex;
             public int MeshPart;
@@ -90,15 +90,20 @@ namespace XNAFinalEngine.EngineCore
         private static readonly AudioListener[] threeAudioListener = new AudioListener[3];
         private static readonly AudioListener[] fourAudioListener  = new AudioListener[4];
 
-        // Frustum Culling
+        // Frustum Culling.
         private static readonly List<ModelRenderer> modelsToRender = new List<ModelRenderer>(100);
 
-        // G-Buffer ordered lists
+        // G-Buffer ordered lists.
         private static readonly List<MeshPartToRender> gbufferSimple = new List<MeshPartToRender>(50);
         private static readonly List<MeshPartToRender> gBufferWithNormalMap = new List<MeshPartToRender>(50);
         private static readonly List<MeshPartToRender> gBufferWithParallax = new List<MeshPartToRender>(50);
         private static readonly List<MeshPartToRender> gBufferSkinnedSimple = new List<MeshPartToRender>(50);
         private static readonly List<MeshPartToRender> gBufferSkinnedWithNormalMap = new List<MeshPartToRender>(50);
+        // Opaque ordered lists.
+        private static readonly List<MeshPartToRender> opaqueBlinnPhong = new List<MeshPartToRender>(100);
+        private static readonly List<MeshPartToRender> opaqueBlinnPhongSkinned = new List<MeshPartToRender>(100);
+        private static readonly List<MeshPartToRender> opaqueCarPaint = new List<MeshPartToRender>(10);
+        private static readonly List<MeshPartToRender> opaqueConstant = new List<MeshPartToRender>(10);
         
         #endregion
 
@@ -740,7 +745,7 @@ namespace XNAFinalEngine.EngineCore
                                     {
                                         WorldMatrix = modelRenderer.CachedWorldMatrix,
                                         Model = modelRenderer.CachedModel,
-                                        boneTransform = modelRenderer.cachedBoneTransforms,
+                                        BoneTransform = modelRenderer.cachedBoneTransforms,
                                         Material = modelRenderer.Material,
                                         MeshIndex = mesh,
                                         MeshPart = meshPart,
@@ -761,7 +766,7 @@ namespace XNAFinalEngine.EngineCore
                                     {
                                         WorldMatrix = worldMatrix,
                                         Model = modelRenderer.CachedModel,
-                                        boneTransform = null,
+                                        BoneTransform = null,
                                         Material = modelRenderer.Material,
                                         MeshIndex = mesh,
                                         MeshPart = meshPart,
@@ -786,11 +791,28 @@ namespace XNAFinalEngine.EngineCore
 
             foreach (MeshPartToRender meshPartToRender in gbufferSimple)
             {
-                GBufferShader.Instance.RenderModelSimple(meshPartToRender.WorldMatrix, meshPartToRender.Model, meshPartToRender.Material, meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
+                GBufferShader.Instance.RenderModelSimple(meshPartToRender.WorldMatrix, meshPartToRender.Model, meshPartToRender.Material,
+                                                         meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
             }
             foreach (MeshPartToRender meshPartToRender in gBufferWithNormalMap)
             {
-                GBufferShader.Instance.RenderModelWithNormals(meshPartToRender.WorldMatrix, meshPartToRender.Model, meshPartToRender.Material, meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
+                GBufferShader.Instance.RenderModelWithNormals(meshPartToRender.WorldMatrix, meshPartToRender.Model, meshPartToRender.Material,
+                                                              meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
+            }
+            foreach (MeshPartToRender meshPartToRender in gBufferWithParallax)
+            {
+                GBufferShader.Instance.RenderModelWithParallax(meshPartToRender.WorldMatrix, meshPartToRender.Model, meshPartToRender.Material,
+                                                               meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
+            }
+            foreach (MeshPartToRender meshPartToRender in gBufferSkinnedSimple)
+            {
+                GBufferShader.Instance.RenderModelSkinnedSimple(meshPartToRender.WorldMatrix, meshPartToRender.Model, meshPartToRender.Material,
+                                                                meshPartToRender.MeshIndex, meshPartToRender.MeshPart, meshPartToRender.BoneTransform);
+            }
+            foreach (MeshPartToRender meshPartToRender in gBufferSkinnedWithNormalMap)
+            {
+                GBufferShader.Instance.RenderModelSkinnedWithNormals(meshPartToRender.WorldMatrix, meshPartToRender.Model, meshPartToRender.Material,
+                                                                     meshPartToRender.MeshIndex, meshPartToRender.MeshPart, meshPartToRender.BoneTransform);
             }
 
             #endregion
@@ -1119,60 +1141,74 @@ namespace XNAFinalEngine.EngineCore
             ScenePass.Begin(renderTarget.Size, currentCamera.ClearColor);
 
             #region Opaque Objects
+
+            #region  Sorting
             
-            // Render all the opaque objects...
+            opaqueBlinnPhong.Clear();
+            opaqueBlinnPhongSkinned.Clear();
+            opaqueCarPaint.Clear();
+            opaqueConstant.Clear();
+
+            // Sort by material.
             foreach (ModelRenderer modelRenderer in modelsToRender)
             {
                 if (modelRenderer.CachedModel != null && modelRenderer.IsVisible)
                 {
                     int currentMeshPart = 0;
-                    // Render each mesh
-                    for (int j = 0; j < modelRenderer.CachedModel.MeshesCount; j++)
+                    // Each mesh is sorted individually.
+                    for (int mesh = 0; mesh < modelRenderer.CachedModel.MeshesCount; mesh++)
                     {
-                        // I need to know the total index of the current part for the materials.
                         int meshPartsCount = 1;
                         if (modelRenderer.CachedModel is FileModel)
+                            meshPartsCount = ((FileModel)modelRenderer.CachedModel).Resource.Meshes[mesh].MeshParts.Count;
+                        // Each mesh part is sorted individiually.
+                        for (int meshPart = 0; meshPart < meshPartsCount; meshPart++)
                         {
-                            meshPartsCount = ((FileModel)modelRenderer.CachedModel).Resource.Meshes[j].MeshParts.Count;
-                        }
-                        for (int k = 0; k < meshPartsCount; k++)
-                        {
-                            // Find material
+                            // Find material (the mesh part could have a custom material or use the model material)
                             Material material = null;
                             if (modelRenderer.MeshMaterial != null && currentMeshPart < modelRenderer.MeshMaterial.Length && modelRenderer.MeshMaterial[currentMeshPart] != null)
-                            {
                                 material = modelRenderer.MeshMaterial[currentMeshPart];
-                            }
                             else if (modelRenderer.Material != null)
-                            {
                                 material = modelRenderer.Material;
-                            }
-                            // Render mesh part with finded material.
-                            if (material != null && material.AlphaBlending == 1)
+                            // Once the material is felt then the classification begins.
+                            if (material != null && material.AlphaBlending == 1) // Only opaque models are rendered on the G-Buffer.
                             {
-                                if (material is Constant)
+                                // If it is a skinned model.
+                                if (modelRenderer.CachedModel is FileModel && ((FileModel)modelRenderer.CachedModel).IsSkinned && modelRenderer.cachedBoneTransforms != null)
                                 {
-                                    ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
-                                    ConstantShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix,
-                                                                        modelRenderer.CachedModel,
-                                                                        modelRenderer.cachedBoneTransforms,
-                                                                        (Constant)material, j, k);
+                                    MeshPartToRender meshPartToRender = new MeshPartToRender
+                                    {
+                                        WorldMatrix = modelRenderer.CachedWorldMatrix,
+                                        Model = modelRenderer.CachedModel,
+                                        BoneTransform = modelRenderer.cachedBoneTransforms,
+                                        Material = modelRenderer.Material,
+                                        MeshIndex = mesh,
+                                        MeshPart = meshPart,
+                                    };
+                                    opaqueBlinnPhongSkinned.Add(meshPartToRender);
                                 }
-                                else if (material is BlinnPhong)
+                                else
                                 {
-                                    BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                                    BlinnPhongShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix,
-                                                                          modelRenderer.CachedModel,
-                                                                          modelRenderer.cachedBoneTransforms,
-                                                                          (BlinnPhong)material, j, k);
-                                }
-                                else if (material is CarPaint)
-                                {
-                                    CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
-                                    CarPaintShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix,
-                                                                        modelRenderer.CachedModel,
-                                                                        modelRenderer.cachedBoneTransforms,
-                                                                        (CarPaint)material, j, k);
+                                    Matrix worldMatrix;
+                                    if (modelRenderer.cachedBoneTransforms != null)
+                                        worldMatrix = modelRenderer.cachedBoneTransforms[mesh + 1] * modelRenderer.CachedWorldMatrix;
+                                    else
+                                        worldMatrix = modelRenderer.CachedWorldMatrix;
+                                    MeshPartToRender meshPartToRender = new MeshPartToRender
+                                    {
+                                        WorldMatrix = worldMatrix,
+                                        Model = modelRenderer.CachedModel,
+                                        BoneTransform = null,
+                                        Material = modelRenderer.Material,
+                                        MeshIndex = mesh,
+                                        MeshPart = meshPart,
+                                    };
+                                    if (material is BlinnPhong)
+                                        opaqueBlinnPhong.Add(meshPartToRender);
+                                    else if (material is Constant)
+                                        opaqueConstant.Add(meshPartToRender);
+                                    else if (material is CarPaint)
+                                        opaqueCarPaint.Add(meshPartToRender);
                                 }
                             }
                             currentMeshPart++;
@@ -1180,6 +1216,40 @@ namespace XNAFinalEngine.EngineCore
                     }
                 }
             }
+
+            #endregion
+
+            #region Render
+
+            foreach (var meshPartToRender in opaqueConstant)
+            {
+                ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+                ConstantShader.Instance.RenderModel(meshPartToRender.WorldMatrix,
+                                                    meshPartToRender.Model,
+                                                    meshPartToRender.BoneTransform,
+                                                    (Constant)meshPartToRender.Material,
+                                                    meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
+            }
+            foreach (var meshPartToRender in opaqueBlinnPhong)
+            {
+                BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                BlinnPhongShader.Instance.RenderModel(meshPartToRender.WorldMatrix,
+                                                    meshPartToRender.Model,
+                                                    meshPartToRender.BoneTransform,
+                                                    (BlinnPhong)meshPartToRender.Material,
+                                                    meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
+            }
+            foreach (var meshPartToRender in opaqueCarPaint)
+            {
+                CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                CarPaintShader.Instance.RenderModel(meshPartToRender.WorldMatrix,
+                                                    meshPartToRender.Model,
+                                                    meshPartToRender.BoneTransform,
+                                                    (CarPaint)meshPartToRender.Material,
+                                                    meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
+            }
+
+            #endregion
             
             #endregion
 

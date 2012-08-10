@@ -4,7 +4,7 @@
     <WindowName>XNA FINAL ENGINE</WindowName>
     <WindowWidth>1024</WindowWidth>
     <WindowHeight>600</WindowHeight>
-    <Fullscreen>true</Fullscreen>
+    <Fullscreen>false</Fullscreen>
     <VSync>false</VSync>    
     <ChangeWindowSize>true</ChangeWindowSize>
     <UpdateFrequency>0</UpdateFrequency>

@@ -26,6 +26,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #include <..\Helpers\GammaLinearSpace.fxh>
 #include <..\Helpers\RGBM.fxh>
 #include <..\Helpers\ParallaxMapping.fxh>
+#include <..\Helpers\SkinningCommon.fxh>
 
 //////////////////////////////////////////////
 //////////////// Matrices ////////////////////
@@ -40,11 +41,8 @@ float4x4 worldViewProj : WorldViewProjection;
 //////////////////////////////////////////////
 
 float2 halfPixel;
-
 float3 diffuseColor;
-
-float specularIntensity;
-
+float  specularIntensity;
 float3 cameraPosition;
 
 //////////////////////////////////////////////
@@ -52,9 +50,7 @@ float3 cameraPosition;
 //////////////////////////////////////////////
 
 bool diffuseTextured;
-
 bool specularTextured;
-
 bool reflectionTextured;
 
 //////////////////////////////////////////////
@@ -143,19 +139,7 @@ struct VS_OUTTangent
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
-VS_OUT vs_mainWithoutTexture(in float4 position : POSITION, in float3 normal : NORMAL)
-{
-	VS_OUT output = (VS_OUT)0;
-
-	output.position = mul(position, worldViewProj);
-	output.postProj = output.position;
-	output.normalWS = mul(normal, worldIT);
-	output.viewWS   = normalize(cameraPosition - mul(position, world));
-	
-	return output;
-} // vs_mainWithoutTexture
-
-VS_OUT vs_mainWithTexture(in float4 position : POSITION, in float3 normal : NORMAL, in float2 uv : TEXCOORD0)
+VS_OUT vs_main(in float4 position : POSITION, in float3 normal : NORMAL, in float2 uv : TEXCOORD0)
 {
 	VS_OUT output = (VS_OUT)0;
 
@@ -166,7 +150,7 @@ VS_OUT vs_mainWithTexture(in float4 position : POSITION, in float3 normal : NORM
 	output.uv = uv;
 	
 	return output;
-} // vs_mainWithTexture
+} // vs_main
 
 VS_OUTTangent vs_mainWithTangent(WithTangentVS_INPUT input)
 {
@@ -201,6 +185,24 @@ VS_OUTTangent vs_mainWithTangent(WithTangentVS_INPUT input)
 
 	return output;
 } // vs_mainWithTangent
+
+VS_OUT vs_Skinned(in float4 position : POSITION,
+	                      in float3 normal   : NORMAL,
+						  in float2 uv       : TEXCOORD0,
+						  in int4 indices    : BLENDINDICES0,
+						  in int4 weights  : BLENDWEIGHT0)
+{
+	VS_OUT output = (VS_OUT)0;
+
+	SkinTransform(position, normal, indices, weights, 4);
+	output.position = mul(position, worldViewProj);
+	output.postProj = output.position;	
+	output.normalWS = mul(normal, worldIT);
+	output.viewWS   = normalize(cameraPosition - mul(position, world));
+	output.uv = uv;
+	
+	return output;
+} // vs_Skinned
 
 //////////////////////////////////////////////
 /////////////// Pixel Shader /////////////////
@@ -319,20 +321,11 @@ float4 ps_mainWithParrallax(VS_OUTTangent input) : COLOR
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-technique BlinnPhongWithoutTexture
+technique BlinnPhongSimple
 {
     pass P0
     {
-        VertexShader = compile vs_3_0 vs_mainWithoutTexture();
-        PixelShader  = compile ps_3_0 ps_main();
-    }
-} // BlinnPhongWithoutTexture
-
-technique BlinnPhongWithTexture
-{
-    pass P0
-    {
-        VertexShader = compile vs_3_0 vs_mainWithTexture();
+        VertexShader = compile vs_3_0 vs_main();
         PixelShader  = compile ps_3_0 ps_main();
     }
 } // BlinnPhongWithTexture
@@ -346,22 +339,11 @@ technique BlinnPhongWithParrallax
     }
 } // BlinnPhongWithTangent
 
-#include <SkinnedBlinnPhong.fxh>
-
-technique SkinnedBlinnPhongWithoutTexture
+technique BlinnPhongSkinned
 {
     pass P0
     {
-        VertexShader = compile vs_3_0 SkinnedWithoutTexture();
+        VertexShader = compile vs_3_0 vs_Skinned();
         PixelShader  = compile ps_3_0 ps_main();
     }
-} // SkinnedBlinnPhongWithoutTexture
-
-technique SkinnedBlinnPhongWithTexture
-{
-    pass P0
-    {
-        VertexShader = compile vs_3_0 SkinnedWithTexture();
-        PixelShader  = compile ps_3_0 ps_main();
-    }
-} // SkinnedBlinnPhongWithoutTexture
+} // BlinnPhongSkinned
