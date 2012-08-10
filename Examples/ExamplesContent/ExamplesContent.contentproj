@@ -100,6 +100,7 @@
       <Name>Murcielago-Body</Name>
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
+      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-BrakeCaliper.fbx">
       <Name>Murcielago-BrakeCaliper</Name>

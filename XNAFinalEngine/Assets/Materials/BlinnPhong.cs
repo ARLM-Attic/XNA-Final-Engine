@@ -36,14 +36,18 @@ namespace XNAFinalEngine.Assets
 {
 
     /// <summary>
-    /// The reflected light is not influenced by the incident light nor the view vector.
-    /// This is intended to be used in very particular cases.
+    /// The Blinn–Phong shading model is a modification to the Phong reflection model developed by Jim Blinn 
+    /// that performs the specular calculations using the half vector instead of the reflection vector.
+    /// This is a cheap BRDF that performs well in the majority of the scenarios.
     /// </summary>
-    public class Constant : Brdf
+    public class BlinnPhong : Material
     {
 
         #region Variables
-        
+
+        // The count of materials for naming purposes.
+        private static int nameNumber = 1;
+
         // Default value.
         private Color diffuseColor = Color.Gray; 
 
@@ -67,6 +71,16 @@ namespace XNAFinalEngine.Assets
         
         #endregion
 
-    } // Constant
+        #region Constructor
+
+        public BlinnPhong()
+        {
+            Name = "Blinn Phong-" + nameNumber;
+            nameNumber++;
+        } // BlinnPhong
+
+        #endregion
+
+    } // BlinnPhong
 } // XNAFinalEngine.Assets
 

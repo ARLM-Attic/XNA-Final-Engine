@@ -799,9 +799,9 @@ namespace XNAFinalEngine.EngineCore
             
             // Downsample GBuffer
             gbufferHalfTextures = DownsamplerGBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], gbufferTextures.RenderTargets[1]);
-            /*
-            renderTarget.EnableRenderTarget();
-            SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[0]);
+            
+            /*renderTarget.EnableRenderTarget();
+            SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[1]);
             if (currentCamera.RenderHeadUpDisplay)
                 RenderHeadsUpDisplay();
             renderTarget.DisableRenderTarget();
@@ -1102,7 +1102,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-
+            /*
             renderTarget.EnableRenderTarget();
             SpriteManager.DrawTextureToFullScreen(lightTexture);
             if (currentCamera.RenderHeadUpDisplay)
@@ -1110,7 +1110,7 @@ namespace XNAFinalEngine.EngineCore
             renderTarget.DisableRenderTarget();
             Layer.CurrentCameraCullingMask = uint.MaxValue;
             ReleaseUnusedRenderTargets();
-            return;
+            return;*/
 
             #endregion
 
@@ -1119,7 +1119,7 @@ namespace XNAFinalEngine.EngineCore
             ScenePass.Begin(renderTarget.Size, currentCamera.ClearColor);
 
             #region Opaque Objects
-            /*
+            
             // Render all the opaque objects...
             foreach (ModelRenderer modelRenderer in modelsToRender)
             {
@@ -1180,7 +1180,7 @@ namespace XNAFinalEngine.EngineCore
                     }
                 }
             }
-            */
+            
             #endregion
 
             #region Sky
@@ -1219,7 +1219,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Transparent Objects
-            /*
+            
             // The transparent objects will be render in forward fashion.
             foreach (ModelRenderer modelRenderer in modelsToRender)
             {
@@ -1283,7 +1283,7 @@ namespace XNAFinalEngine.EngineCore
                     }
                 }
             }
-            */
+            
             #endregion
 
             #region Textures and Text

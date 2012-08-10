@@ -61,14 +61,9 @@
     <Compile Include="Assets\Cursors\Cursor.cs" />
     <Compile Include="Assets\Documents\Document.cs" />
     <Compile Include="Assets\Fonts\Font.cs" />
-    <Compile Include="Assets\Materials\BRDFs\BlinnPhong.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Assets\Materials\BRDFs\BRDF.cs" />
-    <Compile Include="Assets\Materials\BRDFs\CarPaint.cs" />
-    <Compile Include="Assets\Materials\BRDFs\Constant.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Assets\Materials\BlinnPhong.cs" />
+    <Compile Include="Assets\Materials\CarPaint.cs" />
+    <Compile Include="Assets\Materials\Constant.cs" />
     <Compile Include="Assets\Materials\Material.cs" />
     <Compile Include="Assets\Models\FileModel.cs" />
     <Compile Include="Assets\Models\Model.cs" />

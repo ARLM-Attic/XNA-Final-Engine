@@ -110,10 +110,9 @@
     <Compile Include="Assets\Cursors\Cursor.cs" />
     <Compile Include="Assets\Documents\Document.cs" />
     <Compile Include="Assets\Fonts\Font.cs" />
-    <Compile Include="Assets\Materials\BRDFs\BRDF.cs" />
-    <Compile Include="Assets\Materials\BRDFs\BlinnPhong.cs" />
-    <Compile Include="Assets\Materials\BRDFs\Constant.cs" />
-    <Compile Include="Assets\Materials\BRDFs\CarPaint.cs" />
+    <Compile Include="Assets\Materials\BlinnPhong.cs" />
+    <Compile Include="Assets\Materials\Constant.cs" />
+    <Compile Include="Assets\Materials\CarPaint.cs" />
     <Compile Include="Assets\Materials\Material.cs" />
     <Compile Include="Assets\Models\FileModel.cs" />
     <Compile Include="Assets\Models\Model.cs" />
@@ -204,6 +203,18 @@
     <Compile Include="Assets\PostProcess\ColorCorrection.cs" />
     <Compile Include="Assets\PostProcess\FilmGrain.cs" />
     <Compile Include="Assets\Textures\LookupTable.cs" />
+    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\BlinnPhongShader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\CarPaintShader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\ConstantShader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\ForwardBlinnPhongShader.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\SkyboxShader.cs" />
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\SkydomeShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\BloomShader.cs" />

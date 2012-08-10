@@ -39,7 +39,7 @@ namespace XNAFinalEngine.Assets
     /// <summary>
     /// Material.
     /// </summary>
-    public class Material : AssetWithoutResource
+    public abstract class Material : AssetWithoutResource
     {
 
         #region Variables
@@ -64,9 +64,6 @@ namespace XNAFinalEngine.Assets
 
         // Specular Intensity.
         private float specularIntensity = 1.0f;
-
-        // The count of materials for naming purposes.
-        private static int nameNumber = 1;
 
         // default material.
         private static Material defaultMaterial;
@@ -104,12 +101,6 @@ namespace XNAFinalEngine.Assets
         #endregion
 
         /// <summary>
-        /// The bidirectional reflectance distribution function (BRDF) is a function that defines how light is reflected at an opaque surface.
-        /// There are different types of BRDFs like Blinn-Phong, Cook Torrance, Constant (not really a BRDF actually), etc.
-        /// </summary>
-        public Brdf Brdf { get; set; }
-
-        /// <summary>
         /// A Normal Map is usually used to fake high-res geometry detail when it's mapped onto a low-res mesh.
         /// The pixels of the normal map each store a normal, a vector that describes the surface slope of the original high-res mesh at that point.
         /// </summary>
@@ -128,7 +119,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         /// <remarks>
         /// Parallax Occlusion Mapping was not added but it could be added easily.
-        /// If that's the case then I recommend ignoring the parallax in the GBuffer stage to improve performance.
+        /// If that's the case then I could recommend ignoring the parallax in the GBuffer stage to improve performance.
         /// </remarks>
         /// <seealso cref="http://developer.amd.com/media/gpu_assets/Tatarchuk-ParallaxOcclusionMapping-Sketch-print.pdf"/>
         public bool ParallaxEnabled { get; set; }
@@ -246,7 +237,7 @@ namespace XNAFinalEngine.Assets
                 {
                     ContentManager userContentManager = ContentManager.CurrentContentManager;
                     ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
-                    defaultMaterial = new Material { Name = "Default Material", Brdf = new BlinnPhong { DiffuseColor = Color.Gray } };
+                    defaultMaterial = new BlinnPhong { Name = "Default Material", DiffuseColor = Color.Gray };
                     ContentManager.CurrentContentManager = userContentManager;
                 }
                 return defaultMaterial;
@@ -264,52 +255,6 @@ namespace XNAFinalEngine.Assets
         #endregion
 
         #endregion
-
-        #region Constructor
-
-        public Material()
-        {
-            Name = "Material-" + nameNumber;
-            nameNumber++;
-        } // Material
-
-        #endregion
-
-        #region Quick Creation
-
-        /// <summary>
-        /// The Blinn–Phong shading model is a modification to the Phong reflection model developed by Jim Blinn 
-        /// that performs the specular calculations using the half vector instead of the reflection vector.
-        /// This is a cheap BRDF that performs well in the majority of the scenarios.
-        /// </summary>
-        public static Material BlinnPhong(Color diffuseColor)
-        {
-            return new Material
-            {
-                Brdf = new BlinnPhong
-                {
-                    DiffuseColor = diffuseColor
-                }
-            };
-        } // BlinnPhong
-
-        /// <summary>
-        /// The Blinn–Phong shading model is a modification to the Phong reflection model developed by Jim Blinn 
-        /// that performs the specular calculations using the half vector instead of the reflection vector.
-        /// This is a cheap BRDF that performs well in the majority of the scenarios.
-        /// </summary>
-        public static Material BlinnPhong(Texture diffuseTexture)
-        {
-            return new Material
-            {
-                Brdf = new BlinnPhong
-                {
-                    DiffuseTexture = diffuseTexture
-                }
-            };
-        } // BlinnPhong
-
-        #endregion
-
+       
     } // Material
 } // XNAFinalEngine.Assets

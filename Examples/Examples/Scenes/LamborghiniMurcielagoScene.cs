@@ -136,7 +136,7 @@ namespace XNAFinalEngineExamples
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
-                Radius = 0.0005f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                Radius = 0.0003f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 1f,
                 Contrast = 1f,
                 AngleBias = 5f,
@@ -148,16 +148,15 @@ namespace XNAFinalEngineExamples
             
             #region Materials
 
-            Material carPaint = new Material
+            CarPaint carPaint = new CarPaint
             {
-                Brdf = new BlinnPhong(),
-                /*SpecularIntensity = 10000f,
+                SpecularIntensity = 10000f,
                 SpecularPower = 20,
                 BasePaintColor = new Color(250, 250, 250),
                 SecondBasePaintColor = new Color(220, 220, 220),
                 FlakeLayerColor1 = new Color(170, 170, 170),
                 FlakesColor = new Color(100, 100, 100),
-                ReflectionTexture = new TextureCube("Showroom"),*/
+                ReflectionTexture = new TextureCube("Showroom"),
                 //ReflectionTexture = new TextureCube("FactoryCatwalkRGBM", true, 50),
             };
             
@@ -170,11 +169,11 @@ namespace XNAFinalEngineExamples
             murcielagoBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), carPaint);
 
             murcielagoTablero = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Tablero"),
-                                                 new Material
+                                                 new Constant
                                                  {
-                                                     Brdf = new Constant { DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Tablero"), },
+                                                    DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Tablero"),
                                                  });
-            /*murcielagoLights = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Lights"),
+            murcielagoLights = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Lights"),
                                                              new BlinnPhong
                                                              {
                                                                  DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Lights"),
@@ -361,9 +360,9 @@ namespace XNAFinalEngineExamples
                                                      SpecularIntensity = 0.1f,
                                                      SpecularPower = 300,
                                                  });
-            */
+            
             #endregion
-            /*
+            
             #region Left Door
 
             murcielagoLeftDoorBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorBody"), carPaint);
@@ -826,14 +825,13 @@ namespace XNAFinalEngineExamples
             murcielagoRearRightTyre02.Parent = rearRightRim;
 
             #endregion
-            */
+            
             #region Floor
 
             floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
-                           new Material
+                           new BlinnPhong
                            {
-                               Brdf = new BlinnPhong(),
-                               NormalTexture = new Texture("Stones-NormalHeightMap"),
+                               //NormalTexture = new Texture("Stones-NormalHeightMap"),
                            }) 
             { Transform = { LocalScale = new Vector3(5, 5, 5) } };
             floor.Transform.Position = new Vector3(0, -1.17f, 0);
@@ -849,13 +847,13 @@ namespace XNAFinalEngineExamples
             directionalLight.DirectionalLight.Color = new Color(250, 250, 220);
             directionalLight.DirectionalLight.Intensity = 10f;
             directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
-            /*directionalLight.DirectionalLight.Shadow = new CascadedShadow
+            directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
                 Filter = Shadow.FilterType.Pcf5X5,
                 LightDepthTextureSize = Size.Square512X512,
                 TextureSize = Size.TextureSize.FullSize,
                 Range = 50,
-            };*/
+            };
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
