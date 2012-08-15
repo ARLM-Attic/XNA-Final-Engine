@@ -88,8 +88,8 @@ namespace XNAFinalEngineExamples
             camera.Camera.FarPlane = 500;
             camera.Camera.NearPlane = 0.1f;
             camera.Transform.LookAt(new Vector3(0, 10, 25), new Vector3(0, 5, 0), Vector3.Up);
-            //ScriptEditorCamera script = (ScriptEditorCamera)camera.AddComponent<ScriptEditorCamera>();
-            //script.SetPosition(new Vector3(0, 10, 20), new Vector3(0, 5, 0));
+            ScriptCustomCamera script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
+            script.SetPosition(new Vector3(0, 10, 20), new Vector3(0, 5, 0));
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 6f;
             camera.Camera.PostProcess = new PostProcess();
@@ -102,7 +102,7 @@ namespace XNAFinalEngineExamples
                 //SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("Colors", false)),
                 Color = new Color(50, 50, 50),
                 Intensity = 5f,
-                AmbientOcclusionStrength = 5f
+                AmbientOcclusionStrength = 2f
             };
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
             camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, } };
@@ -110,12 +110,12 @@ namespace XNAFinalEngineExamples
             {
                 NumberSteps = 8, // Don't change this.
                 NumberDirections = 12, // Don't change this.
-                Radius = 0.000002f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                Radius = 0.0008f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 0.75f,
-                Contrast = 1.0f,
-                AngleBias = 1.25f,
+                Contrast = 1.3f,
+                AngleBias = 5.25f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
-                TextureSize = Size.TextureSize.QuarterSize,
+                TextureSize = Size.TextureSize.HalfSize,
             };
             camera.Camera.PostProcess.FilmGrain.Enabled = false;
 
@@ -213,7 +213,7 @@ namespace XNAFinalEngineExamples
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
             spotLight.SpotLight.Color = Color.Green;
-            spotLight.SpotLight.Intensity = 300f;
+            spotLight.SpotLight.Intensity = 30000f;
             spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
             spotLight.Transform.Position = new Vector3(0, 15f, -10);
             spotLight.Transform.Rotate(new Vector3(-45, 180, 0));

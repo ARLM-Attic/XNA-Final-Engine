@@ -199,10 +199,6 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                // Set Render States.
-                EngineManager.Device.BlendState = BlendState.NonPremultiplied;
-                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                EngineManager.Device.DepthStencilState = DepthStencilState.Default;
                 // If I set the sampler states here and no texture is set then this could produce exceptions 
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
                 

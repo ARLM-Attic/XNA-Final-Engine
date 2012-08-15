@@ -38,8 +38,6 @@ float4x4 world         : World;
 //////////////// Parameters //////////////////
 //////////////////////////////////////////////
 
-float2 halfPixel;
-
 float3 cameraPosition;
 
 float3 diffuseColor;
@@ -198,10 +196,6 @@ float4 ps_main(vertexOutput input) : COLOR
 	}
     // Directional Light //		
 	float shadowTerm = 1.0;
-	/*if (hasDirectionalShadow)
-	{
-		shadowTerm = tex2D(shadowSampler, PostProjectToScreen(input.positionProj) + halfPixel); // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
-	}*/
 	float NL = max(dot(-directionalLightDirection, normalWS), 0);
     diffuse += GammaToLinear(directionalLightColor) * NL *  directionalLightIntensity * shadowTerm;
 	// In "Experimental Validation of Analytical BRDF Models" (Siggraph2004) the autors arrive to the conclusion that half vector lobe is better than mirror lobe.

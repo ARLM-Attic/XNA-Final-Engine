@@ -95,7 +95,6 @@ namespace XNAFinalEngine.Graphics
         /// Effect handles for this shader.
         /// </summary>
         protected static EffectParameter
-                               epHalfPixel,
                                epCameraPosition,
                                // Matrices //
                                epWorldViewProj,
@@ -121,20 +120,6 @@ namespace XNAFinalEngine.Graphics
                                epDirectionalLightColor,
                                epDirectionalLightIntensity;
                                
-
-        #region Half Pixel
-
-        private static Vector2 lastUsedHalfPixel;
-        private static void SetHalfPixel(Vector2 _halfPixel)
-        {
-            if (lastUsedHalfPixel != _halfPixel)
-            {
-                lastUsedHalfPixel = _halfPixel;
-                epHalfPixel.SetValue(_halfPixel);
-            }
-        } // SetHalfPixel
-
-        #endregion
 
         #region Camera Position
 
@@ -459,9 +444,6 @@ namespace XNAFinalEngine.Graphics
                     epWorld.SetValue(lastUsedWorldMatrix);
                 epWorldIT              = Resource.Parameters["worldIT"];
                     epWorldIT.SetValue(lastUsedTransposeInverseWorldMatrix);
-                // Parameters //
-                epHalfPixel            = Resource.Parameters["halfPixel"];
-                    epHalfPixel.SetValue(lastUsedHalfPixel);
                 epCameraPosition       = Resource.Parameters["cameraPosition"];
                     epCameraPosition.SetValue(lastUsedCameraPosition);
                 epSpecularIntensity    = Resource.Parameters["specularIntensity"];
@@ -517,7 +499,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the render.
         /// </summary>
-        internal void Begin(Matrix viewMatrix, Matrix projectionMatrix, RenderTarget lightTexture)
+        internal void Begin(Matrix viewMatrix, Matrix projectionMatrix)
         {
             try
             {
@@ -531,7 +513,6 @@ namespace XNAFinalEngine.Graphics
                 // Set initial parameters
                 this.viewMatrix = viewMatrix;
                 this.projectionMatrix = projectionMatrix;
-                SetHalfPixel(new Vector2(0.5f / lightTexture.Width, 0.5f / lightTexture.Height));
                 SetCameraPosition(Matrix.Invert(viewMatrix).Translation); // Tener cuidado con esto.
             }
             catch (Exception e)

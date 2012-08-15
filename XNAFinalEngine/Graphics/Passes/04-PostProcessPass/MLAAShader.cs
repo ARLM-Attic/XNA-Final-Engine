@@ -302,7 +302,7 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.SamplerStates[15] = SamplerState.PointClamp;
 
                 // Set parameters
-                SetHalfPixel(new Vector2(-1f / texture.Width, 1f / texture.Height));
+                SetHalfPixel(new Vector2(-0.5f / (texture.Width / 2), 0.5f / (texture.Height / 2)));
                 SetPixelSize(new Vector2(1f / texture.Width, 1f / texture.Height));
                 SetSceneTexture(texture);
                 SetDepthTexture(depthTexture);

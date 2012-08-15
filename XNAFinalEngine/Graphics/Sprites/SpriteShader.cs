@@ -220,7 +220,7 @@ namespace XNAFinalEngine.Graphics
                 SetProjectionInverseMatrix(Matrix.Invert(projectionMatrix));
                 SetDepthTexture(depthTexture);
                 SetFarPlane(farPlane);
-                SetHalfPixel(new Vector2(0.5f / depthTexture.Width, 0.5f / depthTexture.Height)); // The half depth size produce flickering.
+                SetHalfPixel(new Vector2(0.5f / depthTexture.Width, 0.5f / depthTexture.Height)); // The half depth size produce flickering
                 Resource.CurrentTechnique = Resource.Techniques["SpriteBatchGammaSpace"];
             }
             catch (Exception e)

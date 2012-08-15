@@ -113,7 +113,7 @@ SimpleVS_OUTPUT SimpleVS(SimpleVS_INPUT input)
 	SimpleVS_OUTPUT output;
 
 	output.position     = mul(input.position, worldViewProj);
-	output.uvDepth.z    = -mul(input.position, worldView).z / farPlane;
+	output.uvDepth.z    = -mul(input.position, worldView).z / farPlane; // Linear depth
 	// The normals are in view space.
 	output.normal.xyz   = mul(input.normal, worldViewIT);
 	output.uvDepth.xy = input.uv;
@@ -219,8 +219,8 @@ WithTangentVS_OUTPUT SkinnedWithNormalMapVS(SkinnedWithTangentVS_INPUT input)
 	WithTangentVS_OUTPUT output;
    
 	SkinTransform(input.position, input.normal, input.indices, input.weights, 4);
-	output.position = mul(input.position, worldViewProj);
-	output.uvDepth.z    = -mul(input.position, worldView).z / farPlane;	
+	output.position  = mul(input.position, worldViewProj);
+	output.uvDepth.z = -mul(input.position, worldView).z / farPlane;
 
 		// Generate the tanget space to view space matrix
 	output.tangentToView[0] = mul(input.tangent,  worldViewIT);
@@ -241,7 +241,7 @@ PixelShader_OUTPUT SimplePS(SimpleVS_OUTPUT input)
 	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
  
 	// Depth
-	output.depth = float4(input.uvDepth.z, 0, 1, 1);
+	output.depth = float4(input.uvDepth.z, 1, 1, 1);
  
 	// Normals
  	input.normal.xyz = normalize(input.normal.xyz);
@@ -262,7 +262,7 @@ PixelShader_OUTPUT WithNormalMapPS(WithTangentVS_OUTPUT input)
 	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
  
 	// Depth
-	output.depth = float4(input.uvDepth.z, 0, 1, 1);
+	output.depth = float4(input.uvDepth.z, 1, 1, 1);
  
 	// Normals
  	output.normal.xyz = 2.0 * tex2D(objectNormalSampler, input.uvDepth.xy).rgb - 1;
@@ -284,7 +284,7 @@ PixelShader_OUTPUT WithParallaxPS(WithParallaxVS_OUTPUT input)
 	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
  
 	// Depth
-	output.depth = float4(input.uvDepth.z, 0, 1, 1);
+	output.depth = float4(input.uvDepth.z, 1, 1, 1);
  
 	// Normals
  	output.normal.xyz = 2.0 * tex2D(objectNormalSampler, 

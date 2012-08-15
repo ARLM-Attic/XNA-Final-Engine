@@ -71,10 +71,21 @@ samplerCUBE reflectionSampler : register(s4) = sampler_state
 	MipFilter = Linear;*/
 };
 
-texture lightMap : register(t1);
-sampler2D lightSampler : register(s1) = sampler_state
+texture diffuseAccumulationTexture : register(t1);
+sampler2D diffuseAccumulationSampler : register(s1) = sampler_state
 {
-	Texture = <lightMap>;
+	Texture = <diffuseAccumulationTexture>;
+	/*MipFilter = NONE;
+	MagFilter = POINT;
+	MinFilter = POINT;
+	AddressU = CLAMP;
+	AddressV = CLAMP;*/
+};
+
+texture specularAccumulationTexture : register(t5);
+sampler2D specularAccumulationSampler : register(s5) = sampler_state
+{
+	Texture = <specularAccumulationTexture>;
 	/*MipFilter = NONE;
 	MagFilter = POINT;
 	MinFilter = POINT;
@@ -136,8 +147,9 @@ float4 ps_main(in float4 positionProj : TEXCOORD0, float2 sparkleUv : TEXCOORD1,
 	// Find the screen space texture coordinate & offset
 	float2 lightMapUv = PostProjectToScreen(positionProj) + halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
 	
-	// Diffuse contribution + specular exponent.
-	float4 light = tex2D(lightSampler, lightMapUv);
+	// Diffuse contribution + specular contribution.
+	float3 diffuseAccumulation = tex2D(diffuseAccumulationSampler, lightMapUv);
+	float3 specularAccumulation = tex2D(specularAccumulationSampler, lightMapUv);
 			
 	// Fetch from the incoming normal map. Scale and bias fetched normal to move into [-1.0, 1.0] range:
     //float3 normal = 2 * tex2D(normalMap, uv) - 1.0;
@@ -221,7 +233,7 @@ float4 ps_main(in float4 positionProj : TEXCOORD0, float2 sparkleUv : TEXCOORD1,
     // View depend reflections are more realistic.
     float  envContribution = 1.0 - 0.5 * NdotV;
 	          
-    return float4(reflection * /*pow(envContribution, 1) */ light.a + paintColor * light.rgb, 1);
+    return float4(reflection * /*pow(envContribution, 1) */ specularAccumulation.rgb + paintColor * diffuseAccumulation.rgb, 1);
 }
 
 //////////////////////////////////////////////

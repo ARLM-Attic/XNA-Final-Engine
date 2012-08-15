@@ -34,25 +34,21 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Helpers;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.Graphics
 {
     /// <summary>
-    /// Downsample a depth and normal texture to half size. 
-    /// A special depth downsampler is need because the average of depth values doesn’t have physical sense. 
-    /// Instead is better to take the maximum depth value of the four samples. This has the effect of shrinking the object silhouettes.
-    /// Of course this isn’t perfect, but normally a depth downsampled buffer is used for low frequency effects.
+    /// Place the depth information into a real GPU’s Z buffer.
     /// </summary>
-    internal class DownsamplerGBufferShader : Shader
+    internal class ReconstructZBufferShader : Shader
     {
 
         #region Variables
 
         // Singleton reference.
-        private static DownsamplerGBufferShader instance;
+        private static ReconstructZBufferShader instance;
 
         #endregion
 
@@ -61,12 +57,12 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// A singleton of this shader.
         /// </summary>
-        public static DownsamplerGBufferShader Instance
+        public static ReconstructZBufferShader Instance
         {
             get
             {
                 if (instance == null)
-                    instance = new DownsamplerGBufferShader();
+                    instance = new ReconstructZBufferShader();
                 return instance;
             }
         } // Instance
@@ -79,10 +75,11 @@ namespace XNAFinalEngine.Graphics
         /// Effect handles
         /// </summary>
         private static EffectParameter epHalfPixel,
-                                       epQuarterTexel,
-                                       epDepthTexture,
-                                       epNormalTexture;
+                                       epFarPlane,
+                                       epProjectionMatrix,
+                                       epDepthTexture;
 
+        #region Half Pixel
 
         private static Vector2 lastUsedHalfPixel;
         private static void SetHalfPixel(Vector2 _halfPixel)
@@ -94,15 +91,35 @@ namespace XNAFinalEngine.Graphics
             }
         } // SetHalfPixel
 
-        private static Vector2 lastUsedQuarterTexel;
-        private static void SetQuarterTexel(Vector2 _quarterTexel)
+        #endregion
+
+        #region Projection Matrix
+
+        private static Matrix lastUsedProjectionMatrix;
+        private static void SetProjectionMatrix(Matrix matrix)
         {
-            if (lastUsedQuarterTexel != _quarterTexel)
+            if (lastUsedProjectionMatrix != matrix)
             {
-                lastUsedQuarterTexel = _quarterTexel;
-                epQuarterTexel.SetValue(_quarterTexel);
+                lastUsedProjectionMatrix = matrix;
+                epProjectionMatrix.SetValue(matrix);
             }
-        } // SetQuarterTexel
+        } // SetProjectionMatrix
+
+        #endregion
+
+        #region Far Plane
+
+        private static float lastUsedFarPlane;
+        private static void SetFarPlane(float _farPlane)
+        {
+            if (lastUsedFarPlane != _farPlane)
+            {
+                lastUsedFarPlane = _farPlane;
+                epFarPlane.SetValue(_farPlane);
+            }
+        } // SetFarPlane
+
+        #endregion
 
         #region Depth Texture
 
@@ -119,31 +136,15 @@ namespace XNAFinalEngine.Graphics
         } // SetDepthTexture
 
         #endregion
-
-        #region Normal Texture
-
-        private static Texture2D lastUsedNormalTexture;
-        private static void SetNormalTexture(Texture normalTexture)
-        {
-            EngineManager.Device.SamplerStates[2] = SamplerState.LinearClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTexture != normalTexture.Resource)
-            {
-                lastUsedNormalTexture = normalTexture.Resource;
-                epNormalTexture.SetValue(normalTexture.Resource);
-            }
-        } // SetNormalTexture
-
-        #endregion
-
+        
         #endregion
 
         #region Constructor
 
         /// <summary>
-        /// Depth Downsampler Shader
+        /// Place the depth information into a real GPU’s Z buffer.
         /// </summary>
-        private DownsamplerGBufferShader() : base("GBuffer\\DownsampleGBuffer") { }
+        private ReconstructZBufferShader() : base("GBuffer\\ReconstructZBuffer") { }
 
         #endregion
 
@@ -161,14 +162,14 @@ namespace XNAFinalEngine.Graphics
             {
                 epHalfPixel    = Resource.Parameters["halfPixel"];
                     epHalfPixel.SetValue(lastUsedHalfPixel);
-                epQuarterTexel = Resource.Parameters["quarterTexel"];
-                    epQuarterTexel.SetValue(lastUsedQuarterTexel);
+                epFarPlane = Resource.Parameters["farPlane"];
+                    epFarPlane.SetValue(lastUsedFarPlane);
+                epProjectionMatrix = Resource.Parameters["projection"];
+                    epProjectionMatrix.SetValue(lastUsedProjectionMatrix);
                 epDepthTexture = Resource.Parameters["depthTexture"];
                     if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
                         epDepthTexture.SetValue(lastUsedDepthTexture);
-                epNormalTexture = Resource.Parameters["normalTexture"];
-                    if (lastUsedNormalTexture != null && !lastUsedNormalTexture.IsDisposed)
-                        epNormalTexture.SetValue(lastUsedNormalTexture);
+                
             }
             catch
             {
@@ -181,38 +182,29 @@ namespace XNAFinalEngine.Graphics
         #region Render
 
         /// <summary>
-        /// Downsample depth map.
+        /// Place the depth information into the current Z buffer.
         /// </summary>
-        internal RenderTarget.RenderTargetBinding Render(RenderTarget depthTexture, RenderTarget normalTexture)
+        internal void Render(RenderTarget depthTexture, float farPlane, Matrix projectionMatrix)
         {
             try
             {
                 // Set Parameters
                 SetHalfPixel(new Vector2(-0.5f / (depthTexture.Width / 2), 0.5f / (depthTexture.Height / 2))); // Use size of destinantion render target.
-                SetQuarterTexel(new Vector2(0.25f / depthTexture.Width, 0.25f / depthTexture.Height));
+                SetFarPlane(farPlane);
+                SetProjectionMatrix(projectionMatrix);
                 SetDepthTexture(depthTexture);
-                SetNormalTexture(normalTexture);
-                // Set Render States
-                EngineManager.Device.DepthStencilState = DepthStencilState.None;
 
-                RenderTarget.RenderTargetBinding renderTargetBinding = RenderTarget.Fetch(new Size(depthTexture.Width / 2, depthTexture.Height / 2), 
-                                                                                          SurfaceFormat.Single, DepthFormat.None, SurfaceFormat.Color);
-
-                RenderTarget.EnableRenderTargets(renderTargetBinding);
-                Resource.CurrentTechnique = Resource.Techniques["DownsampleGBuffer"];
+                Resource.CurrentTechnique = Resource.Techniques["ReconstructZBuffer"];
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
-                RenderTarget.DisableCurrentRenderTargets();
-
-                return renderTargetBinding;
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Downsampler Shader: Unable to render.", e);
+                throw new InvalidOperationException("Reconstruct Z Buffer Shader: Unable to render.", e);
             }
         } // Render
 
         #endregion
 
-    } // DownsamplerGBufferShader
+    } // ReconstructZBufferShader
 } // XNAFinalEngine.Graphics

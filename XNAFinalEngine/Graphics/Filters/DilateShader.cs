@@ -206,7 +206,7 @@ namespace XNAFinalEngine.Graphics
                 SetDilateWidth(width);
                 SetTextureResolution(new Vector2(texture.Width, texture.Height));
                 SetTexture(texture);
-                SetHalfPixel(new Vector2(-1f / texture.Width, 1f / texture.Height));
+                SetHalfPixel(new Vector2(-0.5f / (texture.Width / 2), 0.5f / (texture.Height / 2)));
 
                 foreach (EffectPass pass in Resource.CurrentTechnique.Passes)
                 {

@@ -221,7 +221,7 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.SamplerStates[8] = SamplerState.PointClamp;
 
                 // Set Parameters.
-                SetHalfPixel(new Vector2(-1f / bloomTexture.Width, 1f / bloomTexture.Height));
+                SetHalfPixel(new Vector2(-0.5f / (bloomTexture.Width / 2), 0.5f / (bloomTexture.Height / 2)));
                 SetLensExposure(postProcess.ToneMapping.LensExposure);
                 SetBloomThreshold(postProcess.Bloom.Threshold);
                 SetSceneTexture(sceneTexture);

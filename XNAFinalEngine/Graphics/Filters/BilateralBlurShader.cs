@@ -269,7 +269,8 @@ namespace XNAFinalEngine.Graphics
                 SetInvTextureResolution(new Vector2(1f / destionationTexture.Width, 1f / destionationTexture.Height));
                 SetTexture(texture);
                 SetDepthTexture(depthTexture);
-                SetHalfPixel(new Vector2(-1f / destionationTexture.Width, 1f / destionationTexture.Height));
+                
+                SetHalfPixel(new Vector2(-0.5f / (destionationTexture.Width / 2), 0.5f / (destionationTexture.Height / 2)));
 
                 foreach (EffectPass pass in Resource.CurrentTechnique.Passes)
                 {

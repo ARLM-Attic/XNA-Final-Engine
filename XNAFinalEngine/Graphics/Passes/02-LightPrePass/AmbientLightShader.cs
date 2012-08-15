@@ -270,7 +270,7 @@ namespace XNAFinalEngine.Graphics
 
                 #region Set Parameters
                 
-                SetHalfPixel(new Vector2(-1f / normalTexture.Width, 1f / normalTexture.Height));
+                SetHalfPixel(new Vector2(-0.5f / (normalTexture.Width / 2), 0.5f / (normalTexture.Height / 2)));
                 SetColor(ambientLight.Color);
                 SetIntensity(ambientLight.Intensity);
                 

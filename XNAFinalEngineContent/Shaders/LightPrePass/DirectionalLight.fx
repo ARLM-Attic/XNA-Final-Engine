@@ -63,6 +63,12 @@ struct VS_OUT
 	float3 frustumRay	: TEXCOORD1;
 };
 
+struct PixelShader_OUTPUT
+{
+    float4 diffuse          : COLOR0;
+    float4 specular         : COLOR1;
+};
+
 //////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
@@ -75,14 +81,11 @@ float3 FrustumRay(in float2 uv)
 
 VS_OUT vs_main(in float4 position : POSITION, in float2 uv : TEXCOORD)
 {
-	VS_OUT output = (VS_OUT)0;
-	
+	VS_OUT output = (VS_OUT)0;	
 	output.position = position;
 	output.position.xy += halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
-	output.uv = uv; 
-
-	output.frustumRay = FrustumRay(uv);
-	
+	output.uv = uv;
+	output.frustumRay = FrustumRay(uv);	
 	return output;
 }
 
@@ -91,8 +94,10 @@ VS_OUT vs_main(in float4 position : POSITION, in float2 uv : TEXCOORD)
 //////////////////////////////////////////////
 
 // This shader works in view space.
-float4 ps_main(uniform bool hasShadows, in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1) : COLOR0
+PixelShader_OUTPUT ps_main(uniform bool hasShadows, in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1)
 {
+	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
+
 	// Process the shadow map value.
 	float shadowTerm = 1.0;
 	
@@ -147,10 +152,11 @@ float4 ps_main(uniform bool hasShadows, in float2 uv : TEXCOORD0, in float3 frus
 	// R: Color.r * N.L // The color need to be in linear space and right now it's in gamma.
 	// G: Color.g * N.L
 	// B: Color.b * N.L
-	// A: Specular Term * N.L (Look in Shader X7 to know why N * L is necesary in this last channel)
-	// Also in Shader X7 talk about a new channel so that the material shininess could be controled better.
+	// A: Specular Term * N.L (Look in Shader X7 to know why N * L is necesary in this last channel or use your brain, it is easy actually.)
 	// http://diaryofagraphicsprogrammer.blogspot.com/2008/03/light-pre-pass-renderer.html
-	return float4(GammaToLinear(lightColor), specular) * NL *  lightIntensity * shadowTerm;
+	output.diffuse = float4(GammaToLinear(lightColor) * lightIntensity * NL * shadowTerm, 0);
+	output.specular = float4(output.diffuse.rgb * specular, 0);
+	return output;
 }
 
 //////////////////////////////////////////////

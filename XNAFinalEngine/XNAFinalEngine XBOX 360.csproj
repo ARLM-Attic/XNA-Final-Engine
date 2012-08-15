@@ -141,6 +141,7 @@
     <Compile Include="Graphics\Passes\01-GBuffer\DownsamplerGBufferShader.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBufferPass.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBufferShader.cs" />
+    <Compile Include="Graphics\Passes\01-GBuffer\ReconstructZBufferShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\Ambient Occlusion\HorizonBasedAmbientOcclusionShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\Ambient Occlusion\RayMarchingAmbientOcclusionShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\AmbientLightShader.cs" />

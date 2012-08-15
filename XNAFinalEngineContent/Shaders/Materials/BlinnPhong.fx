@@ -68,10 +68,21 @@ sampler2D diffuseSampler : register(s0) = sampler_state
 	AddressV = WRAP;*/
 };
 
-texture lightMap : register(t1);
-sampler2D lightSampler : register(s1) = sampler_state
+texture diffuseAccumulationTexture : register(t1);
+sampler2D diffuseAccumulationSampler : register(s1) = sampler_state
 {
-	Texture = <lightMap>;
+	Texture = <diffuseAccumulationTexture>;
+	/*MipFilter = NONE;
+	MagFilter = POINT;
+	MinFilter = POINT;
+	AddressU = CLAMP;
+	AddressV = CLAMP;*/
+};
+
+texture specularAccumulationTexture : register(t5);
+sampler2D specularAccumulationSampler : register(s5) = sampler_state
+{
+	Texture = <specularAccumulationTexture>;
 	/*MipFilter = NONE;
 	MagFilter = POINT;
 	MinFilter = POINT;
@@ -220,8 +231,9 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float4 positionProj : TEXCOORD1, in 
 	// Find the screen space texture coordinate & offset
 	float2 lightMapUv = PostProjectToScreen(positionProj) + halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
 	
-	// Diffuse contribution + specular exponent.
-	float4 light = tex2D(lightSampler, lightMapUv);
+	// Diffuse contribution + specular contribution.
+	float3 diffuseAccumulation = tex2D(diffuseAccumulationSampler, lightMapUv);
+	float3 specularAccumulation = tex2D(specularAccumulationSampler, lightMapUv);
 
 	viewWS = normalize(viewWS);
 	normalWS = normalize(normalWS);
@@ -261,7 +273,7 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float4 positionProj : TEXCOORD1, in 
 			specular *= GammaToLinear(texCUBE(reflectionSampler, reflectionDir).rgb);
 	}
 	// Final color (in linear space)
-	return float4(GammaToLinear(materialColor) * light.rgb + specular * light.a,  1);
+	return float4(GammaToLinear(materialColor) * diffuseAccumulation.rgb + specular * specularAccumulation.rgb,  1);
 } // ps_main
 
 float4 ps_mainWithParrallax(VS_OUTTangent input) : COLOR
@@ -269,8 +281,9 @@ float4 ps_mainWithParrallax(VS_OUTTangent input) : COLOR
 	// Find the screen space texture coordinate & offset
 	float2 lightMapUv = PostProjectToScreen(input.postProj) + halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
 	
-	// Diffuse contribution + specular exponent.
-	float4 light = tex2D(lightSampler, lightMapUv);
+	// Diffuse contribution + specular contribution.
+	float3 diffuseAccumulation = tex2D(diffuseAccumulationSampler, lightMapUv);
+	float3 specularAccumulation = tex2D(specularAccumulationSampler, lightMapUv);
 
 	input.viewWS = normalize(input.viewWS);
 
@@ -314,8 +327,8 @@ float4 ps_mainWithParrallax(VS_OUTTangent input) : COLOR
 			specular *= GammaToLinear(texCUBE(reflectionSampler, reflectionDir).rgb);
 	}
 	// Final color (in linear space)
-	return float4(materialColor * light.rgb + specular * light.a,  1);
-} // ps_main
+	return float4(materialColor * diffuseAccumulation.rgb + specular * specularAccumulation.rgb,  1);
+} // ps_mainWithParrallax
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////

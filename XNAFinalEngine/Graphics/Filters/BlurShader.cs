@@ -218,7 +218,7 @@ namespace XNAFinalEngine.Graphics
                 SetBlurWidth(width);
                 SetTextureResolution(new Vector2(destionationTexture.Width, destionationTexture.Height));
                 SetTexture(texture);
-                SetHalfPixel(new Vector2(-1f / destionationTexture.Width, 1f / destionationTexture.Height));
+                SetHalfPixel(new Vector2(-0.5f / (destionationTexture.Width / 2), 0.5f / (destionationTexture.Height / 2)));
 
                 foreach (EffectPass pass in Resource.CurrentTechnique.Passes)
                 {

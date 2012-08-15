@@ -450,7 +450,7 @@ namespace XNAFinalEngine.Graphics
                 SetRadius(hbao.Radius);
                 SetSquareRadius(hbao.Radius * hbao.Radius);
                 SetInverseRadius(1 / hbao.Radius);
-                SetHalfPixel(new Vector2(-1f / ambientOcclusionTexture.Width, 1f / ambientOcclusionTexture.Height));
+                SetHalfPixel(new Vector2(-0.5f / (ambientOcclusionTexture.Width / 2), 0.5f / (ambientOcclusionTexture.Height / 2)));
                 Vector2 focalLen = new Vector2
                 {
                     X = 1.0f / (float)Math.Tan(fieldOfView * (Math.PI / 180) * 0.5f) * (float)ambientOcclusionTexture.Height / (float)ambientOcclusionTexture.Width,

@@ -29,6 +29,6 @@ float3 Discard()
 	// The pair discard-return works!!! And you should be use it. However, the xbox 360 doesn't support it.
 		#ifndef XBOX360
 			discard;
-		#endif
+		#endif		
 		return float4(0, 0, 0, 0);
 } // Discard

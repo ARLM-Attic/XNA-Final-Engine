@@ -85,20 +85,22 @@ struct VS_OUT
 	float4 viewPosition     : TEXCOORD1;
 };
 
+struct PixelShader_OUTPUT
+{
+    float4 diffuse          : COLOR0;
+    float4 specular         : COLOR1;
+};
+
 /////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
 VS_OUT vs_main(in float4 position : POSITION)
 {
-	VS_OUT output = (VS_OUT)0;
-	
-	output.position = mul(position, worldViewProj);
-	
+	VS_OUT output = (VS_OUT)0;	
+	output.position = mul(position, worldViewProj);	
 	output.screenPosition = output.position;
-
 	output.viewPosition = mul(position, worldView);
-
     return output;
 }
 
@@ -107,8 +109,10 @@ VS_OUT vs_main(in float4 position : POSITION)
 //////////////////////////////////////////////
 
 // This shader works in view space.
-float4 ps_main(uniform bool hasShadows, uniform bool hasLightMask, VS_OUT input) : COLOR0
+PixelShader_OUTPUT ps_main(uniform bool hasShadows, uniform bool hasLightMask, VS_OUT input)
 {
+	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
+
     // Obtain screen position
     input.screenPosition.xy /= input.screenPosition.w;
 
@@ -167,7 +171,6 @@ float4 ps_main(uniform bool hasShadows, uniform bool hasLightMask, VS_OUT input)
 	// Reconstruct the view space position of the surface to light.
     float3 positionVS = depth * frustumRayVS;
 	
-	[branch]
 	if (hasLightMask)
 	{
 		// Determine the depth of the pixel with respect to the light
@@ -182,11 +185,11 @@ float4 ps_main(uniform bool hasShadows, uniform bool hasLightMask, VS_OUT input)
 		// This could be easily modified to support color texture projection.
 		shadowTerm *= tex2D(lightMaskSampler, shadowTexCoord).r;
 		
-		[branch]
+		/*[branch]
 		if (shadowTerm == 0)
 		{
 			Discard();
-		}
+		}*/
 	}
 
     // Surface-to-light vector (in view space)
@@ -196,9 +199,9 @@ float4 ps_main(uniform bool hasShadows, uniform bool hasLightMask, VS_OUT input)
 	float3 N = DecompressNormal(normalCompressed.xyz);
 	
 	// Cone attenuation
-	float DL           = dot(-lightDirection, normalize(L));
-	float2 cosAngles = cos(float2(lightOuterAngle, lightInnerAngle) * 0.5f);     
-    DL *= smoothstep(cosAngles[0], cosAngles[1], DL);
+	float DL          = dot(-lightDirection, normalize(L));
+	float2 cosAngles  = cos(float2(lightOuterAngle, lightInnerAngle) * 0.5f);     
+    DL               *= smoothstep(cosAngles[0], cosAngles[1], DL);
 			
     // Compute diffuse light
     float NL = max(dot(N, normalize(L)), 0);
@@ -208,18 +211,19 @@ float4 ps_main(uniform bool hasShadows, uniform bool hasLightMask, VS_OUT input)
 
 	// In "Experimental Validation of Analytical BRDF Models" (Siggraph2004) the autors arrive to the conclusion that half vector lobe is better than mirror lobe.
 	float3 V = normalize(-positionVS);
-	float3 H  = normalize(V + normalize(L));
+	float3 H = normalize(V + normalize(L));
 	// Compute specular light
     float specular = pow(saturate(dot(N, H)), DecompressSpecularPower(normalCompressed.w));
-		
-	// Fill the light buffer:
+
+		// Fill the light buffer:
 	// R: Color.r * N.L // The color need to be in linear space and right now it's in gamma.
 	// G: Color.g * N.L
 	// B: Color.b * N.L
-	// A: Specular Term * N.L (Look in Shader X7 to know why N * L is necesary in this last channel)
-	// Also in Shader X7 talk about a new channel so that the material shininess could be controled better.
-	// http://diaryofagraphicsprogrammer.blogspot.com/2008/03/light-pre-pass-renderer.html	    
-	return float4(GammaToLinear(lightColor), specular) * DL * attenuation * lightIntensity * NL * shadowTerm;
+	// A: Specular Term * N.L (Look in Shader X7 to know why N * L is necesary in this last channel or use your brain, it is easy actually.)
+	// http://diaryofagraphicsprogrammer.blogspot.com/2008/03/light-pre-pass-renderer.html
+	output.diffuse = float4(GammaToLinear(lightColor) * DL * attenuation * lightIntensity * NL * shadowTerm, 0);
+	output.specular = float4(output.diffuse.rgb * specular, 0);
+	return output;
 }
 
 //////////////////////////////////////////////

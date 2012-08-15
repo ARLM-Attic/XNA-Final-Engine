@@ -23,132 +23,74 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
 #include <..\GBuffer\GBufferReader.fxh>
-#include <..\Helpers\GammaLinearSpace.fxh>
-#include <..\Helpers\SphericalHarmonics.fxh>
 
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
 //////////////////////////////////////////////
 
+float4x4 projection; // Projection uses all 4x4 matrix values.
 float2 halfPixel;
-float3 color;
-float3x3 viewI;
-float intensity;
-float ambientOcclusionStrength;
-
-//////////////////////////////////////////////
-///////////////// Textures ///////////////////
-//////////////////////////////////////////////
-
-texture ambientOcclusionTexture : register(t3);
-sampler2D ambientOcclusionSample : register(s3) = sampler_state
-{
-    Texture = <ambientOcclusionTexture>;
-    /*MinFilter = Point;
-    MagFilter = Point;
-	MipFilter = none;
-	AddressU = CLAMP;
-	AddressV = CLAMP;*/
-};
+float farPlane;
 
 //////////////////////////////////////////////
 ////////////// Data Structs //////////////////
 //////////////////////////////////////////////
 
-struct VS_OUT
+struct VS_Output
 {
-	float4 position		: POSITION;
-	float2 uv			: TEXCOORD0;
+   	float4 position : POSITION;
+    float2 textCoord : TEXCOORD0;
 };
 
-struct PixelShader_OUTPUT
+struct PS_Output
 {
-    float4 diffuse          : COLOR0;
-    float4 specular         : COLOR1;
+	float4 color : COLOR0;
+	float  depth : DEPTH0;
 };
 
 //////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
-VS_OUT vs_main(in float4 position : POSITION, in float2 uv : TEXCOORD)
+VS_Output VS(float4 position : POSITION, float2 textCoord : TEXCOORD0)
 {
-	VS_OUT output = (VS_OUT)0;
+	VS_Output output = (VS_Output)0;
 	
 	output.position = position;
 	output.position.xy += halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
-	output.uv = uv;
+	output.textCoord = textCoord;
 	
 	return output;
-}
+} // VS
 
 //////////////////////////////////////////////
 /////////////// Pixel Shader /////////////////
 //////////////////////////////////////////////
 
-// This shader works in view space.
-PixelShader_OUTPUT ps_main(uniform bool sphericalHarmonicsEnabled, uniform bool ambientOcclusionEnabled, in float2 uv : TEXCOORD0)
-{	
-	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
+PS_Output PS(VS_Output input)
+{		
+	PS_Output output = (PS_Output)0;
 
-	float3 baseColor = color;
-	float  ambientOcclusion = 0;
-		
-	if (sphericalHarmonicsEnabled)
-	{
-		float3 normalCompressed = tex2Dlod(normalSampler, float4(uv, 0, 0)).xyz;
-		float3 N = DecompressNormal(normalCompressed);
-		// Normal (view space) to world space
-		N = normalize(mul(N, viewI));
-		baseColor += SampleSH(N);
-	}
-		
-	if (ambientOcclusionEnabled)
-	{		
-		baseColor *= pow(tex2D(ambientOcclusionSample, uv).r, ambientOcclusionStrength);
-	}
+	//read the depth value
+	float linearDepth = -tex2D(depthSampler, input.textCoord).r * farPlane;
 	
-	output.diffuse = float4(baseColor * intensity, 0);
-	output.specular = float4(0, 0, 0, 0);
+	float2 projectedDepthzw = mul(float4(0, 0, linearDepth, 1), projection).zw; // To perspective space.
+	output.depth = projectedDepthzw.x / projectedDepthzw.y; // This is how depth is store in a real depth buffer.
+	// The bias is to compensate the mathematical error.
+	output.depth = output.depth + 0.0001f * (1.002f - output.depth);
+
 	return output;
-} // ps_main
+} // PS
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-technique AmbientLightSphericalHarmonics
+technique ReconstructZBuffer
 {
-	pass p0
+	pass p0	
 	{
-		VertexShader = compile vs_3_0 vs_main();
-		PixelShader  = compile ps_3_0 ps_main(true, false);
+		VertexShader = compile vs_3_0 VS();
+		PixelShader  = compile ps_3_0 PS();
 	}
-} // AmbientLightSphericalHarmonics
-
-technique AmbientLightSphericalHarmonicsAmbientOcclusion
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 vs_main();
-		PixelShader  = compile ps_3_0 ps_main(true, true);
-	}
-} // AmbientLightSphericalHarmonicsAmbientOcclusion
-
-technique AmbientLightAmbientOcclusion
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 vs_main();
-		PixelShader  = compile ps_3_0 ps_main(false, true);
-	}
-} // AmbientLightAmbientOcclusion
-
-technique AmbientLight
-{
-	pass p0
-	{
-		VertexShader = compile vs_3_0 vs_main();
-		PixelShader  = compile ps_3_0 ps_main(false, false);
-	}
-} // AmbientLight
+}

@@ -362,7 +362,7 @@ namespace XNAFinalEngine.Graphics
 
                 // Compute the light world matrix.
                 // Scale according to light radius, and translate it to light position.
-                Matrix boundingLightObjectWorldMatrix = Matrix.CreateScale(radius) * Matrix.CreateTranslation(position);
+                Matrix boundingLightObjectWorldMatrix = Matrix.CreateScale(radius) * Matrix.CreateTranslation(position); // This operation could be optimized.
 
                 SetWorldViewProjMatrix(boundingLightObjectWorldMatrix * viewMatrix * projectionMatrix);
                 SetWorldViewMatrix(boundingLightObjectWorldMatrix * viewMatrix);

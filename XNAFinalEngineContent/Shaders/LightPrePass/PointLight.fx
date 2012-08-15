@@ -33,20 +33,13 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 float4x4 worldViewProj;
 float4x4 worldView;
-
+float  farPlane;
 float2 halfPixel;
-
-float farPlane;
-
 float3 lightPosition;
-
 float3 lightColor;
-
-float invLightRadius;
-
-float lightIntensity;
-
-bool insideBoundingLightObject;
+float  invLightRadius;
+float  lightIntensity;
+bool   insideBoundingLightObject;
 
 //////////////////////////////////////////////
 ////////////// Data Structs //////////////////
@@ -59,20 +52,22 @@ struct VS_OUT
 	float4 viewPosition     : TEXCOORD1;
 };
 
+struct PixelShader_OUTPUT
+{
+    float4 diffuse          : COLOR0;
+    float4 specular         : COLOR1;
+};
+
 /////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
 VS_OUT vs_main(in float4 position : POSITION)
 {
-	VS_OUT output = (VS_OUT)0;
-	
-	output.position = mul(position, worldViewProj);
-	
+	VS_OUT output = (VS_OUT)0;	
+	output.position = mul(position, worldViewProj);	
 	output.screenPosition = output.position;
-
 	output.viewPosition = mul(position, worldView);
-
     return output;
 }
 
@@ -81,11 +76,12 @@ VS_OUT vs_main(in float4 position : POSITION)
 //////////////////////////////////////////////
 
 // This shader works in view space.
-float4 ps_main(VS_OUT input) : COLOR0
+PixelShader_OUTPUT ps_main(VS_OUT input)
 {
+	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
+
     // Obtain screen position
     input.screenPosition.xy /= input.screenPosition.w;
-
     // Obtain textureCoordinates corresponding to the current pixel
 	// The screen coordinates are in [-1,1]*[1,-1]
     // The texture coordinates need to be in [0,1]*[0,1]
@@ -95,7 +91,7 @@ float4 ps_main(VS_OUT input) : COLOR0
     
 	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
 	float depth = tex2D(depthSampler, uv).r;
-		
+	// This optimization could help in open environments.
 	[branch]
 	if (depth == 1)
 	{
@@ -150,7 +146,7 @@ float4 ps_main(VS_OUT input) : COLOR0
 
 	// In "Experimental Validation of Analytical BRDF Models" (Siggraph2004) the autors arrive to the conclusion that half vector lobe is better than mirror lobe.
 	float3 V = normalize(-positionVS);
-	float3 H  = normalize(V + normalize(L));
+	float3 H = normalize(V + normalize(L));
 	// Compute specular light
     float specular = pow(saturate(dot(N, H)), DecompressSpecularPower(normalCompressed.w));
 
@@ -165,10 +161,11 @@ float4 ps_main(VS_OUT input) : COLOR0
 	// R: Color.r * N.L // The color need to be in linear space and right now it's in gamma.
 	// G: Color.g * N.L
 	// B: Color.b * N.L
-	// A: Specular Term * N.L (Look in Shader X7 to know why N * L is necesary in this last channel)
-	// Also in Shader X7 talk about a new channel so that the material shininess could be controled better.
-	// http://diaryofagraphicsprogrammer.blogspot.com/2008/03/light-pre-pass-renderer.html	    
-	return float4(GammaToLinear(lightColor), specular) * attenuation * lightIntensity * NL;
+	// A: Specular Term * N.L (Look in Shader X7 to know why N * L is necesary in this last channel or use your brain, it is easy actually.)
+	// http://diaryofagraphicsprogrammer.blogspot.com/2008/03/light-pre-pass-renderer.html
+	output.diffuse = float4(GammaToLinear(lightColor) * attenuation * lightIntensity * NL, 0);
+	output.specular = float4(output.diffuse.rgb * specular, 0);
+	return output;
 }
 
 //////////////////////////////////////////////

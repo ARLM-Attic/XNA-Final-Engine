@@ -112,7 +112,7 @@ namespace XNAFinalEngineExamples
             //camera.AddComponent<SoundListener>();
             camera.Camera.RenderTargetSize = Size.FullScreen;
             camera.Camera.FarPlane = 500;
-            camera.Camera.NearPlane = 0.5f;
+            camera.Camera.NearPlane = 0.05f;
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
             ScriptCustomCamera script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
             // Test script list.
@@ -130,19 +130,19 @@ namespace XNAFinalEngineExamples
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
                                                             Color = new Color(10, 10, 10),
-                                                            Intensity = 7f,
-                                                            AmbientOcclusionStrength = 5f };
-            camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
+                                                            Intensity = 2f,
+                                                            AmbientOcclusionStrength = 1f };
+            /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
-                NumberSteps = 8, // Don't change this.
-                NumberDirections = 12, // Don't change this.
-                Radius = 0.0003f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                NumberSteps = 18, //8, // Don't change this.
+                NumberDirections = 16, // 12, // Don't change this.
+                Radius = 0.0008f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 1f,
-                Contrast = 1f,
+                Contrast = 1.25f,
                 AngleBias = 5f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
-            };
+            };*/
 
             #endregion
             
@@ -846,20 +846,20 @@ namespace XNAFinalEngineExamples
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.Color = new Color(250, 250, 220);
-            directionalLight.DirectionalLight.Intensity = 10f;
+            directionalLight.DirectionalLight.Intensity = 2f;
             directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
-            directionalLight.DirectionalLight.Shadow = new CascadedShadow
+            /*directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
                 Filter = Shadow.FilterType.Pcf5X5,
                 LightDepthTextureSize = Size.Square512X512,
                 TextureSize = Size.TextureSize.FullSize,
                 Range = 50,
-            };
+            };*/
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.Color = new Color(250, 100, 180);
-            pointLight.PointLight.Intensity = 1.5f;
+            pointLight.PointLight.Intensity = 100.5f;
             pointLight.PointLight.Range = 100;
             pointLight.Transform.Position = new Vector3(15, 5, -25);
             

@@ -655,7 +655,7 @@ namespace XNAFinalEngine.EngineCore
         private static RenderTarget.RenderTargetBinding gbufferTextures;
         private static RenderTarget.RenderTargetBinding gbufferHalfTextures;
         private static RenderTarget.RenderTargetBinding gbufferQuarterTextures;
-        private static RenderTarget lightTexture;
+        private static RenderTarget.RenderTargetBinding lightTextures;
         private static RenderTarget sceneTexture;
         private static RenderTarget ambientOcclusionTexture;
 
@@ -746,7 +746,7 @@ namespace XNAFinalEngine.EngineCore
                                         WorldMatrix = modelRenderer.CachedWorldMatrix,
                                         Model = modelRenderer.CachedModel,
                                         BoneTransform = modelRenderer.cachedBoneTransforms,
-                                        Material = modelRenderer.Material,
+                                        Material = material,
                                         MeshIndex = mesh,
                                         MeshPart = meshPart,
                                     };
@@ -767,7 +767,7 @@ namespace XNAFinalEngine.EngineCore
                                         WorldMatrix = worldMatrix,
                                         Model = modelRenderer.CachedModel,
                                         BoneTransform = null,
-                                        Material = modelRenderer.Material,
+                                        Material = material,
                                         MeshIndex = mesh,
                                         MeshPart = meshPart,
                                     };
@@ -1015,6 +1015,8 @@ namespace XNAFinalEngine.EngineCore
 
             LightPrePass.Begin(renderTarget.Size);
 
+            //ReconstructZBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], currentCamera.FarPlane, currentCamera.ProjectionMatrix);
+
             #region Ambient Light
 
             // Render ambient light
@@ -1088,7 +1090,7 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            lightTexture = LightPrePass.End();
+            lightTextures = LightPrePass.End();
 
             #endregion
 
@@ -1124,9 +1126,9 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-            /*
-            renderTarget.EnableRenderTarget();
-            SpriteManager.DrawTextureToFullScreen(lightTexture);
+            
+            /*renderTarget.EnableRenderTarget();
+            SpriteManager.DrawTextureToFullScreen(lightTextures.RenderTargets[0]);
             if (currentCamera.RenderHeadUpDisplay)
                 RenderHeadsUpDisplay();
             renderTarget.DisableRenderTarget();
@@ -1135,10 +1137,13 @@ namespace XNAFinalEngine.EngineCore
             return;*/
 
             #endregion
-
+            
             #region HDR Linear Space Pass
 
             ScenePass.Begin(renderTarget.Size, currentCamera.ClearColor);
+
+            ReconstructZBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], currentCamera.FarPlane, currentCamera.ProjectionMatrix);
+            EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
 
             #region Opaque Objects
 
@@ -1181,7 +1186,7 @@ namespace XNAFinalEngine.EngineCore
                                         WorldMatrix = modelRenderer.CachedWorldMatrix,
                                         Model = modelRenderer.CachedModel,
                                         BoneTransform = modelRenderer.cachedBoneTransforms,
-                                        Material = modelRenderer.Material,
+                                        Material = material,
                                         MeshIndex = mesh,
                                         MeshPart = meshPart,
                                     };
@@ -1199,7 +1204,7 @@ namespace XNAFinalEngine.EngineCore
                                         WorldMatrix = worldMatrix,
                                         Model = modelRenderer.CachedModel,
                                         BoneTransform = null,
-                                        Material = modelRenderer.Material,
+                                        Material = material,
                                         MeshIndex = mesh,
                                         MeshPart = meshPart,
                                     };
@@ -1232,7 +1237,7 @@ namespace XNAFinalEngine.EngineCore
             }
             foreach (var meshPartToRender in opaqueBlinnPhong)
             {
-                BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTextures.RenderTargets[0], lightTextures.RenderTargets[1]);
                 BlinnPhongShader.Instance.RenderModel(meshPartToRender.WorldMatrix,
                                                     meshPartToRender.Model,
                                                     meshPartToRender.BoneTransform,
@@ -1241,12 +1246,21 @@ namespace XNAFinalEngine.EngineCore
             }
             foreach (var meshPartToRender in opaqueCarPaint)
             {
-                CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTextures.RenderTargets[0], lightTextures.RenderTargets[1]);
                 CarPaintShader.Instance.RenderModel(meshPartToRender.WorldMatrix,
                                                     meshPartToRender.Model,
                                                     meshPartToRender.BoneTransform,
                                                     (CarPaint)meshPartToRender.Material,
                                                     meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
+            }
+            foreach (var meshPartToRender in opaqueBlinnPhongSkinned)
+            {
+                BlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTextures.RenderTargets[0], lightTextures.RenderTargets[1]);
+                BlinnPhongShader.Instance.RenderModel(meshPartToRender.WorldMatrix,
+                                                      meshPartToRender.Model,
+                                                      meshPartToRender.BoneTransform,
+                                                      (BlinnPhong)meshPartToRender.Material,
+                                                      meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
             }
 
             #endregion
@@ -1332,7 +1346,7 @@ namespace XNAFinalEngine.EngineCore
                                 }
                                 else if (modelRenderer.Material is BlinnPhong)
                                 {
-                                    ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                                    ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
                                     ForwardBlinnPhongShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix,
                                                                                  modelRenderer.CachedModel,
                                                                                  modelRenderer.cachedBoneTransforms,
@@ -1341,7 +1355,7 @@ namespace XNAFinalEngine.EngineCore
                                 }
                                 else if (modelRenderer.Material is CarPaint)
                                 {
-                                    CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTexture);
+                                    CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTextures.RenderTargets[0], lightTextures.RenderTargets[1]);
                                     CarPaintShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix,
                                                                         modelRenderer.CachedModel,
                                                                         modelRenderer.cachedBoneTransforms,
@@ -1439,7 +1453,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             sceneTexture = ScenePass.End();
-            RenderTarget.Release(lightTexture);
+            RenderTarget.Release(lightTextures);
 
             #endregion
 
@@ -1607,11 +1621,7 @@ namespace XNAFinalEngine.EngineCore
             RenderTarget.Release(gbufferTextures);
             RenderTarget.Release(gbufferHalfTextures);
             RenderTarget.Release(gbufferQuarterTextures);
-            if (lightTexture != null)
-            {
-                RenderTarget.Release(lightTexture);
-                lightTexture = null;
-            }
+            RenderTarget.Release(lightTextures);
             if (sceneTexture != null)
             {
                 RenderTarget.Release(sceneTexture);

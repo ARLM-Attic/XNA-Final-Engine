@@ -58,13 +58,17 @@
     <DefineConstants>TRACE;XBOX;XBOX360</DefineConstants>
     <XnaCompressContent>true</XnaCompressContent>
   </PropertyGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Scenes\DudeScene.cs" />
+    <Compile Include="Scenes\DudeEditableScene.cs" />
     <Compile Include="Scenes\EmptyScene.cs" />
     <Compile Include="Scenes\HelloWorldScene.cs" />
+    <Compile Include="Scenes\MiscellaneousTestScene.cs" />
+    <Compile Include="Scenes\NeoForceTestScene.cs" />
     <Compile Include="Scenes\TestScene.cs" />
     <Compile Include="Scripts\ScriptCustomCamera.cs" />
   </ItemGroup>

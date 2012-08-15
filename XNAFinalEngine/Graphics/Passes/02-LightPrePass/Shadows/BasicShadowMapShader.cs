@@ -322,7 +322,7 @@ namespace XNAFinalEngine.Graphics
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
 
                 // Set parameters.
-                SetHalfPixel(new Vector2(-1f / depthTexture.Size.Width, 1f / depthTexture.Size.Height));
+                SetHalfPixel(new Vector2(-0.5f / (depthTexture.Size.Width / 2), 0.5f / (depthTexture.Size.Height / 2)));
                 SetShadowMapTexelSize(new Vector2(lightDepthTextureSize.Width, lightDepthTextureSize.Height));
                 SetDepthBias(depthBias);
                 SetDepthTexture(depthTexture);

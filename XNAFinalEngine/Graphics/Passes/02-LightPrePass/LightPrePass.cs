@@ -67,26 +67,17 @@ namespace XNAFinalEngine.Graphics
         /// With this we have the same memory requisites but at least we could have color specular highlights,
         /// in practice this is not an incredible gain, though (see Crytek’s presentation).
         /// 
-        /// In this case we don’t need MSAA or a depth buffer for the render targets and I think the XBOX 360's EDRAM will be fine.
-        /// 
-        /// If the EDRAM can hold these buffers then predicated tiling will be automatically used:
-        /// http://msdn.microsoft.com/en-us/library/bb464139.aspx (Predicated Tiling)
+        /// And to make things worse, outside the EDRAM it expands to HalfVector4 when resolved into the system memory texture. 
+        /// Twice the size and twice the bandwidth with an already precision lost. But that just life, we don’t have a choice.
+        ///
+        /// In conclusion, we need two render targets for the light pass on the Xbox 360,
+        /// but to make everything simpler, PC will use also a second render target.
         /// 
         /// One more thing, I can't use a color surface format because the RGBM format doesn't work with additive blending.
         /// </remarks>
-        private static RenderTarget lightTexture;
-
-        #if (XBOX)
-
-            /// <summary>
-            /// See Light Texture remarks.
-            /// </summary>
-            private static RenderTarget xbox360SpecularLightTexture;
-
-            // This structure is used to set multiple render targets without generating garbage in the process.
-            private static RenderTarget.RenderTargetBinding renderTargetBinding;
-
-        #endif
+        // private static RenderTarget lightTexture;
+        // This structure is used to set multiple render targets without generating garbage in the process.
+        private static RenderTarget.RenderTargetBinding renderTargetBinding;
 
         #endregion
 
@@ -119,18 +110,12 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 // If I set the sampler states here and no texture is set then this could produce exceptions 
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
-                
-                //#if (WINDOWS)
-                    lightTexture = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-                    lightTexture.EnableRenderTarget();
-                    /*#else
-                        // HdrBlendable on Xbox is a 1010102 format when in EDRAM, but expands to HalfVector4 when resolved into a system memory texture.
-                        // Twice the size = twice the bandwidth = twice the time for a simple copy operation such as EDRAM resolve.
-                        renderTargetBinding = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.None, SurfaceFormat.HdrBlendable);
-                        RenderTarget.EnableRenderTargets(renderTargetBinding);
-                    #endif*/
 
-                    RenderTarget.ClearCurrentRenderTargets(new Color(0, 0, 0, 0));
+                // lightTexture = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                // lightTexture.EnableRenderTarget();
+                renderTargetBinding = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.None, SurfaceFormat.HdrBlendable);
+                RenderTarget.EnableRenderTargets(renderTargetBinding);
+                RenderTarget.ClearCurrentRenderTargets(new Color(0, 0, 0, 0));
             } // try
             catch (Exception e)
             {
@@ -145,12 +130,12 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Resolve render targets and return a texture with the light information.
         /// </summary>
-        internal static RenderTarget End()
+        internal static RenderTarget.RenderTargetBinding End()
         {
             try
             {
                 RenderTarget.DisableCurrentRenderTargets();
-                return lightTexture;
+                return renderTargetBinding;
             }
             catch (Exception e)
             {

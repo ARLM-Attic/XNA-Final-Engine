@@ -991,7 +991,7 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
 
                 // Set parameters
-                SetHalfPixel(new Vector2(-1f / sceneTexture.Width, 1f / sceneTexture.Height));
+                SetHalfPixel(new Vector2(-0.5f / (sceneTexture.Width / 2), 0.5f / (sceneTexture.Height / 2)));
                 SetSceneTexture(sceneTexture);
                 SetAutoExposureLuminanceLowThreshold(postProcess.ToneMapping.AutoExposureLuminanceLowThreshold);
                 SetAutoExposureLuminanceHighThreshold(postProcess.ToneMapping.AutoExposureLuminanceHighThreshold);
@@ -1034,7 +1034,7 @@ namespace XNAFinalEngine.Graphics
                 RenderTarget luminanceTexture = RenderTarget.Fetch(currentLuminanceTexture.Size, SurfaceFormat.Single, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing, true);
 
                 // Set parameters
-                SetHalfPixel(new Vector2(-1f / luminanceTexture.Width, 1f / luminanceTexture.Height));
+                SetHalfPixel(new Vector2(-0.5f / (luminanceTexture.Width / 2), 0.5f / (luminanceTexture.Height / 2)));
                 SetSceneTexture(currentLuminanceTexture);
                 epTimeDelta.SetValue(Time.FrameTime); // It always changes.
                 SetAutoExposureAdjustTimeMultiplier(postProcess.ToneMapping.AutoExposureAdaptationTimeMultiplier);
@@ -1120,7 +1120,7 @@ namespace XNAFinalEngine.Graphics
                         case ToneMapping.ToneMappingFunctionEnumerate.Duiker           : Resource.CurrentTechnique = Resource.Techniques["PostProcessingDuiker"]; break;
                     }
                     // Set parameters
-                    SetHalfPixel(new Vector2(-1f / sceneTexture.Width, 1f / sceneTexture.Height));
+                    SetHalfPixel(new Vector2(-0.5f / (sceneTexture.Width / 2), 0.5f / (sceneTexture.Height / 2)));
                     SetSceneTexture(sceneTexture);
 
                     #region Tone Mapping

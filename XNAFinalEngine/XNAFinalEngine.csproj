@@ -176,6 +176,7 @@
     <Compile Include="Graphics\Particles\ParticleShader.cs" />
     <Compile Include="Graphics\Particles\ParticleSystem.cs" />
     <Compile Include="Graphics\Particles\ParticleVertex.cs" />
+    <Compile Include="Graphics\Passes\01-GBuffer\ReconstructZBufferShader.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\DownsamplerGBufferShader.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBufferShader.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBufferPass.cs" />

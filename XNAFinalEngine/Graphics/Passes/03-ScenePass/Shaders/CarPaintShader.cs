@@ -89,7 +89,8 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         protected static EffectParameter
                                epHalfPixel,
-                               epLightTexture,
+                               epDiffuseAccumulationTexture,
+                               epSpecularAccumulationTexture,
                                epCameraPosition,
                                // Matrices //
                                epWorldViewProj,
@@ -136,19 +137,35 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Light Texture
+        #region Diffuse Accumulation Texture
 
-        private static Texture2D lastUsedLightTexture;
-        private static void SetLightTexture(Texture lightTexture)
+        private static Texture2D lastUsedDiffuseAccumulationTexture;
+        private static void SetDiffuseAccumulationTexture(Texture texture)
         {
             EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
             // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedLightTexture != lightTexture.Resource)
+            if (lastUsedDiffuseAccumulationTexture != texture.Resource)
             {
-                lastUsedLightTexture = lightTexture.Resource;
-                epLightTexture.SetValue(lightTexture.Resource);
+                lastUsedDiffuseAccumulationTexture = texture.Resource;
+                epDiffuseAccumulationTexture.SetValue(texture.Resource);
             }
-        } // SetLightTexture
+        } // SetDiffuseAccumulationTexture
+
+        #endregion
+
+        #region Specular Accumulation Texture
+
+        private static Texture2D lastUsedSpecularAccumulationTexture;
+        private static void SetSpecularAccumulationTexture(Texture texture)
+        {
+            EngineManager.Device.SamplerStates[5] = SamplerState.PointClamp;
+            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
+            if (lastUsedSpecularAccumulationTexture != texture.Resource)
+            {
+                lastUsedSpecularAccumulationTexture = texture.Resource;
+                epSpecularAccumulationTexture.SetValue(texture.Resource);
+            }
+        } // SetSpecularAccumulationTexture
 
         #endregion
 
@@ -364,9 +381,12 @@ namespace XNAFinalEngine.Graphics
 			{
                 epHalfPixel         = Resource.Parameters["halfPixel"];
                     epHalfPixel.SetValue(lastUsedHalfPixel);
-                epLightTexture   = Resource.Parameters["lightMap"];
-                    if (lastUsedLightTexture != null && !lastUsedLightTexture.IsDisposed)
-                        epLightTexture.SetValue(lastUsedLightTexture);
+                epDiffuseAccumulationTexture   = Resource.Parameters["diffuseAccumulationTexture"];
+                    if (lastUsedDiffuseAccumulationTexture != null && !lastUsedDiffuseAccumulationTexture.IsDisposed)
+                        epDiffuseAccumulationTexture.SetValue(lastUsedDiffuseAccumulationTexture);
+                epSpecularAccumulationTexture = Resource.Parameters["specularAccumulationTexture"];
+                    if (lastUsedSpecularAccumulationTexture != null && !lastUsedSpecularAccumulationTexture.IsDisposed)
+                        epSpecularAccumulationTexture.SetValue(lastUsedSpecularAccumulationTexture);
                 epCameraPosition    = Resource.Parameters["cameraPosition"];
                     epCameraPosition.SetValue(lastUsedCameraPosition);
                 // Matrices
@@ -419,14 +439,10 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the render.
         /// </summary>
-        internal void Begin(Matrix viewMatrix, Matrix projectionMatrix, RenderTarget lightTexture)
+        internal void Begin(Matrix viewMatrix, Matrix projectionMatrix, RenderTarget diffuseAccumulationTexture, RenderTarget specularAccumulationTexture)
         {
             try
             {
-                // Set Render States.
-                EngineManager.Device.BlendState = BlendState.Opaque;
-                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                EngineManager.Device.DepthStencilState = DepthStencilState.Default;
                 // If I set the sampler states here and no texture is set then this could produce exceptions 
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
                 // But, if someone changes the sampler state of the sparkle noise texture could be a problem… in a form of an exception.
@@ -435,13 +451,14 @@ namespace XNAFinalEngine.Graphics
                 // Set initial parameters
                 this.viewMatrix = viewMatrix;
                 this.projectionMatrix = projectionMatrix;
-                SetHalfPixel(new Vector2(0.5f / lightTexture.Width, 0.5f / lightTexture.Height));
+                SetHalfPixel(new Vector2(0.5f / diffuseAccumulationTexture.Width, 0.5f / diffuseAccumulationTexture.Height));
                 SetCameraPosition(Matrix.Invert(viewMatrix).Translation);
-                SetLightTexture(lightTexture);
+                SetDiffuseAccumulationTexture(diffuseAccumulationTexture);
+                SetSpecularAccumulationTexture(specularAccumulationTexture);
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Blinn Phong Material: Unable to begin the rendering.", e);
+                throw new InvalidOperationException("Car Paint Material: Unable to begin the rendering.", e);
             }
         } // Begin
 

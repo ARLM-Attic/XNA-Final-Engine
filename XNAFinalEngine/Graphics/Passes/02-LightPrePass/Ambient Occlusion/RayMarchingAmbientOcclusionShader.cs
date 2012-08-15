@@ -338,7 +338,7 @@ namespace XNAFinalEngine.Graphics
                 SetContrast(rmao.Contrast);
                 SetLineAttenuation(rmao.LineAttenuation);
                 SetRadius(rmao.Radius);
-                SetHalfPixel(new Vector2(-1f / ambientOcclusionTexture.Width, 1f / ambientOcclusionTexture.Height));
+                SetHalfPixel(new Vector2(-0.5f / (ambientOcclusionTexture.Width / 2), 0.5f / (ambientOcclusionTexture.Height / 2)));
                 Vector2 focalLen = new Vector2
                 {
                     X =  1.0f / (float)Math.Tan(fieldOfView * (3.1416f / 180) * 0.5f) * (float)ambientOcclusionTexture.Height / (float)ambientOcclusionTexture.Width,
