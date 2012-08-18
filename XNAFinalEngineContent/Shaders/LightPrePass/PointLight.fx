@@ -39,7 +39,6 @@ float3 lightPosition;
 float3 lightColor;
 float  invLightRadius;
 float  lightIntensity;
-bool   insideBoundingLightObject;
 
 //////////////////////////////////////////////
 ////////////// Data Structs //////////////////
@@ -79,7 +78,7 @@ VS_OUT vs_main(in float4 position : POSITION)
 PixelShader_OUTPUT ps_main(VS_OUT input)
 {
 	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
-
+		
     // Obtain screen position
     input.screenPosition.xy /= input.screenPosition.w;
     // Obtain textureCoordinates corresponding to the current pixel
@@ -91,32 +90,6 @@ PixelShader_OUTPUT ps_main(VS_OUT input)
     
 	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
 	float depth = tex2D(depthSampler, uv).r;
-	// This optimization could help in open environments.
-	[branch]
-	if (depth == 1)
-	{
-		Discard();
-	}
-
-	float lightDepth = -input.viewPosition.z / farPlane;
-	// Optimization. We can't implement stencil optimizations, but at least this will allow us to avoid the normal map fetch and some other calculations.
-	if (insideBoundingLightObject)
-	{		
-		[branch]
-		if (depth > lightDepth)
-		{
-			Discard();
-		}
-	}
-	else
-	{		
-		[branch]
-		if (depth < lightDepth) 
-		// || depth > lightDepth + (lightRadius / farPlane)) // With this we can discard more fragments, but I have to convert lightRadius/farplane to uniform (global) first.
-		{
-			Discard();
-		}
-	}
 			
 	// This is a ray constructed using the camera frustum.
     // Because it will be interpolated for the current pixel we can use
@@ -139,6 +112,7 @@ PixelShader_OUTPUT ps_main(VS_OUT input)
 	if (NL == 0)
 	{
 		Discard();
+		return (PixelShader_OUTPUT)0;
 	}
 
 	// Compute attenuation
@@ -166,7 +140,12 @@ PixelShader_OUTPUT ps_main(VS_OUT input)
 	output.diffuse = float4(GammaToLinear(lightColor) * attenuation * lightIntensity * NL, 0);
 	output.specular = float4(output.diffuse.rgb * specular, 0);
 	return output;
-}
+} // ps_main
+
+PixelShader_OUTPUT ps_mainStencil(VS_OUT input)
+{
+	return (PixelShader_OUTPUT)0;	
+} // ps_mainStencil
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
@@ -180,3 +159,12 @@ technique PointLight
 		PixelShader  = compile ps_3_0 ps_main();
 	}
 } // PointLight
+
+technique PointLightStencil
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 ps_mainStencil();
+	}
+} // PointLightStencil

@@ -107,13 +107,13 @@ namespace XNAFinalEngine.Graphics
                 // Set Render States.
                 EngineManager.Device.BlendState        = additiveBlendingState; // The resulting color will be added to current render target color.
                 EngineManager.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
-                EngineManager.Device.DepthStencilState = DepthStencilState.None;
+                EngineManager.Device.DepthStencilState = DepthStencilState.Default;
                 // If I set the sampler states here and no texture is set then this could produce exceptions 
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
 
                 // lightTexture = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
                 // lightTexture.EnableRenderTarget();
-                renderTargetBinding = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.None, SurfaceFormat.HdrBlendable);
+                renderTargetBinding = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.Depth24Stencil8, SurfaceFormat.HdrBlendable);
                 RenderTarget.EnableRenderTargets(renderTargetBinding);
                 RenderTarget.ClearCurrentRenderTargets(new Color(0, 0, 0, 0));
             } // try

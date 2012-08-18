@@ -390,6 +390,8 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("Render Target: You can't clear a render target without first setting it");
             if (DepthFormat == DepthFormat.None)
                 EngineManager.Device.Clear(clearColor);
+            else if (DepthFormat == DepthFormat.Depth24Stencil8)
+                EngineManager.Device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer | ClearOptions.Stencil, clearColor, 1.0f, 0);
             else
                 EngineManager.Device.Clear(ClearOptions.Target | ClearOptions.DepthBuffer, clearColor, 1.0f, 0);
         } // Clear

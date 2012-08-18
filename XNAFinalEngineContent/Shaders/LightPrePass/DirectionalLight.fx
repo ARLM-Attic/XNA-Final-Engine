@@ -118,6 +118,7 @@ PixelShader_OUTPUT ps_main(uniform bool hasShadows, in float2 uv : TEXCOORD0, in
 	if (depth == 1)
 	{
 		Discard();
+		return (PixelShader_OUTPUT)0;
 	}
 	
 	float4 normalCompressed = tex2Dlod(normalSampler, float4(uv, 0, 0));
@@ -133,6 +134,7 @@ PixelShader_OUTPUT ps_main(uniform bool hasShadows, in float2 uv : TEXCOORD0, in
 	if (NL == 0)
 	{
 		Discard();
+		return (PixelShader_OUTPUT)0;
 	}
 
 	float3 position = frustumRay * depth; // To convert this position into world space it only needs to add the camera position (in the pixel shader), and the frustumray multiply by the camera orientation (in the vertex shader).

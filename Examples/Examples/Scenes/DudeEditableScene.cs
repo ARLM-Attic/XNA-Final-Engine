@@ -213,7 +213,7 @@ namespace XNAFinalEngineExamples
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
             spotLight.SpotLight.Color = Color.Green;
-            spotLight.SpotLight.Intensity = 30000f;
+            spotLight.SpotLight.Intensity = 3000f;
             spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
             spotLight.Transform.Position = new Vector3(0, 15f, -10);
             spotLight.Transform.Rotate(new Vector3(-45, 180, 0));

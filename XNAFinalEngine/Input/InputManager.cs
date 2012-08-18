@@ -82,8 +82,8 @@ namespace XNAFinalEngine.Input
         internal static void Initialize()
         {
             #if (!XBOX)
-                if (keyboardHook == null)
-                    keyboardHook = new KeyboardHook();
+                /*if (keyboardHook == null)
+                    keyboardHook = new KeyboardHook();*/
             #endif
             //Wiimote.InitWiimotes();
         } // Initialize

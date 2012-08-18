@@ -1015,10 +1015,13 @@ namespace XNAFinalEngine.EngineCore
 
             LightPrePass.Begin(renderTarget.Size);
 
-            //ReconstructZBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], currentCamera.FarPlane, currentCamera.ProjectionMatrix);
+            ReconstructZBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], currentCamera.FarPlane, currentCamera.ProjectionMatrix);
+
+            // Ambient and directional lights works on fullscreen and do not care about depth information.
+            EngineManager.Device.DepthStencilState = DepthStencilState.None;
 
             #region Ambient Light
-
+            
             // Render ambient light
             if (currentCamera.AmbientLight != null && currentCamera.AmbientLight.Intensity > 0)
             {
@@ -1056,7 +1059,8 @@ namespace XNAFinalEngine.EngineCore
                                             currentCamera.ViewMatrix,
                                             currentCamera.ProjectionMatrix,
                                             currentCamera.NearPlane,
-                                            currentCamera.FarPlane);
+                                            currentCamera.FarPlane,
+                                            currentCamera.FieldOfView);
             for (int i = 0; i < PointLight.ComponentPool.Count; i++)
             {
                 PointLight pointLight = PointLight.ComponentPool.Elements[i];

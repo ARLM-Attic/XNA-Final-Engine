@@ -124,6 +124,7 @@ namespace XNAFinalEngineExamples
             camera.Camera.PostProcess = new PostProcess();
             camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
+            //camera.Camera.PostProcess.MLAA.Enabled = false;
             camera.Camera.PostProcess.Bloom.Threshold = 2;
             //camera.Camera.PostProcess.FilmGrain.Enabled = true;
             camera.Camera.AmbientLight = new AmbientLight
@@ -855,13 +856,16 @@ namespace XNAFinalEngineExamples
                 TextureSize = Size.TextureSize.FullSize,
                 Range = 50,
             };*/
-            
-            pointLight = new GameObject3D();
-            pointLight.AddComponent<PointLight>();
-            pointLight.PointLight.Color = new Color(250, 100, 180);
-            pointLight.PointLight.Intensity = 100.5f;
-            pointLight.PointLight.Range = 100;
-            pointLight.Transform.Position = new Vector3(15, 5, -25);
+
+            for (int i = 0; i < 100; i++)
+            {
+                pointLight = new GameObject3D();
+                pointLight.AddComponent<PointLight>();
+                pointLight.PointLight.Color = new Color(250, 100, 180);
+                pointLight.PointLight.Intensity = 0.5f;
+                pointLight.PointLight.Range = 10;
+                pointLight.Transform.Position = new Vector3(5, 5, 5);
+            }
             
             pointLight2 = new GameObject3D();
             pointLight2.AddComponent<PointLight>();

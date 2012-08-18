@@ -48,7 +48,8 @@ namespace XNAFinalEngine.Graphics
 
         #region Variables
 
-        private float nearPlane;
+        // Camera values
+        private float nearPlane, fieldOfView;
 
         // Current view matrix. Used to set the shader parameters.
         private Matrix viewMatrix, projectionMatrix;
@@ -58,6 +59,9 @@ namespace XNAFinalEngine.Graphics
 
         // Singleton reference.
         private static PointLightShader instance;
+
+        private readonly BlendState stencilBlendState, lightBlendState;
+        private readonly DepthStencilState stencilDepthStencilState, lightDepthStencilState, lightNotStencilDepthStencilState;
 
         #endregion
 
@@ -92,8 +96,7 @@ namespace XNAFinalEngine.Graphics
                                        epLlightIntensity,
                                        epFarPlane,
                                        epWorldViewProj,
-                                       epWorldView,
-                                       epInsideBoundingLightObject;
+                                       epWorldView;
 
 
         #region Half Pixel
@@ -211,21 +214,7 @@ namespace XNAFinalEngine.Graphics
         } // SetFarPlane
 
         #endregion
-
-        #region Inside Bounding Light Object
-
-        private static bool lastUsedInsideBoundingLightObject;
-        private static void SetInsideBoundingLightObject(bool insideBoundingLightObject)
-        {
-            if (lastUsedInsideBoundingLightObject != insideBoundingLightObject)
-            {
-                lastUsedInsideBoundingLightObject = insideBoundingLightObject;
-                epInsideBoundingLightObject.SetValue(insideBoundingLightObject);
-            }
-        } // SetInsideBoundingLightObject
-
-        #endregion
-
+        
         #region Matrices
 
         private static Matrix lastUsedWorldViewMatrix;
@@ -261,8 +250,43 @@ namespace XNAFinalEngine.Graphics
         {
             ContentManager userContentManager = ContentManager.CurrentContentManager;
             ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
-            boundingLightObject = new Sphere(8, 8, 1);
+            //boundingLightObject = new Sphere(6, 6, 1);   // Algorithmically generated mesh normally sucks when optimized vertex access is needed.
+            boundingLightObject = new FileModel("Sphere"); // Exported models for the contrary are great.
             ContentManager.CurrentContentManager = userContentManager;
+            
+            stencilBlendState = new BlendState
+            {
+                ColorWriteChannels = ColorWriteChannels.None,
+                ColorWriteChannels1 = ColorWriteChannels.None,
+            };
+            lightBlendState = new BlendState
+            {
+                AlphaBlendFunction = BlendFunction.Add,
+                AlphaDestinationBlend = Blend.One,
+                AlphaSourceBlend = Blend.One,
+                ColorBlendFunction = BlendFunction.Add,
+                ColorDestinationBlend = Blend.One,
+                ColorSourceBlend = Blend.One,
+            };
+            stencilDepthStencilState = new DepthStencilState
+            {
+                DepthBufferEnable = true,
+                DepthBufferWriteEnable = false,
+                DepthBufferFunction = CompareFunction.Less,
+                StencilEnable = true,
+                StencilFunction = CompareFunction.Always,
+                StencilDepthBufferFail = StencilOperation.Replace,
+                ReferenceStencil = 1,
+            };
+            lightDepthStencilState = new DepthStencilState
+            {
+                DepthBufferEnable = true,
+                DepthBufferWriteEnable = false,
+                DepthBufferFunction = CompareFunction.Greater,
+                StencilEnable = true,
+                StencilFunction = CompareFunction.NotEqual,
+                ReferenceStencil = 1,
+            };
         } // PointLightShader
 
         #endregion
@@ -301,8 +325,6 @@ namespace XNAFinalEngine.Graphics
                     epWorldViewProj.SetValue(lastUsedWorldViewProjMatrix);
                 epWorldView                        = Resource.Parameters["worldView"];
                     epWorldView.SetValue(lastUsedWorldViewMatrix);
-                epInsideBoundingLightObject        = Resource.Parameters["insideBoundingLightObject"];
-                    epInsideBoundingLightObject.SetValue(lastUsedInsideBoundingLightObject);
             }
             catch
             {
@@ -324,7 +346,7 @@ namespace XNAFinalEngine.Graphics
         /// <param name="nearPlane">Camera near plane.</param>
         /// <param name="farPlane">Camera far plane.</param>
         internal void Begin(RenderTarget depthTexture, RenderTarget normalTexture,
-                            Matrix viewMatrix, Matrix projectionMatrix, float nearPlane, float farPlane)
+                            Matrix viewMatrix, Matrix projectionMatrix, float nearPlane, float farPlane, float fov)
         {
             try
             {
@@ -333,6 +355,7 @@ namespace XNAFinalEngine.Graphics
                 SetHalfPixel(new Vector2(0.5f / depthTexture.Width, 0.5f / depthTexture.Height)); // I use the depth texture, but I just need the destination render target dimension.
                 SetFarPlane(farPlane);
                 this.nearPlane = nearPlane;
+                this.fieldOfView = fov;
                 this.viewMatrix = viewMatrix;
                 this.projectionMatrix = projectionMatrix;
             }
@@ -353,8 +376,37 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                #region Set Parameters
+                // Long time ago, when I was started the deferred lighting pipeline I read that it is possible to use the depth information 
+                // and the stencil buffer to mark in a two pass rendering exactly what pixels are affected by the light. 
+                // This helps to reduce pixel shader load but at the same time allows implementing clip volumes. 
+                // With clip volumes you can put, for example, a box and the light won’t bleed outside this box even if the radius is bigger.
+                // I.e. you can place lights in a wall and the opposite side of that wall won’t be illuminated.
+                //
+                // The problem is I don’t have the Z-Buffer available because XNA 4 does not allow sharing depth buffers between render targets. 
+                // However I can reconstruct the Z-Buffer with a shader and my G-Buffer.
+                // 
+                // If you don’t use custom clip volumes (i.e. we use the default sphere) and the light is too far then we could have more vertex processing 
+                // than pixel processing. Some games use glow planes (a colored mask) to see the light’s bright when they are far away, 
+                // this is good for open environment games but not for interior games. 
+                // Instead games like Killzone 2 ignore the first pass on these lights and only compute the second (and this second pass still does one
+                // part of the filter). Also the far plane "problem" is addressed in this optimization.
+                //
+                // Another optimization that I made is the use of a Softimage sphere instead of my procedural spheres. 
+                // Models exported in this kind of tools are optimized for accessing. For example my stress test changes from 20/21 frames to 22 frames. 
+                // Not a big change, but still a change nevertheless.
+                //
+                // I also research the possibility to use instancing with some lights.
+                // But no article talk about this technique so I try to think why is not useful and it was easy to find that:
+                // 1) It can be only used with spheres (not custom clip volumes).
+                // 2) The dynamic buffers used for the instancing information could be too dynamic or difficult to maintain.
+                // 3) The stencil optimization could be very important on interior games and could not be mixed with instancing and custom clip volumes.
+                // Extra complexity added (including the use of vfetch for Xbox 360).
                 
+                // Fill the stencil buffer with 0s.
+                EngineManager.Device.Clear(ClearOptions.Stencil, Color.White, 1.0f, 0);
+
+                #region Set Parameters
+
                 SetLightColor(diffuseColor);
                 SetLightPosition(Vector3.Transform(position, viewMatrix));
                 SetLightIntensity(intensity);
@@ -363,29 +415,52 @@ namespace XNAFinalEngine.Graphics
                 // Compute the light world matrix.
                 // Scale according to light radius, and translate it to light position.
                 Matrix boundingLightObjectWorldMatrix = Matrix.CreateScale(radius) * Matrix.CreateTranslation(position); // This operation could be optimized.
-
                 SetWorldViewProjMatrix(boundingLightObjectWorldMatrix * viewMatrix * projectionMatrix);
                 SetWorldViewMatrix(boundingLightObjectWorldMatrix * viewMatrix);
 
                 #endregion
 
-                // Calculate the distance between the camera and light center.
-                float cameraToCenter = Vector3.Distance(Matrix.Invert(viewMatrix).Translation, position) - nearPlane;
-                // If we are inside the light volume, draw the sphere's inside face.
-                if (cameraToCenter <= radius)
+                // http://en.wikipedia.org/wiki/Angular_diameter
+                // The formula was inspired from Guerilla´s GDC 09 presentation.
+                float distanceToCamera = Vector3.Distance(Matrix.Invert(viewMatrix).Translation, position) - nearPlane;
+                float angularDiameter = (float)(2 * Math.Atan(radius / distanceToCamera));
+                if (angularDiameter > 0.2f * (3.1416f * fieldOfView / 180.0f))
                 {
-                    SetInsideBoundingLightObject(true);
-                    EngineManager.Device.RasterizerState = RasterizerState.CullClockwise;
-                }
-                else
-                {
-                    SetInsideBoundingLightObject(false);
-                    EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                }
+                    // This only works when the clip volume does not intercept the camera´s far plane.
+                    // But in this cases we probably want to use glow planes or something similar.
 
-                Resource.CurrentTechnique = Resource.Techniques["PointLight"];
-                Resource.CurrentTechnique.Passes[0].Apply();
-                boundingLightObject.Render();
+                    // First pass.
+                    // The stencil buffer was already filled with 0 and if the back of the clip volume
+                    // is in front of the geometry then it marks the pixel as useful.
+                    // I prefer to do it in that way because when the clip volume intercept the camera’s near plane 
+                    // we don’t need to perform a special case and we still have custom volume support.
+                    Resource.CurrentTechnique = Resource.Techniques["PointLightStencil"];
+                    EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                    EngineManager.Device.BlendState = stencilBlendState;
+                    EngineManager.Device.DepthStencilState = stencilDepthStencilState;
+                    Resource.CurrentTechnique.Passes[0].Apply();
+                    boundingLightObject.Render();
+
+                    // Second pass.
+                    // Render the clip volume back faces with the light shader.
+                    // The pixel with stencil value of 1 that are in front of the geometry will be discarded.
+                    Resource.CurrentTechnique = Resource.Techniques["PointLight"];
+                    EngineManager.Device.RasterizerState = RasterizerState.CullClockwise;
+                    EngineManager.Device.BlendState = lightBlendState;
+                    EngineManager.Device.DepthStencilState = lightDepthStencilState;
+                    Resource.CurrentTechnique.Passes[0].Apply();
+                    boundingLightObject.Render();
+                }
+                else // Far lights
+                {
+                    // Render the clip volume front faces with the light shader.
+                    Resource.CurrentTechnique = Resource.Techniques["PointLight"];
+                    EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                    EngineManager.Device.BlendState = lightBlendState;
+                    EngineManager.Device.DepthStencilState = DepthStencilState.Default;
+                    Resource.CurrentTechnique.Passes[0].Apply();
+                    boundingLightObject.Render();
+                }
             }
             catch (Exception e)
             {

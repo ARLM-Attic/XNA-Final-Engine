@@ -133,35 +133,12 @@ PixelShader_OUTPUT ps_main(uniform bool hasShadows, uniform bool hasLightMask, V
 		if (shadowTerm == 0)
 		{
 			Discard();
+			return (PixelShader_OUTPUT)0;
 		}
 	}
 
 	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
 	float depth = tex2D(depthSampler, uv).r;
-		
-	[branch]
-	if (depth == 1)
-	{
-		Discard();
-	}
-
-	// Optimization. We can't implement stencil optimizations, but at least this will allow us to avoid the normal map fetch and some other calculations.
-	if (insideBoundingLightObject)
-	{
-		[branch]
-		if (depth > -input.viewPosition.z / farPlane)
-		{
-			Discard();
-		}
-	}
-	else
-	{
-		[branch]
-		if (depth < -input.viewPosition.z / farPlane)
-		{
-			Discard();
-		}
-	}
 	
 	// This is a ray constructed using the camera frustum.
     // Because it will be interpolated for the current pixel we can use
@@ -205,6 +182,13 @@ PixelShader_OUTPUT ps_main(uniform bool hasShadows, uniform bool hasLightMask, V
 			
     // Compute diffuse light
     float NL = max(dot(N, normalize(L)), 0);
+
+	[branch]
+	if (NL == 0)
+	{
+		Discard();
+		return (PixelShader_OUTPUT)0;
+	}
 	
 	// Compute attenuation
 	float attenuation = Attenuation(L, invLightRadius);
