@@ -41,8 +41,11 @@ namespace XNAFinalEngine.Input
 {
     /// <summary>
     /// Sets up a keyboard hook to trap all keystrokes without passing any to other applications.
-    /// It also disables the win key and allows the print screen key to call the screenshot capturer.
+    /// It also disables the win key and allows the print screen key to call the screenshot capturer ignoring the windows screenshot capturer.
     /// </summary>
+    /// <remarks>
+    /// It made more problems than it fixes and consequently it was deprecated.
+    /// </remarks>
     public class KeyboardHook : IDisposable
     {
 

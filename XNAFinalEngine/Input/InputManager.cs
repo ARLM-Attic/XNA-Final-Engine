@@ -40,40 +40,7 @@ namespace XNAFinalEngine.Input
 	/// </summary>
 	internal class InputManager
     {   
-
-        #region KeyBoard Hook
-
-        #if (!XBOX)
-            /// <summary>
-            /// Keyboard hook singleton reference.
-            /// </summary>
-            private static KeyboardHook keyboardHook;
-        #endif
-
-        /// <summary>
-        /// Disable certain keys like win, alt-tab, etc.
-        /// </summary>
-        public static void EnableKeyboardHook()
-        {
-            #if (!XBOX)
-                if (keyboardHook == null)
-                    keyboardHook = new KeyboardHook();
-            #endif
-        } // EnableKeyboardHook
-
-        /// <summary>
-        /// Disable keyboard hook, allowing again the use of certain keys.
-        /// </summary>
-        public static void DisableKeyboardHook()
-        {
-            #if (!XBOX)
-                if (keyboardHook != null)
-                    keyboardHook.Dispose();
-            #endif
-        } // DisableKeyboardHook
-
-        #endregion
-
+        
         #region Initialize
 
         /// <summary>
@@ -81,10 +48,6 @@ namespace XNAFinalEngine.Input
         /// </summary>
         internal static void Initialize()
         {
-            #if (!XBOX)
-                /*if (keyboardHook == null)
-                    keyboardHook = new KeyboardHook();*/
-            #endif
             //Wiimote.InitWiimotes();
         } // Initialize
 
@@ -97,10 +60,6 @@ namespace XNAFinalEngine.Input
         /// </summary>
         public static void UnloadInputDevices()
         {
-            #if (!XBOX)
-                if (keyboardHook != null)
-                    keyboardHook.Dispose();
-            #endif
             /*Wiimote.PlayerOne.Disconnect();
             Wiimote.PlayerTwo.Disconnect();
             Wiimote.PlayerThree.Disconnect();
@@ -125,6 +84,7 @@ namespace XNAFinalEngine.Input
                 Keyboard.Update();
                 #if (!XBOX)
                     Mouse.Update();
+                    // Wiimote support was deprecated but probably still works.
                     /*Wiimote.PlayerOne.Update();
                     Wiimote.PlayerTwo.Update();
                     Wiimote.PlayerThree.Update();

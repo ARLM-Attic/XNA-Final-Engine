@@ -92,6 +92,8 @@ namespace XNAFinalEngine.EngineCore
 
         // Frustum Culling.
         private static readonly List<ModelRenderer> modelsToRender = new List<ModelRenderer>(100);
+        private static readonly List<PointLight> pointLightsToRender = new List<PointLight>(50);
+        private static readonly List<SpotLight> spotLightsToRender = new List<SpotLight>(20);
 
         // G-Buffer ordered lists.
         private static readonly List<MeshPartToRender> gbufferSimple = new List<MeshPartToRender>(50);
@@ -223,6 +225,21 @@ namespace XNAFinalEngine.EngineCore
             // Update the chronometers that work in game delta time space.
             Chronometer.UpdateGameDeltaTimeChronometers();
             
+            #endregion
+
+            #region Special Keys
+
+            if (Keyboard.KeyJustPressed(Microsoft.Xna.Framework.Input.Keys.PrintScreen))
+            {
+                ScreenshotCapturer.MakeScreenshot = true;
+            }
+            if ((Keyboard.KeyPressed(Microsoft.Xna.Framework.Input.Keys.LeftAlt) ||
+                 Keyboard.KeyPressed(Microsoft.Xna.Framework.Input.Keys.RightAlt)) &&
+                 Keyboard.KeyJustPressed(Microsoft.Xna.Framework.Input.Keys.Enter))
+            {
+                Screen.ToggleFullscreen();
+            }
+
             #endregion
 
             #region Root Animation Processing
@@ -623,6 +640,44 @@ namespace XNAFinalEngine.EngineCore
                 {
                     if (boundingFrustum.Intersects(component.BoundingSphere))
                         modelsToRender.Add(component);
+                }
+            }
+        } // FrustumCulling
+
+        /// <summary>
+        /// Frustum Culling.
+        /// </summary>
+        /// <param name="boundingFrustum">Bounding Frustum.</param>
+        /// <param name="pointLightsToRender">The result.</param>
+        private static void FrustumCulling(BoundingFrustum boundingFrustum, List<PointLight> pointLightsToRender)
+        {
+            for (int i = 0; i < PointLight.ComponentPool.Count; i++)
+            {
+                PointLight component = PointLight.ComponentPool.Elements[i];
+                if (component.Intensity > 0 && component.IsVisible)
+                {
+                    BoundingSphere boundingSphere = new BoundingSphere(component.cachedPosition, component.Range);
+                    if (boundingFrustum.Intersects(boundingSphere))
+                        pointLightsToRender.Add(component);
+                }
+            }
+        } // FrustumCulling
+
+        /// <summary>
+        /// Frustum Culling.
+        /// </summary>
+        /// <param name="boundingFrustum">Bounding Frustum.</param>
+        /// <param name="spotLightsToRender">The result.</param>
+        private static void FrustumCulling(BoundingFrustum boundingFrustum, List<SpotLight> spotLightsToRender)
+        {
+            for (int i = 0; i < SpotLight.ComponentPool.Count; i++)
+            {
+                SpotLight component = SpotLight.ComponentPool.Elements[i];
+                if (component.Intensity > 0 && component.IsVisible)
+                {
+                    BoundingSphere boundingSphere = new BoundingSphere(component.cachedPosition, component.Range);
+                    if (boundingFrustum.Intersects(boundingSphere))
+                        spotLightsToRender.Add(component);
                 }
             }
         } // FrustumCulling
@@ -1054,6 +1109,10 @@ namespace XNAFinalEngine.EngineCore
 
             #region Point Lights
 
+            // Frustum Culling
+            pointLightsToRender.Clear();
+            FrustumCulling(cameraBoundingFrustum, pointLightsToRender);
+
             PointLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                             gbufferTextures.RenderTargets[1], // Normal Texture
                                             currentCamera.ViewMatrix,
@@ -1061,9 +1120,9 @@ namespace XNAFinalEngine.EngineCore
                                             currentCamera.NearPlane,
                                             currentCamera.FarPlane,
                                             currentCamera.FieldOfView);
-            for (int i = 0; i < PointLight.ComponentPool.Count; i++)
+            for (int i = 0; i < pointLightsToRender.Count; i++)
             {
-                PointLight pointLight = PointLight.ComponentPool.Elements[i];
+                PointLight pointLight = pointLightsToRender[i];
                 if (pointLight.Intensity > 0 && pointLight.IsVisible)
                 {
                     PointLightShader.Instance.RenderLight(pointLight.Color, pointLight.cachedPosition, pointLight.Intensity, pointLight.Range);
@@ -1074,15 +1133,19 @@ namespace XNAFinalEngine.EngineCore
 
             #region Spot Lights
 
+            // Frustum Culling
+            spotLightsToRender.Clear();
+            FrustumCulling(cameraBoundingFrustum, spotLightsToRender);
+
             SpotLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                            gbufferTextures.RenderTargets[1], // Normal Texture
                                            currentCamera.ViewMatrix,
                                            currentCamera.ProjectionMatrix,
                                            currentCamera.NearPlane,
                                            currentCamera.FarPlane);
-            for (int i = 0; i < SpotLight.ComponentPool.Count; i++)
+            for (int i = 0; i < spotLightsToRender.Count; i++)
             {
-                SpotLight spotLight = SpotLight.ComponentPool.Elements[i];
+                SpotLight spotLight = spotLightsToRender[i];
                 if (spotLight.Intensity > 0 && spotLight.IsVisible)
                 {
                     SpotLightShader.Instance.RenderLight(spotLight.Color, spotLight.cachedPosition,
