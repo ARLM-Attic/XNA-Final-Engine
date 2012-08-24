@@ -296,7 +296,7 @@ float4 ps_mainWithParrallax(VS_OUTTangent input) : COLOR
 	[branch]
 	if (diffuseTextured)
 	{
-    	materialColor = GammaToLinear(tex2D(diffuseSampler, uv).rgb);
+    	materialColor = tex2D(diffuseSampler, uv).rgb;
 	}
 	else
 	{
@@ -327,7 +327,7 @@ float4 ps_mainWithParrallax(VS_OUTTangent input) : COLOR
 			specular *= GammaToLinear(texCUBE(reflectionSampler, reflectionDir).rgb);
 	}
 	// Final color (in linear space)
-	return float4(materialColor * diffuseAccumulation.rgb + specular * specularAccumulation.rgb,  1);
+	return float4(GammaToLinear(materialColor) * diffuseAccumulation.rgb + specular * specularAccumulation.rgb,  1);
 } // ps_mainWithParrallax
 
 //////////////////////////////////////////////

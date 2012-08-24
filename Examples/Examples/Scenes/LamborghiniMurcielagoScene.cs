@@ -131,9 +131,9 @@ namespace XNAFinalEngineExamples
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
                                                             Color = new Color(10, 10, 10),
-                                                            Intensity = 2f,
-                                                            AmbientOcclusionStrength = 1f };
-            /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
+                                                            Intensity = 5f,
+                                                            AmbientOcclusionStrength = 2f };
+            camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 18, //8, // Don't change this.
                 NumberDirections = 16, // 12, // Don't change this.
@@ -143,7 +143,7 @@ namespace XNAFinalEngineExamples
                 AngleBias = 5f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
-            };*/
+            };
 
             #endregion
             
@@ -445,7 +445,7 @@ namespace XNAFinalEngineExamples
             murcielagoLP670FrontLeftRim = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP670-FrontRim"),
                                                  new BlinnPhong
                                                  {
-                                                     DiffuseColor = new Color(25, 25, 25),
+                                                     DiffuseColor = new Color(50, 50, 50),
                                                      SpecularPower = 15,
                                                      //NormalTexture = new Texture("LamborghiniMurcielago\\Murcielago-LP670-Rim-Normal"),
                                                      SpecularIntensity = 400f,
@@ -541,7 +541,7 @@ namespace XNAFinalEngineExamples
             murcielagoLP670FrontRightRim = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP670-FrontRim"),
                                                  new BlinnPhong
                                                  {
-                                                     DiffuseColor = new Color(25, 25, 25),
+                                                     DiffuseColor = new Color(50, 50, 50),
                                                      SpecularPower = 15,
                                                      //NormalTexture = new Texture("LamborghiniMurcielago\\Murcielago-LP670-Rim-Normal"),
                                                      SpecularIntensity = 400f,
@@ -642,7 +642,7 @@ namespace XNAFinalEngineExamples
             murcielagoLP670RearLeftRim = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP670-RearRim"),
                                                  new BlinnPhong
                                                  {
-                                                     DiffuseColor = new Color(25, 25, 25),
+                                                     DiffuseColor = new Color(50, 50, 50),
                                                      SpecularPower = 15,
                                                      //NormalTexture = new Texture("LamborghiniMurcielago\\Murcielago-LP670-Rim-Normal"),
                                                      SpecularIntensity = 400f,
@@ -737,7 +737,7 @@ namespace XNAFinalEngineExamples
             murcielagoLP670RearRightRim = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP670-RearRim"),
                                                  new BlinnPhong
                                                  {
-                                                     DiffuseColor = new Color(25, 25, 25),
+                                                     DiffuseColor = new Color(50, 50, 50),
                                                      SpecularPower = 15,
                                                      //NormalTexture = new Texture("LamborghiniMurcielago\\Murcielago-LP670-Rim-Normal"),
                                                      SpecularIntensity = 400f,
@@ -832,12 +832,14 @@ namespace XNAFinalEngineExamples
             floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
                            new BlinnPhong
                            {
-                               NormalTexture = new Texture("Stones-NormalHeightMap"),
-                               ParallaxEnabled = true,
+                               DiffuseColor = new Color(50, 50, 50),
+                               SpecularIntensity = 0,
+                               //NormalTexture = new Texture("Stones-NormalHeightMap"),
+                               //ParallaxEnabled = true,
                            }) 
             { Transform = { LocalScale = new Vector3(5, 5, 5) } };
             floor.Transform.Position = new Vector3(0, -1.17f, 0);
-
+            
             #endregion
                    
             #endregion
@@ -849,15 +851,20 @@ namespace XNAFinalEngineExamples
             directionalLight.DirectionalLight.Color = new Color(250, 250, 220);
             directionalLight.DirectionalLight.Intensity = 2f;
             directionalLight.Transform.LookAt(new Vector3(0.5f, 0.65f, 1.3f), Vector3.Zero, Vector3.Forward);
-            /*directionalLight.DirectionalLight.Shadow = new CascadedShadow
+            directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
-                Filter = Shadow.FilterType.Pcf5X5,
-                LightDepthTextureSize = Size.Square512X512,
+                Filter = Shadow.FilterType.Pcf7X7,
+                LightDepthTextureSize = Size.Square1024X1024,
                 TextureSize = Size.TextureSize.FullSize,
                 Range = 50,
-            };*/
+                DepthBias = 0.0025f,
+                FarPlaneSplit1 = 10,
+                FarPlaneSplit2 = 25,
+                FarPlaneSplit3 = 60,
+                FarPlaneSplit4 = 150
+            };
 
-            for (int i = 0; i < 100; i++)
+            //for (int i = 0; i < 100; i++)
             {
                 pointLight = new GameObject3D();
                 pointLight.AddComponent<PointLight>();
@@ -870,28 +877,28 @@ namespace XNAFinalEngineExamples
             pointLight2 = new GameObject3D();
             pointLight2.AddComponent<PointLight>();
             pointLight2.PointLight.Color = new Color(170, 150, 255);
-            pointLight2.PointLight.Intensity = 1.5f;
+            pointLight2.PointLight.Intensity = 0.25f;
             pointLight2.PointLight.Range = 100;
             pointLight2.Transform.Position = new Vector3(-25, 25, -15);
             
             pointLight3 = new GameObject3D();
             pointLight3.AddComponent<PointLight>();
             pointLight3.PointLight.Color = new Color(170, 250, 55);
-            pointLight3.PointLight.Intensity = 1.5f;
+            pointLight3.PointLight.Intensity = 0.5f;
             pointLight3.PointLight.Range = 100;
             pointLight3.Transform.Position = new Vector3(-15f, 15, -20);
             
             pointLight4 = new GameObject3D();
             pointLight4.AddComponent<PointLight>();
             pointLight4.PointLight.Color = new Color(150, 150, 150);
-            pointLight4.PointLight.Intensity = 1.5f;
+            pointLight4.PointLight.Intensity = 0.5f;
             pointLight4.PointLight.Range = 100; // I always forget to set the light range lower than the camera far plane.
             pointLight4.Transform.Position = new Vector3(30, -5, 20);
             
             pointLight5 = new GameObject3D();
             pointLight5.AddComponent<PointLight>();
             pointLight5.PointLight.Color = new Color(220, 250, 155);
-            pointLight5.PointLight.Intensity = 1.5f;
+            pointLight5.PointLight.Intensity = 0.5f;
             pointLight5.PointLight.Range = 200;
             pointLight5.Transform.Position = new Vector3(20f, 20.5f, -50);
             

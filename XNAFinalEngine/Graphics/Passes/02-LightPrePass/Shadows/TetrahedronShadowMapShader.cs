@@ -42,58 +42,27 @@ using Texture = XNAFinalEngine.Assets.Texture;
 namespace XNAFinalEngine.Graphics
 {
 
-	/// <summary>
-    /// Cascaded Shadows.
-    /// Only works with directional lights.
-    /// If you need point light shadows use the tetrahedron shadow map or if you need spot light use the basic shadow map.
-	/// </summary>
-    internal class CascadedShadowMapShader : Shader
-    {
+    /// <summary>
+    /// Render point light shadows from all directions using the tetrahedron shadow technique. 
+    /// </summary>
+    /// <remarks>
+    /// This technique is faster than the cube map technique and it has a few interesting optimization options.
+    /// For a full description read the GPU Pro 1 chapter called Shadow Mapping for Omnidirectional Light Using Tetrahedron Mapping.
+    /// </remarks>
+    internal class TetrahedronShadowMapShader : Shader
+	{
 
-        #region Constants
+		#region Variables
+        
+        // Light Matrices.
+        private Matrix lightProjectionMatrix, lightViewMatrix;
+        
+	    private Shadow.FilterType filterType;
 
-        /// <summary>
-        /// Number of splits. 
-        /// This value have to be the same in both this class and the shader code.
-        /// </summary>
-        private const int NumberSplits = 4;
-
-        #endregion
-
-        #region Variables
-
-        /// <summary>
-        /// Light Projection Matrices (one for each split)
-        /// </summary>
-        private readonly Matrix[] lightProjectionMatrix = new Matrix[NumberSplits];
-
-        /// <summary>
-        /// Light View Matrices (one for each split)
-        /// </summary>
-        private readonly Matrix[] lightViewMatrix = new Matrix[NumberSplits];
-
-        /// <summary>
-        /// Clip Plane. First value is the split's near plane and the last is the far plane.
-        /// </summary>
-        private readonly Vector2[] lightClipPlanes = new Vector2[NumberSplits];
-
-        /// <summary>
-        /// Splits depths. 
-        /// First is the camera near plane, the last is the far plane, and the middle values are the different near and far planes of each split.
-        /// </summary>
-        private readonly float[] splitDepths = new float[NumberSplits + 1];
-
-        /// <summary>
-        /// Matrix to go from view to light view projection space.
-        /// </summary>
-        private readonly Matrix[] viewToLightViewProj = new Matrix[NumberSplits];
-
-        private Shadow.FilterType filterType;
-
-        private RenderTarget lightDepthTexture, shadowTexture;
+	    private RenderTarget lightDepthTexture, deferredShadowResult;
 
         // Singleton reference.
-        private static CascadedShadowMapShader instance;
+        private static TetrahedronShadowMapShader instance;
 
         #endregion
 
@@ -102,12 +71,12 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// A singleton of this shader.
         /// </summary>
-        public static CascadedShadowMapShader Instance
+        public static TetrahedronShadowMapShader Instance
         {
             get
             {
                 if (instance == null)
-                    instance = new CascadedShadowMapShader();
+                    instance = new TetrahedronShadowMapShader();
                 return instance;
             }
         } // Instance
@@ -127,7 +96,6 @@ namespace XNAFinalEngine.Graphics
                                         epDepthTexture,
                                         epShadowMap,
                                         // Other Parameters
-                                        epClipPlanes,
                                         epHalfPixel,
                                         epFrustumCorners,
                                         epDepthBias,
@@ -147,37 +115,15 @@ namespace XNAFinalEngine.Graphics
             }
         } // SetWorldViewProjMatrix
 
-        private static readonly Matrix[] lastUsedViewToLightViewProjMatrix = new Matrix[NumberSplits];
-        private static void SetViewToLightViewProjMatrix(Matrix[] viewToLightViewProjMatrix)
+        private static Matrix lastUsedViewToLightViewProjMatrix;
+        private static void SetViewToLightViewProjMatrix(Matrix viewToLightViewProjMatrix)
         {
-            if (!ArrayHelper.Equals(lastUsedViewToLightViewProjMatrix, viewToLightViewProjMatrix))
+            if (lastUsedViewToLightViewProjMatrix != viewToLightViewProjMatrix)
             {
-                //lastUsedViewToLightViewProjMatrix = (Matrix[])(viewToLightViewProjMatrix.Clone()); // Produces garbage
-                for (int i = 0; i < NumberSplits; i++)
-                {
-                    lastUsedViewToLightViewProjMatrix[i] = viewToLightViewProjMatrix[i];
-                }
+                lastUsedViewToLightViewProjMatrix = viewToLightViewProjMatrix;
                 epViewToLightViewProj.SetValue(viewToLightViewProjMatrix);
             }
         } // SetViewToLightViewProjMatrix
-
-        #endregion
-
-        #region Clip Planes
-
-        private static readonly Vector2[] lastUsedClipPlanes = new Vector2[NumberSplits];
-        private static void SetClipPlanes(Vector2[] clipPlanes)
-        {
-            if (!ArrayHelper.Equals(lastUsedClipPlanes, clipPlanes))
-            {
-                // lastUsedClipPlanes = (Vector2[])(clipPlanes.Clone()); // Produces garbage
-                for (int i = 0; i < NumberSplits; i++)
-                {
-                    lastUsedClipPlanes[i] = clipPlanes[i];
-                }
-                epClipPlanes.SetValue(clipPlanes);
-            }
-        } // SetClipPlanes
 
         #endregion
 
@@ -229,13 +175,13 @@ namespace XNAFinalEngine.Graphics
 
         #region Frustum Corners
 
-        private static readonly Vector3[] lastUsedFrustumCorners = new Vector3[NumberSplits];
+        private static readonly Vector3[] lastUsedFrustumCorners = new Vector3[4];
         private static void SetFrustumCorners(Vector3[] frustumCorners)
         {
             if (!ArrayHelper.Equals(lastUsedFrustumCorners, frustumCorners))
             {
                 // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
-                for (int i = 0; i < NumberSplits; i++)
+                for (int i = 0; i < 4; i++)
                 {
                     lastUsedFrustumCorners[i] = frustumCorners[i];
                 }
@@ -262,7 +208,7 @@ namespace XNAFinalEngine.Graphics
         #region Shadow Map Size
 
         private static Vector2 lastUsedShadowMapSize;
-        private static void SetShadowMapSize(Vector2 shadowMapSize)
+        private static void SetShadowMapTexelSize(Vector2 shadowMapSize)
         {
             if (lastUsedShadowMapSize != shadowMapSize)
             {
@@ -296,12 +242,14 @@ namespace XNAFinalEngine.Graphics
 
         #region Constructor
 
-	    /// <summary>
-	    /// Cascaded shadow map.
-	    /// Only works with directional lights.
-        /// If you need point light shadows use the tetrahedron shadow map or if you need spot light use the basic shadow map.
-	    /// </summary>
-	    private CascadedShadowMapShader() : base("Shadows\\CascadedShadowMap") { }
+        /// <summary>
+        /// Render point light shadows from all directions using the tetrahedron shadow technique. 
+        /// </summary>
+        /// <remarks>
+        /// This technique is faster than the cube map technique and it has a few interesting optimization options.
+        /// For a full description read the GPU Pro 1 chapter called Shadow Mapping for Omnidirectional Light Using Tetrahedron Mapping.
+        /// </remarks>
+        private TetrahedronShadowMapShader() : base("Shadows\\TetrahedronShadowMap") { }
 
 		#endregion
 
@@ -323,15 +271,13 @@ namespace XNAFinalEngine.Graphics
                 epViewToLightViewProj = Resource.Parameters["viewToLightViewProj"];
                     epViewToLightViewProj.SetValue(lastUsedViewToLightViewProjMatrix);
                 // Textures
-                 epDepthTexture       = Resource.Parameters["depthTexture"];
+                epDepthTexture        = Resource.Parameters["depthTexture"];
                     if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
                         epDepthTexture.SetValue(lastUsedDepthTexture);
                 epShadowMap           = Resource.Parameters["shadowMap"];
                     if (lastUsedShadowMapTexture != null && !lastUsedShadowMapTexture.IsDisposed)
                         epShadowMap.SetValue(lastUsedShadowMapTexture);
 			    // Get additional parameters
-                epClipPlanes          = Resource.Parameters["clipPlanes"];
-                    epClipPlanes.SetValue(lastUsedClipPlanes);
                 epHalfPixel           = Resource.Parameters["halfPixel"];
                     epHalfPixel.SetValue(lastUsedHalfPixel);
                 epFrustumCorners      = Resource.Parameters["frustumCorners"];
@@ -364,12 +310,12 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 // Creates the render target textures
-                lightDepthTexture = RenderTarget.Fetch(new Size(lightDepthTextureSize.Width * NumberSplits, lightDepthTextureSize.Height), SurfaceFormat.HalfSingle, DepthFormat.Depth16, RenderTarget.AntialiasingType.NoAntialiasing);
+                lightDepthTexture = RenderTarget.Fetch(lightDepthTextureSize, SurfaceFormat.HalfSingle, DepthFormat.Depth16, RenderTarget.AntialiasingType.NoAntialiasing);
                 // Alpha8 doesn't work in my old G92 GPU processor and I opt to work with half single. Color is another good choice because support texture filtering.
                 // XBOX 360 Xbox does not support 16 bit render targets (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
                 // Color would be the better choice for the XBOX 360.
                 // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.
-                shadowTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                deferredShadowResult = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
 
                 // Set Render States.
                 EngineManager.Device.BlendState = BlendState.Opaque;
@@ -379,8 +325,8 @@ namespace XNAFinalEngine.Graphics
                 // because another texture from another shader could have an incorrect sampler state when this shader is executed.
 
                 // Set parameters.
-                SetHalfPixel(new Vector2(-0.5f / (depthTexture.Width / 2), 0.5f / (depthTexture.Height / 2)));
-                SetShadowMapSize(new Vector2(lightDepthTexture.Width, lightDepthTexture.Height));
+                SetHalfPixel(new Vector2(-0.5f / (depthTexture.Size.Width / 2), 0.5f / (depthTexture.Size.Height / 2)));
+                SetShadowMapTexelSize(new Vector2(lightDepthTextureSize.Width, lightDepthTextureSize.Height));
                 SetDepthBias(depthBias);
                 SetDepthTexture(depthTexture);
                 this.filterType = filterType;
@@ -388,7 +334,7 @@ namespace XNAFinalEngine.Graphics
                 // Enable first render target.
                 lightDepthTexture.EnableRenderTarget();
                 lightDepthTexture.Clear(Color.White);
-                Resource.CurrentTechnique = Resource.Techniques["GenerateShadowMap"];
+                
             }
             catch (Exception e)
             {
@@ -405,12 +351,12 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private void Process()
         {
-            // Render deferred shadow result.
+            // Render deferred shadow result
             EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
             SetShadowMapTexture(lightDepthTexture);
 
-            shadowTexture.EnableRenderTarget();
-            shadowTexture.Clear(Color.White);
+            deferredShadowResult.EnableRenderTarget();
+            deferredShadowResult.Clear(Color.White);
 
             switch (filterType)
             {
@@ -423,9 +369,8 @@ namespace XNAFinalEngine.Graphics
 
             Resource.CurrentTechnique.Passes[0].Apply();
             RenderScreenPlane();
-            shadowTexture.DisableRenderTarget();
-
-            //BlurShader.Instance.Filter(shadowTexture, true, 1); // TODO!!! Volver a activarla
+            deferredShadowResult.DisableRenderTarget();
+            //BlurShader.Instance.Filter(deferredShadowResult, true, 1); // TODO!!! Volver a activarla
         } // Process
 
         #endregion
@@ -439,18 +384,18 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                // Resolve light depth texture.
+                // Resolve shadow map.
                 lightDepthTexture.DisableRenderTarget();
                 _lightDepthTexture = lightDepthTexture;
                 Process();
-                return shadowTexture;
+                return deferredShadowResult;
             }
             catch (Exception e)
             {
                 throw new InvalidOperationException("Shadow Map Shader: Unable to end the rendering.", e);
             }
         } // End
-        
+
         /// <summary>
         /// Resolve render targets and return the deferred shadow map.
         /// </summary>
@@ -461,7 +406,7 @@ namespace XNAFinalEngine.Graphics
                 // Use parameter.
                 this.lightDepthTexture = lightDepthTexture;
                 Process();
-                return shadowTexture;
+                return deferredShadowResult;
             }
             catch (Exception e)
             {
@@ -470,141 +415,93 @@ namespace XNAFinalEngine.Graphics
         } // ProcessWithPrecalculedLightDepthTexture
 
         #endregion
-
+        
         #region Set Light
 
         // To avoid garbage use always the same values.
         private static readonly Vector3[] cornersWorldSpace = new Vector3[8];
         private static readonly Vector3[] frustumCornersLightSpace = new Vector3[8];
-        private static readonly Vector3[] splitFrustumCornersViewSpace = new Vector3[8];
         private static readonly BoundingFrustum boundingFrustumTemp = new BoundingFrustum(Matrix.Identity);
+
+        /// <summary>
+		/// Calculate light matrices.
+		/// </summary>
+        internal void SetLight(Vector3 position, Vector3 direction, Matrix viewMatrix, float apertureCone, float range, Vector3[] boundingFrustum)
+		{
+
+            lightViewMatrix = Matrix.CreateLookAt(position, position + direction, Vector3.Up);
+            lightProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(apertureCone * (float)Math.PI / 180.0f, // field of view
+                                                                        1.0f,   // Aspect ratio
+                                                                        1f,   // Near plane
+                                                                        range); // Far plane
+            SetViewToLightViewProjMatrix(Matrix.Invert(viewMatrix) * lightViewMatrix * lightProjectionMatrix);
+            SetFrustumCorners(boundingFrustum);
+		} // SetLight
 
         /// <summary>
         /// Determines the size of the frustum needed to cover the viewable area, then creates the light view matrix and an appropriate orthographic projection.
         /// </summary>
-        internal void SetLight(Vector3 direction, Matrix viewMatrix, Matrix projectionMatrix, float nearPlane, float farPlane, Vector3[] boundingFrustum,
-                               float farPlaneSplit1, float farPlaneSplit2, float farPlaneSplit3, float farPlaneSplit4)
+        internal void SetLight(Vector3 direction, Matrix viewMatrix, float range, Vector3[] boundingFrustum)
         {
-            // Calculate the cascade splits. 
-            // We calculate these so that each successive split is larger than the previous, giving the closest split the most amount of shadow detail.  
-            const float fNumberSplits = NumberSplits;
-            float fNearPlane = nearPlane, 
-                  fFarPlane = farPlane;
-            const float splitConstant = 0.7f;
+            const float nearPlane = 1f;
 
-            // First and last split.
-            splitDepths[0] = fNearPlane;
-            splitDepths[NumberSplits] = fFarPlane;
-            // The middle splits.
-            for (int i = 1; i < splitDepths.Length - 1; i++)
+            #region Far Frustum Corner in View Space
+
+            boundingFrustumTemp.Matrix = viewMatrix * Matrix.CreatePerspectiveFieldOfView(3.1416f * 45 / 180.0f, 1, nearPlane, range);
+            boundingFrustumTemp.GetCorners(cornersWorldSpace);
+            Vector3 frustumCornersViewSpace4 = Vector3.Transform(cornersWorldSpace[4], viewMatrix);
+            Vector3 frustumCornersViewSpace5 = Vector3.Transform(cornersWorldSpace[5], viewMatrix);
+
+            #endregion
+
+            // Find the centroid
+            Vector3 frustumCentroid = new Vector3(0, 0, 0);
+            for (int i = 0; i < 8; i++)
+                frustumCentroid += cornersWorldSpace[i];
+            frustumCentroid /= 8;
+
+            // Position the shadow-caster camera so that it's looking at the centroid, and backed up in the direction of the sunlight
+            float distFromCentroid = MathHelper.Max((range - nearPlane), Vector3.Distance(frustumCornersViewSpace4, frustumCornersViewSpace5)) + 50.0f;
+            lightViewMatrix = Matrix.CreateLookAt(frustumCentroid - (direction * distFromCentroid), frustumCentroid, Vector3.Up);
+
+            // Determine the position of the frustum corners in light space
+            Vector3.Transform(cornersWorldSpace, ref lightViewMatrix, frustumCornersLightSpace);
+
+            // Calculate an orthographic projection by sizing a bounding box to the frustum coordinates in light space
+            Vector3 mins = frustumCornersLightSpace[0];
+            Vector3 maxes = frustumCornersLightSpace[0];
+            for (int i = 0; i < 8; i++)
             {
-                splitDepths[i] = splitConstant  *   fNearPlane * (float)Math.Pow(fFarPlane / fNearPlane, i / fNumberSplits) +
-                                 (1.0f - splitConstant) * ((fNearPlane + (i / fNumberSplits)) * (fFarPlane - fNearPlane));
+                if (frustumCornersLightSpace[i].X > maxes.X)
+                    maxes.X = frustumCornersLightSpace[i].X;
+                else if (frustumCornersLightSpace[i].X < mins.X)
+                    mins.X = frustumCornersLightSpace[i].X;
+                if (frustumCornersLightSpace[i].Y > maxes.Y)
+                    maxes.Y = frustumCornersLightSpace[i].Y;
+                else if (frustumCornersLightSpace[i].Y < mins.Y)
+                    mins.Y = frustumCornersLightSpace[i].Y;
+                if (frustumCornersLightSpace[i].Z > maxes.Z)
+                    maxes.Z = frustumCornersLightSpace[i].Z;
+                else if (frustumCornersLightSpace[i].Z < mins.Z)
+                    mins.Z = frustumCornersLightSpace[i].Z;
             }
-            if (farPlaneSplit1 > 0)
-                splitDepths[1] = farPlaneSplit1;
-            if (farPlaneSplit2 > 0)
-                splitDepths[2] = farPlaneSplit2;
-            if (farPlaneSplit3 > 0)
-                splitDepths[3] = farPlaneSplit3;
-            if (farPlaneSplit4 > 0)
-                splitDepths[4] = farPlaneSplit4;
 
-            // Create the different view and projection matrices for each split.
-            for (int splitNumber = 0; splitNumber < NumberSplits; splitNumber++)
-            {
-                float minimumDepth = splitDepths[splitNumber];
-                float maximumDepth = splitDepths[splitNumber + 1];
+            // Create an orthographic camera for use as a shadow caster
+            lightProjectionMatrix = Matrix.CreateOrthographicOffCenter(mins.X, maxes.X, mins.Y, maxes.Y, -maxes.Z - range, -mins.Z);
 
-                #region Far Frustum Corner in View Space
-
-                boundingFrustumTemp.Matrix = viewMatrix * projectionMatrix;
-                boundingFrustumTemp.GetCorners(cornersWorldSpace);
-                Vector3.Transform(cornersWorldSpace, ref viewMatrix, frustumCornersLightSpace);
-
-                for (int i = 0; i < 4; i++)
-                    splitFrustumCornersViewSpace[i] = frustumCornersLightSpace[i + 4] * (minimumDepth / fFarPlane);
-
-                for (int i = 4; i < 8; i++)
-                    splitFrustumCornersViewSpace[i] = frustumCornersLightSpace[i] * (maximumDepth / farPlane);
-
-                Matrix viewInvert = Matrix.Invert(viewMatrix);
-                Vector3.Transform(splitFrustumCornersViewSpace, ref viewInvert, cornersWorldSpace);
-                
-                #endregion
-
-                // Find the centroid
-                Vector3 frustumCentroid = new Vector3(0, 0, 0);
-                for (int i = 0; i < 8; i++)
-                    frustumCentroid += cornersWorldSpace[i];
-                frustumCentroid /= 8;
-
-                // Position the shadow-caster camera so that it's looking at the centroid, and backed up in the direction of the sunlight
-                float distFromCentroid = MathHelper.Max((maximumDepth - minimumDepth), Vector3.Distance(splitFrustumCornersViewSpace[4], splitFrustumCornersViewSpace[5])) + 50.0f;
-                lightViewMatrix[splitNumber] = Matrix.CreateLookAt(frustumCentroid - (direction * distFromCentroid), frustumCentroid, new Vector3(0, 1, 0));
-
-                // Determine the position of the frustum corners in light space
-                Vector3.Transform(cornersWorldSpace, ref lightViewMatrix[splitNumber], frustumCornersLightSpace);
-
-                // Calculate an orthographic projection by sizing a bounding box to the frustum coordinates in light space
-                Vector3 mins = frustumCornersLightSpace[0];
-                Vector3 maxes = frustumCornersLightSpace[0];
-                for (int i = 0; i < 8; i++)
-                {
-                    if (frustumCornersLightSpace[i].X > maxes.X)
-                        maxes.X = frustumCornersLightSpace[i].X;
-                    else if (frustumCornersLightSpace[i].X < mins.X)
-                        mins.X = frustumCornersLightSpace[i].X;
-                    if (frustumCornersLightSpace[i].Y > maxes.Y)
-                        maxes.Y = frustumCornersLightSpace[i].Y;
-                    else if (frustumCornersLightSpace[i].Y < mins.Y)
-                        mins.Y = frustumCornersLightSpace[i].Y;
-                    if (frustumCornersLightSpace[i].Z > maxes.Z)
-                        maxes.Z = frustumCornersLightSpace[i].Z;
-                    else if (frustumCornersLightSpace[i].Z < mins.Z)
-                        mins.Z = frustumCornersLightSpace[i].Z;
-                }
-                // Create an orthographic camera for use as a shadow caster
-                const float nearClipOffset = 100.0f;
-                lightProjectionMatrix[splitNumber] = Matrix.CreateOrthographicOffCenter(mins.X, maxes.X, mins.Y, maxes.Y, -maxes.Z - nearClipOffset, -mins.Z);
-            }
-            // We'll use these clip planes to determine which split a pixel belongs to
-            for (int i = 0; i < NumberSplits; i++)
-            {
-                lightClipPlanes[i].X = -splitDepths[i];
-                lightClipPlanes[i].Y = -splitDepths[i + 1];
-                viewToLightViewProj[i] = Matrix.Invert(viewMatrix) * lightViewMatrix[i] * lightProjectionMatrix[i];
-            }
-            SetViewToLightViewProjMatrix(viewToLightViewProj);
-            SetClipPlanes(lightClipPlanes);
+            SetViewToLightViewProjMatrix(Matrix.Invert(viewMatrix) * lightViewMatrix * lightProjectionMatrix);
             SetFrustumCorners(boundingFrustum);
         } // SetLight
 
-        #endregion
+		#endregion
 
         #region Render Model
-
-        internal void SetSplit(int i)
-        {
-            // Set the viewport for the current split.
-            Viewport splitViewport = new Viewport
-            {
-                MinDepth = 0,
-                MaxDepth = 1,
-                X = i * lightDepthTexture.Height,
-                Y = 0,
-                Width = lightDepthTexture.Height,
-                Height = lightDepthTexture.Height
-            };
-            EngineManager.Device.Viewport = splitViewport;
-        }
 
         /// <summary>
         /// Render objects in light space.
         /// </summary>
-        internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform, int i)
+        internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform)
         {
-            SetWorldViewProjMatrix(worldMatrix * lightViewMatrix[i] * lightProjectionMatrix[i]);
             if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
             {
                 SetBones(boneTransform);
@@ -612,36 +509,13 @@ namespace XNAFinalEngine.Graphics
             }
             else
                 Resource.CurrentTechnique = Resource.Techniques["GenerateShadowMap"];
+            SetWorldViewProjMatrix(worldMatrix * lightViewMatrix * lightProjectionMatrix);
             Resource.CurrentTechnique.Passes[0].Apply();
             model.Render();
-            
-            /*for (int i = 0; i < NumberSplits; i++)
-            {
-                // Set the viewport for the current split.
-                Viewport splitViewport = new Viewport
-                {
-                    MinDepth = 0,
-                    MaxDepth = 1,
-                    X = i * lightDepthTexture.Height,
-                    Y = 0,
-                    Width = lightDepthTexture.Height,
-                    Height = lightDepthTexture.Height
-                };
-                EngineManager.Device.Viewport = splitViewport;
-                SetWorldViewProjMatrix(worldMatrix * lightViewMatrix[i] * lightProjectionMatrix[i]);
-                if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
-                {
-                    SetBones(boneTransform);
-                    Resource.CurrentTechnique = Resource.Techniques["GenerateShadowMapSkinned"];
-                }
-                else
-                    Resource.CurrentTechnique = Resource.Techniques["GenerateShadowMap"];
-                Resource.CurrentTechnique.Passes[0].Apply();
-                model.Render();
-            }*/
+
         } // RenderModel
 
-        #endregion    
-        
-    } // CascadedShadowMapShader
+		#endregion
+
+    } // TetrahedronShadowMapShader
 } // XNAFinalEngine.Graphics

@@ -147,7 +147,7 @@ VS_OUT vs_main(in float4 position : POSITION, in float2 uv : TEXCOORD)
 //////////////////////////////////////////////
 
 // Calculates the shadow occlusion using bilinear PCF
-float CalculateShadowTermBilinearPCF(float positionLightSpace, float2 shadowTexCoord)
+float CalculateShadowTermBilinearPCF(float positionLightSpace, float2 shadowTexCoord, float depthBias)
 {
 	// Transform to texel space
 	float2 shadowMapCoord = shadowMapSize * shadowTexCoord;
@@ -163,7 +163,7 @@ float CalculateShadowTermBilinearPCF(float positionLightSpace, float2 shadowTexC
 	fSamples[3] = (tex2D(shadowMapSampler, shadowTexCoord + float2(invShadowMapSize.x, invShadowMapSize.y)).x + depthBias < positionLightSpace) ? 0.0f: 1.0f;  
     
 	// Lerp between the shadow values to calculate our light amount
-	return lerp(lerp(fSamples[0], fSamples[1], lerps.x), lerp( fSamples[2], fSamples[3], lerps.x), lerps.y);							  
+	return lerp(lerp(fSamples[0], fSamples[1], lerps.x), lerp( fSamples[2], fSamples[3], lerps.x), lerps.y);
 } // CalculateShadowTermBilinearPCF
 
 //////////////////////////////////////////////
@@ -172,7 +172,7 @@ float CalculateShadowTermBilinearPCF(float positionLightSpace, float2 shadowTexC
 
 // Calculates the shadow term using PCF soft-shadowing
 // sqrtSample is the filter size. I.e. 2 for 2x2 PCF, 3 for 3x3 PCF, etc.
-float CalculateShadowTermSoftPCF(float positionLightSpace, float2 shadowTexCoord, int sqrtSamples)
+float CalculateShadowTermSoftPCF(float positionLightSpace, float2 shadowTexCoord, int sqrtSamples, float depthBias)
 {
 	float shadowTerm = 0.0f;  
 		
@@ -213,7 +213,7 @@ float CalculateShadowTermSoftPCF(float positionLightSpace, float2 shadowTexCoord
 } // CalculateShadowTermSoftPCF
 
 // Calculates the shadow term using Poison destribution
-float CalculateShadowTermPoisonPCF(float positionLightSpace, float2 shadowTexCoord)
+float CalculateShadowTermPoisonPCF(float positionLightSpace, float2 shadowTexCoord, float depthBias)
 {
 	float shadowTerm = 0.0f;  
 

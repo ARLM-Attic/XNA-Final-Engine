@@ -6,6 +6,7 @@
 ******************************************************************************/
 
 #include <ShadowMapCommon.fxh>
+#include <..\Helpers\Discard.fxh>
 
 //////////////////////////////////////////////
 //////////////// Matrices ////////////////////
@@ -32,6 +33,13 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
 	float4 positionLightCS = mul(float4(positionVS, 1), viewToLightViewProj);
 		
 	float depthLightSpace = positionLightCS.z / positionLightCS.w; // range 0 to 1
+
+	[branch]
+	if (depthLightSpace > 1) // If it is outside the far plane
+	{
+		Discard();
+		return float4(1, 1, 1, 1);
+	}
 	
 	// Transform from light space to shadow map texture space.
     float2 shadowTexCoord = 0.5 * positionLightCS.xy / positionLightCS.w + float2(0.5f, 0.5f);
@@ -43,11 +51,11 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
 	// Get the shadow occlusion factor and output it
 	float shadowTerm;
 	if (iFilterSize == 0)
-		shadowTerm = CalculateShadowTermPoisonPCF(depthLightSpace, shadowTexCoord);
+		shadowTerm = CalculateShadowTermPoisonPCF(depthLightSpace, shadowTexCoord, depthBias);
 	else if (iFilterSize == 2)		
-		shadowTerm = CalculateShadowTermBilinearPCF(depthLightSpace, shadowTexCoord);
+		shadowTerm = CalculateShadowTermBilinearPCF(depthLightSpace, shadowTexCoord, depthBias);
 	else
-		shadowTerm = CalculateShadowTermSoftPCF(depthLightSpace, shadowTexCoord, iFilterSize);
+		shadowTerm = CalculateShadowTermSoftPCF(depthLightSpace, shadowTexCoord, iFilterSize, depthBias);
 	
 	// Attenuate over distance.
 	depthLightSpace = pow(depthLightSpace, 20);

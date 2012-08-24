@@ -184,6 +184,7 @@
     <Compile Include="Graphics\Passes\02-LightPrePass\Ambient Occlusion\HorizonBasedAmbientOcclusionShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\Ambient Occlusion\RayMarchingAmbientOcclusionShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\AmbientLightShader.cs" />
+    <Compile Include="Graphics\Passes\02-LightPrePass\Shadows\TetrahedronShadowMapShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\SpotLightShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\DirectionalLightShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\LightPrePass.cs" />
@@ -238,7 +239,6 @@
     <Compile Include="Helpers\GarbageCollection.cs" />
     <Compile Include="Input\InputManager.cs" />
     <Compile Include="Input\Keyboard.cs" />
-    <Compile Include="Input\KeyboardHook.cs" />
     <Compile Include="Input\Mouse.cs" />
     <Compile Include="Input\GamePad.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

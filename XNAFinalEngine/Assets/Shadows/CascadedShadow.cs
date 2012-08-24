@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -31,9 +31,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 namespace XNAFinalEngine.Assets
 {
 	/// <summary>
-	/// Cascaded shadows.
+    /// Cascaded Shadows.
     /// Only works with directional lights.
-    /// If you need point light shadows use the cubic shadow map or if you need spot light use the basic shadow map.
+    /// If you need point light shadows use the tetrahedron shadow map or if you need spot light use the basic shadow map.
 	/// </summary>
     public class CascadedShadow : Shadow
 	{
@@ -42,6 +42,38 @@ namespace XNAFinalEngine.Assets
 
         // The count of materials for naming purposes.
         private static int nameNumber = 1;
+
+        #endregion
+
+        #region Properties
+
+	    /// <summary>
+	    /// Cascaded shadows are divided in a number of shadow maps that range from closer to the view point to closer to the far plane.
+	    /// You can put custom number to define the range.
+	    /// But if you want an automatic calculation just put 0.
+	    /// </summary>
+	    public float FarPlaneSplit1 { get; set; }
+
+        /// <summary>
+        /// Cascaded shadows are divided in a number of shadow maps that range from closer to the view point to closer to the far plane.
+        /// You can put custom number to define the range.
+        /// But if you want an automatic calculation just put 0.
+        /// </summary>
+        public float FarPlaneSplit2 { get; set; }
+
+	    /// <summary>
+	    /// Cascaded shadows are divided in a number of shadow maps that range from closer to the view point to closer to the far plane.
+	    /// You can put custom number to define the range.
+	    /// But if you want an automatic calculation just put 0.
+	    /// </summary>
+	    public float FarPlaneSplit3 { get; set; }
+
+        /// <summary>
+        /// Cascaded shadows are divided in a number of shadow maps that range from closer to the view point to closer to the far plane.
+        /// You can put custom number to define the range.
+        /// But if you want an automatic calculation just put 0.
+        /// </summary>
+        public float FarPlaneSplit4 { get; set; }
 
         #endregion
 

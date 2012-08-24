@@ -44,7 +44,7 @@ namespace XNAFinalEngine.Input
     /// It also disables the win key and allows the print screen key to call the screenshot capturer ignoring the windows screenshot capturer.
     /// </summary>
     /// <remarks>
-    /// It made more problems than it fixes and consequently it was deprecated.
+    /// Keyboard Hook has deprecated because is unpredictable and produces a little lag.
     /// </remarks>
     public class KeyboardHook : IDisposable
     {

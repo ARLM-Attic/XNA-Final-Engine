@@ -46,7 +46,7 @@ namespace XNAFinalEngine.Graphics
 	/// Basic shadow map.
 	/// Only works with directional lights and spot lights.
 	/// If performance is not an issue, use cascaded shadow maps for directional lights.
-	/// If you need point light shadows use the cubic shadow map.
+	/// If you need point light shadows use the tetrahedron shadow map.
 	/// </summary>
     internal class BasicShadowMapShader : Shader
 	{
@@ -245,6 +245,7 @@ namespace XNAFinalEngine.Graphics
         /// Basic shadow map.
         /// Only works with directional lights and spot lights.
         /// If performance is not an issue, use cascaded shadow maps for directional lights.
+        /// If you need point light shadows use the tetrahedron shadow map.
         /// </summary>
         private BasicShadowMapShader() : base("Shadows\\ShadowMap") { }
 

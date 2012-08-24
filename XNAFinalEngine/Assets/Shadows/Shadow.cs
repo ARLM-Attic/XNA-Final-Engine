@@ -65,7 +65,7 @@ namespace XNAFinalEngine.Assets
         private Size lightDepthTextureSize = Size.Square1024X1024;
         private FilterType filter = FilterType.Pcf5X5;
         private float depthBias = 0.0025f;
-        private Size.TextureSize textureSize = Size.TextureSize.HalfSize;
+        private Size.TextureSize textureSize = Size.TextureSize.FullSize;
 	    private float range = 50;
 
         // Is it enabled?

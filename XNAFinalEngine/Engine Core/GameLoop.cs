@@ -91,21 +91,21 @@ namespace XNAFinalEngine.EngineCore
         private static readonly AudioListener[] fourAudioListener  = new AudioListener[4];
 
         // Frustum Culling.
-        private static readonly List<ModelRenderer> modelsToRender = new List<ModelRenderer>(100);
-        private static readonly List<PointLight> pointLightsToRender = new List<PointLight>(50);
-        private static readonly List<SpotLight> spotLightsToRender = new List<SpotLight>(20);
+        private static readonly List<ModelRenderer> modelsToRender      = new List<ModelRenderer>(100);
+        private static readonly List<PointLight>    pointLightsToRender = new List<PointLight>(50);
+        private static readonly List<SpotLight>     spotLightsToRender  = new List<SpotLight>(20);
 
         // G-Buffer ordered lists.
-        private static readonly List<MeshPartToRender> gbufferSimple = new List<MeshPartToRender>(50);
-        private static readonly List<MeshPartToRender> gBufferWithNormalMap = new List<MeshPartToRender>(50);
-        private static readonly List<MeshPartToRender> gBufferWithParallax = new List<MeshPartToRender>(50);
-        private static readonly List<MeshPartToRender> gBufferSkinnedSimple = new List<MeshPartToRender>(50);
+        private static readonly List<MeshPartToRender> gbufferSimple               = new List<MeshPartToRender>(50);
+        private static readonly List<MeshPartToRender> gBufferWithNormalMap        = new List<MeshPartToRender>(50);
+        private static readonly List<MeshPartToRender> gBufferWithParallax         = new List<MeshPartToRender>(50);
+        private static readonly List<MeshPartToRender> gBufferSkinnedSimple        = new List<MeshPartToRender>(50);
         private static readonly List<MeshPartToRender> gBufferSkinnedWithNormalMap = new List<MeshPartToRender>(50);
         // Opaque ordered lists.
-        private static readonly List<MeshPartToRender> opaqueBlinnPhong = new List<MeshPartToRender>(100);
-        private static readonly List<MeshPartToRender> opaqueBlinnPhongSkinned = new List<MeshPartToRender>(100);
-        private static readonly List<MeshPartToRender> opaqueCarPaint = new List<MeshPartToRender>(10);
-        private static readonly List<MeshPartToRender> opaqueConstant = new List<MeshPartToRender>(10);
+        private static readonly List<MeshPartToRender> opaqueBlinnPhong            = new List<MeshPartToRender>(100);
+        private static readonly List<MeshPartToRender> opaqueBlinnPhongSkinned     = new List<MeshPartToRender>(100);
+        private static readonly List<MeshPartToRender> opaqueCarPaint              = new List<MeshPartToRender>(10);
+        private static readonly List<MeshPartToRender> opaqueConstant              = new List<MeshPartToRender>(10);
         
         #endregion
 
@@ -951,7 +951,7 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
                 DirectionalLight directionalLight = DirectionalLight.ComponentPool.Elements[i];
-                // If there is a shadow map...
+                // If there is a shadow map for this light...
                 if (directionalLight.Shadow != null && directionalLight.Shadow.Enabled && directionalLight.IsVisible && directionalLight.Intensity > 0)
                 {
                     RenderTarget depthTexture;
@@ -973,14 +973,37 @@ namespace XNAFinalEngine.EngineCore
                             RenderTarget.Release(shadow.LightDepthTexture);
                         CascadedShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, depthTexture, shadow.DepthBias, shadow.Filter);
                         CascadedShadowMapShader.Instance.SetLight(directionalLight.cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
-                                                                  currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace);
+                                                                  currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace,
+                                                                  shadow.FarPlaneSplit1, shadow.FarPlaneSplit2, shadow.FarPlaneSplit3, shadow.FarPlaneSplit4);
                         // FrustumCulling(, modelsToRenderShadow);
                         // Render the opaque objects...
+                        CascadedShadowMapShader.Instance.SetSplit(0);
                         for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
                         {
                             ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[j];
                             if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
-                                CascadedShadowMapShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
+                                CascadedShadowMapShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms, 0);
+                        }
+                        CascadedShadowMapShader.Instance.SetSplit(1);
+                        for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
+                        {
+                            ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[j];
+                            if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
+                                CascadedShadowMapShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms, 1);
+                        }
+                        CascadedShadowMapShader.Instance.SetSplit(2);
+                        for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
+                        {
+                            ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[j];
+                            if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
+                                CascadedShadowMapShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms, 2);
+                        }
+                        CascadedShadowMapShader.Instance.SetSplit(3);
+                        for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
+                        {
+                            ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[j];
+                            if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
+                                CascadedShadowMapShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms, 3);
                         }
                         directionalLight.ShadowTexture = CascadedShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
                     }
@@ -1070,6 +1093,9 @@ namespace XNAFinalEngine.EngineCore
 
             LightPrePass.Begin(renderTarget.Size);
 
+            // Put the depth information from the G-Buffer to the hardware Z-Buffer of the light pre pass render targets.
+            // The depth information will be used for the stencil operations that allow an important optimization and
+            // the possibility to use light clip volumes (to limit the range of influence of a light using convex volumes)
             ReconstructZBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], currentCamera.FarPlane, currentCamera.ProjectionMatrix);
 
             // Ambient and directional lights works on fullscreen and do not care about depth information.

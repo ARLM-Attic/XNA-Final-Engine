@@ -6,13 +6,14 @@
 ******************************************************************************/
 
 #include <ShadowMapCommon.fxh>
+#include <..\Helpers\Discard.fxh>
 
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
 //////////////////////////////////////////////
 
 // Number of cascaded splits
-static const int NUM_SPLITS = 3;
+static const int NUM_SPLITS = 4;
 
 float4x4	viewToLightViewProj[NUM_SPLITS];
 
@@ -29,7 +30,10 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
 	float depth = tex2D(depthSampler, uv).r;
 
 	if (depth == 1)
+	{
+		Discard();
 		return float4(1, 1, 1, 1);
+	}
 
 	float3 positionVS = frustumRay * depth; // To convert this position into world space it only needs to add the camera position (in the pixel shader), and the frustumray multiply by the camera orientation (in the vertex shader).
 	
@@ -55,6 +59,13 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
 	float4 positionLightCS = mul(float4(positionVS, 1), viewToLightViewProj[winningSplit]);
 		
 	float depthLightSpace = positionLightCS.z / positionLightCS.w; // range 0 to 1
+
+	[branch]
+	if (depthLightSpace > 1) // If it is outside the far plane of the last split.
+	{
+		Discard();
+		return float4(1, 1, 1, 1);
+	}
 	
 	// Transform from light space to shadow map texture space.
     float2 shadowTexCoord = 0.5 * positionLightCS.xy / positionLightCS.w + float2(0.5f, 0.5f);
@@ -63,15 +74,22 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
         
     // Offset the coordinate by half a texel so we sample it correctly
     shadowTexCoord += (0.5f / shadowMapSize);
+
+	float depthBiasAttenuated = depthBias;
+	
+	if (winningSplit > 1) // Crytek for example utilizes variance shadow maps for the last splits.
+	{		
+		depthBiasAttenuated = 0.006f;
+	}
 	
 	// Get the shadow occlusion factor and output it
-	float shadowTerm;
+	float shadowTerm;	
 	if (iFilterSize == 0)
-		shadowTerm = CalculateShadowTermPoisonPCF(depthLightSpace, shadowTexCoord);
+		shadowTerm = CalculateShadowTermPoisonPCF(depthLightSpace, shadowTexCoord, depthBiasAttenuated);
 	else if (iFilterSize == 2)		
-		shadowTerm = CalculateShadowTermBilinearPCF(depthLightSpace, shadowTexCoord);
+		shadowTerm = CalculateShadowTermBilinearPCF(depthLightSpace, shadowTexCoord, depthBiasAttenuated);
 	else
-		shadowTerm = CalculateShadowTermSoftPCF(depthLightSpace, shadowTexCoord, iFilterSize);
+		shadowTerm = CalculateShadowTermSoftPCF(depthLightSpace, shadowTexCoord, iFilterSize, depthBiasAttenuated);
 	
 	/*// For testing. A color render target is need it.
 	switch (winningSplit)
