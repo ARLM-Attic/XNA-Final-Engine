@@ -45,7 +45,6 @@ using XNAFinalEngine.Input;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Model = XNAFinalEngine.Assets.Model;
 using RootAnimation = XNAFinalEngine.Components.RootAnimations;
-using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -92,6 +91,9 @@ namespace XNAFinalEngine.EngineCore
 
         // Frustum Culling.
         private static readonly List<ModelRenderer> modelsToRender      = new List<ModelRenderer>(100);
+
+        private static readonly List<ModelRenderer> modelsToRenderShadows = new List<ModelRenderer>(100);
+
         private static readonly List<PointLight>    pointLightsToRender = new List<PointLight>(50);
         private static readonly List<SpotLight>     spotLightsToRender  = new List<SpotLight>(20);
 
@@ -844,6 +846,7 @@ namespace XNAFinalEngine.EngineCore
 
             #region Render
 
+            // Render with batchs (each list is a G-Buffer technique)
             foreach (MeshPartToRender meshPartToRender in gbufferSimple)
             {
                 GBufferShader.Instance.RenderModelSimple(meshPartToRender.WorldMatrix, meshPartToRender.Model, meshPartToRender.Material,
@@ -875,9 +878,11 @@ namespace XNAFinalEngine.EngineCore
             gbufferTextures = GBufferPass.End();
             
             // Downsample GBuffer
-            gbufferHalfTextures = DownsamplerGBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], gbufferTextures.RenderTargets[1]);
+            gbufferHalfTextures    = DownsamplerGBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], gbufferTextures.RenderTargets[1]);
+            gbufferQuarterTextures = DownsamplerGBufferShader.Instance.Render(gbufferHalfTextures.RenderTargets[0], gbufferHalfTextures.RenderTargets[1]);
             
-            /*renderTarget.EnableRenderTarget();
+            /*// This code is used for testing. It shows the texture on screen.
+            renderTarget.EnableRenderTarget();
             SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[1]);
             if (currentCamera.RenderHeadUpDisplay)
                 RenderHeadsUpDisplay();
@@ -910,12 +915,10 @@ namespace XNAFinalEngine.EngineCore
                 }
                 else
                 {
-                    // We need to downsample again the gbuffer.
-                    gbufferQuarterTextures = DownsamplerGBufferShader.Instance.Render(gbufferHalfTextures.RenderTargets[0], gbufferHalfTextures.RenderTargets[1]);
                     aoDepthTexture = gbufferQuarterTextures.RenderTargets[0];
                     aoNormalTexture = gbufferQuarterTextures.RenderTargets[1];
                 }
-                // Produce occlusion texture. The result will be used in the light pass.
+                // Now the occlusion texture is generated. The result will be used in the light pass with the ambient light.
                 if (currentCamera.AmbientLight.AmbientOcclusion is HorizonBasedAmbientOcclusion)
                 {
                     ambientOcclusionTexture = HorizonBasedAmbientOcclusionShader.Instance.Render(aoDepthTexture,
@@ -946,12 +949,12 @@ namespace XNAFinalEngine.EngineCore
             
             #region Shadow Maps
 
-            #region Directional Light Shadows);
+            #region Directional Light Shadows
 
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
                 DirectionalLight directionalLight = DirectionalLight.ComponentPool.Elements[i];
-                // If there is a shadow map for this light...
+                // If there is a shadow map for this light and it is active...
                 if (directionalLight.Shadow != null && directionalLight.Shadow.Enabled && directionalLight.IsVisible && directionalLight.Intensity > 0)
                 {
                     RenderTarget depthTexture;
@@ -969,43 +972,37 @@ namespace XNAFinalEngine.EngineCore
                     if (directionalLight.Shadow is CascadedShadow)
                     {
                         CascadedShadow shadow = (CascadedShadow)directionalLight.Shadow;
-                        if (shadow.LightDepthTexture != null)
-                            RenderTarget.Release(shadow.LightDepthTexture);
-                        CascadedShadowMapShader.Instance.Begin(shadow.LightDepthTextureSize, depthTexture, shadow.DepthBias, shadow.Filter);
+
                         CascadedShadowMapShader.Instance.SetLight(directionalLight.cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
                                                                   currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace,
                                                                   shadow.FarPlaneSplit1, shadow.FarPlaneSplit2, shadow.FarPlaneSplit3, shadow.FarPlaneSplit4);
-                        // FrustumCulling(, modelsToRenderShadow);
-                        // Render the opaque objects...
-                        CascadedShadowMapShader.Instance.SetSplit(0);
-                        for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
+                        LightDepthBufferShader.Instance.Begin(new Size(shadow.LightDepthTextureSize.Width * CascadedShadowMapShader.NumberSplits, 
+                                                                       shadow.LightDepthTextureSize.Height));
+
+                        for (int splitNumber = 0; splitNumber < CascadedShadowMapShader.NumberSplits; splitNumber++)
                         {
-                            ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[j];
-                            if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
-                                CascadedShadowMapShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms, 0);
+                            LightDepthBufferShader.Instance.SetLightMatrices(CascadedShadowMapShader.Instance.LightViewMatrix[splitNumber],
+                                                                             CascadedShadowMapShader.Instance.LightProjectionMatrix[splitNumber]);
+                            LightDepthBufferShader.Instance.SetViewport(splitNumber);
+
+                            #region Frustum Culling
+
+                            cameraBoundingFrustum.Matrix = CascadedShadowMapShader.Instance.LightViewMatrix[splitNumber] * CascadedShadowMapShader.Instance.LightProjectionMatrix[splitNumber];
+                            modelsToRenderShadows.Clear();
+                            FrustumCulling(cameraBoundingFrustum, modelsToRenderShadows);
+
+                            #endregion
+
+                            for (int j = 0; j < modelsToRenderShadows.Count; j++)
+                            {
+                                ModelRenderer modelRenderer = modelsToRenderShadows[j];
+                                if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
+                                    LightDepthBufferShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
+                            }
                         }
-                        CascadedShadowMapShader.Instance.SetSplit(1);
-                        for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
-                        {
-                            ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[j];
-                            if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
-                                CascadedShadowMapShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms, 1);
-                        }
-                        CascadedShadowMapShader.Instance.SetSplit(2);
-                        for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
-                        {
-                            ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[j];
-                            if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
-                                CascadedShadowMapShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms, 2);
-                        }
-                        CascadedShadowMapShader.Instance.SetSplit(3);
-                        for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
-                        {
-                            ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[j];
-                            if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
-                                CascadedShadowMapShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms, 3);
-                        }
-                        directionalLight.ShadowTexture = CascadedShadowMapShader.Instance.End(ref shadow.LightDepthTexture);
+
+                        shadow.LightDepthTexture = LightDepthBufferShader.Instance.End();
+                        directionalLight.ShadowTexture = CascadedShadowMapShader.Instance.Render(shadow.LightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter);
                     }
 
                     #endregion
