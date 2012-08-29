@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -28,6 +28,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
+using System;
+using XNAFinalEngine.Helpers;
+
 namespace XNAFinalEngine.Assets
 {
 	/// <summary>
@@ -38,8 +41,36 @@ namespace XNAFinalEngine.Assets
 
         #region Variables
 
+        private Size lightDepthTextureSize = Size.Square1024X1024;
+
         // The count of materials for naming purposes.
         private static int nameNumber = 1;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Light Depth Texture
+        /// </summary>
+        internal RenderTarget LightDepthTexture;
+
+        /// <summary>
+        /// Light depth texture size.
+        /// This is a temporal render target but its size is important. 
+        /// Greater size equals better results but the performance penalty is significant.
+        /// The size has to be square.
+        /// </summary>
+        public Size LightDepthTextureSize
+        {
+            get { return lightDepthTextureSize; }
+            set
+            {
+                if (value.Width != value.Height)
+                    throw new ArgumentException("Shadow: light depth textures needs to be square.");
+                lightDepthTextureSize = value;
+            }
+        } // LightDepthTextureSize
 
         #endregion
 

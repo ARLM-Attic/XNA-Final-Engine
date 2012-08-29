@@ -313,7 +313,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Calculate multiSample quality.
         /// </summary>
-        private static int CalculateMultiSampleQuality(AntialiasingType antialiasingTypeType)
+        internal static int CalculateMultiSampleQuality(AntialiasingType antialiasingTypeType)
         {
             switch (antialiasingTypeType)
             {

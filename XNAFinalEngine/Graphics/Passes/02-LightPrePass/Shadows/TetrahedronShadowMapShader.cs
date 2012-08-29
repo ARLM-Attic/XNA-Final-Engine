@@ -35,7 +35,6 @@ using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
-using Model = XNAFinalEngine.Assets.Model;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -53,13 +52,6 @@ namespace XNAFinalEngine.Graphics
 	{
 
 		#region Variables
-        
-        // Light Matrices.
-        private Matrix lightProjectionMatrix, lightViewMatrix;
-        
-	    private Shadow.FilterType filterType;
-
-	    private RenderTarget lightDepthTexture, deferredShadowResult;
 
         // Singleton reference.
         private static TetrahedronShadowMapShader instance;
@@ -100,8 +92,7 @@ namespace XNAFinalEngine.Graphics
                                         epFrustumCorners,
                                         epDepthBias,
                                         epShadowMapSize,
-                                        epInvShadowMapSize,
-                                        epBones;
+                                        epInvShadowMapSize;
 
         #region Matrices
 
@@ -219,25 +210,7 @@ namespace XNAFinalEngine.Graphics
         } // SetShadowMapTexelSize
 
         #endregion
-
-        #region Bones
-
-        private static readonly Matrix[] lastUsedBones = new Matrix[72];
-        private static void SetBones(Matrix[] bones)
-        {
-            if (!ArrayHelper.Equals(lastUsedBones, bones))
-            {
-                // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
-                for (int i = 0; i < 4; i++)
-                {
-                    lastUsedBones[i] = bones[i];
-                }
-                epBones.SetValue(bones);
-            }
-        } // SetBones
-
-        #endregion
-
+        
         #endregion
 
         #region Constructor
@@ -246,7 +219,7 @@ namespace XNAFinalEngine.Graphics
         /// Render point light shadows from all directions using the tetrahedron shadow technique. 
         /// </summary>
         /// <remarks>
-        /// This technique is faster than the cube map technique and it has a few interesting optimization options.
+        /// This technique is slightly faster than the cube map technique if the lookup and stencil optimizations are used.
         /// For a full description read the GPU Pro 1 chapter called Shadow Mapping for Omnidirectional Light Using Tetrahedron Mapping.
         /// </remarks>
         private TetrahedronShadowMapShader() : base("Shadows\\TetrahedronShadowMap") { }
@@ -288,9 +261,6 @@ namespace XNAFinalEngine.Graphics
                     epShadowMapSize.SetValue(lastUsedShadowMapSize);
                 epInvShadowMapSize    = Resource.Parameters["invShadowMapSize"];
                     epInvShadowMapSize.SetValue(new Vector2(1f / lastUsedShadowMapSize.X, 1f / lastUsedShadowMapSize.Y));
-                // Skinning //
-                epBones = Resource.Parameters["Bones"];
-                    epBones.SetValue(lastUsedBones);
             }
             catch
             {
@@ -300,222 +270,78 @@ namespace XNAFinalEngine.Graphics
 
 		#endregion
 
-        #region Begin
-
-        /// <summary>
-        /// Begins the G-Buffer render.
-        /// </summary>
-        internal void Begin(Size lightDepthTextureSize, RenderTarget depthTexture, float depthBias, Shadow.FilterType filterType)
-        {
-            try
-            {
-                // Creates the render target textures
-                lightDepthTexture = RenderTarget.Fetch(lightDepthTextureSize, SurfaceFormat.HalfSingle, DepthFormat.Depth16, RenderTarget.AntialiasingType.NoAntialiasing);
-                // Alpha8 doesn't work in my old G92 GPU processor and I opt to work with half single. Color is another good choice because support texture filtering.
-                // XBOX 360 Xbox does not support 16 bit render targets (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
-                // Color would be the better choice for the XBOX 360.
-                // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.
-                deferredShadowResult = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-
-                // Set Render States.
-                EngineManager.Device.BlendState = BlendState.Opaque;
-                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                EngineManager.Device.DepthStencilState = DepthStencilState.Default;
-                // If I set the sampler states here and no texture is set then this could produce exceptions 
-                // because another texture from another shader could have an incorrect sampler state when this shader is executed.
-
-                // Set parameters.
-                SetHalfPixel(new Vector2(-0.5f / (depthTexture.Size.Width / 2), 0.5f / (depthTexture.Size.Height / 2)));
-                SetShadowMapTexelSize(new Vector2(lightDepthTextureSize.Width, lightDepthTextureSize.Height));
-                SetDepthBias(depthBias);
-                SetDepthTexture(depthTexture);
-                this.filterType = filterType;
-
-                // Enable first render target.
-                lightDepthTexture.EnableRenderTarget();
-                lightDepthTexture.Clear(Color.White);
-                
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException("Shadow Map Shader: Unable to begin the rendering.", e);
-            }
-        } // Begin
-
-        #endregion
-
-        #region Process
-
-        /// <summary>
-        /// The last pass of the shadow calculations.
-        /// </summary>
-        private void Process()
-        {
-            // Render deferred shadow result
-            EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-            SetShadowMapTexture(lightDepthTexture);
-
-            deferredShadowResult.EnableRenderTarget();
-            deferredShadowResult.Clear(Color.White);
-
-            switch (filterType)
-            {
-                case Shadow.FilterType.Pcf2X2: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap2x2PCF"]; break;
-                case Shadow.FilterType.Pcf3X3: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap3x3PCF"]; break;
-                case Shadow.FilterType.Pcf5X5: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap5x5PCF"]; break;
-                case Shadow.FilterType.Pcf7X7: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap7x7PCF"]; break;
-                default: Resource.CurrentTechnique = Resource.Techniques["RenderShadowMapPoisonPCF"]; break;
-            }
-
-            Resource.CurrentTechnique.Passes[0].Apply();
-            RenderScreenPlane();
-            deferredShadowResult.DisableRenderTarget();
-            //BlurShader.Instance.Filter(deferredShadowResult, true, 1); // TODO!!! Volver a activarla
-        } // Process
-
-        #endregion
-
-        #region End
-
-        /// <summary>
-        /// Resolve render targets and return the deferred shadow map.
-        /// </summary>
-        internal RenderTarget End(ref RenderTarget _lightDepthTexture)
-        {
-            try
-            {
-                // Resolve shadow map.
-                lightDepthTexture.DisableRenderTarget();
-                _lightDepthTexture = lightDepthTexture;
-                Process();
-                return deferredShadowResult;
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException("Shadow Map Shader: Unable to end the rendering.", e);
-            }
-        } // End
-
-        /// <summary>
-        /// Resolve render targets and return the deferred shadow map.
-        /// </summary>
-        internal RenderTarget ProcessWithPrecalculedLightDepthTexture(RenderTarget lightDepthTexture)
-        {
-            try
-            {
-                // Use parameter.
-                this.lightDepthTexture = lightDepthTexture;
-                Process();
-                return deferredShadowResult;
-            }
-            catch (Exception e)
-            {
-                throw new InvalidOperationException("Shadow Map Shader: Unable to end the rendering.", e);
-            }
-        } // ProcessWithPrecalculedLightDepthTexture
-
-        #endregion
-        
         #region Set Light
-
-        // To avoid garbage use always the same values.
-        private static readonly Vector3[] cornersWorldSpace = new Vector3[8];
-        private static readonly Vector3[] frustumCornersLightSpace = new Vector3[8];
-        private static readonly BoundingFrustum boundingFrustumTemp = new BoundingFrustum(Matrix.Identity);
-
-        /// <summary>
-		/// Calculate light matrices.
-		/// </summary>
-        internal void SetLight(Vector3 position, Vector3 direction, Matrix viewMatrix, float apertureCone, float range, Vector3[] boundingFrustum)
-		{
-
-            lightViewMatrix = Matrix.CreateLookAt(position, position + direction, Vector3.Up);
-            lightProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(apertureCone * (float)Math.PI / 180.0f, // field of view
-                                                                        1.0f,   // Aspect ratio
-                                                                        1f,   // Near plane
-                                                                        range); // Far plane
-            SetViewToLightViewProjMatrix(Matrix.Invert(viewMatrix) * lightViewMatrix * lightProjectionMatrix);
-            SetFrustumCorners(boundingFrustum);
-		} // SetLight
 
         /// <summary>
         /// Determines the size of the frustum needed to cover the viewable area, then creates the light view matrix and an appropriate orthographic projection.
         /// </summary>
-        internal void SetLight(Vector3 direction, Matrix viewMatrix, float range, Vector3[] boundingFrustum)
+        internal void SetLight(Vector3 direction, Matrix viewMatrix, Matrix projectionMatrix, float nearPlane, float farPlane, Vector3[] boundingFrustum,
+                               float farPlaneSplit1, float farPlaneSplit2, float farPlaneSplit3, float farPlaneSplit4)
         {
-            const float nearPlane = 1f;
 
-            #region Far Frustum Corner in View Space
-
-            boundingFrustumTemp.Matrix = viewMatrix * Matrix.CreatePerspectiveFieldOfView(3.1416f * 45 / 180.0f, 1, nearPlane, range);
-            boundingFrustumTemp.GetCorners(cornersWorldSpace);
-            Vector3 frustumCornersViewSpace4 = Vector3.Transform(cornersWorldSpace[4], viewMatrix);
-            Vector3 frustumCornersViewSpace5 = Vector3.Transform(cornersWorldSpace[5], viewMatrix);
-
-            #endregion
-
-            // Find the centroid
-            Vector3 frustumCentroid = new Vector3(0, 0, 0);
-            for (int i = 0; i < 8; i++)
-                frustumCentroid += cornersWorldSpace[i];
-            frustumCentroid /= 8;
-
-            // Position the shadow-caster camera so that it's looking at the centroid, and backed up in the direction of the sunlight
-            float distFromCentroid = MathHelper.Max((range - nearPlane), Vector3.Distance(frustumCornersViewSpace4, frustumCornersViewSpace5)) + 50.0f;
-            lightViewMatrix = Matrix.CreateLookAt(frustumCentroid - (direction * distFromCentroid), frustumCentroid, Vector3.Up);
-
-            // Determine the position of the frustum corners in light space
-            Vector3.Transform(cornersWorldSpace, ref lightViewMatrix, frustumCornersLightSpace);
-
-            // Calculate an orthographic projection by sizing a bounding box to the frustum coordinates in light space
-            Vector3 mins = frustumCornersLightSpace[0];
-            Vector3 maxes = frustumCornersLightSpace[0];
-            for (int i = 0; i < 8; i++)
-            {
-                if (frustumCornersLightSpace[i].X > maxes.X)
-                    maxes.X = frustumCornersLightSpace[i].X;
-                else if (frustumCornersLightSpace[i].X < mins.X)
-                    mins.X = frustumCornersLightSpace[i].X;
-                if (frustumCornersLightSpace[i].Y > maxes.Y)
-                    maxes.Y = frustumCornersLightSpace[i].Y;
-                else if (frustumCornersLightSpace[i].Y < mins.Y)
-                    mins.Y = frustumCornersLightSpace[i].Y;
-                if (frustumCornersLightSpace[i].Z > maxes.Z)
-                    maxes.Z = frustumCornersLightSpace[i].Z;
-                else if (frustumCornersLightSpace[i].Z < mins.Z)
-                    mins.Z = frustumCornersLightSpace[i].Z;
-            }
-
-            // Create an orthographic camera for use as a shadow caster
-            lightProjectionMatrix = Matrix.CreateOrthographicOffCenter(mins.X, maxes.X, mins.Y, maxes.Y, -maxes.Z - range, -mins.Z);
-
-            SetViewToLightViewProjMatrix(Matrix.Invert(viewMatrix) * lightViewMatrix * lightProjectionMatrix);
-            SetFrustumCorners(boundingFrustum);
         } // SetLight
 
-		#endregion
+        #endregion
 
-        #region Render Model
-
+        #region Render
+        /*
         /// <summary>
-        /// Render objects in light space.
+        /// Calculate the final shadows using the scene depth and light depth information.
         /// </summary>
-        internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform)
+        internal RenderTarget Render(Texture lightDepthTexture, RenderTarget depthTexture, float depthBias, Shadow.FilterType filterType)
         {
-            if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
+            try
             {
-                SetBones(boneTransform);
-                Resource.CurrentTechnique = Resource.Techniques["GenerateShadowMapSkinned"];
+                // XBOX 360 Xbox does not support 16 bit render targets (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
+                // Color would be the better choice for the XBOX 360.
+                // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.
+                shadowTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+
+                // Set parameters.
+                SetShadowMapTexture(lightDepthTexture);
+                SetHalfPixel(new Vector2(-0.5f / (depthTexture.Width / 2), 0.5f / (depthTexture.Height / 2)));
+                SetShadowMapSize(new Vector2(lightDepthTexture.Width, lightDepthTexture.Height));
+                SetDepthBias(depthBias);
+                SetDepthTexture(depthTexture);
+
+                shadowTexture.EnableRenderTarget();
+                shadowTexture.Clear(Color.White);
+
+                switch (filterType)
+                {
+                    case Shadow.FilterType.Pcf2X2:
+                        Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap2x2PCF"];
+                        break;
+                    case Shadow.FilterType.Pcf3X3:
+                        Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap3x3PCF"];
+                        break;
+                    case Shadow.FilterType.Pcf5X5:
+                        Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap5x5PCF"];
+                        break;
+                    case Shadow.FilterType.Pcf7X7:
+                        Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap7x7PCF"];
+                        break;
+                    default:
+                        Resource.CurrentTechnique = Resource.Techniques["RenderShadowMapPoisonPCF"];
+                        break;
+                }
+
+                Resource.CurrentTechnique.Passes[0].Apply();
+                RenderScreenPlane();
+                shadowTexture.DisableRenderTarget();
+
+                //BilateralBlurShader.Instance.Filter(shadowTexture, true, 1); // TODO!!! Volver a activarla
+
+                return shadowTexture;
             }
-            else
-                Resource.CurrentTechnique = Resource.Techniques["GenerateShadowMap"];
-            SetWorldViewProjMatrix(worldMatrix * lightViewMatrix * lightProjectionMatrix);
-            Resource.CurrentTechnique.Passes[0].Apply();
-            model.Render();
-
-        } // RenderModel
-
-		#endregion
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Shadow Map Shader: Unable to render.", e);
+            }
+        } // Render
+        */
+        #endregion
+        
 
     } // TetrahedronShadowMapShader
 } // XNAFinalEngine.Graphics

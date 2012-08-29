@@ -36,6 +36,7 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 using Model = XNAFinalEngine.Assets.Model;
+using RenderTargetCube = XNAFinalEngine.Assets.RenderTargetCube;
 #endregion
 
 namespace XNAFinalEngine.Graphics
@@ -54,6 +55,9 @@ namespace XNAFinalEngine.Graphics
 
         // The result is stored here.
         private RenderTarget lightDepthTexture;
+
+        // or here if it is a cube render target.
+        private RenderTargetCube lightDepthTextureCube;
 
         // Singleton reference.
         private static LightDepthBufferShader instance;
@@ -160,7 +164,7 @@ namespace XNAFinalEngine.Graphics
         #region Begin
 
         /// <summary>
-        /// Begins the rendering of the depth information from the light point of view.
+        /// Begins the rendering of the depth information from the light point of view over a conventional render target.
         /// </summary>
         internal void Begin(Size lightDepthTextureSize)
         {
@@ -177,6 +181,27 @@ namespace XNAFinalEngine.Graphics
                 // Enable first render target.
                 lightDepthTexture.EnableRenderTarget();
                 lightDepthTexture.Clear(Color.White);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Shadow Map Shader: Unable to begin the rendering.", e);
+            }
+        } // Begin
+
+        /// <summary>
+        /// Begins the rendering of the depth information from the light point of view over a cube render target. 
+        /// </summary>
+        internal void Begin(int lightDepthTextureSize)
+        {
+            try
+            {
+                // Creates the render target textures
+                lightDepthTextureCube = RenderTargetCube.Fetch(lightDepthTextureSize, SurfaceFormat.HalfSingle, DepthFormat.Depth16, RenderTarget.AntialiasingType.NoAntialiasing);
+
+                // Set Render States.
+                EngineManager.Device.BlendState = BlendState.Opaque;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                EngineManager.Device.DepthStencilState = DepthStencilState.Default;
             }
             catch (Exception e)
             {
@@ -221,6 +246,28 @@ namespace XNAFinalEngine.Graphics
 
         #endregion    
 
+        #region Set Face
+
+        /// <summary>
+        /// Set face for cube shadows.
+        /// </summary>
+        internal void SetFace(CubeMapFace cubeMapFace)
+        {
+            // Enable first render target.
+            lightDepthTextureCube.EnableRenderTarget(cubeMapFace);
+            lightDepthTextureCube.Clear(Color.White);
+        } // SetViewport
+
+        /// <summary>
+        /// Unset current face.
+        /// </summary>
+        internal void UnsetCurrentFace()
+        {
+            lightDepthTextureCube.DisableRenderTarget();
+        } // UnsetCurrentFace
+
+        #endregion
+
         #region Render Model
 
         /// <summary>
@@ -259,6 +306,21 @@ namespace XNAFinalEngine.Graphics
                 throw new InvalidOperationException("Light Depth Buffer Shader: Unable to end the rendering.", e);
             }
         } // End
+
+        /// <summary>
+        /// Resolve and return the render target with the depth information from the light point of view.
+        /// </summary>
+        internal RenderTargetCube EndCube()
+        {
+            try
+            {
+                return lightDepthTextureCube;
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Light Depth Buffer Shader: Unable to end the rendering.", e);
+            }
+        } // EndCube
 
         #endregion
 

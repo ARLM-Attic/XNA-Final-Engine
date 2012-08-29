@@ -521,22 +521,38 @@ namespace XNAFinalEngine.EngineCore
             #region Release Shadow Light Depth Textures
 
             // We can do this from time to time to reduce calculations.
-            // The problem is that I have to store the result for each camera.
+            // The problem is that in some cases we have to store the result for each camera.
             // And how much cameras do the game will have?
             for (int i = 0; i < SpotLight.ComponentPool.Count; i++)
             {
                 if (SpotLight.ComponentPool.Elements[i].Shadow != null)
                 {
-                    RenderTarget.Release(SpotLight.ComponentPool.Elements[i].Shadow.LightDepthTexture);
-                    SpotLight.ComponentPool.Elements[i].Shadow.LightDepthTexture = null;
+                    RenderTarget.Release(((BasicShadow)SpotLight.ComponentPool.Elements[i].Shadow).LightDepthTexture);
+                    ((BasicShadow)SpotLight.ComponentPool.Elements[i].Shadow).LightDepthTexture = null;
                 }
             }
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
                 if (DirectionalLight.ComponentPool.Elements[i].Shadow != null)
                 {
-                    RenderTarget.Release(DirectionalLight.ComponentPool.Elements[i].Shadow.LightDepthTexture);
-                    DirectionalLight.ComponentPool.Elements[i].Shadow.LightDepthTexture = null;
+                    if (DirectionalLight.ComponentPool.Elements[i].Shadow is BasicShadow)
+                    {
+                        RenderTarget.Release(((BasicShadow)DirectionalLight.ComponentPool.Elements[i].Shadow).LightDepthTexture);
+                        ((BasicShadow)DirectionalLight.ComponentPool.Elements[i].Shadow).LightDepthTexture = null;   
+                    }
+                    else
+                    {
+                        RenderTarget.Release(((CascadedShadow)DirectionalLight.ComponentPool.Elements[i].Shadow).LightDepthTexture);
+                        ((CascadedShadow)DirectionalLight.ComponentPool.Elements[i].Shadow).LightDepthTexture = null;   
+                    }
+                }
+            }
+            for (int i = 0; i < PointLight.ComponentPool.Count; i++)
+            {
+                if (PointLight.ComponentPool.Elements[i].Shadow != null)
+                {
+                    Assets.RenderTargetCube.Release(((CubeShadow)PointLight.ComponentPool.Elements[i].Shadow).LightDepthTexture);
+                    ((CubeShadow)PointLight.ComponentPool.Elements[i].Shadow).LightDepthTexture = null;
                 }
             }
 
@@ -1003,6 +1019,7 @@ namespace XNAFinalEngine.EngineCore
 
                         shadow.LightDepthTexture = LightDepthBufferShader.Instance.End();
                         directionalLight.ShadowTexture = CascadedShadowMapShader.Instance.Render(shadow.LightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter);
+                        RenderTarget.Release(shadow.LightDepthTexture);
                     }
 
                     #endregion
@@ -1084,6 +1101,59 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            #region Point Light Shadows
+
+            for (int i = 0; i < PointLight.ComponentPool.Count; i++)
+            {
+                PointLight pointLight = PointLight.ComponentPool.Elements[i];
+                // If there is a shadow map for this light and it is active...
+                if (pointLight.Shadow != null && pointLight.Shadow.Enabled && pointLight.IsVisible && pointLight.Intensity > 0)
+                {
+
+                    #region Cube Shadow
+
+                    // If the shadow map is a cascaded shadow map...
+                    // A cascaded shadow is influenced by camera transformation.
+                    if (pointLight.Shadow is CubeShadow)
+                    {
+                        CubeShadow shadow = (CubeShadow)pointLight.Shadow;
+
+                        CubeShadowMapShader.Instance.SetLight(pointLight.cachedPosition, pointLight.Range);
+                        LightDepthBufferShader.Instance.Begin(shadow.LightDepthTextureSize);
+
+                        for (int faceNumber = 0; faceNumber < 6; faceNumber++)
+                        {
+                            LightDepthBufferShader.Instance.SetLightMatrices(CubeShadowMapShader.Instance.LightViewMatrix[faceNumber],
+                                                                             CubeShadowMapShader.Instance.LightProjectionMatrix);
+                            LightDepthBufferShader.Instance.SetFace((CubeMapFace)faceNumber);
+
+                            /*#region Frustum Culling
+
+                            cameraBoundingFrustum.Matrix = CascadedShadowMapShader.Instance.LightViewMatrix[faceNumber] * CascadedShadowMapShader.Instance.LightProjectionMatrix[faceNumber];
+                            modelsToRenderShadows.Clear();
+                            FrustumCulling(cameraBoundingFrustum, modelsToRenderShadows);
+
+                            #endregion*/
+
+                            for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
+                            {
+                                ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[j];
+                                if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
+                                    LightDepthBufferShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
+                            }
+
+                            LightDepthBufferShader.Instance.UnsetCurrentFace();
+                        }
+                        shadow.LightDepthTexture = LightDepthBufferShader.Instance.EndCube();
+                    }
+
+                    #endregion
+
+                }
+            }
+
+            #endregion
+
             #endregion
 
             #region Light Texture
@@ -1134,6 +1204,7 @@ namespace XNAFinalEngine.EngineCore
 
             // Frustum Culling
             pointLightsToRender.Clear();
+            cameraBoundingFrustum.Matrix = currentCamera.ViewMatrix * currentCamera.ProjectionMatrix;
             FrustumCulling(cameraBoundingFrustum, pointLightsToRender);
 
             PointLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
@@ -1148,7 +1219,7 @@ namespace XNAFinalEngine.EngineCore
                 PointLight pointLight = pointLightsToRender[i];
                 if (pointLight.Intensity > 0 && pointLight.IsVisible)
                 {
-                    PointLightShader.Instance.RenderLight(pointLight.Color, pointLight.cachedPosition, pointLight.Intensity, pointLight.Range);
+                    PointLightShader.Instance.RenderLight(pointLight.Color, pointLight.cachedPosition, pointLight.Intensity, pointLight.Range, pointLight.Shadow);
                 }
             }
 
@@ -1158,6 +1229,7 @@ namespace XNAFinalEngine.EngineCore
 
             // Frustum Culling
             spotLightsToRender.Clear();
+            cameraBoundingFrustum.Matrix = currentCamera.ViewMatrix * currentCamera.ProjectionMatrix;
             FrustumCulling(cameraBoundingFrustum, spotLightsToRender);
 
             SpotLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
@@ -1218,7 +1290,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
             
             /*renderTarget.EnableRenderTarget();
-            SpriteManager.DrawTextureToFullScreen(lightTextures.RenderTargets[0]);
+            SpriteManager.DrawTextureToFullScreen(lightTextures.RenderTargets[1]);
             if (currentCamera.RenderHeadUpDisplay)
                 RenderHeadsUpDisplay();
             renderTarget.DisableRenderTarget();
@@ -1232,8 +1304,8 @@ namespace XNAFinalEngine.EngineCore
 
             ScenePass.Begin(renderTarget.Size, currentCamera.ClearColor);
 
-            ReconstructZBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], currentCamera.FarPlane, currentCamera.ProjectionMatrix);
-            EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
+            //ReconstructZBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], currentCamera.FarPlane, currentCamera.ProjectionMatrix);
+            //EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
 
             #region Opaque Objects
 

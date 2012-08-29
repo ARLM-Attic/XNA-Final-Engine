@@ -257,7 +257,7 @@ namespace XNAFinalEngine.Graphics
                 }
                 else
                 {
-                    lastUsedIsRGBM = true;
+                    lastUsedIsRGBM = false;
                 }
                 epIsRGBM.SetValue(lastUsedIsRGBM);
                 epReflectionTexture.SetValue(reflectionTexture.Resource);

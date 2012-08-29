@@ -62,7 +62,6 @@ namespace XNAFinalEngine.Assets
 		#region Variables
         
         // Default values.
-        private Size lightDepthTextureSize = Size.Square1024X1024;
         private FilterType filter = FilterType.Pcf5X5;
         private float depthBias = 0.0025f;
         private Size.TextureSize textureSize = Size.TextureSize.FullSize;
@@ -70,11 +69,6 @@ namespace XNAFinalEngine.Assets
 
         // Is it enabled?
         private bool enabled = true;
-
-	    /// <summary>
-	    /// Light Depth Texture
-	    /// </summary>
-        internal RenderTarget LightDepthTexture;
 
         #endregion
 
@@ -116,23 +110,6 @@ namespace XNAFinalEngine.Assets
             }
         } // DepthBias
         
-        /// <summary>
-        /// Light depth texture size.
-        /// This is a temporal render target but its size is important. 
-        /// Greater size equals better results but the performance penalty is significant.
-        /// The size has to be square.
-        /// </summary>
-	    public Size LightDepthTextureSize
-	    {
-	        get { return lightDepthTextureSize; }
-	        set
-	        {
-                if (value.Width != value.Height)
-                    throw new ArgumentException("Shadow: light depth textures needs to be square.");
-	            lightDepthTextureSize = value;
-	        }
-        } // ShadowMapSize
-
 	    /// <summary>
         /// Shadow Texture Size.
         /// This is a low frequency result therefore you don’t have to use a full screen size buffer.

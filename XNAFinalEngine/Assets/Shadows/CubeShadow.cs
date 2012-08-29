@@ -28,44 +28,53 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
-#region Using directives
-using System;
-using XNAFinalEngine.EngineCore;
-#endregion
-
-namespace XNAFinalEngineExamples
+namespace XNAFinalEngine.Assets
 {
+	/// <summary>
+	/// Cube shadows.
+	/// </summary>
+    public class CubeShadow : Shadow
+	{
 
-    /// <summary>
-    /// The execution starts here, in the main method.
-    /// Before the Engine core will be up and running there are a set of task that are (or can be) performed, like network updates.
-    /// </summary>
-    static class Program
-    {
+        #region Variables
 
-        #region Main
+        private int lightDepthTextureSize = 1024;
 
-        /// <summary>
-        /// Here the initial tasks are performed; the engine (and the aplication's logic) start; and the exceptions are managed.
-        /// The main method doesn't accept input parameters.
-        /// </summary>
-        #if (!XBOX)
-            [STAThread]
-        #endif
-        private static void Main()
-        {
-            // User initial code. Like network updates or some checking.
-
-            // Now the engine will start.
-            //EngineManager.StartEngine(new DudeEditableScene(), false);
-            //EngineManager.StartEngine(new PrototypeScene(), false);
-            EngineManager.StartEngine(new WarehouseScene(), false);
-            //EngineManager.StartEngine(new MiscellaneousTestScene(), false);
-            //EngineManager.StartEngine(new NeoForceTestScene());
-            //EngineManager.StartEngine(new HelloWorldScene(), false);
-        } // Main
+        // The count of materials for naming purposes.
+        private static int nameNumber = 1;
 
         #endregion
 
-    } // Program
-} // XNAFinalEngineExamples
+        #region Properties
+
+        /// <summary>
+        /// Light Depth Texture
+        /// </summary>
+        internal RenderTargetCube LightDepthTexture;
+
+        /// <summary>
+        /// Light depth texture size.
+        /// This is a temporal render target but its size is important. 
+        /// Greater size equals better results but the performance penalty is significant.
+        /// The size has to be square.
+        /// </summary>
+        public int LightDepthTextureSize
+        {
+            get { return lightDepthTextureSize; }
+            set { lightDepthTextureSize = value; }
+        } // LightDepthTextureSize
+
+        #endregion
+
+        #region Constructor
+
+        public CubeShadow()
+        {
+            Name = "Cube Shadow-" + nameNumber;
+            nameNumber++;
+        } // CubeShadow
+
+        #endregion
+
+    } // CubeShadow
+} // XNAFinalEngine.Assets

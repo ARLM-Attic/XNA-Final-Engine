@@ -47,9 +47,6 @@ namespace XNAFinalEngine.Assets
                 
         // XNA Texture.
         protected Microsoft.Xna.Framework.Graphics.TextureCube xnaTextureCube;
-        
-        // The size of this texture resource, in pixels.
-	    protected int size;
 
         #endregion
 
@@ -63,7 +60,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// The size of this texture resource, in pixels.
         /// </summary>
-        public int Size { get { return size; } }
+        public int Size { get; protected set; }
 
         /// <summary>
         /// Is it in RGBM format?
@@ -105,7 +102,7 @@ namespace XNAFinalEngine.Assets
             try
             {
                 xnaTextureCube = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Graphics.TextureCube>(Filename);
-                size = xnaTextureCube.Size;
+                Size = xnaTextureCube.Size;
                 Resource.Name = filename;
             }
             catch (ObjectDisposedException)
@@ -118,10 +115,7 @@ namespace XNAFinalEngine.Assets
             }
 		} // TextureCube
 
-        /// <summary>
-        /// Used for serialization.
-        /// </summary>
-        private TextureCube() {}
+        protected TextureCube() { }
 
 		#endregion
 

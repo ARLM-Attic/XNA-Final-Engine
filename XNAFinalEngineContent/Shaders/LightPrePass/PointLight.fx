@@ -41,6 +41,21 @@ float  invLightRadius;
 float  lightIntensity;
 
 //////////////////////////////////////////////
+//////////////// Textures ////////////////////
+//////////////////////////////////////////////
+
+texture  cubeShadowTexture;
+samplerCUBE cubeShadowSampler = sampler_state
+{
+    Texture = <cubeShadowTexture>;
+    /*MinFilter = Linear;
+    MagFilter = Linear;
+    MipFilter = None;
+    AddressU = Clamp;
+    AddressV = Clamp;*/
+};
+
+//////////////////////////////////////////////
 ////////////// Data Structs //////////////////
 //////////////////////////////////////////////
 
@@ -75,7 +90,7 @@ VS_OUT vs_main(in float4 position : POSITION)
 //////////////////////////////////////////////
 
 // This shader works in view space.
-PixelShader_OUTPUT ps_main(VS_OUT input)
+PixelShader_OUTPUT ps_main(VS_OUT input, uniform bool hasShadows)
 {
 	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
 		
@@ -90,7 +105,7 @@ PixelShader_OUTPUT ps_main(VS_OUT input)
     
 	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
 	float depth = tex2D(depthSampler, uv).r;
-			
+					
 	// This is a ray constructed using the camera frustum.
     // Because it will be interpolated for the current pixel we can use
     // this to reconstruct the position of the surface we want to light.
@@ -130,6 +145,20 @@ PixelShader_OUTPUT ps_main(VS_OUT input)
     float3 R = reflect(-V, N);
 	// Compute specular light
     float specular = pow(saturate(dot(L, R)), specularPower);*/
+
+	// Process the shadow map value.
+	float shadowTerm = 1.0;
+
+	if (hasShadows) // No need for [branch], this is a uniform value.
+	{
+		shadowTerm = tex2D(shadowSampler, uv).r;
+		[branch]
+		if (shadowTerm == 0)
+		{
+			Discard();
+			return (PixelShader_OUTPUT)0;
+		}
+	}
 		
 	// Fill the light buffer:
 	// R: Color.r * N.L // The color need to be in linear space and right now it's in gamma.
@@ -137,7 +166,7 @@ PixelShader_OUTPUT ps_main(VS_OUT input)
 	// B: Color.b * N.L
 	// A: Specular Term * N.L (Look in Shader X7 to know why N * L is necesary in this last channel or use your brain, it is easy actually.)
 	// http://diaryofagraphicsprogrammer.blogspot.com/2008/03/light-pre-pass-renderer.html
-	output.diffuse = float4(GammaToLinear(lightColor) * attenuation * lightIntensity * NL, 0);
+	output.diffuse = float4(GammaToLinear(lightColor) * attenuation * lightIntensity * NL * shadowTerm, 0);
 	output.specular = float4(output.diffuse.rgb * specular, 0);
 	return output;
 } // ps_main
@@ -156,9 +185,18 @@ technique PointLight
 	pass p0
 	{
 		VertexShader = compile vs_3_0 vs_main();
-		PixelShader  = compile ps_3_0 ps_main();
+		PixelShader  = compile ps_3_0 ps_main(false);
 	}
 } // PointLight
+
+technique PointLightWithShadows
+{
+	pass p0
+	{
+		VertexShader = compile vs_3_0 vs_main();
+		PixelShader  = compile ps_3_0 ps_main(true);
+	}
+} // PointLightWithShadows
 
 technique PointLightStencil
 {

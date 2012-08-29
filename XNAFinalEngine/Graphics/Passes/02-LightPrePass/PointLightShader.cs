@@ -372,7 +372,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render to the light pre pass texture.
         /// </summary>
-        public void RenderLight(Color diffuseColor, Vector3 position, float intensity, float radius)
+        public void RenderLight(Color diffuseColor, Vector3 position, float intensity, float radius, CubeShadow shadow)
         {
             try
             {

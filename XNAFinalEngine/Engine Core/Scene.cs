@@ -29,7 +29,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
 #endregion

@@ -73,12 +73,6 @@ namespace XNAFinalEngine.Assets
         // Normal Perturbation. Value between -1 and 1.
         private float normalPerturbation = 1.0f;
 
-        // Specular Power.
-        private float specularPower = 50;
-
-        // Specular Intensity.
-        private float specularIntensity = 1.0f;
-
         private float flakesScale = 50;
         private float flakesExponent = 16;
 
@@ -116,59 +110,7 @@ namespace XNAFinalEngine.Assets
         } // FlakeLayerColor1
 
         #endregion
-
-        #region Normals
-
-        /// <summary>
-        /// Normal map texture.
-        /// </summary>
-        [XmlIgnore]
-        public Texture NormalTexture { get; set; }
-
-        #endregion
-
-        #region Specular
-
-        /// <summary>
-        /// Specular Power.
-        /// </summary>
-        public float SpecularPower
-        {
-            get { return specularPower; }
-            set { specularPower = value; }
-        } // SpecularPower
-
-        /// <summary>
-        /// Specular Intensity.
-        /// </summary>
-        public float SpecularIntensity
-        {
-            get { return specularIntensity; }
-            set { specularIntensity = value; }
-        } // SpecularIntensity
-
-        /// <summary>
-        /// Specular texture. If it's null then the SpecularIntensity and SpecularPower values will be used.
-        /// RGB: specular intensity.
-        /// A:   specular power.
-        /// </summary>
-        [XmlIgnore]
-        public Texture SpecularTexture { get; set; }
-
-        /// <summary>
-        /// Indicates if the specular power will be read from the texture (the alpha channel of the specular texture) or from the specular power property.
-        /// Default value: false
-        /// </summary>
-        public bool SpecularPowerFromTexture { get; set; }
-
-        /// <summary>
-        /// Reflection Texture.
-        /// </summary>
-        [XmlIgnore]
-        public TextureCube ReflectionTexture { get; set; }
-
-        #endregion
-
+        
         #region Flakes
 
         /// <summary>

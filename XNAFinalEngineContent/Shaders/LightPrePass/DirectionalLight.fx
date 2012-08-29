@@ -108,6 +108,7 @@ PixelShader_OUTPUT ps_main(uniform bool hasShadows, in float2 uv : TEXCOORD0, in
 		if (shadowTerm == 0)
 		{
 			Discard();
+			return (PixelShader_OUTPUT)0;
 		}
 	}
 

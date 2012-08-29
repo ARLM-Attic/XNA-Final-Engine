@@ -124,10 +124,12 @@
     <Compile Include="Assets\Shadows\CascadedShadow.cs" />
     <Compile Include="Assets\Shadows\BasicShadow.cs" />
     <Compile Include="Assets\AssetWithoutResource.cs" />
+    <Compile Include="Assets\Shadows\CubeShadow.cs" />
     <Compile Include="Assets\Sky\Skydome.cs" />
     <Compile Include="Assets\Sky\Skybox.cs" />
     <Compile Include="Assets\Sky\Sky.cs" />
     <Compile Include="Assets\Shadows\Shadow.cs" />
+    <Compile Include="Assets\Textures\RenderTargetCube.cs" />
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\Texture.cs" />
     <Compile Include="Assets\Textures\TextureCube.cs" />
@@ -184,6 +186,7 @@
     <Compile Include="Graphics\Passes\02-LightPrePass\Ambient Occlusion\HorizonBasedAmbientOcclusionShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\Ambient Occlusion\RayMarchingAmbientOcclusionShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\AmbientLightShader.cs" />
+    <Compile Include="Graphics\Passes\02-LightPrePass\Shadows\CubeShadowMapShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\Shadows\LightDepthBufferShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\Shadows\TetrahedronShadowMapShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\SpotLightShader.cs" />

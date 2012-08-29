@@ -28,6 +28,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
+using System;
+using XNAFinalEngine.Helpers;
+
 namespace XNAFinalEngine.Assets
 {
 	/// <summary>
@@ -40,12 +43,36 @@ namespace XNAFinalEngine.Assets
 
         #region Variables
 
+        private Size lightDepthTextureSize = Size.Square1024X1024;
+
         // The count of materials for naming purposes.
         private static int nameNumber = 1;
 
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// Light Depth Texture
+        /// </summary>
+        internal RenderTarget LightDepthTexture;
+
+        /// <summary>
+        /// Light depth texture size.
+        /// This is a temporal render target but its size is important. 
+        /// Greater size equals better results but the performance penalty is significant.
+        /// The size has to be square.
+        /// </summary>
+        public Size LightDepthTextureSize
+        {
+            get { return lightDepthTextureSize; }
+            set
+            {
+                if (value.Width != value.Height)
+                    throw new ArgumentException("Shadow: light depth textures needs to be square.");
+                lightDepthTextureSize = value;
+            }
+        } // LightDepthTextureSize
 
 	    /// <summary>
 	    /// Cascaded shadows are divided in a number of shadow maps that range from closer to the view point to closer to the far plane.
