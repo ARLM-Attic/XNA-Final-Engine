@@ -372,7 +372,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render to the light pre pass texture.
         /// </summary>
-        public void RenderLight(Color diffuseColor, Vector3 position, float intensity, float radius, CubeShadow shadow)
+        public void RenderLight(Color diffuseColor, Vector3 position, float intensity, float radius, Shadow shadow)
         {
             try
             {
@@ -412,6 +412,12 @@ namespace XNAFinalEngine.Graphics
                 SetLightIntensity(intensity);
                 SetInvLightRadius(1 / radius);
 
+                if (shadow != null && shadow is CubeShadow)
+                {
+                    Resource.Parameters["cubeShadowTexture"].SetValue(((CubeShadow)shadow).LightDepthTexture.Resource);
+                    Resource.Parameters["viewI"].SetValue(Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix))));
+                }
+
                 // Compute the light world matrix.
                 // Scale according to light radius, and translate it to light position.
                 Matrix boundingLightObjectWorldMatrix = Matrix.CreateScale(radius) * Matrix.CreateTranslation(position); // This operation could be optimized.
@@ -444,7 +450,10 @@ namespace XNAFinalEngine.Graphics
                     // Second pass.
                     // Render the clip volume back faces with the light shader.
                     // The pixel with stencil value of 1 that are in front of the geometry will be discarded.
-                    Resource.CurrentTechnique = Resource.Techniques["PointLight"];
+                    if (shadow != null && shadow is CubeShadow)
+                        Resource.CurrentTechnique = Resource.Techniques["PointLightWithShadows"];
+                    else
+                        Resource.CurrentTechnique = Resource.Techniques["PointLight"];
                     EngineManager.Device.RasterizerState = RasterizerState.CullClockwise;
                     EngineManager.Device.BlendState = lightBlendState;
                     EngineManager.Device.DepthStencilState = lightDepthStencilState;

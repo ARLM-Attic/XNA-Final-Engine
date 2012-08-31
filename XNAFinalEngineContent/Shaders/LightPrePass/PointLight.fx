@@ -40,6 +40,8 @@ float3 lightColor;
 float  invLightRadius;
 float  lightIntensity;
 
+float3x3 viewI;
+
 //////////////////////////////////////////////
 //////////////// Textures ////////////////////
 //////////////////////////////////////////////
@@ -48,11 +50,11 @@ texture  cubeShadowTexture;
 samplerCUBE cubeShadowSampler = sampler_state
 {
     Texture = <cubeShadowTexture>;
-    /*MinFilter = Linear;
-    MagFilter = Linear;
+    MinFilter = Point;//Linear;
+    MagFilter = Point;//Linear;
     MipFilter = None;
     AddressU = Clamp;
-    AddressV = Clamp;*/
+    AddressV = Clamp;
 };
 
 //////////////////////////////////////////////
@@ -148,10 +150,13 @@ PixelShader_OUTPUT ps_main(VS_OUT input, uniform bool hasShadows)
 
 	// Process the shadow map value.
 	float shadowTerm = 1.0;
-
+		
 	if (hasShadows) // No need for [branch], this is a uniform value.
-	{
-		shadowTerm = tex2D(shadowSampler, uv).r;
+	{	
+		float3 direction = mul(normalize(L), viewI);
+		direction.z = -direction.z;				
+		shadowTerm = ((length(L) * invLightRadius - 0.01f) < texCUBE(cubeShadowSampler, -normalize(direction)).x) ? 1.0f: 0.0f;
+
 		[branch]
 		if (shadowTerm == 0)
 		{

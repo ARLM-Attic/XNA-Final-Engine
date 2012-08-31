@@ -89,9 +89,12 @@ namespace XNAFinalEngine.Graphics
         private static EffectParameter
                                         // Matrices
                                         epWorldViewProj,
+                                        epWorld,
+                                        epLightRadius,
+                                        epLightPosition,
                                         epBones;
 
-        #region Matrices
+        #region World View Projection Matrix
 
         private static Matrix lastUsedWorldViewProjMatrix;
         private static void SetWorldViewProjMatrix(Matrix worldViewProjectionMatrix)
@@ -101,7 +104,49 @@ namespace XNAFinalEngine.Graphics
                 lastUsedWorldViewProjMatrix = worldViewProjectionMatrix;
                 epWorldViewProj.SetValue(worldViewProjectionMatrix);
             }
-        } // SetWorldViewProjMatrix
+        }
+
+        #endregion
+
+        #region World Matrix
+
+        private static Matrix lastUsedWorldMatrix;
+        private static void SetWorldMatrix(Matrix matrix)
+        {
+            if (lastUsedWorldMatrix != matrix)
+            {
+                lastUsedWorldMatrix = matrix;
+                epWorld.SetValue(matrix);
+            }
+        } // SetWorldMatrix
+
+        #endregion
+
+        #region Light Radius
+
+        private static float lastUsedLightRadius;
+        private static void SetLightRadius(float value)
+        {
+            if (lastUsedLightRadius != value)
+            {
+                lastUsedLightRadius = value;
+                epLightRadius.SetValue(value);
+            }
+        } // SetLightRadius
+
+        #endregion
+
+        #region Light Position
+
+        private static Vector3 lastUsedLightPosition;
+        private static void SetLightPosition(Vector3 vector3)
+        {
+            if (lastUsedLightPosition != vector3)
+            {
+                lastUsedLightPosition = vector3;
+                epLightPosition.SetValue(vector3);
+            }
+        } // SetLightPosition
 
         #endregion
 
@@ -152,6 +197,13 @@ namespace XNAFinalEngine.Graphics
                 // Skinning //
                 epBones = Resource.Parameters["Bones"];
                     epBones.SetValue(lastUsedBones);
+                // Cube shadows //
+                epWorld = Resource.Parameters["world"];
+                    epWorld.SetValue(lastUsedWorldMatrix);
+                epLightRadius = Resource.Parameters["lightRadius"];
+                    epLightRadius.SetValue(lastUsedLightRadius);
+                epLightPosition = Resource.Parameters["lightPosition"];
+                    epLightPosition.SetValue(lastUsedLightPosition);
             }
             catch
             {
@@ -191,7 +243,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the rendering of the depth information from the light point of view over a cube render target. 
         /// </summary>
-        internal void Begin(int lightDepthTextureSize)
+        internal void Begin(int lightDepthTextureSize, Vector3 lightPosition, float lightRadius)
         {
             try
             {
@@ -202,6 +254,9 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
                 EngineManager.Device.DepthStencilState = DepthStencilState.Default;
+                
+                SetLightPosition(lightPosition);
+                SetLightRadius(lightRadius);
             }
             catch (Exception e)
             {
@@ -282,7 +337,29 @@ namespace XNAFinalEngine.Graphics
             }
             else
                 Resource.CurrentTechnique = Resource.Techniques["GenerateLightDepthBuffer"];
+            
             SetWorldViewProjMatrix(worldMatrix * lightViewMatrix * lightProjectionMatrix);
+
+            Resource.CurrentTechnique.Passes[0].Apply();
+            model.Render();
+        } // RenderModel
+
+        /// <summary>
+        /// Render objects in light space.
+        /// </summary>
+        internal void RenderModelCubeShadows(Matrix worldMatrix, Model model, Matrix[] boneTransform)
+        {
+            if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
+            {
+                SetBones(boneTransform);
+                Resource.CurrentTechnique = Resource.Techniques["GenerateCubeLightDepthBufferSkinned"];
+            }
+            else
+                Resource.CurrentTechnique = Resource.Techniques["GenerateCubeLightDepthBuffer"];
+
+            SetWorldViewProjMatrix(worldMatrix * lightViewMatrix * lightProjectionMatrix);
+            SetWorldMatrix(worldMatrix);
+
             Resource.CurrentTechnique.Passes[0].Apply();
             model.Render();
         } // RenderModel

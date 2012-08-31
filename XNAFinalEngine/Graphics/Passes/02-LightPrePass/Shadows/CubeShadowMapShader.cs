@@ -103,10 +103,10 @@ namespace XNAFinalEngine.Graphics
         internal void SetLight(Vector3 position, float range)
         {
             // Calculate all six face direction light-view-projection matrix for cube.
-            lightProjectionMatrix = Matrix.CreatePerspectiveFieldOfView((float)Math.PI / 2f, 1, 1, range);
+            lightProjectionMatrix = Matrix.CreatePerspectiveFieldOfView((float)Math.PI / 2f, 1, 1f, range);
 
             // Loop through the six faces of the cube map.
-            for (int i = 0; i < 6; ++i)
+            for (int i = 0; i < 6; i++)
             {
                 // Standard view that will be overridden below.
                 Vector3 eyePosition = new Vector3(0.0f, 0.0f, 0.0f);
@@ -124,18 +124,18 @@ namespace XNAFinalEngine.Graphics
                         break;
                     case 2: // Y+
                         lookatPosition = new Vector3(0.0f, 1.0f, 0.0f);
-                        upVector    = new Vector3(0.0f, 0.0f, -1.0f);
+                        upVector    = new Vector3(0.0f, 0.0f, 1.0f);
                         break;
                     case 3: // Y-
                         lookatPosition = new Vector3(0.0f, -1.0f, 0.0f);
-                        upVector    = new Vector3(0.0f, 0.0f, 1.0f);
+                        upVector    = new Vector3(0.0f, 0.0f, -1.0f);
                         break;
                     case 4: // Z-
-                        lookatPosition = new Vector3(0.0f, 0.0f, 1.0f);
+                        lookatPosition = new Vector3(0.0f, 0.0f, -1.0f);
                         upVector    = new Vector3(0.0f, 1.0f, 0.0f);
                         break;
                     default: // Z+
-                        lookatPosition = new Vector3(0.0f, 0.0f, -1.0f);
+                        lookatPosition = new Vector3(0.0f, 0.0f, 1.0f);
                         upVector    = new Vector3(0.0f, 1.0f, 0.0f);
                         break;
                 }

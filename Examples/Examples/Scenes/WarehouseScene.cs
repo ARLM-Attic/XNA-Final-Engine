@@ -46,7 +46,7 @@ namespace XNAFinalEngineExamples
     /// <summary>
     /// Lighthouse scene.
     /// </summary>
-    public class WarehouseScene : Scene
+    public class WarehouseScene : EditableScene
     {
 
         #region Variables
@@ -83,7 +83,7 @@ namespace XNAFinalEngineExamples
             camera.Camera.NearPlane = 0.05f;
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
             ScriptCustomCamera script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
-            script.SetPosition(new Vector3(0, 15, 25), Vector3.Zero);
+            script.SetPosition(new Vector3(0, 13, 22), Vector3.Zero);
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 7f;
             camera.Camera.PostProcess = new PostProcess();
@@ -97,8 +97,8 @@ namespace XNAFinalEngineExamples
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
                                                             Color = new Color(30, 30, 30),
-                                                            Intensity = 5f,
-                                                            AmbientOcclusionStrength = 4f };
+                                                            Intensity = 8f,
+                                                            AmbientOcclusionStrength = 3f };
             
             camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
 
@@ -106,9 +106,9 @@ namespace XNAFinalEngineExamples
             {
                 NumberSteps = 18, //8, // Don't change this.
                 NumberDirections = 16, // 12, // Don't change this.
-                Radius = 0.005f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                Radius = 0.01f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 1f,
-                Contrast = 1.1f,
+                Contrast = 1.0f,
                 AngleBias = 5f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
@@ -166,11 +166,11 @@ namespace XNAFinalEngineExamples
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.Color = new Color(250, 250, 220);
-            directionalLight.DirectionalLight.Intensity = 50f;
+            directionalLight.DirectionalLight.Intensity = 25;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.95f, -0.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
-                Filter = Shadow.FilterType.Pcf7X7,
+                Filter = Shadow.FilterType.Pcf3X3,
                 LightDepthTextureSize = Size.Square1024X1024,
                 TextureSize = Size.TextureSize.FullSize, // Lower than this could produce artifacts is the light is to intense.
                 DepthBias = 0.0025f,
@@ -182,11 +182,11 @@ namespace XNAFinalEngineExamples
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
-            pointLight.PointLight.Color = new Color(240, 235, 200);
-            pointLight.PointLight.Intensity = 3f;
-            pointLight.PointLight.Range = 24;
-            pointLight.Transform.Position = new Vector3(8f, -1f, 10);
-            pointLight.PointLight.Shadow = new CubeShadow();
+            pointLight.PointLight.Color = new Color(200, 200, 230); // new Color(240, 235, 200);
+            pointLight.PointLight.Intensity = 5f;
+            pointLight.PointLight.Range = 60;
+            pointLight.Transform.Position = new Vector3(4.8f, 1.5f, 10); // new Vector3(8f, -1f, 10);
+            pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 1024, };
             
             pointLight2 = new GameObject3D();
             pointLight2.AddComponent<PointLight>();

@@ -159,9 +159,9 @@ namespace XNAFinalEngineExamples
             {
                 DiffuseColor = new Color(10, 10, 10),
                 //DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Lights"),
-                AlphaBlending = 0.15f,
-                SpecularIntensity = 15 * reflectioTextureMultiplier,
-                SpecularPower = 2,
+                AlphaBlending = 0.25f,
+                SpecularIntensity = 5 * reflectioTextureMultiplier,
+                SpecularPower = 4,
                 ReflectionTexture = reflectionTexture,
             };
             BlinnPhong brakeCaliperMaterial = new BlinnPhong
