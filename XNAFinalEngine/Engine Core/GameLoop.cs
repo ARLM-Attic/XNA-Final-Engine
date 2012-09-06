@@ -857,8 +857,8 @@ namespace XNAFinalEngine.EngineCore
             gbufferHalfTextures    = DownsamplerGBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], gbufferTextures.RenderTargets[1]);
             gbufferQuarterTextures = DownsamplerGBufferShader.Instance.Render(gbufferHalfTextures.RenderTargets[0], gbufferHalfTextures.RenderTargets[1]);
             
-            /*// This code is used for testing. It shows the texture on screen.
-            renderTarget.EnableRenderTarget();
+            // This code is used for testing. It shows the texture on screen.
+            /*renderTarget.EnableRenderTarget();
             SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[1]);
             if (currentCamera.RenderHeadUpDisplay)
                 RenderHeadsUpDisplay();
@@ -1086,17 +1086,17 @@ namespace XNAFinalEngine.EngineCore
                                                                              CubeShadowMapShader.Instance.LightProjectionMatrix);
                             LightDepthBufferShader.Instance.SetFace((CubeMapFace)faceNumber);
 
-                            /*#region Frustum Culling
+                            #region Frustum Culling
 
-                            cameraBoundingFrustum.Matrix = CascadedShadowMapShader.Instance.LightViewMatrix[faceNumber] * CascadedShadowMapShader.Instance.LightProjectionMatrix[faceNumber];
+                            cameraBoundingFrustum.Matrix = CubeShadowMapShader.Instance.LightViewMatrix[faceNumber] * CubeShadowMapShader.Instance.LightProjectionMatrix;
                             modelsToRenderShadows.Clear();
                             FrustumCulling(cameraBoundingFrustum, modelsToRenderShadows);
 
-                            #endregion*/
+                            #endregion
 
-                            for (int j = 0; j < ModelRenderer.ComponentPool.Count; j++)
+                            for (int j = 0; j < modelsToRenderShadows.Count; j++)
                             {
-                                ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[j];
+                                ModelRenderer modelRenderer = modelsToRenderShadows[j];
                                 if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
                                     LightDepthBufferShader.Instance.RenderModelCubeShadows(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
                             }

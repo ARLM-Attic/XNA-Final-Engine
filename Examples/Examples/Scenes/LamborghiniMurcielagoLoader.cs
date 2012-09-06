@@ -128,7 +128,7 @@ namespace XNAFinalEngineExamples
 
             BlinnPhong airTakesMaterial = new BlinnPhong
             {
-                DiffuseColor = new Color(50, 50, 50),
+                DiffuseColor = new Color(30, 30, 30),
                 SpecularIntensity = 0.15f,
                 SpecularPower = 50,
             };
@@ -164,6 +164,15 @@ namespace XNAFinalEngineExamples
                 SpecularPower = 4,
                 ReflectionTexture = reflectionTexture,
             };
+            BlinnPhong glassesMaterial = new BlinnPhong
+            {
+                DiffuseColor = new Color(10, 10, 11),
+                AlphaBlending = 0.15f,
+                SpecularIntensity = 5 * reflectioTextureMultiplier,
+                SpecularPower = 1,
+                ReflectionTexture = reflectionTexture,
+            };
+
             BlinnPhong brakeCaliperMaterial = new BlinnPhong
             {
                 DiffuseTexture = new Texture("LamborghiniMurcielago\\LamborghiniBrakeCaliper"),
@@ -316,16 +325,7 @@ namespace XNAFinalEngineExamples
                                                       SpecularPower = 100,
                                                       ReflectionTexture = new TextureCube("Showroom"),
                                                   }) { Parent = LamborghiniMurcielago };
-            murcielagoGlasses = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Glasses"),
-                                                    new BlinnPhong
-                                                    {
-                                                        DiffuseColor = new Color(20, 20, 20),
-                                                        AlphaBlending = 0.8f,
-                                                        SpecularIntensity = 6000,
-                                                        SpecularPower = 1,
-                                                        ReflectionTexture = new TextureCube("Showroom"),
-                                                        //ReflectionTexture = new Graphics.TextureCube("FactoryCatwalkRGBM", true, 50)
-                                                    }) { Parent = LamborghiniMurcielago };
+            murcielagoGlasses = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Glasses"), glassesMaterial) { Parent = LamborghiniMurcielago };
             murcielagoEngineGlasses = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP640-EngineGlasses"), engineGlassesMaterial) { Parent = LamborghiniMurcielago };
             murcielagoBlackMetal = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-BlackMetal"),
                                                         new BlinnPhong

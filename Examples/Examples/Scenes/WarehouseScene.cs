@@ -46,7 +46,7 @@ namespace XNAFinalEngineExamples
     /// <summary>
     /// Lighthouse scene.
     /// </summary>
-    public class WarehouseScene : EditableScene
+    public class WarehouseScene : Scene
     {
 
         #region Variables
@@ -54,7 +54,7 @@ namespace XNAFinalEngineExamples
         // Now every entity is a game object and the entity’s behavior is defined by the components attached to it.
         // There are several types of components, components related to models, to sound, to particles, to physics, etc.
         private static GameObject3D // Models
-                                    warehouseWalls, warehouseRoof, warehouseRoof1, warehouseWood, warehouseWood2, warehouseBrokenWindow, warehouseWindow,
+                                    warehouseWalls, warehouseRoof, warehouseRoof1, warehouseWood, warehouseWood2, warehouseBrokenWindow, warehouseWindow, warehouseGround,
                                     // Lights
                                     directionalLight, pointLight, pointLight2,
                                     // Cameras
@@ -97,8 +97,8 @@ namespace XNAFinalEngineExamples
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
                                                             Color = new Color(30, 30, 30),
-                                                            Intensity = 8f,
-                                                            AmbientOcclusionStrength = 3f };
+                                                            Intensity = 6f,
+                                                            AmbientOcclusionStrength = 4f };
             
             camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
 
@@ -108,7 +108,7 @@ namespace XNAFinalEngineExamples
                 NumberDirections = 16, // 12, // Don't change this.
                 Radius = 0.01f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 1f,
-                Contrast = 1.0f,
+                Contrast = 1f,
                 AngleBias = 5f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
@@ -123,6 +123,8 @@ namespace XNAFinalEngineExamples
                                                   {
                                                       DiffuseTexture = new Texture("Warehouse\\Warehouse-Diffuse"),
                                                       SpecularTexture = new Texture("Warehouse\\Warehouse-Specular"),
+                                                      SpecularIntensity = 3,
+                                                      SpecularPower = 30000,
                                                   });
             warehouseRoof  = new GameObject3D(new FileModel("Warehouse\\WarehouseRoof"),  
                                               new BlinnPhong
@@ -157,6 +159,13 @@ namespace XNAFinalEngineExamples
                                               new BlinnPhong
                                               {
                                                   DiffuseTexture = new Texture("Warehouse\\Window-Diffuse")
+                                              });
+            warehouseGround = new GameObject3D(new FileModel("Warehouse\\WarehouseGround"),
+                                              new BlinnPhong
+                                              {
+                                                  DiffuseTexture = new Texture("Warehouse\\Ground-Diffuse"),
+                                                  NormalTexture = new Texture("Warehouse\\Ground-Normals"),
+                                                  SpecularIntensity = 0.7f
                                               });
             
             #endregion
