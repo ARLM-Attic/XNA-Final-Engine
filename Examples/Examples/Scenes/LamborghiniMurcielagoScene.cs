@@ -48,7 +48,7 @@ namespace XNAFinalEngineExamples
     /// This was used to test most of the new version's features.
     /// It’s a mess, really, but it’s the best start point to understand the new version.
     /// </summary>
-    public class LamborghiniMurcielagoScene : Scene
+    public class LamborghiniMurcielagoScene : EditableScene
     {
 
         #region Variables
@@ -123,6 +123,7 @@ namespace XNAFinalEngineExamples
             camera.Camera.FieldOfView = 180 / 6f;
             camera.Camera.PostProcess = new PostProcess();
             camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
+            camera.Camera.PostProcess.ToneMapping.AutoExposureEnabled = false;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
             //camera.Camera.PostProcess.MLAA.Enabled = false;
             camera.Camera.PostProcess.Bloom.Threshold = 2;
@@ -131,7 +132,7 @@ namespace XNAFinalEngineExamples
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
                                                             Color = new Color(10, 10, 10),
-                                                            Intensity = 5f,
+                                                            Intensity = 8f,
                                                             AmbientOcclusionStrength = 2f };
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
@@ -153,9 +154,9 @@ namespace XNAFinalEngineExamples
             {
                 SpecularIntensity = 10000f,
                 SpecularPower = 20,
-                BasePaintColor = new Color(250, 250, 250),
-                SecondBasePaintColor = new Color(220, 220, 220),
-                FlakeLayerColor1 = new Color(170, 170, 170),
+                BasePaintColor = new Color(150, 150, 150),
+                SecondBasePaintColor = new Color(120, 120, 120),
+                FlakeLayerColor1 = new Color(70, 70, 70),
                 FlakesColor = new Color(100, 100, 100),
                 ReflectionTexture = new TextureCube("Showroom"),
                 //ReflectionTexture = new TextureCube("FactoryCatwalkRGBM", true, 50),
@@ -828,7 +829,7 @@ namespace XNAFinalEngineExamples
             #endregion
             
             #region Floor
-
+            /*
             floor = new GameObject3D(new FileModel("Terrain/TerrainLOD0Grid"),
                            new BlinnPhong
                            {
@@ -839,13 +840,13 @@ namespace XNAFinalEngineExamples
                            }) 
             { Transform = { LocalScale = new Vector3(5, 5, 5) } };
             floor.Transform.Position = new Vector3(0, -1.17f, 0);
-            
+            */
             #endregion
                    
             #endregion
 
             #region Shadows and Lights
-            
+            /*
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.Color = new Color(250, 250, 220);
@@ -862,17 +863,17 @@ namespace XNAFinalEngineExamples
                 FarPlaneSplit2 = 25,
                 FarPlaneSplit3 = 60,
                 FarPlaneSplit4 = 150
-            };
+            };*/
 
             //for (int i = 0; i < 100; i++)
-            {
+            /*{
                 pointLight = new GameObject3D();
                 pointLight.AddComponent<PointLight>();
                 pointLight.PointLight.Color = new Color(250, 100, 180);
                 pointLight.PointLight.Intensity = 0.5f;
                 pointLight.PointLight.Range = 10;
                 pointLight.Transform.Position = new Vector3(5, 5, 5);
-            }
+            }*/
             
             pointLight2 = new GameObject3D();
             pointLight2.AddComponent<PointLight>();
@@ -880,7 +881,7 @@ namespace XNAFinalEngineExamples
             pointLight2.PointLight.Intensity = 0.25f;
             pointLight2.PointLight.Range = 100;
             pointLight2.Transform.Position = new Vector3(-25, 25, -15);
-            
+            /*
             pointLight3 = new GameObject3D();
             pointLight3.AddComponent<PointLight>();
             pointLight3.PointLight.Color = new Color(170, 250, 55);
@@ -908,7 +909,7 @@ namespace XNAFinalEngineExamples
             pointLight6.PointLight.Intensity = 1.5f;
             pointLight6.PointLight.Range = 150; // I always forget to set the light range lower than the camera far plane.
             pointLight6.Transform.Position = new Vector3(0, -30f, -10);
-            
+            */
             #endregion
 
             #region Statistics

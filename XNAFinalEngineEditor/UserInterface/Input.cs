@@ -140,7 +140,7 @@ namespace XNAFinalEngine.UserInterface
 
             KeyEventArgs e = new KeyEventArgs { Caps = (((ushort) GetKeyState(0x14)) & 0xffff) != 0 };
 
-            foreach (Keys key in Keyboard.KeyboardState.GetPressedKeys())
+            foreach (Keys key in Keyboard.State.GetPressedKeys())
             {
                 if      (key == Keys.LeftAlt     || key == Keys.RightAlt)     e.Alt = true;
                 else if (key == Keys.LeftShift   || key == Keys.RightShift)   e.Shift = true;
@@ -156,7 +156,7 @@ namespace XNAFinalEngine.UserInterface
                     continue;
                 }
 
-                bool pressed = Keyboard.KeyboardState.IsKeyDown(key.Key);
+                bool pressed = Keyboard.State.IsKeyDown(key.Key);
 
                 double frameTimeInMilliseconds = Time.GameDeltaTime * 1000; // From seconds to milliseconds.
                 if (pressed) key.Countdown -= frameTimeInMilliseconds;
@@ -199,16 +199,16 @@ namespace XNAFinalEngine.UserInterface
         /// </summary>
         private void UpdateMouse()
         {
-            if ((Mouse.MouseState.X != Mouse.PreviousMouseState.X) || (Mouse.MouseState.Y != Mouse.PreviousMouseState.Y))
+            if ((Mouse.State.X != Mouse.PreviousState.X) || (Mouse.State.Y != Mouse.PreviousState.Y))
             {
                 MouseEventArgs e = new MouseEventArgs();
 
                 MouseButton btn = MouseButton.None;
-                if      (Mouse.MouseState.LeftButton   == ButtonState.Pressed) btn = MouseButton.Left;
-                else if (Mouse.MouseState.RightButton  == ButtonState.Pressed) btn = MouseButton.Right;
-                else if (Mouse.MouseState.MiddleButton == ButtonState.Pressed) btn = MouseButton.Middle;
-                else if (Mouse.MouseState.XButton1     == ButtonState.Pressed) btn = MouseButton.XButton1;
-                else if (Mouse.MouseState.XButton2     == ButtonState.Pressed) btn = MouseButton.XButton2;
+                if      (Mouse.State.LeftButton   == ButtonState.Pressed) btn = MouseButton.Left;
+                else if (Mouse.State.RightButton  == ButtonState.Pressed) btn = MouseButton.Right;
+                else if (Mouse.State.MiddleButton == ButtonState.Pressed) btn = MouseButton.Middle;
+                else if (Mouse.State.XButton1     == ButtonState.Pressed) btn = MouseButton.XButton1;
+                else if (Mouse.State.XButton2     == ButtonState.Pressed) btn = MouseButton.XButton2;
 
                 BuildMouseEvent(btn, ref e);
                 if (MouseMove != null)
@@ -228,11 +228,11 @@ namespace XNAFinalEngine.UserInterface
             {
                 ButtonState bs;
 
-                if      (btn.Button == MouseButton.Left)     bs = Mouse.MouseState.LeftButton;
-                else if (btn.Button == MouseButton.Right)    bs = Mouse.MouseState.RightButton;
-                else if (btn.Button == MouseButton.Middle)   bs = Mouse.MouseState.MiddleButton;
-                else if (btn.Button == MouseButton.XButton1) bs = Mouse.MouseState.XButton1;
-                else if (btn.Button == MouseButton.XButton2) bs = Mouse.MouseState.XButton2;
+                if      (btn.Button == MouseButton.Left)     bs = Mouse.State.LeftButton;
+                else if (btn.Button == MouseButton.Right)    bs = Mouse.State.RightButton;
+                else if (btn.Button == MouseButton.Middle)   bs = Mouse.State.MiddleButton;
+                else if (btn.Button == MouseButton.XButton1) bs = Mouse.State.XButton1;
+                else if (btn.Button == MouseButton.XButton2) bs = Mouse.State.XButton2;
                 else continue;
 
                 bool pressed = (bs == ButtonState.Pressed); // The current state
@@ -273,15 +273,15 @@ namespace XNAFinalEngine.UserInterface
 
         private static void BuildMouseEvent(MouseButton button, ref MouseEventArgs e)
         {
-            e.State = Mouse.MouseState;
+            e.State = Mouse.State;
             e.Button = button;
 
-            e.Position = new Point(Mouse.MouseState.X, Mouse.MouseState.Y);
+            e.Position = new Point(Mouse.State.X, Mouse.State.Y);
             AdjustPosition(ref e);
 
             e.State = new MouseState(e.Position.X, e.Position.Y, e.State.ScrollWheelValue, e.State.LeftButton, e.State.MiddleButton, e.State.RightButton, e.State.XButton1, e.State.XButton2);
 
-            Point pos = new Point(Mouse.MouseState.X, Mouse.MouseState.Y);
+            Point pos = new Point(Mouse.State.X, Mouse.State.Y);
             e.Difference = new Point(e.Position.X - pos.X, e.Position.Y - pos.Y);
         } // BuildMouseEvent
 

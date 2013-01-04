@@ -41,16 +41,47 @@ namespace XNAFinalEngine.Input
 	/// <summary>
     /// Mouse.
 	/// </summary>
-	public class Mouse
-	{
+	public static class Mouse
+    {
 
-		#region Variables
-        
-		// Mouse state, set every frame in the Update method.
-		private static MouseState currentMouseState, previousMouseState;    
+        #region Enumerates
+
+        /// <summary>
+        /// Enumerates mouse buttons.
+        /// </summary>
+        public enum MouseButtons
+        {
+            /// <summary>
+            /// LeftButton.
+            /// </summary>
+            LeftButton,
+            /// <summary>
+            /// Middle Button.
+            /// </summary>
+            MiddleButton,
+            /// <summary>
+            /// Right Button.
+            /// </summary>
+            RightButton,
+            /// <summary>
+            /// X Button 1.
+            /// </summary>
+            XButton1,
+            /// <summary>
+            /// X Button 2.
+            /// </summary>
+            XButton2,
+        } // MouseButtons
+
+        #endregion
+
+        #region Variables
+
+        // Mouse state, set every frame in the Update method.
+		private static MouseState currentState, previousState;    
         
         // X and Y movements of the mouse in this frame.
-        private static int xMovement, yMovement;
+        private static int deltaX, deltaY;
 
         // Current mouse position.
         private static int positionX, positionY;
@@ -62,7 +93,7 @@ namespace XNAFinalEngine.Input
 		private static Point startDraggingPosition;
 
         // This mode allows to track the mouse movement when the mouse reach and pass the system window border.
-        private static bool trackRelativeMovementMode;
+        private static bool trackDeltaOutsideScreen;
 
 	    #endregion
 
@@ -71,39 +102,43 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// The current mouse state.
         /// </summary>
-        public static MouseState MouseState { get { return currentMouseState; } }
+        public static MouseState State { get { return currentState; } }
 
         /// <summary>
         /// The previous mouse state.
         /// </summary>
-        public static MouseState PreviousMouseState { get { return previousMouseState; } }
+        public static MouseState PreviousState { get { return previousState; } }
 
         #region Cursor
         
 	    /// <summary>
 	    /// This mode allows to track the mouse movement when the mouse reach and pass the system window border.
-	    /// Useful for FPS cameras or similar.
+	    /// Useful for first person cameras cameras or similar.
         /// </summary>
         /// <remarks>
         /// This mode produces garbage because the XNA's Microsoft.Xna.Framework.Input.Mouse.SetPosition method produces garbage.
+        /// However, the mouse is only used on Windows where garbage collections are not critical for performance.
+        /// 
+        /// Also, the hardware mouse pointer will always point in the middle of the screen so it is mandatory to use a sprite cursor.
         /// </remarks>
-	    public static bool TrackRelativeMovementMode
+	    public static bool TrackDeltaOutsideScreen
 	    {
-	        get { return trackRelativeMovementMode; }
+	        get { return trackDeltaOutsideScreen; }
 	        set
 	        {
-	            trackRelativeMovementMode = value;
+	            trackDeltaOutsideScreen = value;
                 if (value)
                 {
-                    Microsoft.Xna.Framework.Input.Mouse.SetPosition(Screen.Width / 2, Screen.Height / 2);
-                    positionX = Screen.Width / 2;
-                    positionY = Screen.Height / 2;
+                    Microsoft.Xna.Framework.Input.Mouse.SetPosition(Screen.Width / 2 - 1, Screen.Height / 2 - 1);
+                    positionX = Screen.Width / 2 - 1;
+                    positionY = Screen.Height / 2 - 1;
                 }
 	        }
-	    } // TrackRelativeMovementMode
+	    } // TrackDeltaOutsideScreen
 
 	    /// <summary>
 		/// Mouse position in screen coordinates.
+        /// Even when the mouse is set to track delta outside the screen borders the position is restricted to the screen size.
 		/// </summary>
 		public static Point Position
 		{
@@ -122,24 +157,24 @@ namespace XNAFinalEngine.Input
 			}
 			set
 			{
-                if (!TrackRelativeMovementMode)
+                if (!TrackDeltaOutsideScreen)
                 {
                     Microsoft.Xna.Framework.Input.Mouse.SetPosition(value.X, value.Y);
                 }
                 positionX = value.X;
                 positionY = value.Y;
 			}
-        } // MousePosition
+        } // Position
 
 		/// <summary>
         /// The amount of pixels that the mouse has moved in this frame.
 		/// </summary>
-		public static float XMovement { get { return xMovement; } }
+		public static float DeltaX { get { return deltaX; } }
 
 		/// <summary>
         /// The amount of pixels that the mouse has moved in this frame.
 		/// </summary>
-		public static float YMovement { get { return yMovement; } }
+		public static float DeltaY { get { return deltaY; } }
 
         #endregion
 
@@ -148,77 +183,77 @@ namespace XNAFinalEngine.Input
         /// <summary>
 	    /// Mouse left button pressed.
 	    /// </summary>
-	    public static bool LeftButtonPressed { get { return currentMouseState.LeftButton == ButtonState.Pressed; } }
+	    public static bool LeftButtonPressed { get { return currentState.LeftButton == ButtonState.Pressed; } }
 
 	    /// <summary>
 	    /// Mouse right button pressed.
 	    /// </summary>
-	    public static bool RightButtonPressed { get { return currentMouseState.RightButton == ButtonState.Pressed; } }
+	    public static bool RightButtonPressed { get { return currentState.RightButton == ButtonState.Pressed; } }
 
 	    /// <summary>
 	    /// Mouse middle button pressed.
 	    /// </summary>
-	    public static bool MiddleButtonPressed { get { return currentMouseState.MiddleButton == ButtonState.Pressed; } }
+	    public static bool MiddleButtonPressed { get { return currentState.MiddleButton == ButtonState.Pressed; } }
 
         /// <summary>
         /// X button 1 pressed.
         /// </summary>
-        public static bool XButton1Pressed { get { return currentMouseState.XButton1 == ButtonState.Pressed; } }
+        public static bool XButton1Pressed { get { return currentState.XButton1 == ButtonState.Pressed; } }
 
         /// <summary>
         /// X button 1 pressed.
         /// </summary>
-        public static bool XButton2Pressed { get { return currentMouseState.XButton2 == ButtonState.Pressed; } }
+        public static bool XButton2Pressed { get { return currentState.XButton2 == ButtonState.Pressed; } }
 
 		/// <summary>
 		/// Mouse left button just pressed.
 		/// </summary>
-		public static bool LeftButtonJustPressed { get { return currentMouseState.LeftButton == ButtonState.Pressed && previousMouseState.LeftButton == ButtonState.Released; } }
+		public static bool LeftButtonJustPressed { get { return currentState.LeftButton == ButtonState.Pressed && previousState.LeftButton == ButtonState.Released; } }
 
 		/// <summary>
 		/// Mouse right button just pressed.
 		/// </summary>
-		public static bool RightButtonJustPressed { get { return currentMouseState.RightButton == ButtonState.Pressed && previousMouseState.RightButton == ButtonState.Released; } }
+		public static bool RightButtonJustPressed { get { return currentState.RightButton == ButtonState.Pressed && previousState.RightButton == ButtonState.Released; } }
 
         /// <summary>
         /// Mouse middle button just pressed.
         /// </summary>
-        public static bool MiddleButtonJustPressed { get { return currentMouseState.MiddleButton == ButtonState.Pressed && previousMouseState.MiddleButton == ButtonState.Released; } }
+        public static bool MiddleButtonJustPressed { get { return currentState.MiddleButton == ButtonState.Pressed && previousState.MiddleButton == ButtonState.Released; } }
 
         /// <summary>
         /// X button 1 just pressed.
         /// </summary>
-        public static bool XButton1JustPressed { get { return currentMouseState.XButton1 == ButtonState.Pressed && previousMouseState.XButton1 == ButtonState.Released; } }
+        public static bool XButton1JustPressed { get { return currentState.XButton1 == ButtonState.Pressed && previousState.XButton1 == ButtonState.Released; } }
 
         /// <summary>
         /// X button 2 just pressed.
         /// </summary>
-        public static bool XButton2JustPressed { get { return currentMouseState.XButton2 == ButtonState.Pressed && previousMouseState.XButton2 == ButtonState.Released; } }
+        public static bool XButton2JustPressed { get { return currentState.XButton2 == ButtonState.Pressed && previousState.XButton2 == ButtonState.Released; } }
         
         /// <summary>
         /// Mouse left button just released.
         /// </summary>
-        public static bool LeftButtonJustReleased { get { return currentMouseState.LeftButton == ButtonState.Released && previousMouseState.LeftButton == ButtonState.Pressed; } }
+        public static bool LeftButtonJustReleased { get { return currentState.LeftButton == ButtonState.Released && previousState.LeftButton == ButtonState.Pressed; } }
 
         /// <summary>
         /// Mouse right button just released.
         /// </summary>
-        public static bool RightButtonJustReleased { get { return currentMouseState.RightButton == ButtonState.Released && previousMouseState.RightButton == ButtonState.Pressed; } }
+        public static bool RightButtonJustReleased { get { return currentState.RightButton == ButtonState.Released && previousState.RightButton == ButtonState.Pressed; } }
 
         /// <summary>
         /// Mouse middle button just released.
         /// </summary>
-        public static bool MiddleButtonJustReleased { get { return currentMouseState.MiddleButton == ButtonState.Released && previousMouseState.MiddleButton == ButtonState.Pressed; } }
+        public static bool MiddleButtonJustReleased { get { return currentState.MiddleButton == ButtonState.Released && previousState.MiddleButton == ButtonState.Pressed; } }
 
         /// <summary>
         /// X button 1 just released.
         /// </summary>
-        public static bool XButton1JustReleased { get { return currentMouseState.XButton1 == ButtonState.Released && previousMouseState.XButton1 == ButtonState.Pressed; } }
+        public static bool XButton1JustReleased { get { return currentState.XButton1 == ButtonState.Released && previousState.XButton1 == ButtonState.Pressed; } }
 
         /// <summary>
         /// X button 2 just released.
         /// </summary>
-        public static bool XButton2JustReleased { get { return currentMouseState.XButton2 == ButtonState.Released && previousMouseState.XButton2 == ButtonState.Pressed; } }
+        public static bool XButton2JustReleased { get { return currentState.XButton2 == ButtonState.Released && previousState.XButton2 == ButtonState.Pressed; } }
 
         #endregion
 
@@ -226,24 +261,12 @@ namespace XNAFinalEngine.Input
 
         /// <summary>
         /// Mouse dragging amount.
-        /// It can be extended to allow dragging off the screen when OutOfBounds is true.
         /// </summary>
-        public static Point DraggingAmount
-        {
-            get
-            {
-                return new Point(-startDraggingPosition.X + Position.X,
-                                 -startDraggingPosition.Y + Position.Y);
-            }
-        } // DraggingAmount
+        public static Point DraggingAmount { get { return new Point(-startDraggingPosition.X + Position.X, -startDraggingPosition.Y + Position.Y); } }
 
 	    /// <summary>
-        /// Mouse dragging rectangle.
-        /// The information is rearranged so that the X value will be the left side and Y the top side.
+        /// A rectangle that enclose the mouse dragging.
 	    /// </summary>
-	    /// <remarks>
-        /// It can be extended to allow dragging off the screen when Relative Mode is on.
-        /// </remarks>
 	    public static Rectangle DraggingRectangle
 	    {
 	        get
@@ -274,23 +297,16 @@ namespace XNAFinalEngine.Input
 	    } // DraggingRectangle
 
         /// <summary>
-        /// Return true when the surface of the dragging rectangle is 0.
+        /// Return true when the surface of the dragging rectangle is bigger than 0.
         /// </summary>
-	    public static bool NoDragging
-	    {
-            get
-            {
-                return Math.Abs(Position.X - startDraggingPosition.X) + Math.Abs(Position.Y - startDraggingPosition.Y) == 0;
-            }
-	    } // NoDragging
+	    public static bool IsDragging { get { return Math.Abs(Position.X - startDraggingPosition.X) + Math.Abs(Position.Y - startDraggingPosition.Y) == 0; } }
 
         #endregion
 
         #region Wheel
 
         /// <summary>
-		/// Mouse wheel delta.
-        /// XNA does report only the total scroll value, but we usually need the current delta!
+		/// Mouse wheel delta. 
 		/// </summary>
 		public static int WheelDelta { get { return wheelDelta; } }
 
@@ -318,15 +334,51 @@ namespace XNAFinalEngine.Input
         #region Mouse In Box
 
 	    /// <summary>
-	    /// Mouse in box.
+	    /// True is the mouse pointer is inside a rectangle defined in screen space.
 	    /// </summary>
-	    public static bool MouseInBox(Rectangle rectangle)
+	    public static bool MouseInsideRectangle(Rectangle rectangle)
 		{
             return positionX >= rectangle.X &&
                    positionY >= rectangle.Y &&
                    positionX < rectangle.Right &&
                    positionY < rectangle.Bottom;
-		} // MouseInBox
+		} // MouseInsideRectangle
+
+        #endregion
+
+        #region Button Pressed and Just Pressed
+
+        /// <summary>
+        /// Button just pressed.
+        /// </summary>
+        public static bool ButtonJustPressed(MouseButtons button)
+        {
+            if (button == MouseButtons.LeftButton)
+                return LeftButtonJustPressed;
+            if (button == MouseButtons.MiddleButton)
+                return MiddleButtonJustPressed;
+            if (button == MouseButtons.RightButton)
+                return RightButtonJustPressed;
+            if (button == MouseButtons.XButton1)
+                return XButton1JustPressed;
+            return XButton2JustPressed;
+        } // ButtonJustPressed
+
+        /// <summary>
+        /// Button pressed.
+        /// </summary>
+        public static bool ButtonPressed(MouseButtons button)
+        {
+            if (button == MouseButtons.LeftButton)
+                return LeftButtonPressed;
+            if (button == MouseButtons.MiddleButton)
+                return MiddleButtonPressed;
+            if (button == MouseButtons.RightButton)
+                return RightButtonPressed;
+            if (button == MouseButtons.XButton1)
+                return XButton1Pressed;
+            return XButton2Pressed;
+        } // ButtonPressed
 
         #endregion
 
@@ -338,24 +390,24 @@ namespace XNAFinalEngine.Input
 		internal static void Update()
 		{   
 			// Update mouse state.
-            previousMouseState = currentMouseState;
-            currentMouseState = Microsoft.Xna.Framework.Input.Mouse.GetState();
+            previousState = currentState;
+            currentState = Microsoft.Xna.Framework.Input.Mouse.GetState();
             
-            if (!TrackRelativeMovementMode)
+            if (!TrackDeltaOutsideScreen)
             {
                 // Calculate mouse movement.
-                xMovement = currentMouseState.X - positionX; // positionX is the old position.
-                yMovement = currentMouseState.Y - positionY;
+                deltaX = currentState.X - positionX; // positionX is the old position.
+                deltaY = currentState.Y - positionY;
                 // Update position.
-                positionX = currentMouseState.X; // Now is the new one.
-                positionY = currentMouseState.Y;
+                positionX = currentState.X; // Now is the new one.
+                positionY = currentState.Y;
             }
             else
             {
-                xMovement = currentMouseState.X - Screen.Width / 2;
-                yMovement = currentMouseState.Y - Screen.Height / 2;
-                positionX += xMovement;
-                positionY += yMovement;
+                deltaX = currentState.X - Screen.Width / 2;
+                deltaY = currentState.Y - Screen.Height / 2;
+                positionX += deltaX;
+                positionY += deltaY;
                 if (positionX >= Screen.Width)
                     positionX = Screen.Width - 1;
                 if (positionX < 0)
@@ -364,7 +416,7 @@ namespace XNAFinalEngine.Input
                     positionY = Screen.Height - 1;
                 if (positionY < 0)
                     positionY = 0;
-                Microsoft.Xna.Framework.Input.Mouse.SetPosition(Screen.Width / 2, Screen.Height / 2);
+                Microsoft.Xna.Framework.Input.Mouse.SetPosition(Screen.Width / 2 - 1, Screen.Height / 2 - 1);
             }
             
             // Dragging
@@ -374,8 +426,8 @@ namespace XNAFinalEngine.Input
             }
 
             // Wheel
-			wheelDelta = currentMouseState.ScrollWheelValue - wheelValue;
-			wheelValue = currentMouseState.ScrollWheelValue;
+			wheelDelta = currentState.ScrollWheelValue - wheelValue;
+			wheelValue = currentState.ScrollWheelValue;
 		} // Update
 
 		#endregion

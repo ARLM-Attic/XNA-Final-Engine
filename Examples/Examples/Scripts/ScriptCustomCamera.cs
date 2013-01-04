@@ -139,19 +139,19 @@ namespace XNAFinalEngineExamples
             // Translation
             if (Mouse.LeftButtonPressed)
             {
-                LookAtPosition -= ((GameObject3D)Owner).Transform.Right * Mouse.XMovement * Distance / 2000;
-                LookAtPosition += ((GameObject3D)Owner).Transform.Up    * Mouse.YMovement * Distance / 2000;
+                LookAtPosition -= ((GameObject3D)Owner).Transform.Right * Mouse.DeltaX * Distance / 2000;
+                LookAtPosition += ((GameObject3D)Owner).Transform.Up    * Mouse.DeltaY * Distance / 2000;
             }
             // Orientation
             if (Mouse.RightButtonPressed)
             {
-                Yaw   += Mouse.XMovement * 0.005f;
-                Pitch += Mouse.YMovement * 0.005f;
+                Yaw   += Mouse.DeltaX * 0.005f;
+                Pitch += Mouse.DeltaY * 0.005f;
             }
             // Zoom
             if (Mouse.MiddleButtonPressed)
             {
-                Distance -= (-Mouse.XMovement + Mouse.YMovement) * Distance / 1300; // The minus is because I'm a little perfectionist.
+                Distance -= (-Mouse.DeltaX + Mouse.DeltaY) * Distance / 1300; // The minus is because I'm a little perfectionist.
             }
 
             // Zoom
@@ -161,13 +161,13 @@ namespace XNAFinalEngineExamples
 
             #region Gamepad
 
-            LookAtPosition -= ((GameObject3D)Owner).Transform.Right * -GamePad.PlayerOne.LeftStickXMovement * Distance / 1000;
-            LookAtPosition += ((GameObject3D)Owner).Transform.Up * GamePad.PlayerOne.LeftStickYMovement * Distance / 1000;
+            LookAtPosition -= ((GameObject3D)Owner).Transform.Right * -GamePad.PlayerOne.LeftStickX * Distance / 1000;
+            LookAtPosition += ((GameObject3D)Owner).Transform.Up * GamePad.PlayerOne.LeftStickY * Distance / 1000;
             // Orientation
-            Yaw -= GamePad.PlayerOne.RightStickXMovement * 0.008f;
-            Pitch += GamePad.PlayerOne.RightStickYMovement * 0.008f;
+            Yaw -= GamePad.PlayerOne.RightStickX * 0.008f;
+            Pitch += GamePad.PlayerOne.RightStickY * 0.008f;
             // Distance or zoom
-            Distance -= (GamePad.PlayerOne.RightTriggerMovement - GamePad.PlayerOne.LeftTriggerMovement) * Distance / 300;
+            //Distance -= (GamePad.PlayerOne.RightTrigger - GamePad.PlayerOne.LeftTrigger) * Distance / 300;
 
             #endregion
 
@@ -213,5 +213,5 @@ namespace XNAFinalEngineExamples
         #endregion
 
     } // ScriptCustomCamera
-} // XNAFinalEngine.Editor
+} // XNAFinalEngineExamples
 

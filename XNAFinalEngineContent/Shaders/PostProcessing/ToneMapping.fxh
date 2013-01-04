@@ -20,6 +20,11 @@ References:
 /////////////// Parameters ///////////////////
 //////////////////////////////////////////////
 
+// Auto Exposure
+bool autoExposure;
+// Manual exposure 
+float lensExposure; // fraction of light to display
+
 // Logarithmic
 float whiteLevel;
 float luminanceSaturation;
@@ -47,9 +52,42 @@ sampler2D filmLutSampler : register(s11) = sampler_state
 	MinFilter = LINEAR;*/
 };
 
+texture lastLuminanceTexture : register(t12);
+sampler2D lastLuminanceSampler : register(s12) = sampler_state
+{
+	Texture = <lastLuminanceTexture>;
+	/*MipFilter = NONE;
+	MagFilter = POINT;
+	MinFilter = POINT;*/
+};
+
 //////////////////////////////////////////////
 //////////////// Functions ///////////////////
 //////////////////////////////////////////////
+
+float3 ExposureColor(float3 color, float2 uv)
+{
+	float exposure;
+	[branch]
+	if (autoExposure)
+	{
+		// From MJP http://mynameismjp.wordpress.com/ License: Microsoft_Permissive_License
+	 	// The mip maps are used to obtain a median luminance value.
+		float avgLuminance = exp(tex2Dlod(lastLuminanceSampler, float4(uv, 0, 10)).x); // This could be used to convert this global operator to local.
+		// Use geometric mean
+		avgLuminance = max(avgLuminance, 0.001f);		
+		float keyValue = 1.03f - (2.0f / (2 + log10(avgLuminance + 1)));
+		float linearExposure = (keyValue / avgLuminance);
+		exposure = max(linearExposure, 0.0001f);
+	}
+    else		
+		exposure = exp2(lensExposure);
+
+	// Multiply the incomming light by the lens exposure value. Think of this in terms of a camera:
+	// Exposure time on a camera adjusts how long the camera collects light on the main sensor.
+	// This is a simple multiplication factor of the incomming light.	
+	return color * exposure;
+} // ExposureColor
 
 // Approximates luminance from an RGB value
 float CalcLuminance(float3 color)

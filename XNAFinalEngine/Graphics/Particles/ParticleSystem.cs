@@ -198,7 +198,7 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         public void Update(float particleDuration)
         {
-            CurrentTime += Time.FrameTime;
+            CurrentTime += Time.SmoothFrameTime;
 
             RetireActiveParticles(particleDuration);
             FreeRetiredParticles();
@@ -222,13 +222,13 @@ namespace XNAFinalEngine.Graphics
             {
                 // Is this particle old enough to retire?
                 // We multiply the active particle index by four, because each particle consists of a quad that is made up of four vertices.
-                float particleAge = CurrentTime - particles[firstActiveParticle * 4].DrawCounterWhenDie;
+                float particleAge = CurrentTime - particles[firstActiveParticle * 4].CreationTime;
 
                 if (particleAge < particleDuration) // if the current particle is alive the rest will be also.
                     break;
 
                 // Remember the time at which we retired this particle.
-                particles[firstActiveParticle * 4].DrawCounterWhenDie = drawCounter;
+                particles[firstActiveParticle * 4].CreationTime = drawCounter;
 
                 // Move the particle from the active to the retired queue.
                 firstActiveParticle++;
@@ -248,7 +248,7 @@ namespace XNAFinalEngine.Graphics
             {
                 // Has this particle been unused long enough that the GPU is sure to be finished with it?
                 // We multiply the retired particle index by four, because each particle consists of a quad that is made up of four vertices.
-                int age = drawCounter - (int)particles[firstRetiredParticle * 4].DrawCounterWhenDie;
+                int age = drawCounter - (int)particles[firstRetiredParticle * 4].CreationTime;
 
                 // The GPU is never supposed to get more than 2 frames behind the CPU.
                 // We add 1 to that, just to be safe in case of buggy drivers that might bend the rules and let the GPU get further behind.
@@ -368,7 +368,8 @@ namespace XNAFinalEngine.Graphics
         /// Adds a new particle to the system.
         /// If the particle system doesn't have an emitter then we need to create the particles manually.
         /// </summary>
-        public void AddParticle(Vector3 position, Vector3 velocity, float emitterVelocitySensitivity,
+        /// <returns>True if the particle could be created.</returns>
+        public bool AddParticle(Vector3 position, Vector3 velocity, float emitterVelocitySensitivity,
                                 float minimumHorizontalVelocity, float maximumHorizontalVelocity,
                                 float minimumVerticalVelocity, float maximumVerticalVelocity)
         {
@@ -380,7 +381,7 @@ namespace XNAFinalEngine.Graphics
 
             // If there are no free particles, we just have to give up.
             if (nextFreeParticle == firstRetiredParticle)
-                return;
+                return false;
 
             // Adjust the input velocity based on how much
             // this particle system wants to be affected by it.
@@ -414,10 +415,12 @@ namespace XNAFinalEngine.Graphics
                 particles[firstFreeParticle * 4 + i].Position = position;
                 particles[firstFreeParticle * 4 + i].Velocity = velocity;
                 particles[firstFreeParticle * 4 + i].Random = randomValues;
-                particles[firstFreeParticle * 4 + i].DrawCounterWhenDie = CurrentTime;
+                particles[firstFreeParticle * 4 + i].CreationTime = CurrentTime;
             }
 
             firstFreeParticle = nextFreeParticle;
+
+            return true;
         } // AddParticle
 
         #endregion

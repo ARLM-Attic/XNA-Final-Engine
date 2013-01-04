@@ -59,6 +59,14 @@ namespace XNAFinalEngine.Graphics
         // Singleton reference.
         private static BloomShader instance;
 
+        // Shader Parameters.
+        private static ShaderParameterFloat   spBloomThreshold,
+                                              spLensExposure;
+        private static ShaderParameterVector2 spHalfPixel;
+        private static ShaderParameterBool    spAutoExposure;
+        private static ShaderParameterTexture spSceneTexture,
+                                              spLastLuminanceTexture;
+
         #endregion
 
         #region Properties
@@ -75,77 +83,6 @@ namespace XNAFinalEngine.Graphics
                 return instance;
             }
         } // Instance
-
-        #endregion
-
-        #region Shader Parameters
-
-        /// <summary>
-        /// Effect handles
-        /// </summary>
-        private static EffectParameter epHalfPixel,
-                                       epBloomThreshold,
-                                       epLensExposure,
-                                       epSceneTexture;
-
-
-        #region Half Pixel
-
-        private static Vector2 lastUsedHalfPixel;
-        private static void SetHalfPixel(Vector2 _halfPixel)
-        {
-            if (lastUsedHalfPixel != _halfPixel)
-            {
-                lastUsedHalfPixel = _halfPixel;
-                epHalfPixel.SetValue(_halfPixel);
-            }
-        } // SetHalfPixel
-
-        #endregion
-
-        #region Bloom Threshold
-
-        private static float lastUsedBloomThreshold;
-        private static void SetBloomThreshold(float bloomThreshold)
-        {
-            if (lastUsedBloomThreshold != bloomThreshold)
-            {
-                lastUsedBloomThreshold = bloomThreshold;
-                epBloomThreshold.SetValue(bloomThreshold);
-            }
-        } // SetBloomThreshold
-
-        #endregion
-
-        #region Lens Exposure
-        
-        private static float lastUsedLensExposure;
-        private static void SetLensExposure(float lensExposure)
-        {
-            if (lastUsedLensExposure != lensExposure)
-            {
-                lastUsedLensExposure = lensExposure;
-                epLensExposure.SetValue(lensExposure);
-            }
-        } // SetLensExposure
-
-        #endregion
-
-        #region Scene Texture
-        
-        private static Texture2D lastUsedSceneTexture;
-        private static void SetSceneTexture(Texture sceneTexture)
-        {
-            EngineManager.Device.SamplerStates[8] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedSceneTexture != sceneTexture.Resource)
-            {
-                lastUsedSceneTexture = sceneTexture.Resource;
-                epSceneTexture.SetValue(sceneTexture.Resource);
-            }
-        } // SetSceneTexture
-
-        #endregion
 
         #endregion
 
@@ -170,15 +107,13 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                epHalfPixel      = Resource.Parameters["halfPixel"];
-                    epHalfPixel.SetValue(lastUsedHalfPixel);
-                epBloomThreshold = Resource.Parameters["bloomThreshold"];
-                    epBloomThreshold.SetValue(lastUsedBloomThreshold);
-                epLensExposure   = Resource.Parameters["lensExposure"];
-                    epLensExposure.SetValue(lastUsedLensExposure);
-                epSceneTexture   = Resource.Parameters["sceneTexture"];
-                    if (lastUsedSceneTexture != null && !lastUsedSceneTexture.IsDisposed)
-                        epSceneTexture.SetValue(lastUsedSceneTexture);
+                spBloomThreshold = new ShaderParameterFloat("bloomThreshold", this);
+                spLensExposure = new ShaderParameterFloat("lensExposure", this);
+                spHalfPixel = new ShaderParameterVector2("halfPixel", this);
+                spAutoExposure = new ShaderParameterBool("autoExposure", this);
+                spSceneTexture = new ShaderParameterTexture("sceneTexture", this, SamplerState.PointClamp, 8);
+                spLastLuminanceTexture = new ShaderParameterTexture("lastLuminanceTexture", this, SamplerState.PointClamp, 12);
+                 
                 Resource.CurrentTechnique = Resource.Techniques["Bloom"];
             }
             catch
@@ -194,7 +129,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Generate Bloom Texture.
         /// </summary>
-        internal RenderTarget Render(Texture sceneTexture, PostProcess postProcess)
+        internal RenderTarget Render(Texture sceneTexture, Texture luminanceTexture, PostProcess postProcess)
         {
             if (postProcess == null)
                 throw new ArgumentNullException("postProcess");
@@ -218,13 +153,29 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                EngineManager.Device.SamplerStates[8] = SamplerState.PointClamp;
 
                 // Set Parameters.
-                SetHalfPixel(new Vector2(-0.5f / (bloomTexture.Width / 2), 0.5f / (bloomTexture.Height / 2)));
-                SetLensExposure(postProcess.ToneMapping.LensExposure);
-                SetBloomThreshold(postProcess.Bloom.Threshold);
-                SetSceneTexture(sceneTexture);
+                spHalfPixel.Value = new Vector2(-0.5f / (bloomTexture.Width / 2), 0.5f / (bloomTexture.Height / 2));
+
+                // Lens Exposure
+                #region Tone Mapping
+
+                spAutoExposure.Value = postProcess.ToneMapping.AutoExposureEnabled;
+                if (postProcess.ToneMapping.AutoExposureEnabled)
+                    spLastLuminanceTexture.Value = luminanceTexture;
+                else
+                {
+                    spLastLuminanceTexture.Value = null;
+                    spLensExposure.Value = postProcess.ToneMapping.LensExposure;
+                }
+
+                #endregion
+
+                spBloomThreshold.Value = postProcess.Bloom.Threshold;
+                spSceneTexture.Value = sceneTexture;
+
+                for (int i = 0; i < 16; i++)
+                    EngineManager.Device.SamplerStates[i] = SamplerState.PointClamp; // TODO. Bug in the samplers.
 
                 // Render it.
                 bloomTexture.EnableRenderTarget();
@@ -233,7 +184,7 @@ namespace XNAFinalEngine.Graphics
                 bloomTexture.DisableRenderTarget();
 
                 // Blur it.
-                //BlurShader.Instance.Filter(bloomTexture, false, 1); // TODO!!! Volver a activarla
+                BlurShader.Instance.Filter(bloomTexture, bloomTexture, 1);
 
                 return bloomTexture;
             }

@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Helpers;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
@@ -47,7 +48,8 @@ namespace XNAFinalEngine.Components
 
         #region Variables
 
-        internal XNAFinalEngine.Graphics.ParticleSystem cachedParticleSystem;
+        internal Graphics.ParticleSystem cachedParticleSystem;
+        internal float cachedDuration;
 
         #endregion
 
@@ -120,15 +122,19 @@ namespace XNAFinalEngine.Components
         public Texture Texture { get; set; }
 
         /// <summary>
+        /// How many images the texture is tiled into X.
+        /// </summary>
+        public int TilesX { get; set; }
+
+        /// <summary>
+        /// How many images the texture is tiled into Y.
+        /// </summary>
+        public int TilesY { get; set; }
+
+        /// <summary>
         /// Alpha blending state. 
         /// </summary>
         public BlendState BlendState { get; set; }
-
-        /// <summary>
-        /// Duration. How long these particles will last.
-        /// Normally this value is the same as the particle emitter.
-        /// </summary>
-        public float Duration { get; set; }
         
         #endregion
 
@@ -143,7 +149,6 @@ namespace XNAFinalEngine.Components
             // Set default values.
             SoftParticles = true;
             FadeDistance = 0.01f;
-            Duration = 10;
             DurationRandomness = 1;
             Gravity = new Vector3(-20, -5, 0);
             EndVelocity = 0.75f;
@@ -153,10 +158,17 @@ namespace XNAFinalEngine.Components
             StartSize = new Vector2(5, 10);
             EndSize = new Vector2(50, 200);
             BlendState = BlendState.Additive;
+            TilesX = 1;
+            TilesY = 1;
             // Particle Emitter
             ((GameObject3D)Owner).ParticleEmitterChanged += OnParticleEmitterChanged;
             if (((GameObject3D)Owner).ParticleEmitter != null)
+            {
+                ((GameObject3D)Owner).ParticleEmitter.ParticleSystemChanged += OnParticleSystemChanged;
+                ((GameObject3D)Owner).ParticleEmitter.DurationChanged += OnDurationChanged;
                 cachedParticleSystem = ((GameObject3D)Owner).ParticleEmitter.ParticleSystem;
+                cachedDuration = ((GameObject3D)Owner).ParticleEmitter.Duration;
+            }
         } // Initialize
 
         #endregion
@@ -170,7 +182,13 @@ namespace XNAFinalEngine.Components
         internal override void Uninitialize()
         {
             Texture = null;
+            cachedParticleSystem = null;
             ((GameObject3D)Owner).ParticleEmitterChanged -= OnParticleEmitterChanged;
+            if (((GameObject3D)Owner).ParticleEmitter != null)
+            {
+                ((GameObject3D)Owner).ParticleEmitter.ParticleSystemChanged -= OnParticleSystemChanged;
+                ((GameObject3D)Owner).ParticleEmitter.DurationChanged -= OnDurationChanged;
+            }
             // Call this last because the owner information is needed.
             base.Uninitialize();
         } // Uninitialize
@@ -184,8 +202,41 @@ namespace XNAFinalEngine.Components
         /// </summary>
         private void OnParticleEmitterChanged(object sender, Component oldComponent, Component newComponent)
         {
+            // Remove event association.
+            if (oldComponent != null)
+            {
+                ((ParticleEmitter)oldComponent).ParticleSystemChanged -= OnParticleSystemChanged;
+                ((ParticleEmitter)oldComponent).DurationChanged -= OnDurationChanged;
+            }
+            ((GameObject3D)Owner).ParticleEmitter.ParticleSystemChanged += OnParticleSystemChanged;
+            ((GameObject3D)Owner).ParticleEmitter.DurationChanged += OnDurationChanged;
             cachedParticleSystem = ((ParticleEmitter)newComponent).ParticleSystem;
+            cachedDuration = ((ParticleEmitter)newComponent).Duration;
         } // OnParticleEmitterChanged
+
+        #endregion
+
+        #region On Particle System Changed
+
+        /// <summary>
+        /// On particle emitter's particle system changed.
+        /// </summary>
+        private void OnParticleSystemChanged(object sender, ParticleSystem particleSystem)
+        {
+            cachedParticleSystem = particleSystem;
+        } // OnParticleSystemChanged
+
+        #endregion
+
+        #region On Duration Changed
+
+        /// <summary>
+        /// On particle emitter's duration changed.
+        /// </summary>
+        private void OnDurationChanged(object sender, float duration)
+        {
+            cachedDuration = duration;
+        } // OnDurationChanged
 
         #endregion
 

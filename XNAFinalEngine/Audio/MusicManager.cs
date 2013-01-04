@@ -222,9 +222,9 @@ namespace XNAFinalEngine.Audio
         internal static void Initialize()
         {
             // Search the song files //
-            DirectoryInfo musicDirectory = new DirectoryInfo(ContentManager.GameDataDirectory + "Music");
             try
             {
+                DirectoryInfo musicDirectory = new DirectoryInfo(ContentManager.GameDataDirectory + "Music");
                 FileInfo[] songsFileInformation = musicDirectory.GetFiles("*.xnb");
                 SongsFilename = new string[songsFileInformation.Length];
                 for (int i = 0; i < songsFileInformation.Length; i++)

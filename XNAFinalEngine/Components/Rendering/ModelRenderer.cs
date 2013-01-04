@@ -45,15 +45,37 @@ namespace XNAFinalEngine.Components
     public class ModelRenderer : Renderer
     {
 
+        #region Structs
+
+        /// <summary>
+        /// This is used to improve memory locally in the frustum culling operation.
+        /// Reducing the cache misses improve the performance.
+        /// </summary>
+        internal struct FrustumCullingData
+        {
+            public BoundingSphere boundingSphere;
+            public ModelRenderer  component;
+            public uint layerMask;
+            public bool ownerActive;
+            public bool enabled;
+        } // FrustumCullingData
+
+        #endregion
+
         #region Variables
+
+        // The culling information is stored in an array to improve frustum culling performance.
+        // The objective is to have a data oriented access avoiding innecesary memory access.
+        private static readonly Pool<FrustumCullingData> frustumCullingDataPool = new Pool<FrustumCullingData>(20);
+        private Pool<FrustumCullingData>.Accessor frustumCullingAccessor;
 
         /// <summary>The bounding sphere of the model in world space.</summary>
         /// <remarks>In the old versions I used nullable types but the bounding volumes are critical (performance wise) when frustum culling is enabled.</remarks>
-        protected BoundingSphere boundingSphere;
+        private BoundingSphere boundingSphere;
 
         /// <summary>The bounding box of the model in world space.</summary>
         /// <remarks>In the old versions I used nullable types but the bounding volumes are critical (performance wise) when frustum culling is enabled.</remarks>
-        protected BoundingBox boundingBox;
+        private BoundingBox boundingBox;
 
         // Bone transforms for rigid and animated skinning models.
         internal Matrix[] cachedBoneTransforms;
@@ -64,6 +86,12 @@ namespace XNAFinalEngine.Components
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// The culling information is stored in an array to improve frustum culling performance.
+        /// The objective is to have a data oriented access avoiding innecesary memory access.
+        /// </summary>
+        internal static Pool<FrustumCullingData> FrustumCullingDataPool { get { return frustumCullingDataPool; } }
 
         /// <summary>
         /// The material applied to the model.
@@ -84,7 +112,15 @@ namespace XNAFinalEngine.Components
         /// The bounding Sphere of the model.
         /// This bounding volume isn’t recalculated, only is translated and scaled accordly to its world matrix.
         /// </summary>
-        public BoundingSphere BoundingSphere { get { return boundingSphere; } }
+        public BoundingSphere BoundingSphere
+        {
+            get { return boundingSphere; }
+            set
+            {
+                boundingSphere = value;
+                frustumCullingDataPool.Elements[frustumCullingAccessor.Index].boundingSphere = boundingSphere;
+            }
+        } // BoundingSphere
         
         /// <summary>
         /// The bounding Box of the model. Aligned to the X, Y, Z planes.
@@ -133,7 +169,23 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Initialize(GameObject owner)
         {
+            // The culling information is stored in an array to improve frustum culling performance.
+            // The objective is to have a data oriented access avoiding innecesary memory access.
+            frustumCullingAccessor = frustumCullingDataPool.Fetch();
+            frustumCullingDataPool.Elements[frustumCullingAccessor.Index].component = this;
+
             base.Initialize(owner);
+
+            // Store owner's layer property for frustum culling.
+            frustumCullingDataPool.Elements[frustumCullingAccessor.Index].layerMask = Owner.Layer.Mask;
+            Owner.LayerChanged += OnLayerChanged;
+            // Store owner's active property for frustum culling.
+            frustumCullingDataPool.Elements[frustumCullingAccessor.Index].ownerActive = Owner.Active;
+            Owner.ActiveChanged += OnActiveChanged;
+            // Store enabled property for frustum culling.
+            frustumCullingDataPool.Elements[frustumCullingAccessor.Index].enabled = Enabled;
+            EnabledChanged += OnEnabledChanged;
+            
             // Model
             ((GameObject3D)Owner).ModelFilterChanged += OnModelFilterChanged;
             if (((GameObject3D)Owner).ModelFilter != null)
@@ -171,6 +223,13 @@ namespace XNAFinalEngine.Components
             ((GameObject3D)Owner).ModelAnimationChanged -= OnModelAnimationChanged;
             if (((GameObject3D)Owner).ModelAnimations != null)
                 ((GameObject3D)Owner).ModelAnimations.BoneTransformChanged -= OnBoneTransformChanged;
+
+            Owner.LayerChanged -= OnLayerChanged;
+            Owner.ActiveChanged -= OnActiveChanged;
+            EnabledChanged -= OnEnabledChanged;
+            frustumCullingDataPool.Elements[frustumCullingAccessor.Index].component = null;
+            frustumCullingDataPool.Release(frustumCullingAccessor);
+            frustumCullingAccessor = null;
 
             // Call this last because the owner information is needed.
             base.Uninitialize();
@@ -281,6 +340,42 @@ namespace XNAFinalEngine.Components
         } // OnModelAnimationChanged
 
         #endregion
+        
+        #region On Layer Changed
+
+        /// <summary>
+        /// On game object's layer changed.
+        /// </summary>
+        private void OnLayerChanged(object sender, uint layerMask)
+        {
+            frustumCullingDataPool.Elements[frustumCullingAccessor.Index].layerMask = layerMask;
+        } // OnLayerChanged
+
+        #endregion
+
+        #region On Active Changed
+
+        /// <summary>
+        /// On game object's active changed.
+        /// </summary>
+        private void OnActiveChanged(object sender, bool active)
+        {
+            frustumCullingDataPool.Elements[frustumCullingAccessor.Index].ownerActive = active;
+        } // OnActiveChanged
+
+        #endregion
+
+        #region On Enabled Changed
+
+        /// <summary>
+        /// On game object's active changed.
+        /// </summary>
+        private void OnEnabledChanged(object sender, bool enabled)
+        {
+            frustumCullingDataPool.Elements[frustumCullingAccessor.Index].enabled = enabled;
+        } // OnEnabledChanged
+
+        #endregion
 
         #region Calculate Bounding Volumes
 
@@ -292,7 +387,7 @@ namespace XNAFinalEngine.Components
             if (((GameObject3D)Owner).ModelFilter == null || ((GameObject3D)Owner).ModelFilter.Model == null)
             {
                 // If no model asset is present then the bounding volumes will be empty.
-                boundingSphere = new BoundingSphere();
+                BoundingSphere = new BoundingSphere();
                 boundingBox = new BoundingBox();
             }
             else
@@ -312,7 +407,7 @@ namespace XNAFinalEngine.Components
                 }
                 Vector3 center = Vector3.Transform(modelBoundingSphere.Center, CachedWorldMatrix); // Don't use this: boundingSphere.Value.Center + position;
                 float radius = modelBoundingSphere.Radius * maxScale;
-                boundingSphere = new BoundingSphere(center, radius);
+                BoundingSphere = new BoundingSphere(center, radius);
 
                 // Bounding Box
                 BoundingBox modelBoudingBox = ((GameObject3D) Owner).ModelFilter.Model.BoundingBox;

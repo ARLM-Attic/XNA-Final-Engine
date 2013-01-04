@@ -87,12 +87,15 @@ namespace XNAFinalEngineExamples
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 7f;
             camera.Camera.PostProcess = new PostProcess();
+            camera.Camera.PostProcess.ToneMapping.AutoExposureEnabled = false;
             camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
-            camera.Camera.PostProcess.MLAA.Enabled = true;
+            camera.Camera.PostProcess.MLAA.Enabled = false;
+            camera.Camera.PostProcess.Bloom.Enabled = false;
             camera.Camera.PostProcess.Bloom.Threshold = 2;
-            camera.Camera.PostProcess.FilmGrain.Enabled = true;
+            camera.Camera.PostProcess.FilmGrain.Enabled = false;
             camera.Camera.PostProcess.FilmGrain.Strength = 0.1f;
+            camera.Camera.PostProcess.AnamorphicLensFlare.Enabled = false;
             camera.Camera.AmbientLight = new AmbientLight
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
@@ -169,7 +172,7 @@ namespace XNAFinalEngineExamples
                                               });
             
             #endregion
-
+            
             #region Shadows and Lights
             
             directionalLight = new GameObject3D();
@@ -177,7 +180,7 @@ namespace XNAFinalEngineExamples
             directionalLight.DirectionalLight.Color = new Color(250, 250, 220);
             directionalLight.DirectionalLight.Intensity = 25;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.95f, -0.3f), Vector3.Zero, Vector3.Forward);
-            directionalLight.DirectionalLight.Shadow = new CascadedShadow
+            /*directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
                 Filter = Shadow.FilterType.Pcf3X3,
                 LightDepthTextureSize = Size.Square1024X1024,
@@ -187,7 +190,7 @@ namespace XNAFinalEngineExamples
                 FarPlaneSplit2 = 40,
                 FarPlaneSplit3 = 100,
                 //FarPlaneSplit4 = 150
-            };
+            };*/
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
@@ -203,26 +206,30 @@ namespace XNAFinalEngineExamples
             pointLight2.PointLight.Intensity = 2f;
             pointLight2.PointLight.Range = 30;
             pointLight2.Transform.Position = new Vector3(-12f, 2, -3);
-
+            
             #endregion
-
+            
             #region Statistics
             
             statistics = new GameObject2D();
             statistics.AddComponent<ScriptStatisticsDrawer>();
             
             #endregion
-
+            
             #region Lamborghini Murcielago LP640
+            
+            // To test performance.
+            for (int i = 0; i < 20; i++)
+            {
+                LamborghiniMurcielagoLoader lamborghiniMurcielagoLoader = new LamborghiniMurcielagoLoader();
+                lamborghiniMurcielagoLoader.LoadContent();
 
-            LamborghiniMurcielagoLoader lamborghiniMurcielagoLoader = new LamborghiniMurcielagoLoader();
-            lamborghiniMurcielagoLoader.LoadContent();
-
-            lamborghiniMurcielagoLoader.LamborghiniMurcielago.Transform.LocalScale = new Vector3(1.2f, 1.2f, 1.2f);
-            lamborghiniMurcielagoLoader.LamborghiniMurcielago.Transform.LocalPosition = new Vector3(0, 1.4f, 2.35f);
-
+                lamborghiniMurcielagoLoader.LamborghiniMurcielago.Transform.LocalScale = new Vector3(1.2f, 1.2f, 1.2f);
+                lamborghiniMurcielagoLoader.LamborghiniMurcielago.Transform.LocalPosition = new Vector3(0, 1.4f, 2.35f);
+            }
+            
             #endregion
-
+            
         } // Load
 
         #endregion

@@ -218,11 +218,6 @@
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
     </Compile>
-    <Compile Include="Models\Rifle.fbx">
-      <Name>Rifle</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
-    </Compile>
     <Compile Include="Music\01 - Artexflow - Feeling Good.mp3">
       <Name>01 - Artexflow - Feeling Good</Name>
       <Importer>Mp3Importer</Importer>

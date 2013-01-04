@@ -44,6 +44,7 @@ namespace XNAFinalEngine.Components
         private Pool<HudText>.Accessor hudTextAccessor;
         private Pool<HudTexture>.Accessor hudTextureAccessor;        
         private Pool<LineRenderer>.Accessor lineRendererAccessor;
+        private Pool<RigidBody>.Accessor rigidBodyAccessor;
 
         #endregion
 
@@ -62,6 +63,7 @@ namespace XNAFinalEngine.Components
         private HudText hudText;
         private HudTexture hudTexture;        
         private LineRenderer lineRenderer;
+        private RigidBody rigidBody;
 
         #endregion
 
@@ -359,6 +361,19 @@ namespace XNAFinalEngine.Components
                     LineRendererChanged(this, oldValue, value);
             }
         } // LineRenderer
+
+        #endregion
+
+        #region Rigid Body
+
+        /// <summary>
+        /// Associated rigid body component.
+        /// </summary>
+        public RigidBody RigidBody
+        {
+            get { return rigidBody; }
+            set { rigidBody = value; }
+        }
 
         #endregion
 
@@ -813,6 +828,25 @@ namespace XNAFinalEngine.Components
 
             #endregion
 
+            #region Rigid Body
+
+            if (typeof(TComponentType) == typeof(RigidBody))
+            {
+                if (rigidBodyAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the rigid body component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                rigidBodyAccessor = RigidBody.ComponentPool.Fetch();
+                // A component is a reference value, so no problem to do this.
+                rigidBody = RigidBody.ComponentPool[rigidBodyAccessor];
+                // Initialize the component to the default values.
+                rigidBody.Initialize(this);
+                result = rigidBody;
+            }
+
+            #endregion
+
             if (result == null)
                 throw new ArgumentException("Game Object 3D: Unknown component type.");
             Components.Add(result);
@@ -1098,7 +1132,24 @@ namespace XNAFinalEngine.Components
             }
 
             #endregion
-            
+
+            #region Rigid Body
+
+            if (typeof(TComponentType) == typeof(RigidBody))
+            {
+                if (rigidBodyAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the rigid body component. There is not one.");
+                }
+                RigidBody.Uninitialize();
+                Components.Remove(RigidBody);
+                RigidBody.ComponentPool.Release(rigidBodyAccessor);
+                RigidBody = null;
+                rigidBodyAccessor = null;
+            }
+
+            #endregion Rigid Body
+
         } // RemoveComponent
 
         #endregion
@@ -1140,6 +1191,8 @@ namespace XNAFinalEngine.Components
                 RemoveComponent<HudTexture>();
             if (LineRenderer != null)
                 RemoveComponent<LineRenderer>();
+            if (RigidBody != null)
+                RemoveComponent<RigidBody>();
             foreach (var script in scripts)
                 script.Uninitialize();
             scripts.Clear();

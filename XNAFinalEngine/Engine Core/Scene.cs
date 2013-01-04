@@ -29,8 +29,12 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using BEPUphysics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
+using XNAFinalEngine.PhysicSystem;
+
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -84,6 +88,9 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         internal void Initialize()
         {
+            // Initialize the physics simulation for our scene
+            Physics.Initialize();
+
             ContentManager = new ContentManager { Name = (GetType().Name + " Content Manager") };
             ContentManager.CurrentContentManager = ContentManager;
             LoadContent();

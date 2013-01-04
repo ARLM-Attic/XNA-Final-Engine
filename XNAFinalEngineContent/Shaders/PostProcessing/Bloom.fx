@@ -6,14 +6,13 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 ************************************************************************************************************************************************/
 
+#include <ToneMapping.fxh>
+
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
 //////////////////////////////////////////////
 
 float2 halfPixel;
-
-// Lens exposure (fraction of light to display)
-float	lensExposure = 0.1f;
 
 // Bloom threshold.
 float	bloomThreshold;
@@ -42,10 +41,6 @@ struct VS_OUT
 };
 
 //////////////////////////////////////////////
-//////////////// Functions ///////////////////
-//////////////////////////////////////////////
-
-//////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
@@ -67,10 +62,10 @@ VS_OUT vs_main(in float4 position : POSITION, in float2 uv : TEXCOORD)
 // Generate the bloom source. Output the bright pixels that will bloom.
 float4 ps_main(in float2 uv : TEXCOORD0) : COLOR0
 {		
-	float3 rgb = tex2D(sceneSampler, uv);
+	float3 color = tex2D(sceneSampler, uv);
 		
 	// Apply lens exposure.
-	float3 bloom = (rgb * lensExposure);
+	float3 bloom = ExposureColor(color.rgb, uv);
 	
 	//work out the intensity of the color
 	float brightness = dot(bloom, float3(0.3, 0.6, 0.1));

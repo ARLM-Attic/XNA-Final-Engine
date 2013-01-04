@@ -60,7 +60,7 @@ namespace XNAFinalEngineExamples
             //EngineManager.StartEngine(new DudeEditableScene(), false);
             //EngineManager.StartEngine(new PrototypeScene(), false);
             EngineManager.StartEngine(new WarehouseScene(), false);
-            //EngineManager.StartEngine(new MiscellaneousTestScene(), false);
+            //EngineManager.StartEngine(new LamborghiniMurcielagoScene(), false);
             //EngineManager.StartEngine(new NeoForceTestScene());
             //EngineManager.StartEngine(new HelloWorldScene(), false);
         } // Main

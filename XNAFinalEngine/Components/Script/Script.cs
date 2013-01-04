@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System.Collections.Generic;
+using BEPUphysics.Collidables.MobileCollidables;
 #endregion
 
 namespace XNAFinalEngine.Components
@@ -128,6 +129,28 @@ namespace XNAFinalEngine.Components
         /// Tasks executed during the last stage of the update.
         /// </summary>
         public virtual void LateUpdate() { }
+
+        #endregion
+
+        #region Physics
+
+        /// <summary>
+        /// OnCollisionEnter is called when this rigidbody has begun touching another rigidbody.
+        /// </summary>
+        /// <param name="collisionInfo">Collision information. Look into the pairs list to find the current contacts</param>
+        public virtual void OnCollisionEnter(EntityCollidable collisionInfo) { }
+
+        /// <summary>
+        /// OnCollisionExit is called when this rigidbody has stopped touching another rigidbody.
+        /// </summary>
+        /// <param name="collisionInfo">Collision information. Look into the pairs list to find the current contacts</param>
+        public virtual void OnCollisionExit(EntityCollidable collisionInfo) { }
+
+        /// <summary>
+        /// OnCollisionStay is called once per frame for every rigidbody that is touching another rigidbody.
+        /// </summary>
+        /// <param name="collisionInfo">Collision information. Look into the pairs list to find the current contacts</param>
+        public virtual void OnCollisionStay(EntityCollidable collisionInfo) { }
 
         #endregion
 

@@ -414,6 +414,7 @@ namespace XNAFinalEngine.Graphics
 
                 if (shadow != null && shadow is CubeShadow)
                 {
+                    // TODO!!!
                     Resource.Parameters["cubeShadowTexture"].SetValue(((CubeShadow)shadow).LightDepthTexture.Resource);
                     Resource.Parameters["viewI"].SetValue(Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix))));
                 }
@@ -433,7 +434,6 @@ namespace XNAFinalEngine.Graphics
                 if (angularDiameter > 0.2f * (3.1416f * fieldOfView / 180.0f))
                 {
                     // This only works when the clip volume does not intercept the camera´s far plane.
-                    // But in this cases we probably want to use glow planes or something similar.
 
                     // First pass.
                     // The stencil buffer was already filled with 0 and if the back of the clip volume

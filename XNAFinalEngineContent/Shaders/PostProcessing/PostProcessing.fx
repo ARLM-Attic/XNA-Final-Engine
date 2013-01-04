@@ -39,14 +39,10 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 float2 halfPixel;
 
-// Auto Exposure
-bool autoExposure;
 float tau;
 float timeDelta; // frame time delta in seconds.
 float luminanceLowThreshold;
 float luminanceHighThreshold;
-// Manual exposure 
-float lensExposure; // fraction of light to display
 
 // Bloom scale.
 float bloomScale;
@@ -67,6 +63,15 @@ bool filmGrainEnabled;
 ///////////////// Textures ///////////////////
 //////////////////////////////////////////////
 
+texture2D lensFlareTexture : register(t8);
+sampler2D lensFlareSampler : register(s8) = sampler_state
+{
+	Texture = <lensFlareTexture>;	
+	/*MipFilter = NONE;
+	MagFilter = ANISOTROPIC;
+	MinFilter = ANISOTROPIC;*/
+};
+
 texture sceneTexture : register(t9);
 sampler2D sceneSampler : register(s9) = sampler_state
 {
@@ -85,15 +90,6 @@ sampler2D bloomSampler : register(s10) = sampler_state
 	MinFilter = ANISOTROPIC;*/
 };
 
-texture lastLuminanceTexture : register(t12);
-sampler2D lastLuminanceSampler : register(s12) = sampler_state
-{
-	Texture = <lastLuminanceTexture>;
-	/*MipFilter = NONE;
-	MagFilter = POINT;
-	MinFilter = POINT;*/
-};
-
 //////////////////////////////////////////////
 ////////////// Data Structs //////////////////
 //////////////////////////////////////////////
@@ -107,30 +103,6 @@ struct VS_OUT
 //////////////////////////////////////////////
 //////////////// Functions ///////////////////
 //////////////////////////////////////////////
-
-float3 ExposureColor(float3 color, float2 uv)
-{
-	float exposure;
-	[branch]
-	if (autoExposure)
-	{
-		// From MJP http://mynameismjp.wordpress.com/ License: Microsoft_Permissive_License
-	 	// The mip maps are used to obtain a median luminance value.
-		float avgLuminance = exp(tex2Dlod(lastLuminanceSampler, float4(uv, 0, 10)).x); // This could be used to convert this global operator to local.
-		// Use geometric mean
-		avgLuminance = max(avgLuminance, 0.001f);		
-		float keyValue = 1.03f - (2.0f / (2 + log10(avgLuminance + 1)));
-		float linearExposure = (keyValue / avgLuminance);
-		exposure = max(linearExposure, 0.0001f);
-	}
-    else		
-		exposure = exp2(lensExposure);
-
-	// Multiply the incomming light by the lens exposure value. Think of this in terms of a camera:
-	// Exposure time on a camera adjusts how long the camera collects light on the main sensor.
-	// This is a simple multiplication factor of the incomming light.	
-	return color * exposure;
-} // ExposureColor
 
 // Apply the bloom effect.
 float3 Bloom(float3 color, float2 uv)
@@ -265,6 +237,8 @@ float4 psPostProcess(uniform int toneMappingFunction, in float2 uv : TEXCOORD0) 
 	[branch]
 	if (colorCorrectTwoLutEnabled)
 		color.rgb = lerp(color.rgb, lerp(TransformColor(color.rgb, firstlookupTableSampler), TransformColor(color.rgb, secondlookupTableSampler), lerpLookupTablesAmount), lerpOriginalColorAmount);
+
+	color.rgb = color.rgb + tex2D(lensFlareSampler, uv);
 	
 	return color;
 } // psPostProcess

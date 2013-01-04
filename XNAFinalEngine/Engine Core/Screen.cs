@@ -42,13 +42,6 @@ namespace XNAFinalEngine.EngineCore
     public static class Screen
     {
 
-        #region Variables
-
-        // Aspect Ratio.
-        private static float aspectRatio;
-
-        #endregion
-
         #region Properties
 
         #region Window Title

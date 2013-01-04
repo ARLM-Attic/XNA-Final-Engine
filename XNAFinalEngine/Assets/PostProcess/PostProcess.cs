@@ -44,6 +44,7 @@ namespace XNAFinalEngine.Assets
         
         private readonly ToneMapping toneMapping = new ToneMapping();
         private readonly Bloom bloom = new Bloom();
+        private readonly AnamorphicLensFlare anamorphicLensFlare = new AnamorphicLensFlare();
         private readonly MLAA mlaa = new MLAA();
         private readonly FilmGrain filmGrain = new FilmGrain();
         private readonly AdjustLevels adjustLevels = new AdjustLevels();
@@ -63,6 +64,11 @@ namespace XNAFinalEngine.Assets
         /// Bloom.
         /// </summary>
         public Bloom Bloom { get { return bloom; } }
+
+        /// <summary>
+        /// Anamorphic Lens Flare.
+        /// </summary>
+        public AnamorphicLensFlare AnamorphicLensFlare { get { return anamorphicLensFlare; } }
 
         /// <summary>
         /// Morphological Antialiasing (MLAA).

@@ -44,10 +44,10 @@ namespace XNAFinalEngine.Input
 		#region Variables
         
 		// The current keyboard state.
-		private static KeyboardState currentKeyboardState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
+		private static KeyboardState currentState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
         
         // The previous keyboard state.
-        private static KeyboardState previousKeyboardState= Microsoft.Xna.Framework.Input.Keyboard.GetState();
+        private static KeyboardState previousState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
 
 		#endregion
 
@@ -56,85 +56,26 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// The current keyboard state.
 		/// </summary>
-		public static KeyboardState KeyboardState { get { return currentKeyboardState; } }
+		public static KeyboardState State { get { return currentState; } }
 
         /// <summary>
         /// The previous keyboard state.
         /// </summary>
-        public static KeyboardState PreviousKeyboardState { get { return previousKeyboardState; } }
+        public static KeyboardState PreviousState { get { return previousState; } }
 
-        #region Pressed or Just Pressed
+        #endregion
+
+        #region Key Pressed and Just Pressed
 
         /// <summary>
         /// Key just pressed.
         /// </summary>
-        public static bool KeyJustPressed(Keys key) { return currentKeyboardState.IsKeyDown(key) && !previousKeyboardState.IsKeyDown(key); }
+        public static bool KeyJustPressed(Keys key) { return currentState.IsKeyDown(key) && !previousState.IsKeyDown(key); }
 
         /// <summary>
         /// Key pressed.
         /// </summary>
-        public static bool KeyPressed(Keys key) { return currentKeyboardState.IsKeyDown(key); }
-        
-        /// <summary>
-        /// Space just pressed.
-        /// </summary>
-        public static bool SpaceJustPressed { get { return currentKeyboardState.IsKeyDown(Keys.Space) && !previousKeyboardState.IsKeyDown(Keys.Space); } }
-
-        /// <summary>
-        /// Enter just pressed.
-        /// </summary>
-        public static bool EnterJustPressed { get { return currentKeyboardState.IsKeyDown(Keys.Enter) && !previousKeyboardState.IsKeyDown(Keys.Enter); } }
-
-        /// <summary>
-        /// Escape just pressed.
-        /// </summary>
-        public static bool EscapeJustPressed { get { return currentKeyboardState.IsKeyDown(Keys.Escape) && !previousKeyboardState.IsKeyDown(Keys.Escape); } }
-
-        #region Cursors
-
-        /// <summary>
-        /// Left just pressed.
-        /// </summary>
-        public static bool LeftJustPressed { get { return currentKeyboardState.IsKeyDown(Keys.Left) && !previousKeyboardState.IsKeyDown(Keys.Left); } }
-
-        /// <summary>
-        /// Right just pressed
-        /// </summary>
-        public static bool RightJustPressed { get { return currentKeyboardState.IsKeyDown(Keys.Right) && !previousKeyboardState.IsKeyDown(Keys.Right); } }
-
-        /// <summary>
-        /// Up just pressed
-        /// </summary>
-        public static bool UpJustPressed { get { return currentKeyboardState.IsKeyDown(Keys.Up) && !previousKeyboardState.IsKeyDown(Keys.Up); } }
-
-        /// <summary>
-        /// Down just pressed
-        /// </summary>
-        public static bool DownJustPressed { get { return currentKeyboardState.IsKeyDown(Keys.Down) && !previousKeyboardState.IsKeyDown(Keys.Down); } }
-
-        /// <summary>
-        /// Left pressed
-        /// </summary>
-        public static bool LeftPressed { get { return currentKeyboardState.IsKeyDown(Keys.Left); } }
-
-        /// <summary>
-        /// Right pressed
-        /// </summary>
-        public static bool RightPressed { get { return currentKeyboardState.IsKeyDown(Keys.Right); } }
-
-        /// <summary>
-        /// Up pressed
-        /// </summary>
-        public static bool UpPressed { get { return currentKeyboardState.IsKeyDown(Keys.Up); } }
-
-        /// <summary>
-        /// Down pressed
-        /// </summary>
-        public static bool DownPressed { get { return currentKeyboardState.IsKeyDown(Keys.Down); } }
-        
-        #endregion
-        
-        #endregion
+        public static bool KeyPressed(Keys key) { return currentState.IsKeyDown(key); }
 
         #endregion
 
@@ -164,7 +105,7 @@ namespace XNAFinalEngine.Input
 				key == Keys.OemPlus)            // =+
 				return false;
 
-			// Else is is a special key
+			// Else it is a special key.
 			return true;
         } // IsSpecialKey
 
@@ -240,8 +181,8 @@ namespace XNAFinalEngine.Input
 		/// </summary>
 		internal static void Update()
 		{
-            previousKeyboardState = currentKeyboardState;
-            currentKeyboardState = Microsoft.Xna.Framework.Input.Keyboard.GetState();            
+            previousState = currentState;
+            currentState = Microsoft.Xna.Framework.Input.Keyboard.GetState();            
 		} // Update
 		
         #endregion

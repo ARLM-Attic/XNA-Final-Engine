@@ -44,6 +44,10 @@
     <XnaCompressContent>true</XnaCompressContent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BEPUphysics, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31f6a8732a21de19, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Libraries\BEPU_v1.2.0\x86\Release\BEPUphysics.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
       <Private>False</Private>
     </Reference>
@@ -99,41 +103,150 @@
     <Compile Include="Animations\AnimationState.cs" />
     <Compile Include="Animations\ModelAnimationPlayer.cs" />
     <Compile Include="Animations\AnimationManager.cs" />
-    <Compile Include="Assets\AmbientOcclusion\HorizonBasedAmbientOcclusion.cs" />
-    <Compile Include="Assets\AmbientOcclusion\RayMarchingAmbientOcclusion.cs" />
-    <Compile Include="Assets\Animations\ModelAnimation.cs" />
-    <Compile Include="Assets\Animations\RootAnimation.cs" />
-    <Compile Include="Assets\Asset.cs" />
-    <Compile Include="Assets\Audio\Sound.cs" />
-    <Compile Include="Assets\Audio\Song.cs" />
-    <Compile Include="Assets\ContentManager.cs" />
-    <Compile Include="Assets\Cursors\Cursor.cs" />
-    <Compile Include="Assets\Documents\Document.cs" />
-    <Compile Include="Assets\Fonts\Font.cs" />
-    <Compile Include="Assets\Materials\BlinnPhong.cs" />
-    <Compile Include="Assets\Materials\Constant.cs" />
-    <Compile Include="Assets\Materials\CarPaint.cs" />
-    <Compile Include="Assets\Materials\Material.cs" />
-    <Compile Include="Assets\Models\FileModel.cs" />
-    <Compile Include="Assets\Models\Model.cs" />
-    <Compile Include="Assets\Models\PrimitiveModel.cs" />
-    <Compile Include="Assets\PostProcess\ToneMapping.cs" />
-    <Compile Include="Assets\PostProcess\MLAA.cs" />
-    <Compile Include="Assets\PostProcess\PostProcess.cs" />
-    <Compile Include="Assets\Shaders\Shader.cs" />
-    <Compile Include="Assets\Shadows\CascadedShadow.cs" />
-    <Compile Include="Assets\Shadows\BasicShadow.cs" />
-    <Compile Include="Assets\AssetWithoutResource.cs" />
-    <Compile Include="Assets\Shadows\CubeShadow.cs" />
-    <Compile Include="Assets\Sky\Skydome.cs" />
-    <Compile Include="Assets\Sky\Skybox.cs" />
-    <Compile Include="Assets\Sky\Sky.cs" />
-    <Compile Include="Assets\Shadows\Shadow.cs" />
-    <Compile Include="Assets\Textures\RenderTargetCube.cs" />
-    <Compile Include="Assets\Textures\RenderTarget.cs" />
-    <Compile Include="Assets\Textures\Texture.cs" />
-    <Compile Include="Assets\Textures\TextureCube.cs" />
-    <Compile Include="Assets\Videos\Video.cs" />
+    <Compile Include="Assets\AmbientLight\AmbientLight.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\AmbientOcclusion\AmbientOcclusion.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\AmbientOcclusion\HorizonBasedAmbientOcclusion.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\AmbientOcclusion\RayMarchingAmbientOcclusion.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Animations\ModelAnimation.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Animations\RootAnimation.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Asset.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\AssetWithoutResource.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Audio\Song.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Audio\Sound.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\ContentManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Cursors\Cursor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Documents\Document.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Fonts\Font.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Materials\AfterBurner.cs" />
+    <Compile Include="Assets\Materials\Atmosphere.cs" />
+    <Compile Include="Assets\Materials\BlinnPhong.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Materials\CarPaint.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Materials\Constant.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Materials\Material.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Models\FileModel.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Models\Model.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Models\PrimitiveModel.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\PostProcess\AdjustLevels.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\PostProcess\AdjustLevelsIndividualChannels.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\PostProcess\AnamorphicLensFlare.cs" />
+    <Compile Include="Assets\PostProcess\Bloom.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\PostProcess\ColorCorrection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\PostProcess\FilmGrain.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\PostProcess\MLAA.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\PostProcess\PostProcess.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\PostProcess\ToneMapping.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Shaders\Shader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Shaders\ShaderParameter.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterBool.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterColor.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterColorWithAlpha.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterFloat.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterInt.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterLookupTable.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterMatrix.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterTexture.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterVector2.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterVector3.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterVector4.cs" />
+    <Compile Include="Assets\Shadows\BasicShadow.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Shadows\CascadedShadow.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Shadows\CubeShadow.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Shadows\Shadow.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Sky\Sky.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Sky\Skybox.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Sky\Skydome.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Textures\LookupTable.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Textures\RenderTarget.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Textures\RenderTargetCube.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Textures\Texture.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Textures\TextureCube.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assets\Videos\Video.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Components\HeadsUpDisplay\HudTexture.cs" />
     <Compile Include="Audio\SoundManager.cs" />
     <Compile Include="Components\Animation\ModelAnimations.cs" />
@@ -147,13 +260,13 @@
     <Compile Include="Components\GameObject3D.cs" />
     <Compile Include="Components\Layer.cs" />
     <Compile Include="Components\Particles\ParticleEmitter.cs" />
+    <Compile Include="Components\Physics\RigidBody.cs" />
     <Compile Include="Components\Rendering\LineRenderer.cs" />
     <Compile Include="Components\Rendering\VideoRenderer.cs" />
     <Compile Include="Components\Rendering\ParticleRenderer.cs" />
     <Compile Include="Engine Core\GraphicsProfileExtender.cs" />
     <Compile Include="Engine Core\Statistics.cs" />
     <Compile Include="Engine Core\ScreenshotCapturer.cs" />
-    <Compile Include="Assets\AmbientLight\AmbientLight.cs" />
     <Compile Include="Components\Lights\DirectionalLight.cs" />
     <Compile Include="Components\Lights\Light.cs" />
     <Compile Include="Components\Lights\PointLight.cs" />
@@ -182,7 +295,6 @@
     <Compile Include="Graphics\Passes\01-GBuffer\DownsamplerGBufferShader.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBufferShader.cs" />
     <Compile Include="Graphics\Passes\01-GBuffer\GBufferPass.cs" />
-    <Compile Include="Assets\AmbientOcclusion\AmbientOcclusion.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\Ambient Occlusion\HorizonBasedAmbientOcclusionShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\Ambient Occlusion\RayMarchingAmbientOcclusionShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\AmbientLightShader.cs" />
@@ -203,12 +315,8 @@
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonics.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL1.cs" />
     <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL2.cs" />
-    <Compile Include="Assets\PostProcess\Bloom.cs" />
-    <Compile Include="Assets\PostProcess\AdjustLevels.cs" />
-    <Compile Include="Assets\PostProcess\AdjustLevelsIndividualChannels.cs" />
-    <Compile Include="Assets\PostProcess\ColorCorrection.cs" />
-    <Compile Include="Assets\PostProcess\FilmGrain.cs" />
-    <Compile Include="Assets\Textures\LookupTable.cs" />
+    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\AfterBurnerShader.cs" />
+    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\AtmosphereShader.cs" />
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\BlinnPhongShader.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -223,6 +331,7 @@
     </Compile>
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\SkyboxShader.cs" />
     <Compile Include="Graphics\Passes\03-ScenePass\Shaders\SkydomeShader.cs" />
+    <Compile Include="Graphics\Passes\04-PostProcessPass\AnamorphicLensFlareShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\BloomShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\PostProcessingShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\MLAAShader.cs">
@@ -241,10 +350,13 @@
     <Compile Include="Helpers\RectangleF.cs" />
     <Compile Include="Helpers\Size.cs" />
     <Compile Include="Helpers\GarbageCollection.cs" />
+    <Compile Include="Input\Axis.cs" />
+    <Compile Include="Input\Button.cs" />
     <Compile Include="Input\InputManager.cs" />
     <Compile Include="Input\Keyboard.cs" />
     <Compile Include="Input\Mouse.cs" />
     <Compile Include="Input\GamePad.cs" />
+    <Compile Include="PhysicSystem\Physics.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Engine Core\Scene.cs" />
     <Compile Include="Audio\MusicManager.cs" />
@@ -256,7 +368,6 @@
       <Name>XNAFinalEngineContentPipelineExtensionRuntime</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />
   <!--

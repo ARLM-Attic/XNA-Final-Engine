@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -45,6 +46,7 @@ using XNAFinalEngine.Input;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Model = XNAFinalEngine.Assets.Model;
 using RootAnimation = XNAFinalEngine.Components.RootAnimations;
+using XNAFinalEngine.PhysicSystem;
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -77,6 +79,9 @@ namespace XNAFinalEngine.EngineCore
         #endregion
 
         #region Variables
+
+        // Syncronization object used in multithreading.
+        private static object syncObj = new object();
 
         // They are auxiliary values that helps avoiding garbage.
         private static readonly Vector3[] cornersViewSpace = new Vector3[4];
@@ -120,7 +125,8 @@ namespace XNAFinalEngine.EngineCore
 
         /// <summary>
         /// This indicates the cameras to render and their order, ignoring the camera component settings.
-        /// The camera component provides an interface to set this information but the editor and maybe some user testing will benefit with this functionality.
+        /// The camera component provides an interface to set this information. 
+        /// The editor and maybe some user testing will benefit with this functionality.
         /// </summary>
         public static List<Camera> CamerasToRender { get; set; }
         
@@ -187,7 +193,10 @@ namespace XNAFinalEngine.EngineCore
                 if (script.assignedToAGameObject && script.IsActive)
                 {
                     if (!script.Started)
+                    {
                         script.Start();
+                        script.Started = true;
+                    }
                 }
             }
 
@@ -227,6 +236,27 @@ namespace XNAFinalEngine.EngineCore
             // Update the chronometers that work in game delta time space.
             Chronometer.UpdateGameDeltaTimeChronometers();
             
+            #endregion
+
+            #region Physics
+
+            // Run the simulation
+            Physics.Scene.Update((float) gameTime.ElapsedGameTime.TotalSeconds);
+
+            // Update physics components
+            for (int i = 0; i < RigidBody.ComponentPool.Count; i++)
+            {
+                if (RigidBody.ComponentPool.Elements[i].IsActive)
+                    RigidBody.ComponentPool.Elements[i].Update();
+            }
+
+            // Process collisions
+            for (int i = 0; i < RigidBody.ComponentPool.Count; i++)
+            {
+                if (RigidBody.ComponentPool.Elements[i].IsActive)
+                    RigidBody.ComponentPool.Elements[i].ProcessCollisions();
+            }
+
             #endregion
 
             #region Special Keys
@@ -291,7 +321,10 @@ namespace XNAFinalEngine.EngineCore
                 if (script.assignedToAGameObject && script.IsActive)
                 {
                     if (!script.Started)
+                    {
                         script.Start();
+                        script.Started = true;
+                    }
                     script.Update();
                 }
             }
@@ -304,7 +337,10 @@ namespace XNAFinalEngine.EngineCore
                 if (script.assignedToAGameObject && script.IsActive)
                 {
                     if (!script.Started)
+                    {
                         script.Start();
+                        script.Started = true;
+                    }
                     script.LateUpdate();
                 }
             }
@@ -406,7 +442,10 @@ namespace XNAFinalEngine.EngineCore
                 if (script.assignedToAGameObject && script.IsActive)
                 {
                     if (!script.Started)
+                    {
                         script.Start();
+                        script.Started = true;
+                    }
                     script.PreRenderUpdate();
                 }
             }
@@ -425,7 +464,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             Camera mainCamera;
-
+            
             if (CamerasToRender == null || CamerasToRender.Count == 0)
             {
 
@@ -444,8 +483,9 @@ namespace XNAFinalEngine.EngineCore
 
                 mainCamera = Camera.MainCamera;
             }
-            else
+            else // You can manually set what cameras want to render. This is mostly for the editor. In this case...
             {
+
                 #region Render CamerasToRender Cameras
 
                 // For each camera we render the scene in it
@@ -498,14 +538,17 @@ namespace XNAFinalEngine.EngineCore
                 if (script.assignedToAGameObject && script.IsActive)
                 {
                     if (!script.Started)
+                    {
                         script.Start();
+                        script.Started = true;
+                    }
                     script.PostRenderUpdate();
                 }
             }
 
             #endregion 
 
-            #region Screenshot
+            #region Screenshot Saving
 
             if (ScreenshotCapturer.MakeScreenshot)
             {
@@ -605,19 +648,82 @@ namespace XNAFinalEngine.EngineCore
         #region Frustum Culling
 
         /// <summary>
+        /// Used in theading to pass the parameters.
+        /// </summary>
+        private struct FrustumCullingParameters
+        {
+            public readonly BoundingFrustum boundingFrustum;
+            public readonly List<ModelRenderer> modelsToRender;
+            public readonly int processorAffinity, startPosition, count;
+            public FrustumCullingParameters(BoundingFrustum boundingFrustum, List<ModelRenderer> modelsToRender, int processorAffinity, int startPosition, int count)
+            {
+                this.boundingFrustum = boundingFrustum;
+                this.modelsToRender = modelsToRender;
+                this.processorAffinity = processorAffinity;
+                this.startPosition = startPosition;
+                this.count = count;
+            }
+        } // FrustumCullingParameters
+
+        private static void FrustumCullingThreading(object parameters)
+        {
+            #if XBOX 
+                // http://msdn.microsoft.com/en-us/library/microsoft.xna.net_cf.system.threading.thread.setprocessoraffinity.aspx
+                Thread.CurrentThread.SetProcessorAffinity(((FrustumCullingParameters)parameters).processorAffinity);
+            #endif
+
+            int startPosition = ((FrustumCullingParameters) parameters).startPosition;
+            int count = ((FrustumCullingParameters)parameters).count;
+            BoundingFrustum boundingFrustum = ((FrustumCullingParameters) parameters).boundingFrustum;
+
+            // I improved memory locality with FrustumCullingDataPool.
+            // However, in order to do that I had to make the code a little more complicated and error prone.
+            // There is a performance gain, but it is small. 
+            // I recommend to perform this kind of optimizations is the game/application has a CPU bottleneck.
+            // Besides, the old code was half data oriented.
+            for (int i = startPosition; i < (count - startPosition); i++)
+            {
+                ModelRenderer.FrustumCullingData frustumCullingData = ModelRenderer.FrustumCullingDataPool.Elements[i];
+                if (//component.CachedModel != null && // Not need to waste cycles in this, how many ModelRenderer components will not have a model?
+                    // Is Visible?
+                    Layer.IsVisible(frustumCullingData.layerMask) && frustumCullingData.ownerActive && frustumCullingData.enabled)
+                {
+                    if (boundingFrustum.Intersects(frustumCullingData.boundingSphere))
+                    {
+                        lock (syncObj)
+                        {
+                            modelsToRender.Add(frustumCullingData.component);
+                        }
+                    }
+
+                }
+            }
+        } // FrustumCullingThreading
+
+        /// <summary>
         /// Frustum Culling.
         /// </summary>
         /// <param name="boundingFrustum">Bounding Frustum.</param>
         /// <param name="modelsToRender">The result.</param>
         private static void FrustumCulling(BoundingFrustum boundingFrustum, List<ModelRenderer> modelsToRender)
         {
-            for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+            // I improved memory locality with FrustumCullingDataPool.
+            // However, in order to do that I had to make the code a little more complicated and error prone.
+            // There is a performance gain, but it is small. 
+            // I recommend to perform this kind of optimizations is the game/application has a CPU bottleneck.
+            // Besides, the old code was half data oriented.
+            for (int i = 0; i < ModelRenderer.FrustumCullingDataPool.Count; i++)
             {
-                ModelRenderer component = ModelRenderer.ComponentPool.Elements[i];
-                if (component.CachedModel != null && component.IsVisible)
+                ModelRenderer.FrustumCullingData frustumCullingData = ModelRenderer.FrustumCullingDataPool.Elements[i];
+                if (//component.CachedModel != null && // Not need to waste cycles in this, how many ModelRenderer components will not have a model?
+                    // Is Visible?
+                    Layer.IsVisible(frustumCullingData.layerMask) && frustumCullingData.ownerActive && frustumCullingData.enabled)
                 {
-                    if (boundingFrustum.Intersects(component.BoundingSphere))
-                        modelsToRender.Add(component);
+                    if (boundingFrustum.Intersects(frustumCullingData.boundingSphere))
+                    {
+                        modelsToRender.Add(frustumCullingData.component);
+                    }
+                        
                 }
             }
         } // FrustumCulling
@@ -693,7 +799,7 @@ namespace XNAFinalEngine.EngineCore
         private static RenderTarget ambientOcclusionTexture;
 
         /// <summary>
-        /// Deferred lighting pipeline for one camera.
+        /// Deferred lighting pipeline for one camera. 
         /// </summary>
         private static void RenderCamera(Camera currentCamera, RenderTarget renderTarget)
         {
@@ -707,40 +813,78 @@ namespace XNAFinalEngine.EngineCore
 
             #region Frustum Culling
 
-            // The objective is implementing a culling management in a limited time framework.
+            // The objective is implementing a simple but effective culling management.
             // In DICE’s presentation (Culling the Battlefield Data Oriented Design in Practice)
             // they find that a slightly modified simple frustum culling could work better than 
             // a tree based structure if a data oriented design is followed. 
-            // The question is if C# could bring me the possibility to arrange data the way I need it or not.
+            // The question is if C# could bring us the possibility to arrange data the way we need it. I think it can.
             // Then they apply a software occlusion culling technique, an interesting approach
             // but unfortunately I don’t think I can make it work in the time that I have.
+            // Moreover, a Z-Pre Pass and a simple LOD scheme could be a good alternative.
 
             // I will try to make a simple version and then optimized.
             // First I will try to do frustum culling with bounding spheres.
             // DICE talk about grids, I still do not understand why. It is to separate better the data send to the cores?
-            // DICE also stores in an array only the bounding and entity information. This is something that I already find necessary to do some months before ago.
+            // DICE also stores in an array only the bounding volume and entity information. This is something that I already find necessary to do some months before ago.
             // They also store AABB information to perform the software occlusion culling in the next pass.
             // They also improve a lot the performance of the intersect operation, however I will relay in the XNA implementation, at least for the time being.
-            // Finally, I should implement a multi frustum culling (cameras and lights) to improve performance. 
+            // Finally, I should implement a multi frustum culling (cameras and lights) to improve performance. (Done).
             // Another reference about this: http://blog.selfshadow.com/publications/practical-visibility/
-            // Reading this last link I concluded that probably understood incorrectly some part of the method.
 
-            // CHC++ is a technique very used. In ShaderX7 there are a good article about it (it also includes the source code).
+            // CHC++ is a technique very used. In ShaderX7 there is a good article about it (it also includes the source code). But I do not have plans to implement it.
 
             // First Version (very simple)
             cameraBoundingFrustum.Matrix = currentCamera.ViewMatrix * currentCamera.ProjectionMatrix;
             modelsToRender.Clear();
-            FrustumCulling(cameraBoundingFrustum, modelsToRender);
+            // If the number of objects is high then we divide the task in threads.
+            if (ModelRenderer.ComponentPool.Count > 1000)
+            {
+                int i = Environment.ProcessorCount;
+                Thread thread = new Thread(FrustumCullingThreading);
+                thread.Start(new FrustumCullingParameters(cameraBoundingFrustum, modelsToRender, 0, 0, 350));
+                Thread thread2 = new Thread(FrustumCullingThreading);
+                thread2.Start(new FrustumCullingParameters(cameraBoundingFrustum, modelsToRender, 0, 350, 350));
+                Thread thread3 = new Thread(FrustumCullingThreading);
+                thread3.Start(new FrustumCullingParameters(cameraBoundingFrustum, modelsToRender, 0, 700, 350));
+                FrustumCullingThreading(new FrustumCullingParameters(cameraBoundingFrustum, modelsToRender, 0, 1050, ModelRenderer.ComponentPool.Count - 1050));
+                thread.Join();
+                thread2.Join();
+                thread3.Join();
+            }
+            else
+                FrustumCulling(cameraBoundingFrustum, modelsToRender);
+
+            // This code is used for testing. It shows the texture on screen.
+            renderTarget.EnableRenderTarget();
+            if (currentCamera.RenderHeadUpDisplay)
+                RenderHeadsUpDisplay();
+            renderTarget.DisableRenderTarget();
+            Layer.CurrentCameraCullingMask = uint.MaxValue;
+            ReleaseUnusedRenderTargets();
+            return;
 
             #endregion
 
             #region GBuffer Pass
 
+            // TODO: In XNA we can’t recover the GPU Z-Buffer, so we have to store it in an additional render target.
+            // That means more work to do and less space to store the render targets in the EDRAM. 
+            // This could be worse if we want to store additional information, like surface’s albedo.
+            // To avoid a predicated tilling we can do a Z Pre Pass, i.e. decupling the G-Buffer generation.
+            // This has one big advantage and one big disadvantage. 
+            // The disadvantage is that we need to render one more time the geometry but (advantage) we can use this pre-rendering as an occlusion culling for the G-Buffer.
+
             GBufferPass.Begin(renderTarget.Size);
             GBufferShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane);
 
+            // Batching is everything, in both CPU (data oriented programming) and GPU (less changes).
+            // I do not want to know about materials in the G-Buffer, but I can’t avoid it completely.
+            // So I classify the materials based on the G-Buffer stored information.
+            // That means if I add new materials in the engine, then there is no need to change the G-Buffer code.
+
             #region  Sorting
 
+            // There are five different techniques in the G-Buffer shader, therefore there are five lists.
             gBufferSkinnedSimple.Clear();
             gBufferSkinnedWithNormalMap.Clear();
             gBufferWithParallax.Clear();
@@ -856,7 +1000,9 @@ namespace XNAFinalEngine.EngineCore
             // Downsample GBuffer
             gbufferHalfTextures    = DownsamplerGBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], gbufferTextures.RenderTargets[1]);
             gbufferQuarterTextures = DownsamplerGBufferShader.Instance.Render(gbufferHalfTextures.RenderTargets[0], gbufferHalfTextures.RenderTargets[1]);
-            
+
+            #region Testing
+
             // This code is used for testing. It shows the texture on screen.
             /*renderTarget.EnableRenderTarget();
             SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[1]);
@@ -868,11 +1014,13 @@ namespace XNAFinalEngine.EngineCore
             return;*/
 
             #endregion
-            
+
+            #endregion
+
             #region Light Pre Pass
 
             #region Ambient Occlusion
-            
+
             // If the ambient occlusion pass is requested...
             if (currentCamera.AmbientLight != null && currentCamera.AmbientLight.Intensity > 0 &&
                 currentCamera.AmbientLight.AmbientOcclusion != null && currentCamera.AmbientLight.AmbientOcclusion.Enabled)
@@ -1455,11 +1603,12 @@ namespace XNAFinalEngine.EngineCore
                 ParticleRenderer particleRenderer = ParticleRenderer.ComponentPool.Elements[i];
 
                 if (particleRenderer.cachedParticleSystem != null && particleRenderer.Texture != null && particleRenderer.IsVisible)
-                    ParticleShader.Instance.Render(particleRenderer.cachedParticleSystem, particleRenderer.Duration,
+                    ParticleShader.Instance.Render(particleRenderer.cachedParticleSystem, particleRenderer.cachedDuration,
                                                    particleRenderer.BlendState, particleRenderer.DurationRandomness, particleRenderer.Gravity,
                                                    particleRenderer.EndVelocity, particleRenderer.MinimumColor, particleRenderer.MaximumColor,
                                                    particleRenderer.RotateSpeed, particleRenderer.StartSize, particleRenderer.EndSize,
-                                                   particleRenderer.Texture, particleRenderer.SoftParticles, particleRenderer.FadeDistance);
+                                                   particleRenderer.Texture, particleRenderer.TilesX, particleRenderer.TilesY, 
+                                                   particleRenderer.SoftParticles, particleRenderer.FadeDistance);
             }
 
             #endregion
@@ -1467,6 +1616,7 @@ namespace XNAFinalEngine.EngineCore
             #region Transparent Objects
             
             // The transparent objects will be render in forward fashion.
+            // I should first render the additive materials and then the alpha blending ones.
             foreach (ModelRenderer modelRenderer in modelsToRender)
             {
                 if (modelRenderer.CachedModel != null && modelRenderer.IsVisible)
@@ -1506,6 +1656,14 @@ namespace XNAFinalEngine.EngineCore
                                                                         modelRenderer.cachedBoneTransforms,
                                                                         (Constant)material, j, k);
                                 }
+                                if (modelRenderer.Material is AfterBurner)
+                                {
+                                    AfterBurnerShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+                                    AfterBurnerShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix,
+                                                                           modelRenderer.CachedModel,
+                                                                           modelRenderer.cachedBoneTransforms,
+                                                                           (AfterBurner)material, j, k);
+                                }
                                 else if (modelRenderer.Material is BlinnPhong)
                                 {
                                     ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
@@ -1522,6 +1680,14 @@ namespace XNAFinalEngine.EngineCore
                                                                         modelRenderer.CachedModel,
                                                                         modelRenderer.cachedBoneTransforms,
                                                                         (CarPaint)material, j, k);
+                                }
+                                else if (modelRenderer.Material is Atmosphere)
+                                {
+                                    AtmosphereShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.Position);
+                                    AtmosphereShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix,
+                                                                        modelRenderer.CachedModel,
+                                                                        modelRenderer.cachedBoneTransforms,
+                                                                        (Atmosphere)material, j, k);
                                 }
                             }
                             currentMeshPart++;
@@ -1621,10 +1787,12 @@ namespace XNAFinalEngine.EngineCore
 
             #region Post Process Pass
 
-            PostProcessingPass.BeginAndProcess(sceneTexture, gbufferTextures.RenderTargets[0], currentCamera.PostProcess, ref currentCamera.LuminanceTexture, renderTarget);
+            PostProcessingPass.BeginAndProcess(sceneTexture, gbufferTextures.RenderTargets[0], gbufferHalfTextures.RenderTargets[0], currentCamera.PostProcess, ref currentCamera.LuminanceTexture, 
+                                               renderTarget, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, currentCamera.Position);
             
             // Render in gamma space
-            #region Textures and Text
+
+            #region 3D Textures and Text
 
             if (HudText.ComponentPool3D.Count != 0 || HudTexture.ComponentPool3D.Count != 0)
             {
@@ -1689,7 +1857,7 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            #region Lines (Line List)
+            #region 3D Lines (Line List)
 
             LineManager.Begin3D(PrimitiveType.LineList, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
 

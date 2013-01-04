@@ -91,11 +91,8 @@ float4 CubePS(CubeVertexOutput IN) : COLOR
 float4 CubePSRGBM(CubeVertexOutput IN) : COLOR
 {   
     // RGBM (gamma)
-	float4 rgbm = texCUBE(CubeMapSampler, IN.UV).rgba;
-		
-	// RGBM (linear)
-	rgbm = GammaToLinear(rgbm);
-	
+	float4 rgbm = texCUBE(CubeMapSampler, IN.UV).rgba;	
+
 	// RGBM To Linear
 	return float4(RgbmLinearToFloatLinear(rgbm) * intensity, alphaBlending);
 }

@@ -38,6 +38,9 @@ namespace XNAFinalEngine.Components
         /// </summary>
         private bool cachedOwnerActive;
 
+        // Makes the componet active or not.
+        private bool enabled;
+
         #endregion
 
         #region Properties
@@ -58,7 +61,16 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// Makes the componet active or not.
         /// </summary>
-        public bool Enabled { get; set; }
+        public bool Enabled
+        {
+            get { return enabled; }
+            set
+            {
+                enabled = value;
+                if (EnabledChanged != null)
+                    EnabledChanged(this, enabled);
+            }
+        } // Enabled
 
         /// <summary>
         /// Indicates if the layer is active.
@@ -73,6 +85,24 @@ namespace XNAFinalEngine.Components
         /// </summary>
         [XmlIgnore]
         public bool IsVisible { get { return Layer.IsVisible(cachedLayerMask) && cachedOwnerActive && Enabled; } }
+
+        #endregion
+
+        #region Events
+
+        #region Enable
+
+        /// <summary>
+        /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
+        /// </summary>
+        public delegate void EnableEventHandler(object sender, bool enable);
+
+        /// <summary>
+        /// Raised when the game object's is enabled or disabled.
+        /// </summary>
+        public event EnableEventHandler EnabledChanged;
+
+        #endregion
 
         #endregion
 

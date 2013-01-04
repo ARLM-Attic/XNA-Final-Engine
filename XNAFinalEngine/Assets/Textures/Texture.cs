@@ -59,6 +59,9 @@ namespace XNAFinalEngine.Assets
         // Default value.
         private SamplerState preferedSamplerState = SamplerState.AnisotropicWrap;
 
+        // Simple and small textures filled with a constant color.
+	    private static Texture blackTexture, greyTexture, whiteTexture;
+
         #endregion
 
         #region Properties
@@ -140,6 +143,64 @@ namespace XNAFinalEngine.Assets
         /// This is use only useful for the editor.
         /// </remarks>
         public static string[] Filenames { get; private set; }
+
+        #endregion
+
+        #region Simple Texture
+
+        /// <summary>
+        /// Returns a small texture filled with a black constant color.
+        /// </summary>
+	    public static Texture BlackTexture
+	    {
+	        get
+	        {
+                if (blackTexture == null)
+                {
+                    ContentManager userContentManager = ContentManager.CurrentContentManager;
+                    ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                    blackTexture = new Texture("Shaders\\Black");
+                    ContentManager.CurrentContentManager = userContentManager;
+                }
+	            return blackTexture;
+	        }
+	    } // BlackTexture
+
+        /// <summary>
+        /// Returns a small texture filled with a white constant color.
+        /// </summary>
+        public static Texture WhiteTexture
+        {
+            get
+            {
+                if (whiteTexture == null)
+                {
+                    ContentManager userContentManager = ContentManager.CurrentContentManager;
+                    ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                    whiteTexture = new Texture("Shaders\\White");
+                    ContentManager.CurrentContentManager = userContentManager;
+                }
+                return whiteTexture;
+            }
+        } // WhiteTexture
+
+        /// <summary>
+        /// Returns a small texture filled with a grey constant color.
+        /// </summary>
+        public static Texture GreyTexture
+        {
+            get
+            {
+                if (greyTexture == null)
+                {
+                    ContentManager userContentManager = ContentManager.CurrentContentManager;
+                    ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                    greyTexture = new Texture("Shaders\\Grey");
+                    ContentManager.CurrentContentManager = userContentManager;
+                }
+                return greyTexture;
+            }
+        } // GreyTexture
 
         #endregion
 

@@ -53,6 +53,8 @@ namespace XNAFinalEngine.Components
 
         #region Variables
 
+        private ParticleSystem particleSystem;
+
         // Maximum number of particles that can be displayed at one time.
         private int maximumNumberParticles;
                         
@@ -74,6 +76,9 @@ namespace XNAFinalEngine.Components
         // Particle duration.
         private float duration;
 
+        // How much more particles can emit.
+        private int quota;
+
         #endregion
 
         #region Properties
@@ -81,7 +86,16 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// The "vertex buffer" of the particle system.
         /// </summary>
-        internal ParticleSystem ParticleSystem { get; set; }
+        internal ParticleSystem ParticleSystem
+        {
+            get { return particleSystem; }
+            set
+            {
+                particleSystem = value;
+                if (ParticleSystemChanged != null)
+                    ParticleSystemChanged(this, particleSystem);
+            }
+        } // ParticleSystem
 
         /// <summary>
         /// Duration. How long these particles will last.
@@ -93,8 +107,25 @@ namespace XNAFinalEngine.Components
             {
                 duration = value;
                 TimeBetweenParticles = 1.0f / (MaximumNumberParticles / Duration);
+                if (DurationChanged != null)
+                    DurationChanged(this, duration);
             }
         } // Duration
+
+        /// <summary>
+        /// How much more particles can emit.
+        /// </summary>
+        /// <remarks>-1 equals infinite particles.</remarks>
+        public int Quota 
+        {
+            get { return quota; }
+            set
+            {
+                quota = value;
+                if (quota < -1)
+                    quota = 0;
+            }
+        } /// Quota
 
         /// <summary>
         /// Controls how much particles are influenced by the velocity of the object which created them.
@@ -140,7 +171,7 @@ namespace XNAFinalEngine.Components
                     maximumNumberParticles = value;
                     if (ParticleSystem != null)
                         ParticleSystem.Dispose();
-                    ParticleSystem = new ParticleSystem(value);
+                    ParticleSystem = new ParticleSystem(value + 1);
                     TimeBetweenParticles = 1.0f / (MaximumNumberParticles / Duration);
                 }
             }
@@ -152,7 +183,11 @@ namespace XNAFinalEngine.Components
         protected float TimeBetweenParticles
         {
             get { return timeBetweenParticles / ParticleEmisionScale; }
-            set { timeBetweenParticles = value; }
+            set
+            {
+                timeBetweenParticles = value;
+                timeLeftOver = timeBetweenParticles; // We want the first particle right away.
+            }
         } // TimeBetweenParticles
 
         /// <summary>
@@ -170,6 +205,30 @@ namespace XNAFinalEngine.Components
 
         #endregion
 
+        #region Events
+
+        /// <summary>
+        /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
+        /// </summary>
+        internal delegate void ParticleSystemEventHandler(object sender, ParticleSystem particleSystem);
+
+        /// <summary>
+        /// Raised when the particle system changes.
+        /// </summary>
+        internal event ParticleSystemEventHandler ParticleSystemChanged;
+
+        /// <summary>
+        /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
+        /// </summary>
+        internal delegate void DurationEventHandler(object sender, float duration);
+
+        /// <summary>
+        /// Raised when the duration changes.
+        /// </summary>
+        internal event DurationEventHandler DurationChanged;
+
+        #endregion
+
         #region Initialize
 
         /// <summary>
@@ -179,6 +238,7 @@ namespace XNAFinalEngine.Components
         {
             base.Initialize(owner);
             // Default values.
+            Quota = -1;
             MaximumNumberParticles = 400;
             Duration = 10;
             EmitterVelocitySensitivity = 1;
@@ -199,6 +259,8 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
+            ParticleSystemChanged = null;
+            DurationChanged = null;
             base.Uninitialize();
         } // Uninitialize
 
@@ -212,12 +274,11 @@ namespace XNAFinalEngine.Components
         internal virtual void Update()
         {
             ParticleSystem.Update(Duration);
-
-            Vector3 lastPosition = currentPosition;
-            currentPosition = ((GameObject3D)Owner).Transform.Position; // Cache this one. TODO
-            velocity = (currentPosition - lastPosition) / Time.FrameTime;
             
-            if (Time.FrameTime > 0)
+            currentPosition = ((GameObject3D)Owner).Transform.Position; // Cache this one. TODO
+            velocity = (currentPosition - previousPosition) / Time.SmoothFrameTime;
+            
+            if (Time.FrameTime > 0 && quota != 0)
             {
                 // If we had any time left over that we didn't use during the
                 // previous update, add that to the current elapsed time.
@@ -226,18 +287,25 @@ namespace XNAFinalEngine.Components
                 // Counter for looping over the time interval.
                 float currentTime = -timeLeftOver;
 
+                bool particleWasCreated = true;
+
                 // Create particles as long as we have a big enough time interval.
-                while (timeToSpend > TimeBetweenParticles)
+                while (timeToSpend > TimeBetweenParticles && particleWasCreated)
                 {
                     currentTime += TimeBetweenParticles;
-                    timeToSpend -= TimeBetweenParticles;
 
                     // Work out the optimal position for this particle.
                     // This will produce evenly spaced particles regardless of the object speed, particle creation frequency, or game update rate.
                     float step = currentTime / Time.FrameTime;
 
+                    particleWasCreated = AddParticle(step);
                     // Create the particle.
-                    AddParticle(step);
+                    if (particleWasCreated)
+                    {
+                        timeToSpend -= TimeBetweenParticles;
+                        if (quota != -1)
+                            quota--;
+                    }
                 }
 
                 // Store any time we didn't use, so it can be part of the next update.
@@ -252,10 +320,10 @@ namespace XNAFinalEngine.Components
         /// Add particle.
         /// </summary>
         /// <param name="step">Step from last position to current position</param>
-        protected virtual void AddParticle(float step)
+        protected virtual bool AddParticle(float step)
         {
-            ParticleSystem.AddParticle(Vector3.Lerp(previousPosition, currentPosition, step), velocity, EmitterVelocitySensitivity,
-                                       MinimumHorizontalVelocity, MaximumHorizontalVelocity, MinimumVerticalVelocity, MaximumVerticalVelocity);
+            return ParticleSystem.AddParticle(Vector3.Lerp(previousPosition, currentPosition, step), velocity, EmitterVelocitySensitivity,
+                                              MinimumHorizontalVelocity, MaximumHorizontalVelocity, MinimumVerticalVelocity, MaximumVerticalVelocity);
         } // AddParticle
 
         #endregion

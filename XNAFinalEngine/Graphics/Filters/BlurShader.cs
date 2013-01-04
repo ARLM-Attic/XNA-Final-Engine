@@ -34,7 +34,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
-using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.Graphics
@@ -50,6 +49,12 @@ namespace XNAFinalEngine.Graphics
         
         // Singleton reference.
 	    private static BlurShader instance;
+
+        // Shader Parameters.
+        private static ShaderParameterFloat   spBlurWidth;
+        private static ShaderParameterVector2 spHalfPixel,
+                                              spTextureResolution;
+        private static ShaderParameterTexture spTexture;
         
         #endregion
 
@@ -67,75 +72,6 @@ namespace XNAFinalEngine.Graphics
 	            return instance;
 	        }
 	    } // Instance
-
-        #endregion
-
-        #region Shader Parameters
-
-        /// <summary>
-	    /// Effect handles
-	    /// </summary>
-	    private static EffectParameter epTextureResolution,
-	                                   epBlurWidth,
-	                                   epTexture,
-                                       epHalfPixel;
-
-        #region Blur Width
-
-        private static float lastUsedBlurWidth;
-        private static void SetBlurWidth(float _blurWidth)
-        {
-            if (lastUsedBlurWidth != _blurWidth)
-            {
-                lastUsedBlurWidth = _blurWidth;
-                epBlurWidth.SetValue(_blurWidth);
-            }
-        } // SetBlurWidth
-
-		#endregion
-
-        #region Half Pixel
-
-        private static Vector2 lastUsedHalfPixel;
-        private static void SetHalfPixel(Vector2 halfPixel)
-        {
-            if (lastUsedHalfPixel != halfPixel)
-            {
-                lastUsedHalfPixel = halfPixel;
-                epHalfPixel.SetValue(halfPixel);
-            }
-        } // SetHalfPixel
-
-        #endregion
-
-        #region Texture
-        
-        private static Texture2D lastUsedTexture;
-        private static void SetTexture(Texture texture)
-        {
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedTexture != texture.Resource)
-            {
-                lastUsedTexture = texture.Resource;
-                epTexture.SetValue(texture.Resource);
-            }
-        } // SetTexture
-
-        #endregion
-
-        #region Texture Resolution
-
-        private static Vector2 lastUsedTextureResolution;
-        private static void SetTextureResolution(Vector2 textureResolution)
-        {
-            if (lastUsedTextureResolution != textureResolution)
-            {
-                lastUsedTextureResolution = textureResolution;
-                epTextureResolution.SetValue(textureResolution);
-            }
-        } // SetTextureResolution
-
-        #endregion
 
         #endregion
 
@@ -160,15 +96,10 @@ namespace XNAFinalEngine.Graphics
 		{
             try
             {
-                epTextureResolution = Resource.Parameters["textureResolution"];
-                    epTextureResolution.SetValue(lastUsedTextureResolution);
-                epBlurWidth         = Resource.Parameters["blurWidth"];
-                    epBlurWidth.SetValue(lastUsedBlurWidth);
-                epTexture           = Resource.Parameters["sceneTexture"];
-                    if (lastUsedTexture != null && !lastUsedTexture.IsDisposed)
-                        epTexture.SetValue(lastUsedTexture);
-                epHalfPixel         = Resource.Parameters["halfPixel"];
-                    epHalfPixel.SetValue(lastUsedHalfPixel);
+                spTextureResolution = new ShaderParameterVector2("textureResolution", this);
+                spHalfPixel = new ShaderParameterVector2("halfPixel", this);
+                spBlurWidth = new ShaderParameterFloat("blurWidth", this);
+                spTexture = new ShaderParameterTexture("sceneTexture", this, SamplerState.PointClamp, 5);
             }
             catch
             {
@@ -195,8 +126,7 @@ namespace XNAFinalEngine.Graphics
                 throw new ArgumentNullException("destionationTexture");
             try
             {
-                RenderTarget blurTempTexture = RenderTarget.Fetch(destionationTexture.Size, destionationTexture.SurfaceFormat, 
-                                                                  DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                RenderTarget blurTempTexture = RenderTarget.Fetch(destionationTexture.Size, destionationTexture.SurfaceFormat, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
                 // Set Render States
                 EngineManager.Device.BlendState        = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
@@ -215,10 +145,10 @@ namespace XNAFinalEngine.Graphics
                 }
 
                 // Set shader parameters
-                SetBlurWidth(width);
-                SetTextureResolution(new Vector2(destionationTexture.Width, destionationTexture.Height));
-                SetTexture(texture);
-                SetHalfPixel(new Vector2(-0.5f / (destionationTexture.Width / 2), 0.5f / (destionationTexture.Height / 2)));
+                spBlurWidth.Value = width;
+                spTextureResolution.Value = new Vector2(destionationTexture.Width, destionationTexture.Height);
+                spTexture.Value = texture;
+                spHalfPixel.Value = new Vector2(-0.5f / (destionationTexture.Width / 2), 0.5f / (destionationTexture.Height / 2));
 
                 foreach (EffectPass pass in Resource.CurrentTechnique.Passes)
                 {
@@ -233,7 +163,7 @@ namespace XNAFinalEngine.Graphics
                     if (pass.Name == "BlurHorizontal")
                     {
                         blurTempTexture.DisableRenderTarget();
-                        SetTexture(blurTempTexture);
+                        spTexture.Value = blurTempTexture;
                     }
                     else
                         destionationTexture.DisableRenderTarget();

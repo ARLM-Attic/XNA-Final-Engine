@@ -23,11 +23,8 @@ float4x4 ProjI;
 //////////////////////////////////////////////
 
 float farPlane;
-
 float2 halfPixel;
-
 float fadeDistance;
-
 float2 ViewportScale;
 
 // The current time, in seconds.
@@ -47,6 +44,9 @@ float4 MaxColor;
 float2 RotateSpeed;
 float2 StartSize;
 float2 EndSize;
+
+// How many images the texture is tiled into, in X and Y.
+float2 tiles;
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
@@ -136,8 +136,7 @@ float ComputeParticleSize(float randomValue, float normalizedAge)
 } // ComputeParticleSize
 
 // Vertex shader helper for computing the color of a particle.
-float4 ComputeParticleColor(float4 projectedPosition,
-                            float randomValue, float normalizedAge)
+float4 ComputeParticleColor(float4 projectedPosition, float randomValue, float normalizedAge)
 {
     // Apply a random factor to make each particle a slightly different color.
     float4 color = lerp(MinColor, MaxColor, randomValue);
@@ -194,9 +193,16 @@ VertexShaderOutput ParticleVertexShader(VertexShaderInput input)
 
 	output.position.xy += mul(input.Corner, rotation) * size * ViewportScale;
     
-    output.color = ComputeParticleColor(output.position, input.Random.z, normalizedAge);
+    output.color = ComputeParticleColor(output.position, input.Random.z, normalizedAge);	
 	output.color.rgb = GammaToLinear(output.color.rgb);
-    output.textureCoordinate = (input.Corner + 1) / 2;
+
+    output.textureCoordinate = (input.Corner + 1) / 2;		
+
+	float ageTilesSpace =  normalizedAge * tiles.x * tiles.y;
+	output.textureCoordinate.y = (output.textureCoordinate.y / tiles.y) + ((int)(ageTilesSpace / tiles.y) / tiles.y);
+	float ageTilesSpacedivTilesY = ageTilesSpace / tiles.y;
+	int selectedTiledX = (ageTilesSpacedivTilesY - (int)ageTilesSpacedivTilesY) * tiles.x;
+	output.textureCoordinate.x = (output.textureCoordinate.x / tiles.x) + (selectedTiledX / tiles.x);
 
 	output.screenPosition = output.position;
 	output.particleDepth = -mul(output.position, ProjI).z / farPlane;

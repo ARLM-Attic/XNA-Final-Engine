@@ -596,7 +596,7 @@ namespace XNAFinalEngine.Editor
                     Viewport viewport = new Viewport(viewportMouseOver.ClientLeft, viewportMouseOver.ClientTop,
                                                      viewportMouseOver.ClientWidth, viewportMouseOver.ClientHeight);
                     List<GameObject3D> newSelectedObjects = new List<GameObject3D>();
-                    if (Mouse.NoDragging)
+                    if (Mouse.IsDragging)
                     {
                         GameObject gameObject = picker.Pick(viewportMouseOver.Camera.ViewMatrix, viewportMouseOver.Camera.ProjectionMatrix, viewport);
                         if (gameObject != null && gameObject is GameObject3D)
@@ -672,7 +672,7 @@ namespace XNAFinalEngine.Editor
 
                 #region Deselect selected objects
 
-                if (Keyboard.EscapeJustPressed && !(previousFocusedControl is TextBox))
+                if (Keyboard.KeyJustPressed(Keys.Escape) && !(previousFocusedControl is TextBox))
                 {
                     MainWindow.RemoveGameObjectControlsFromInspector();
                     // Remove bounding box off the screen.
@@ -692,7 +692,7 @@ namespace XNAFinalEngine.Editor
 
             #region Gizmo Active
 
-            if (activeGizmo != Gizmos.None && (Keyboard.EscapeJustPressed || Keyboard.SpaceJustPressed) && !(Gizmo.Active) &&
+            if (activeGizmo != Gizmos.None && (Keyboard.KeyJustPressed(Keys.Escape) || Keyboard.KeyJustPressed(Keys.Space)) && !(Gizmo.Active) &&
                 !(UserInterfaceManager.FocusedControl is TextBox) && !(previousFocusedControl is TextBox))
             {
                 DisableGizmo();

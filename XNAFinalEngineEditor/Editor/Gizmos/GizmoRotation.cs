@@ -191,20 +191,20 @@ namespace XNAFinalEngine.Editor
                     if (redAxisSelected)
                     {
                         Calculate2DMouseDirection(selectedObject, gizmoCamera, new Vector3(0, -1, 0), out transformationAmount);
-                        transformation.X =  (Mouse.XMovement * transformationAmount.X / 4.0f);
-                        transformation.X += (Mouse.YMovement * transformationAmount.Y / 4.0f);
+                        transformation.X =  (Mouse.DeltaX * transformationAmount.X / 4.0f);
+                        transformation.X += (Mouse.DeltaY * transformationAmount.Y / 4.0f);
                     }
                     if (greenAxisSelected)
                     {
                         Calculate2DMouseDirection(selectedObject, gizmoCamera, new Vector3(1, 0, 0), out transformationAmount);
-                        transformation.Y =  (Mouse.XMovement * transformationAmount.X / 4.0f);
-                        transformation.Y += (Mouse.YMovement * transformationAmount.Y / 4.0f);
+                        transformation.Y =  (Mouse.DeltaX * transformationAmount.X / 4.0f);
+                        transformation.Y += (Mouse.DeltaY * transformationAmount.Y / 4.0f);
                     }
                     if (blueAxisSelected)
                     {
                         Calculate2DMouseDirection(selectedObject, gizmoCamera, new Vector3(0, 0, 1), out transformationAmount);
-                        transformation.Z =  (Mouse.XMovement * transformationAmount.X / 4.0f);
-                        transformation.Z += (Mouse.YMovement * transformationAmount.Y / 4.0f);
+                        transformation.Z =  (Mouse.DeltaX * transformationAmount.X / 4.0f);
+                        transformation.Z += (Mouse.DeltaY * transformationAmount.Y / 4.0f);
                     }
                     // Transform each object.
                     foreach (GameObject3D gameObject3D in selectedObjects)
@@ -212,7 +212,7 @@ namespace XNAFinalEngine.Editor
                         gameObject3D.Transform.Rotate(transformation, Space == SpaceMode.Local ? Components.Space.Local : Components.Space.World);
                     }
                 }
-                if (Keyboard.EscapeJustPressed)
+                if (Keyboard.KeyJustPressed(Keys.Escape))
                 {
                     Active = false;
                     // Revert transformation to all selected objects.

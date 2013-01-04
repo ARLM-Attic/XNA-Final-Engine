@@ -30,10 +30,11 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Input;
+using Keyboard = XNAFinalEngine.Input.Keyboard;
 #endregion
 
 namespace XNAFinalEngineExamples
@@ -100,7 +101,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
-            if (Keyboard.SpaceJustPressed)
+            if (Keyboard.KeyJustPressed(Keys.Space))
             {
                 if (directionalLight.DirectionalLight.Intensity == 1)
                     directionalLight.DirectionalLight.Intensity = 4f;

@@ -29,11 +29,121 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.Input
 {
+
+    #region Enumerates
+
+    public enum InputDevices
+    {
+        NoDevice,
+        Keyboard,
+        GamePad,
+        Mouse,
+    } // InputDevices
+
+    /// <summary>
+    /// The axis of a connected device that will control this axis.
+    /// </summary>
+    public enum AnalogAxes
+    {
+        MouseX,
+        MouseY,
+        MouseWheel,
+        LeftStickX,
+        LeftStickY,
+        RightStickX,
+        RightStickY,
+        Triggers,
+    } // AnalogAxes
+
+    #endregion
+
+    #region Key Button
+
+    /// <summary>
+    /// This structure represent a key or a button of a device.
+    /// </summary>
+    public struct KeyButton
+    {
+
+        public Keys Key;
+        public Buttons GamePadButton;
+        public Mouse.MouseButtons MouseButton;
+
+        // 0 = no key or button, 1 = keyboard, 2 = gamepad, 3 = mouse.
+        public InputDevices InputDevice;
+
+        #region Constructors
+
+        public KeyButton(Keys key)
+        {
+            InputDevice = InputDevices.Keyboard;
+            Key = key;
+            GamePadButton = 0;
+            MouseButton = 0;
+        } // KeyButton
+
+        /// <summary>
+        /// If it is a key.
+        /// </summary>
+        public KeyButton(Buttons gamePadButton)
+        {
+            InputDevice = InputDevices.GamePad;
+            Key = 0;
+            GamePadButton = gamePadButton;
+            MouseButton = 0;
+        } // KeyButton
+
+        public KeyButton(Mouse.MouseButtons mouseButton)
+        {
+            InputDevice = InputDevices.Mouse;
+            Key = 0;
+            GamePadButton = 0;
+            MouseButton = mouseButton;
+        } // KeyButton
+
+        #endregion
+
+        #region Pressed
+
+        /// <summary>
+        /// True if the key or button was pressed.
+        /// </summary>
+        public bool Pressed(int gamePadNumber)
+        {
+            if (InputDevice == InputDevices.NoDevice)
+                return false;
+            if (InputDevice == InputDevices.Keyboard)
+                return Keyboard.KeyPressed(Key);
+            if (InputDevice == InputDevices.GamePad)
+            {
+                if (gamePadNumber == 1)
+                    return GamePad.PlayerOne.ButtonPressed(GamePadButton);
+                if (gamePadNumber == 2)
+                    return GamePad.PlayerTwo.ButtonPressed(GamePadButton);
+                if (gamePadNumber == 3)
+                    return GamePad.PlayerThree.ButtonPressed(GamePadButton);
+                if (gamePadNumber == 4)
+                    return GamePad.PlayerFour.ButtonPressed(GamePadButton);
+                // if (gamepadNumber == 0) // All gamepads at the same time.
+                return GamePad.PlayerOne.ButtonPressed(GamePadButton) || GamePad.PlayerTwo.ButtonPressed(GamePadButton) ||
+                       GamePad.PlayerThree.ButtonPressed(GamePadButton) || GamePad.PlayerFour.ButtonPressed(GamePadButton);
+            }
+            // if (keyButton.Device == Devices.Mouse)
+            return Mouse.ButtonPressed(MouseButton);
+        } // Pressed
+
+        #endregion
+
+    } // KeyButton
+
+    #endregion
 
 	/// <summary>
     /// Manager for input devices.
@@ -90,6 +200,15 @@ namespace XNAFinalEngine.Input
                     Wiimote.PlayerThree.Update();
                     Wiimote.PlayerFour.Update();*/
                 #endif
+
+                foreach (var axis in Axis.Axes)
+                {
+                    axis.Update();
+                }
+                foreach (var button in Button.Buttons)
+                {
+                    button.Update();
+                }
             }
 		} // Update
 

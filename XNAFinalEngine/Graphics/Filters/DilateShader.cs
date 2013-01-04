@@ -50,6 +50,12 @@ namespace XNAFinalEngine.Graphics
         // Singleton reference.
         private static DilateShader instance;
 
+        // Shader Parameters.
+        private static ShaderParameterFloat spDilateWidth;
+        private static ShaderParameterVector2 spHalfPixel,
+                                              spTextureResolution;
+        private static ShaderParameterTexture spTexture;
+
         #endregion
 
         #region Properties
@@ -66,75 +72,6 @@ namespace XNAFinalEngine.Graphics
                 return instance;
             }
         } // Instance
-
-        #endregion
-
-        #region Shader Parameters
-
-        /// <summary>
-        /// Effect handles
-        /// </summary>
-        private static EffectParameter epTextureResolution,
-                                       epDilateWidth,
-                                       epTexture,
-                                       epHalfPixel;
-
-        #region Dilate Width
-
-        private static float lastUsedDilateWidth;
-        private static void SetDilateWidth(float _dilateWidth)
-        {
-            if (lastUsedDilateWidth != _dilateWidth)
-            {
-                lastUsedDilateWidth = _dilateWidth;
-                epDilateWidth.SetValue(_dilateWidth);
-            }
-        } // SetDilateWidth
-
-		#endregion
-
-        #region Half Pixel
-
-        private static Vector2 lastUsedHalfPixel;
-        private static void SetHalfPixel(Vector2 halfPixel)
-        {
-            if (lastUsedHalfPixel != halfPixel)
-            {
-                lastUsedHalfPixel = halfPixel;
-                epHalfPixel.SetValue(halfPixel);
-            }
-        } // SetHalfPixel
-
-        #endregion
-
-        #region Texture
-
-        private static Texture2D lastUsedTexture;
-        private static void SetTexture(Texture texture)
-        {
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedTexture != texture.Resource)
-            {
-                lastUsedTexture = texture.Resource;
-                epTexture.SetValue(texture.Resource);
-            }
-        } // SetTexture
-
-        #endregion
-
-        #region Texture Resolution
-
-        private static Vector2 lastUsedTextureResolution;
-        private static void SetTextureResolution(Vector2 textureResolution)
-        {
-            if (lastUsedTextureResolution != textureResolution)
-            {
-                lastUsedTextureResolution = textureResolution;
-                epTextureResolution.SetValue(textureResolution);
-            }
-        } // SetTextureResolution
-
-        #endregion
 
         #endregion
 
@@ -159,15 +96,10 @@ namespace XNAFinalEngine.Graphics
 		{
             try
             {
-                epTextureResolution = Resource.Parameters["textureResolution"];
-                    epTextureResolution.SetValue(lastUsedTextureResolution);
-                epDilateWidth = Resource.Parameters["dilateWidth"];
-                    epDilateWidth.SetValue(lastUsedDilateWidth);
-                epTexture = Resource.Parameters["sceneTexture"];
-                    if (lastUsedTexture != null && !lastUsedTexture.IsDisposed)
-                        epTexture.SetValue(lastUsedTexture);
-                epHalfPixel = Resource.Parameters["halfPixel"];
-                    epHalfPixel.SetValue(lastUsedHalfPixel);
+                spTextureResolution = new ShaderParameterVector2("textureResolution", this);
+                spHalfPixel = new ShaderParameterVector2("halfPixel", this);
+                spDilateWidth = new ShaderParameterFloat("dilateWidth", this);
+                spTexture = new ShaderParameterTexture("sceneTexture", this, SamplerState.PointClamp, 7);
             }
             catch
             {
@@ -200,13 +132,12 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                EngineManager.Device.SamplerStates[7] = SamplerState.PointClamp;
 
                 // Set parameters.
-                SetDilateWidth(width);
-                SetTextureResolution(new Vector2(texture.Width, texture.Height));
-                SetTexture(texture);
-                SetHalfPixel(new Vector2(-0.5f / (texture.Width / 2), 0.5f / (texture.Height / 2)));
+                spDilateWidth.Value = width;
+                spTextureResolution.Value = new Vector2(texture.Width, texture.Height);
+                spTexture.Value = texture;
+                spHalfPixel.Value = new Vector2(-0.5f / (texture.Width / 2), 0.5f / (texture.Height / 2));
 
                 foreach (EffectPass pass in Resource.CurrentTechnique.Passes)
                 {
@@ -221,7 +152,7 @@ namespace XNAFinalEngine.Graphics
                     if (pass.Name == "DilateHorizontal")
                     {
                         dilatedTempTexture.DisableRenderTarget();
-                        SetTexture(dilatedTempTexture);
+                        spTexture.Value = dilatedTempTexture;
                     }
                     else
                         texture.DisableRenderTarget();

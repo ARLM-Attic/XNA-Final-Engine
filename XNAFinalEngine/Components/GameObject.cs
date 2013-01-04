@@ -99,6 +99,11 @@ namespace XNAFinalEngine.Components
         public List<Component> Components { get; protected set; }
 
         /// <summary>
+        /// Scripts of this game object.
+        /// </summary>
+        public List<Script> Scripts { get { return scripts; } }
+
+        /// <summary>
         /// Loaded game objects
         /// </summary>
         public static List<GameObject> GameObjects { get; private set; }

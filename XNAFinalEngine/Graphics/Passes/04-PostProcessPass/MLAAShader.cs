@@ -52,6 +52,17 @@ namespace XNAFinalEngine.Graphics
 
         private static Texture areaTexture;
 
+        // Shader Parameters.
+        private static ShaderParameterFloat   spThresholdColor,
+                                              spThresholdDepth;
+        private static ShaderParameterVector2 spHalfPixel,
+                                              spPixelSize;
+        private static ShaderParameterTexture spSceneTexture, // EngineManager.Device.SamplerStates[10] = SamplerState.PointClamp; EngineManager.Device.SamplerStates[11] = SamplerState.LinearClamp;
+                                              spDepthTexture, // EngineManager.Device.SamplerStates[14] = SamplerState.PointClamp;
+                                              spEdgeTexture,  // EngineManager.Device.SamplerStates[12] = SamplerState.LinearClamp;
+                                              spBlendedWeightsTexture, // EngineManager.Device.SamplerStates[13] = SamplerState.PointClamp;
+                                              spAreaTexture; // EngineManager.Device.SamplerStates[15] = SamplerState.PointClamp;
+
         #endregion
         
         #region Properties
@@ -71,147 +82,6 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Shader Parameters
-
-        #region Effect Handles
-
-        /// <summary>
-        /// Effect handles.
-        /// </summary>
-        private static EffectParameter epHalfPixel,
-                                       epPixelSize,
-                                       epThresholdColor,
-                                       epThresholdDepth,
-                                       epSceneTexture,
-                                       epEdgeTexture,
-                                       epBlendedWeightsTexture,
-                                       epDepthTexture;
-
-        #endregion
-
-        #region Half Pixel
-
-        private static Vector2 lastUsedHalfPixel;
-        private static void SetHalfPixel(Vector2 _halfPixel)
-        {
-            if (lastUsedHalfPixel != _halfPixel)
-            {
-                lastUsedHalfPixel = _halfPixel;
-                epHalfPixel.SetValue(_halfPixel);
-            }
-        } // SetHalfPixel
-
-        #endregion
-
-        #region Pixel Size
-
-        private static Vector2 lastUsedPixelSize;
-        private static void SetPixelSize(Vector2 pixelSize)
-        {
-            if (lastUsedPixelSize != pixelSize)
-            {
-                lastUsedPixelSize = pixelSize;
-                epPixelSize.SetValue(pixelSize);
-            }
-        } // SetPixelSize
-
-        #endregion
-
-        #region Threshold Color
-
-        private static float lastUsedThresholdColor;
-        private static void SetThresholdColor(float thresholdColor)
-        {
-            if (lastUsedThresholdColor != thresholdColor)
-            {
-                lastUsedThresholdColor = thresholdColor;
-                epThresholdColor.SetValue(thresholdColor);
-            }
-        } // SetThresholdColor
-
-        #endregion
-
-        #region Threshold Depth
-
-        private static float lastUsedThresholdDepth;
-        private static void SetThresholdDepth(float thresholdDepth)
-        {
-            if (lastUsedThresholdDepth != thresholdDepth)
-            {
-                lastUsedThresholdDepth = thresholdDepth;
-                epThresholdDepth.SetValue(thresholdDepth);
-            }
-        } // SetThresholdDepth
-
-        #endregion
-
-        #region Scene Texture
-
-        private static Texture2D lastUsedSceneTexture;
-        private static void SetSceneTexture(Texture sceneTexture)
-        {
-            EngineManager.Device.SamplerStates[10] = SamplerState.PointClamp;
-            EngineManager.Device.SamplerStates[11] = SamplerState.LinearClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedSceneTexture != sceneTexture.Resource)
-            {
-                lastUsedSceneTexture = sceneTexture.Resource;
-                epSceneTexture.SetValue(sceneTexture.Resource);
-            }
-        } // SetSceneTexture
-
-        #endregion
-
-        #region Depth Texture
-
-        private static Texture2D lastUsedDepthTexture;
-        private static void SetDepthTexture(Texture depthTexture)
-        {
-            EngineManager.Device.SamplerStates[14] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource)
-            {
-                lastUsedDepthTexture = depthTexture.Resource;
-                epDepthTexture.SetValue(depthTexture.Resource);
-            }
-        } // SetDepthTexture
-
-        #endregion
-
-        #region Edge Texture
-
-        private static Texture2D lastUsedEdgeTexture;
-        private static void SetEdgeTexture(Texture edgeTexture)
-        {
-            EngineManager.Device.SamplerStates[12] = SamplerState.LinearClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedEdgeTexture != edgeTexture.Resource)
-            {
-                lastUsedEdgeTexture = edgeTexture.Resource;
-                epEdgeTexture.SetValue(edgeTexture.Resource);
-            }
-        } // SetEdgeTexture
-
-        #endregion
-
-        #region Blended Weights Texture
-
-        private static Texture2D lastUsedBlendedWeightsTexture;
-        private static void SetBlendedWeightsTexture(Texture blendedWeightsTexture)
-        {
-            EngineManager.Device.SamplerStates[13] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedBlendedWeightsTexture != blendedWeightsTexture.Resource)
-            {
-                lastUsedBlendedWeightsTexture = blendedWeightsTexture.Resource;
-                epBlendedWeightsTexture.SetValue(blendedWeightsTexture.Resource);
-            }
-        } // SetBlendedWeightsTexture
-
-        #endregion
-
-        #endregion
-
         #region Constructor
 
         /// <summary>
@@ -225,8 +95,6 @@ namespace XNAFinalEngine.Graphics
             // Pre multiply alpha: false
             // Texture format: No change.
             areaTexture = new Texture("Shaders\\AreaMap32");
-            EngineManager.Device.SamplerStates[15] = SamplerState.PointClamp;
-            Resource.Parameters["areaTexture"].SetValue(areaTexture.Resource);
             ContentManager.CurrentContentManager = userContentManager;
         } // MLAAShader
 
@@ -244,29 +112,15 @@ namespace XNAFinalEngine.Graphics
         {            
             try
             {
-                epHalfPixel      = Resource.Parameters["halfPixel"];
-                    epHalfPixel.SetValue(lastUsedHalfPixel);
-                epPixelSize      = Resource.Parameters["pixelSize"];
-                    epPixelSize.SetValue(lastUsedPixelSize);
-                epThresholdColor = Resource.Parameters["thresholdColor"];
-                    epThresholdColor.SetValue(lastUsedThresholdColor);
-                epThresholdDepth = Resource.Parameters["thresholdDepth"];
-                    epThresholdDepth.SetValue(lastUsedThresholdDepth);
-                epSceneTexture   = Resource.Parameters["sceneTexture"];
-                if (lastUsedSceneTexture != null && !lastUsedSceneTexture.IsDisposed)
-                    epSceneTexture.SetValue(lastUsedSceneTexture);
-                epDepthTexture   = Resource.Parameters["depthTexture"];
-                if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
-                    epDepthTexture.SetValue(lastUsedDepthTexture);
-                epEdgeTexture    = Resource.Parameters["edgeTexture"];
-                if (lastUsedEdgeTexture != null && !lastUsedEdgeTexture.IsDisposed)
-                    epEdgeTexture.SetValue(lastUsedEdgeTexture);
-                epBlendedWeightsTexture = Resource.Parameters["blendedWeightsTexture"];
-                if (areaTexture != null)
-                {
-                    Resource.Parameters["areaTexture"].SetValue(areaTexture.Resource);
-                    EngineManager.Device.SamplerStates[15] = SamplerState.PointClamp;
-                }
+                spHalfPixel = new ShaderParameterVector2("halfPixel", this);
+                spPixelSize = new ShaderParameterVector2("pixelSize", this);
+                spThresholdColor = new ShaderParameterFloat("thresholdColor", this);
+                spThresholdDepth = new ShaderParameterFloat("thresholdDepth", this);
+                spSceneTexture = new ShaderParameterTexture("sceneTexture", this, SamplerState.PointClamp, 10);
+                spDepthTexture = new ShaderParameterTexture("depthTexture", this, SamplerState.PointClamp, 14);
+                spEdgeTexture = new ShaderParameterTexture("edgeTexture", this, SamplerState.LinearClamp, 12);
+                spBlendedWeightsTexture = new ShaderParameterTexture("blendedWeightsTexture", this, SamplerState.PointClamp, 13);
+                spAreaTexture = new ShaderParameterTexture("areaTexture", this, SamplerState.PointClamp, 15);
             }
             catch
             {
@@ -298,16 +152,15 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.BlendState = BlendState.Opaque;
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                // If someone changes the sampler state of the area texture could be a problem… in a form of an exception.
-                EngineManager.Device.SamplerStates[15] = SamplerState.PointClamp;
 
                 // Set parameters
-                SetHalfPixel(new Vector2(-0.5f / (texture.Width / 2), 0.5f / (texture.Height / 2)));
-                SetPixelSize(new Vector2(1f / texture.Width, 1f / texture.Height));
-                SetSceneTexture(texture);
-                SetDepthTexture(depthTexture);
-                SetThresholdColor(postProcess.MLAA.ThresholdColor);
-                SetThresholdDepth(postProcess.MLAA.ThresholdDepth);
+                spHalfPixel.Value = new Vector2(-0.5f / (texture.Width / 2), 0.5f / (texture.Height / 2));
+                spPixelSize.Value = new Vector2(1f / texture.Width, 1f / texture.Height);
+                spSceneTexture.Value = texture; EngineManager.Device.SamplerStates[11] = SamplerState.LinearClamp; // The scene textura has to samplers.
+                spDepthTexture.Value = depthTexture;
+                spThresholdColor.Value = postProcess.MLAA.ThresholdColor;
+                spThresholdDepth.Value = postProcess.MLAA.ThresholdDepth;
+                spAreaTexture.Value = areaTexture;
 
                 switch (postProcess.MLAA.EdgeDetection)
                 {
@@ -326,7 +179,7 @@ namespace XNAFinalEngine.Graphics
                     }
                     else if (pass.Name == "BlendingWeight")
                     {
-                        SetEdgeTexture(destinationTexture);
+                        spEdgeTexture.Value = destinationTexture;
                         blendingWeightTexture.EnableRenderTarget();
                         blendingWeightTexture.Clear(new Color(0, 0, 0, 0));
                     }
@@ -335,7 +188,7 @@ namespace XNAFinalEngine.Graphics
                         // For testing
                         //RenderTarget.Release(blendingWeightTexture);
                         //return destinationTexture;
-                        SetBlendedWeightsTexture(blendingWeightTexture);
+                        spBlendedWeightsTexture.Value = blendingWeightTexture;
                         destinationTexture.EnableRenderTarget();
                         destinationTexture.Clear(Color.Black);
                     }

@@ -207,20 +207,20 @@ namespace XNAFinalEngine.Editor
                     if (redAxisSelected)
                     {
                         Calculate2DMouseDirection(selectedObject, gizmoCamera, new Vector3(1, 0, 0), out transformationAmount);
-                        translation.X =  (Mouse.XMovement * transformationAmount.X / 100.0f);
-                        translation.X += (Mouse.YMovement * transformationAmount.Y / 100.0f);
+                        translation.X =  (Mouse.DeltaX * transformationAmount.X / 100.0f);
+                        translation.X += (Mouse.DeltaY * transformationAmount.Y / 100.0f);
                     }
                     if (greenAxisSelected)
                     {
                         Calculate2DMouseDirection(selectedObject, gizmoCamera, new Vector3(0, 1, 0), out transformationAmount);
-                        translation.Y =  (Mouse.XMovement * transformationAmount.X / 100.0f);
-                        translation.Y += (Mouse.YMovement * transformationAmount.Y / 100.0f);
+                        translation.Y =  (Mouse.DeltaX * transformationAmount.X / 100.0f);
+                        translation.Y += (Mouse.DeltaY * transformationAmount.Y / 100.0f);
                     }
                     if (blueAxisSelected)
                     {
                         Calculate2DMouseDirection(selectedObject, gizmoCamera, new Vector3(0, 0, 1), out transformationAmount);
-                        translation.Z =  (Mouse.XMovement * transformationAmount.X / 100.0f);
-                        translation.Z += (Mouse.YMovement * transformationAmount.Y / 100.0f);
+                        translation.Z =  (Mouse.DeltaX * transformationAmount.X / 100.0f);
+                        translation.Z += (Mouse.DeltaY * transformationAmount.Y / 100.0f);
                     }
                     // Calculate the scale to do transformation proportional to the camera distance to the object.
                     // The calculations are doing once from only one object to move everything at the same rate.
@@ -234,7 +234,7 @@ namespace XNAFinalEngine.Editor
                         gameObject3D.Transform.Translate(translation * scale, Space == SpaceMode.Local ? Components.Space.Local : Components.Space.World);
                     }
                 }
-                if (Keyboard.EscapeJustPressed)
+                if (Keyboard.KeyJustPressed(Keys.Escape))
                 {
                     Active = false;
                     // Revert transformation to all selected objects.

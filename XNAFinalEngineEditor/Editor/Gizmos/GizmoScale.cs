@@ -243,7 +243,7 @@ namespace XNAFinalEngine.Editor
                         gameObject3D.Transform.LocalScale = transformation * scale + scale;
                     }
                 }
-                if (Keyboard.EscapeJustPressed)
+                if (Keyboard.KeyJustPressed(Keys.Escape))
                 {
                     Active = false;
                     // Revert transformation to all selected objects.

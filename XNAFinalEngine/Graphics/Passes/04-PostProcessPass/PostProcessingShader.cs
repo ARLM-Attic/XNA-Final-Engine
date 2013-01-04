@@ -1,4 +1,4 @@
-﻿
+﻿    
 #region License
 /*
 Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
@@ -55,6 +55,65 @@ namespace XNAFinalEngine.Graphics
 
         private static Texture filmLutTexture;
 
+        // Shader Parameters.
+        private static ShaderParameterBool spAutoExposureEnabled,
+                                           spBloomEnabled,
+                                           spAdjustLevelsEnabled,
+                                           spAdjustLevelsIndividualChannelsEnabled,
+                                           spColorCorrectOneLutEnabled,
+                                           spColorCorrectTwoLutEnabled,
+                                           spFilmGrainEnabled;
+        private static ShaderParameterFloat 
+                                            // Exposure
+                                            spLensExposure,
+                                            spTimeDelta,
+                                            spExposureAdjustTimeMultiplier,
+                                            spLuminanceLowThreshold,
+                                            spLuminanceHighThreshold,
+                                            // Tone Mapping
+                                            spWhiteLevel,
+                                            spLuminanceSaturation,
+                                            spBias,
+                                            spShoulderStrength,
+                                            spLinearStrength,
+                                            spLinearAngle,
+                                            spToeStrength,
+                                            spToeNumerator,
+                                            spToeDenominator,
+                                            spLinearWhite,
+                                            // Bloom
+                                            spBloomScale,
+                                            // Levels
+                                            spInputBlack,
+                                            spInputWhite,
+                                            spInputGamma,
+                                            spOutputBlack,
+                                            spOutputWhite,
+                                            // Color Correction
+                                            spLookupTableScale,
+                                            spLookupTableOffset,
+                                            spLerpOriginalColorAmount,
+                                            spLerpLookupTablesAmount,
+                                            // Film Grain
+                                            spFilmGrainStrength,
+                                            spAccentuateDarkNoisePower,
+                                            spRandomNoiseStrength,
+                                            spRandomValue;
+        private static ShaderParameterVector2 spHalfPixel;
+        private static ShaderParameterVector3 // Leves Individual Channels
+                                              spInputBlackRgb,
+                                              spInputWhiteRgb,
+                                              spInputGammaRgb,
+                                              spOutputBlackRgb,
+                                              spOutputWhiteRgb;
+        private static ShaderParameterTexture spSceneTexture,
+                                              spLastLuminanceTexture,
+                                              spBloomTexture,
+                                              spLensFlareTexture,
+                                              spFilmLutTexture;
+        private static ShaderParameterLookupTable spFirstlookupTable,
+                                                  spSecondlookupTable;
+
         #endregion
 
         #region Properties
@@ -74,753 +133,6 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Shader Parameters
-
-        #region Effect Handles
-
-        /// <summary>
-        /// Effect handles.
-        /// </summary>
-        private static EffectParameter epHalfPixel,
-                                       epLensExposure,
-                                       epSceneTexture,
-                                       epLastLuminanceTexture,
-                                       epAutoExposure,
-                                       epTimeDelta,
-                                       epExposureAdjustTimeMultiplier,
-                                       epLuminanceLowThreshold,
-                                       epLuminanceHighThreshold,
-                                       // Tone Mapping
-                                       epWhiteLevel,
-                                       epLuminanceSaturation,
-                                       epBias,
-                                       epShoulderStrength,
-                                       epLinearStrength,
-                                       epLinearAngle,
-                                       epToeStrength,
-                                       epToeNumerator,
-                                       epToeDenominator,
-                                       epLinearWhite,
-                                       // Bloom
-                                       epBloomScale,
-                                       epBloomTexture,
-                                       epBloomEnabled,
-                                       // Levels
-                                       epInputBlack,
-                                       epInputWhite,
-                                       epInputGamma,
-                                       epOutputBlack,
-                                       epOutputWhite,
-                                       epAdjustLevelsEnabled,
-                                       // Leves Individual Channels
-                                       epInputBlackRgb,
-                                       epInputWhiteRgb,
-                                       epInputGammaRgb,
-                                       epOutputBlackRgb,
-                                       epOutputWhiteRgb,
-                                       epAdjustLevelsIndividualChannelsEnabled,
-                                       // Color Correction
-                                       epColorCorrectOneLutEnabled,
-                                       epColorCorrectTwoLutEnabled,
-                                       epLookupTableScale,
-                                       epLookupTableOffset,
-                                       epFirstlookupTable,
-                                       epSecondlookupTable,
-                                       epLerpOriginalColorAmount,
-                                       epLerpLookupTablesAmount,
-                                       // Film Grain
-                                       epFilmGrainEnabled,
-                                       epFilmGrainStrength,
-                                       epAccentuateDarkNoisePower,
-                                       epRandomNoiseStrength,
-                                       epRandomValue;
-
-        #endregion
-
-        #region Half Pixel
-
-        private static Vector2 lastUsedHalfPixel;
-        private static void SetHalfPixel(Vector2 _halfPixel)
-        {
-            if (lastUsedHalfPixel != _halfPixel)
-            {
-                lastUsedHalfPixel = _halfPixel;
-                epHalfPixel.SetValue(_halfPixel);
-            }
-        } // SetHalfPixel
-
-        #endregion
-
-        #region Scene Texture
-
-        private static Texture2D lastUsedSceneTexture;
-        private static void SetSceneTexture(Texture sceneTexture)
-        {
-            EngineManager.Device.SamplerStates[9] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedSceneTexture != sceneTexture.Resource)
-            {
-                lastUsedSceneTexture = sceneTexture.Resource;
-                epSceneTexture.SetValue(sceneTexture.Resource);
-            }
-        } // SetSceneTexture
-
-        #endregion
-
-        #region Last Luminance Texture
-
-        private static Texture2D lastUsedLastLuminanceTexture;
-        private static void SetLuminanceTexture(Texture lastLuminanceTexture)
-        {
-            EngineManager.Device.SamplerStates[12] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedLastLuminanceTexture != lastLuminanceTexture.Resource)
-            {
-                lastUsedLastLuminanceTexture = lastLuminanceTexture.Resource;
-                epLastLuminanceTexture.SetValue(lastLuminanceTexture.Resource);
-            }
-        } // SetLastLuminanceTexture
-
-        #endregion
-
-        #region Exposure
-
-        #region Lens Exposure
-
-        private static float lastUsedLensExposure;
-        private static void SetLensExposure(float lensExposure)
-        {
-            if (lastUsedLensExposure != lensExposure)
-            {
-                lastUsedLensExposure = lensExposure;
-                epLensExposure.SetValue(lensExposure);
-            }
-        } // SetLensExposure
-
-        #endregion
-
-        #region Auto Exposure
-
-        private static bool lastUsedAutoExposure;
-        private static void SetAutoExposure(bool autoExposure)
-        {
-            if (lastUsedAutoExposure != autoExposure)
-            {
-                lastUsedAutoExposure = autoExposure;
-                epAutoExposure.SetValue(autoExposure);
-            }
-        } // SetAutoExposure
-
-        #endregion
-
-        #region Auto Exposure Adjust Time Multiplier
-
-        private static float lastUsedAutoExposureAdjustTimeMultiplier;
-        private static void SetAutoExposureAdjustTimeMultiplier(float exposureAdjustTimeMultiplier)
-        {
-            if (lastUsedAutoExposureAdjustTimeMultiplier != exposureAdjustTimeMultiplier)
-            {
-                lastUsedAutoExposureAdjustTimeMultiplier = exposureAdjustTimeMultiplier;
-                epExposureAdjustTimeMultiplier.SetValue(exposureAdjustTimeMultiplier);
-            }
-        } // SetExposureAdjustTimeMultiplier
-
-        #endregion
-
-        #region Auto Exposure Luminance Low Threshold
-
-        private static float lastUsedAutoExposureLuminanceLowThreshold;
-        private static void SetAutoExposureLuminanceLowThreshold(float autoExposureLuminanceLowThreshold)
-        {
-            if (lastUsedAutoExposureLuminanceLowThreshold != autoExposureLuminanceLowThreshold)
-            {
-                lastUsedAutoExposureLuminanceLowThreshold = autoExposureLuminanceLowThreshold;
-                epLuminanceLowThreshold.SetValue(autoExposureLuminanceLowThreshold);
-            }
-        } // SetAutoExposureLuminanceLowThreshold
-
-        #endregion
-
-        #region Auto Exposure Luminance High Threshold
-
-        private static float lastUsedAutoExposureLuminanceHighThreshold;
-        private static void SetAutoExposureLuminanceHighThreshold(float autoExposureLuminanceHighThreshold)
-        {
-            if (lastUsedAutoExposureLuminanceHighThreshold != autoExposureLuminanceHighThreshold)
-            {
-                lastUsedAutoExposureLuminanceHighThreshold = autoExposureLuminanceHighThreshold;
-                epLuminanceHighThreshold.SetValue(autoExposureLuminanceHighThreshold);
-            }
-        } // SetAutoExposureLuminanceHighThreshold
-
-        #endregion
-
-        #endregion
-
-        #region Tone Mapping
-
-        #region White Level
-
-        private static float lastUsedWhiteLevel;
-        private static void SetWhiteLevel(float whiteLevel)
-        {
-            if (lastUsedWhiteLevel != whiteLevel)
-            {
-                lastUsedWhiteLevel = whiteLevel;
-                epWhiteLevel.SetValue(whiteLevel);
-            }
-        } // SetWhiteLevel
-
-        #endregion
-
-        #region Luminance Saturation
-
-        private static float lastUsedLuminanceSaturation;
-        private static void SetLuminanceSaturation(float luminanceSaturation)
-        {
-            if (lastUsedLuminanceSaturation != luminanceSaturation)
-            {
-                lastUsedLuminanceSaturation = luminanceSaturation;
-                epLuminanceSaturation.SetValue(luminanceSaturation);
-            }
-        } // SetLuminanceSaturation
-
-        #endregion
-
-        #region Bias
-
-        private static float lastUsedBias;
-        private static void SetBias(float bias)
-        {
-            if (lastUsedBias != bias)
-            {
-                lastUsedBias = bias;
-                epBias.SetValue(bias);
-            }
-        } // SetBias
-
-        #endregion
-
-        #region Shoulder Strength
-
-        private static float lastUsedShoulderStrength;
-        private static void SetShoulderStrength(float shoulderStrength)
-        {
-            if (lastUsedShoulderStrength != shoulderStrength)
-            {
-                lastUsedShoulderStrength = shoulderStrength;
-                epShoulderStrength.SetValue(shoulderStrength);
-            }
-        } // SetShoulderStrength
-
-        #endregion
-
-        #region Linear Strength
-
-        private static float lastUsedLinearStrength;
-        private static void SetLinearStrength(float linearStrength)
-        {
-            if (lastUsedLinearStrength != linearStrength)
-            {
-                lastUsedLinearStrength = linearStrength;
-                epLinearStrength.SetValue(linearStrength);
-            }
-        } // SetLinearStrength
-
-        #endregion
-
-        #region Linear Angle
-
-        private static float lastUsedLinearAngle;
-        private static void SetLinearAngle(float linearAngle)
-        {
-            if (lastUsedLinearAngle != linearAngle)
-            {
-                lastUsedLinearAngle = linearAngle;
-                epLinearAngle.SetValue(linearAngle);
-            }
-        } // SetLinearAngle
-
-        #endregion
-
-        #region Toe Strength
-
-        private static float lastUsedToeStrength;
-        private static void SetToeStrength(float toeStrength)
-        {
-            if (lastUsedToeStrength != toeStrength)
-            {
-                lastUsedToeStrength = toeStrength;
-                epToeStrength.SetValue(toeStrength);
-            }
-        } // SetToeStrength
-
-        #endregion
-
-        #region Toe Numerator
-
-        private static float lastUsedToeNumerator;
-        private static void SetToeNumerator(float toeNumerator)
-        {
-            if (lastUsedToeNumerator != toeNumerator)
-            {
-                lastUsedToeNumerator = toeNumerator;
-                epToeNumerator.SetValue(toeNumerator);
-            }
-        } // SetToeNumerator
-
-        #endregion
-
-        #region Toe Denominator
-
-        private static float lastUsedToeDenominator;
-        private static void SetToeDenominator(float toeDenominator)
-        {
-            if (lastUsedToeDenominator != toeDenominator)
-            {
-                lastUsedToeDenominator = toeDenominator;
-                epToeDenominator.SetValue(toeDenominator);
-            }
-        } // SetToeDenominator
-
-        #endregion
-
-        #region Linear White
-
-        private static float lastUsedLinearWhite;
-        private static void SetLinearWhite(float linearWhite)
-        {
-            if (lastUsedLinearWhite != linearWhite)
-            {
-                lastUsedLinearWhite = linearWhite;
-                epLinearWhite.SetValue(linearWhite);
-            }
-        } // SetLinearWhite
-
-        #endregion
-
-        #endregion
-
-        #region Bloom
-
-        #region Bloom Scale
-
-        private static float lastUsedBloomScale;
-        private static void SetBloomScale(float bloomScale)
-        {
-            if (lastUsedBloomScale != bloomScale)
-            {
-                lastUsedBloomScale = bloomScale;
-                epBloomScale.SetValue(bloomScale);
-            }
-        } // SetBloomScale
-
-        #endregion
-
-        #region Bloom Texture
-
-        private static Texture2D lastUsedBloomTexture;
-        private static void SetBloomTexture(Texture bloomTexture)
-        {
-            EngineManager.Device.SamplerStates[10] = SamplerState.AnisotropicClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedBloomTexture != bloomTexture.Resource)
-            {
-                lastUsedBloomTexture = bloomTexture.Resource;
-                epBloomTexture.SetValue(bloomTexture.Resource);
-            }
-        } // SetBloomTexture
-
-        #endregion
-
-        #region Bloom Enabled
-
-        private static bool lastUsedBloomEnabled;
-        private static void SetBloomEnabled(bool bloomEnabled)
-        {
-            if (lastUsedBloomEnabled != bloomEnabled)
-            {
-                lastUsedBloomEnabled = bloomEnabled;
-                epBloomEnabled.SetValue(bloomEnabled);
-            }
-        } // SetBloomEnabled
-
-        #endregion
-
-        #endregion
-
-        #region Levels
-
-        #region Input Black
-        
-        private static float lastUsedInputBlack;
-        private static void SetInputBlack(float inputBlack)
-        {
-            if (lastUsedInputBlack != inputBlack)
-            {
-                lastUsedInputBlack = inputBlack;
-                epInputBlack.SetValue(inputBlack);
-            }
-        } // SetInputBlack
-
-        #endregion
-
-        #region Input White
-
-        private static float lastUsedInputWhite;
-        private static void SetInputWhite(float inputWhite)
-        {
-            if (lastUsedInputWhite != inputWhite)
-            {
-                lastUsedInputWhite = inputWhite;
-                epInputWhite.SetValue(inputWhite);
-            }
-        } // SetInputWhite
-
-        #endregion
-
-        #region Input Gamma
-
-        private static float lastUsedInputGamma;
-        private static void SetInputGamma(float inputGamma)
-        {
-            if (lastUsedInputGamma != inputGamma)
-            {
-                lastUsedInputGamma = inputGamma;
-                epInputGamma.SetValue(inputGamma);
-            }
-        } // SetInputGamma
-
-        #endregion
-
-        #region Output Black
-
-        private static float lastUsedOutputBlack;
-        private static void SetOutputBlack(float outputBlack)
-        {
-            if (lastUsedOutputBlack != outputBlack)
-            {
-                lastUsedOutputBlack = outputBlack;
-                epOutputBlack.SetValue(outputBlack);
-            }
-        } // SetOutputBlack
-
-        #endregion
-
-        #region Output White
-
-        private static float lastUsedOutputWhite;
-        private static void SetOutputWhite(float outputWhite)
-        {
-            if (lastUsedOutputWhite != outputWhite)
-            {
-                lastUsedOutputWhite = outputWhite;
-                epOutputWhite.SetValue(outputWhite);
-            }
-        } // SetOutputWhite
-
-        #endregion
-
-        #region Adjust Levels Enabled
-
-        private static bool lastUsedAdjustLevelsEnabled;
-        private static void SetAdjustLevelsEnabled(bool adjustLevelsEnabled)
-        {
-            if (lastUsedAdjustLevelsEnabled != adjustLevelsEnabled)
-            {
-                lastUsedAdjustLevelsEnabled = adjustLevelsEnabled;
-                epAdjustLevelsEnabled.SetValue(adjustLevelsEnabled);
-            }
-        } // SetAdjustLevelsEnabled
-
-        #endregion
-
-        #endregion
-
-        #region Leves Individual Channels
-
-        #region Input Black RGB
-
-        private static Vector3 lastUsedInputBlackRgb;
-        private static void SetInputBlackRgb(Vector3 inputBlackRgb)
-        {
-            if (lastUsedInputBlackRgb != inputBlackRgb)
-            {
-                lastUsedInputBlackRgb = inputBlackRgb;
-                epInputBlackRgb.SetValue(inputBlackRgb);
-            }
-        } // SetInputBlackRgb
-
-        #endregion
-
-        #region Input White RGB
-
-        private static Vector3 lastUsedInputWhiteRgb;
-        private static void SetInputWhiteRgb(Vector3 inputWhiteRgb)
-        {
-            if (lastUsedInputWhiteRgb != inputWhiteRgb)
-            {
-                lastUsedInputWhiteRgb = inputWhiteRgb;
-                epInputWhiteRgb.SetValue(inputWhiteRgb);
-            }
-        } // SetInputWhiteRgb
-
-        #endregion
-
-        #region Input Gamma RGB
-
-        private static Vector3 lastUsedInputGammaRgb;
-        private static void SetInputGammaRgb(Vector3 inputGammaRgb)
-        {
-            if (lastUsedInputGammaRgb != inputGammaRgb)
-            {
-                lastUsedInputGammaRgb = inputGammaRgb;
-                epInputGammaRgb.SetValue(inputGammaRgb);
-            }
-        } // SetInputGammaRgb
-
-        #endregion
-
-        #region Output Black RGB
-
-        private static Vector3 lastUsedOutputBlackRgb;
-        private static void SetOutputBlackRgb(Vector3 outputBlackRgb)
-        {
-            if (lastUsedOutputBlackRgb != outputBlackRgb)
-            {
-                lastUsedOutputBlackRgb = outputBlackRgb;
-                epOutputBlackRgb.SetValue(outputBlackRgb);
-            }
-        } // SetOutputBlackRgb
-
-        #endregion
-
-        #region Output White RGB
-
-        private static Vector3 lastUsedOutputWhiteRgb;
-        private static void SetOutputWhiteRgb(Vector3 outputWhiteRgb)
-        {
-            if (lastUsedOutputWhiteRgb != outputWhiteRgb)
-            {
-                lastUsedOutputWhiteRgb = outputWhiteRgb;
-                epOutputWhiteRgb.SetValue(outputWhiteRgb);
-            }
-        } // SetOutputWhiteRgb
-
-        #endregion
-
-        #region Adjust Levels Individual Channels Enabled
-
-        private static bool lastUsedAdjustLevelsIndividualChannelsEnabled;
-        private static void SetAdjustLevelsIndividualChannelsEnabled(bool adjustLevelsIndividualChannelsEnabled)
-        {
-            if (lastUsedAdjustLevelsIndividualChannelsEnabled != adjustLevelsIndividualChannelsEnabled)
-            {
-                lastUsedAdjustLevelsIndividualChannelsEnabled = adjustLevelsIndividualChannelsEnabled;
-                epAdjustLevelsIndividualChannelsEnabled.SetValue(adjustLevelsIndividualChannelsEnabled);
-            }
-        } // SetAdjustLevelsIndividualChannelsEnabled
-
-        #endregion
-
-        #endregion
-
-        #region Color Correction
-
-        #region Color Correct One Lut Enabled
-
-        private static bool lastUsedColorCorrectOneLutEnabled;
-        private static void SetColorCorrectOneLutEnabled(bool colorCorrectOneLutEnabled)
-        {
-            if (lastUsedColorCorrectOneLutEnabled != colorCorrectOneLutEnabled)
-            {
-                lastUsedColorCorrectOneLutEnabled = colorCorrectOneLutEnabled;
-                epColorCorrectOneLutEnabled.SetValue(colorCorrectOneLutEnabled);
-            }
-        } // SetColorCorrectOneLutEnabled
-
-        #endregion
-
-        #region Color Correct Two Lut Enabled
-
-        private static bool lastUsedColorCorrectTwoLutEnabled;
-        private static void SetColorCorrectTwoLutEnabled(bool colorCorrectTwoLutEnabled)
-        {
-            if (lastUsedColorCorrectTwoLutEnabled != colorCorrectTwoLutEnabled)
-            {
-                lastUsedColorCorrectTwoLutEnabled = colorCorrectTwoLutEnabled;
-                epColorCorrectTwoLutEnabled.SetValue(colorCorrectTwoLutEnabled);
-            }
-        } // SetColorCorrectTwoLutEnabled
-
-        #endregion
-
-        #region Lookup Table Scale
-
-        private static float lastUsedLookupTableScale;
-        private static void SetLookupTableScale(float lookupTableScale)
-        {
-            if (lastUsedLookupTableScale != lookupTableScale)
-            {
-                lastUsedLookupTableScale = lookupTableScale;
-                epLookupTableScale.SetValue(lookupTableScale);
-            }
-        } // SetLookupTableScale
-
-        #endregion
-
-        #region Lookup Table Offset
-
-        private static float lastUsedLookupTableOffset;
-        private static void SetLookupTableOffset(float lookupTableOffset)
-        {
-            if (lastUsedLookupTableOffset != lookupTableOffset)
-            {
-                lastUsedLookupTableOffset = lookupTableOffset;
-                epLookupTableOffset.SetValue(lookupTableOffset);
-            }
-        } // SetLookupTableOffset
-
-        #endregion
-
-        #region Lerp Original Color Amount
-
-        private static float lastUsedLerpOriginalColorAmount;
-        private static void SetLerpOriginalColorAmount(float lerpOriginalColorAmount)
-        {
-            if (lastUsedLerpOriginalColorAmount != lerpOriginalColorAmount)
-            {
-                lastUsedLerpOriginalColorAmount = lerpOriginalColorAmount;
-                epLerpOriginalColorAmount.SetValue(lerpOriginalColorAmount);
-            }
-        } // SetLerpOriginalColorAmount
-
-        #endregion
-
-        #region Lerp Lookup Tables Amount
-
-        private static float lastUsedLerpLookupTablesAmount;
-        private static void SetLerpLookupTablesAmount(float lerpLookupTablesAmount)
-        {
-            if (lastUsedLerpLookupTablesAmount != lerpLookupTablesAmount)
-            {
-                lastUsedLerpLookupTablesAmount = lerpLookupTablesAmount;
-                epLerpLookupTablesAmount.SetValue(lerpLookupTablesAmount);
-            }
-        } // SetLerpLookupTablesAmount
-
-        #endregion
-
-        #region First Lookup Table
-
-        private static Texture3D lastUsedFirstLookupTable;
-        private static void SetFirstLookupTable(LookupTable firstLookupTable)
-        {
-            EngineManager.Device.SamplerStates[5] = SamplerState.LinearClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedFirstLookupTable != firstLookupTable.Resource)
-            {
-                lastUsedFirstLookupTable = firstLookupTable.Resource;
-                epFirstlookupTable.SetValue(firstLookupTable.Resource);
-            }
-        } // SetFirstLookupTable
-
-        #endregion
-
-        #region Second Lookup Table
-
-        private static Texture3D lastUsedSecondLookupTable;
-        private static void SetSecondLookupTable(LookupTable secondLookupTable)
-        {
-            EngineManager.Device.SamplerStates[6] = SamplerState.LinearClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedSecondLookupTable != secondLookupTable.Resource)
-            {
-                lastUsedSecondLookupTable = secondLookupTable.Resource;
-                epSecondlookupTable.SetValue(secondLookupTable.Resource);
-            }
-        } // SetSecondLookupTable
-
-        #endregion
-
-        #endregion
-
-        #region Film Grain
-
-        #region Film Grain Enabled
-
-        private static bool lastUsedFilmGrainEnabled;
-        private static void SetFilmGrainEnabled(bool filmGrainEnabled)
-        {
-            if (lastUsedFilmGrainEnabled != filmGrainEnabled)
-            {
-                lastUsedFilmGrainEnabled = filmGrainEnabled;
-                epFilmGrainEnabled.SetValue(filmGrainEnabled);
-            }
-        } // SetFilmGrainEnabled
-
-        #endregion
-
-        #region Film Grain Strength
-
-        private static float lastUsedFilmGrainStrength;
-        private static void SetFilmGrainStrength(float filmGrainStrength)
-        {
-            if (lastUsedFilmGrainStrength != filmGrainStrength)
-            {
-                lastUsedFilmGrainStrength = filmGrainStrength;
-                epFilmGrainStrength.SetValue(filmGrainStrength);
-            }
-        } // SetFilmGrainStrength
-
-        #endregion
-
-        #region Accentuate Dark Noise Power
-
-        private static float lastUsedAccentuateDarkNoisePower;
-        private static void SetAccentuateDarkNoisePower(float accentuateDarkNoisePower)
-        {
-            if (lastUsedAccentuateDarkNoisePower != accentuateDarkNoisePower)
-            {
-                lastUsedAccentuateDarkNoisePower = accentuateDarkNoisePower;
-                epAccentuateDarkNoisePower.SetValue(accentuateDarkNoisePower);
-            }
-        } // SetAccentuateDarkNoisePower
-
-        #endregion
-
-        #region Random Noise Strength
-
-        private static float lastUsedRandomNoiseStrength;
-        private static void SetRandomNoiseStrength(float randomNoiseStrength)
-        {
-            if (lastUsedRandomNoiseStrength != randomNoiseStrength)
-            {
-                lastUsedRandomNoiseStrength = randomNoiseStrength;
-                epRandomNoiseStrength.SetValue(randomNoiseStrength);
-            }
-        } // SetRandomNoiseStrength
-
-        #endregion
-
-        #region Random Value
-
-        private static float lastUsedRandomValue;
-        private static void SetRandomValue(float randomValue)
-        {
-            if (lastUsedRandomValue != randomValue)
-            {
-                lastUsedRandomValue = randomValue;
-                epRandomValue.SetValue(randomValue);
-            }
-        } // SetRandomValue
-
-        #endregion
-
-        #endregion
-
-        #endregion
-
         #region Constructors
 
         /// <summary>
@@ -831,7 +143,6 @@ namespace XNAFinalEngine.Graphics
             ContentManager userContentManager = ContentManager.CurrentContentManager;
             ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
             filmLutTexture = new Texture("Shaders\\FilmLut");
-            Resource.Parameters["filmLutTexture"].SetValue(filmLutTexture.Resource);
             ContentManager.CurrentContentManager = userContentManager;
         } // PostProcessingShader
 
@@ -847,122 +158,75 @@ namespace XNAFinalEngine.Graphics
         /// </remarks>
         protected override void GetParametersHandles()
         {
-            try
+            //try
             {
-                epHalfPixel    = Resource.Parameters["halfPixel"];
-                    epHalfPixel.SetValue(lastUsedHalfPixel);
-                epLensExposure = Resource.Parameters["lensExposure"];
-                    epLensExposure.SetValue(lastUsedLensExposure);
-                epSceneTexture = Resource.Parameters["sceneTexture"];
-                    if (lastUsedSceneTexture != null && !lastUsedSceneTexture.IsDisposed)
-                        epSceneTexture.SetValue(lastUsedSceneTexture);
-                epLastLuminanceTexture = Resource.Parameters["lastLuminanceTexture"];
-                    if (lastUsedLastLuminanceTexture != null && !lastUsedLastLuminanceTexture.IsDisposed)
-                        epLastLuminanceTexture.SetValue(lastUsedLastLuminanceTexture);
-                epAutoExposure = Resource.Parameters["autoExposure"];
-                    epAutoExposure.SetValue(lastUsedAutoExposure);
-                epTimeDelta = Resource.Parameters["timeDelta"];
-                epExposureAdjustTimeMultiplier = Resource.Parameters["tau"];
-                    epExposureAdjustTimeMultiplier.SetValue(lastUsedAutoExposureAdjustTimeMultiplier);
-                epLuminanceLowThreshold = Resource.Parameters["luminanceLowThreshold"];
-                    epLuminanceLowThreshold.SetValue(lastUsedAutoExposureLuminanceLowThreshold);
-                epLuminanceHighThreshold = Resource.Parameters["luminanceHighThreshold"];
-                    epLuminanceHighThreshold.SetValue(lastUsedAutoExposureLuminanceHighThreshold);
+                // Bool
+                spAutoExposureEnabled = new ShaderParameterBool("autoExposure", this);
+                spBloomEnabled = new ShaderParameterBool("bloomEnabled", this);
+                spAdjustLevelsEnabled = new ShaderParameterBool("adjustLevelsEnabled", this);
+                spAdjustLevelsIndividualChannelsEnabled = new ShaderParameterBool("adjustLevelsIndividualChannelsEnabled", this);
+                spColorCorrectOneLutEnabled = new ShaderParameterBool("colorCorrectOneLutEnabled", this);
+                spColorCorrectTwoLutEnabled = new ShaderParameterBool("colorCorrectTwoLutEnabled", this);
+                spFilmGrainEnabled = new ShaderParameterBool("filmGrainEnabled", this);
+                // Float
+                // Exposure
+                spLensExposure = new ShaderParameterFloat("lensExposure", this);
+                spTimeDelta = new ShaderParameterFloat("timeDelta", this);
+                spExposureAdjustTimeMultiplier = new ShaderParameterFloat("tau", this);
+                spLuminanceLowThreshold = new ShaderParameterFloat("luminanceLowThreshold", this);
+                spLuminanceHighThreshold = new ShaderParameterFloat("luminanceHighThreshold", this);
                 // Tone Mapping
-                epWhiteLevel = Resource.Parameters["whiteLevel"];
-                    epWhiteLevel.SetValue(lastUsedWhiteLevel);
-                epLuminanceSaturation = Resource.Parameters["luminanceSaturation"];
-                    epLuminanceSaturation.SetValue(lastUsedLuminanceSaturation);
-                epBias = Resource.Parameters["bias"];
-                    epBias.SetValue(lastUsedBias);
-                epShoulderStrength = Resource.Parameters["shoulderStrength"];
-                    epShoulderStrength.SetValue(lastUsedShoulderStrength);
-                epLinearStrength = Resource.Parameters["linearStrength"];
-                    epLinearStrength.SetValue(lastUsedLinearStrength);
-                epLinearAngle = Resource.Parameters["linearAngle"];
-                    epLinearAngle.SetValue(lastUsedLinearAngle);
-                epToeStrength = Resource.Parameters["toeStrength"];
-                    epToeStrength.SetValue(lastUsedToeStrength);
-                epToeNumerator = Resource.Parameters["toeNumerator"];
-                    epToeNumerator.SetValue(lastUsedToeNumerator);
-                epToeDenominator = Resource.Parameters["toeDenominator"];
-                    epToeDenominator.SetValue(lastUsedToeDenominator);
-                epLinearWhite = Resource.Parameters["linearWhite"];
-                    epLinearWhite.SetValue(lastUsedLinearWhite);
+                spWhiteLevel = new ShaderParameterFloat("whiteLevel", this);
+                spLuminanceSaturation = new ShaderParameterFloat("luminanceSaturation", this);
+                spBias = new ShaderParameterFloat("bias", this);
+                spShoulderStrength = new ShaderParameterFloat("shoulderStrength", this);
+                spLinearStrength = new ShaderParameterFloat("linearStrength", this);
+                spLinearAngle = new ShaderParameterFloat("linearAngle", this);
+                spToeStrength = new ShaderParameterFloat("toeStrength", this);
+                spToeNumerator = new ShaderParameterFloat("toeNumerator", this);
+                spToeDenominator = new ShaderParameterFloat("toeDenominator", this);
+                spLinearWhite = new ShaderParameterFloat("linearWhite", this);
                 // Bloom
-                epBloomScale   = Resource.Parameters["bloomScale"];
-                    epBloomScale.SetValue(lastUsedBloomScale);
-                epBloomTexture = Resource.Parameters["bloomTexture"];
-                    if (lastUsedBloomTexture != null && !lastUsedBloomTexture.IsDisposed)
-                        epBloomTexture.SetValue(lastUsedBloomTexture);
-                epBloomEnabled = Resource.Parameters["bloomEnabled"];
-                    epBloomEnabled.SetValue(lastUsedBloomEnabled);
+                spBloomScale = new ShaderParameterFloat("bloomScale", this);
                 // Levels
-                epInputBlack   = Resource.Parameters["inputBlack"];
-                    epInputBlack.SetValue(lastUsedInputBlack);
-                epInputWhite   = Resource.Parameters["inputWhite"];
-                    epInputWhite.SetValue(lastUsedInputWhite);
-                epInputGamma   = Resource.Parameters["inputGamma"];
-                    epInputGamma.SetValue(lastUsedInputGamma);
-                epOutputBlack  = Resource.Parameters["outputBlack"];
-                    epOutputBlack.SetValue(lastUsedOutputBlack);
-                epOutputWhite  = Resource.Parameters["outputWhite"];
-                    epOutputWhite.SetValue(lastUsedOutputWhite);
-                epAdjustLevelsEnabled = Resource.Parameters["adjustLevelsEnabled"];
-                    epAdjustLevelsEnabled.SetValue(lastUsedAdjustLevelsEnabled);
-                // Leves Individual Channels
-                epInputBlackRgb = Resource.Parameters["inputBlackRGB"];
-                    epInputBlackRgb.SetValue(lastUsedInputBlackRgb);
-                epInputWhiteRgb = Resource.Parameters["inputWhiteRGB"];
-                    epInputWhiteRgb.SetValue(lastUsedInputWhiteRgb);
-                epInputGammaRgb = Resource.Parameters["inputGammaRGB"];
-                    epInputGammaRgb.SetValue(lastUsedInputGammaRgb);
-                epOutputBlackRgb = Resource.Parameters["outputBlackRGB"];
-                    epOutputBlackRgb.SetValue(lastUsedOutputBlackRgb);
-                epOutputWhiteRgb = Resource.Parameters["outputWhiteRGB"];
-                    epOutputWhiteRgb.SetValue(lastUsedOutputWhiteRgb);
-                epAdjustLevelsIndividualChannelsEnabled = Resource.Parameters["adjustLevelsIndividualChannelsEnabled"];
-                    epAdjustLevelsIndividualChannelsEnabled.SetValue(lastUsedAdjustLevelsIndividualChannelsEnabled);
+                spInputBlack = new ShaderParameterFloat("inputBlack", this);
+                spInputWhite = new ShaderParameterFloat("inputWhite", this);
+                spInputGamma = new ShaderParameterFloat("inputGamma", this);
+                spOutputBlack = new ShaderParameterFloat("outputBlack", this);
+                spOutputWhite = new ShaderParameterFloat("outputWhite", this);
                 // Color Correction
-                epColorCorrectOneLutEnabled = Resource.Parameters["colorCorrectOneLutEnabled"];
-                    epColorCorrectOneLutEnabled.SetValue(lastUsedColorCorrectOneLutEnabled);
-                epColorCorrectTwoLutEnabled = Resource.Parameters["colorCorrectTwoLutEnabled"];
-                    epColorCorrectTwoLutEnabled.SetValue(lastUsedColorCorrectTwoLutEnabled);
-                epLookupTableScale = Resource.Parameters["scale"];
-                    epLookupTableScale.SetValue(lastUsedLookupTableScale);
-                epLookupTableOffset = Resource.Parameters["offset"];
-                    epLookupTableOffset.SetValue(lastUsedLookupTableOffset);
-                epFirstlookupTable = Resource.Parameters["firstlookupTableTexture"];
-                    if (lastUsedFirstLookupTable != null && !lastUsedFirstLookupTable.IsDisposed)
-                        epFirstlookupTable.SetValue(lastUsedFirstLookupTable);
-                epSecondlookupTable = Resource.Parameters["secondlookupTableTexture"];
-                    if (lastUsedSecondLookupTable != null && !lastUsedSecondLookupTable.IsDisposed)
-                        epSecondlookupTable.SetValue(lastUsedSecondLookupTable);
-                epLerpOriginalColorAmount = Resource.Parameters["lerpOriginalColorAmount"];
-                    epLerpOriginalColorAmount.SetValue(lastUsedLerpOriginalColorAmount);
-                epLerpLookupTablesAmount = Resource.Parameters["lerpLookupTablesAmount"];
-                    epLerpLookupTablesAmount.SetValue(lastUsedLerpLookupTablesAmount);
+                spLookupTableScale = new ShaderParameterFloat("scale", this);
+                spLookupTableOffset = new ShaderParameterFloat("offset", this);
+                spLerpOriginalColorAmount = new ShaderParameterFloat("lerpOriginalColorAmount", this);
+                spLerpLookupTablesAmount = new ShaderParameterFloat("lerpLookupTablesAmount", this);
                 // Film Grain
-                epFilmGrainEnabled = Resource.Parameters["filmGrainEnabled"];
-                    epFilmGrainEnabled.SetValue(lastUsedFilmGrainEnabled);
-                epFilmGrainStrength = Resource.Parameters["filmGrainStrength"];
-                    epFilmGrainStrength.SetValue(lastUsedFilmGrainStrength);
-                epAccentuateDarkNoisePower = Resource.Parameters["accentuateDarkNoisePower"];
-                    epAccentuateDarkNoisePower.SetValue(lastUsedAccentuateDarkNoisePower);
-                epRandomNoiseStrength = Resource.Parameters["randomNoiseStrength"];
-                    epRandomNoiseStrength.SetValue(lastUsedRandomNoiseStrength);
-                epRandomValue = Resource.Parameters["randomValue"];
-                    epRandomValue.SetValue(lastUsedRandomValue);
+                spFilmGrainStrength = new ShaderParameterFloat("filmGrainStrength", this);
+                spAccentuateDarkNoisePower = new ShaderParameterFloat("accentuateDarkNoisePower", this);
+                spRandomNoiseStrength = new ShaderParameterFloat("randomNoiseStrength", this);
+                spRandomValue = new ShaderParameterFloat("randomValue", this);
 
-                if (filmLutTexture != null)
-                {
-                    Resource.Parameters["filmLutTexture"].SetValue(filmLutTexture.Resource);
-                }
+                spHalfPixel = new ShaderParameterVector2("halfPixel", this);
+
+                // Leves Individual Channels
+                spInputBlackRgb = new ShaderParameterVector3("inputBlackRGB", this);
+                spInputWhiteRgb = new ShaderParameterVector3("inputWhiteRGB", this);
+                spInputGammaRgb = new ShaderParameterVector3("inputGammaRGB", this);
+                spOutputBlackRgb = new ShaderParameterVector3("outputBlackRGB", this);
+                spOutputWhiteRgb = new ShaderParameterVector3("outputWhiteRGB", this);
+
+                spSceneTexture = new ShaderParameterTexture("sceneTexture", this, SamplerState.PointClamp, 9);
+                spLastLuminanceTexture = new ShaderParameterTexture("lastLuminanceTexture", this, SamplerState.PointClamp, 12);
+                spBloomTexture = new ShaderParameterTexture("bloomTexture", this, SamplerState.AnisotropicClamp, 10);
+                spLensFlareTexture = new ShaderParameterTexture("lensFlareTexture", this, SamplerState.AnisotropicClamp, 8);
+                spFilmLutTexture = new ShaderParameterTexture("filmLutTexture", this, SamplerState.AnisotropicClamp, 8);
+
+                spFirstlookupTable = new ShaderParameterLookupTable("firstlookupTableTexture", this, SamplerState.LinearClamp, 5);
+                spSecondlookupTable = new ShaderParameterLookupTable("secondlookupTableTexture", this, SamplerState.LinearClamp, 11);
             }
-            catch
+            /*catch
             {
                 throw new InvalidOperationException("The parameter's handles from the " + Name + " shader could not be retrieved.");
-            }
+            }*/
         } // GetParametersHandles
 
         #endregion
@@ -991,10 +255,10 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
 
                 // Set parameters
-                SetHalfPixel(new Vector2(-0.5f / (sceneTexture.Width / 2), 0.5f / (sceneTexture.Height / 2)));
-                SetSceneTexture(sceneTexture);
-                SetAutoExposureLuminanceLowThreshold(postProcess.ToneMapping.AutoExposureLuminanceLowThreshold);
-                SetAutoExposureLuminanceHighThreshold(postProcess.ToneMapping.AutoExposureLuminanceHighThreshold);
+                spHalfPixel.Value = new Vector2(-0.5f / (sceneTexture.Width / 2), 0.5f / (sceneTexture.Height / 2));
+                spSceneTexture.Value = sceneTexture;
+                spLuminanceLowThreshold.Value = postProcess.ToneMapping.AutoExposureLuminanceLowThreshold;
+                spLuminanceHighThreshold.Value = postProcess.ToneMapping.AutoExposureLuminanceHighThreshold;
 
                 initialLuminanceTexture.EnableRenderTarget();
 
@@ -1034,17 +298,17 @@ namespace XNAFinalEngine.Graphics
                 RenderTarget luminanceTexture = RenderTarget.Fetch(currentLuminanceTexture.Size, SurfaceFormat.Single, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing, true);
 
                 // Set parameters
-                SetHalfPixel(new Vector2(-0.5f / (luminanceTexture.Width / 2), 0.5f / (luminanceTexture.Height / 2)));
-                SetSceneTexture(currentLuminanceTexture);
-                epTimeDelta.SetValue(Time.FrameTime); // It always changes.
-                SetAutoExposureAdjustTimeMultiplier(postProcess.ToneMapping.AutoExposureAdaptationTimeMultiplier);
+                spHalfPixel.Value = new Vector2(-0.5f / (luminanceTexture.Width / 2), 0.5f / (luminanceTexture.Height / 2));
+                spSceneTexture.Value = currentLuminanceTexture;
+                spTimeDelta.Value = Time.FrameTime; // It always changes.
+                spExposureAdjustTimeMultiplier.Value = postProcess.ToneMapping.AutoExposureAdaptationTimeMultiplier;
                 
                 // The two first frames will use the current luminance texture.
                 // One because there is no last luminance texture, and two because I render a frame in the load content (to reduce garbage).
                 if (lastLuminanceTexture != null && !lastLuminanceTexture.IsDisposed)
-                    SetLuminanceTexture(lastLuminanceTexture);
+                    spLastLuminanceTexture.Value = lastLuminanceTexture;
                 else
-                    SetLuminanceTexture(currentLuminanceTexture);
+                    spLastLuminanceTexture.Value = currentLuminanceTexture;
 
                 luminanceTexture.EnableRenderTarget();
 
@@ -1070,12 +334,11 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render.
         /// </summary>
-        public void Render(Texture sceneTexture, PostProcess postProcess, RenderTarget bloomTexture, RenderTarget luminanceTexture)
+        public void Render(Texture sceneTexture, PostProcess postProcess, RenderTarget bloomTexture, RenderTarget lensFlareTexture, RenderTarget luminanceTexture)
         {
             if (sceneTexture == null || sceneTexture.Resource == null)
                 throw new ArgumentNullException("sceneTexture");
-
-            try
+            //try
             {
                 // Set render states
                 EngineManager.Device.BlendState = BlendState.Opaque;
@@ -1087,50 +350,52 @@ namespace XNAFinalEngine.Graphics
                     // Select technique with the tone mapping function.
                     switch (postProcess.ToneMapping.ToneMappingFunction)
                     {
-                        case ToneMapping.ToneMappingFunctionEnumerate.FilmicALU        : Resource.CurrentTechnique = Resource.Techniques["PostProcessingFilmicALU"]; break;
-                        case ToneMapping.ToneMappingFunctionEnumerate.FilmicUncharted2 : Resource.CurrentTechnique = Resource.Techniques["PostProcessingFilmicUncharted2"];
-                            SetShoulderStrength(postProcess.ToneMapping.Uncharted2ShoulderStrength);
-                            SetLinearStrength(postProcess.ToneMapping.Uncharted2LinearStrength);
-                            SetLinearAngle(postProcess.ToneMapping.Uncharted2LinearAngle);
-                            SetToeStrength(postProcess.ToneMapping.Uncharted2ToeStrength);
-                            SetToeNumerator(postProcess.ToneMapping.Uncharted2ToeNumerator);
-                            SetToeDenominator(postProcess.ToneMapping.Uncharted2ToeDenominator);
-                            SetLinearWhite(postProcess.ToneMapping.Uncharted2LinearWhite);
+                        case ToneMapping.ToneMappingFunctionEnumerate.FilmicALU        : Resource.CurrentTechnique = Resource.Techniques["PostProcessingFilmicALU"];
+                            spFilmLutTexture.Value = filmLutTexture;
                             break;
-                        case ToneMapping.ToneMappingFunctionEnumerate.Reinhard         : Resource.CurrentTechnique = Resource.Techniques["PostProcessingReinhard"]; 
-                            SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
+                        case ToneMapping.ToneMappingFunctionEnumerate.FilmicUncharted2 : Resource.CurrentTechnique = Resource.Techniques["PostProcessingFilmicUncharted2"];
+                            spShoulderStrength.Value = postProcess.ToneMapping.Uncharted2ShoulderStrength;
+                            spLinearStrength.Value = postProcess.ToneMapping.Uncharted2LinearStrength;
+                            spLinearAngle.Value = postProcess.ToneMapping.Uncharted2LinearAngle;
+                            spToeStrength.Value = postProcess.ToneMapping.Uncharted2ToeStrength;
+                            spToeNumerator.Value = postProcess.ToneMapping.Uncharted2ToeNumerator;
+                            spToeDenominator.Value = postProcess.ToneMapping.Uncharted2ToeDenominator;
+                            spLinearWhite.Value = postProcess.ToneMapping.Uncharted2LinearWhite;
+                            break;
+                        case ToneMapping.ToneMappingFunctionEnumerate.Reinhard         : Resource.CurrentTechnique = Resource.Techniques["PostProcessingReinhard"];
+                            spLuminanceSaturation.Value = postProcess.ToneMapping.ToneMappingLuminanceSaturation;
                             break;
                         case ToneMapping.ToneMappingFunctionEnumerate.ReinhardModified : Resource.CurrentTechnique = Resource.Techniques["PostProcessingReinhardModified"];
-                            SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
-                            SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
+                            spLuminanceSaturation.Value = postProcess.ToneMapping.ToneMappingLuminanceSaturation;
+                            spWhiteLevel.Value = postProcess.ToneMapping.ToneMappingWhiteLevel;
                             break;
                         case ToneMapping.ToneMappingFunctionEnumerate.Exponential      : Resource.CurrentTechnique = Resource.Techniques["PostProcessingExponential"];
-                            SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
-                            SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
+                            spLuminanceSaturation.Value = postProcess.ToneMapping.ToneMappingLuminanceSaturation;
+                            spWhiteLevel.Value = postProcess.ToneMapping.ToneMappingWhiteLevel;
                             break;
-                        case ToneMapping.ToneMappingFunctionEnumerate.Logarithmic      : Resource.CurrentTechnique = Resource.Techniques["PostProcessingLogarithmic"]; 
-                            SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
-                            SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
+                        case ToneMapping.ToneMappingFunctionEnumerate.Logarithmic      : Resource.CurrentTechnique = Resource.Techniques["PostProcessingLogarithmic"];
+                            spLuminanceSaturation.Value = postProcess.ToneMapping.ToneMappingLuminanceSaturation;
+                            spWhiteLevel.Value = postProcess.ToneMapping.ToneMappingWhiteLevel;
                             break;
-                        case ToneMapping.ToneMappingFunctionEnumerate.DragoLogarithmic : Resource.CurrentTechnique = Resource.Techniques["PostProcessingDragoLogarithmic"]; 
-                            SetLuminanceSaturation(postProcess.ToneMapping.ToneMappingLuminanceSaturation);
-                            SetWhiteLevel(postProcess.ToneMapping.ToneMappingWhiteLevel);
-                            SetBias(postProcess.ToneMapping.DragoBias);
+                        case ToneMapping.ToneMappingFunctionEnumerate.DragoLogarithmic : Resource.CurrentTechnique = Resource.Techniques["PostProcessingDragoLogarithmic"];
+                            spLuminanceSaturation.Value = postProcess.ToneMapping.ToneMappingLuminanceSaturation;
+                            spWhiteLevel.Value = postProcess.ToneMapping.ToneMappingWhiteLevel;
+                            spBias.Value = postProcess.ToneMapping.DragoBias;
                             break;
                         case ToneMapping.ToneMappingFunctionEnumerate.Duiker           : Resource.CurrentTechnique = Resource.Techniques["PostProcessingDuiker"]; break;
                     }
                     // Set parameters
-                    SetHalfPixel(new Vector2(-0.5f / (sceneTexture.Width / 2), 0.5f / (sceneTexture.Height / 2)));
-                    SetSceneTexture(sceneTexture);
+                    spHalfPixel.Value = new Vector2(-0.5f / (sceneTexture.Width / 2), 0.5f / (sceneTexture.Height / 2));
+                    spSceneTexture.Value = sceneTexture;
 
                     #region Tone Mapping
 
-                    SetAutoExposure(postProcess.ToneMapping.AutoExposureEnabled);
+                    spAutoExposureEnabled.Value = postProcess.ToneMapping.AutoExposureEnabled;
                     EngineManager.Device.SamplerStates[12] = SamplerState.PointClamp; // To avoid an exception. Long story.
                     if (postProcess.ToneMapping.AutoExposureEnabled)
-                        SetLuminanceTexture(luminanceTexture);
+                        spLastLuminanceTexture.Value = luminanceTexture;
                     else
-                        SetLensExposure(postProcess.ToneMapping.LensExposure);
+                        spLensExposure.Value = postProcess.ToneMapping.LensExposure;
 
                     #endregion
 
@@ -1138,12 +403,18 @@ namespace XNAFinalEngine.Graphics
 
                     if (postProcess.Bloom != null && postProcess.Bloom.Enabled)
                     {
-                        SetBloomEnabled(true);
-                        SetBloomScale(postProcess.Bloom.Scale);
-                        SetBloomTexture(bloomTexture);
+                        spBloomEnabled.Value = true;
+                        spBloomScale.Value = postProcess.Bloom.Scale;
+                        spBloomTexture.Value = bloomTexture;
                     }
                     else
-                        SetBloomEnabled(false);
+                        spBloomEnabled.Value = false;
+
+                    #endregion
+
+                    #region Lens Flare
+
+                    spLensFlareTexture.Value = lensFlareTexture ?? Texture.BlackTexture;
 
                     #endregion
 
@@ -1152,27 +423,27 @@ namespace XNAFinalEngine.Graphics
                     // Adjust Levels
                     if (postProcess.AdjustLevels != null && postProcess.AdjustLevels.Enabled)
                     {
-                        SetAdjustLevelsEnabled(true);
-                        SetInputBlack(postProcess.AdjustLevels.InputBlack);
-                        SetInputWhite(postProcess.AdjustLevels.InputWhite);
-                        SetInputGamma(postProcess.AdjustLevels.InputGamma);
-                        SetOutputBlack(postProcess.AdjustLevels.OutputBlack);
-                        SetOutputWhite(postProcess.AdjustLevels.OutputWhite);
+                        spAdjustLevelsEnabled.Value = true;
+                        spInputBlack.Value = postProcess.AdjustLevels.InputBlack;
+                        spInputWhite.Value = postProcess.AdjustLevels.InputWhite;
+                        spInputGamma.Value = postProcess.AdjustLevels.InputGamma;
+                        spOutputBlack.Value = postProcess.AdjustLevels.OutputBlack;
+                        spOutputWhite.Value = postProcess.AdjustLevels.OutputWhite;
                     }
                     else
-                        SetAdjustLevelsEnabled(false);
+                        spAdjustLevelsEnabled.Value = false;
                     // Adjust Levels Individual Channels
                     if (postProcess.AdjustLevelsIndividualChannels != null && postProcess.AdjustLevelsIndividualChannels.Enabled)
                     {
-                        SetAdjustLevelsIndividualChannelsEnabled(true);
-                        SetInputBlackRgb(postProcess.AdjustLevelsIndividualChannels.InputBlack);
-                        SetInputWhiteRgb(postProcess.AdjustLevelsIndividualChannels.InputWhite);
-                        SetInputGammaRgb(postProcess.AdjustLevelsIndividualChannels.InputGamma);
-                        SetOutputBlackRgb(postProcess.AdjustLevelsIndividualChannels.OutputBlack);
-                        SetOutputWhiteRgb(postProcess.AdjustLevelsIndividualChannels.OutputWhite);
+                        spAdjustLevelsIndividualChannelsEnabled.Value = true;
+                        spInputBlackRgb.Value = postProcess.AdjustLevelsIndividualChannels.InputBlack;
+                        spInputWhiteRgb.Value = postProcess.AdjustLevelsIndividualChannels.InputWhite;
+                        spInputGammaRgb.Value = postProcess.AdjustLevelsIndividualChannels.InputGamma;
+                        spOutputBlackRgb.Value = postProcess.AdjustLevelsIndividualChannels.OutputBlack;
+                        spOutputWhiteRgb.Value = postProcess.AdjustLevelsIndividualChannels.OutputWhite;
                     }
                     else
-                        SetAdjustLevelsIndividualChannelsEnabled(false);
+                        spAdjustLevelsIndividualChannelsEnabled.Value = false;
 
                     #endregion
 
@@ -1183,37 +454,37 @@ namespace XNAFinalEngine.Graphics
                         if (postProcess.ColorCorrection.FirstLookupTable == null || postProcess.ColorCorrection.LerpOriginalColorAmount == 0)
                         {
                             // No color correction
-                            SetColorCorrectOneLutEnabled(false);
-                            SetColorCorrectTwoLutEnabled(false);
+                            spColorCorrectOneLutEnabled.Value = false;
+                            spColorCorrectTwoLutEnabled.Value = false;
                         }
                         else
                         {
-                            SetLookupTableScale(((float)(postProcess.ColorCorrection.FirstLookupTable.Size) - 1f) / (float)(postProcess.ColorCorrection.FirstLookupTable.Size));
-                            SetLookupTableOffset(1f / (2f * (float)(postProcess.ColorCorrection.FirstLookupTable.Size)));
+                            spLookupTableScale.Value = ((float)(postProcess.ColorCorrection.FirstLookupTable.Size) - 1f) / (float)(postProcess.ColorCorrection.FirstLookupTable.Size);
+                            spLookupTableOffset.Value = 1f / (2f * (float)(postProcess.ColorCorrection.FirstLookupTable.Size));
                             if (postProcess.ColorCorrection.SecondLookupTable == null || postProcess.ColorCorrection.LerpLookupTablesAmount == 0)
                             {
                                 // Lerp between two lookup tables
-                                SetColorCorrectOneLutEnabled(true);
-                                SetColorCorrectTwoLutEnabled(false);
-                                SetFirstLookupTable(postProcess.ColorCorrection.FirstLookupTable);
-                                SetLerpOriginalColorAmount(postProcess.ColorCorrection.LerpOriginalColorAmount);
+                                spColorCorrectOneLutEnabled.Value = true;
+                                spColorCorrectTwoLutEnabled.Value = false;
+                                spFirstlookupTable.Value = postProcess.ColorCorrection.FirstLookupTable;
+                                spLerpOriginalColorAmount.Value = postProcess.ColorCorrection.LerpOriginalColorAmount;
                             }
                             else
                             {
                                 // One lookup table
-                                SetColorCorrectOneLutEnabled(false);
-                                SetColorCorrectTwoLutEnabled(true);
-                                SetFirstLookupTable(postProcess.ColorCorrection.FirstLookupTable);
-                                SetSecondLookupTable(postProcess.ColorCorrection.SecondLookupTable);
-                                SetLerpOriginalColorAmount(postProcess.ColorCorrection.LerpOriginalColorAmount);
-                                SetLerpLookupTablesAmount(postProcess.ColorCorrection.LerpLookupTablesAmount);
+                                spColorCorrectOneLutEnabled.Value = false;
+                                spColorCorrectTwoLutEnabled.Value = true;
+                                spFirstlookupTable.Value = postProcess.ColorCorrection.FirstLookupTable;
+                                spSecondlookupTable.Value = postProcess.ColorCorrection.SecondLookupTable;
+                                spLerpOriginalColorAmount.Value = postProcess.ColorCorrection.LerpOriginalColorAmount;
+                                spLerpLookupTablesAmount.Value = postProcess.ColorCorrection.LerpLookupTablesAmount;
                             }
                         }
                     }
                     else
                     {
-                        SetColorCorrectOneLutEnabled(false);
-                        SetColorCorrectTwoLutEnabled(false);
+                        spColorCorrectOneLutEnabled.Value = false;
+                        spColorCorrectTwoLutEnabled.Value = false;
                     }
 
 
@@ -1223,14 +494,14 @@ namespace XNAFinalEngine.Graphics
 
                     if (postProcess.FilmGrain != null && postProcess.FilmGrain.Enabled && postProcess.FilmGrain.Strength != 0)
                     {
-                        SetFilmGrainEnabled(true);
-                        SetFilmGrainStrength(postProcess.FilmGrain.Strength);
-                        SetAccentuateDarkNoisePower(postProcess.FilmGrain.AccentuateDarkNoisePower);
-                        SetRandomNoiseStrength(postProcess.FilmGrain.RandomNoiseStrength);
-                        SetRandomValue(randomNumber.Next(1, 10000) / 100.0f);
+                        spFilmGrainEnabled.Value = true;
+                        spFilmGrainStrength.Value = postProcess.FilmGrain.Strength;
+                        spAccentuateDarkNoisePower.Value = postProcess.FilmGrain.AccentuateDarkNoisePower;
+                        spRandomNoiseStrength.Value = postProcess.FilmGrain.RandomNoiseStrength;
+                        spRandomValue.Value = randomNumber.Next(1, 10000) / 100.0f;
                     }
                     else
-                        SetFilmGrainEnabled(false);
+                        spFilmGrainEnabled.Value = false;
 
                     #endregion
 
@@ -1243,10 +514,10 @@ namespace XNAFinalEngine.Graphics
                     SpriteManager.DrawTextureToFullScreen(sceneTexture, false);
                 }
             }
-            catch (Exception e)
+            /*catch (Exception e)
             {
                 throw new InvalidOperationException("Post Process Shader: Unable to render.", e);
-            }
+            }*/
         } // Render
 
         #endregion

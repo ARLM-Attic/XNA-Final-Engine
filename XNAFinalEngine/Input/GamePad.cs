@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -29,6 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 #endregion
@@ -49,7 +51,7 @@ namespace XNAFinalEngine.Input
 		#region Variables
 
 		// Gamepad state, set every frame in the update method.
-		private GamePadState gamePadState, previousGamePadState;
+		private GamePadState currentState, previousState;
 
         // The id number of the gamepad.
         private readonly PlayerIndex playerIndex;
@@ -61,17 +63,17 @@ namespace XNAFinalEngine.Input
 		/// <summary>
 		/// The current gamepad state.
 		/// </summary>
-		public GamePadState GamePadState { get { return gamePadState; } }
+		public GamePadState CurrentState { get { return currentState; } }
 
         /// <summary>
         /// The previous mouse state.
         /// </summary>
-        public GamePadState PreviousGamePadState { get { return previousGamePadState; } }
+        public GamePadState PreviousState { get { return previousState; } }
 
 		/// <summary>
 		/// Is the gamepad connected?
 		/// </summary>
-		public bool IsConnected { get { return gamePadState.IsConnected; } }
+		public bool IsConnected { get { return currentState.IsConnected; } }
 
         /// <summary>
         /// Retrieves the capabilities of this game pad.
@@ -82,7 +84,7 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// Indicates if the input state has changed.
         /// </summary>
-        public bool Iddle { get { return gamePadState.PacketNumber == previousGamePadState.PacketNumber; } }
+        public bool Iddle { get { return currentState.PacketNumber == previousState.PacketNumber; } }
 
         /// <summary>
         /// Specifies a type of dead zone processing to apply to Xbox 360 Controller analog sticks.
@@ -99,32 +101,32 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// Gamepad start button pressed.
 		/// </summary>
-		public bool StartPressed { get { return gamePadState.Buttons.Start == ButtonState.Pressed; } }
+		public bool StartPressed { get { return currentState.Buttons.Start == ButtonState.Pressed; } }
 
         /// <summary>
         /// Gamepad back button pressed.
         /// </summary>
-        public bool BackPressed { get { return gamePadState.Buttons.Back == ButtonState.Pressed; } }
+        public bool BackPressed { get { return currentState.Buttons.Back == ButtonState.Pressed; } }
 
         /// <summary>
         /// Gamepad big button pressed.
         /// </summary>
-        public bool BigButtonPressed { get { return gamePadState.Buttons.BigButton == ButtonState.Pressed; } }
+        public bool BigButtonPressed { get { return currentState.Buttons.BigButton == ButtonState.Pressed; } }
         
         /// <summary>
         /// Gamepad start button just pressed.
         /// </summary>
-        public bool StartJustPressed { get { return gamePadState.Buttons.Start == ButtonState.Pressed && previousGamePadState.Buttons.Start == ButtonState.Released; } }
+        public bool StartJustPressed { get { return currentState.Buttons.Start == ButtonState.Pressed && previousState.Buttons.Start == ButtonState.Released; } }
 
         /// <summary>
         /// Gamepad back button just pressed.
         /// </summary>
-        public bool BackJustPressed { get { return gamePadState.Buttons.Back == ButtonState.Pressed && previousGamePadState.Buttons.Back == ButtonState.Released; } }
+        public bool BackJustPressed { get { return currentState.Buttons.Back == ButtonState.Pressed && previousState.Buttons.Back == ButtonState.Released; } }
 
         /// <summary>
         /// Gamepad big button just pressed.
         /// </summary>
-        public bool BigButtonJustPressed { get { return gamePadState.Buttons.BigButton == ButtonState.Pressed && previousGamePadState.Buttons.BigButton == ButtonState.Released; } }
+        public bool BigButtonJustPressed { get { return currentState.Buttons.BigButton == ButtonState.Pressed && previousState.Buttons.BigButton == ButtonState.Released; } }
 
         #endregion
 
@@ -133,42 +135,42 @@ namespace XNAFinalEngine.Input
         /// <summary>
 		/// Gamepad A button pressed.
 		/// </summary>
-		public bool APressed { get { return gamePadState.Buttons.A == ButtonState.Pressed; } }
+		public bool APressed { get { return currentState.Buttons.A == ButtonState.Pressed; } }
 
 		/// <summary>
         /// Gamepad B button pressed.
 		/// </summary>
-		public bool BPressed { get { return gamePadState.Buttons.B == ButtonState.Pressed; } }
+		public bool BPressed { get { return currentState.Buttons.B == ButtonState.Pressed; } }
 
 		/// <summary>
         /// Gamepad X button pressed.
 		/// </summary>
-		public bool XPressed { get { return gamePadState.Buttons.X == ButtonState.Pressed; } }
+		public bool XPressed { get { return currentState.Buttons.X == ButtonState.Pressed; } }
 
 		/// <summary>
         /// Gamepad Y button pressed.
 		/// </summary>
-		public bool YPressed { get { return gamePadState.Buttons.Y == ButtonState.Pressed; } }
+		public bool YPressed { get { return currentState.Buttons.Y == ButtonState.Pressed; } }
         
         /// <summary>
         /// Gamepad A button just pressed.
 		/// </summary>
-		public bool AJustPressed { get { return gamePadState.Buttons.A == ButtonState.Pressed && previousGamePadState.Buttons.A == ButtonState.Released; } }
+		public bool AJustPressed { get { return currentState.Buttons.A == ButtonState.Pressed && previousState.Buttons.A == ButtonState.Released; } }
 
 		/// <summary>
         /// Gamepad B button just pressed.
 		/// </summary>
-		public bool BJustPressed { get { return gamePadState.Buttons.B == ButtonState.Pressed && previousGamePadState.Buttons.B == ButtonState.Released; } }
+		public bool BJustPressed { get { return currentState.Buttons.B == ButtonState.Pressed && previousState.Buttons.B == ButtonState.Released; } }
 		
 		/// <summary>
         /// Gamepad X button just pressed.
 		/// </summary>
-		public bool XJustPressed { get { return gamePadState.Buttons.X == ButtonState.Pressed && previousGamePadState.Buttons.X == ButtonState.Released; } }
+		public bool XJustPressed { get { return currentState.Buttons.X == ButtonState.Pressed && previousState.Buttons.X == ButtonState.Released; } }
 
 		/// <summary>
         /// Gamepad Y button just pressed.
 		/// </summary>
-		public bool YJustPressed { get { return gamePadState.Buttons.Y == ButtonState.Pressed && previousGamePadState.Buttons.Y == ButtonState.Released; } }
+		public bool YJustPressed { get { return currentState.Buttons.Y == ButtonState.Pressed && previousState.Buttons.Y == ButtonState.Released; } }
 
         #endregion
 
@@ -177,203 +179,123 @@ namespace XNAFinalEngine.Input
         /// <summary>
         /// Gamepad DPad left pressed.
         /// </summary>
-        public bool DPadLeftPressed { get { return gamePadState.DPad.Left == ButtonState.Pressed; } }
+        public bool DPadLeftPressed { get { return currentState.DPad.Left == ButtonState.Pressed; } }
 
         /// <summary>
         /// Gamepad DPad right pressed.
         /// </summary>
-        public bool DPadRightPressed { get { return gamePadState.DPad.Right == ButtonState.Pressed; } }
+        public bool DPadRightPressed { get { return currentState.DPad.Right == ButtonState.Pressed; } }
 
         /// <summary>
         /// Gamepad DPad up pressed.
         /// </summary>
-        public bool DPadUpPressed { get { return gamePadState.DPad.Up == ButtonState.Pressed; } }
+        public bool DPadUpPressed { get { return currentState.DPad.Up == ButtonState.Pressed; } }
 
         /// <summary>
         /// Gamepad DPad down pressed.
         /// </summary>
-        public bool DPadDownPressed { get { return gamePadState.DPad.Down == ButtonState.Pressed; } }
+        public bool DPadDownPressed { get { return currentState.DPad.Down == ButtonState.Pressed; } }
 
         /// <summary>
         /// Gamepad DPad left just pressed.
         /// </summary>
-        public bool DPadLeftJustPressed { get { return gamePadState.DPad.Left == ButtonState.Pressed && previousGamePadState.DPad.Left == ButtonState.Released; } }
+        public bool DPadLeftJustPressed { get { return currentState.DPad.Left == ButtonState.Pressed && previousState.DPad.Left == ButtonState.Released; } }
 
         /// <summary>
         /// Gamepad DPad right just pressed.
         /// </summary>
-        public bool DPadRightJustPressed { get { return gamePadState.DPad.Right == ButtonState.Pressed && previousGamePadState.DPad.Right == ButtonState.Released; } }
+        public bool DPadRightJustPressed { get { return currentState.DPad.Right == ButtonState.Pressed && previousState.DPad.Right == ButtonState.Released; } }
 
         /// <summary>
         /// Gamepad DPad up just pressed.
         /// </summary>
-        public bool DPadUpJustPressed { get { return gamePadState.DPad.Up == ButtonState.Pressed && previousGamePadState.DPad.Up == ButtonState.Released; } }
+        public bool DPadUpJustPressed { get { return currentState.DPad.Up == ButtonState.Pressed && previousState.DPad.Up == ButtonState.Released; } }
 
         /// <summary>
         /// Gamepad DPad down just pressed.
         /// </summary>
-        public bool DPadDownJustPressed { get { return gamePadState.DPad.Down == ButtonState.Pressed && previousGamePadState.DPad.Down == ButtonState.Released; } }
+        public bool DPadDownJustPressed { get { return currentState.DPad.Down == ButtonState.Pressed && previousState.DPad.Down == ButtonState.Released; } }
 
         #endregion
         
         #region Thumb Sticks
 
         /// <summary>
-        /// Game pad left thumb stick X movement
+        /// Gamepad left thumb stick X movement.
         /// </summary>
-        public float LeftStickXMovement { get { return gamePadState.ThumbSticks.Left.X; } }
+        public float LeftStickX { get { return currentState.ThumbSticks.Left.X; } }
 
         /// <summary>
-        /// Game pad left thumb stick Y movement
+        /// Gamepad left thumb stick Y movement.
         /// </summary>
-        public float LeftStickYMovement { get { return gamePadState.ThumbSticks.Left.Y; } }
+        public float LeftStickY { get { return currentState.ThumbSticks.Left.Y; } }
 
         /// <summary>
-        /// Game pad right thumb stick X movement
+        /// Gamepad right thumb stick X movement.
         /// </summary>
-        public float RightStickXMovement { get { return gamePadState.ThumbSticks.Right.X; } }
+        public float RightStickX { get { return currentState.ThumbSticks.Right.X; } }
 
         /// <summary>
-        /// Game pad right thumb stick Y movement
+        /// Gamepad right thumb stick Y movement.
         /// </summary>
-        public float RightStickYMovement { get { return gamePadState.ThumbSticks.Right.Y; } }
+        public float RightStickY { get { return currentState.ThumbSticks.Right.Y; } }
 
         /// <summary>
-        /// Game pad left stick button pressed.
+        /// Gamepad left stick button pressed.
         /// </summary>
-        public bool LeftStickPressed { get { return gamePadState.Buttons.LeftStick == ButtonState.Pressed; } }
+        public bool LeftStickPressed { get { return currentState.Buttons.LeftStick == ButtonState.Pressed; } }
 
         /// <summary>
-        /// Game pad left stick button just pressed.
+        /// Gamepad left stick button just pressed.
         /// </summary>
-        public bool LeftStickJustPressed { get { return gamePadState.Buttons.LeftStick == ButtonState.Pressed && previousGamePadState.Buttons.LeftStick == ButtonState.Released; } }
+        public bool LeftStickJustPressed { get { return currentState.Buttons.LeftStick == ButtonState.Pressed && previousState.Buttons.LeftStick == ButtonState.Released; } }
 
         /// <summary>
-        /// Game pad right stick button pressed.
+        /// Gamepad right stick button pressed.
         /// </summary>
-        public bool RightStickPressed { get { return gamePadState.Buttons.RightStick == ButtonState.Pressed; } }
+        public bool RightStickPressed { get { return currentState.Buttons.RightStick == ButtonState.Pressed; } }
 
         /// <summary>
-        /// Game pad right stick button just pressed.
+        /// Gamepad right stick button just pressed.
         /// </summary>
-        public bool RightStickJustPressed { get { return gamePadState.Buttons.RightStick == ButtonState.Pressed && previousGamePadState.Buttons.RightStick == ButtonState.Released; } }
+        public bool RightStickJustPressed { get { return currentState.Buttons.RightStick == ButtonState.Pressed && previousState.Buttons.RightStick == ButtonState.Released; } }
 
         #endregion
 
         #region LT LB RT RB
 
         /// <summary>
-        /// Game pad Left Button pressed (LB)
+        /// Gamepad Left Button pressed (LB)
         /// </summary>
-        public bool LeftButtonPressed { get { return gamePadState.Buttons.LeftShoulder == ButtonState.Pressed; } }
+        public bool LeftButtonPressed { get { return currentState.Buttons.LeftShoulder == ButtonState.Pressed; } }
 
         /// <summary>
-        /// Game pad Left Button just pressed (LB)
+        /// Gamepad Left Button just pressed (LB)
         /// </summary>
-        public bool LeftButtonJustPressed { get { return gamePadState.Buttons.LeftShoulder == ButtonState.Pressed && previousGamePadState.Buttons.LeftShoulder == ButtonState.Released; } }
+        public bool LeftButtonJustPressed { get { return currentState.Buttons.LeftShoulder == ButtonState.Pressed && previousState.Buttons.LeftShoulder == ButtonState.Released; } }
 
         /// <summary>
-        /// Game pad Right Button pressed (RB)
+        /// Gamepad Right Button pressed (RB)
         /// </summary>
-        public bool RightButtonPressed { get { return gamePadState.Buttons.RightShoulder == ButtonState.Pressed; } }
+        public bool RightButtonPressed { get { return currentState.Buttons.RightShoulder == ButtonState.Pressed; } }
 
         /// <summary>
-        /// Game pad Right Button just pressed (RB)
+        /// Gamepad Right Button just pressed (RB)
         /// </summary>
-        public bool RightButtonJustPressed { get { return gamePadState.Buttons.RightShoulder == ButtonState.Pressed && previousGamePadState.Buttons.RightShoulder == ButtonState.Released; } }
+        public bool RightButtonJustPressed { get { return currentState.Buttons.RightShoulder == ButtonState.Pressed && previousState.Buttons.RightShoulder == ButtonState.Released; } }
 
         /// <summary>
-        /// Game pad left trigger axis value (LT)
+        /// Gamepad left trigger axis value (LT)
         /// </summary>
-        public float LeftTriggerMovement { get { return gamePadState.Triggers.Left; } }
+        public float LeftTrigger { get { return currentState.Triggers.Left; } }
 
         /// <summary>
-        /// Game pad right trigger axis value (RT)
+        /// Gamepad right trigger axis value (RT)
         /// </summary>
-        public float RightTriggerMovement { get { return gamePadState.Triggers.Right; } }
+        public float RightTrigger { get { return currentState.Triggers.Right; } }
 
         #endregion
-
-        #region Digital Movement (DPad or Left Stick)
-
-        /// <summary>
-        /// Game pad left pressed. A digital movement considers the DPad and the left stick.
-        /// </summary>
-        public bool DigitalMovementLeftPressed { get { return gamePadState.DPad.Left == ButtonState.Pressed || gamePadState.ThumbSticks.Left.X < -0.75f; } }
-
-        /// <summary>
-        /// Game pad right pressed. A digital movement considers the DPad and the left stick.
-        /// </summary>
-        public bool DigitalMovementRightPressed { get { return gamePadState.DPad.Right == ButtonState.Pressed || gamePadState.ThumbSticks.Left.X > 0.75f; } }
-
-        /// <summary>
-        /// Game pad up pressed. A digital movement considers the DPad and the left stick.
-        /// </summary>
-        public bool DigitalMovementUpPressed { get { return gamePadState.DPad.Down == ButtonState.Pressed || gamePadState.ThumbSticks.Left.Y > 0.75f; } }
-
-        /// <summary>
-        /// Game pad down pressed. A digital movement considers the DPad and the left stick.
-        /// </summary>
-        public bool DigitalMovementDownPressed { get { return gamePadState.DPad.Up == ButtonState.Pressed || gamePadState.ThumbSticks.Left.Y < -0.75f; } }
-
-        /// <summary>
-        /// Game pad left just pressed. A digital movement considers the DPad and the left stick.
-        /// </summary>
-        public bool DigitalMovementLeftJustPressed 
-        {
-            get
-            {
-                return (gamePadState.DPad.Left == ButtonState.Pressed &&
-                        previousGamePadState.DPad.Left == ButtonState.Released) ||
-                       (gamePadState.ThumbSticks.Left.X < -0.75f &&
-                        previousGamePadState.ThumbSticks.Left.X > -0.75f);
-            }
-        } // DigitalMovementLeftJustPressed
-
-        /// <summary>
-        /// Game pad right just pressed. A digital movement considers the DPad and the left stick.
-        /// </summary>
-        public bool DigitalMovementRightJustPressed
-        {
-            get
-            {
-                return (gamePadState.DPad.Right == ButtonState.Pressed &&
-                        previousGamePadState.DPad.Right == ButtonState.Released) ||
-                       (gamePadState.ThumbSticks.Left.X > 0.75f &&
-                        previousGamePadState.ThumbSticks.Left.X < 0.75f);
-            }
-        } // DigitalMovementRightJustPressed
-
-        /// <summary>
-        /// Game pad up just pressed. A digital movement considers the DPad and the left stick.
-        /// </summary>
-        public bool DigitalMovementUpJustPressed
-        {
-            get
-            {
-                return (gamePadState.DPad.Up == ButtonState.Pressed &&
-                        previousGamePadState.DPad.Up == ButtonState.Released) ||
-                       (gamePadState.ThumbSticks.Left.Y > 0.75f &&
-                        previousGamePadState.ThumbSticks.Left.Y < 0.75f);
-            }
-        } // DigitalMovementUpJustPressed
-
-        /// <summary>
-        /// Game pad down just pressed. A digital movement considers the DPad and the left stick.
-        /// </summary>
-        public bool DigitalMovementDownJustPressed
-        {
-            get
-            {
-                return (gamePadState.DPad.Down == ButtonState.Pressed &&
-                        previousGamePadState.DPad.Down == ButtonState.Released) ||
-                       (gamePadState.ThumbSticks.Left.Y < -0.75f &&
-                        previousGamePadState.ThumbSticks.Left.Y > -0.75f);
-            }
-        } // DigitalMovementDownJustPressed
-
-        #endregion
-
+        
         #endregion
 
         #region Constructor
@@ -384,9 +306,23 @@ namespace XNAFinalEngine.Input
         private GamePad(PlayerIndex _playerIndex)
         {
             playerIndex = _playerIndex;
-            gamePadState = Microsoft.Xna.Framework.Input.GamePad.GetState(playerIndex);
+            currentState = Microsoft.Xna.Framework.Input.GamePad.GetState(playerIndex);
             DeadZone = GamePadDeadZone.IndependentAxes;
         } // GamePad
+
+        #endregion
+
+        #region Button Pressed and Just Pressed
+
+        /// <summary>
+        /// Button just pressed.
+        /// </summary>
+        public bool ButtonJustPressed(Buttons button) { return currentState.IsButtonDown(button) && !previousState.IsButtonDown(button); }
+
+        /// <summary>
+        /// Button pressed.
+        /// </summary>
+        public bool ButtonPressed(Buttons button) { return currentState.IsButtonDown(button); }
 
         #endregion
 
@@ -411,8 +347,8 @@ namespace XNAFinalEngine.Input
 		/// </summary>
 		internal void Update()
 		{
-			previousGamePadState = gamePadState;
-            gamePadState = Microsoft.Xna.Framework.Input.GamePad.GetState(playerIndex, DeadZone);
+			previousState = currentState;
+            currentState = Microsoft.Xna.Framework.Input.GamePad.GetState(playerIndex, DeadZone);
 		} // Update
 
 		#endregion
@@ -422,10 +358,10 @@ namespace XNAFinalEngine.Input
         #region Variables
 
         // The four possible gamepads.
-        private readonly static GamePad playerOneGamePad   = new GamePad(PlayerIndex.One),
-                                        playerTwoGamePad   = new GamePad(PlayerIndex.Two),
-                                        playerThreeGamePad = new GamePad(PlayerIndex.Three),
-                                        playerFourGamePad  = new GamePad(PlayerIndex.Four);
+        private readonly static GamePad PlayerOneGamePad   = new GamePad(PlayerIndex.One),
+                                        PlayerTwoGamePad   = new GamePad(PlayerIndex.Two),
+                                        PlayerThreeGamePad = new GamePad(PlayerIndex.Three),
+                                        PlayerFourGamePad  = new GamePad(PlayerIndex.Four);
 
 
         #endregion
@@ -433,24 +369,39 @@ namespace XNAFinalEngine.Input
         #region Properties
 
         /// <summary>
-        /// XInput gamePad assigned to player one. 
+        /// GamePad assigned to player one. 
         /// </summary>
-        public static GamePad PlayerOne { get { return playerOneGamePad; } }
+        public static GamePad PlayerOne { get { return PlayerOneGamePad; } }
 
         /// <summary>
-        /// XInput gamePad assigned to player two. 
+        /// GamePad assigned to player two. 
         /// </summary>
-        public static GamePad PlayerTwo { get { return playerTwoGamePad; } }
+        public static GamePad PlayerTwo { get { return PlayerTwoGamePad; } }
 
         /// <summary>
-        /// XInput gamePad assigned to player three. 
+        /// GamePad assigned to player three. 
         /// </summary>
-        public static GamePad PlayerThree { get { return playerThreeGamePad; } }
+        public static GamePad PlayerThree { get { return PlayerThreeGamePad; } }
 
         /// <summary>
-        /// XInput gamePad assigned to player four. 
+        /// GamePad assigned to player four. 
         /// </summary>
-        public static GamePad PlayerFour { get { return playerFourGamePad; } }
+        public static GamePad PlayerFour { get { return PlayerFourGamePad; } }
+
+        /// <summary>
+        /// Returns the gamepad that is indicated in playerIndex (between 0 and 3).
+        /// </summary>
+        public static GamePad Player(int playerIndex)
+        {
+            switch (playerIndex)
+            {
+                case 0: return PlayerOneGamePad;
+                case 1: return PlayerTwoGamePad;
+                case 2: return PlayerThreeGamePad;
+                case 3: return PlayerFourGamePad;
+                default : throw new ArgumentOutOfRangeException("playerIndex", "GamePad: The number has to be between 0 and 3.");
+            }
+        } // Player
 
         #endregion
 

@@ -49,7 +49,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// The time (in seconds) at which this particle was created.
         /// </summary>
-        public float DrawCounterWhenDie;
+        public float CreationTime;
 
         /// <summary>
         /// Describe the layout of this vertex structure.

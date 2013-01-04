@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -44,7 +44,7 @@ namespace XNAFinalEngine.Input
     /// It also disables the win key and allows the print screen key to call the screenshot capturer ignoring the windows screenshot capturer.
     /// </summary>
     /// <remarks>
-    /// Keyboard Hook has deprecated because is unpredictable and produces a little lag.
+    /// Keyboard Hook has deprecated because is unpredictable and produces some lag.
     /// </remarks>
     public class KeyboardHook : IDisposable
     {

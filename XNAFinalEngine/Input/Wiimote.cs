@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -48,6 +48,9 @@ namespace XNAFinalEngine.Input
     /// It utilizes the Wiimotelib library. http://wiimotelib.codeplex.com/ and http://www.brianpeek.com/forums
     /// The Wiimote that aren't connected will be ignored.
 	/// </summary>
+    /// <remarks>
+    /// Wiimote support was deprecated but probably still works.
+    /// </remarks>
 	public class Wiimote
     {
 

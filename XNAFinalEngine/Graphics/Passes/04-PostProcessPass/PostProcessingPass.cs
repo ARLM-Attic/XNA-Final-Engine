@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using Texture = XNAFinalEngine.Assets.Texture;
@@ -70,8 +71,8 @@ namespace XNAFinalEngine.Graphics
         /// <param name="postProcess">Post process parameters.</param>
         /// <param name="luminanceTexture">This texture stores the previous luminance information.</param>
         /// <param name="destinationTexture">The gamma space post process texture of the linear space scene texture.</param>
-        public static void BeginAndProcess(Texture sceneTexture, Texture depthTexture, PostProcess postProcess,
-                                           ref RenderTarget luminanceTexture, RenderTarget destinationTexture)
+        public static void BeginAndProcess(Texture sceneTexture, Texture depthTexture, Texture halfDepthTexture, PostProcess postProcess,
+                                           ref RenderTarget luminanceTexture, RenderTarget destinationTexture, Matrix viewMatrix, Matrix projectionMatrix, float farPlane, Vector3 cameraPosition)
         {
             if (destinationTexture == null)
                 throw new ArgumentNullException("destinationTexture");
@@ -80,17 +81,12 @@ namespace XNAFinalEngine.Graphics
             if (sceneTexture == null || sceneTexture.Resource == null)
                 throw new ArgumentNullException("depthTexture");
             
-            try
+            //try
             {
                 PostProcessingPass.depthTexture = depthTexture;
                 PostProcessingPass.postProcess = postProcess;
 
-                // Generate bloom texture
-                RenderTarget bloomTexture = null;
-                if (postProcess != null && postProcess.Bloom != null && postProcess.Bloom.Enabled)
-                    bloomTexture = BloomShader.Instance.Render(sceneTexture, postProcess);
-
-                // Retrieve the shader instance.
+                // Retrieve the post process shader instance.
                 postProcessingShader = PostProcessingShader.Instance;
 
                 // Tone Mapping Auto Exposure.
@@ -98,13 +94,22 @@ namespace XNAFinalEngine.Graphics
                 {
                     // Luminance Map Generation
                     RenderTarget currentLuminanceTexture = postProcessingShader.LuminanceTextureGeneration(sceneTexture, postProcess);
-                
+
                     // Luminance Adaptation
                     luminanceTexture = postProcessingShader.LuminanceAdaptation(currentLuminanceTexture, luminanceTexture, postProcess);
                     RenderTarget.Release(currentLuminanceTexture);
                 }
 
-                // If MLAA is active the shader needs an extra render target.
+                // Generate bloom texture
+                RenderTarget bloomTexture = null;
+                if (postProcess != null && postProcess.Bloom != null && postProcess.Bloom.Enabled)
+                    bloomTexture = BloomShader.Instance.Render(sceneTexture, luminanceTexture, postProcess);
+
+                RenderTarget lensFlareTexture = null;
+                if (postProcess != null && postProcess.AnamorphicLensFlare != null && postProcess.AnamorphicLensFlare.Enabled)
+                    lensFlareTexture = AnamorphicLensFlareShader.Instance.Render(halfDepthTexture, bloomTexture, postProcess, viewMatrix, projectionMatrix, farPlane, cameraPosition);
+
+                // If MLAA is active the shader needs an extra render target.)
                 if (postProcess != null && postProcess.MLAA != null && postProcess.MLAA.Enabled)
                 {
                     postProcessedSceneTexture = RenderTarget.Fetch(sceneTexture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
@@ -115,15 +120,17 @@ namespace XNAFinalEngine.Graphics
 
                 postProcessedSceneTexture.EnableRenderTarget();
                 // Post process the scene texture.
-                postProcessingShader.Render(sceneTexture, postProcess, bloomTexture, luminanceTexture);
+                postProcessingShader.Render(sceneTexture, postProcess, bloomTexture, lensFlareTexture, luminanceTexture);
                 // Release textures (they return to the pool).
                 if (bloomTexture != null)
                     RenderTarget.Release(bloomTexture);
+                if (lensFlareTexture != null)
+                    RenderTarget.Release(lensFlareTexture);
             }
-            catch (Exception e)
+            /*catch (Exception e)
             {
                 throw new InvalidOperationException("Post Process: Unable to render.", e);
-            }
+            }*/
         } // BeginAndProcess
 
         #endregion
