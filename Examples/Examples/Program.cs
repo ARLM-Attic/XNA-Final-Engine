@@ -50,7 +50,7 @@ namespace XNAFinalEngineExamples
         /// The main method doesn't accept input parameters.
         /// </summary>
         #if (!XBOX)
-            [STAThread]
+            [MTAThread]
         #endif
         private static void Main()
         {

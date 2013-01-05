@@ -29,12 +29,16 @@ Author: Schneider, José Ignacio (jischneider@hotmail.com)
 
 #region Using directives
 using System;
+using System.Collections.Generic;
+using System.Threading;
 #endregion
 
 namespace XNAFinalEngine.Helpers
 {
     /// <summary>
-    /// This indicates the available processors and the desired processors' affinity.
+    /// Creates several threads that perform the same task over different data.
+    /// It also provides synchronization methods.
+    /// T correspond to the parameter type.
     /// </summary>
     /// <remarks>
     /// Threading in XNA Final Engine is fairly simple. 
@@ -46,22 +50,23 @@ namespace XNAFinalEngine.Helpers
     /// however, the core that runs the application makes a little more work than the others to avoid a potential bottleneck,
     /// moreover, small test performed shows me that this is better for performance. 
     /// </remarks>
-    public static class ProcessorsInformation
+    public class MultiThreadingTask<T>
     {
 
-        #region Properties
+        #region Variables
 
-        /// <summary>
-        /// The number of processors availables. 
-        /// The application thread is not included.
-        /// </summary>
-        public static int AvailableProcessors { get; private set; }
+        // The task.
+        private readonly Action<T> task;
 
-        /// <summary>
-        /// The desired affinity of the Xbox 360 hardware threads. This not include the application thread.
-        /// </summary>
-        public static int[] ProcessorsAffinity { get; private set; }
+        // This are the synchronization elements.
+        private readonly ManualResetEvent[] doneEvents, waitForWork;
         
+        // The threads.
+        private readonly List<Thread> threads;
+        
+        // Task parameters.
+        private readonly T[] parameters;
+
         #endregion
 
         #region Constructor
@@ -69,18 +74,79 @@ namespace XNAFinalEngine.Helpers
         /// <summary>
         /// Obtain the number of logical cores available for multithreading.
         /// </summary>
-        static ProcessorsInformation()
+        public MultiThreadingTask(Action<T> task, int numberOfThreads)
         {
-            #if XBOX 
-                // http://msdn.microsoft.com/en-us/library/microsoft.xna.net_cf.system.threading.thread.setprocessoraffinity.aspx
-                AvailableProcessors = 3;
-                ProcessorsAffinity = new int[3] { 3, 4, 5 };
-            #else
-                AvailableProcessors = Environment.ProcessorCount - 1; // Minus the application thread.
-            #endif
-        } // ProcessorsInformation
+            this.task = task;
+            doneEvents = new ManualResetEvent[numberOfThreads];
+            waitForWork = new ManualResetEvent[numberOfThreads];
+            parameters = new T[numberOfThreads];
+            threads = new List<Thread>(numberOfThreads);
+            for (int i = 0; i < numberOfThreads; i++)
+            {
+                doneEvents[i] = new ManualResetEvent(false);
+                waitForWork[i] = new ManualResetEvent(false);
+                threads.Add(new Thread(TaskManager));
+                threads[i].Start(i);
+            }
+        } // MultiThreadingTask
 
         #endregion
 
-    } // ProcessorsInformation
+        #region Task Manager
+
+        /// <summary>
+        /// A thread could not be restarted. 
+        /// The thread needs to sleep and wait for more work to perform.
+        /// </summary>
+        private void TaskManager(object parameter)
+        {
+            int index = (int)parameter;
+            
+            Thread.CurrentThread.IsBackground = true; // To destroy it when the application exits.
+            #if XBOX 
+                // http://msdn.microsoft.com/en-us/library/microsoft.xna.net_cf.system.threading.thread.setprocessoraffinity.aspx
+                Thread.CurrentThread.SetProcessorAffinity(ProcessorsInformation.ProcessorsAffinity[index]);
+            #endif
+
+            while (true)
+            {
+                waitForWork[index].WaitOne(); // Wait until a task is added.
+                waitForWork[index].Reset();
+                task.Invoke(parameters[index]);
+                doneEvents[index].Set(); // Indicates that that task was performed.
+            }
+        } // TaskManager
+
+        #endregion
+
+        #region Start
+
+        /// <summary>
+        ///  Start again the task.
+        /// </summary>
+        public void Start(int taskNumber, T parameter)
+        {
+            parameters[taskNumber] = parameter;
+            waitForWork[taskNumber].Set();
+        } // Start
+
+        #endregion
+
+        #region Wait For Task Completition
+
+        /// <summary>
+        /// Call this if you need to wait for the task to be completed.
+        /// </summary>
+        public void WaitForTaskCompletition()
+        {
+            for (int i = 0; i < threads.Count; i++)
+            {
+                doneEvents[i].WaitOne();
+                doneEvents[i].Reset();
+            }
+        } // WaitForTaskCompletition
+
+        #endregion
+
+    } // MultiThreadingTask
 } // XNAFinalEngine.Helpers

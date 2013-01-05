@@ -28,12 +28,10 @@ Author: Schneider, José Ignacio (jischneider@hotmail.com)
 #endregion
 
 #region Using directives
-using System.Threading;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Helpers;
-
 #endregion
 
 namespace XNAFinalEngine.Graphics
@@ -65,13 +63,12 @@ namespace XNAFinalEngine.Graphics
         {
             public readonly BoundingFrustum boundingFrustum;
             public readonly List<ModelRenderer> modelsToRender;
-            public readonly int processorAffinity, startPosition, count;
+            public readonly int startPosition, count;
 
-            public FrustumCullingParameters(BoundingFrustum boundingFrustum, List<ModelRenderer> modelsToRender, int processorAffinity, int startPosition, int count)
+            public FrustumCullingParameters(BoundingFrustum boundingFrustum, List<ModelRenderer> modelsToRender, int startPosition, int count)
             {
                 this.boundingFrustum = boundingFrustum;
                 this.modelsToRender = modelsToRender;
-                this.processorAffinity = processorAffinity;
                 this.startPosition = startPosition;
                 this.count = count;
             }
@@ -85,11 +82,7 @@ namespace XNAFinalEngine.Graphics
         // Syncronization object used in multithreading.
         private static readonly object syncObj = new object();
         
-        private static ManualResetEvent[] doneEvents, waitForWork;
-
-        private static FrustumCullingParameters[] parameters;
-
-        private static List<Thread> modelRendererThreads;
+        private static MultiThreadingTask<FrustumCullingParameters> modelRendererThreads;
 
         #endregion
 
@@ -103,71 +96,31 @@ namespace XNAFinalEngine.Graphics
                 // If it is the first execution then the threads are created.
                 if (modelRendererThreads == null)
                 {
-                    doneEvents = new ManualResetEvent[ProcessorsInformation.AvailableProcessors];
-                    waitForWork = new ManualResetEvent[ProcessorsInformation.AvailableProcessors];
-                    parameters = new FrustumCullingParameters[ProcessorsInformation.AvailableProcessors + 1];
-                    modelRendererThreads = new List<Thread>(ProcessorsInformation.AvailableProcessors);
-                    for (int i = 0; i < ProcessorsInformation.AvailableProcessors; i++)
-                    {
-                        doneEvents[i] = new ManualResetEvent(false);
-                        waitForWork[i] = new ManualResetEvent(false);
-                        modelRendererThreads.Add(new Thread(ModelRendererFrustumCullingMultiThreading));
-                        modelRendererThreads[i].Start(i);
-                    }
+                    modelRendererThreads = new MultiThreadingTask<FrustumCullingParameters>(ModelRendererFrustumCullingSingleThread, ProcessorsInformation.AvailableProcessors);
                 }
-                int objectsProcessedByThread = (int)(ModelRenderer.ComponentPool.Count / (modelRendererThreads.Count + 1.7f)); // The application thread makes double the work.
-                for (int i = 0; i < modelRendererThreads.Count; i++)
+                int objectsProcessedByThread = (int)(ModelRenderer.ComponentPool.Count / (ProcessorsInformation.AvailableProcessors + 1.7f)); // The application thread makes double the work.
+                for (int i = 0; i < ProcessorsInformation.AvailableProcessors; i++)
                 {
-                    parameters[i] = new FrustumCullingParameters(boundingFrustum, modelsToRender, 
-                                                                 #if XBOX 
-                                                                     ProcessorsInformation.ProcessorsAffinity[i],
-                                                                 #else
-                                                                     0,
-                                                                 #endif
-                                                                 i * objectsProcessedByThread, 
-                                                                 objectsProcessedByThread);
-                    waitForWork[i].Set();
+                    modelRendererThreads.Start(i, new FrustumCullingParameters(boundingFrustum, modelsToRender, i * objectsProcessedByThread, objectsProcessedByThread));
                 }
-                ModelRendererFrustumCullingSingleThread(boundingFrustum, modelsToRender, modelRendererThreads.Count * objectsProcessedByThread, ModelRenderer.ComponentPool.Count - (modelRendererThreads.Count * objectsProcessedByThread));
-
-                for (int i = 0; i < modelRendererThreads.Count; i++)
-                {
-                    doneEvents[i].WaitOne();
-                    doneEvents[i].Reset();
-                }
+                ModelRendererFrustumCullingSingleThread(new FrustumCullingParameters(boundingFrustum, modelsToRender,
+                                                                                     ProcessorsInformation.AvailableProcessors * objectsProcessedByThread,
+                                                                                     ModelRenderer.ComponentPool.Count - (ProcessorsInformation.AvailableProcessors * objectsProcessedByThread)));
+                modelRendererThreads.WaitForTaskCompletition();
             }
             else
-                ModelRendererFrustumCullingSingleThread(boundingFrustum, modelsToRender);
+                ModelRendererFrustumCullingSingleThread(new FrustumCullingParameters(boundingFrustum, modelsToRender, 0, ModelRenderer.FrustumCullingDataPool.Count));
         } // ModelRendererFrustumCulling
-
-        private static void ModelRendererFrustumCullingMultiThreading(object parameter)
-        {
-            int index = (int)parameter;
-
-            Thread.CurrentThread.IsBackground = true; // To destroy it when the application exits.
-            #if XBOX 
-                // http://msdn.microsoft.com/en-us/library/microsoft.xna.net_cf.system.threading.thread.setprocessoraffinity.aspx
-                Thread.CurrentThread.SetProcessorAffinity(((FrustumCullingParameters)parameters).processorAffinity);
-            #endif
-
-            while (true)
-            {
-                waitForWork[index].WaitOne(); // Wait until a task is added.
-                waitForWork[index].Reset();
-                ModelRendererFrustumCullingSingleThread(parameters[index].boundingFrustum, parameters[index].modelsToRender, parameters[index].startPosition, parameters[index].count);
-                doneEvents[index].Set(); // Indicates that that task was performed.
-            }
-        } // FrustumCullingMultiThreading
 
         /// <summary>
         /// Frustum Culling.
         /// </summary>
-        /// <param name="boundingFrustum">Bounding Frustum.</param>
-        /// <param name="modelsToRender">The result.</param>
-        private static void ModelRendererFrustumCullingSingleThread(BoundingFrustum boundingFrustum, List<ModelRenderer> modelsToRender, int startPosition = 0, int count = 0)
+        private static void ModelRendererFrustumCullingSingleThread(FrustumCullingParameters parameters)
         {
-            if (count == 0)
-                count = ModelRenderer.FrustumCullingDataPool.Count;
+            BoundingFrustum boundingFrustum = parameters.boundingFrustum;
+            List<ModelRenderer> modelsToRender = parameters.modelsToRender;
+            int startPosition = parameters.startPosition;
+            int count = parameters.count;
 
             // I improved memory locality with FrustumCullingDataPool.
             // However, in order to do that I had to make the code a little more complicated and error prone.

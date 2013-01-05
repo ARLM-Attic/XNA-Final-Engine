@@ -343,6 +343,7 @@
     <Compile Include="Graphics\Sprites\SpriteManager.cs" />
     <Compile Include="Helpers\ArrayHelper.cs" />
     <Compile Include="Helpers\Chronometer.cs" />
+    <Compile Include="Helpers\MultiThreadingTask.cs" />
     <Compile Include="Helpers\ProcessorsInformation.cs" />
     <Compile Include="Helpers\Curve3D.cs" />
     <Compile Include="Helpers\Disposable.cs" />
