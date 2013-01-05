@@ -36,8 +36,7 @@ using System.Threading;
 namespace XNAFinalEngine.Helpers
 {
     /// <summary>
-    /// This helps track the available processors.
-    /// In PC, Windows manages the threads, but in Xbox 360 its necesarry to define the affinity.
+    /// This indicates the available processors and the desired processors' affinity.
     /// </summary>
     /// <remarks>
     /// Threading in XNA Final Engine is fairly simple. 
@@ -52,38 +51,18 @@ namespace XNAFinalEngine.Helpers
     public static class ProcessorsInformation
     {
 
-        #region Processor
-
-        public class Processor
-        {
-            #if XBOX
-                /// <summary>
-                /// Indicate the affinity that has to be set to this virtual processor.
-                /// </summary>
-                public int Affinity { get; internal set; }
-            #endif
-
-            internal Processor() { }
-        } // Processor
-
-        #endregion
-
-        #region Variables
-
-        /// <summary>
-        /// List of virtual processors.
-        /// </summary>
-        private static readonly List<Processor> availableProccesors;
-
-        #endregion
-
         #region Properties
 
         /// <summary>
         /// The number of processors availables. 
         /// The application thread is not included.
         /// </summary>
-        public static int AvailableProcessors { get; private set; }     
+        public static int AvailableProcessors { get; private set; }
+
+        /// <summary>
+        /// The desired affinity of the Xbox 360 hardware threads. This not include the application thread.
+        /// </summary>
+        public static int[] ProcessorsAffinity { get; private set; }
         
         #endregion
 
@@ -97,55 +76,11 @@ namespace XNAFinalEngine.Helpers
             #if XBOX 
                 // http://msdn.microsoft.com/en-us/library/microsoft.xna.net_cf.system.threading.thread.setprocessoraffinity.aspx
                 AvailableProcessors = 3;
+                ProcessorsAffinity = new int[3] { 3, 4, 5 };
             #else
                 AvailableProcessors = Environment.ProcessorCount - 1; // Minus the application thread.
             #endif
-
-            availableProccesors = new List<Processor>(AvailableProcessors);
-
-            for (int i = 0; i < AvailableProcessors; i++)
-            {
-                Processor processor = new Processor();
-                availableProccesors.Add(processor);
-            }
-            #if XBOX
-                availableProccesors[0].Affinity = 3;
-                availableProccesors[0].Affinity = 4;
-                availableProccesors[0].Affinity = 5;
-            #endif
         } // ProcessorsInformation
-
-        #endregion
-
-        #region Fetch
-
-        /// <summary>
-        /// Return a token that correspond to an available processor.
-        /// </summary>
-        public static Processor Fetch()
-        {
-            if (AvailableProcessors > 0)
-            {
-                AvailableProcessors--;
-                Processor processor = availableProccesors[AvailableProcessors];
-                availableProccesors.Remove(processor);
-                return processor;
-            }
-            return null;
-        } // Fetch
-
-        #endregion
-        
-        #region Release
-
-        /// <summary>
-        /// Set the processor to available.
-        /// </summary>
-        public static void Release(Processor processor)
-        {
-            availableProccesors.Add(processor);
-            AvailableProcessors++;
-        } // Release
 
         #endregion
 

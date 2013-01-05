@@ -80,9 +80,6 @@ namespace XNAFinalEngine.EngineCore
 
         #region Variables
 
-        // Syncronization object used in multithreading.
-        private static object syncObj = new object();
-
         // They are auxiliary values that helps avoiding garbage.
         private static readonly Vector3[] cornersViewSpace = new Vector3[4];
         private static readonly BoundingFrustum cameraBoundingFrustum = new BoundingFrustum(Matrix.Identity);
@@ -646,88 +643,7 @@ namespace XNAFinalEngine.EngineCore
         #endregion
 
         #region Frustum Culling
-
-        /// <summary>
-        /// Used in theading to pass the parameters.
-        /// </summary>
-        private struct FrustumCullingParameters
-        {
-            public readonly BoundingFrustum boundingFrustum;
-            public readonly List<ModelRenderer> modelsToRender;
-            public readonly int processorAffinity, startPosition, count;
-            public FrustumCullingParameters(BoundingFrustum boundingFrustum, List<ModelRenderer> modelsToRender, int processorAffinity, int startPosition, int count)
-            {
-                this.boundingFrustum = boundingFrustum;
-                this.modelsToRender = modelsToRender;
-                this.processorAffinity = processorAffinity;
-                this.startPosition = startPosition;
-                this.count = count;
-            }
-        } // FrustumCullingParameters
-
-        private static void FrustumCullingThreading(object parameters)
-        {
-            #if XBOX 
-                // http://msdn.microsoft.com/en-us/library/microsoft.xna.net_cf.system.threading.thread.setprocessoraffinity.aspx
-                Thread.CurrentThread.SetProcessorAffinity(((FrustumCullingParameters)parameters).processorAffinity);
-            #endif
-
-            int startPosition = ((FrustumCullingParameters) parameters).startPosition;
-            int count = ((FrustumCullingParameters)parameters).count;
-            BoundingFrustum boundingFrustum = ((FrustumCullingParameters) parameters).boundingFrustum;
-
-            // I improved memory locality with FrustumCullingDataPool.
-            // However, in order to do that I had to make the code a little more complicated and error prone.
-            // There is a performance gain, but it is small. 
-            // I recommend to perform this kind of optimizations is the game/application has a CPU bottleneck.
-            // Besides, the old code was half data oriented.
-            for (int i = startPosition; i < (count - startPosition); i++)
-            {
-                ModelRenderer.FrustumCullingData frustumCullingData = ModelRenderer.FrustumCullingDataPool.Elements[i];
-                if (//component.CachedModel != null && // Not need to waste cycles in this, how many ModelRenderer components will not have a model?
-                    // Is Visible?
-                    Layer.IsVisible(frustumCullingData.layerMask) && frustumCullingData.ownerActive && frustumCullingData.enabled)
-                {
-                    if (boundingFrustum.Intersects(frustumCullingData.boundingSphere))
-                    {
-                        lock (syncObj)
-                        {
-                            modelsToRender.Add(frustumCullingData.component);
-                        }
-                    }
-
-                }
-            }
-        } // FrustumCullingThreading
-
-        /// <summary>
-        /// Frustum Culling.
-        /// </summary>
-        /// <param name="boundingFrustum">Bounding Frustum.</param>
-        /// <param name="modelsToRender">The result.</param>
-        private static void FrustumCulling(BoundingFrustum boundingFrustum, List<ModelRenderer> modelsToRender)
-        {
-            // I improved memory locality with FrustumCullingDataPool.
-            // However, in order to do that I had to make the code a little more complicated and error prone.
-            // There is a performance gain, but it is small. 
-            // I recommend to perform this kind of optimizations is the game/application has a CPU bottleneck.
-            // Besides, the old code was half data oriented.
-            for (int i = 0; i < ModelRenderer.FrustumCullingDataPool.Count; i++)
-            {
-                ModelRenderer.FrustumCullingData frustumCullingData = ModelRenderer.FrustumCullingDataPool.Elements[i];
-                if (//component.CachedModel != null && // Not need to waste cycles in this, how many ModelRenderer components will not have a model?
-                    // Is Visible?
-                    Layer.IsVisible(frustumCullingData.layerMask) && frustumCullingData.ownerActive && frustumCullingData.enabled)
-                {
-                    if (boundingFrustum.Intersects(frustumCullingData.boundingSphere))
-                    {
-                        modelsToRender.Add(frustumCullingData.component);
-                    }
-                        
-                }
-            }
-        } // FrustumCulling
-
+        
         /// <summary>
         /// Frustum Culling.
         /// </summary>
@@ -813,46 +729,9 @@ namespace XNAFinalEngine.EngineCore
 
             #region Frustum Culling
 
-            // The objective is implementing a simple but effective culling management.
-            // In DICE’s presentation (Culling the Battlefield Data Oriented Design in Practice)
-            // they find that a slightly modified simple frustum culling could work better than 
-            // a tree based structure if a data oriented design is followed. 
-            // The question is if C# could bring us the possibility to arrange data the way we need it. I think it can.
-            // Then they apply a software occlusion culling technique, an interesting approach
-            // but unfortunately I don’t think I can make it work in the time that I have.
-            // Moreover, a Z-Pre Pass and a simple LOD scheme could be a good alternative.
-
-            // I will try to make a simple version and then optimized.
-            // First I will try to do frustum culling with bounding spheres.
-            // DICE talk about grids, I still do not understand why. It is to separate better the data send to the cores?
-            // DICE also stores in an array only the bounding volume and entity information. This is something that I already find necessary to do some months before ago.
-            // They also store AABB information to perform the software occlusion culling in the next pass.
-            // They also improve a lot the performance of the intersect operation, however I will relay in the XNA implementation, at least for the time being.
-            // Finally, I should implement a multi frustum culling (cameras and lights) to improve performance. (Done).
-            // Another reference about this: http://blog.selfshadow.com/publications/practical-visibility/
-
-            // CHC++ is a technique very used. In ShaderX7 there is a good article about it (it also includes the source code). But I do not have plans to implement it.
-
-            // First Version (very simple)
             cameraBoundingFrustum.Matrix = currentCamera.ViewMatrix * currentCamera.ProjectionMatrix;
             modelsToRender.Clear();
-            // If the number of objects is high then we divide the task in threads.
-            if (ModelRenderer.ComponentPool.Count > 1000)
-            {
-                int i = Environment.ProcessorCount;
-                Thread thread = new Thread(FrustumCullingThreading);
-                thread.Start(new FrustumCullingParameters(cameraBoundingFrustum, modelsToRender, 0, 0, 350));
-                Thread thread2 = new Thread(FrustumCullingThreading);
-                thread2.Start(new FrustumCullingParameters(cameraBoundingFrustum, modelsToRender, 0, 350, 350));
-                Thread thread3 = new Thread(FrustumCullingThreading);
-                thread3.Start(new FrustumCullingParameters(cameraBoundingFrustum, modelsToRender, 0, 700, 350));
-                FrustumCullingThreading(new FrustumCullingParameters(cameraBoundingFrustum, modelsToRender, 0, 1050, ModelRenderer.ComponentPool.Count - 1050));
-                thread.Join();
-                thread2.Join();
-                thread3.Join();
-            }
-            else
-                FrustumCulling(cameraBoundingFrustum, modelsToRender);
+            Graphics.FrustumCulling.ModelRendererFrustumCulling(cameraBoundingFrustum, modelsToRender);
 
             // This code is used for testing. It shows the texture on screen.
             renderTarget.EnableRenderTarget();
@@ -1113,7 +992,7 @@ namespace XNAFinalEngine.EngineCore
 
                             cameraBoundingFrustum.Matrix = CascadedShadowMapShader.Instance.LightViewMatrix[splitNumber] * CascadedShadowMapShader.Instance.LightProjectionMatrix[splitNumber];
                             modelsToRenderShadows.Clear();
-                            FrustumCulling(cameraBoundingFrustum, modelsToRenderShadows);
+                            //FrustumCulling(cameraBoundingFrustum, modelsToRenderShadows);
 
                             #endregion
 
@@ -1238,7 +1117,7 @@ namespace XNAFinalEngine.EngineCore
 
                             cameraBoundingFrustum.Matrix = CubeShadowMapShader.Instance.LightViewMatrix[faceNumber] * CubeShadowMapShader.Instance.LightProjectionMatrix;
                             modelsToRenderShadows.Clear();
-                            FrustumCulling(cameraBoundingFrustum, modelsToRenderShadows);
+                            //FrustumCulling(cameraBoundingFrustum, modelsToRenderShadows);
 
                             #endregion
 

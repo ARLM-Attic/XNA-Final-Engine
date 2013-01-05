@@ -284,6 +284,7 @@
     <Compile Include="Engine Core\GameLoop.cs" />
     <Compile Include="Engine Core\Screen.cs" />
     <Compile Include="Engine Core\Time.cs" />
+    <Compile Include="Graphics\Culling\FrustumCulling.cs" />
     <Compile Include="Graphics\Filters\BlurShader.cs" />
     <Compile Include="Graphics\Filters\BilateralBlurShader.cs" />
     <Compile Include="Graphics\Filters\DilateShader.cs" />
@@ -342,7 +343,7 @@
     <Compile Include="Graphics\Sprites\SpriteManager.cs" />
     <Compile Include="Helpers\ArrayHelper.cs" />
     <Compile Include="Helpers\Chronometer.cs" />
-    <Compile Include="Helpers\HardwareThreadPool.cs" />
+    <Compile Include="Helpers\ProcessorsInformation.cs" />
     <Compile Include="Helpers\Curve3D.cs" />
     <Compile Include="Helpers\Disposable.cs" />
     <Compile Include="Helpers\ExtensionMethods.cs" />
