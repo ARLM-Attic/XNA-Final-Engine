@@ -1,5 +1,5 @@
 /***********************************************************************************************************************************************
-Copyright (c) 2008-2012, Laboratorio de Investigaci?n y Desarrollo en Visualizaci?n y Computaci?n Gr?fica - 
+Copyright (c) 2008-2013, Laboratorio de Investigaci?n y Desarrollo en Visualizaci?n y Computaci?n Gr?fica - 
                          Departamento de Ciencias e Ingenier?a de la Computaci?n - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -115,7 +115,7 @@ SimpleVS_OUTPUT SimpleVS(SimpleVS_INPUT input)
 	output.position     = mul(input.position, worldViewProj);
 	output.uvDepth.z    = -mul(input.position, worldView).z / farPlane; // Linear depth
 	// The normals are in view space.
-	output.normal.xyz   = mul(input.normal, worldViewIT);
+	output.normal.xyz   = mul(input.normal, worldViewIT); // Best Fit Normals works better in world space.
 	output.uvDepth.xy = input.uv;
 
 	return output;
@@ -248,11 +248,13 @@ PixelShader_OUTPUT SimplePS(SimpleVS_OUTPUT input)
 	output.normal.xyz = CompressNormal(input.normal.xyz);
 
 	// Specular Power
+	float specularPowerFinal;
 	[branch]
 	if (specularTextured)
-		output.normal.w = CompressSpecularPower(tex2D(objectSpecularSampler, input.uvDepth.xy).a);
+		specularPowerFinal = tex2D(objectSpecularSampler, input.uvDepth.xy).a;
 	else
-		output.normal.w = CompressSpecularPower(specularPower);
+		specularPowerFinal = specularPower;
+	output.normal.w = CompressSpecularPower(specularPowerFinal);
 
 	return output;
 } // WithSpecularTexturePS
@@ -269,12 +271,14 @@ PixelShader_OUTPUT WithNormalMapPS(WithTangentVS_OUTPUT input)
 	output.normal.xyz =  normalize(mul(output.normal.xyz, input.tangentToView));
 	output.normal.xyz = CompressNormal(output.normal.xyz);	
 
-	// Specular Power
+		// Specular Power
+	float specularPowerFinal;
 	[branch]
 	if (specularTextured)
-		output.normal.w = CompressSpecularPower(tex2D(objectSpecularSampler, input.uvDepth.xy).a);
+		specularPowerFinal = tex2D(objectSpecularSampler, input.uvDepth.xy).a;
 	else
-		output.normal.w = CompressSpecularPower(specularPower);
+		specularPowerFinal = specularPower;
+	output.normal.w = CompressSpecularPower(specularPowerFinal);
 
 	return output;
 } // WithNormalMap
@@ -287,17 +291,18 @@ PixelShader_OUTPUT WithParallaxPS(WithParallaxVS_OUTPUT input)
 	output.depth = float4(input.uvDepth.z, 1, 1, 1);
  
 	// Normals
- 	output.normal.xyz = 2.0 * tex2D(objectNormalSampler, 
-	                                CalculateParallaxUV(input.uvDepth.xy, input.parallaxOffsetTS, normalize(input.viewVS), input.tangentToView, objectNormalSampler)).rgb - 1;
+ 	output.normal.xyz = 2.0 * tex2D(objectNormalSampler, CalculateParallaxUV(input.uvDepth.xy, input.parallaxOffsetTS, normalize(input.viewVS), input.tangentToView, objectNormalSampler)).rgb - 1;
 	output.normal.xyz =  normalize(mul(output.normal.xyz, input.tangentToView));	
 	output.normal.xyz = CompressNormal(output.normal.xyz);
 	
-	// Specular Power
+	// Specular Power	
+	float specularPowerFinal;
 	[branch]
 	if (specularTextured)
-		output.normal.w = CompressSpecularPower(tex2D(objectSpecularSampler, input.uvDepth.xy).a);
+		specularPowerFinal = tex2D(objectSpecularSampler, input.uvDepth.xy).a;
 	else
-		output.normal.w = CompressSpecularPower(specularPower);
+		specularPowerFinal = specularPower;
+	output.normal.w = CompressSpecularPower(specularPowerFinal);
 
 	return output;
 } // WithParallaxPS

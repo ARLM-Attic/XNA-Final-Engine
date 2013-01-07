@@ -88,6 +88,7 @@
     <Compile Include="Assets\Shaders\ShaderParameterInt.cs" />
     <Compile Include="Assets\Shaders\ShaderParameterLookupTable.cs" />
     <Compile Include="Assets\Shaders\ShaderParameterMatrix.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterMatrixArray.cs" />
     <Compile Include="Assets\Shaders\ShaderParameterTexture.cs" />
     <Compile Include="Assets\Shaders\ShaderParameterVector2.cs" />
     <Compile Include="Assets\Shaders\ShaderParameterVector3.cs" />

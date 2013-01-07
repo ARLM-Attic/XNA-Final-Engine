@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -40,10 +40,13 @@ using XNAFinalEngine.Assets;
 namespace XNAFinalEngine.Graphics
 {
     /// <summary>
-    /// This shader generates a depth map, a normal map, a specular power map and a motion vectors map.
-    /// It stores the result in several render targets (depth texture, normal texture, and motion vector and specular power texture).
-    /// The depth texture has a surface format of 32 bits single channel precision, and the normal has a half vector 2 format (r16f g16f). 
-    /// The normals are store with spherical coordinates and the depth is store using the equation: -DepthVS / FarPlane.
+    /// This shader generates a depth map, a normal map, and specular power map.
+    /// It stores the result in several render targets.
+    /// The depth texture has a surface format of 32 bits single channel precision. Equation: -DepthVS / FarPlane
+    /// The normals are store using best fit normals for maximum compression (24 bits), and are stored in view space, 
+    /// but best fit normals works better in world space, this is specially noticed in the presence of big triangles. 
+    /// The specular power is stored in 8 bits following Killzone 2 method.
+    /// There is room in the depth surface to store a mask for ambient lighting (Crysis 2 and Toy Story 3 method).
     /// </summary>
     internal static class GBufferPass
     {
@@ -64,14 +67,15 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                // Multisampling on normal and depth maps makes no physical sense!!
-                // Depth Texture: Single Z-Buffer texture with 32 bits single channel precision. Equation: -DepthVS / FarPlane
-                //
-                // Normal Map was half vector 2 format (r16f g16f) and using spherical coordinates.
-                // Half vector 2 format (r16f g16f). Be careful, in some GPUs this surface format is changed to the RGBA1010102 format.
-                // The XBOX 360 supports it though (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
-                // Now the normal map is stored with the best fit normals technique. That allows storing  the normals in 24 bits.
-                // The other 8 bits will be used to store the specular power.
+                // Multisampling on normal and depth maps makes no physical sense!! 
+                // Except MSAA is controled like was proposed in the ShaderX7 article. 
+                // The problem is that the available hardware does not support this technique.
+
+                // The depth texture has a surface format of 32 bits single channel precision. Equation: -DepthVS / FarPlane
+                // The normals are store using best fit normals for maximum compression (24 bits), and are stored in view space, 
+                // but best fit normals works better in world space, this is specially noticed in the presence of big triangles. 
+                // The specular power is stored in 8 bits following Killzone 2 method.
+                // There is room in the depth surface to store a mask for ambient lighting (Crysis 2 and Toy Story 3 method).
                 renderTargetBinding = RenderTarget.Fetch(size, SurfaceFormat.Single, DepthFormat.Depth24, SurfaceFormat.Color);
 
                 // Set Render States.

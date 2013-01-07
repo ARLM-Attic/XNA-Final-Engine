@@ -102,7 +102,7 @@ namespace XNAFinalEngineExamples
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
                                                             Color = new Color(30, 30, 30),
-                                                            Intensity = 6f,
+                                                            Intensity = 1f, //6
                                                             AmbientOcclusionStrength = 4f };
             
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
@@ -180,7 +180,7 @@ namespace XNAFinalEngineExamples
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.Color = new Color(250, 250, 220);
-            directionalLight.DirectionalLight.Intensity = 25;
+            directionalLight.DirectionalLight.Intensity = 0.25f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.95f, -0.3f), Vector3.Zero, Vector3.Forward);
             /*directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
@@ -197,15 +197,15 @@ namespace XNAFinalEngineExamples
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.Color = new Color(200, 200, 230); // new Color(240, 235, 200);
-            pointLight.PointLight.Intensity = 5f;
+            pointLight.PointLight.Intensity = 0.5f;
             pointLight.PointLight.Range = 60;
             pointLight.Transform.Position = new Vector3(4.8f, 1.5f, 10); // new Vector3(8f, -1f, 10);
-            pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 1024, };
+            //pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 1024, };
             
             pointLight2 = new GameObject3D();
             pointLight2.AddComponent<PointLight>();
             pointLight2.PointLight.Color = new Color(200, 170, 130);
-            pointLight2.PointLight.Intensity = 2f;
+            pointLight2.PointLight.Intensity = 0.2f;
             pointLight2.PointLight.Range = 30;
             pointLight2.Transform.Position = new Vector3(-12f, 2, -3);
             
@@ -221,7 +221,7 @@ namespace XNAFinalEngineExamples
             #region Lamborghini Murcielago LP640
             
             // To test performance.
-            for (int i = 0; i < 200; i++)
+            //for (int i = 0; i < 10; i++)
             {
                 LamborghiniMurcielagoLoader lamborghiniMurcielagoLoader = new LamborghiniMurcielagoLoader();
                 lamborghiniMurcielagoLoader.LoadContent();

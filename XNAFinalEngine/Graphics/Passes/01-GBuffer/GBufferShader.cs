@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,9 +32,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Assets;
+using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -51,12 +50,30 @@ namespace XNAFinalEngine.Graphics
 
         #region Variables
 
+        // Cached values to improve performance.
         private Matrix viewMatrix, projectionMatrix;
 
         // Singleton reference.
         private static GBufferShader instance;
 
+        // This texture has the pre-calculated results of a costly function.
+        // The precision is related to texture resolution.
         private static Texture normalsFittingTexture;
+
+        // Shader Parameters.
+        private static ShaderParameterFloat spFarPlane, spSpecularPower, spHeightMapScale;
+        private static ShaderParameterMatrix spWorldViewProj, spWorldView, spWorldViewIT;
+        private static ShaderParameterMatrixArray spBones;
+        private static ShaderParameterBool spSpecularTextured;
+        private static ShaderParameterInt spLODThreshold, spMinimumNumberSamples, spMaximumNumberSamples;
+        private static ShaderParameterVector2 spObjectNormalTextureSize;
+        private static ShaderParameterTexture spObjectNormalTexture, spObjectSpecularTexture, spNormalsFittingTexture;
+
+        private static EffectTechnique gBufferSimpleTechnique,
+                                       gBufferWithNormalMap,
+                                       gBufferWithParallax,
+                                       gBufferSkinnedSimple,
+                                       gBufferSkinnedWithNormalMap;
         
         #endregion
 
@@ -76,312 +93,16 @@ namespace XNAFinalEngine.Graphics
         } // Instance
 
         #endregion
-        
-        #region Shader Parameters
-
-        /// <summary>
-        /// Effect handles
-        /// </summary>
-        private static EffectParameter epFarPlane,
-                                       epWorldViewProj,
-                                       epWorldView,
-                                       epWorldViewIT,
-                                       epObjectNormalTexture,
-                                       epSpecularPower,
-                                       epSpecularTextured,
-                                       epObjectSpecularTexture,
-                                       // Parallax
-                                       epObjectNormalTextureSize,
-                                       epLODThreshold,
-                                       epMinimumNumberSamples,
-                                       epMaximumNumberSamples,
-                                       epHeightMapScale,
-                                       // Skinning
-                                       epBones,
-                                       // Terrain
-                                       epUvRectangleMin,
-                                       epUvRectangleSide,
-                                       epFarTerrainBeginDistance,
-                                       epFlatRange,
-                                       epDisplacementTexture,
-                                       epFarTerrain;
-
-        
-        #region Transpose Inverse World View Matrix
-
-        private static Matrix lastUsedTransposeInverseWorldViewMatrix;
-        private static void SetTransposeInverseWorldViewMatrix(Matrix transposeInverseWorldViewMatrix)
-        {
-            if (lastUsedTransposeInverseWorldViewMatrix != transposeInverseWorldViewMatrix)
-            {
-                lastUsedTransposeInverseWorldViewMatrix = transposeInverseWorldViewMatrix;
-                epWorldViewIT.SetValue(transposeInverseWorldViewMatrix);
-            }
-        } // SetTransposeInverseWorldViewMatrix
-
-        #endregion
-
-        #region World View Matrix
-
-        private static Matrix lastUsedWorldViewMatrix;
-        private static void SetWorldViewMatrix(Matrix worldViewMatrix)
-        {
-            if (lastUsedWorldViewMatrix != worldViewMatrix)
-            {
-                lastUsedWorldViewMatrix = worldViewMatrix;
-                epWorldView.SetValue(worldViewMatrix);
-            }
-        } // SetWorldViewMatrix
-
-        #endregion
-
-        #region World View Projection Matrix
-
-        private static Matrix lastUsedWorldViewProjMatrix;
-        private static void SetWorldViewProjMatrix(Matrix worldViewProjMatrix)
-        {
-            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix)
-            {
-                lastUsedWorldViewProjMatrix = worldViewProjMatrix;
-                epWorldViewProj.SetValue(worldViewProjMatrix);
-            }
-        } // SetWorldViewProjMatrix
-
-        #endregion
-
-        #region Far Plane
-
-        private static float lastUsedFarPlane;
-        private static void SetFarPlane(float _farPlane)
-        {
-            if (lastUsedFarPlane != _farPlane)
-            {
-                lastUsedFarPlane = _farPlane;
-                epFarPlane.SetValue(_farPlane);
-            }
-        } // SetFarPlane
-
-        #endregion
-
-        #region Object Normal Texture (and size)
-
-        private static Texture2D lastUsedObjectNormalTextureTexture;
-        private static void SetObjectNormalTexture(Texture objectNormalTexture)
-        {
-            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedObjectNormalTextureTexture != objectNormalTexture.Resource)
-            {
-                lastUsedObjectNormalTextureTexture = objectNormalTexture.Resource;
-                epObjectNormalTextureSize.SetValue(new Vector2(objectNormalTexture.Width, objectNormalTexture.Height));
-                epObjectNormalTexture.SetValue(objectNormalTexture.Resource);
-            }
-        } // SetObjectNormalTexture
-
-        #endregion
-
-        #region LOD Threshold
-
-        private static int lastUsedLODThreshold;
-        private static void SetLODThreshold(int lodThreshold)
-        {
-            if (lastUsedLODThreshold != lodThreshold)
-            {
-                lastUsedLODThreshold = lodThreshold;
-                epLODThreshold.SetValue(lodThreshold);
-            }
-        } // SetLODThreshold
-
-        #endregion
-
-        #region Minimum Number Samples
-
-        private static int lastUsedMinimumNumberSamples;
-        private static void SetMinimumNumberSamples(int minimumNumberSamples)
-        {
-            if (lastUsedMinimumNumberSamples != minimumNumberSamples)
-            {
-                lastUsedMinimumNumberSamples = minimumNumberSamples;
-                epMinimumNumberSamples.SetValue(minimumNumberSamples);
-            }
-        } // SetMinimumNumberSamples
-
-        #endregion
-
-        #region Maximum Number Samples
-
-        private static int lastUsedMaximumNumberSamples;
-        private static void SetMaximumNumberSamples(int maximumNumberSamples)
-        {
-            if (lastUsedMaximumNumberSamples != maximumNumberSamples)
-            {
-                lastUsedMaximumNumberSamples = maximumNumberSamples;
-                epMaximumNumberSamples.SetValue(maximumNumberSamples);
-            }
-        } // SetMaximumNumberSamples
-
-        #endregion
-
-        #region Height Map Scale
-
-        private static float lastUsedHeightMapScale;
-        private static void SetHeightMapScale(float heightMapScale)
-        {
-            if (lastUsedHeightMapScale != heightMapScale)
-            {
-                lastUsedHeightMapScale = heightMapScale;
-                epHeightMapScale.SetValue(heightMapScale);
-            }
-        } // SetHeightMapScale
-
-        #endregion
-
-        #region Specular Power
-
-        private static float lastUsedSpecularPower;
-        private static void SetSpecularPower(float specularPower)
-        {
-            if (lastUsedSpecularPower != specularPower)
-            {
-                lastUsedSpecularPower = specularPower;
-                epSpecularPower.SetValue(specularPower);
-            }
-        } // SetSpecularPower
-
-        #endregion
-
-        #region Specular Textured
-
-        private static bool lastUsedSpecularTextured;
-        private static void SetSpecularTextured(bool specularTextured)
-        {
-            if (lastUsedSpecularTextured != specularTextured)
-            {
-                lastUsedSpecularTextured = specularTextured;
-                epSpecularTextured.SetValue(specularTextured);
-            }
-        } // SetSpecularTextured
-
-        #endregion
-
-        #region Specular Texture
-
-        private static Texture2D lastUsedSpecularTexture;
-        private static void SetSpecularTexture(Texture specularTexture)
-        {
-            EngineManager.Device.SamplerStates[1] = SamplerState.LinearWrap;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedSpecularTexture != specularTexture.Resource)
-            {
-                lastUsedSpecularTexture = specularTexture.Resource;
-                epObjectSpecularTexture.SetValue(specularTexture.Resource);
-            }
-        } // SetSpecularTexture
-
-        #endregion
-
-        #region UvRectangle
-
-        private static RectangleF lastUsedUvRectangle;
-        private static void SetUvRectangle(RectangleF uvRectangle)
-        {
-            if (lastUsedUvRectangle != uvRectangle)
-            {
-                lastUsedUvRectangle = uvRectangle;
-                epUvRectangleMin.SetValue(new Vector2(uvRectangle.X, uvRectangle.Y));
-                epUvRectangleSide.SetValue(new Vector2(uvRectangle.Width, uvRectangle.Height));
-            }
-        } // SetUvRectangle
-
-        #endregion
-
-        #region Far Terrain Begin Distance
-
-        private static float lastUsedFarTerrainBeginDistance;
-        private static void SetFarTerrainBeginDistance(float farTerrainBeginDistance)
-        {
-            if (lastUsedFarTerrainBeginDistance != farTerrainBeginDistance)
-            {
-                lastUsedFarTerrainBeginDistance = farTerrainBeginDistance;
-                epFarTerrainBeginDistance.SetValue(farTerrainBeginDistance);
-            }
-        } // SetFarTerrainBeginDistance
-
-        #endregion
-
-        #region Flat Range
-
-        private static float lastUsedFlatRange;
-        private static void SetFlatRange(float flatRange)
-        {
-            if (lastUsedFlatRange != flatRange)
-            {
-                lastUsedFlatRange = flatRange;
-                epFlatRange.SetValue(flatRange);
-            }
-        } // SetFlatRange
-
-        #endregion
-
-        #region Displacement Texture
-
-        private static Texture2D lastUsedDisplacementTexture;
-        private static void SetDisplacementTexture(Texture displacementTexture)
-        {
-            EngineManager.Device.SamplerStates[2] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDisplacementTexture != displacementTexture.Resource)
-            {
-                lastUsedDisplacementTexture = displacementTexture.Resource;
-                epDisplacementTexture.SetValue(displacementTexture.Resource);
-            }
-        } // SetDisplacementTexture
-
-        #endregion
-
-        #region Far Terrain
-
-        private static bool lastUsedFarTerrain;
-        private static void SetFarTerrain(bool farTerrain)
-        {
-            if (lastUsedFarTerrain != farTerrain)
-            {
-                lastUsedFarTerrain = farTerrain;
-                epFarTerrain.SetValue(farTerrain);
-            }
-        } // SetFarTerrain
-
-        #endregion
-
-        #region Bones
-
-        private static readonly Matrix[] lastUsedBones = new Matrix[72];
-        private static void SetBones(Matrix[] bones)
-        {
-            if (!ArrayHelper.Equals(lastUsedBones, bones))
-            {
-                // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
-                for (int i = 0; i < 4; i++)
-                {
-                    lastUsedBones[i] = bones[i];
-                }
-                epBones.SetValue(bones);
-            }
-            //epBones.SetValue(bones);
-        } // SetBones
-
-        #endregion
-
-        #endregion
 
         #region Constructors
 
         /// <summary>
-        /// This shader generates a depth and normal map.
-        /// It also generates a special buffer with motion vectors for motion blur and the specular power of the material.
-        /// It stores the result in two textures, the normals (normalMapTexture) and the depth (depthMapTexture).
-        /// The depth texture has a texture with a 32 bits single channel precision, and the normal has a half vector 2 format (r16f g16f). 
-        /// The normals are store with spherical coordinates and the depth is store using the equation: -DepthVS / FarPlane.
+        /// This shader generates the G-Buffer of the deferred lighting.
+        /// The depth texture has a surface format of 32 bits single channel precision. Equation: -DepthVS / FarPlane
+        /// The normals are store using best fit normals for maximum compression (24 bits), and are stored in view space, 
+        /// but best fit normals works better in world space, this is specially noticed in the presence of big triangles. 
+        /// The specular power is stored in 8 bits following Killzone 2 method.
+        /// There is room in the depth surface to store a mask for ambient lighting (Crysis 2 and Toy Story 3 method).
         /// </summary>
         internal GBufferShader() : base("GBuffer\\GBuffer")
         {
@@ -393,7 +114,6 @@ namespace XNAFinalEngine.Graphics
             #else
                 normalsFittingTexture = new Texture("Shaders\\NormalsFitting512");
             #endif
-            Resource.Parameters["normalsFittingTexture"].SetValue(normalsFittingTexture.Resource);
             ContentManager.CurrentContentManager = userContentManager;
         } // GBufferShader
 
@@ -412,60 +132,59 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 // Matrices //
-                epWorldViewProj           = Resource.Parameters["worldViewProj"];
-                    epWorldViewProj.SetValue(lastUsedWorldViewProjMatrix);
-                epWorldView               = Resource.Parameters["worldView"];
-                    epWorldView.SetValue(lastUsedWorldViewMatrix);
-                epWorldViewIT             = Resource.Parameters["worldViewIT"];
-                    epWorldViewIT.SetValue(lastUsedTransposeInverseWorldViewMatrix);
-                // Others //
-                epFarPlane                = Resource.Parameters["farPlane"];
-                    epFarPlane.SetValue(lastUsedFarPlane);
-                epObjectNormalTexture     = Resource.Parameters["objectNormalTexture"];
-                    if (lastUsedObjectNormalTextureTexture != null && !lastUsedObjectNormalTextureTexture.IsDisposed)
-                        epObjectNormalTexture.SetValue(lastUsedObjectNormalTextureTexture);
-                epSpecularPower           = Resource.Parameters["specularPower"];
-                    epSpecularPower.SetValue(lastUsedSpecularPower);
-                epObjectSpecularTexture   = Resource.Parameters["objectSpecularTexture"];
-                    if (lastUsedSpecularTexture != null && !lastUsedSpecularTexture.IsDisposed)
-                        epObjectSpecularTexture.SetValue(lastUsedSpecularTexture);
-                epSpecularTextured        = Resource.Parameters["specularTextured"];
-                    epSpecularTextured.SetValue(lastUsedSpecularTextured);
-                // Parallax //
-                epObjectNormalTextureSize = Resource.Parameters["objectNormalTextureSize"];
-                    if (lastUsedObjectNormalTextureTexture != null && !lastUsedObjectNormalTextureTexture.IsDisposed)
-                        epObjectNormalTextureSize.SetValue(new Vector2(lastUsedObjectNormalTextureTexture.Width, lastUsedObjectNormalTextureTexture.Height));
-                 epLODThreshold         = Resource.Parameters["LODThreshold"];
-                    epLODThreshold.SetValue(lastUsedLODThreshold);
-                epMinimumNumberSamples = Resource.Parameters["minimumNumberSamples"];
-                    epMinimumNumberSamples.SetValue(lastUsedMinimumNumberSamples);
-                epMaximumNumberSamples = Resource.Parameters["maximumNumberSamples"];
-			        epMaximumNumberSamples.SetValue(lastUsedMaximumNumberSamples);
-                epHeightMapScale       = Resource.Parameters["heightMapScale"];
-                    epHeightMapScale.SetValue(lastUsedHeightMapScale);
+                spWorldViewProj = new ShaderParameterMatrix("worldViewProj", this);
+                spWorldView = new ShaderParameterMatrix("worldView", this);
+                spWorldViewIT = new ShaderParameterMatrix("worldViewIT", this);
+                // Floats //
+                spFarPlane = new ShaderParameterFloat("farPlane", this);
+                spSpecularPower = new ShaderParameterFloat("specularPower", this);
+                spHeightMapScale = new ShaderParameterFloat("heightMapScale", this);
+                // Bool //
+                spSpecularTextured = new ShaderParameterBool("specularTextured", this);
+                // Ints //
+                spLODThreshold = new ShaderParameterInt("LODThreshold", this);
+                spMinimumNumberSamples = new ShaderParameterInt("minimumNumberSamples", this);
+                spMaximumNumberSamples = new ShaderParameterInt("maximumNumberSamples", this);
+                 // Vector2 //
+                spObjectNormalTextureSize = new ShaderParameterVector2("objectNormalTextureSize", this);
+                // Textures //
+                spObjectNormalTexture = new ShaderParameterTexture("objectNormalTexture", this, SamplerState.AnisotropicWrap, 0);
+                spObjectSpecularTexture = new ShaderParameterTexture("objectSpecularTexture", this, SamplerState.LinearWrap, 1);
+                spNormalsFittingTexture = new ShaderParameterTexture("normalsFittingTexture", this, SamplerState.LinearClamp, 7);
                 // Skinning //
-                epBones                   = Resource.Parameters["Bones"];
-                    epBones.SetValue(lastUsedBones);
-                // Terrain //
-                epUvRectangleMin          = Resource.Parameters["uvRectangleMin"];
-                    epUvRectangleMin.SetValue(new Vector2(lastUsedUvRectangle.X, lastUsedUvRectangle.Y));
-                epUvRectangleSide         = Resource.Parameters["uvRectangleSide"];
-                    epUvRectangleSide.SetValue(new Vector2(lastUsedUvRectangle.Width, lastUsedUvRectangle.Height));
-                epFarTerrainBeginDistance = Resource.Parameters["farTerrainBeginDistance"];
-                    epFarTerrainBeginDistance.SetValue(lastUsedFarTerrainBeginDistance);
-                epFlatRange               = Resource.Parameters["flatRange"];
-                    epFlatRange.SetValue(lastUsedFlatRange);
-                epDisplacementTexture     = Resource.Parameters["displacementTexture"];
-                    if (lastUsedDisplacementTexture != null && !lastUsedDisplacementTexture.IsDisposed)
-                        epDisplacementTexture.SetValue(lastUsedDisplacementTexture);
-                epFarTerrain              = Resource.Parameters["farTerrain"];
-                    epFarTerrain.SetValue(lastUsedFarTerrain);
+                spBones = new ShaderParameterMatrixArray("Bones", this, ModelAnimationClip.MaxBones);
             }
             catch
             {
                 throw new InvalidOperationException("The parameter's handles from the " + Name + " shader could not be retrieved.");
             }
         } // GetParameters
+
+        #endregion
+
+        #region Get Techniques Handles
+
+        /// <summary>
+        /// Get the handles of the techniques from the shader.
+        /// </summary>
+        /// <remarks>
+        /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
+        /// </remarks>
+        protected override void GetTechniquesHandles()
+        {
+            try
+            {
+                gBufferSimpleTechnique      = Resource.Techniques["GBufferSimple"];
+                gBufferWithNormalMap        = Resource.Techniques["GBufferWithNormalMap"];
+                gBufferWithParallax         = Resource.Techniques["GBufferWithParallax"];
+                gBufferSkinnedSimple        = Resource.Techniques["GBufferSkinnedSimple"];
+                gBufferSkinnedWithNormalMap = Resource.Techniques["GBufferSkinnedWithNormalMap"];
+            }
+            catch
+            {
+                throw new InvalidOperationException("The technique's handles from the " + Name + " shader could not be retrieved.");
+            }
+        } // GetTechniquesHandles
 
         #endregion
 
@@ -480,7 +199,8 @@ namespace XNAFinalEngine.Graphics
             {
                 viewMatrix = _viewMatrix;
                 projectionMatrix = _projectionMatrix;
-                SetFarPlane(farPlane);
+                spFarPlane.Value = farPlane;
+                spNormalsFittingTexture.Value = normalsFittingTexture;
             }
             catch (Exception e)
             {
@@ -495,35 +215,45 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Common parameters to all techniques.
         /// </summary>
-        private void SetCommonParameters(Matrix worldMatrix, Material material)
+        private void SetCommonParameters(ref Matrix worldMatrix, Material material)
         {
             // Set Matrices
-            SetTransposeInverseWorldViewMatrix(Matrix.Transpose(Matrix.Invert(worldMatrix * viewMatrix)));
-            SetWorldViewMatrix(worldMatrix * viewMatrix);
-            SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
+            // World View
+            Matrix worldViewMatrix;
+            Matrix.Multiply(ref worldMatrix, ref viewMatrix, out worldViewMatrix);
+            spWorldView.QuickSetValue(ref worldViewMatrix);
+            // World View IT
+            Matrix worldViewITMatrix, worldViewIMatrix;
+            Matrix.Invert(ref worldViewMatrix, out worldViewIMatrix);
+            Matrix.Transpose(ref worldViewIMatrix, out worldViewITMatrix);
+            spWorldViewIT.QuickSetValue(ref worldViewITMatrix);
+            // World View Proj
+            Matrix worldViewProjMatrix;
+            Matrix.Multiply(ref worldViewMatrix, ref projectionMatrix, out worldViewProjMatrix);
+            spWorldViewProj.QuickSetValue(ref worldViewProjMatrix);
 
             // Specular texture
             if (material.SpecularTexture != null && material.SpecularPowerFromTexture)
             {
-                SetSpecularTexture(material.SpecularTexture);
-                SetSpecularTextured(true);
+                spObjectSpecularTexture.Value = material.SpecularTexture;
+                spSpecularTextured.Value = true;
             }
             else
             {
-                SetSpecularPower(material.SpecularPower);
-                SetSpecularTextured(false);
+                spSpecularPower.Value = material.SpecularPower;
+                spSpecularTextured.Value = false;
             }
         } // SetCommonParameters
 
         /// <summary>
         /// Begins the G Buffer simple technique.
         /// </summary>
-        internal void RenderModelSimple(Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart)
+        internal void RenderModelSimple(ref Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart)
         {
             try
             {
-                Resource.CurrentTechnique = Resource.Techniques["GBufferSimple"]; // Does not produce a graphic call.
-                SetCommonParameters(worldMatrix, material);
+                Resource.CurrentTechnique = gBufferSimpleTechnique; // Does not produce a graphic call.
+                SetCommonParameters(ref worldMatrix, material);
                 Resource.CurrentTechnique.Passes[0].Apply();
                 model.RenderMeshPart(meshIndex, meshPart);
             }
@@ -536,13 +266,13 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the G Buffer "with normals" technique.
         /// </summary>
-        internal void RenderModelWithNormals(Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart)
+        internal void RenderModelWithNormals(ref Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart)
         {
             try
             {
-                Resource.CurrentTechnique = Resource.Techniques["GBufferWithNormalMap"];
-                SetCommonParameters(worldMatrix, material);
-                SetObjectNormalTexture(material.NormalTexture);
+                Resource.CurrentTechnique = gBufferWithNormalMap;
+                SetCommonParameters(ref worldMatrix, material);
+                spObjectNormalTexture.Value = material.NormalTexture;
                 Resource.CurrentTechnique.Passes[0].Apply();
                 model.RenderMeshPart(meshIndex, meshPart);
             }
@@ -555,17 +285,18 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the G Buffer "with parallax" technique.
         /// </summary>
-        internal void RenderModelWithParallax(Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart)
+        internal void RenderModelWithParallax(ref Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart)
         {
             try
             {
-                Resource.CurrentTechnique = Resource.Techniques["GBufferWithParallax"];
-                SetCommonParameters(worldMatrix, material);
-                SetObjectNormalTexture(material.NormalTexture);
-                SetLODThreshold(material.ParallaxLodThreshold);
-                SetMinimumNumberSamples(material.ParallaxMinimumNumberSamples);
-                SetMaximumNumberSamples(material.ParallaxMaximumNumberSamples);
-                SetHeightMapScale(material.ParallaxHeightMapScale);
+                Resource.CurrentTechnique = gBufferWithParallax;
+                SetCommonParameters(ref worldMatrix, material);
+                spObjectNormalTexture.Value = material.NormalTexture;
+                spObjectNormalTextureSize.Value = new Vector2(material.NormalTexture.Width, material.NormalTexture.Height);
+                spLODThreshold.Value = material.ParallaxLodThreshold;
+                spMinimumNumberSamples.Value = material.ParallaxMinimumNumberSamples;
+                spMaximumNumberSamples.Value = material.ParallaxMaximumNumberSamples;
+                spHeightMapScale.Value = material.ParallaxHeightMapScale;
                 Resource.CurrentTechnique.Passes[0].Apply();
                 model.RenderMeshPart(meshIndex, meshPart);
             }
@@ -578,13 +309,13 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the G Buffer "skinned simple" technique.
         /// </summary>
-        internal void RenderModelSkinnedSimple(Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart, Matrix[] boneTransform)
+        internal void RenderModelSkinnedSimple(ref Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart, Matrix[] boneTransform)
         {
             try
             {
-                Resource.CurrentTechnique = Resource.Techniques["GBufferSkinnedSimple"];
-                SetCommonParameters(worldMatrix, material);
-                SetBones(boneTransform);
+                Resource.CurrentTechnique = gBufferSkinnedSimple;
+                SetCommonParameters(ref worldMatrix, material);
+                spBones.Value = boneTransform;
                 Resource.CurrentTechnique.Passes[0].Apply();
                 model.RenderMeshPart(meshIndex, meshPart);
             }
@@ -597,14 +328,14 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Begins the G Buffer "skinned normals" technique.
         /// </summary>
-        internal void RenderModelSkinnedWithNormals(Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart, Matrix[] boneTransform)
+        internal void RenderModelSkinnedWithNormals(ref Matrix worldMatrix, Assets.Model model, Material material, int meshIndex, int meshPart, Matrix[] boneTransform)
         {
             try
             {
-                Resource.CurrentTechnique = Resource.Techniques["GBufferSkinnedWithNormalMap"];
-                SetCommonParameters(worldMatrix, material);
-                SetObjectNormalTexture(material.NormalTexture);
-                SetBones(boneTransform);
+                Resource.CurrentTechnique = gBufferSkinnedWithNormalMap;
+                SetCommonParameters(ref worldMatrix, material);
+                spObjectNormalTexture.Value = material.NormalTexture;
+                spBones.Value = boneTransform;
                 Resource.CurrentTechnique.Passes[0].Apply();
                 model.RenderMeshPart(meshIndex, meshPart);
             }

@@ -96,6 +96,19 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
+        #region Constructor
+
+        protected PrimitiveModel()
+        {
+            MeshesCount = 1;
+            MeshPartsTotalCount = 1;
+            MeshPartsCountPerMesh = new int[1];
+            MeshPartsCountPerMesh[0] = 1;
+            IsSkinned = false;
+        } // PrimitiveModel
+
+        #endregion
+
         #region Render
 
         /// <summary>

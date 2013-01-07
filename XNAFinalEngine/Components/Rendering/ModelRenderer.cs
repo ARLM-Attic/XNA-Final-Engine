@@ -55,6 +55,7 @@ namespace XNAFinalEngine.Components
         {
             public BoundingSphere boundingSphere;
             public ModelRenderer  component;
+            public Model model;
             public uint layerMask;
             public bool ownerActive;
             public bool enabled;
@@ -258,6 +259,7 @@ namespace XNAFinalEngine.Components
         private void OnModelChanged(object sender, Model model)
         {
             CachedModel = model;
+            frustumCullingDataPool.Elements[frustumCullingAccessor.Index].model = model;
         } // OnModelChanged
 
         #endregion

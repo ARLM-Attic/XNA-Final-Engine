@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -35,7 +35,6 @@ using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
-using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.Graphics
@@ -54,6 +53,10 @@ namespace XNAFinalEngine.Graphics
         // Singleton reference.
         private static DownsamplerGBufferShader instance;
 
+        // Shader Parameters.
+        private static ShaderParameterVector2 spHalfPixel, spQuarterTexel;
+        private static ShaderParameterTexture spDepthTexture, spNormalTexture;
+
         #endregion
 
         #region Properties
@@ -70,71 +73,6 @@ namespace XNAFinalEngine.Graphics
                 return instance;
             }
         } // Instance
-
-        #endregion
-
-        #region Shader Parameters
-
-        /// <summary>
-        /// Effect handles
-        /// </summary>
-        private static EffectParameter epHalfPixel,
-                                       epQuarterTexel,
-                                       epDepthTexture,
-                                       epNormalTexture;
-
-
-        private static Vector2 lastUsedHalfPixel;
-        private static void SetHalfPixel(Vector2 _halfPixel)
-        {
-            if (lastUsedHalfPixel != _halfPixel)
-            {
-                lastUsedHalfPixel = _halfPixel;
-                epHalfPixel.SetValue(_halfPixel);
-            }
-        } // SetHalfPixel
-
-        private static Vector2 lastUsedQuarterTexel;
-        private static void SetQuarterTexel(Vector2 _quarterTexel)
-        {
-            if (lastUsedQuarterTexel != _quarterTexel)
-            {
-                lastUsedQuarterTexel = _quarterTexel;
-                epQuarterTexel.SetValue(_quarterTexel);
-            }
-        } // SetQuarterTexel
-
-        #region Depth Texture
-
-        private static Texture2D lastUsedDepthTexture;
-        private static void SetDepthTexture(Texture depthTexture)
-        {
-            EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource)
-            {
-                lastUsedDepthTexture = depthTexture.Resource;
-                epDepthTexture.SetValue(depthTexture.Resource);
-            }
-        } // SetDepthTexture
-
-        #endregion
-
-        #region Normal Texture
-
-        private static Texture2D lastUsedNormalTexture;
-        private static void SetNormalTexture(Texture normalTexture)
-        {
-            EngineManager.Device.SamplerStates[2] = SamplerState.LinearClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTexture != normalTexture.Resource)
-            {
-                lastUsedNormalTexture = normalTexture.Resource;
-                epNormalTexture.SetValue(normalTexture.Resource);
-            }
-        } // SetNormalTexture
-
-        #endregion
 
         #endregion
 
@@ -159,16 +97,10 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                epHalfPixel    = Resource.Parameters["halfPixel"];
-                    epHalfPixel.SetValue(lastUsedHalfPixel);
-                epQuarterTexel = Resource.Parameters["quarterTexel"];
-                    epQuarterTexel.SetValue(lastUsedQuarterTexel);
-                epDepthTexture = Resource.Parameters["depthTexture"];
-                    if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
-                        epDepthTexture.SetValue(lastUsedDepthTexture);
-                epNormalTexture = Resource.Parameters["normalTexture"];
-                    if (lastUsedNormalTexture != null && !lastUsedNormalTexture.IsDisposed)
-                        epNormalTexture.SetValue(lastUsedNormalTexture);
+                spHalfPixel = new ShaderParameterVector2("halfPixel", this);
+                spQuarterTexel = new ShaderParameterVector2("quarterTexel", this);
+                spDepthTexture = new ShaderParameterTexture("depthTexture", this, SamplerState.PointClamp, 0);
+                spNormalTexture = new ShaderParameterTexture("normalTexture", this, SamplerState.LinearClamp, 2);
             }
             catch
             {
@@ -181,17 +113,17 @@ namespace XNAFinalEngine.Graphics
         #region Render
 
         /// <summary>
-        /// Downsample depth map.
+        /// Downsample G-Buffer.
         /// </summary>
         internal RenderTarget.RenderTargetBinding Render(RenderTarget depthTexture, RenderTarget normalTexture)
         {
             try
             {
                 // Set Parameters
-                SetHalfPixel(new Vector2(-0.5f / (depthTexture.Width / 2), 0.5f / (depthTexture.Height / 2))); // Use size of destinantion render target.
-                SetQuarterTexel(new Vector2(0.25f / depthTexture.Width, 0.25f / depthTexture.Height));
-                SetDepthTexture(depthTexture);
-                SetNormalTexture(normalTexture);
+                spHalfPixel.Value = new Vector2(-0.5f / (depthTexture.Width / 2), 0.5f / (depthTexture.Height / 2)); // Use size of destinantion render target.
+                spQuarterTexel.Value = new Vector2(0.25f / depthTexture.Width, 0.25f / depthTexture.Height);
+                spDepthTexture.Value = depthTexture;
+                spNormalTexture.Value = normalTexture;
                 // Set Render States
                 EngineManager.Device.DepthStencilState = DepthStencilState.None;
 

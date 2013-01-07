@@ -57,5 +57,5 @@ void SkinTransform(inout float4 position, inout int4 indices, inout float4 weigh
         skinning += Bones[indices[i]] * weights[i];
     }
 
-    position.xyz = mul(position, skinning);    
+    position.xyz = mul(position, skinning);
 } // SkinTransform

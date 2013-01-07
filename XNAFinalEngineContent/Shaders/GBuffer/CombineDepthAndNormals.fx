@@ -22,6 +22,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
+// Based on the Pure technique presentend in GPU Pro 1.
+// Unfortunately it does not work well with the current deferred renderer and it was deprecated.
+
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
 //////////////////////////////////////////////

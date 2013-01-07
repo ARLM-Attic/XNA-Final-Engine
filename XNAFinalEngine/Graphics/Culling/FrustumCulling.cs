@@ -154,12 +154,12 @@ namespace XNAFinalEngine.Graphics
             for (int i = startPosition; i < (count + startPosition); i++)
             {
                 ModelRenderer.FrustumCullingData frustumCullingData = ModelRenderer.FrustumCullingDataPool.Elements[i];
-                if (//component.CachedModel != null && // Not need to waste cycles in this, how many ModelRenderer components will not have a model?
+                if (frustumCullingData.model != null && // Not need to waste cycles in this, how many ModelRenderer components will not have a model?
                     // Is Visible?
                     Layer.IsVisible(frustumCullingData.layerMask) && frustumCullingData.ownerActive && frustumCullingData.enabled)
                 {
                     if (fastBoundingFrustum.Intersects(ref frustumCullingData.boundingSphere))
-                    //if (boundingFrustum.Intersects(frustumCullingData.boundingSphere)) // This method sucks. It is not thread safe and is slow as hell.
+                    //if (boundingFrustum.Intersects(frustumCullingData.boundingSphere)) // It is not thread safe and is slow as hell.
                     {
                         modelsToRender.Add(frustumCullingData.component);
                     }
@@ -172,9 +172,13 @@ namespace XNAFinalEngine.Graphics
         #region Fast Bounding Frustum
 
         /// <summary>
-        /// The XNA implementation is awful.
-        /// Bitphase Entertainment makes a far better implementation.
+        /// A bounding frustum class that perform Intersects faster.
         /// </summary>
+        /// <remarks>
+        /// The XNA implementation is not thread safe and is slow as hell.
+        /// Bitphase Entertainment makes a far better implementation.
+        /// http://xboxforums.create.msdn.com/forums/p/81153/490425.aspx
+        /// </remarks>
         public struct FastBoundingFrustum
         {
 

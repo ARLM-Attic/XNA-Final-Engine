@@ -82,17 +82,18 @@ namespace XNAFinalEngine.Assets
         /// The number of mesh parts of the model.
         /// Each part has its own material.
         /// </summary>
-        public int MeshPartsCount { get; protected set; }
+        public int MeshPartsTotalCount { get; protected set; }
 
-        #endregion
+        /// <summary>
+        /// The number of mesh parts per mesh of the model.
+        /// Each part has its own material.
+        /// </summary>
+        public int[] MeshPartsCountPerMesh { get; protected set; }
 
-        #region Constructor
-
-        protected Model()
-        {
-            MeshesCount = 1;
-            MeshPartsCount = 1;
-        } // Model
+        /// <summary>
+        /// Is the model skinned?
+        /// </summary>
+        public bool IsSkinned { get; protected set; }
 
         #endregion
 

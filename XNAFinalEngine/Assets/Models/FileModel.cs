@@ -213,11 +213,6 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public int BoneCount { get; private set; }
 
-        /// <summary>
-        /// Is the model skinned?
-        /// </summary>
-        public bool IsSkinned { get; private set; }
-
         #endregion
 
         #region Model Filenames
@@ -257,11 +252,17 @@ namespace XNAFinalEngine.Assets
                 boundingSphere = BoundingSphere.CreateFromPoints(vectices);
                 boundingBox    = BoundingBox.CreateFromPoints(vectices);
                 // Mesh Count
-                MeshPartsCount = 0;
+                MeshPartsTotalCount = 0;
                 MeshesCount = Resource.Meshes.Count;
-                foreach (ModelMesh mesh in Resource.Meshes)
-                    foreach (ModelMeshPart part in mesh.MeshParts)
-                        MeshPartsCount++;
+                MeshPartsCountPerMesh = new int[MeshesCount];
+                for (int i = 0; i < Resource.Meshes.Count; i++)
+                {
+                    foreach (ModelMeshPart part in Resource.Meshes[i].MeshParts)
+                    {
+                        MeshPartsCountPerMesh[i] = 1;
+                        MeshPartsTotalCount++;
+                    }
+                }
                 // Animations
                 if (Resource.Tag != null && Resource.Tag is ModelAnimationData && ((ModelAnimationData)Resource.Tag).BoneHierarchy != null)
                 {

@@ -99,6 +99,7 @@ namespace XNAFinalEngine.Assets
             }
             // Get the handles of the parameters from the shader.
             GetParametersHandles();
+            GetTechniquesHandles();
         } // Shader
 
         #endregion
@@ -122,6 +123,28 @@ namespace XNAFinalEngine.Assets
                 throw new InvalidOperationException("The parameter's handles from the " + Name + " shader could not be retrieved.");
             }
         } // GetParametersHandles
+
+        #endregion
+
+        #region Get Techniques Handles
+
+        /// <summary>
+        /// Get the handles of the techniques from the shader.
+        /// </summary>
+        /// <remarks>
+        /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
+        /// </remarks>
+        protected virtual void GetTechniquesHandles()
+        {
+            try
+            {
+                // Overrite it!!
+            }
+            catch
+            {
+                throw new InvalidOperationException("The technique's handles from the " + Name + " shader could not be retrieved.");
+            }
+        } // GetTechniquesHandles
 
         #endregion
 
