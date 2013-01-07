@@ -753,30 +753,33 @@ namespace XNAFinalEngine.EngineCore
             Graphics.FrustumCulling.ModelRendererFrustumCulling(cameraBoundingFrustum, modelsToRender);
 
             // Testing
-            //FinishRendering(currentCamera, renderTarget); return;
+            FinishRendering(currentCamera, renderTarget); return;
 
             #endregion
 
             #region GBuffer Pass
 
-            // TODO: In XNA we can’t recover the GPU Z-Buffer, so we have to store it in an additional render target.
-            // That means more work to do and less space to store the render targets in the EDRAM. 
+            // In XNA we can’t recover the GPU Z-Buffer, so we have to store it in an additional render target.
+            // That means more work to do and less space to store the render targets in the Xbox's EDRAM. 
             // This could be worse if we want to store additional information, like surface’s albedo.
             // To avoid a predicated tilling we can do a Z Pre Pass, i.e. decupling the G-Buffer generation.
             // This has one big advantage and one big disadvantage. 
-            // The disadvantage is that we need to render one more time the geometry but (advantage) we can use this pre-rendering as an occlusion culling for the G-Buffer.
+            // The disadvantage is that we need to render one more time the geometry but
+            // (advantage) we can use this pre-rendering as an occlusion culling for the G-Buffer,
+            // however, if the poly count is high, the vertex processing could be to high to handle.
 
             GBufferPass.Begin(renderTarget.Size);
             GBufferShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane);
 
-            // Batching is everything, in both CPU (data oriented programming) and GPU (less changes).
-            // I do not want to know about materials in the G-Buffer, but I can’t avoid it completely.
-            // So I classify the materials based on the G-Buffer stored information.
+            // Batching is everything, in both CPU (data oriented programming) and GPU (less preparation).
+            // The problem is that I do not want to know about materials in the G-Buffer, but I can’t avoid it completely.
+            // Therefore I have all the G-Buffer possible accessed data as common properties of all materials.
             // That means if I add new materials in the engine, then there is no need to change the G-Buffer code.
 
             #region  Sorting
 
             // There are five different techniques in the G-Buffer shader, therefore there are five lists.
+            // A better sorting could arrange also by texture or by other properties. 
             gBufferSkinnedSimple.Clear();
             gBufferSkinnedWithNormalMap.Clear();
             gBufferWithParallax.Clear();

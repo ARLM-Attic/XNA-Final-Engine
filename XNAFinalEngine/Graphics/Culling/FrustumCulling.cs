@@ -28,6 +28,7 @@ Author: Schneider, José Ignacio (jischneider@hotmail.com)
 #endregion
 
 #region Using directives
+using System;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using XNAFinalEngine.Components;
@@ -78,15 +79,12 @@ namespace XNAFinalEngine.Graphics
         #endregion
 
         #region Variables
-
-        // Syncronization object used in multithreading.
-        private static readonly object syncObj = new object();
         
         // The threads that perform the frustum culling over model renderer components.
         private static MultiThreadingTask<FrustumCullingParameters> modelRendererFrustumCullingThreads;
-
-        private static BoundingFrustum[] boundingFrustumList;
-        private static List<ModelRenderer>[] modelsToRenderList;
+        
+        // All list are generated and added later to the main list.
+        private static List<ModelRenderer>[] modelToRenderPartialLists;
 
         #endregion
 
@@ -95,45 +93,45 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Perform frustum culling over the model renderer components.
         /// </summary>
-        public static void ModelRendererFrustumCulling(BoundingFrustum boundingFrustum, List<ModelRenderer> modelsToRender)
+        public static void ModelRendererFrustumCulling(BoundingFrustum boundingFrustum, List<ModelRenderer> modelToRenderList)
         {
             // If the number of objects is high then the task is devided in threads.
-            if (ModelRenderer.ComponentPool.Count > 50)
+            if (ModelRenderer.ComponentPool.Count > 500)
             {
                 // If it is the first execution then the threads are created.
                 if (modelRendererFrustumCullingThreads == null)
                 {
-                    boundingFrustumList = new BoundingFrustum[ProcessorsInformation.AvailableProcessors];
-                    modelsToRenderList = new List<ModelRenderer>[ProcessorsInformation.AvailableProcessors];
+                    modelToRenderPartialLists = new List<ModelRenderer>[ProcessorsInformation.AvailableProcessors];
+                    // The next variables help to avoid a lock operation.
                     for (int i = 0; i < ProcessorsInformation.AvailableProcessors; i++)
                     {
-                        boundingFrustumList[i] = new BoundingFrustum(Matrix.Identity);
-                        modelsToRenderList[i] = new List<ModelRenderer>(50);
+                        modelToRenderPartialLists[i] = new List<ModelRenderer>(50);
                     }
                     modelRendererFrustumCullingThreads = new MultiThreadingTask<FrustumCullingParameters>(ModelRendererFrustumCullingTask, ProcessorsInformation.AvailableProcessors);
                 }
-                int objectsProcessedByThread = (int)(ModelRenderer.ComponentPool.Count / (ProcessorsInformation.AvailableProcessors + 1.7f)); // The application thread makes double the work.
+                int objectsProcessedByThread = (int)(ModelRenderer.ComponentPool.Count / (ProcessorsInformation.AvailableProcessors + 1.15f)); // The application thread makes a little more work.
                 for (int i = 0; i < ProcessorsInformation.AvailableProcessors; i++)
                 {
-                    boundingFrustumList[i].Matrix = boundingFrustum.Matrix;
-                    modelRendererFrustumCullingThreads.Start(i, new FrustumCullingParameters(boundingFrustumList[i], modelsToRenderList[i], i * objectsProcessedByThread, objectsProcessedByThread));
+                    
+                    modelRendererFrustumCullingThreads.Start(i, new FrustumCullingParameters(boundingFrustum, modelToRenderPartialLists[i], i * objectsProcessedByThread, objectsProcessedByThread));
                 }
-                ModelRendererFrustumCullingTask(new FrustumCullingParameters(boundingFrustum, modelsToRender,
+                ModelRendererFrustumCullingTask(new FrustumCullingParameters(boundingFrustum, modelToRenderList,
                                                                              ProcessorsInformation.AvailableProcessors * objectsProcessedByThread,
                                                                              ModelRenderer.ComponentPool.Count - (ProcessorsInformation.AvailableProcessors * objectsProcessedByThread)));
-                modelRendererFrustumCullingThreads.WaitForTaskCompletition();
+                // Merge the partial list with the main list.
                 for (int i = 0; i < ProcessorsInformation.AvailableProcessors; i++)
                 {
-                    foreach (var modelR in modelsToRenderList[i])
+                    // Wait for the threads to finish.
+                    modelRendererFrustumCullingThreads.WaitForTaskCompletition(i);
+                    foreach (var modelToRender in modelToRenderPartialLists[i])
                     {
-                        modelsToRender.Add(modelR);
+                        modelToRenderList.Add(modelToRender);
                     }
-                    //modelsToRender.AddRange(modelsToRenderList[i]);
-                    modelsToRenderList[i].Clear();
+                    modelToRenderPartialLists[i].Clear();
                 }
             }
             else
-                ModelRendererFrustumCullingTask(new FrustumCullingParameters(boundingFrustum, modelsToRender, 0, ModelRenderer.FrustumCullingDataPool.Count));
+                ModelRendererFrustumCullingTask(new FrustumCullingParameters(boundingFrustum, modelToRenderList, 0, ModelRenderer.FrustumCullingDataPool.Count));
         } // ModelRendererFrustumCulling
 
         /// <summary>
@@ -145,6 +143,8 @@ namespace XNAFinalEngine.Graphics
             List<ModelRenderer> modelsToRender = parameters.modelsToRender;
             int startPosition = parameters.startPosition;
             int count = parameters.count;
+
+            FastBoundingFrustum fastBoundingFrustum = new FastBoundingFrustum(boundingFrustum);
 
             // I improved memory locality with FrustumCullingDataPool.
             // However, in order to do that I had to make the code a little more complicated and error prone.
@@ -158,16 +158,154 @@ namespace XNAFinalEngine.Graphics
                     // Is Visible?
                     Layer.IsVisible(frustumCullingData.layerMask) && frustumCullingData.ownerActive && frustumCullingData.enabled)
                 {
-                    if (boundingFrustum.Intersects(frustumCullingData.boundingSphere))
+                    if (fastBoundingFrustum.Intersects(ref frustumCullingData.boundingSphere))
+                    //if (boundingFrustum.Intersects(frustumCullingData.boundingSphere)) // This method sucks. It is not thread safe and is slow as hell.
                     {
-                        //lock (syncObj)
-                        {
-                            modelsToRender.Add(frustumCullingData.component);
-                        }
+                        modelsToRender.Add(frustumCullingData.component);
                     }
                 }
             }
         } // ModelRendererFrustumCullingTask
+
+        #endregion
+
+        #region Fast Bounding Frustum
+
+        /// <summary>
+        /// The XNA implementation is awful.
+        /// Bitphase Entertainment makes a far better implementation.
+        /// </summary>
+        public struct FastBoundingFrustum
+        {
+
+            #region Variables
+
+            // This variables are catched to improve performance.
+            private readonly Vector3 nearNormal, farNormal, leftNormal, rightNormal, bottomNormal, topNormal;
+            private readonly float nearD, farD, leftD, rightD, bottomD, topD;
+
+            #endregion
+
+            #region Constructors
+
+            public FastBoundingFrustum(BoundingFrustum source)
+            {
+
+                nearNormal = source.Near.Normal; nearD = source.Near.D;
+                leftNormal = source.Left.Normal; leftD = source.Left.D;
+                rightNormal = source.Right.Normal; rightD = source.Right.D;
+                bottomNormal = source.Bottom.Normal; bottomD = source.Bottom.D;
+                topNormal = source.Top.Normal; topD = source.Top.D;
+                farNormal = source.Far.Normal; farD = source.Far.D;
+            } // FastBoundingFrustum
+            
+            public FastBoundingFrustum(ref Matrix cameraMatrix)
+            {
+
+                float x = -cameraMatrix.M14 - cameraMatrix.M11;
+                float y = -cameraMatrix.M24 - cameraMatrix.M21;
+                float z = -cameraMatrix.M34 - cameraMatrix.M31;
+                float scale = 1.0f / ((float)Math.Sqrt((x * x) + (y * y) + (z * z)));
+                leftNormal = new Vector3(x * scale, y * scale, z * scale);
+                leftD = (-cameraMatrix.M44 - cameraMatrix.M41) * scale;
+
+                x = -cameraMatrix.M14 + cameraMatrix.M11;
+                y = -cameraMatrix.M24 + cameraMatrix.M21;
+                z = -cameraMatrix.M34 + cameraMatrix.M31;
+                scale = 1.0f / ((float)Math.Sqrt((x * x) + (y * y) + (z * z)));
+                rightNormal = new Vector3(x * scale, y * scale, z * scale);
+                rightD = (-cameraMatrix.M44 + cameraMatrix.M41) * scale;
+
+                x = -cameraMatrix.M14 + cameraMatrix.M12;
+                y = -cameraMatrix.M24 + cameraMatrix.M22;
+                z = -cameraMatrix.M34 + cameraMatrix.M32;
+                scale = 1.0f / ((float)Math.Sqrt((x * x) + (y * y) + (z * z)));
+                topNormal = new Vector3(x * scale, y * scale, z * scale);
+                topD = (-cameraMatrix.M44 + cameraMatrix.M42) * scale;
+
+                x = -cameraMatrix.M14 - cameraMatrix.M12;
+                y = -cameraMatrix.M24 - cameraMatrix.M22;
+                z = -cameraMatrix.M34 - cameraMatrix.M32;
+                scale = 1.0f / ((float)Math.Sqrt((x * x) + (y * y) + (z * z)));
+                bottomNormal = new Vector3(x * scale, y * scale, z * scale);
+                bottomD = (-cameraMatrix.M44 - cameraMatrix.M42) * scale;
+
+                x = -cameraMatrix.M13;
+                y = -cameraMatrix.M23;
+                z = -cameraMatrix.M33;
+                scale = 1.0f / ((float)Math.Sqrt((x * x) + (y * y) + (z * z)));
+                nearNormal = new Vector3(x * scale, y * scale, z * scale);
+                nearD = (-cameraMatrix.M43) * scale;
+
+                z = -cameraMatrix.M14 + cameraMatrix.M13;
+                y = -cameraMatrix.M24 + cameraMatrix.M23;
+                z = -cameraMatrix.M34 + cameraMatrix.M33;
+                scale = 1.0f / ((float) Math.Sqrt((x * x) + (y * y) + (z * z)));
+                farNormal = new Vector3(x * scale, y * scale, z * scale);
+                farD      = (-cameraMatrix.M44 + cameraMatrix.M43) * scale;
+            } // FastBoundingFrustum
+
+            #endregion
+
+            #region Intersects
+
+            public bool Intersects(ref BoundingSphere sphere)
+            {
+
+                Vector3 p = sphere.Center; float radius = sphere.Radius;
+
+                if (nearD + (nearNormal.X * p.X) + (nearNormal.Y * p.Y) + (nearNormal.Z * p.Z) > radius) return false;
+                if (leftD + (leftNormal.X * p.X) + (leftNormal.Y * p.Y) + (leftNormal.Z * p.Z) > radius) return false;
+                if (rightD + (rightNormal.X * p.X) + (rightNormal.Y * p.Y) + (rightNormal.Z * p.Z) > radius) return false;
+                if (bottomD + (bottomNormal.X * p.X) + (bottomNormal.Y * p.Y) + (bottomNormal.Z * p.Z) > radius) return false;
+                if (topD + (topNormal.X * p.X) + (topNormal.Y * p.Y) + (topNormal.Z * p.Z) > radius) return false;
+                // Can ignore far plane when distant object culling is handled by another mechanism
+                if(farD + (farNormal.X * p.X) + (farNormal.Y * p.Y) + (farNormal.Z * p.Z) > radius) return false;
+
+                return true;
+            } // Intersects
+
+            public bool Intersects(ref BoundingBox box)
+            {
+                Vector3 p;
+
+                p.X = (nearNormal.X >= 0 ? box.Min.X : box.Max.X);
+                p.Y = (nearNormal.Y >= 0 ? box.Min.Y : box.Max.Y);
+                p.Z = (nearNormal.Z >= 0 ? box.Min.Z : box.Max.Z);
+                if (nearD + (nearNormal.X * p.X) + (nearNormal.Y * p.Y) + (nearNormal.Z * p.Z) > 0) return false;
+
+                p.X = (leftNormal.X >= 0 ? box.Min.X : box.Max.X);
+                p.Y = (leftNormal.Y >= 0 ? box.Min.Y : box.Max.Y);
+                p.Z = (leftNormal.Z >= 0 ? box.Min.Z : box.Max.Z);
+                if (leftD + (leftNormal.X * p.X) + (leftNormal.Y * p.Y) + (leftNormal.Z * p.Z) > 0) return false;
+
+                p.X = (rightNormal.X >= 0 ? box.Min.X : box.Max.X);
+                p.Y = (rightNormal.Y >= 0 ? box.Min.Y : box.Max.Y);
+                p.Z = (rightNormal.Z >= 0 ? box.Min.Z : box.Max.Z);
+                if (rightD + (rightNormal.X * p.X) + (rightNormal.Y * p.Y) + (rightNormal.Z * p.Z) > 0) return false;
+
+                p.X = (bottomNormal.X >= 0 ? box.Min.X : box.Max.X);
+                p.Y = (bottomNormal.Y >= 0 ? box.Min.Y : box.Max.Y);
+                p.Z = (bottomNormal.Z >= 0 ? box.Min.Z : box.Max.Z);
+                if (bottomD + (bottomNormal.X * p.X) + (bottomNormal.Y * p.Y) + (bottomNormal.Z * p.Z) > 0) return false;
+
+                p.X = (topNormal.X >= 0 ? box.Min.X : box.Max.X);
+                p.Y = (topNormal.Y >= 0 ? box.Min.Y : box.Max.Y);
+                p.Z = (topNormal.Z >= 0 ? box.Min.Z : box.Max.Z);
+                if (topD + (topNormal.X * p.X) + (topNormal.Y * p.Y) + (topNormal.Z * p.Z) > 0) return false;
+
+                // Can ignore far plane when distant object culling is handled by another mechanism
+                p.X = (farNormal.X >= 0 ? box.Min.X : box.Max.X);
+                p.Y = (farNormal.Y >= 0 ? box.Min.Y : box.Max.Y);
+                p.Z = (farNormal.Z >= 0 ? box.Min.Z : box.Max.Z);
+                if(farD + (farNormal.X * p.X) + (farNormal.Y * p.Y) + (farNormal.Z * p.Z) > 0) return false;
+                
+                return true;
+            } // Intersects
+
+            #endregion
+
+        } // FastBoundingFrustum
 
         #endregion
 

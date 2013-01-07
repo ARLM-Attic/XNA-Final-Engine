@@ -135,7 +135,7 @@ namespace XNAFinalEngine.Helpers
         #region Wait For Task Completition
 
         /// <summary>
-        /// Call this if you need to wait for the task to be completed.
+        /// Call this if you need to wait for all tasks to be completed.
         /// </summary>
         public void WaitForTaskCompletition()
         {
@@ -144,6 +144,15 @@ namespace XNAFinalEngine.Helpers
                 taskDone[i].WaitOne();
                 taskDone[i].Reset();
             }
+        } // WaitForTaskCompletition
+
+        /// <summary>
+        /// Call this if you need to wait for one task to be completed.
+        /// </summary>
+        public void WaitForTaskCompletition(int taskNumber)
+        {
+            taskDone[taskNumber].WaitOne();
+            taskDone[taskNumber].Reset();
         } // WaitForTaskCompletition
 
         #endregion

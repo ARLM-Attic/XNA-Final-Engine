@@ -221,7 +221,7 @@ namespace XNAFinalEngineExamples
             #region Lamborghini Murcielago LP640
             
             // To test performance.
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 200; i++)
             {
                 LamborghiniMurcielagoLoader lamborghiniMurcielagoLoader = new LamborghiniMurcielagoLoader();
                 lamborghiniMurcielagoLoader.LoadContent();
