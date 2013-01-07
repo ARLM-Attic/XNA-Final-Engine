@@ -74,7 +74,7 @@ namespace XNAFinalEngine.Helpers
             #if XBOX 
                 // http://msdn.microsoft.com/en-us/library/microsoft.xna.net_cf.system.threading.thread.setprocessoraffinity.aspx
                 AvailableProcessors = 3;
-                ProcessorsAffinity = new int[3] { 3, 4, 5 };
+                ProcessorsAffinity = new [] { 3, 4, 5 };
             #else
                 AvailableProcessors = Environment.ProcessorCount - 1; // Minus the application thread.
             #endif

@@ -34,6 +34,7 @@ using XNAFinalEngine.Animations;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Editor;
+using XNAFinalEngine.EngineCore;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Size = XNAFinalEngine.Helpers.Size;
 using Texture = XNAFinalEngine.Assets.Texture;

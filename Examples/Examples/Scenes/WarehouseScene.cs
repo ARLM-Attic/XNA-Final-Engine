@@ -34,7 +34,8 @@ using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
-using XNAFinalEngine.Editor;
+//using XNAFinalEngine.Editor;
+using XNAFinalEngine.Input;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Size = XNAFinalEngine.Helpers.Size;
 using TextureCube = XNAFinalEngine.Assets.TextureCube;
@@ -88,6 +89,7 @@ namespace XNAFinalEngineExamples
             camera.Camera.FieldOfView = 180 / 7f;
             camera.Camera.PostProcess = new PostProcess();
             camera.Camera.PostProcess.ToneMapping.AutoExposureEnabled = false;
+            camera.Camera.PostProcess.ToneMapping.LensExposure = -1.5f;
             camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
             camera.Camera.PostProcess.MLAA.Enabled = false;
@@ -103,9 +105,9 @@ namespace XNAFinalEngineExamples
                                                             Intensity = 6f,
                                                             AmbientOcclusionStrength = 4f };
             
-            camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
+            //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
 
-            camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
+            /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 18, //8, // Don't change this.
                 NumberDirections = 16, // 12, // Don't change this.
@@ -115,7 +117,7 @@ namespace XNAFinalEngineExamples
                 AngleBias = 5f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
-            };
+            };*/
 
             #endregion
             
@@ -219,7 +221,7 @@ namespace XNAFinalEngineExamples
             #region Lamborghini Murcielago LP640
             
             // To test performance.
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 10; i++)
             {
                 LamborghiniMurcielagoLoader lamborghiniMurcielagoLoader = new LamborghiniMurcielagoLoader();
                 lamborghiniMurcielagoLoader.LoadContent();
@@ -242,6 +244,8 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void UpdateTasks()
         {
+            if (GamePad.PlayerOne.AJustPressed)
+                EngineManager.ExitApplication();
             base.UpdateTasks();
         } // UpdateTasks
 

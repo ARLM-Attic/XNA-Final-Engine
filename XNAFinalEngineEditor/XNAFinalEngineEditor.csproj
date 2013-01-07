@@ -122,7 +122,6 @@
     <Compile Include="Editor\Gizmos\GizmoTranslation.cs" />
     <Compile Include="Editor\Pickers\Picker.cs" />
     <Compile Include="Editor\Scripts\ScriptEditorCamera.cs" />
-    <Compile Include="Editor\Scripts\ScriptStatisticsDrawer.cs" />
     <Compile Include="Editor\Controls\CommonControls.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Undo\AbstractAction.cs" />

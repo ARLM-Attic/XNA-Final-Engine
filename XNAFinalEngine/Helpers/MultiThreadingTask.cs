@@ -59,7 +59,7 @@ namespace XNAFinalEngine.Helpers
         private readonly Action<T> task;
 
         // This are the synchronization elements.
-        private readonly ManualResetEvent[] doneEvents, waitForWork;
+        private readonly ManualResetEvent[] taskDone, waitForWork;
         
         // The threads.
         private readonly List<Thread> threads;
@@ -77,13 +77,13 @@ namespace XNAFinalEngine.Helpers
         public MultiThreadingTask(Action<T> task, int numberOfThreads)
         {
             this.task = task;
-            doneEvents = new ManualResetEvent[numberOfThreads];
+            taskDone = new ManualResetEvent[numberOfThreads];
             waitForWork = new ManualResetEvent[numberOfThreads];
             parameters = new T[numberOfThreads];
             threads = new List<Thread>(numberOfThreads);
             for (int i = 0; i < numberOfThreads; i++)
             {
-                doneEvents[i] = new ManualResetEvent(false);
+                taskDone[i] = new ManualResetEvent(false);
                 waitForWork[i] = new ManualResetEvent(false);
                 threads.Add(new Thread(TaskManager));
                 threads[i].Start(i);
@@ -113,7 +113,7 @@ namespace XNAFinalEngine.Helpers
                 waitForWork[index].WaitOne(); // Wait until a task is added.
                 waitForWork[index].Reset();
                 task.Invoke(parameters[index]);
-                doneEvents[index].Set(); // Indicates that that task was performed.
+                taskDone[index].Set(); // Indicates that that task was performed.
             }
         } // TaskManager
 
@@ -141,8 +141,8 @@ namespace XNAFinalEngine.Helpers
         {
             for (int i = 0; i < threads.Count; i++)
             {
-                doneEvents[i].WaitOne();
-                doneEvents[i].Reset();
+                taskDone[i].WaitOne();
+                taskDone[i].Reset();
             }
         } // WaitForTaskCompletition
 

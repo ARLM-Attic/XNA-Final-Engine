@@ -265,6 +265,7 @@
     <Compile Include="Components\Rendering\VideoRenderer.cs" />
     <Compile Include="Components\Rendering\ParticleRenderer.cs" />
     <Compile Include="Engine Core\GraphicsProfileExtender.cs" />
+    <Compile Include="Engine Core\ScriptStatisticsDrawer.cs" />
     <Compile Include="Engine Core\Statistics.cs" />
     <Compile Include="Engine Core\ScreenshotCapturer.cs" />
     <Compile Include="Components\Lights\DirectionalLight.cs" />

@@ -36,7 +36,7 @@ using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 #endregion
 
-namespace XNAFinalEngine.Editor
+namespace XNAFinalEngine.EngineCore
 {
     /// <summary>
     /// Draw a series of graph with statistics like frames per second, draw calls, etc.

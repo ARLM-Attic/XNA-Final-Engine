@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -704,6 +703,26 @@ namespace XNAFinalEngine.EngineCore
 
         #endregion
 
+        #region Testing
+
+        /// <summary>
+        /// Renders a texture and the Head Up Display to the camera's render target and free the resources.
+        /// It is only used for testing.
+        /// </summary>
+        private static void FinishRendering(Camera currentCamera, RenderTarget renderTarget, Assets.Texture showToScreen = null)
+        {
+            renderTarget.EnableRenderTarget();
+            if (showToScreen != null)
+                SpriteManager.DrawTextureToFullScreen(showToScreen);
+            if (currentCamera.RenderHeadUpDisplay)
+                RenderHeadsUpDisplay();
+            renderTarget.DisableRenderTarget();
+            Layer.CurrentCameraCullingMask = uint.MaxValue;
+            ReleaseUnusedRenderTargets();
+        } // FinishRendering
+
+        #endregion
+
         #region Render Camera
 
         // Render Targets used in the deferred lighting pipeline.
@@ -733,14 +752,8 @@ namespace XNAFinalEngine.EngineCore
             modelsToRender.Clear();
             Graphics.FrustumCulling.ModelRendererFrustumCulling(cameraBoundingFrustum, modelsToRender);
 
-            // This code is used for testing. It shows the texture on screen.
-            renderTarget.EnableRenderTarget();
-            if (currentCamera.RenderHeadUpDisplay)
-                RenderHeadsUpDisplay();
-            renderTarget.DisableRenderTarget();
-            Layer.CurrentCameraCullingMask = uint.MaxValue;
-            ReleaseUnusedRenderTargets();
-            return;
+            // Testing
+            //FinishRendering(currentCamera, renderTarget); return;
 
             #endregion
 
@@ -880,20 +893,9 @@ namespace XNAFinalEngine.EngineCore
             gbufferHalfTextures    = DownsamplerGBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], gbufferTextures.RenderTargets[1]);
             gbufferQuarterTextures = DownsamplerGBufferShader.Instance.Render(gbufferHalfTextures.RenderTargets[0], gbufferHalfTextures.RenderTargets[1]);
 
-            #region Testing
-
-            // This code is used for testing. It shows the texture on screen.
-            /*renderTarget.EnableRenderTarget();
-            SpriteManager.DrawTextureToFullScreen(gbufferTextures.RenderTargets[1]);
-            if (currentCamera.RenderHeadUpDisplay)
-                RenderHeadsUpDisplay();
-            renderTarget.DisableRenderTarget();
-            Layer.CurrentCameraCullingMask = uint.MaxValue;
-            ReleaseUnusedRenderTargets();
-            return;*/
-
-            #endregion
-
+            // Testing
+            FinishRendering(currentCamera, renderTarget, gbufferTextures.RenderTargets[1]); return;
+            
             #endregion
 
             #region Light Pre Pass

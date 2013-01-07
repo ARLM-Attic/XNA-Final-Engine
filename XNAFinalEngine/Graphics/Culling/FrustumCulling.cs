@@ -57,7 +57,7 @@ namespace XNAFinalEngine.Graphics
         #region Structs
 
         /// <summary>
-        /// Used in multitheading to pass the parameters to the function.
+        /// Used in multitheading to pass the parameters to the task.
         /// </summary>
         private struct FrustumCullingParameters
         {
@@ -82,40 +82,64 @@ namespace XNAFinalEngine.Graphics
         // Syncronization object used in multithreading.
         private static readonly object syncObj = new object();
         
-        private static MultiThreadingTask<FrustumCullingParameters> modelRendererThreads;
+        // The threads that perform the frustum culling over model renderer components.
+        private static MultiThreadingTask<FrustumCullingParameters> modelRendererFrustumCullingThreads;
+
+        private static BoundingFrustum[] boundingFrustumList;
+        private static List<ModelRenderer>[] modelsToRenderList;
 
         #endregion
 
         #region Model Renderer Frustum Culling
 
+        /// <summary>
+        /// Perform frustum culling over the model renderer components.
+        /// </summary>
         public static void ModelRendererFrustumCulling(BoundingFrustum boundingFrustum, List<ModelRenderer> modelsToRender)
         {
             // If the number of objects is high then the task is devided in threads.
-            if (ModelRenderer.ComponentPool.Count > 100)
+            if (ModelRenderer.ComponentPool.Count > 50)
             {
                 // If it is the first execution then the threads are created.
-                if (modelRendererThreads == null)
+                if (modelRendererFrustumCullingThreads == null)
                 {
-                    modelRendererThreads = new MultiThreadingTask<FrustumCullingParameters>(ModelRendererFrustumCullingSingleThread, ProcessorsInformation.AvailableProcessors);
+                    boundingFrustumList = new BoundingFrustum[ProcessorsInformation.AvailableProcessors];
+                    modelsToRenderList = new List<ModelRenderer>[ProcessorsInformation.AvailableProcessors];
+                    for (int i = 0; i < ProcessorsInformation.AvailableProcessors; i++)
+                    {
+                        boundingFrustumList[i] = new BoundingFrustum(Matrix.Identity);
+                        modelsToRenderList[i] = new List<ModelRenderer>(50);
+                    }
+                    modelRendererFrustumCullingThreads = new MultiThreadingTask<FrustumCullingParameters>(ModelRendererFrustumCullingTask, ProcessorsInformation.AvailableProcessors);
                 }
                 int objectsProcessedByThread = (int)(ModelRenderer.ComponentPool.Count / (ProcessorsInformation.AvailableProcessors + 1.7f)); // The application thread makes double the work.
                 for (int i = 0; i < ProcessorsInformation.AvailableProcessors; i++)
                 {
-                    modelRendererThreads.Start(i, new FrustumCullingParameters(boundingFrustum, modelsToRender, i * objectsProcessedByThread, objectsProcessedByThread));
+                    boundingFrustumList[i].Matrix = boundingFrustum.Matrix;
+                    modelRendererFrustumCullingThreads.Start(i, new FrustumCullingParameters(boundingFrustumList[i], modelsToRenderList[i], i * objectsProcessedByThread, objectsProcessedByThread));
                 }
-                ModelRendererFrustumCullingSingleThread(new FrustumCullingParameters(boundingFrustum, modelsToRender,
-                                                                                     ProcessorsInformation.AvailableProcessors * objectsProcessedByThread,
-                                                                                     ModelRenderer.ComponentPool.Count - (ProcessorsInformation.AvailableProcessors * objectsProcessedByThread)));
-                modelRendererThreads.WaitForTaskCompletition();
+                ModelRendererFrustumCullingTask(new FrustumCullingParameters(boundingFrustum, modelsToRender,
+                                                                             ProcessorsInformation.AvailableProcessors * objectsProcessedByThread,
+                                                                             ModelRenderer.ComponentPool.Count - (ProcessorsInformation.AvailableProcessors * objectsProcessedByThread)));
+                modelRendererFrustumCullingThreads.WaitForTaskCompletition();
+                for (int i = 0; i < ProcessorsInformation.AvailableProcessors; i++)
+                {
+                    foreach (var modelR in modelsToRenderList[i])
+                    {
+                        modelsToRender.Add(modelR);
+                    }
+                    //modelsToRender.AddRange(modelsToRenderList[i]);
+                    modelsToRenderList[i].Clear();
+                }
             }
             else
-                ModelRendererFrustumCullingSingleThread(new FrustumCullingParameters(boundingFrustum, modelsToRender, 0, ModelRenderer.FrustumCullingDataPool.Count));
+                ModelRendererFrustumCullingTask(new FrustumCullingParameters(boundingFrustum, modelsToRender, 0, ModelRenderer.FrustumCullingDataPool.Count));
         } // ModelRendererFrustumCulling
 
         /// <summary>
-        /// Frustum Culling.
+        /// This is task that's is performed over the threads.
         /// </summary>
-        private static void ModelRendererFrustumCullingSingleThread(FrustumCullingParameters parameters)
+        private static void ModelRendererFrustumCullingTask(FrustumCullingParameters parameters)
         {
             BoundingFrustum boundingFrustum = parameters.boundingFrustum;
             List<ModelRenderer> modelsToRender = parameters.modelsToRender;
@@ -127,7 +151,7 @@ namespace XNAFinalEngine.Graphics
             // There is a performance gain, but it is small. 
             // I recommend to perform this kind of optimizations is the game/application has a CPU bottleneck.
             // Besides, the old code was half data oriented.
-            for (int i = startPosition; i < (count - startPosition); i++)
+            for (int i = startPosition; i < (count + startPosition); i++)
             {
                 ModelRenderer.FrustumCullingData frustumCullingData = ModelRenderer.FrustumCullingDataPool.Elements[i];
                 if (//component.CachedModel != null && // Not need to waste cycles in this, how many ModelRenderer components will not have a model?
@@ -136,15 +160,14 @@ namespace XNAFinalEngine.Graphics
                 {
                     if (boundingFrustum.Intersects(frustumCullingData.boundingSphere))
                     {
-                        lock (syncObj)
+                        //lock (syncObj)
                         {
                             modelsToRender.Add(frustumCullingData.component);
                         }
                     }
-                        
                 }
             }
-        } // FrustumCullingSingleThread
+        } // ModelRendererFrustumCullingTask
 
         #endregion
 
