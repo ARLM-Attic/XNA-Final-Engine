@@ -29,8 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using Microsoft.Xna.Framework;
-using XNAFinalEngine.Helpers;
+using Microsoft.Xna.Framework.Graphics;
+using XNAFinalEngine.EngineCore;
 #endregion
 
 namespace XNAFinalEngine.Assets
@@ -38,12 +38,14 @@ namespace XNAFinalEngine.Assets
     /// <summary>
     /// Shader Parameter.
     /// </summary>
-    public class ShaderParameterMatrixArray : ShaderParameter
+    public class ShaderParameterTextureCube : ShaderParameter
     {
 
         #region Variables
 
-        private readonly Matrix[] lastUsedValue;
+        private Microsoft.Xna.Framework.Graphics.TextureCube lastUsedValueXna;
+        private TextureCube lastUsedValue;
+        private int samplerNumber;
 
         #endregion
 
@@ -52,36 +54,61 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Current value.
         /// </summary>
-        public Matrix[] Value
+        public TextureCube Value
         {
             get { return lastUsedValue; }
             set
             {
-                if (!ArrayHelper.Equals(lastUsedValue, value))
+                EngineManager.Device.SamplerStates[SamplerNumber] = SamplerState;
+                if (value == null)
                 {
-                    for (int i = 0; i < lastUsedValue.Length; i++)
-                    {
-                        lastUsedValue[i] = value[i];
-                    }
-                    Resource.SetValue(value);
+                    if (lastUsedValueXna == null || lastUsedValue != null)
+                        Resource.SetValue(TextureCube.BlackTexture.Resource);
+                    lastUsedValue = null;
+                    lastUsedValueXna = TextureCube.BlackTexture.Resource;
+                }
+                else if (lastUsedValueXna != value.Resource)
+                {
+                    lastUsedValue = value;
+                    lastUsedValueXna = value.Resource;
+                    Resource.SetValue(value.Resource);
                 }
             }
         } // Value
+
+        /// <summary>
+        /// Determines how to sample texture data.
+        /// </summary>
+        public SamplerState SamplerState { get; set; }
+
+        /// <summary>
+        /// Sampler number (0 to 16).
+        /// </summary>
+        public int SamplerNumber
+        {
+            get { return samplerNumber; }
+            set
+            {
+                if (samplerNumber >= 0 && samplerNumber < 16)
+                    samplerNumber = value;
+            }
+        } // SamplerNumber
 
         #endregion
 
         #region Constructor
 
         /// <summary>
-        /// Shader Parameter for Matrix[] type.
+        /// Shader Parameter for TextureCube type.
         /// </summary>
-        public ShaderParameterMatrixArray(string name, Shader shader, int size) : base(name, shader)
+        public ShaderParameterTextureCube(string name, Shader shader, SamplerState samplerState, int samplerNumber) : base(name, shader)
         {
-            lastUsedValue = new Matrix[size];
-            Resource.SetValue(Value);
-        } // ShaderParameterMatrixArray
+            SamplerState = samplerState;
+            SamplerNumber = samplerNumber;
+            Value = Value;
+        } // ShaderParameterTextureCube
 
         #endregion
 
-    } // ShaderParameterMatrixArray
+    } // ShaderParameterTextureCube
 } // XNAFinalEngine.Assets

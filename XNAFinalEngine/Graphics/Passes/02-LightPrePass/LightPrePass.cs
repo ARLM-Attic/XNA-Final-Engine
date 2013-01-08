@@ -47,10 +47,8 @@ namespace XNAFinalEngine.Graphics
 
         #region Variables
 
-        /// <summary>
-        /// Additive blending state.
-        /// The resulting color will be added to current render target color.
-        /// </summary>
+        // Additive blending state.
+        // The resulting color will be added to current render target color.
         private static BlendState additiveBlendingState;
 
         /// <summary>
@@ -58,14 +56,14 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         /// <remarks> 
         /// In PC the HDR Blendable format is implemented using HalfVector4. However in XBOX 360 is implemented using
-        /// an Xbox specific 7e3 (32 bits per pixel) EDRAM format (or 10101002). That means less precision, more speed,
+        /// an Xbox specific 7e3 (32 bits per pixel) or 10101002. That means less precision, more speed,
         /// less memory space used and the lack of the fourth channel (2 bits doesn’t help much).
         /// 
-        /// The lack of precision is not a big deal and we have better performance.
+        /// The lack of precision is not a big deal (mostly) and we have better performance.
         /// Unfortunately this deferred pipeline implementation needs the fourth channel for monochromatic specular highlights.
         /// A possible solution for the XBOX 360 if to use a second HDR Blendable render target for specular highlight.
-        /// With this we have the same memory requisites but at least we could have color specular highlights,
-        /// in practice this is not an incredible gain, though (see Crytek’s presentation).
+        /// With this we have the same memory requisites but at least we could representate color specular highlights,
+        /// in practice this is not an significant gain, though (see Crytek’s presentation).
         /// 
         /// And to make things worse, outside the EDRAM it expands to HalfVector4 when resolved into the system memory texture. 
         /// Twice the size and twice the bandwidth with an already precision lost. But that just life, we don’t have a choice.
@@ -74,8 +72,8 @@ namespace XNAFinalEngine.Graphics
         /// but to make everything simpler, PC will use also a second render target.
         /// 
         /// One more thing, I can't use a color surface format because the RGBM format doesn't work with additive blending.
+        /// And a ping-pong solution is not an option in both, Xbox and PC. Funny thing, it is a solution for PS3.
         /// </remarks>
-        // private static RenderTarget lightTexture;
         // This structure is used to set multiple render targets without generating garbage in the process.
         private static RenderTarget.RenderTargetBinding renderTargetBinding;
 
@@ -90,29 +88,6 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                if (additiveBlendingState == null)
-                {
-                    // The resulting color will be added to current render target color.
-                    additiveBlendingState = new BlendState
-                    {
-                        AlphaBlendFunction = BlendFunction.Add,
-                        AlphaDestinationBlend = Blend.One,
-                        AlphaSourceBlend = Blend.One,
-                        ColorBlendFunction = BlendFunction.Add,
-                        ColorDestinationBlend = Blend.One,
-                        ColorSourceBlend = Blend.One,
-                    };
-                }
-
-                // Set Render States.
-                EngineManager.Device.BlendState        = additiveBlendingState; // The resulting color will be added to current render target color.
-                EngineManager.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
-                EngineManager.Device.DepthStencilState = DepthStencilState.Default;
-                // If I set the sampler states here and no texture is set then this could produce exceptions 
-                // because another texture from another shader could have an incorrect sampler state when this shader is executed.
-
-                // lightTexture = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-                // lightTexture.EnableRenderTarget();
                 renderTargetBinding = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.Depth24Stencil8, SurfaceFormat.HdrBlendable);
                 RenderTarget.EnableRenderTargets(renderTargetBinding);
                 RenderTarget.ClearCurrentRenderTargets(new Color(0, 0, 0, 0));
@@ -123,6 +98,33 @@ namespace XNAFinalEngine.Graphics
             }
         } // Begin
         
+        #endregion
+
+        #region Set Render States
+
+        /// <summary>
+        /// Set blend and rasterizer states common to all lights.
+        /// </summary>
+        public static void SetRenderStates()
+        {
+            if (additiveBlendingState == null)
+            {
+                // The resulting color will be added to current render target color.
+                additiveBlendingState = new BlendState
+                {
+                    AlphaBlendFunction = BlendFunction.Add,
+                    AlphaDestinationBlend = Blend.One,
+                    AlphaSourceBlend = Blend.One,
+                    ColorBlendFunction = BlendFunction.Add,
+                    ColorDestinationBlend = Blend.One,
+                    ColorSourceBlend = Blend.One,
+                };
+            }
+            // Set Render States.
+            EngineManager.Device.BlendState = additiveBlendingState;
+            EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+        } // SetRenderStates
+
         #endregion
 
         #region End

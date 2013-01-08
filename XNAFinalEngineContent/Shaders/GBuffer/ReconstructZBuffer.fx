@@ -1,5 +1,5 @@
 /***********************************************************************************************************************************************
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -72,12 +72,17 @@ PS_Output PS(VS_Output input)
 	PS_Output output = (PS_Output)0;
 
 	//read the depth value
-	float linearDepth = -tex2D(depthSampler, input.textCoord).r * farPlane;
+	float textureDepth = tex2D(depthSampler, input.textCoord).r;
+
+	/*[branch]
+	if (textureDepth == -1) // Return quickly from sky.
+		return output;*/
 	
+	float linearDepth = -textureDepth * farPlane;	
 	float2 projectedDepthzw = mul(float4(0, 0, linearDepth, 1), projection).zw; // To perspective space.
 	output.depth = projectedDepthzw.x / projectedDepthzw.y; // This is how depth is store in a real depth buffer.
-	// The bias is to compensate the mathematical error.
-	output.depth = output.depth + 0.0001f * (1.002f - output.depth);
+	// The bias is used to compensate the mathematical error.
+	output.depth = saturate(output.depth + 0.0001f * (1.002f - output.depth));
 
 	return output;
 } // PS

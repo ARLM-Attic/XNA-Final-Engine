@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,6 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Assets;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
@@ -55,6 +54,21 @@ namespace XNAFinalEngine.Graphics
         // Singleton reference.
         private static DirectionalLightShader instance;
 
+        // State to avoid calculating lighting over the sky.
+        private static DepthStencilState avoidSkyDepthStencilState;
+
+        // Shader Parameters.
+        private static ShaderParameterFloat spLightIntensity;
+        private static ShaderParameterVector2 spHalfPixel;
+        private static ShaderParameterColor spLightColor;
+        private static ShaderParameterTexture spDepthTexture, spNormalTexture, spShadowTexture;
+        private static ShaderParameterVector3 spLightDirection;
+        private static ShaderParameterVector3Array spFrustumCorners;
+
+        // Techniques references.
+        private static EffectTechnique directionalLightWithShadowsTechnique,
+                                       directionalLightTechnique;
+
         #endregion
 
         #region Properties
@@ -73,152 +87,22 @@ namespace XNAFinalEngine.Graphics
         } // Instance
 
         #endregion
-
-        #region Shader Parameters
-
-        /// <summary>
-        /// Effect handles
-        /// </summary>
-        private static EffectParameter epHalfPixel,
-                                       epFrustumCorners,
-                                       epDepthTexture,
-                                       epNormalTexture,
-                                       epLightColor,
-                                       epLightDirection,
-                                       epLlightIntensity,
-                                       epShadowTexture;
-
-
-        #region Half Pixel
-
-        private static Vector2 lastUsedHalfPixel;
-        private static void SetHalfPixel(Vector2 _halfPixel)
-        {
-            if (lastUsedHalfPixel != _halfPixel)
-            {
-                lastUsedHalfPixel = _halfPixel;
-                epHalfPixel.SetValue(_halfPixel);
-            }
-        } // SetHalfPixel
-
-        #endregion
-
-        #region Frustum Corners
-
-        private static readonly Vector3[] lastUsedFrustumCorners = new Vector3[4];
-        private static void SetFrustumCorners(Vector3[] frustumCorners)
-        {
-            if (!ArrayHelper.Equals(lastUsedFrustumCorners, frustumCorners))
-            {
-                // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
-                for (int i = 0; i < 4; i++)
-                {
-                    lastUsedFrustumCorners[i] = frustumCorners[i];
-                }
-                epFrustumCorners.SetValue(frustumCorners);
-            }
-        } // SetFrustumCorners
-
-        #endregion
-
-        #region Depth Texture
-
-        private static Texture2D lastUsedDepthTexture;
-        private static void SetDepthTexture(Texture depthTexture)
-        {
-            EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource)
-            {
-                lastUsedDepthTexture = depthTexture.Resource;
-                epDepthTexture.SetValue(depthTexture.Resource);
-            }
-        } // SetDepthTexture
-
-        #endregion
-
-        #region Normal Texture
-
-        private static Texture2D lastUsedNormalTexture;
-        private static void SetNormalTexture(Texture normalTexture)
-        {
-            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTexture != normalTexture.Resource)
-            {
-                lastUsedNormalTexture = normalTexture.Resource;
-                epNormalTexture.SetValue(normalTexture.Resource);
-            }
-        } // SetNormalTexture
-
-        #endregion
         
-        #region Shadow Texture
-
-        private static Texture2D lastUsedShadowTexture;
-        private static void SetShadowTexture(Texture shadowTexture)
-        {
-            EngineManager.Device.SamplerStates[3] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedShadowTexture != shadowTexture.Resource)
-            {
-                lastUsedShadowTexture = shadowTexture.Resource;
-                epShadowTexture.SetValue(shadowTexture.Resource);
-            }
-        } // SetNormalTexture
-
-        #endregion
-
-        #region Light Color
-
-        private static Color lastUsedLightColor;
-        private static void SetLightColor(Color lightColor)
-        {
-            if (lastUsedLightColor != lightColor)
-            {
-                lastUsedLightColor = lightColor;
-                epLightColor.SetValue(new Vector3(lightColor.R / 255f, lightColor.G / 255f, lightColor.B / 255f));
-            }
-        } // SetLightColor
-
-        #endregion
-
-        #region Light Direction
-
-        private static Vector3 lastUsedLightDirection;
-        private static void SetLightDirection(Vector3 lightDirection)
-        {
-            if (lastUsedLightDirection != lightDirection)
-            {
-                lastUsedLightDirection = lightDirection;
-                epLightDirection.SetValue(lightDirection);
-            }
-        } // SetLightDirection
-
-        #endregion
-
-        #region Light Intensity
-
-        private static float lastUsedLightIntensity;
-        private static void SetLightIntensity(float lightIntensity)
-        {
-            if (lastUsedLightIntensity != lightIntensity)
-            {
-                lastUsedLightIntensity = lightIntensity;
-                epLlightIntensity.SetValue(lightIntensity);
-            }
-        } // SetLightIntensity
-
-        #endregion
-
-        #endregion
-
         #region Constructor
 
         /// <summary>
         /// Light Pre Pass Directional Light Shader.
         /// </summary>
-        private DirectionalLightShader() : base("LightPrePass\\DirectionalLight") { }
+        private DirectionalLightShader() : base("LightPrePass\\DirectionalLight")
+        {
+            // If the depth is 1 (sky) then I do not calculate the ambient light in this texels.
+            avoidSkyDepthStencilState = new DepthStencilState
+            {
+                DepthBufferEnable = true,
+                DepthBufferWriteEnable = false,
+                DepthBufferFunction = CompareFunction.NotEqual,
+            };
+        } // DirectionalLightShader
 
         #endregion
 
@@ -234,31 +118,43 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                epHalfPixel                        = Resource.Parameters["halfPixel"];
-                    epHalfPixel.SetValue(lastUsedHalfPixel);
-                epLightColor                       = Resource.Parameters["lightColor"];
-                    epLightColor.SetValue(new Vector3(lastUsedLightColor.R / 255f, lastUsedLightColor.G / 255f, lastUsedLightColor.B / 255f));
-                epLightDirection                   = Resource.Parameters["lightDirection"];
-                    epLightDirection.SetValue(lastUsedLightDirection);
-                epLlightIntensity                  = Resource.Parameters["lightIntensity"];
-                    epLlightIntensity.SetValue(lastUsedLightIntensity);
-                epFrustumCorners                   = Resource.Parameters["frustumCorners"];
-                    epFrustumCorners.SetValue(lastUsedFrustumCorners);
-                epDepthTexture                     = Resource.Parameters["depthTexture"];
-                    if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
-                        epDepthTexture.SetValue(lastUsedDepthTexture);
-                epNormalTexture                    = Resource.Parameters["normalTexture"];
-                    if (lastUsedNormalTexture != null && !lastUsedNormalTexture.IsDisposed)
-                        epNormalTexture.SetValue(lastUsedNormalTexture);
-                epShadowTexture = Resource.Parameters["shadowTexture"];
-                    if (lastUsedShadowTexture != null && !lastUsedShadowTexture.IsDisposed)
-                        epShadowTexture.SetValue(lastUsedShadowTexture);
+                spHalfPixel = new ShaderParameterVector2("halfPixel", this);
+                spLightIntensity = new ShaderParameterFloat("lightIntensity", this);
+                spLightColor = new ShaderParameterColor("lightColor", this);
+                spDepthTexture = new ShaderParameterTexture("depthTexture", this, SamplerState.PointClamp, 0);
+                spNormalTexture = new ShaderParameterTexture("normalTexture", this, SamplerState.PointClamp, 1);
+                spShadowTexture = new ShaderParameterTexture("shadowTexture", this, SamplerState.PointClamp, 3);
+                spLightDirection = new ShaderParameterVector3("lightDirection", this);
+                spFrustumCorners = new ShaderParameterVector3Array("frustumCorners", this, 4);
             }
             catch
             {
                 throw new InvalidOperationException("The parameter's handles from the " + Name + " shader could not be retrieved.");
             }
         } // GetParameters
+
+        #endregion
+
+        #region Get Techniques Handles
+
+        /// <summary>
+        /// Get the handles of the techniques from the shader.
+        /// </summary>
+        /// <remarks>
+        /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
+        /// </remarks>
+        protected override void GetTechniquesHandles()
+        {
+            try
+            {
+                directionalLightWithShadowsTechnique = Resource.Techniques["DirectionalLightWithShadows"];
+                directionalLightTechnique = Resource.Techniques["DirectionalLight"];
+            }
+            catch
+            {
+                throw new InvalidOperationException("The technique's handles from the " + Name + " shader could not be retrieved.");
+            }
+        } // GetTechniquesHandles
 
         #endregion
 
@@ -275,12 +171,15 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                SetDepthTexture(depthTexture);
-                SetNormalTexture(normalTexture);
+                // If the depth is 1 (sky) then I do not calculate the ambient light in this texels.
+                EngineManager.Device.DepthStencilState = avoidSkyDepthStencilState;
+
+                spDepthTexture.Value = depthTexture;
+                spNormalTexture.Value = normalTexture;
                 // The reason that it’s 1/width instead of 0.5/width is because, in clip space, the coordinates range from -1 to 1 (width 2),
                 // and not from 0 to 1 (width 1) like they do in textures, so you need to double the movement to account for that.
-                SetHalfPixel(new Vector2(-0.5f / (depthTexture.Width / 2), 0.5f / (depthTexture.Height / 2))); // I use the depth texture, but I just need the destination render target dimension.
-                SetFrustumCorners(boundingFrustum);
+                spHalfPixel.Value = new Vector2(-0.5f / (depthTexture.Width / 2), 0.5f / (depthTexture.Height / 2)); // I use the depth texture, but I just need the destination render target dimension.
+                spFrustumCorners.Value = boundingFrustum;
                 this.viewMatrix = viewMatrix;
             }
             catch (Exception e)
@@ -291,34 +190,33 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Render Light
+        #region Render
 
         /// <summary>
-        /// Render to the light pre pass texture.
+        /// Render the directional light.
         /// </summary>
-        internal void RenderLight(Color diffuseColor, Vector3 direction, float intensity, Texture shadowTexture)
+        internal void Render(Color diffuseColor, Vector3 direction, float intensity, Texture shadowTexture)
         {
             try
             {
-                
-                #region Set Parameters
-              
-                SetLightColor(diffuseColor);
+                // Set Parameters
+                spLightColor.Value = diffuseColor;
                 // The next three lines produce the same result.
-                //SetLightDirection(Vector3.Transform(light.Direction, Matrix.CreateFromQuaternion(ApplicationLogic.Camera.Orientation)));
-                //SetLightDirection(Vector3.Transform(light.Direction, Matrix.Transpose(Matrix.Invert(ApplicationLogic.Camera.ViewMatrix))));
-                SetLightDirection(Vector3.TransformNormal(direction, viewMatrix));
-                SetLightIntensity(intensity);
-
-                #endregion
+                //spLightDirection.Value = Vector3.Transform(light.Direction, Matrix.CreateFromQuaternion(ApplicationLogic.Camera.Orientation));
+                //spLightDirection.Value = Vector3.Transform(light.Direction, Matrix.Transpose(Matrix.Invert(ApplicationLogic.Camera.ViewMatrix)));
+                spLightDirection.Value = Vector3.TransformNormal(direction, viewMatrix);
+                spLightIntensity.Value = intensity;
 
                 if (shadowTexture != null)
                 {
-                    SetShadowTexture(shadowTexture);
-                    Resource.CurrentTechnique = Resource.Techniques["DirectionalLightWithShadows"];
+                    spShadowTexture.Value = shadowTexture;
+                    Resource.CurrentTechnique = directionalLightWithShadowsTechnique;
                 }
                 else
-                    Resource.CurrentTechnique = Resource.Techniques["DirectionalLight"];
+                {
+                    spShadowTexture.Value = Texture.BlackTexture; // To avoid a potential exception.
+                    Resource.CurrentTechnique = directionalLightTechnique;
+                }
                 
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
@@ -327,7 +225,7 @@ namespace XNAFinalEngine.Graphics
             {
                 throw new InvalidOperationException("Light Pre Pass Directional Light: Unable to render.", e);
             }
-        } // RenderLight
+        } // Render
 
         #endregion
 

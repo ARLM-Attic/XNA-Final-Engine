@@ -165,10 +165,10 @@ namespace XNAFinalEngine.Assets
             {
                 VertexPositionTexture[] vertices = new[]
                 {
-                    new VertexPositionTexture(new Vector3(-1.0f, -1.0f, 0f), new Vector2(0, 1)),
-                    new VertexPositionTexture(new Vector3(-1.0f, 1.0f, 0f),  new Vector2(0, 0)),
-                    new VertexPositionTexture(new Vector3(1.0f, -1.0f, 0f),  new Vector2(1, 1)),
-                    new VertexPositionTexture(new Vector3(1.0f, 1.0f, 0f),   new Vector2(1, 0)),
+                    new VertexPositionTexture(new Vector3(-1.0f, -1.0f, 1f), new Vector2(0, 1)),
+                    new VertexPositionTexture(new Vector3(-1.0f, 1.0f, 1f),  new Vector2(0, 0)),
+                    new VertexPositionTexture(new Vector3(1.0f, -1.0f, 1f),  new Vector2(1, 1)),
+                    new VertexPositionTexture(new Vector3(1.0f, 1.0f, 1f),   new Vector2(1, 0)),
                 };
                 vertexBufferScreenPlane = new VertexBuffer(EngineManager.Device, typeof(VertexPositionTexture), vertices.Length, BufferUsage.WriteOnly);
                 vertexBufferScreenPlane.SetData(vertices);

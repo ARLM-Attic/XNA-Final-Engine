@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -34,14 +34,13 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Helpers;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.Graphics
 {
     /// <summary>
-    /// Ambient Light.
+    /// Light Pre Pass Ambient Light Shader.
     /// </summary>
     internal class AmbientLightShader : Shader
     {
@@ -53,6 +52,23 @@ namespace XNAFinalEngine.Graphics
 
         // It's an auxiliary structure that helps avoiding garbage.
         private readonly Vector3[] coeficients = new Vector3[9];
+
+        // Shader Parameters.
+        private static ShaderParameterFloat spIntensity, spAmbientOcclusionStrength;
+        private static ShaderParameterVector2 spHalfPixel;
+        private static ShaderParameterColor spColor;
+        private static ShaderParameterTexture spAmbientOcclusionTexture, spNormalTexture;
+        private static ShaderParameterMatrix spViewInverseMatrix;
+        private static ShaderParameterVector3Array spSphericalHarmonicBase;
+
+        // Techniques references.
+        private static EffectTechnique ambientLightSphericalHarmonicsTechnique,
+                                       ambientLightSphericalHarmonicsAmbientOcclusionTechnique,
+                                       ambientLightTechnique,
+                                       ambientLightAmbientOcclusionTechnique;
+
+        // State to avoid calculating lighting over the sky.
+        private static DepthStencilState avoidSkyDepthStencilState;
 
         #endregion
 
@@ -73,148 +89,21 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Shader Parameters
-        
-        /// <summary>
-        /// Effect handles
-        /// </summary>
-        private static EffectParameter epHalfPixel,
-                                       epColor,
-                                       epAmbientOcclusionTexture,
-                                       epNormalTexture,
-                                       epIntensity,
-                                       epViewI,
-                                       epSphericalHarmonicBase,
-                                       epAmbientOcclusionStrength;
-
-        #region View Projection Matrix
-
-        private static Matrix lastUsedViewInverseMatrix;
-        private static void SetViewInverseMatrix(Matrix viewInverseMatrix)
-        {
-            if (lastUsedViewInverseMatrix != viewInverseMatrix)
-            {
-                lastUsedViewInverseMatrix = viewInverseMatrix;
-                epViewI.SetValue(viewInverseMatrix);
-            }
-        } // SetViewInverseMatrix
-
-        #endregion
-
-        #region Color
-
-        private static Color lastUsedColor;
-        private static void SetColor(Color color)
-        {
-            if (lastUsedColor != color)
-            {
-                lastUsedColor = color;
-                epColor.SetValue(new Vector3(color.R / 255f, color.G / 255f, color.B / 255f));
-            }
-        } // SetColor
-
-        #endregion
-
-        #region Spherical Harmonic Base
-
-        private static readonly Vector3[] lastUsedSphericalHarmonicBase = new Vector3[9];
-        private static void SetSphericalHarmonicBase(Vector3[] sphericalHarmonicBase)
-        {
-            if (!ArrayHelper.Equals(lastUsedSphericalHarmonicBase, sphericalHarmonicBase))
-            {
-                //lastUsedSphericalHarmonicBase = (Vector3[])(sphericalHarmonicBase.Clone()); // Produces garbage
-                for (int i = 0; i < 9; i++)
-                {
-                    lastUsedSphericalHarmonicBase[i] = sphericalHarmonicBase[i];
-                }
-                epSphericalHarmonicBase.SetValue(sphericalHarmonicBase);
-            }
-        } // SetSphericalHarmonicBase
-
-        #endregion
-
-        #region Half Pixel
-
-        private static Vector2 lastUsedHalfPixel;
-        private static void SetHalfPixel(Vector2 _halfPixel)
-        {
-            if (lastUsedHalfPixel != _halfPixel)
-            {
-                lastUsedHalfPixel = _halfPixel;
-                epHalfPixel.SetValue(_halfPixel);
-            }
-        } // SetHalfPixel
-
-        #endregion
-
-        #region Ambient Occlusion Texture
-
-        private static Texture2D lastUsedAmbientOcclusionTexture;
-        private static void SetAmbientOcclusionTexture(Texture ambientOcclusionTexture)
-        {
-            EngineManager.Device.SamplerStates[3] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedAmbientOcclusionTexture != ambientOcclusionTexture.Resource)
-            {
-                lastUsedAmbientOcclusionTexture = ambientOcclusionTexture.Resource;
-                epAmbientOcclusionTexture.SetValue(ambientOcclusionTexture.Resource);
-            }
-        } // SetAmbientOcclusionTexture
-
-        #endregion
-
-        #region Normal Texture
-
-        private static Texture2D lastUsedNormalTexture;
-        private static void SetNormalTexture(Texture normalTexture)
-        {
-            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTexture != normalTexture.Resource)
-            {
-                lastUsedNormalTexture = normalTexture.Resource;
-                epNormalTexture.SetValue(normalTexture.Resource);
-            }
-        } // SetNormalTexture
-
-        #endregion
-
-        #region Intensity
-
-        private static float lastUsedIntensity;
-        private static void SetIntensity(float _intensity)
-        {
-            if (lastUsedIntensity != _intensity)
-            {
-                lastUsedIntensity = _intensity;
-                epIntensity.SetValue(_intensity);
-            }
-        } // SetIntensity
-
-        #endregion
-
-        #region Ambient Occlusion Strength
-
-        private static float lastUsedAmbientOcclusionStrength;
-        private static void SetAmbientOcclusionStrength(float ambientOcclusionStrength)
-        {
-            if (lastUsedAmbientOcclusionStrength != ambientOcclusionStrength)
-            {
-                lastUsedAmbientOcclusionStrength = ambientOcclusionStrength;
-                epAmbientOcclusionStrength.SetValue(ambientOcclusionStrength);
-            }
-        } // SetAmbientOcclusionStrength
-
-        #endregion
-
-        #endregion
-
         #region Constructor
 
         /// <summary>
-        /// Light Pre Pass Directional Light Shader.
+        /// Light Pre Pass Ambient Light Shader.
         /// </summary>
-        private AmbientLightShader() : base("LightPrePass\\AmbientLight") { }
+        private AmbientLightShader() : base("LightPrePass\\AmbientLight")
+        {
+            // If the depth is 1 (sky) then I do not calculate the ambient light in this texels.
+            avoidSkyDepthStencilState = new DepthStencilState
+            {
+                DepthBufferEnable = true,
+                DepthBufferWriteEnable = false,
+                DepthBufferFunction = CompareFunction.NotEqual,
+            };
+        } // AmbientLightShader
 
         #endregion
 
@@ -230,24 +119,14 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                epHalfPixel                = Resource.Parameters["halfPixel"];
-                    epHalfPixel.SetValue(lastUsedHalfPixel);
-                epColor                    = Resource.Parameters["color"];
-                epColor.SetValue(new Vector3(lastUsedColor.R / 255f, lastUsedColor.G / 255f, lastUsedColor.B / 255f));
-                epNormalTexture            = Resource.Parameters["normalTexture"];
-                    if (lastUsedNormalTexture != null && !lastUsedNormalTexture.IsDisposed)
-                        epNormalTexture.SetValue(lastUsedNormalTexture);
-                epAmbientOcclusionTexture  = Resource.Parameters["ambientOcclusionTexture"];
-                    if (lastUsedAmbientOcclusionTexture != null && !lastUsedAmbientOcclusionTexture.IsDisposed)
-                        epAmbientOcclusionTexture.SetValue(lastUsedAmbientOcclusionTexture);
-                epSphericalHarmonicBase    = Resource.Parameters["sphericalHarmonicBase"];
-                    epSphericalHarmonicBase.SetValue(lastUsedSphericalHarmonicBase);
-                epIntensity                = Resource.Parameters["intensity"];
-                    epIntensity.SetValue(lastUsedIntensity);
-                epViewI                    = Resource.Parameters["viewI"];
-                    epViewI.SetValue(lastUsedViewInverseMatrix);
-                epAmbientOcclusionStrength = Resource.Parameters["ambientOcclusionStrength"];
-                    epAmbientOcclusionStrength.SetValue(lastUsedAmbientOcclusionStrength);
+                spIntensity = new ShaderParameterFloat("intensity", this);
+                spAmbientOcclusionStrength = new ShaderParameterFloat("ambientOcclusionStrength", this);
+                spHalfPixel = new ShaderParameterVector2("halfPixel", this);
+                spColor = new ShaderParameterColor("color", this);
+                spAmbientOcclusionTexture = new ShaderParameterTexture("ambientOcclusionTexture", this, SamplerState.PointClamp, 3);
+                spNormalTexture = new ShaderParameterTexture("normalTexture", this, SamplerState.PointClamp, 1);
+                spViewInverseMatrix = new ShaderParameterMatrix("viewI", this);
+                spSphericalHarmonicBase = new ShaderParameterVector3Array("sphericalHarmonicBase", this, 9);
             }
             catch
             {
@@ -257,59 +136,79 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Render Light
-        
+        #region Get Techniques Handles
+
         /// <summary>
-        /// Render to the light pre pass texture.
+        /// Get the handles of the techniques from the shader.
         /// </summary>
-        public void RenderLight(RenderTarget normalTexture, AmbientLight ambientLight, Texture ambientOcclusionTexture, Matrix viewMatrix)
+        /// <remarks>
+        /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
+        /// </remarks>
+        protected override void GetTechniquesHandles()
         {
-            
             try
             {
+                ambientLightSphericalHarmonicsTechnique = Resource.Techniques["AmbientLightSphericalHarmonics"];
+                ambientLightSphericalHarmonicsAmbientOcclusionTechnique = Resource.Techniques["AmbientLightSphericalHarmonicsAmbientOcclusion"];
+                ambientLightTechnique = Resource.Techniques["AmbientLight"];
+                ambientLightAmbientOcclusionTechnique = Resource.Techniques["AmbientLightAmbientOcclusion"];
+            }
+            catch
+            {
+                throw new InvalidOperationException("The technique's handles from the " + Name + " shader could not be retrieved.");
+            }
+        } // GetTechniquesHandles
 
-                #region Set Parameters
+        #endregion
+
+        #region Render
+        
+        /// <summary>
+        /// Render the ambient light.
+        /// </summary>
+        public void Render(RenderTarget normalTexture, AmbientLight ambientLight, Texture ambientOcclusionTexture, Matrix viewMatrix)
+        {
+            try
+            {
+                // If the depth is 1 (sky) then I do not calculate the ambient light in this texels.
+                EngineManager.Device.DepthStencilState = avoidSkyDepthStencilState;
+
+                // Set common parameters.
+                spHalfPixel.Value = new Vector2(-0.5f / (normalTexture.Width / 2), 0.5f / (normalTexture.Height / 2));
+                spColor.Value = ambientLight.Color;
+                spIntensity.Value = ambientLight.Intensity;
                 
-                SetHalfPixel(new Vector2(-0.5f / (normalTexture.Width / 2), 0.5f / (normalTexture.Height / 2)));
-                SetColor(ambientLight.Color);
-                SetIntensity(ambientLight.Intensity);
-                
-                #endregion
-
-                #region Select Technique and Set Some Related Parameters
-
+                // Select Technique and Set Some Related Parameters
                 if (ambientLight.SphericalHarmonicLighting != null)
                 {
-                    SetViewInverseMatrix(Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix))));
-                    SetNormalTexture(normalTexture);
+                    spViewInverseMatrix.Value = Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix)));
+                    spNormalTexture.Value = normalTexture;
                     ambientLight.SphericalHarmonicLighting.GetCoeficients(coeficients);
-                    SetSphericalHarmonicBase(coeficients);
+                    spSphericalHarmonicBase.Value = coeficients;
                     // Spherical Harmonics
                     if (ambientLight.AmbientOcclusion == null || !ambientLight.AmbientOcclusion.Enabled)
-                        Resource.CurrentTechnique = Resource.Techniques["AmbientLightSphericalHarmonics"];
+                        Resource.CurrentTechnique = ambientLightSphericalHarmonicsTechnique;
                     // Spherical Harmonics and Ambient Occlusion
                     else
                     {
-                        Resource.CurrentTechnique = Resource.Techniques["AmbientLightSphericalHarmonicsAmbientOcclusion"];
-                        SetAmbientOcclusionTexture(ambientOcclusionTexture);
-                        SetAmbientOcclusionStrength(ambientLight.AmbientOcclusionStrength);
+                        Resource.CurrentTechnique = ambientLightSphericalHarmonicsAmbientOcclusionTechnique;
+                        spAmbientOcclusionTexture.Value = ambientOcclusionTexture;
+                        spAmbientOcclusionStrength.Value = ambientLight.AmbientOcclusionStrength;
                     }    
                 }
                 else
                 {
                     // Only color
                     if (ambientLight.AmbientOcclusion == null || !ambientLight.AmbientOcclusion.Enabled)
-                        Resource.CurrentTechnique = Resource.Techniques["AmbientLight"];
+                        Resource.CurrentTechnique = ambientLightTechnique;
                     // Ambient Occlusion
                     else
                     {
-                        Resource.CurrentTechnique = Resource.Techniques["AmbientLightAmbientOcclusion"];
-                        SetAmbientOcclusionTexture(ambientOcclusionTexture);
-                        SetAmbientOcclusionStrength(ambientLight.AmbientOcclusionStrength);
+                        Resource.CurrentTechnique = ambientLightAmbientOcclusionTechnique;
+                        spAmbientOcclusionTexture.Value = ambientOcclusionTexture;
+                        spAmbientOcclusionStrength.Value = ambientLight.AmbientOcclusionStrength;
                     }
                 }
-
-                #endregion
 
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
@@ -318,7 +217,7 @@ namespace XNAFinalEngine.Graphics
             {
                 throw new InvalidOperationException("Light Pre Pass Ambient Light: Unable to render.", e);
             }
-        } // RenderLight
+        } // Render
 
         #endregion
 

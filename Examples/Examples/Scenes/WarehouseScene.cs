@@ -32,9 +32,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
+//using XNAFinalEngine.Editor;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
-//using XNAFinalEngine.Editor;
 using XNAFinalEngine.Input;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Size = XNAFinalEngine.Helpers.Size;
@@ -57,7 +57,7 @@ namespace XNAFinalEngineExamples
         private static GameObject3D // Models
                                     warehouseWalls, warehouseRoof, warehouseRoof1, warehouseWood, warehouseWood2, warehouseBrokenWindow, warehouseWindow, warehouseGround,
                                     // Lights
-                                    directionalLight, pointLight, pointLight2,
+                                    directionalLight, pointLight, pointLight2, spotLight,
                                     // Cameras
                                     camera,
                                     skydome;
@@ -80,8 +80,8 @@ namespace XNAFinalEngineExamples
             camera.AddComponent<Camera>();
             camera.AddComponent<SoundListener>();
             camera.Camera.RenderTargetSize = Size.FullScreen;
-            camera.Camera.FarPlane = 500;
-            camera.Camera.NearPlane = 0.05f;
+            camera.Camera.FarPlane = 5000;
+            camera.Camera.NearPlane = 1f; // Do not place a small value here, you can destroy performance, not just precision.
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
             ScriptCustomCamera script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
             script.SetPosition(new Vector3(0, 13, 22), Vector3.Zero);
@@ -180,7 +180,7 @@ namespace XNAFinalEngineExamples
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.Color = new Color(250, 250, 220);
-            directionalLight.DirectionalLight.Intensity = 0.25f;
+            directionalLight.DirectionalLight.Intensity = 1f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.95f, -0.3f), Vector3.Zero, Vector3.Forward);
             /*directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
@@ -196,18 +196,36 @@ namespace XNAFinalEngineExamples
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
-            pointLight.PointLight.Color = new Color(200, 200, 230); // new Color(240, 235, 200);
-            pointLight.PointLight.Intensity = 0.5f;
+            pointLight.PointLight.Color = new Color(10, 200, 10); // new Color(240, 235, 200);
+            pointLight.PointLight.Intensity = 0;
             pointLight.PointLight.Range = 60;
             pointLight.Transform.Position = new Vector3(4.8f, 1.5f, 10); // new Vector3(8f, -1f, 10);
             //pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 1024, };
-            
-            pointLight2 = new GameObject3D();
-            pointLight2.AddComponent<PointLight>();
-            pointLight2.PointLight.Color = new Color(200, 170, 130);
-            pointLight2.PointLight.Intensity = 0.2f;
-            pointLight2.PointLight.Range = 30;
-            pointLight2.Transform.Position = new Vector3(-12f, 2, -3);
+
+            for (int i = 0; i < 50; i++)
+            {
+                pointLight2 = new GameObject3D();
+                pointLight2.AddComponent<PointLight>();
+                pointLight2.PointLight.Color = new Color(10, 10, 190);
+                pointLight2.PointLight.Intensity = 0.5f;
+                pointLight2.PointLight.Range = 30;
+                pointLight2.Transform.Position = new Vector3(12f, 2, -3);
+            }
+
+            spotLight = new GameObject3D();
+            spotLight.AddComponent<SpotLight>();
+            spotLight.SpotLight.Color = Color.Green;
+            spotLight.SpotLight.Intensity = 0f;
+            spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
+            spotLight.Transform.Position = new Vector3(0, 15f, 10);
+            spotLight.Transform.Rotate(new Vector3(-45, 0, 0));
+            spotLight.SpotLight.LightMaskTexture = new Texture("LightMasks\\Crysis2TestLightMask");
+            /*spotLight.SpotLight.Shadow = new BasicShadow
+            {
+                Filter = Shadow.FilterType.Pcf3X3,
+                LightDepthTextureSize = Size.Square1024X1024,
+                TextureSize = Size.TextureSize.FullSize
+            };*/
             
             #endregion
             

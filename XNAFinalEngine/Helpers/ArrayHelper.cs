@@ -66,7 +66,7 @@ namespace XNAFinalEngine.Helpers
         #region Vector2
 
         /// <summary>
-        /// Test if two vector2 arrays have the same values.
+        /// Test if two Vector2 arrays have the same values.
         /// </summary>
         public static bool Equals(Vector2[] a1, Vector2[] a2)
         {
@@ -92,9 +92,35 @@ namespace XNAFinalEngine.Helpers
         #region Vector3
 
         /// <summary>
-        /// Test if two vector2 arrays have the same values.
+        /// Test if two Vector3 arrays have the same values.
         /// </summary>
         public static bool Equals(Vector3[] a1, Vector3[] a2)
+        {
+            if (a1 == null && a2 == null)
+                return true;
+            if (a1 == null || a2 == null)
+                return false;
+
+            if (a1.Length != a2.Length)
+                return false;
+
+            //return !a1.Where((t, i) => t != a2[i]).Any(); // Produces garbage
+            for (int i = 0; i < a1.Length; i++)
+            {
+                if (a1[i] != a2[i])
+                    return false;
+            }
+            return true;
+        } // Equals
+
+        #endregion
+
+        #region Vector4
+
+        /// <summary>
+        /// Test if two Vector4 arrays have the same values.
+        /// </summary>
+        public static bool Equals(Vector4[] a1, Vector4[] a2)
         {
             if (a1 == null && a2 == null)
                 return true;

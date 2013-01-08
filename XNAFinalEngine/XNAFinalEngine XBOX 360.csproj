@@ -90,9 +90,13 @@
     <Compile Include="Assets\Shaders\ShaderParameterMatrix.cs" />
     <Compile Include="Assets\Shaders\ShaderParameterMatrixArray.cs" />
     <Compile Include="Assets\Shaders\ShaderParameterTexture.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterTextureCube.cs" />
     <Compile Include="Assets\Shaders\ShaderParameterVector2.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterVector2Array.cs" />
     <Compile Include="Assets\Shaders\ShaderParameterVector3.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterVector3Array.cs" />
     <Compile Include="Assets\Shaders\ShaderParameterVector4.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterVector4Array.cs" />
     <Compile Include="Assets\Shadows\BasicShadow.cs" />
     <Compile Include="Assets\Shadows\CascadedShadow.cs" />
     <Compile Include="Assets\Shadows\CubeShadow.cs" />

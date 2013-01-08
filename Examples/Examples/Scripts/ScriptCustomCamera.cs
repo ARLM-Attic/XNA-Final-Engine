@@ -32,6 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using System;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Components;
+using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
 using Mouse = XNAFinalEngine.Input.Mouse;
 using GamePad = XNAFinalEngine.Input.GamePad;
@@ -161,13 +162,13 @@ namespace XNAFinalEngineExamples
 
             #region Gamepad
 
-            LookAtPosition -= ((GameObject3D)Owner).Transform.Right * -GamePad.PlayerOne.LeftStickX * Distance / 1000;
-            LookAtPosition += ((GameObject3D)Owner).Transform.Up * GamePad.PlayerOne.LeftStickY * Distance / 1000;
+            LookAtPosition -= ((GameObject3D)Owner).Transform.Right * -GamePad.PlayerOne.LeftStickX * Distance / 5 * Time.GameDeltaTime;
+            LookAtPosition += ((GameObject3D)Owner).Transform.Up * GamePad.PlayerOne.LeftStickY * Distance / 5 * Time.GameDeltaTime;
             // Orientation
-            Yaw -= GamePad.PlayerOne.RightStickX * 0.008f;
-            Pitch += GamePad.PlayerOne.RightStickY * 0.008f;
+            Yaw -= GamePad.PlayerOne.RightStickX * 1.5f * Time.GameDeltaTime;
+            Pitch += GamePad.PlayerOne.RightStickY * 1.5f * Time.GameDeltaTime;
             // Distance or zoom
-            //Distance -= (GamePad.PlayerOne.RightTrigger - GamePad.PlayerOne.LeftTrigger) * Distance / 300;
+            Distance -= (GamePad.PlayerOne.RightTrigger - GamePad.PlayerOne.LeftTrigger) * Distance * Time.GameDeltaTime;
 
             #endregion
 

@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -35,7 +35,7 @@ using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using Model = XNAFinalEngine.Assets.Model;
-using Texture = XNAFinalEngine.Assets.Texture;
+using TextureCube = XNAFinalEngine.Assets.TextureCube;
 #endregion
 
 namespace XNAFinalEngine.Graphics
@@ -60,8 +60,23 @@ namespace XNAFinalEngine.Graphics
         // Singleton reference.
         private static PointLightShader instance;
 
+        // Render states used in the multipass render.
         private readonly BlendState stencilBlendState, lightBlendState;
-        private readonly DepthStencilState stencilDepthStencilState, lightDepthStencilState, lightNotStencilDepthStencilState;
+        private readonly DepthStencilState stencilDepthStencilState, lightDepthStencilState;
+
+        // Shader Parameters.
+        private static ShaderParameterFloat spLightIntensity, spInvLightRadius, spFarPlane;
+        private static ShaderParameterVector2 spHalfPixel;
+        private static ShaderParameterColor spLightColor;
+        private static ShaderParameterTexture spDepthTexture, spNormalTexture;
+        private static ShaderParameterTextureCube spShadowTexture;
+        private static ShaderParameterVector3 spLightPosition;
+        private static ShaderParameterMatrix spWorldView, spWorldViewProj, spViewInverse;
+
+        // Techniques references.
+        private static EffectTechnique pointLightStencilTechnique,
+                                       pointLightTechnique,
+                                       pointLightWithShadowsTechnique;
 
         #endregion
 
@@ -79,165 +94,6 @@ namespace XNAFinalEngine.Graphics
                 return instance;
             }
         } // Instance
-
-        #endregion
-
-        #region Shader Parameters
-
-        /// <summary>
-        /// Effect handles
-        /// </summary>
-        private static EffectParameter epHalfPixel,
-                                       epInvLightRadius,
-                                       epDepthTexture,
-                                       epNormalTexture,
-                                       epLightColor,
-                                       epLightPosition,
-                                       epLlightIntensity,
-                                       epFarPlane,
-                                       epWorldViewProj,
-                                       epWorldView;
-
-
-        #region Half Pixel
-
-        private static Vector2 lastUsedHalfPixel;
-        private static void SetHalfPixel(Vector2 _halfPixel)
-        {
-            if (lastUsedHalfPixel != _halfPixel)
-            {
-                lastUsedHalfPixel = _halfPixel;
-                epHalfPixel.SetValue(_halfPixel);
-            }
-        } // SetHalfPixel
-
-        #endregion
-
-        #region Depth Texture
-
-        private static Texture2D lastUsedDepthTexture;
-        private static void SetDepthTexture(Texture depthTexture)
-        {
-            EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp; // depthTexture
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource)
-            {
-                lastUsedDepthTexture = depthTexture.Resource;
-                epDepthTexture.SetValue(depthTexture.Resource);
-            }
-        } // SetDepthTexture
-
-        #endregion
-
-        #region Normal Texture
-
-        private static Texture2D lastUsedNormalTexture;
-        private static void SetNormalTexture(Texture normalTexture)
-        {
-            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedNormalTexture != normalTexture.Resource)
-            {
-                lastUsedNormalTexture = normalTexture.Resource;
-                epNormalTexture.SetValue(normalTexture.Resource);
-            }
-        } // SetNormalTexture
-
-        #endregion
-
-        #region Light Color
-
-        private static Color lastUsedLightColor;
-        private static void SetLightColor(Color lightColor)
-        {
-            if (lastUsedLightColor != lightColor)
-            {
-                lastUsedLightColor = lightColor;
-                epLightColor.SetValue(new Vector3(lightColor.R / 255f, lightColor.G / 255f, lightColor.B / 255f));
-            }
-        } // SetLightColor
-
-        #endregion
-
-        #region Light Position
-
-        private static Vector3 lastUsedLightPosition;
-        private static void SetLightPosition(Vector3 lightPosition)
-        {
-            if (lastUsedLightPosition != lightPosition)
-            {
-                lastUsedLightPosition = lightPosition;
-                epLightPosition.SetValue(lightPosition);
-            }
-        } // SetLightPosition
-
-        #endregion
-        
-        #region Light Intensity
-
-        private static float lastUsedLightIntensity;
-        private static void SetLightIntensity(float lightIntensity)
-        {
-            if (lastUsedLightIntensity != lightIntensity)
-            {
-                lastUsedLightIntensity = lightIntensity;
-                epLlightIntensity.SetValue(lightIntensity);
-            }
-        } // SetLightIntensity
-
-        #endregion
-
-        #region Inverse Light Radius
-
-        private static float lastUsedInvLightRadius;
-        private static void SetInvLightRadius(float lightRadius)
-        {
-            if (lastUsedInvLightRadius != lightRadius)
-            {
-                lastUsedInvLightRadius = lightRadius;
-                epInvLightRadius.SetValue(lightRadius);
-            }
-        } // SetInvLightRadius
-
-        #endregion
-
-        #region Far Plane
-
-        private static float lastUsedFarPlane;
-        private static void SetFarPlane(float _farPlane)
-        {
-            if (lastUsedFarPlane != _farPlane)
-            {
-                lastUsedFarPlane = _farPlane;
-                epFarPlane.SetValue(_farPlane);
-            }
-        } // SetFarPlane
-
-        #endregion
-        
-        #region Matrices
-
-        private static Matrix lastUsedWorldViewMatrix;
-        private static void SetWorldViewMatrix(Matrix worldViewMatrix)
-        {
-            if (lastUsedWorldViewMatrix != worldViewMatrix)
-            {
-                lastUsedWorldViewMatrix = worldViewMatrix;
-                epWorldView.SetValue(worldViewMatrix);
-            }
-        } // SetWorldViewMatrix
-
-        private static Matrix lastUsedWorldViewProjMatrix;
-        private static void SetWorldViewProjMatrix(Matrix worldViewProjectionMatrix)
-        {
-            if (lastUsedWorldViewProjMatrix != worldViewProjectionMatrix)
-            {
-                lastUsedWorldViewProjMatrix = worldViewProjectionMatrix;
-                epWorldViewProj.SetValue(worldViewProjectionMatrix);
-            }
-        } // SetWorldViewProjMatrix
-
-        #endregion
 
         #endregion
 
@@ -303,28 +159,18 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                epHalfPixel                        = Resource.Parameters["halfPixel"];
-                    epHalfPixel.SetValue(lastUsedHalfPixel);
-                epLightColor                       = Resource.Parameters["lightColor"];
-                    epLightColor.SetValue(new Vector3(lastUsedLightColor.R / 255f, lastUsedLightColor.G / 255f, lastUsedLightColor.B / 255f));
-                epLightPosition                    = Resource.Parameters["lightPosition"];
-                    epLightPosition.SetValue(lastUsedLightPosition);
-                epLlightIntensity                  = Resource.Parameters["lightIntensity"];
-                    epLlightIntensity.SetValue(lastUsedLightIntensity);
-                epInvLightRadius                      = Resource.Parameters["invLightRadius"];
-                    epInvLightRadius.SetValue(lastUsedInvLightRadius);
-                epDepthTexture                     = Resource.Parameters["depthTexture"];
-                    if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
-                        epDepthTexture.SetValue(lastUsedDepthTexture);
-                epNormalTexture                    = Resource.Parameters["normalTexture"];
-                    if (lastUsedNormalTexture != null && !lastUsedNormalTexture.IsDisposed)
-                        epNormalTexture.SetValue(lastUsedNormalTexture);
-                epFarPlane                         = Resource.Parameters["farPlane"];
-                    epFarPlane.SetValue(lastUsedFarPlane);
-                epWorldViewProj                    = Resource.Parameters["worldViewProj"];
-                    epWorldViewProj.SetValue(lastUsedWorldViewProjMatrix);
-                epWorldView                        = Resource.Parameters["worldView"];
-                    epWorldView.SetValue(lastUsedWorldViewMatrix);
+                spHalfPixel = new ShaderParameterVector2("halfPixel", this);
+                spLightIntensity = new ShaderParameterFloat("lightIntensity", this);
+                spInvLightRadius = new ShaderParameterFloat("invLightRadius", this);
+                spFarPlane = new ShaderParameterFloat("farPlane", this);
+                spLightColor = new ShaderParameterColor("lightColor", this);
+                spDepthTexture = new ShaderParameterTexture("depthTexture", this, SamplerState.PointClamp, 0);
+                spNormalTexture = new ShaderParameterTexture("normalTexture", this, SamplerState.PointClamp, 1);
+                spShadowTexture = new ShaderParameterTextureCube("cubeShadowTexture", this, SamplerState.PointClamp, 3);
+                spLightPosition = new ShaderParameterVector3("lightPosition", this);
+                spWorldView = new ShaderParameterMatrix("worldView", this);
+                spWorldViewProj = new ShaderParameterMatrix("worldViewProj", this);
+                spViewInverse = new ShaderParameterMatrix("viewI", this);
             }
             catch
             {
@@ -332,6 +178,30 @@ namespace XNAFinalEngine.Graphics
             }
         } // GetParameters
         
+        #endregion
+
+        #region Get Techniques Handles
+
+        /// <summary>
+        /// Get the handles of the techniques from the shader.
+        /// </summary>
+        /// <remarks>
+        /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
+        /// </remarks>
+        protected override void GetTechniquesHandles()
+        {
+            try
+            {
+                pointLightStencilTechnique = Resource.Techniques["PointLightStencil"];
+                pointLightTechnique = Resource.Techniques["PointLight"];
+                pointLightWithShadowsTechnique = Resource.Techniques["PointLightWithShadows"];
+            }
+            catch
+            {
+                throw new InvalidOperationException("The technique's handles from the " + Name + " shader could not be retrieved.");
+            }
+        } // GetTechniquesHandles
+
         #endregion
 
         #region Begin
@@ -345,17 +215,17 @@ namespace XNAFinalEngine.Graphics
         /// <param name="projectionMatrix">Camera projection matrix.</param>
         /// <param name="nearPlane">Camera near plane.</param>
         /// <param name="farPlane">Camera far plane.</param>
-        internal void Begin(RenderTarget depthTexture, RenderTarget normalTexture,
-                            Matrix viewMatrix, Matrix projectionMatrix, float nearPlane, float farPlane, float fov)
+        /// <param name="fieldOfView">Camera field of view.</param>
+        internal void Begin(RenderTarget depthTexture, RenderTarget normalTexture, Matrix viewMatrix, Matrix projectionMatrix, float nearPlane, float farPlane, float fieldOfView)
         {
             try
             {
-                SetDepthTexture(depthTexture);
-                SetNormalTexture(normalTexture);
-                SetHalfPixel(new Vector2(0.5f / depthTexture.Width, 0.5f / depthTexture.Height)); // I use the depth texture, but I just need the destination render target dimension.
-                SetFarPlane(farPlane);
+                spDepthTexture.Value = depthTexture;
+                spNormalTexture.Value = normalTexture;
+                spHalfPixel.Value = new Vector2(0.5f / depthTexture.Width, 0.5f / depthTexture.Height); // I use the depth texture, but I just need the destination render target dimension.
+                spFarPlane.Value = farPlane;
                 this.nearPlane = nearPlane;
-                this.fieldOfView = fov;
+                this.fieldOfView = fieldOfView;
                 this.viewMatrix = viewMatrix;
                 this.projectionMatrix = projectionMatrix;
             }
@@ -370,14 +240,13 @@ namespace XNAFinalEngine.Graphics
         #region Render Light
 
         /// <summary>
-        /// Render to the light pre pass texture.
+        /// Render the point light.
         /// </summary>
-        public void RenderLight(Color diffuseColor, Vector3 position, float intensity, float radius, Shadow shadow)
+        public void Render(Color diffuseColor, Vector3 position, float intensity, float radius, CubeShadow shadow)
         {
             try
             {
-                // Long time ago, when I was started the deferred lighting pipeline I read that it is possible to use the depth information 
-                // and the stencil buffer to mark in a two pass rendering exactly what pixels are affected by the light. 
+                // It is possible to use the depth information and the stencil buffer to mark in a two pass rendering exactly what pixels are affected by the light. 
                 // This helps to reduce pixel shader load but at the same time allows implementing clip volumes. 
                 // With clip volumes you can put, for example, a box and the light won’t bleed outside this box even if the radius is bigger.
                 // I.e. you can place lights in a wall and the opposite side of that wall won’t be illuminated.
@@ -407,23 +276,24 @@ namespace XNAFinalEngine.Graphics
 
                 #region Set Parameters
 
-                SetLightColor(diffuseColor);
-                SetLightPosition(Vector3.Transform(position, viewMatrix));
-                SetLightIntensity(intensity);
-                SetInvLightRadius(1 / radius);
+                spLightColor.Value = diffuseColor;
+                spLightPosition.Value = Vector3.Transform(position, viewMatrix);
+                spLightIntensity.Value = intensity;
+                spInvLightRadius.Value = 1 / radius;
 
-                if (shadow != null && shadow is CubeShadow)
+                if (shadow != null)
                 {
-                    // TODO!!!
-                    Resource.Parameters["cubeShadowTexture"].SetValue(((CubeShadow)shadow).LightDepthTexture.Resource);
-                    Resource.Parameters["viewI"].SetValue(Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix))));
+                    spShadowTexture.Value = shadow.LightDepthTexture;
+                    spViewInverse.Value = Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix)));
                 }
+                else
+                    spShadowTexture.Value = TextureCube.BlackTexture;
 
                 // Compute the light world matrix.
                 // Scale according to light radius, and translate it to light position.
                 Matrix boundingLightObjectWorldMatrix = Matrix.CreateScale(radius) * Matrix.CreateTranslation(position); // This operation could be optimized.
-                SetWorldViewProjMatrix(boundingLightObjectWorldMatrix * viewMatrix * projectionMatrix);
-                SetWorldViewMatrix(boundingLightObjectWorldMatrix * viewMatrix);
+                spWorldViewProj.Value = boundingLightObjectWorldMatrix * viewMatrix * projectionMatrix;
+                spWorldView.Value = boundingLightObjectWorldMatrix * viewMatrix;
 
                 #endregion
 
@@ -431,7 +301,7 @@ namespace XNAFinalEngine.Graphics
                 // The formula was inspired from Guerilla´s GDC 09 presentation.
                 float distanceToCamera = Vector3.Distance(Matrix.Invert(viewMatrix).Translation, position) - nearPlane;
                 float angularDiameter = (float)(2 * Math.Atan(radius / distanceToCamera));
-                if (angularDiameter > 0.2f * (3.1416f * fieldOfView / 180.0f))
+                if (angularDiameter > 0.5f * (3.1416f * fieldOfView / 180.0f)) // 0.2f is the original value.
                 {
                     // This only works when the clip volume does not intercept the camera´s far plane.
 
@@ -440,7 +310,7 @@ namespace XNAFinalEngine.Graphics
                     // is in front of the geometry then it marks the pixel as useful.
                     // I prefer to do it in that way because when the clip volume intercept the camera’s near plane 
                     // we don’t need to perform a special case and we still have custom volume support.
-                    Resource.CurrentTechnique = Resource.Techniques["PointLightStencil"];
+                    Resource.CurrentTechnique = pointLightStencilTechnique;
                     EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
                     EngineManager.Device.BlendState = stencilBlendState;
                     EngineManager.Device.DepthStencilState = stencilDepthStencilState;
@@ -450,10 +320,7 @@ namespace XNAFinalEngine.Graphics
                     // Second pass.
                     // Render the clip volume back faces with the light shader.
                     // The pixel with stencil value of 1 that are in front of the geometry will be discarded.
-                    if (shadow != null && shadow is CubeShadow)
-                        Resource.CurrentTechnique = Resource.Techniques["PointLightWithShadows"];
-                    else
-                        Resource.CurrentTechnique = Resource.Techniques["PointLight"];
+                    Resource.CurrentTechnique = shadow != null ? pointLightWithShadowsTechnique : pointLightTechnique;
                     EngineManager.Device.RasterizerState = RasterizerState.CullClockwise;
                     EngineManager.Device.BlendState = lightBlendState;
                     EngineManager.Device.DepthStencilState = lightDepthStencilState;
@@ -463,10 +330,10 @@ namespace XNAFinalEngine.Graphics
                 else // Far lights
                 {
                     // Render the clip volume front faces with the light shader.
-                    Resource.CurrentTechnique = Resource.Techniques["PointLight"];
+                    Resource.CurrentTechnique = pointLightTechnique;
                     EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                    EngineManager.Device.BlendState = lightBlendState;
-                    EngineManager.Device.DepthStencilState = DepthStencilState.Default;
+                    //EngineManager.Device.BlendState = lightBlendState; // Not need to set it.
+                    EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
                     Resource.CurrentTechnique.Passes[0].Apply();
                     boundingLightObject.Render();
                 }
@@ -475,7 +342,7 @@ namespace XNAFinalEngine.Graphics
             {
                 throw new InvalidOperationException("Light Pre Pass Point Light: Unable to render.", e);
             }
-        } // RenderLight
+        } // Render
 
         #endregion
 

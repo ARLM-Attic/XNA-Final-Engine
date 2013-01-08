@@ -69,6 +69,7 @@ namespace XNAFinalEngine.Graphics
         private static ShaderParameterVector2 spObjectNormalTextureSize;
         private static ShaderParameterTexture spObjectNormalTexture, spObjectSpecularTexture, spNormalsFittingTexture;
 
+        // Techniques references.
         private static EffectTechnique gBufferSimpleTechnique,
                                        gBufferWithNormalMap,
                                        gBufferWithParallax,
@@ -240,6 +241,7 @@ namespace XNAFinalEngine.Graphics
             }
             else
             {
+                spObjectSpecularTexture.Value = Texture.BlackTexture; // To avoid a potential exception.
                 spSpecularPower.Value = material.SpecularPower;
                 spSpecularTextured.Value = false;
             }

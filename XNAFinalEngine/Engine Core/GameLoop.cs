@@ -92,9 +92,7 @@ namespace XNAFinalEngine.EngineCore
 
         // Frustum Culling.
         private static readonly List<ModelRenderer> modelsToRender      = new List<ModelRenderer>(100);
-
         private static readonly List<ModelRenderer> modelsToRenderShadows = new List<ModelRenderer>(100);
-
         private static readonly List<PointLight>    pointLightsToRender = new List<PointLight>(50);
         private static readonly List<SpotLight>     spotLightsToRender  = new List<SpotLight>(20);
 
@@ -643,49 +641,7 @@ namespace XNAFinalEngine.EngineCore
         } // RenderMainCamera
 
         #endregion
-
-        #region Frustum Culling
         
-        /// <summary>
-        /// Frustum Culling.
-        /// </summary>
-        /// <param name="boundingFrustum">Bounding Frustum.</param>
-        /// <param name="pointLightsToRender">The result.</param>
-        private static void FrustumCulling(BoundingFrustum boundingFrustum, List<PointLight> pointLightsToRender)
-        {
-            for (int i = 0; i < PointLight.ComponentPool.Count; i++)
-            {
-                PointLight component = PointLight.ComponentPool.Elements[i];
-                if (component.Intensity > 0 && component.IsVisible)
-                {
-                    BoundingSphere boundingSphere = new BoundingSphere(component.cachedPosition, component.Range);
-                    if (boundingFrustum.Intersects(boundingSphere))
-                        pointLightsToRender.Add(component);
-                }
-            }
-        } // FrustumCulling
-
-        /// <summary>
-        /// Frustum Culling.
-        /// </summary>
-        /// <param name="boundingFrustum">Bounding Frustum.</param>
-        /// <param name="spotLightsToRender">The result.</param>
-        private static void FrustumCulling(BoundingFrustum boundingFrustum, List<SpotLight> spotLightsToRender)
-        {
-            for (int i = 0; i < SpotLight.ComponentPool.Count; i++)
-            {
-                SpotLight component = SpotLight.ComponentPool.Elements[i];
-                if (component.Intensity > 0 && component.IsVisible)
-                {
-                    BoundingSphere boundingSphere = new BoundingSphere(component.cachedPosition, component.Range);
-                    if (boundingFrustum.Intersects(boundingSphere))
-                        spotLightsToRender.Add(component);
-                }
-            }
-        } // FrustumCulling
-
-        #endregion
-
         #region Calculate Render Target Size
 
         /// <summary>
@@ -871,7 +827,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-
+            
             #region Render
 
             // Render with batchs (each list is a G-Buffer technique)
@@ -915,7 +871,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
-
+            
             gbufferTextures = GBufferPass.End();
             
             // Downsample GBuffer
@@ -1166,6 +1122,13 @@ namespace XNAFinalEngine.EngineCore
             
             #region Light Texture
 
+            // Frustum Culling
+            pointLightsToRender.Clear();
+            spotLightsToRender.Clear();
+            cameraBoundingFrustum.Matrix = currentCamera.ViewMatrix * currentCamera.ProjectionMatrix;
+            FrustumCulling.PointLightFrustumCulling(cameraBoundingFrustum, pointLightsToRender);
+            FrustumCulling.SpotLightFrustumCulling(cameraBoundingFrustum, spotLightsToRender);
+
             LightPrePass.Begin(renderTarget.Size);
 
             // Put the depth information from the G-Buffer to the hardware Z-Buffer of the light pre pass render targets.
@@ -1173,23 +1136,23 @@ namespace XNAFinalEngine.EngineCore
             // the possibility to use light clip volumes (to limit the range of influence of a light using convex volumes)
             ReconstructZBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], currentCamera.FarPlane, currentCamera.ProjectionMatrix);
 
-            // Ambient and directional lights works on fullscreen and do not care about depth information.
-            EngineManager.Device.DepthStencilState = DepthStencilState.None;
-
+            // Set states common to all lights.
+            LightPrePass.SetRenderStates();
+            
             #region Ambient Light
             
             // Render ambient light
             if (currentCamera.AmbientLight != null && currentCamera.AmbientLight.Intensity > 0)
             {
-                AmbientLightShader.Instance.RenderLight(gbufferTextures.RenderTargets[1], // Normal Texture
-                                                        currentCamera.AmbientLight,
-                                                        ambientOcclusionTexture,
-                                                        currentCamera.ViewMatrix);
+                AmbientLightShader.Instance.Render(gbufferTextures.RenderTargets[1], // Normal Texture
+                                                   currentCamera.AmbientLight,
+                                                   ambientOcclusionTexture,
+                                                   currentCamera.ViewMatrix);
             }
             RenderTarget.Release(ambientOcclusionTexture);
 
             #endregion
-            /*
+            
             #region Directional Lights
 
             DirectionalLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
@@ -1201,20 +1164,14 @@ namespace XNAFinalEngine.EngineCore
                 DirectionalLight directionalLight = DirectionalLight.ComponentPool.Elements[i];
                 if (directionalLight.Intensity > 0 && directionalLight.IsVisible)
                 {
-                    DirectionalLightShader.Instance.RenderLight(directionalLight.Color, directionalLight.cachedDirection,
-                                                                directionalLight.Intensity, directionalLight.ShadowTexture);
+                    DirectionalLightShader.Instance.Render(directionalLight.Color, directionalLight.cachedDirection, directionalLight.Intensity, directionalLight.ShadowTexture);
                 }
             }
 
             #endregion
-
+            
             #region Point Lights
-
-            // Frustum Culling
-            pointLightsToRender.Clear();
-            cameraBoundingFrustum.Matrix = currentCamera.ViewMatrix * currentCamera.ProjectionMatrix;
-            FrustumCulling(cameraBoundingFrustum, pointLightsToRender);
-
+            
             PointLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                             gbufferTextures.RenderTargets[1], // Normal Texture
                                             currentCamera.ViewMatrix,
@@ -1222,24 +1179,17 @@ namespace XNAFinalEngine.EngineCore
                                             currentCamera.NearPlane,
                                             currentCamera.FarPlane,
                                             currentCamera.FieldOfView);
-            for (int i = 0; i < pointLightsToRender.Count; i++)
+            foreach (PointLight pointLight in pointLightsToRender)
             {
-                PointLight pointLight = pointLightsToRender[i];
-                if (pointLight.Intensity > 0 && pointLight.IsVisible)
-                {
-                    PointLightShader.Instance.RenderLight(pointLight.Color, pointLight.cachedPosition, pointLight.Intensity, pointLight.Range, pointLight.Shadow);
-                }
-            }
-            
+                PointLightShader.Instance.Render(pointLight.Color, pointLight.cachedPosition, pointLight.Intensity, pointLight.Range, (CubeShadow)pointLight.Shadow);
+            }            
 
             #endregion
-
+            /*
             #region Spot Lights
 
             // Frustum Culling
-            spotLightsToRender.Clear();
-            cameraBoundingFrustum.Matrix = currentCamera.ViewMatrix * currentCamera.ProjectionMatrix;
-            FrustumCulling(cameraBoundingFrustum, spotLightsToRender);
+
 
             SpotLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                            gbufferTextures.RenderTargets[1], // Normal Texture
@@ -1679,7 +1629,7 @@ namespace XNAFinalEngine.EngineCore
             RenderTarget.Release(lightTextures);
 
             #endregion
-
+            
             #region Post Process Pass
 
             PostProcessingPass.BeginAndProcess(sceneTexture, gbufferTextures.RenderTargets[0], gbufferHalfTextures.RenderTargets[0], currentCamera.PostProcess, ref currentCamera.LuminanceTexture, 

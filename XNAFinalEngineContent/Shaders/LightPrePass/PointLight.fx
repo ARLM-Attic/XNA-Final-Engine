@@ -46,15 +46,15 @@ float3x3 viewI;
 //////////////// Textures ////////////////////
 //////////////////////////////////////////////
 
-texture  cubeShadowTexture;
-samplerCUBE cubeShadowSampler = sampler_state
+texture  cubeShadowTexture: register(t3);
+samplerCUBE cubeShadowSampler : register(s3) = sampler_state
 {
     Texture = <cubeShadowTexture>;
-    MinFilter = Point;//Linear;
+    /*MinFilter = Point;//Linear;
     MagFilter = Point;//Linear;
     MipFilter = None;
     AddressU = Clamp;
-    AddressV = Clamp;
+    AddressV = Clamp;*/
 };
 
 //////////////////////////////////////////////
@@ -95,7 +95,7 @@ VS_OUT vs_main(in float4 position : POSITION)
 PixelShader_OUTPUT ps_main(VS_OUT input, uniform bool hasShadows)
 {
 	PixelShader_OUTPUT output = (PixelShader_OUTPUT)0;
-		
+	
     // Obtain screen position
     input.screenPosition.xy /= input.screenPosition.w;
     // Obtain textureCoordinates corresponding to the current pixel
@@ -141,13 +141,6 @@ PixelShader_OUTPUT ps_main(VS_OUT input, uniform bool hasShadows)
 	// Compute specular light
     float specular = pow(saturate(dot(N, H)), DecompressSpecularPower(normalCompressed.w));
 
-    /*// Reflexion vector
-	// Camera-to-surface vector
-    float3 V = normalize(-positionVS);
-    float3 R = reflect(-V, N);
-	// Compute specular light
-    float specular = pow(saturate(dot(L, R)), specularPower);*/
-
 	// Process the shadow map value.
 	float shadowTerm = 1.0;
 		
@@ -170,7 +163,7 @@ PixelShader_OUTPUT ps_main(VS_OUT input, uniform bool hasShadows)
 	// G: Color.g * N.L
 	// B: Color.b * N.L
 	// A: Specular Term * N.L (Look in Shader X7 to know why N * L is necesary in this last channel or use your brain, it is easy actually.)
-	// http://diaryofagraphicsprogrammer.blogspot.com/2008/03/light-pre-pass-renderer.html
+	// http://diaryofagraphicsprogrammer.blogspot.com/2008/03/light-pre-pass-renderer.html	
 	output.diffuse = float4(GammaToLinear(lightColor) * attenuation * lightIntensity * NL * shadowTerm, 0);
 	output.specular = float4(output.diffuse.rgb * specular, 0);
 	return output;

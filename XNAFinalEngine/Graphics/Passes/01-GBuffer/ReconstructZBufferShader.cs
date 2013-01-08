@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
-using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.Graphics
@@ -49,6 +48,14 @@ namespace XNAFinalEngine.Graphics
 
         // Singleton reference.
         private static ReconstructZBufferShader instance;
+        
+        // Shader Parameters.
+        private static ShaderParameterFloat spFarPlane;
+        private static ShaderParameterVector2 spHalfPixel;
+        private static ShaderParameterMatrix spProjectionMatrix;
+        private static ShaderParameterTexture spDepthTexture;
+
+        private static DepthStencilState depthStencilState;
 
         #endregion
 
@@ -69,82 +76,20 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Shader Parameters
-
-        /// <summary>
-        /// Effect handles
-        /// </summary>
-        private static EffectParameter epHalfPixel,
-                                       epFarPlane,
-                                       epProjectionMatrix,
-                                       epDepthTexture;
-
-        #region Half Pixel
-
-        private static Vector2 lastUsedHalfPixel;
-        private static void SetHalfPixel(Vector2 _halfPixel)
-        {
-            if (lastUsedHalfPixel != _halfPixel)
-            {
-                lastUsedHalfPixel = _halfPixel;
-                epHalfPixel.SetValue(_halfPixel);
-            }
-        } // SetHalfPixel
-
-        #endregion
-
-        #region Projection Matrix
-
-        private static Matrix lastUsedProjectionMatrix;
-        private static void SetProjectionMatrix(Matrix matrix)
-        {
-            if (lastUsedProjectionMatrix != matrix)
-            {
-                lastUsedProjectionMatrix = matrix;
-                epProjectionMatrix.SetValue(matrix);
-            }
-        } // SetProjectionMatrix
-
-        #endregion
-
-        #region Far Plane
-
-        private static float lastUsedFarPlane;
-        private static void SetFarPlane(float _farPlane)
-        {
-            if (lastUsedFarPlane != _farPlane)
-            {
-                lastUsedFarPlane = _farPlane;
-                epFarPlane.SetValue(_farPlane);
-            }
-        } // SetFarPlane
-
-        #endregion
-
-        #region Depth Texture
-
-        private static Texture2D lastUsedDepthTexture;
-        private static void SetDepthTexture(Texture depthTexture)
-        {
-            EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource)
-            {
-                lastUsedDepthTexture = depthTexture.Resource;
-                epDepthTexture.SetValue(depthTexture.Resource);
-            }
-        } // SetDepthTexture
-
-        #endregion
-        
-        #endregion
-
         #region Constructor
 
         /// <summary>
         /// Place the depth information into a real GPU’s Z buffer.
         /// </summary>
-        private ReconstructZBufferShader() : base("GBuffer\\ReconstructZBuffer") { }
+        private ReconstructZBufferShader() : base("GBuffer\\ReconstructZBuffer")
+        {
+            depthStencilState = new DepthStencilState
+            {
+                DepthBufferEnable = true,
+                DepthBufferWriteEnable = true,
+                DepthBufferFunction = CompareFunction.Always,
+            };
+        }
 
         #endregion
 
@@ -160,15 +105,10 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                epHalfPixel    = Resource.Parameters["halfPixel"];
-                    epHalfPixel.SetValue(lastUsedHalfPixel);
-                epFarPlane = Resource.Parameters["farPlane"];
-                    epFarPlane.SetValue(lastUsedFarPlane);
-                epProjectionMatrix = Resource.Parameters["projection"];
-                    epProjectionMatrix.SetValue(lastUsedProjectionMatrix);
-                epDepthTexture = Resource.Parameters["depthTexture"];
-                    if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
-                        epDepthTexture.SetValue(lastUsedDepthTexture);
+                spHalfPixel = new ShaderParameterVector2("halfPixel", this);
+                spFarPlane = new ShaderParameterFloat("farPlane", this);
+                spDepthTexture = new ShaderParameterTexture("depthTexture", this, SamplerState.PointClamp, 0);
+                spProjectionMatrix = new ShaderParameterMatrix("projection", this);
                 
             }
             catch
@@ -188,11 +128,16 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
+                // Set Render States.
+                EngineManager.Device.BlendState = BlendState.Opaque;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                EngineManager.Device.DepthStencilState = depthStencilState;
+
                 // Set Parameters
-                SetHalfPixel(new Vector2(-0.5f / (depthTexture.Width / 2), 0.5f / (depthTexture.Height / 2))); // Use size of destinantion render target.
-                SetFarPlane(farPlane);
-                SetProjectionMatrix(projectionMatrix);
-                SetDepthTexture(depthTexture);
+                spHalfPixel.Value = new Vector2(-0.5f / (depthTexture.Width / 2), 0.5f / (depthTexture.Height / 2)); // Use size of destinantion render target.
+                spFarPlane.Value = farPlane;
+                spProjectionMatrix.Value = projectionMatrix;
+                spDepthTexture.Value = depthTexture;
 
                 Resource.CurrentTechnique = Resource.Techniques["ReconstructZBuffer"];
                 Resource.CurrentTechnique.Passes[0].Apply();

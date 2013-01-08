@@ -115,12 +115,13 @@ PixelShader_OUTPUT ps_main(uniform bool hasShadows, in float2 uv : TEXCOORD0, in
 	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
 	float depth = tex2D(depthSampler, uv).r;
 
-	[branch]
+	// This is performed directly with the Z-Buffer.
+	/*[branch]
 	if (depth == 1)
 	{
 		Discard();
 		return (PixelShader_OUTPUT)0;
-	}
+	}*/
 	
 	float4 normalCompressed = tex2Dlod(normalSampler, float4(uv, 0, 0));
 	float3 N = DecompressNormal(normalCompressed.xyz);	

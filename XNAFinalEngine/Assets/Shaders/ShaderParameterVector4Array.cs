@@ -38,12 +38,12 @@ namespace XNAFinalEngine.Assets
     /// <summary>
     /// Shader Parameter.
     /// </summary>
-    public class ShaderParameterMatrixArray : ShaderParameter
+    public class ShaderParameterVector4Array : ShaderParameter
     {
 
         #region Variables
 
-        private readonly Matrix[] lastUsedValue;
+        private readonly Vector4[] lastUsedValue;
 
         #endregion
 
@@ -52,7 +52,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Current value.
         /// </summary>
-        public Matrix[] Value
+        public Vector4[] Value
         {
             get { return lastUsedValue; }
             set
@@ -73,15 +73,15 @@ namespace XNAFinalEngine.Assets
         #region Constructor
 
         /// <summary>
-        /// Shader Parameter for Matrix[] type.
+        /// Shader Parameter for Vector4[] type.
         /// </summary>
-        public ShaderParameterMatrixArray(string name, Shader shader, int size) : base(name, shader)
+        public ShaderParameterVector4Array(string name, Shader shader, int size) : base(name, shader)
         {
-            lastUsedValue = new Matrix[size];
+            lastUsedValue = new Vector4[size];
             Resource.SetValue(Value);
-        } // ShaderParameterMatrixArray
+        } // ShaderParameterVector4Array
 
         #endregion
 
-    } // ShaderParameterMatrixArray
+    } // ShaderParameterVector4Array
 } // XNAFinalEngine.Assets

@@ -195,7 +195,6 @@
   <ItemGroup>
     <Folder Include="Shaders\Helpers\" />
     <Folder Include="Shaders\ScreenSpaceAlphaMasking\" />
-    <Folder Include="Textures\CubeTextures\" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
@@ -1565,13 +1564,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\Shaders\Black.dds">
+    <Compile Include="Textures\Black.dds">
       <Name>Black</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
-    <Compile Include="Textures\Shaders\Grey.dds">
+    <Compile Include="Textures\Grey.dds">
       <Name>Grey</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -1579,7 +1578,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Textures\Shaders\White.dds">
+    <Compile Include="Textures\White.dds">
       <Name>White</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
@@ -1591,6 +1590,20 @@
       <Name>AnamorphicLensFlare</Name>
       <Importer>EffectImporter</Importer>
       <Processor>EffectProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\CubeTextures\BlackCube.dds">
+      <Name>BlackCube</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+    <Compile Include="Textures\CubeTextures\WhiteCube.dds">
+      <Name>WhiteCube</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />

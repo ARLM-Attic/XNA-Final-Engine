@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -159,7 +159,7 @@ namespace XNAFinalEngine.Assets
                 {
                     ContentManager userContentManager = ContentManager.CurrentContentManager;
                     ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
-                    blackTexture = new Texture("Shaders\\Black");
+                    blackTexture = new Texture("Black");
                     ContentManager.CurrentContentManager = userContentManager;
                 }
 	            return blackTexture;
@@ -177,7 +177,7 @@ namespace XNAFinalEngine.Assets
                 {
                     ContentManager userContentManager = ContentManager.CurrentContentManager;
                     ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
-                    whiteTexture = new Texture("Shaders\\White");
+                    whiteTexture = new Texture("White");
                     ContentManager.CurrentContentManager = userContentManager;
                 }
                 return whiteTexture;
@@ -195,7 +195,7 @@ namespace XNAFinalEngine.Assets
                 {
                     ContentManager userContentManager = ContentManager.CurrentContentManager;
                     ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
-                    greyTexture = new Texture("Shaders\\Grey");
+                    greyTexture = new Texture("Grey");
                     ContentManager.CurrentContentManager = userContentManager;
                 }
                 return greyTexture;

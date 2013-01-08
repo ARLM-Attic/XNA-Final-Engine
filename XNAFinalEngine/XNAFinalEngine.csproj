@@ -193,6 +193,10 @@
     <Compile Include="Assets\PostProcess\ToneMapping.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Assets\Shaders\ShaderParameterTextureCube.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterVector4Array.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterVector2Array.cs" />
+    <Compile Include="Assets\Shaders\ShaderParameterVector3Array.cs" />
     <Compile Include="Assets\Shaders\ShaderParameterMatrixArray.cs" />
     <Compile Include="Assets\Shaders\Shader.cs">
       <SubType>Code</SubType>

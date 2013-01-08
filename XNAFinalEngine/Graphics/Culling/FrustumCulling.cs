@@ -96,7 +96,7 @@ namespace XNAFinalEngine.Graphics
         public static void ModelRendererFrustumCulling(BoundingFrustum boundingFrustum, List<ModelRenderer> modelToRenderList)
         {
             // If the number of objects is high then the task is devided in threads.
-            if (ModelRenderer.ComponentPool.Count > 500)
+            if (ModelRenderer.ComponentPool.Count > 50)
             {
                 // If it is the first execution then the threads are created.
                 if (modelRendererFrustumCullingThreads == null)
@@ -166,6 +166,52 @@ namespace XNAFinalEngine.Graphics
                 }
             }
         } // ModelRendererFrustumCullingTask
+
+        #endregion
+
+        #region Light Frustum Culling
+
+        /// <summary>
+        /// Perform frustum culling over the point lights components.
+        /// </summary>
+        public static void PointLightFrustumCulling(BoundingFrustum boundingFrustum, List<PointLight> pointLightsToRender)
+        {
+            FastBoundingFrustum fastBoundingFrustum = new FastBoundingFrustum(boundingFrustum);
+
+            for (int i = 0; i < PointLight.ComponentPool.Count; i++)
+            {
+                PointLight component = PointLight.ComponentPool.Elements[i];
+                if (component.Intensity > 0 && component.IsVisible)
+                {
+                    BoundingSphere boundingSphere = new BoundingSphere(component.cachedPosition, component.Range);
+                    if (fastBoundingFrustum.Intersects(ref boundingSphere))
+                    //if (boundingFrustum.Intersects(frustumCullingData.boundingSphere)) // It is not thread safe and is slow as hell.
+                        pointLightsToRender.Add(component);
+                }
+            }
+        } // PointLightFrustumCulling
+
+        /// <summary>
+        /// Frustum Culling.
+        /// </summary>
+        /// <param name="boundingFrustum">Bounding Frustum.</param>
+        /// <param name="spotLightsToRender">The result.</param>
+        public static void SpotLightFrustumCulling(BoundingFrustum boundingFrustum, List<SpotLight> spotLightsToRender)
+        {
+            FastBoundingFrustum fastBoundingFrustum = new FastBoundingFrustum(boundingFrustum);
+
+            for (int i = 0; i < SpotLight.ComponentPool.Count; i++)
+            {
+                SpotLight component = SpotLight.ComponentPool.Elements[i];
+                if (component.Intensity > 0 && component.IsVisible)
+                {
+                    BoundingSphere boundingSphere = new BoundingSphere(component.cachedPosition, component.Range);
+                    if (fastBoundingFrustum.Intersects(ref boundingSphere))
+                    //if (boundingFrustum.Intersects(frustumCullingData.boundingSphere)) // It is not thread safe and is slow as hell.
+                        spotLightsToRender.Add(component);
+                }
+            }
+        } // FrustumCulling
 
         #endregion
 

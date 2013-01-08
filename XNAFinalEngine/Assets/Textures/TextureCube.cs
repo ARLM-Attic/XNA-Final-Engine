@@ -48,6 +48,9 @@ namespace XNAFinalEngine.Assets
         // XNA Texture.
         protected Microsoft.Xna.Framework.Graphics.TextureCube xnaTextureCube;
 
+        // Simple and small textures filled with a constant color.
+        private static TextureCube blackTexture, whiteTexture;
+
         #endregion
 
         #region Properties
@@ -80,6 +83,46 @@ namespace XNAFinalEngine.Assets
         /// This is use only useful for the editor.
         /// </remarks>
         public static string[] Filenames { get; private set; }
+
+        #region Simple Texture
+
+        /// <summary>
+        /// Returns a small cube texture filled with a black constant color.
+        /// </summary>
+        public static TextureCube BlackTexture
+        {
+            get
+            {
+                if (blackTexture == null)
+                {
+                    ContentManager userContentManager = ContentManager.CurrentContentManager;
+                    ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                    blackTexture = new TextureCube("BlackCube");
+                    ContentManager.CurrentContentManager = userContentManager;
+                }
+                return blackTexture;
+            }
+        } // BlackTexture
+
+        /// <summary>
+        /// Returns a small cube texture filled with a white constant color.
+        /// </summary>
+        public static TextureCube WhiteTexture
+        {
+            get
+            {
+                if (whiteTexture == null)
+                {
+                    ContentManager userContentManager = ContentManager.CurrentContentManager;
+                    ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                    whiteTexture = new TextureCube("WhiteCube");
+                    ContentManager.CurrentContentManager = userContentManager;
+                }
+                return whiteTexture;
+            }
+        } // WhiteTexture
+
+        #endregion
     
         #endregion
 
