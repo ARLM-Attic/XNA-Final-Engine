@@ -44,9 +44,7 @@ float3 lightColor;
 float invLightRadius;
 float lightIntensity;
 float lightInnerAngle;
-float lightOuterAngle;	
-
-bool insideBoundingLightObject;
+float lightOuterAngle;
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////

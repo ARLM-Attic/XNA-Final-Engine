@@ -24,8 +24,8 @@ float AccumulatedHorizonOcclusionHighQuality(float2 deltaUV,
     float ao = 0;
     float h0 = 0;
 	float3 occluderRadiance;
-	[unroll]
-    for(float j = 0; j < 8/*numSteps*/; ++j)
+	//[unroll]
+    for(float j = 0; j < numSteps; ++j)
 	{
         float2 snapped_uv = snap_uv_coord(uv);
         float3 S = fetch_eye_pos(snapped_uv);
@@ -119,7 +119,7 @@ float4 HighQualityPixelShaderFunction(VS_OUTPUT input) : COLOR0
     float alpha = 2.0f * M_PI / numberDirections; // Directions step		
 	
 	// High Quality
-	for (d = 0; d < 12; d++) // numberDirections
+	for (d = 0; d < numberDirections; d++) // numberDirections
 	{
 		float angle = alpha * d;
 		float2 dir = float2(cos(angle), sin(angle));

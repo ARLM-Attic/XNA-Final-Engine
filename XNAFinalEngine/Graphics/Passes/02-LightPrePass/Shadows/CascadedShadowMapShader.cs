@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,8 +33,6 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.Helpers;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -92,6 +90,21 @@ namespace XNAFinalEngine.Graphics
         // Singleton reference.
         private static CascadedShadowMapShader instance;
 
+        // Shader Parameters.
+        private static ShaderParameterFloat spDepthBias;
+        private static ShaderParameterVector2 spHalfPixel, spShadowMapSize, spInvShadowMapSize;
+        private static ShaderParameterVector2Array spClipPlanes;
+        private static ShaderParameterVector3Array spFrustumCorners;
+        private static ShaderParameterTexture spDepthTexture, spShadowMapTexture;
+        private static ShaderParameterMatrixArray spViewToLightViewProjMatrices;
+
+        // Techniques references.
+        private static EffectTechnique renderShadowMap2x2PCFTechnique,
+                                       renderShadowMap3x3PCFTechnique,
+                                       renderShadowMap5x5PCFTechnique,
+                                       renderShadowMap7x7PCFTechnique,
+                                       renderShadowMapPoisonPCFTechnique;
+
         #endregion
 
         #region Properties
@@ -121,156 +134,6 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Shader Parameters
-
-        /// <summary>
-        /// Effect handles
-        /// </summary>
-        private static EffectParameter
-                                        // Matrices
-                                        epViewToLightViewProj,
-                                        // Textures
-                                        epDepthTexture,
-                                        epShadowMap,
-                                        // Other Parameters
-                                        epClipPlanes,
-                                        epHalfPixel,
-                                        epFrustumCorners,
-                                        epDepthBias,
-                                        epShadowMapSize,
-                                        epInvShadowMapSize;
-
-        #region Matrices
-
-        private static readonly Matrix[] lastUsedViewToLightViewProjMatrix = new Matrix[NumberSplits];
-        private static void SetViewToLightViewProjMatrix(Matrix[] viewToLightViewProjMatrix)
-        {
-            if (!ArrayHelper.Equals(lastUsedViewToLightViewProjMatrix, viewToLightViewProjMatrix))
-            {
-                //lastUsedViewToLightViewProjMatrix = (Matrix[])(viewToLightViewProjMatrix.Clone()); // Produces garbage
-                for (int i = 0; i < NumberSplits; i++)
-                {
-                    lastUsedViewToLightViewProjMatrix[i] = viewToLightViewProjMatrix[i];
-                }
-                epViewToLightViewProj.SetValue(viewToLightViewProjMatrix);
-            }
-        }
-
-        #endregion
-
-        #region Clip Planes
-
-        private static readonly Vector2[] lastUsedClipPlanes = new Vector2[NumberSplits];
-        private static void SetClipPlanes(Vector2[] clipPlanes)
-        {
-            if (!ArrayHelper.Equals(lastUsedClipPlanes, clipPlanes))
-            {
-                // lastUsedClipPlanes = (Vector2[])(clipPlanes.Clone()); // Produces garbage
-                for (int i = 0; i < NumberSplits; i++)
-                {
-                    lastUsedClipPlanes[i] = clipPlanes[i];
-                }
-                epClipPlanes.SetValue(clipPlanes);
-            }
-        }
-
-        #endregion
-
-        #region Depth Texture
-
-        private static Texture2D lastUsedDepthTexture;
-        private static void SetDepthTexture(Texture depthTexture)
-        {
-            EngineManager.Device.SamplerStates[0] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource)
-            {
-                lastUsedDepthTexture = depthTexture.Resource;
-                epDepthTexture.SetValue(depthTexture.Resource);
-            }
-        }
-
-        #endregion
-
-        #region Shadow Map Texture
-
-        private static Texture2D lastUsedShadowMapTexture;
-        private static void SetShadowMapTexture(Texture shadowMapTexture)
-        {
-            EngineManager.Device.SamplerStates[3] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedShadowMapTexture != shadowMapTexture.Resource)
-            {
-                lastUsedShadowMapTexture = shadowMapTexture.Resource;
-                epShadowMap.SetValue(shadowMapTexture.Resource);
-            }
-        }
-
-        #endregion
-
-        #region Half Pixel
-
-        private static Vector2 lastUsedHalfPixel;
-        private static void SetHalfPixel(Vector2 _halfPixel)
-        {
-            if (lastUsedHalfPixel != _halfPixel)
-            {
-                lastUsedHalfPixel = _halfPixel;
-                epHalfPixel.SetValue(_halfPixel);
-            }
-        }
-
-        #endregion
-
-        #region Frustum Corners
-
-        private static readonly Vector3[] lastUsedFrustumCorners = new Vector3[NumberSplits];
-        private static void SetFrustumCorners(Vector3[] frustumCorners)
-        {
-            if (!ArrayHelper.Equals(lastUsedFrustumCorners, frustumCorners))
-            {
-                // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
-                for (int i = 0; i < NumberSplits; i++)
-                {
-                    lastUsedFrustumCorners[i] = frustumCorners[i];
-                }
-                epFrustumCorners.SetValue(frustumCorners);
-            }
-        }
-
-        #endregion
-
-        #region Depth Bias
-
-        private static float lastUsedDepthBias;
-        private static void SetDepthBias(float _depthBias)
-        {
-            if (lastUsedDepthBias != _depthBias)
-            {
-                lastUsedDepthBias = _depthBias;
-                epDepthBias.SetValue(_depthBias);
-            }
-        }
-
-        #endregion
-        
-        #region Shadow Map Size
-
-        private static Vector2 lastUsedShadowMapSize;
-        private static void SetShadowMapSize(Vector2 shadowMapSize)
-        {
-            if (lastUsedShadowMapSize != shadowMapSize)
-            {
-                lastUsedShadowMapSize = shadowMapSize;
-                epInvShadowMapSize.SetValue(new Vector2(1f / shadowMapSize.X, 1f / shadowMapSize.Y));
-                epShadowMapSize.SetValue(shadowMapSize);
-            }
-        }
-
-        #endregion
-        
-        #endregion
-
         #region Constructor
 
 	    /// <summary>
@@ -294,29 +157,15 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                // Matrices
-                epViewToLightViewProj = Resource.Parameters["viewToLightViewProj"];
-                    epViewToLightViewProj.SetValue(lastUsedViewToLightViewProjMatrix);
-                // Textures
-                 epDepthTexture       = Resource.Parameters["depthTexture"];
-                    if (lastUsedDepthTexture != null && !lastUsedDepthTexture.IsDisposed)
-                        epDepthTexture.SetValue(lastUsedDepthTexture);
-                epShadowMap           = Resource.Parameters["shadowMap"];
-                    if (lastUsedShadowMapTexture != null && !lastUsedShadowMapTexture.IsDisposed)
-                        epShadowMap.SetValue(lastUsedShadowMapTexture);
-			    // Get additional parameters
-                epClipPlanes          = Resource.Parameters["clipPlanes"];
-                    epClipPlanes.SetValue(lastUsedClipPlanes);
-                epHalfPixel           = Resource.Parameters["halfPixel"];
-                    epHalfPixel.SetValue(lastUsedHalfPixel);
-                epFrustumCorners      = Resource.Parameters["frustumCorners"];
-                    epFrustumCorners.SetValue(lastUsedFrustumCorners);
-                epDepthBias           = Resource.Parameters["depthBias"];
-                    epDepthBias.SetValue(lastUsedDepthBias);
-                epShadowMapSize       = Resource.Parameters["shadowMapSize"];
-                    epShadowMapSize.SetValue(lastUsedShadowMapSize);
-                epInvShadowMapSize    = Resource.Parameters["invShadowMapSize"];
-                    epInvShadowMapSize.SetValue(new Vector2(1f / lastUsedShadowMapSize.X, 1f / lastUsedShadowMapSize.Y));
+                spDepthBias = new ShaderParameterFloat("depthBias", this);
+                spHalfPixel = new ShaderParameterVector2("halfPixel", this);
+                spShadowMapSize = new ShaderParameterVector2("shadowMapSize", this);
+                spInvShadowMapSize = new ShaderParameterVector2("invShadowMapSize", this);
+                spClipPlanes = new ShaderParameterVector2Array("clipPlanes", this, NumberSplits);
+                spFrustumCorners = new ShaderParameterVector3Array("frustumCorners", this, NumberSplits);
+                spDepthTexture = new ShaderParameterTexture("depthTexture", this, SamplerState.PointClamp, 0);
+                spShadowMapTexture = new ShaderParameterTexture("shadowMap", this, SamplerState.PointClamp, 3);
+                spViewToLightViewProjMatrices = new ShaderParameterMatrixArray("viewToLightViewProj", this, NumberSplits);
             }
             catch
             {
@@ -325,6 +174,32 @@ namespace XNAFinalEngine.Graphics
         } // GetParameters
 
 		#endregion
+
+        #region Get Techniques Handles
+
+        /// <summary>
+        /// Get the handles of the techniques from the shader.
+        /// </summary>
+        /// <remarks>
+        /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
+        /// </remarks>
+        protected override void GetTechniquesHandles()
+        {
+            try
+            {
+                renderShadowMap2x2PCFTechnique = Resource.Techniques["RenderShadowMap2x2PCF"];
+                renderShadowMap3x3PCFTechnique = Resource.Techniques["RenderShadowMap3x3PCF"];
+                renderShadowMap5x5PCFTechnique = Resource.Techniques["RenderShadowMap5x5PCF"];
+                renderShadowMap7x7PCFTechnique = Resource.Techniques["RenderShadowMap7x7PCF"];
+                renderShadowMapPoisonPCFTechnique = Resource.Techniques["RenderShadowMapPoisonPCF"];
+            }
+            catch
+            {
+                throw new InvalidOperationException("The technique's handles from the " + Name + " shader could not be retrieved.");
+            }
+        } // GetTechniquesHandles
+
+        #endregion
 
         #region Set Light
 
@@ -430,9 +305,9 @@ namespace XNAFinalEngine.Graphics
                 lightClipPlanes[i].Y = -splitDepths[i + 1];
                 viewToLightViewProj[i] = Matrix.Invert(viewMatrix) * lightViewMatrix[i] * lightProjectionMatrix[i];
             }
-            SetViewToLightViewProjMatrix(viewToLightViewProj);
-            SetClipPlanes(lightClipPlanes);
-            SetFrustumCorners(boundingFrustum);
+            spViewToLightViewProjMatrices.Value = viewToLightViewProj;
+            spClipPlanes.Value = lightClipPlanes;
+            spFrustumCorners.Value = boundingFrustum;
         } // SetLight
 
         #endregion
@@ -452,11 +327,12 @@ namespace XNAFinalEngine.Graphics
                 shadowTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
 
                 // Set parameters.
-                SetShadowMapTexture(lightDepthTexture);
-                SetHalfPixel(new Vector2(-0.5f/(depthTexture.Width/2), 0.5f/(depthTexture.Height/2)));
-                SetShadowMapSize(new Vector2(lightDepthTexture.Width, lightDepthTexture.Height));
-                SetDepthBias(depthBias);
-                SetDepthTexture(depthTexture);
+                spShadowMapTexture.Value = lightDepthTexture;
+                spHalfPixel.Value = new Vector2(-0.5f/(depthTexture.Width/2), 0.5f/(depthTexture.Height/2));
+                spShadowMapSize.Value = new Vector2(lightDepthTexture.Width, lightDepthTexture.Height);
+                spInvShadowMapSize.Value = new Vector2(1.0f / lightDepthTexture.Width, 1.0f / lightDepthTexture.Height);
+                spDepthBias.Value = depthBias;
+                spDepthTexture.Value = depthTexture;
                 
                 shadowTexture.EnableRenderTarget();
                 shadowTexture.Clear(Color.White);
@@ -464,19 +340,19 @@ namespace XNAFinalEngine.Graphics
                 switch (filterType)
                 {
                     case Shadow.FilterType.Pcf2X2:
-                        Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap2x2PCF"];
+                        Resource.CurrentTechnique = renderShadowMap2x2PCFTechnique;
                         break;
                     case Shadow.FilterType.Pcf3X3:
-                        Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap3x3PCF"];
+                        Resource.CurrentTechnique = renderShadowMap3x3PCFTechnique;
                         break;
                     case Shadow.FilterType.Pcf5X5:
-                        Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap5x5PCF"];
+                        Resource.CurrentTechnique = renderShadowMap5x5PCFTechnique;
                         break;
                     case Shadow.FilterType.Pcf7X7:
-                        Resource.CurrentTechnique = Resource.Techniques["RenderShadowMap7x7PCF"];
+                        Resource.CurrentTechnique = renderShadowMap7x7PCFTechnique;
                         break;
                     default:
-                        Resource.CurrentTechnique = Resource.Techniques["RenderShadowMapPoisonPCF"];
+                        Resource.CurrentTechnique = renderShadowMapPoisonPCFTechnique;
                         break;
                 }
 
@@ -484,7 +360,7 @@ namespace XNAFinalEngine.Graphics
                 RenderScreenPlane();
                 shadowTexture.DisableRenderTarget();
 
-                //BilateralBlurShader.Instance.Filter(shadowTexture, true, 1); // TODO!!! Volver a activarla
+                BilateralBlurShader.Instance.Filter(shadowTexture, shadowTexture, depthTexture, 10, 20);
 
                 return shadowTexture;
             }

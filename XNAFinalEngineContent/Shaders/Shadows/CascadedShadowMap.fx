@@ -28,7 +28,7 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
 {
 	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
 	float depth = tex2D(depthSampler, uv).r;
-
+	
 	if (depth == 1)
 	{
 		Discard();

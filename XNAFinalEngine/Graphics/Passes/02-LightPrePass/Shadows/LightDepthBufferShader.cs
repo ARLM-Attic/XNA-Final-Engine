@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,7 @@ using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
+using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 using Model = XNAFinalEngine.Assets.Model;
 using RenderTargetCube = XNAFinalEngine.Assets.RenderTargetCube;
 #endregion
@@ -51,7 +52,7 @@ namespace XNAFinalEngine.Graphics
 		#region Variables
         
         // Light Matrices.
-        private Matrix lightProjectionMatrix, lightViewMatrix;
+        private Matrix lightViewProjectionMatrix;
 
         // The result is stored here.
         private RenderTarget lightDepthTexture;
@@ -61,6 +62,18 @@ namespace XNAFinalEngine.Graphics
 
         // Singleton reference.
         private static LightDepthBufferShader instance;
+
+        // Shader Parameters.
+        private static ShaderParameterFloat spLightRadius;
+        private static ShaderParameterVector3 spLightPosition;
+        private static ShaderParameterMatrix spWorldMatrix, spWorldViewProjMatrix;
+        private static ShaderParameterMatrixArray spBones;
+
+        // Techniques references.
+        private static EffectTechnique generateLightDepthBufferSkinnedTechnique,
+                                       generateLightDepthBufferTechnique,
+                                       generateCubeLightDepthBufferSkinnedTechnique,
+                                       generateCubeLightDepthBufferTechnique;
 
         #endregion
 
@@ -78,95 +91,6 @@ namespace XNAFinalEngine.Graphics
                 return instance;
             }
         } // Instance
-
-        #endregion
-
-        #region Shader Parameters
-
-        /// <summary>
-        /// Effect handles
-        /// </summary>
-        private static EffectParameter
-                                        // Matrices
-                                        epWorldViewProj,
-                                        epWorld,
-                                        epLightRadius,
-                                        epLightPosition,
-                                        epBones;
-
-        #region World View Projection Matrix
-
-        private static Matrix lastUsedWorldViewProjMatrix;
-        private static void SetWorldViewProjMatrix(Matrix worldViewProjectionMatrix)
-        {
-            if (lastUsedWorldViewProjMatrix != worldViewProjectionMatrix)
-            {
-                lastUsedWorldViewProjMatrix = worldViewProjectionMatrix;
-                epWorldViewProj.SetValue(worldViewProjectionMatrix);
-            }
-        }
-
-        #endregion
-
-        #region World Matrix
-
-        private static Matrix lastUsedWorldMatrix;
-        private static void SetWorldMatrix(Matrix matrix)
-        {
-            if (lastUsedWorldMatrix != matrix)
-            {
-                lastUsedWorldMatrix = matrix;
-                epWorld.SetValue(matrix);
-            }
-        } // SetWorldMatrix
-
-        #endregion
-
-        #region Light Radius
-
-        private static float lastUsedLightRadius;
-        private static void SetLightRadius(float value)
-        {
-            if (lastUsedLightRadius != value)
-            {
-                lastUsedLightRadius = value;
-                epLightRadius.SetValue(value);
-            }
-        } // SetLightRadius
-
-        #endregion
-
-        #region Light Position
-
-        private static Vector3 lastUsedLightPosition;
-        private static void SetLightPosition(Vector3 vector3)
-        {
-            if (lastUsedLightPosition != vector3)
-            {
-                lastUsedLightPosition = vector3;
-                epLightPosition.SetValue(vector3);
-            }
-        } // SetLightPosition
-
-        #endregion
-
-        #region Bones
-
-        private static readonly Matrix[] lastUsedBones = new Matrix[72];
-        private static void SetBones(Matrix[] bones)
-        {
-            if (!ArrayHelper.Equals(lastUsedBones, bones))
-            {
-                // lastUsedFrustumCorners = (Vector3[])(frustumCorners.Clone()); // Produces garbage
-                for (int i = 0; i < 4; i++)
-                {
-                    lastUsedBones[i] = bones[i];
-                }
-                epBones.SetValue(bones);
-            }
-        } // SetBones
-
-        #endregion
 
         #endregion
 
@@ -191,19 +115,11 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                // Matrices
-                epWorldViewProj       = Resource.Parameters["worldViewProj"];
-                    epWorldViewProj.SetValue(lastUsedWorldViewProjMatrix);
-                // Skinning //
-                epBones = Resource.Parameters["Bones"];
-                    epBones.SetValue(lastUsedBones);
-                // Cube shadows //
-                epWorld = Resource.Parameters["world"];
-                    epWorld.SetValue(lastUsedWorldMatrix);
-                epLightRadius = Resource.Parameters["lightRadius"];
-                    epLightRadius.SetValue(lastUsedLightRadius);
-                epLightPosition = Resource.Parameters["lightPosition"];
-                    epLightPosition.SetValue(lastUsedLightPosition);
+                spLightRadius = new ShaderParameterFloat("lightRadius", this);
+                spLightPosition = new ShaderParameterVector3("lightPosition", this);
+                spWorldMatrix = new ShaderParameterMatrix("world", this);
+                spWorldViewProjMatrix = new ShaderParameterMatrix("worldViewProj", this);
+                spBones = new ShaderParameterMatrixArray("Bones", this, ModelAnimationClip.MaxBones);
             }
             catch
             {
@@ -212,6 +128,31 @@ namespace XNAFinalEngine.Graphics
         } // GetParameters
 
 		#endregion
+
+        #region Get Techniques Handles
+
+        /// <summary>
+        /// Get the handles of the techniques from the shader.
+        /// </summary>
+        /// <remarks>
+        /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
+        /// </remarks>
+        protected override void GetTechniquesHandles()
+        {
+            try
+            {
+                generateLightDepthBufferSkinnedTechnique = Resource.Techniques["GenerateLightDepthBufferSkinned"];
+                generateLightDepthBufferTechnique = Resource.Techniques["GenerateLightDepthBuffer"];
+                generateCubeLightDepthBufferSkinnedTechnique = Resource.Techniques["GenerateCubeLightDepthBufferSkinned"];
+                generateCubeLightDepthBufferTechnique = Resource.Techniques["GenerateCubeLightDepthBuffer"];
+            }
+            catch
+            {
+                throw new InvalidOperationException("The technique's handles from the " + Name + " shader could not be retrieved.");
+            }
+        } // GetTechniquesHandles
+
+        #endregion
 
         #region Begin
 
@@ -222,7 +163,7 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                // Creates the render target textures
+                // Fetch the render target.
                 lightDepthTexture = RenderTarget.Fetch(lightDepthTextureSize, SurfaceFormat.HalfSingle, DepthFormat.Depth16, RenderTarget.AntialiasingType.NoAntialiasing);
 
                 // Set Render States.
@@ -255,8 +196,8 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
                 EngineManager.Device.DepthStencilState = DepthStencilState.Default;
                 
-                SetLightPosition(lightPosition);
-                SetLightRadius(lightRadius);
+                spLightPosition.Value = lightPosition;
+                spLightRadius.Value = lightRadius;
             }
             catch (Exception e)
             {
@@ -273,8 +214,7 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         public void SetLightMatrices(Matrix lightViewMatrix, Matrix lightProjectionMatrix)
         {
-            this.lightViewMatrix = lightViewMatrix;
-            this.lightProjectionMatrix = lightProjectionMatrix;
+            lightViewProjectionMatrix = lightViewMatrix * lightProjectionMatrix;
         } // SetLightMatrices
 
         #endregion
@@ -328,20 +268,40 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render objects in light space.
         /// </summary>
-        internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform)
+        internal void RenderModel(ref Matrix worldMatrix, Model model, Matrix[] boneTransform)
         {
-            if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
+            if (model.IsSkinned) // If it is a skinned model.
             {
-                SetBones(boneTransform);
-                Resource.CurrentTechnique = Resource.Techniques["GenerateLightDepthBufferSkinned"];
+                spBones.Value = boneTransform;
+                Resource.CurrentTechnique = generateLightDepthBufferSkinnedTechnique;
             }
             else
-                Resource.CurrentTechnique = Resource.Techniques["GenerateLightDepthBuffer"];
-            
-            SetWorldViewProjMatrix(worldMatrix * lightViewMatrix * lightProjectionMatrix);
+                Resource.CurrentTechnique = generateLightDepthBufferTechnique;
 
-            Resource.CurrentTechnique.Passes[0].Apply();
-            model.Render();
+            Matrix worldLightProjectionMatrix;
+            Matrix.Multiply(ref worldMatrix, ref lightViewProjectionMatrix, out worldLightProjectionMatrix);
+
+            if (boneTransform == null || model.IsSkinned)
+            {
+                spWorldViewProjMatrix.Value = worldLightProjectionMatrix;
+                Resource.CurrentTechnique.Passes[0].Apply();
+                model.Render();
+            }
+            else
+            {
+                for (int mesh = 0; mesh < model.MeshesCount; mesh++)
+                {
+                    Matrix boneTransformedMatrix;
+                    Matrix.Multiply(ref boneTransform[mesh + 1], ref worldLightProjectionMatrix, out boneTransformedMatrix);
+                    Resource.CurrentTechnique.Passes[0].Apply();
+                    // Render the model's mesh.
+                    int meshPartsCount = model.MeshPartsCountPerMesh[mesh];
+                    for (int meshPart = 0; meshPart < meshPartsCount; meshPart++)
+                    {
+                        model.RenderMeshPart(mesh, meshPart);
+                    }
+                }
+            }
         } // RenderModel
 
         /// <summary>
@@ -349,19 +309,41 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         internal void RenderModelCubeShadows(Matrix worldMatrix, Model model, Matrix[] boneTransform)
         {
-            if (model is FileModel && ((FileModel)model).IsSkinned) // If it is a skinned model.
+            if (model.IsSkinned) // If it is a skinned model.
             {
-                SetBones(boneTransform);
-                Resource.CurrentTechnique = Resource.Techniques["GenerateCubeLightDepthBufferSkinned"];
+                spBones.Value = boneTransform;
+                Resource.CurrentTechnique = generateCubeLightDepthBufferSkinnedTechnique;
             }
             else
-                Resource.CurrentTechnique = Resource.Techniques["GenerateCubeLightDepthBuffer"];
+                Resource.CurrentTechnique = generateCubeLightDepthBufferTechnique;
 
-            SetWorldViewProjMatrix(worldMatrix * lightViewMatrix * lightProjectionMatrix);
-            SetWorldMatrix(worldMatrix);
+            Matrix worldLightProjectionMatrix;
+            Matrix.Multiply(ref worldMatrix, ref lightViewProjectionMatrix, out worldLightProjectionMatrix);
 
-            Resource.CurrentTechnique.Passes[0].Apply();
-            model.Render();
+            // Simple and skinned.
+            if (boneTransform == null || model.IsSkinned)
+            {
+                spWorldViewProjMatrix.Value = worldLightProjectionMatrix;
+                Resource.CurrentTechnique.Passes[0].Apply();
+                model.Render();
+            }
+            // Animated Rigid Models.
+            else
+            {
+                
+                for (int mesh = 0; mesh < model.MeshesCount; mesh++)
+                {
+                    Matrix boneTransformedMatrix;
+                    Matrix.Multiply(ref boneTransform[mesh + 1], ref worldLightProjectionMatrix, out boneTransformedMatrix);
+                    Resource.CurrentTechnique.Passes[0].Apply();
+                    // Render the model's mesh.
+                    int meshPartsCount = model.MeshPartsCountPerMesh[mesh];
+                    for (int meshPart = 0; meshPart < meshPartsCount; meshPart++)
+                    {
+                        model.RenderMeshPart(mesh, meshPart);
+                    }
+                }
+            }
         } // RenderModel
 
         #endregion

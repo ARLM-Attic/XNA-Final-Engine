@@ -66,6 +66,8 @@ namespace XNAFinalEngine.Helpers
         
         // Task parameters.
         private readonly T[] parameters;
+        
+        private readonly int[] processorAffinity;
 
         #endregion
 
@@ -74,13 +76,17 @@ namespace XNAFinalEngine.Helpers
         /// <summary>
         /// Obtain the number of logical cores available for multithreading.
         /// </summary>
-        public MultiThreadingTask(Action<T> task, int numberOfThreads)
+        public MultiThreadingTask(Action<T> task, int numberOfThreads, int[] processorAffinity = null)
         {
             this.task = task;
             taskDone = new ManualResetEvent[numberOfThreads];
             waitForWork = new ManualResetEvent[numberOfThreads];
             parameters = new T[numberOfThreads];
             threads = new List<Thread>(numberOfThreads);
+            if (processorAffinity != null)
+                this.processorAffinity = processorAffinity;
+            else
+                this.processorAffinity = ProcessorsInformation.ProcessorsAffinity;
             for (int i = 0; i < numberOfThreads; i++)
             {
                 taskDone[i] = new ManualResetEvent(false);
@@ -105,7 +111,7 @@ namespace XNAFinalEngine.Helpers
             Thread.CurrentThread.IsBackground = true; // To destroy it when the application exits.
             #if XBOX 
                 // http://msdn.microsoft.com/en-us/library/microsoft.xna.net_cf.system.threading.thread.setprocessoraffinity.aspx
-                Thread.CurrentThread.SetProcessorAffinity(ProcessorsInformation.ProcessorsAffinity[index]);
+                Thread.CurrentThread.SetProcessorAffinity(processorAffinity[index]);
             #endif
 
             while (true)

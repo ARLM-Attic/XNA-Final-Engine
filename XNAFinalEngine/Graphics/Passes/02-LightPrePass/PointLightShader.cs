@@ -237,7 +237,7 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Render Light
+        #region Render
 
         /// <summary>
         /// Render the point light.
@@ -299,9 +299,9 @@ namespace XNAFinalEngine.Graphics
 
                 // http://en.wikipedia.org/wiki/Angular_diameter
                 // The formula was inspired from Guerilla´s GDC 09 presentation.
-                float distanceToCamera = Vector3.Distance(Matrix.Invert(viewMatrix).Translation, position) - nearPlane;
+                float distanceToCamera = Vector3.Distance(Matrix.Invert(viewMatrix).Translation, position);
                 float angularDiameter = (float)(2 * Math.Atan(radius / distanceToCamera));
-                if (angularDiameter > 0.5f * (3.1416f * fieldOfView / 180.0f)) // 0.2f is the original value.
+                if (angularDiameter > 1.5f * (3.1416f * fieldOfView / 180.0f)) // 0.2f is the original value.
                 {
                     // This only works when the clip volume does not intercept the camera´s far plane.
 

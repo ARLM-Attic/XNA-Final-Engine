@@ -93,6 +93,8 @@ namespace XNAFinalEngine.EngineCore
         // Frustum Culling.
         private static readonly List<ModelRenderer> modelsToRender      = new List<ModelRenderer>(100);
         private static readonly List<ModelRenderer> modelsToRenderShadows = new List<ModelRenderer>(100);
+        private static readonly List<ModelRenderer> modelsToRenderShadowsSimple = new List<ModelRenderer>(100);
+        private static readonly List<ModelRenderer> modelsToRenderShadowsSkinned = new List<ModelRenderer>(10);
         private static readonly List<PointLight>    pointLightsToRender = new List<PointLight>(50);
         private static readonly List<SpotLight>     spotLightsToRender  = new List<SpotLight>(20);
 
@@ -709,7 +711,7 @@ namespace XNAFinalEngine.EngineCore
 
             cameraBoundingFrustum.Matrix = currentCamera.ViewMatrix * currentCamera.ProjectionMatrix;
             modelsToRender.Clear();
-            Graphics.FrustumCulling.ModelRendererFrustumCulling(cameraBoundingFrustum, modelsToRender);
+            FrustumCulling.ModelRendererFrustumCulling(cameraBoundingFrustum, modelsToRender);
 
             // Testing
             //FinishRendering(currentCamera, renderTarget); return;
@@ -876,7 +878,7 @@ namespace XNAFinalEngine.EngineCore
             
             // Downsample GBuffer
             gbufferHalfTextures = DownsamplerGBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], gbufferTextures.RenderTargets[1]);
-            //gbufferQuarterTextures = DownsamplerGBufferShader.Instance.Render(gbufferHalfTextures.RenderTargets[0], gbufferHalfTextures.RenderTargets[1]);
+            gbufferQuarterTextures = DownsamplerGBufferShader.Instance.Render(gbufferHalfTextures.RenderTargets[0], gbufferHalfTextures.RenderTargets[1]);
 
             // Testing
             //FinishRendering(currentCamera, renderTarget, gbufferTextures.RenderTargets[1]); return;
@@ -884,9 +886,17 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Light Pre Pass
+
+            // Frustum Culling
+            pointLightsToRender.Clear();
+            spotLightsToRender.Clear();
+            cameraBoundingFrustum.Matrix = currentCamera.ViewMatrix * currentCamera.ProjectionMatrix;
+            // They are multithreading candidates.
+            FrustumCulling.PointLightFrustumCulling(cameraBoundingFrustum, pointLightsToRender);
+            FrustumCulling.SpotLightFrustumCulling(cameraBoundingFrustum, spotLightsToRender);
             
             #region Ambient Occlusion
-            /*
+            
             // If the ambient occlusion pass is requested...
             if (currentCamera.AmbientLight != null && currentCamera.AmbientLight.Intensity > 0 &&
                 currentCamera.AmbientLight.AmbientOcclusion != null && currentCamera.AmbientLight.AmbientOcclusion.Enabled)
@@ -925,11 +935,11 @@ namespace XNAFinalEngine.EngineCore
                                                                                                 currentCamera.FieldOfView);
                 }
             }
-            */
+            
             #endregion
             
             #region Shadow Maps
-            /*
+            
             #region Directional Light Shadows
 
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
@@ -938,6 +948,10 @@ namespace XNAFinalEngine.EngineCore
                 // If there is a shadow map for this light and it is active...
                 if (directionalLight.Shadow != null && directionalLight.Shadow.Enabled && directionalLight.IsVisible && directionalLight.Intensity > 0)
                 {
+
+                    #region Search Correct Depth Texture
+
+                    // Select downsampled version or full version of the gbuffer textures.
                     RenderTarget depthTexture;
                     if (directionalLight.Shadow.TextureSize == Size.TextureSize.FullSize)
                         depthTexture = gbufferTextures.RenderTargets[0];
@@ -945,6 +959,8 @@ namespace XNAFinalEngine.EngineCore
                         depthTexture = gbufferHalfTextures.RenderTargets[0];
                     else
                         depthTexture = gbufferQuarterTextures.RenderTargets[0];
+
+                    #endregion
 
                     #region Cascaded Shadow
 
@@ -954,35 +970,53 @@ namespace XNAFinalEngine.EngineCore
                     {
                         CascadedShadow shadow = (CascadedShadow)directionalLight.Shadow;
 
+                        // Determines the size of the frustum needed to cover the viewable area, then creates the light view matrix and an appropriate orthographic projection.
                         CascadedShadowMapShader.Instance.SetLight(directionalLight.cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
                                                                   currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace,
                                                                   shadow.FarPlaneSplit1, shadow.FarPlaneSplit2, shadow.FarPlaneSplit3, shadow.FarPlaneSplit4);
-                        LightDepthBufferShader.Instance.Begin(new Size(shadow.LightDepthTextureSize.Width * CascadedShadowMapShader.NumberSplits, 
-                                                                       shadow.LightDepthTextureSize.Height));
+                        // Feth shadow texture and enable it for render.
+                        LightDepthBufferShader.Instance.Begin(new Size(shadow.LightDepthTextureSize.Width * CascadedShadowMapShader.NumberSplits, shadow.LightDepthTextureSize.Height));
 
+                        // A shadow map is generated for each split or frustum.
                         for (int splitNumber = 0; splitNumber < CascadedShadowMapShader.NumberSplits; splitNumber++)
                         {
                             LightDepthBufferShader.Instance.SetLightMatrices(CascadedShadowMapShader.Instance.LightViewMatrix[splitNumber],
                                                                              CascadedShadowMapShader.Instance.LightProjectionMatrix[splitNumber]);
+                            // The complete shadow map is stored as atlas.
                             LightDepthBufferShader.Instance.SetViewport(splitNumber);
 
-                            #region Frustum Culling
-
+                            // Frustum Culling
                             cameraBoundingFrustum.Matrix = CascadedShadowMapShader.Instance.LightViewMatrix[splitNumber] * CascadedShadowMapShader.Instance.LightProjectionMatrix[splitNumber];
                             modelsToRenderShadows.Clear();
-                            //FrustumCulling(cameraBoundingFrustum, modelsToRenderShadows);
+                            FrustumCulling.ModelRendererFrustumCulling(cameraBoundingFrustum, modelsToRenderShadows);
 
-                            #endregion
-
-                            for (int j = 0; j < modelsToRenderShadows.Count; j++)
+                            // Sort by skinned and not skinned
+                            modelsToRenderShadowsSimple.Clear();
+                            modelsToRenderShadowsSkinned.Clear();
+                            foreach (ModelRenderer modelRenderer in modelsToRenderShadows)
                             {
-                                ModelRenderer modelRenderer = modelsToRenderShadows[j];
-                                if (modelRenderer.CachedModel != null && modelRenderer.Material != null && modelRenderer.Material.AlphaBlending == 1 && modelRenderer.IsVisible)
-                                    LightDepthBufferShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
+                                if (modelRenderer.CastShadows) // This question could be made before the Intersects.
+                                {
+                                    if (modelRenderer.CachedModel.IsSkinned)
+                                        modelsToRenderShadowsSkinned.Add(modelRenderer);
+                                    else
+                                        modelsToRenderShadowsSimple.Add(modelRenderer);
+                                }
+                            }
+                            // Render simple objects.
+                            foreach (ModelRenderer modelRenderer in modelsToRenderShadowsSimple)
+                            {
+                                LightDepthBufferShader.Instance.RenderModel(ref modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
+                            }
+                            // Render skinned objects.
+                            foreach (ModelRenderer modelRenderer in modelsToRenderShadowsSkinned)
+                            {
+                                LightDepthBufferShader.Instance.RenderModel(ref modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
                             }
                         }
-
+                        // Resolve and return the render target with the depth information from the light point of view.
                         shadow.LightDepthTexture = LightDepthBufferShader.Instance.End();
+                        // Calculate a deferred shadow map.
                         directionalLight.ShadowTexture = CascadedShadowMapShader.Instance.Render(shadow.LightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter);
                     }
 
@@ -1117,17 +1151,10 @@ namespace XNAFinalEngine.EngineCore
             }
             
             #endregion
-            */
+            
             #endregion
             
             #region Light Texture
-
-            // Frustum Culling
-            pointLightsToRender.Clear();
-            spotLightsToRender.Clear();
-            cameraBoundingFrustum.Matrix = currentCamera.ViewMatrix * currentCamera.ProjectionMatrix;
-            FrustumCulling.PointLightFrustumCulling(cameraBoundingFrustum, pointLightsToRender);
-            FrustumCulling.SpotLightFrustumCulling(cameraBoundingFrustum, spotLightsToRender);
 
             LightPrePass.Begin(renderTarget.Size);
 
@@ -1136,7 +1163,7 @@ namespace XNAFinalEngine.EngineCore
             // the possibility to use light clip volumes (to limit the range of influence of a light using convex volumes)
             ReconstructZBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], currentCamera.FarPlane, currentCamera.ProjectionMatrix);
 
-            // Set states common to all lights.
+            // Set states common to most lights.
             LightPrePass.SetRenderStates();
             
             #region Ambient Light
@@ -1185,11 +1212,8 @@ namespace XNAFinalEngine.EngineCore
             }            
 
             #endregion
-            /*
+            
             #region Spot Lights
-
-            // Frustum Culling
-
 
             SpotLightShader.Instance.Begin(gbufferTextures.RenderTargets[0], // Depth Texture
                                            gbufferTextures.RenderTargets[1], // Normal Texture
@@ -1197,24 +1221,15 @@ namespace XNAFinalEngine.EngineCore
                                            currentCamera.ProjectionMatrix,
                                            currentCamera.NearPlane,
                                            currentCamera.FarPlane);
-            for (int i = 0; i < spotLightsToRender.Count; i++)
+            foreach (SpotLight spotLight in spotLightsToRender)
             {
-                SpotLight spotLight = spotLightsToRender[i];
-                if (spotLight.Intensity > 0 && spotLight.IsVisible)
-                {
-                    SpotLightShader.Instance.RenderLight(spotLight.Color, spotLight.cachedPosition,
-                                                         spotLight.cachedDirection, spotLight.Intensity,
-                                                         spotLight.Range, spotLight.InnerConeAngle,
-                                                         spotLight.OuterConeAngle, spotLight.ShadowTexture, spotLight.LightMaskTexture);
-                }
+                SpotLightShader.Instance.Render(spotLight.Color, spotLight.cachedPosition, spotLight.cachedDirection, spotLight.Intensity, spotLight.Range, 
+                                                spotLight.InnerConeAngle, spotLight.OuterConeAngle, spotLight.ShadowTexture, spotLight.LightMaskTexture);
             }
 
             #endregion
-            */
+            
             lightTextures = LightPrePass.End();
-
-            // Testing
-            FinishRendering(currentCamera, renderTarget, lightTextures.RenderTargets[0]); return;
 
             #endregion
 
@@ -1290,6 +1305,9 @@ namespace XNAFinalEngine.EngineCore
             }
 
             #endregion
+
+            // Testing
+            FinishRendering(currentCamera, renderTarget, lightTextures.RenderTargets[0]); return;
             
             #endregion
             

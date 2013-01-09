@@ -110,6 +110,15 @@ namespace XNAFinalEngine.Components
         public Material[] MeshMaterial { get; set; }
 
         /// <summary>
+        /// If enabled, this mesh will create opaque shadows.
+        /// </summary>
+        /// <remarks>
+        /// It does not evaluate the material type, particularly if it is transparent or opaque, or if even exist one.
+        /// This allows performing less work sorting and you can add invisible objects that only cast shadows.
+        /// </remarks>
+        public bool CastShadows { get; set; }
+
+        /// <summary>
         /// The bounding Sphere of the model.
         /// This bounding volume isn’t recalculated, only is translated and scaled accordly to its world matrix.
         /// </summary>
@@ -176,6 +185,9 @@ namespace XNAFinalEngine.Components
             frustumCullingDataPool.Elements[frustumCullingAccessor.Index].component = this;
 
             base.Initialize(owner);
+
+            // Default parameters.
+            CastShadows = true;
 
             // Store owner's layer property for frustum culling.
             frustumCullingDataPool.Elements[frustumCullingAccessor.Index].layerMask = Owner.Layer.Mask;

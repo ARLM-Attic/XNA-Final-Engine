@@ -80,7 +80,7 @@ namespace XNAFinalEngineExamples
             camera.AddComponent<Camera>();
             camera.AddComponent<SoundListener>();
             camera.Camera.RenderTargetSize = Size.FullScreen;
-            camera.Camera.FarPlane = 5000;
+            camera.Camera.FarPlane = 1000;
             camera.Camera.NearPlane = 1f; // Do not place a small value here, you can destroy performance, not just precision.
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
             ScriptCustomCamera script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
@@ -102,19 +102,19 @@ namespace XNAFinalEngineExamples
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
                                                             Color = new Color(30, 30, 30),
-                                                            Intensity = 1f, //6
-                                                            AmbientOcclusionStrength = 4f };
+                                                            Intensity = 1.5f, //6
+                                                            AmbientOcclusionStrength = 2f };
             
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
 
             /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
-                NumberSteps = 18, //8, // Don't change this.
-                NumberDirections = 16, // 12, // Don't change this.
-                Radius = 0.01f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
-                LineAttenuation = 1f,
-                Contrast = 1f,
-                AngleBias = 5f,
+                NumberSteps = 16, //12, // Don't change this.
+                NumberDirections = 12, // 16, // Don't change this.
+                Radius = 0.001f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                LineAttenuation = 1.0f,
+                Contrast = 1.3f,
+                AngleBias = 0.1f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
             };*/
@@ -180,19 +180,19 @@ namespace XNAFinalEngineExamples
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.Color = new Color(250, 250, 220);
-            directionalLight.DirectionalLight.Intensity = 1f;
+            directionalLight.DirectionalLight.Intensity = 1.2f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.95f, -0.3f), Vector3.Zero, Vector3.Forward);
-            /*directionalLight.DirectionalLight.Shadow = new CascadedShadow
+            directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
-                Filter = Shadow.FilterType.Pcf3X3,
-                LightDepthTextureSize = Size.Square1024X1024,
-                TextureSize = Size.TextureSize.FullSize, // Lower than this could produce artifacts is the light is to intense.
+                Filter = Shadow.FilterType.PcfPosion,
+                LightDepthTextureSize = Size.Square512X512,
+                TextureSize = Size.TextureSize.FullSize, // Lower than this could produce artifacts if the light is to intense.
                 DepthBias = 0.0025f,
                 FarPlaneSplit1 = 15,
                 FarPlaneSplit2 = 40,
                 FarPlaneSplit3 = 100,
                 //FarPlaneSplit4 = 150
-            };*/
+            };
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
@@ -202,12 +202,12 @@ namespace XNAFinalEngineExamples
             pointLight.Transform.Position = new Vector3(4.8f, 1.5f, 10); // new Vector3(8f, -1f, 10);
             //pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 1024, };
 
-            for (int i = 0; i < 50; i++)
+            //for (int i = 0; i < 50; i++)
             {
                 pointLight2 = new GameObject3D();
                 pointLight2.AddComponent<PointLight>();
                 pointLight2.PointLight.Color = new Color(10, 10, 190);
-                pointLight2.PointLight.Intensity = 0.5f;
+                pointLight2.PointLight.Intensity = 0.3f;// 0.05f;
                 pointLight2.PointLight.Range = 30;
                 pointLight2.Transform.Position = new Vector3(12f, 2, -3);
             }
@@ -215,7 +215,7 @@ namespace XNAFinalEngineExamples
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
             spotLight.SpotLight.Color = Color.Green;
-            spotLight.SpotLight.Intensity = 0f;
+            spotLight.SpotLight.Intensity = 0;// 100f;
             spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
             spotLight.Transform.Position = new Vector3(0, 15f, 10);
             spotLight.Transform.Rotate(new Vector3(-45, 0, 0));

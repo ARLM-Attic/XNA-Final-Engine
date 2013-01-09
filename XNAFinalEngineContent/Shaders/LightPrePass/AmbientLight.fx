@@ -105,11 +105,15 @@ PixelShader_OUTPUT ps_main(uniform bool sphericalHarmonicsEnabled, uniform bool 
 		
 	if (ambientOcclusionEnabled)
 	{		
+		/*float ambientTerm = tex2D(ambientOcclusionSample, uv).r;
+		output.diffuse = float4(ambientTerm, ambientTerm, ambientTerm, 0);
+		output.specular = float4(0, 0, 0, 0);
+		return output;*/
+
 		baseColor *= pow(tex2D(ambientOcclusionSample, uv).r, ambientOcclusionStrength);
 	}
 	
-	output.diffuse = float4(baseColor * intensity, 0);
-	output.specular = float4(0, 0, 0, 0);
+	output.diffuse = float4(baseColor * intensity, 0);	
 	return output;
 } // ps_main
 
