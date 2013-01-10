@@ -157,7 +157,7 @@ namespace XNAFinalEngine.Graphics
         #region Begin
 
         /// <summary>
-        /// Begins the rendering of the depth information from the light point of view over a conventional render target.
+        /// Begins the rendering of the depth information from the light point of view.
         /// </summary>
         internal void Begin(Size lightDepthTextureSize)
         {

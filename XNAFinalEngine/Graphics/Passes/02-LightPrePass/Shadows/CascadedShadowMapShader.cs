@@ -162,7 +162,7 @@ namespace XNAFinalEngine.Graphics
                 spShadowMapSize = new ShaderParameterVector2("shadowMapSize", this);
                 spInvShadowMapSize = new ShaderParameterVector2("invShadowMapSize", this);
                 spClipPlanes = new ShaderParameterVector2Array("clipPlanes", this, NumberSplits);
-                spFrustumCorners = new ShaderParameterVector3Array("frustumCorners", this, NumberSplits);
+                spFrustumCorners = new ShaderParameterVector3Array("frustumCorners", this, 4);
                 spDepthTexture = new ShaderParameterTexture("depthTexture", this, SamplerState.PointClamp, 0);
                 spShadowMapTexture = new ShaderParameterTexture("shadowMap", this, SamplerState.PointClamp, 3);
                 spViewToLightViewProjMatrices = new ShaderParameterMatrixArray("viewToLightViewProj", this, NumberSplits);

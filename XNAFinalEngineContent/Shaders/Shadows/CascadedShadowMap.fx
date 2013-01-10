@@ -91,8 +91,8 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
 	else
 		shadowTerm = CalculateShadowTermSoftPCF(depthLightSpace, shadowTexCoord, iFilterSize, depthBiasAttenuated);
 	
-	/*// For testing. A color render target is need it.
-	switch (winningSplit)
+	// For testing. A color render target is need it.
+	/*switch (winningSplit)
 	{
 		case 0: return float4(shadowTerm, 0, 0, 1); break;
 		case 1: return float4(0, shadowTerm, 0, 1); break;

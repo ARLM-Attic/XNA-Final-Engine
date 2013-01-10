@@ -29,7 +29,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using System;
 using XNAFinalEngine.Helpers;
 #endregion
 
@@ -66,6 +65,7 @@ namespace XNAFinalEngine.Assets
         private float depthBias = 0.0025f;
         private Size.TextureSize textureSize = Size.TextureSize.FullSize;
 	    private float range = 50;
+	    protected int updateFrequency = 1;
 
         // Is it enabled?
         private bool enabled = true;
@@ -134,6 +134,25 @@ namespace XNAFinalEngine.Assets
                     range = 0;
             }
         } // Range
+
+        /// <summary>
+        /// Shadow update frequency.
+        /// A value of 1 means the shadow is updated each frame. 
+        /// A value of n indicates that the light depth texture is generated in one frame and
+        /// in the next the shadow map is calculated (and the light depth texture released.
+        /// In n - 1 frames later the light depth texture is again recalculated. 
+        /// If the light was frustum culled then the internal render targets are released.
+        /// </summary>
+	    public virtual int UpdateFrequency
+	    {
+            get { return updateFrequency; }
+            set
+            {
+                updateFrequency = value;
+                if (updateFrequency < 1)
+                    updateFrequency = 1;
+            }
+        } // UpdateFrequency
 
 	    #endregion
 

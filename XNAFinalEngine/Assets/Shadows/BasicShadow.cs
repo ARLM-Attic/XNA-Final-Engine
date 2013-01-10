@@ -84,5 +84,18 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
+        #region Dispose
+
+        /// <summary>
+        /// Dispose unmanaged resources.
+        /// </summary>
+        protected override void DisposeUnmanagedResources()
+        {
+            if (LightDepthTexture != null)
+                RenderTarget.Release(LightDepthTexture);
+        } // DisposeUnmanagedResources
+
+        #endregion
+
     } // BasicShadow
 } // XNAFinalEngine.Assets
