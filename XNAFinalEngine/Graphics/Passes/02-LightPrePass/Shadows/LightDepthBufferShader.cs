@@ -171,9 +171,31 @@ namespace XNAFinalEngine.Graphics
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
                 EngineManager.Device.DepthStencilState = DepthStencilState.Default;
                 
-                // Enable first render target.
                 lightDepthTexture.EnableRenderTarget();
                 lightDepthTexture.Clear(Color.White);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Shadow Map Shader: Unable to begin the rendering.", e);
+            }
+        } // Begin
+
+        /// <summary>
+        /// Begins the rendering of the depth information from the light point of view.
+        /// </summary>
+        internal void Begin(RenderTarget lightDepthTexture)
+        {
+            try
+            {
+                this.lightDepthTexture = lightDepthTexture;
+
+                // Set Render States.
+                EngineManager.Device.BlendState = BlendState.Opaque;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                EngineManager.Device.DepthStencilState = DepthStencilState.Default;
+                
+                lightDepthTexture.EnableRenderTarget();
+                    lightDepthTexture.Clear(Color.White);
             }
             catch (Exception e)
             {
@@ -281,12 +303,14 @@ namespace XNAFinalEngine.Graphics
             Matrix worldLightProjectionMatrix;
             Matrix.Multiply(ref worldMatrix, ref lightViewProjectionMatrix, out worldLightProjectionMatrix);
 
+            // Simple and skinned.
             if (boneTransform == null || model.IsSkinned)
             {
                 spWorldViewProjMatrix.Value = worldLightProjectionMatrix;
                 Resource.CurrentTechnique.Passes[0].Apply();
                 model.Render();
             }
+            // Animated Rigid Models.
             else
             {
                 for (int mesh = 0; mesh < model.MeshesCount; mesh++)
@@ -317,24 +341,26 @@ namespace XNAFinalEngine.Graphics
             else
                 Resource.CurrentTechnique = generateCubeLightDepthBufferTechnique;
 
-            Matrix worldLightProjectionMatrix;
-            Matrix.Multiply(ref worldMatrix, ref lightViewProjectionMatrix, out worldLightProjectionMatrix);
-
-            // Simple and skinned.
             if (boneTransform == null || model.IsSkinned)
             {
+                Matrix worldLightProjectionMatrix;
+                Matrix.Multiply(ref worldMatrix, ref lightViewProjectionMatrix, out worldLightProjectionMatrix);
                 spWorldViewProjMatrix.Value = worldLightProjectionMatrix;
                 Resource.CurrentTechnique.Passes[0].Apply();
                 model.Render();
             }
-            // Animated Rigid Models.
             else
             {
-                
                 for (int mesh = 0; mesh < model.MeshesCount; mesh++)
                 {
-                    Matrix boneTransformedMatrix;
-                    Matrix.Multiply(ref boneTransform[mesh + 1], ref worldLightProjectionMatrix, out boneTransformedMatrix);
+                    Matrix boneTransformedWorldMatrix;
+                    Matrix.Multiply(ref boneTransform[mesh + 1], ref worldMatrix, out boneTransformedWorldMatrix);
+                    spWorldMatrix.Value = boneTransformedWorldMatrix;
+
+                    Matrix boneTransformedWorldLighProjectionMatrix;
+                    Matrix.Multiply(ref boneTransformedWorldMatrix, ref lightViewProjectionMatrix, out boneTransformedWorldLighProjectionMatrix);
+                    spWorldViewProjMatrix.Value = boneTransformedWorldLighProjectionMatrix;
+
                     Resource.CurrentTechnique.Passes[0].Apply();
                     // Render the model's mesh.
                     int meshPartsCount = model.MeshPartsCountPerMesh[mesh];

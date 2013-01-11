@@ -33,6 +33,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.EngineCore;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -310,7 +311,21 @@ namespace XNAFinalEngine.Graphics
             spFrustumCorners.Value = boundingFrustum;
         } // SetLight
 
-        #endregion
+        /// <summary>
+        /// Determines the size of the frustum needed to cover the viewable area, then creates the light view matrix and an appropriate orthographic projection.
+        /// </summary>
+        internal void SetLight(Matrix viewMatrix, Vector3[] boundingFrustum)
+        {
+            // We'll use these clip planes to determine which split a pixel belongs to
+            for (int i = 0; i < NumberSplits; i++)
+            {
+                viewToLightViewProj[i] = Matrix.Invert(viewMatrix) * lightViewMatrix[i] * lightProjectionMatrix[i];
+            }
+            spViewToLightViewProjMatrices.Value = viewToLightViewProj;
+            spFrustumCorners.Value = boundingFrustum;
+        } // SetLight
+
+	    #endregion
 
         #region Render
 
@@ -321,6 +336,11 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
+                // Set Render States.
+                EngineManager.Device.BlendState = BlendState.Opaque;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                EngineManager.Device.DepthStencilState = DepthStencilState.Default;
+
                 // XBOX 360 Xbox does not support 16 bit render targets (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
                 // Color would be the better choice for the XBOX 360.
                 // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.

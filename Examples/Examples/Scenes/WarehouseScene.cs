@@ -35,6 +35,7 @@ using XNAFinalEngine.Components;
 //using XNAFinalEngine.Editor;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
+using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Input;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Size = XNAFinalEngine.Helpers.Size;
@@ -59,7 +60,7 @@ namespace XNAFinalEngineExamples
                                     // Lights
                                     directionalLight, pointLight, pointLight2, spotLight,
                                     // Cameras
-                                    camera,
+                                    camera, camera2,
                                     skydome;
 
         private static GameObject2D statistics;
@@ -119,18 +120,32 @@ namespace XNAFinalEngineExamples
                 TextureSize = Size.TextureSize.HalfSize,
             };*/
 
+            #region Test Split Screen
+            
+            camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
+            camera2 = new GameObject3D();
+            camera2.AddComponent<Camera>();
+            camera2.Camera.MasterCamera = camera.Camera;
+            camera2.Camera.ClearColor = Color.Black;
+            camera2.Camera.FieldOfView = 180 / 8.0f;
+            camera2.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
+            camera2.Transform.LookAt(new Vector3(5, 10, 15), Vector3.Zero, Vector3.Up);
+            camera2.Camera.AmbientLight = camera.Camera.AmbientLight;
+            
+            #endregion
+
             #endregion
             
             #region Models
             
-            /*warehouseWalls = new GameObject3D(new FileModel("Warehouse\\WarehouseWalls"),
+            warehouseWalls = new GameObject3D(new FileModel("Warehouse\\WarehouseWalls"),
                                               new BlinnPhong
                                                   {
                                                       DiffuseTexture = new Texture("Warehouse\\Warehouse-Diffuse"),
                                                       SpecularTexture = new Texture("Warehouse\\Warehouse-Specular"),
                                                       SpecularIntensity = 3,
                                                       SpecularPower = 30000,
-                                                  });*/
+                                                  });
             warehouseRoof  = new GameObject3D(new FileModel("Warehouse\\WarehouseRoof"),  
                                               new BlinnPhong
                                                   {
@@ -193,6 +208,7 @@ namespace XNAFinalEngineExamples
                 FarPlaneSplit3 = 100,
                 //FarPlaneSplit4 = 150
             };
+            Shadow.DistributeShadowCalculationsBetweenFrames = true;
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
@@ -200,7 +216,7 @@ namespace XNAFinalEngineExamples
             pointLight.PointLight.Intensity = 0;
             pointLight.PointLight.Range = 60;
             pointLight.Transform.Position = new Vector3(4.8f, 1.5f, 10); // new Vector3(8f, -1f, 10);
-            pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 1024, };
+            //pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 1024, };
 
             //for (int i = 0; i < 50; i++)
             {
@@ -220,13 +236,13 @@ namespace XNAFinalEngineExamples
             spotLight.Transform.Position = new Vector3(0, 15f, 10);
             spotLight.Transform.Rotate(new Vector3(-45, 0, 0));
             spotLight.SpotLight.LightMaskTexture = new Texture("LightMasks\\Crysis2TestLightMask");
-            spotLight.SpotLight.Shadow = new BasicShadow
+            /*spotLight.SpotLight.Shadow = new BasicShadow
             {
                 Filter = Shadow.FilterType.Pcf3X3,
                 LightDepthTextureSize = Size.Square1024X1024,
                 TextureSize = Size.TextureSize.FullSize,
                 DepthBias = 0.0025f,
-            };
+            };*/
             
             #endregion
             
@@ -266,6 +282,7 @@ namespace XNAFinalEngineExamples
             if (GamePad.PlayerOne.AJustPressed)
                 EngineManager.ExitApplication();
             base.UpdateTasks();
+            warehouseWalls.Transform.Rotate(new Vector3(0.1f, 0, 0));
         } // UpdateTasks
 
         #endregion

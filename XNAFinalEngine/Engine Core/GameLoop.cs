@@ -46,6 +46,7 @@ using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Model = XNAFinalEngine.Assets.Model;
 using RootAnimation = XNAFinalEngine.Components.RootAnimations;
 using XNAFinalEngine.PhysicSystem;
+using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -942,11 +943,12 @@ namespace XNAFinalEngine.EngineCore
             
             #region Directional Light Shadows
 
+            // Only one directional light, the sun, could generate shadows. This is done to arrange the data better.
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
                 DirectionalLight directionalLight = DirectionalLight.ComponentPool.Elements[i];
                 // If there is a shadow map and the light is visible.
-                if (directionalLight.Shadow != null && directionalLight.Shadow.Enabled && directionalLight.IsVisible && directionalLight.Intensity > 0)
+                if (directionalLight.IsSun && directionalLight.Shadow != null && directionalLight.Shadow.Enabled && directionalLight.IsVisible && directionalLight.Intensity > 0)
                 {
 
                     #region Search Correct Depth Texture
@@ -963,28 +965,108 @@ namespace XNAFinalEngine.EngineCore
                     #endregion
 
                     #region Cascaded Shadow
-                    
+
                     if (directionalLight.Shadow is CascadedShadow)
                     {
                         CascadedShadow shadow = (CascadedShadow)directionalLight.Shadow;
 
-                        // Determines the size of the frustum needed to cover the viewable area, then creates the light view matrix and an appropriate orthographic projection.
-                        CascadedShadowMapShader.Instance.SetLight(directionalLight.cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
-                                                                  currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace,
-                                                                  shadow.FarPlaneSplit1, shadow.FarPlaneSplit2, shadow.FarPlaneSplit3, shadow.FarPlaneSplit4);
-                        // Feth shadow texture and enable it for render.
-                        LightDepthBufferShader.Instance.Begin(new Size(shadow.LightDepthTextureSize.Width * CascadedShadowMapShader.NumberSplits, shadow.LightDepthTextureSize.Height));
+                        if (shadow.LightDepthTexture != null && shadow.LightDepthTexture.IsDisposed)
+                            shadow.LightDepthTexture = null;
 
-                        // A shadow map is generated for each split or frustum.
-                        for (int splitNumber = 0; splitNumber < CascadedShadowMapShader.NumberSplits; splitNumber++)
+                        if (Shadow.DistributeShadowCalculationsBetweenFrames == false || Time.TotalFramesCount % 2 != 0 || shadow.LightDepthTexture == null)
                         {
-                            LightDepthBufferShader.Instance.SetLightMatrices(CascadedShadowMapShader.Instance.LightViewMatrix[splitNumber],
-                                                                             CascadedShadowMapShader.Instance.LightProjectionMatrix[splitNumber]);
-                            // The complete shadow map is stored as atlas.
-                            LightDepthBufferShader.Instance.SetViewport(splitNumber);
+                            #region Generate Light Depth Texture
+
+                            // Determines the size of the frustum needed to cover the viewable area, then creates the light view matrix and an appropriate orthographic projection.
+                            CascadedShadowMapShader.Instance.SetLight(directionalLight.cachedDirection, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix,
+                                                                      currentCamera.NearPlane, currentCamera.FarPlane, cornersViewSpace,
+                                                                      shadow.FarPlaneSplit1, shadow.FarPlaneSplit2, shadow.FarPlaneSplit3, shadow.FarPlaneSplit4);
+                            
+                            // Feth light depth texture and enable it for render.
+                            if (shadow.LightDepthTexture == null)
+                                LightDepthBufferShader.Instance.Begin(new Size(shadow.LightDepthTextureSize.Width * CascadedShadowMapShader.NumberSplits, shadow.LightDepthTextureSize.Height));
+                            else
+                                LightDepthBufferShader.Instance.Begin(shadow.LightDepthTexture);
+
+                            // A shadow map is generated for each split or frustum.
+                            for (int splitNumber = 0; splitNumber < CascadedShadowMapShader.NumberSplits; splitNumber++)
+                            {
+                                LightDepthBufferShader.Instance.SetLightMatrices(CascadedShadowMapShader.Instance.LightViewMatrix[splitNumber],
+                                                                                 CascadedShadowMapShader.Instance.LightProjectionMatrix[splitNumber]);
+                                // The complete shadow map is stored as atlas.
+                                LightDepthBufferShader.Instance.SetViewport(splitNumber);
+
+                                // Frustum Culling
+                                cameraBoundingFrustum.Matrix = CascadedShadowMapShader.Instance.LightViewMatrix[splitNumber] * CascadedShadowMapShader.Instance.LightProjectionMatrix[splitNumber];
+                                modelsToRenderShadows.Clear();
+                                FrustumCulling.ModelRendererFrustumCulling(cameraBoundingFrustum, modelsToRenderShadows);
+
+                                // Sort by skinned and not skinned
+                                modelsToRenderShadowsSimple.Clear();
+                                modelsToRenderShadowsSkinned.Clear();
+                                foreach (ModelRenderer modelRenderer in modelsToRenderShadows)
+                                {
+                                    if (modelRenderer.CastShadows) // This question could be made before the Intersects. Or we can track globally the objects that cast shadows.
+                                    {
+                                        if (modelRenderer.CachedModel.IsSkinned)
+                                            modelsToRenderShadowsSkinned.Add(modelRenderer);
+                                        else
+                                            modelsToRenderShadowsSimple.Add(modelRenderer);
+                                    }
+                                }
+                                // Render simple objects.
+                                foreach (ModelRenderer modelRenderer in modelsToRenderShadowsSimple)
+                                {
+                                    LightDepthBufferShader.Instance.RenderModel(ref modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
+                                }
+                                // Render skinned objects.
+                                foreach (ModelRenderer modelRenderer in modelsToRenderShadowsSkinned)
+                                {
+                                    LightDepthBufferShader.Instance.RenderModel(ref modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
+                                }
+                            }
+                            // Resolve and return the render target with the depth information from the light point of view.
+                            shadow.LightDepthTexture = LightDepthBufferShader.Instance.End();
+
+                            #endregion
+                        }
+                        else
+                        {
+                            // View matrix information has to be updated to avoid an incorrect transformation.
+                            CascadedShadowMapShader.Instance.SetLight(currentCamera.ViewMatrix, cornersViewSpace);
+                        }
+                        
+                        // Calculate a deferred shadow map.
+                        directionalLight.ShadowTexture = CascadedShadowMapShader.Instance.Render(shadow.LightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter);
+                    }
+
+                    #endregion
+
+                    #region Basic Shadow
+                        
+                    else if (directionalLight.Shadow is BasicShadow)
+                    {
+                        BasicShadow shadow = (BasicShadow)directionalLight.Shadow;
+
+                        if (shadow.LightDepthTexture != null && shadow.LightDepthTexture.IsDisposed)
+                            shadow.LightDepthTexture = null;
+
+                        if (Shadow.DistributeShadowCalculationsBetweenFrames == false || Time.TotalFramesCount % 2 != 0 || shadow.LightDepthTexture == null)
+                        {
+                            #region Generate Light Depth Texture
+
+                            BasicShadowMapShader.Instance.SetLight(directionalLight.cachedDirection, currentCamera.ViewMatrix, shadow.Range, cornersViewSpace);
+                            
+                            // Feth shadow texture and enable it for render.
+                            if (shadow.LightDepthTexture == null)
+                                LightDepthBufferShader.Instance.Begin(shadow.LightDepthTextureSize);
+                            else
+                                LightDepthBufferShader.Instance.Begin(shadow.LightDepthTexture);
+
+                            LightDepthBufferShader.Instance.SetLightMatrices(BasicShadowMapShader.Instance.LightViewMatrix, BasicShadowMapShader.Instance.LightProjectionMatrix);
 
                             // Frustum Culling
-                            cameraBoundingFrustum.Matrix = CascadedShadowMapShader.Instance.LightViewMatrix[splitNumber] * CascadedShadowMapShader.Instance.LightProjectionMatrix[splitNumber];
+                            cameraBoundingFrustum.Matrix = BasicShadowMapShader.Instance.LightViewMatrix * BasicShadowMapShader.Instance.LightProjectionMatrix;
                             modelsToRenderShadows.Clear();
                             FrustumCulling.ModelRendererFrustumCulling(cameraBoundingFrustum, modelsToRenderShadows);
 
@@ -1011,65 +1093,27 @@ namespace XNAFinalEngine.EngineCore
                             {
                                 LightDepthBufferShader.Instance.RenderModel(ref modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
                             }
+                            // Resolve and return the render target with the depth information from the light point of view.
+                            shadow.LightDepthTexture = LightDepthBufferShader.Instance.End();
+
+                            #endregion
                         }
-                        // Resolve and return the render target with the depth information from the light point of view.
-                        shadow.LightDepthTexture = LightDepthBufferShader.Instance.End();
-                        // Calculate a deferred shadow map.
-                        directionalLight.ShadowTexture = CascadedShadowMapShader.Instance.Render(shadow.LightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter);
-                        RenderTarget.Release(shadow.LightDepthTexture);
-                    }
-
-                    #endregion
-
-                    #region Basic Shadow
-                        
-                    else if (directionalLight.Shadow is BasicShadow)
-                    {
-                        BasicShadow shadow = (BasicShadow)directionalLight.Shadow;
-                        
-                        BasicShadowMapShader.Instance.SetLight(directionalLight.cachedDirection, currentCamera.ViewMatrix, shadow.Range, cornersViewSpace);
-                        // Feth shadow texture and enable it for render.
-                        LightDepthBufferShader.Instance.Begin(shadow.LightDepthTextureSize);
-
-                        LightDepthBufferShader.Instance.SetLightMatrices(BasicShadowMapShader.Instance.LightViewMatrix, BasicShadowMapShader.Instance.LightProjectionMatrix);
-                        
-                        // Frustum Culling
-                        cameraBoundingFrustum.Matrix = BasicShadowMapShader.Instance.LightViewMatrix * BasicShadowMapShader.Instance.LightProjectionMatrix;
-                        modelsToRenderShadows.Clear();
-                        FrustumCulling.ModelRendererFrustumCulling(cameraBoundingFrustum, modelsToRenderShadows);
-
-                        // Sort by skinned and not skinned
-                        modelsToRenderShadowsSimple.Clear();
-                        modelsToRenderShadowsSkinned.Clear();
-                        foreach (ModelRenderer modelRenderer in modelsToRenderShadows)
+                        else
                         {
-                            if (modelRenderer.CastShadows) // This question could be made before the Intersects. Or we can track globally the objects that cast shadows.
-                            {
-                                if (modelRenderer.CachedModel.IsSkinned)
-                                    modelsToRenderShadowsSkinned.Add(modelRenderer);
-                                else
-                                    modelsToRenderShadowsSimple.Add(modelRenderer);
-                            }
+                            // View matrix information has to be updated to avoid an incorrect transformation.
+                            BasicShadowMapShader.Instance.SetLight(currentCamera.ViewMatrix, cornersViewSpace);
                         }
-                        // Render simple objects.
-                        foreach (ModelRenderer modelRenderer in modelsToRenderShadowsSimple)
-                        {
-                            LightDepthBufferShader.Instance.RenderModel(ref modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
-                        }
-                        // Render skinned objects.
-                        foreach (ModelRenderer modelRenderer in modelsToRenderShadowsSkinned)
-                        {
-                            LightDepthBufferShader.Instance.RenderModel(ref modelRenderer.CachedWorldMatrix, modelRenderer.CachedModel, modelRenderer.cachedBoneTransforms);
-                        }
-                        // Resolve and return the render target with the depth information from the light point of view.
-                        shadow.LightDepthTexture = LightDepthBufferShader.Instance.End();
                         // Calculate a deferred shadow map.
                         directionalLight.ShadowTexture = BasicShadowMapShader.Instance.Render(shadow.LightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter);
-                        RenderTarget.Release(shadow.LightDepthTexture);
                     }
 
                     #endregion
 
+                }
+                else
+                {
+                    if (directionalLight.Shadow != null)
+                        directionalLight.Shadow.ReleaseLightDepthTexture();
                 }
             }
 

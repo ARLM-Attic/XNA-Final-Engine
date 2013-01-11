@@ -103,7 +103,7 @@ float4 PS_BlurX(VS_Output input) : COLOR
         b += BlurFunction(uv, r, center_c, center_d, w_total);	
     }
 
-    return b/w_total;
+    return b / w_total;
 } // PS_BlurX
 
 float4 PS_BlurY(VS_Output input) : COLOR

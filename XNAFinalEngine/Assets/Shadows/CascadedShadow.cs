@@ -43,13 +43,15 @@ namespace XNAFinalEngine.Assets
     /// If you need point light shadows use the cube shadow map or if you need spot light use the basic shadow map.
     /// 
     /// Cascaded shadows are really expensive and there is no need to have more than one active at the same time.
-    /// Rendering only one cascaded shadow map simplified the task to store and access the shadow texture generated.
-    /// Therefore the engine just renders the first active cascaded shadow; if you need to change this behavior just modify the GameLoop class.
+    /// Therefore the engine limits its use to only one, also allowing to arrage the data better.
     /// </remarks>
     public class CascadedShadow : Shadow
-	{
+    {
 
         #region Variables
+
+        // Indicates if the cascaded shadow's light depth texture needs to be updated.
+	    internal bool needsUpdate = true;
 
         private Size lightDepthTextureSize = Size.Square1024X1024;
 
@@ -59,11 +61,6 @@ namespace XNAFinalEngine.Assets
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Light Depth Texture
-        /// </summary>
-        internal RenderTarget LightDepthTexture;
 
         /// <summary>
         /// Light depth texture size.
@@ -109,45 +106,7 @@ namespace XNAFinalEngine.Assets
         /// But if you want an automatic calculation just put 0.
         /// </summary>
         public float FarPlaneSplit4 { get; set; }
-
-        /// <summary>
-        /// Shadow update frequency.
-        /// A value of 1 means the shadow is updated each frame. 
-        /// For n = 2, Frame 1: All cascades are calculated, Frame 2: shadow map is calculated.
-        /// For n = 3, Frame 1: cascade 1 and 3 are calculated,
-        ///            Frame 2: cascade 2 and 4 are calculated,
-        ///            Frame 3: shadow map is calculated.
-        /// For n = 4, Frame 1: cascade 1 and 2 are calculated (small frustum), 
-        ///            Frame 2: cascade 3 is calculated,
-        ///            Frame 3: cascade 4 is calculated,
-        ///            Frame 4: shadow map is calculated.
-        /// For n = 5, Frame 1: cascade 1 and 2 are calculated (small frustum), 
-        ///            Frame 2: shadow map is calculated, 
-        ///            Frame 3: cascade 3 is calculated,
-        ///            Frame 4: cascade 4 is calculated,
-        ///            Frame 5: shadow map is calculated.
-        /// For n = 6, Frame 1: cascade 1 is calculate,
-        ///            Frame 2: cascade 2 is calculated, 
-        ///            Frame 3: shadow map is calculated,
-        ///            Frame 4: cascade 3 is calculated,
-        ///            Frame 5: cascade 4 is calculated, 
-        ///            Frame 6: shadow map is calculated.
-        /// Frequency of n >= 7 is not allowed.
-        /// Cascaded shadow maps do not release the light depth texture. 
-        /// </summary>
-        public override int UpdateFrequency
-        {
-            get { return updateFrequency; }
-            set
-            {
-                updateFrequency = value;
-                if (updateFrequency < 1)
-                    updateFrequency = 1;
-                if (updateFrequency > 6)
-                    updateFrequency = 6;
-            }
-        } // UpdateFrequency
-
+        
         #endregion
 
         #region Constructor
@@ -170,6 +129,19 @@ namespace XNAFinalEngine.Assets
             if (LightDepthTexture != null)
                 RenderTarget.Release(LightDepthTexture);
         } // DisposeUnmanagedResources
+
+        #endregion
+
+        #region Release Light Depth Texture
+
+        /// <summary>
+        /// Release Light Depth Texture.
+        /// </summary>
+        internal override void ReleaseLightDepthTexture()
+        {
+            if (LightDepthTexture != null)
+                RenderTarget.Release(LightDepthTexture);
+        } // ReleaseLightDepthTexture
 
         #endregion
 

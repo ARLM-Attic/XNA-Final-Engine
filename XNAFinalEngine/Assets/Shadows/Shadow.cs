@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -65,10 +65,13 @@ namespace XNAFinalEngine.Assets
         private float depthBias = 0.0025f;
         private Size.TextureSize textureSize = Size.TextureSize.FullSize;
 	    private float range = 50;
-	    protected int updateFrequency = 1;
-
-        // Is it enabled?
         private bool enabled = true;
+
+        #if Xbox
+            private static bool distributeShadowCalculationsBetweenFrames = true;
+        #else
+            private static bool distributeShadowCalculationsBetweenFrames = false;
+        #endif
 
         #endregion
 
@@ -135,26 +138,26 @@ namespace XNAFinalEngine.Assets
             }
         } // Range
 
-        /// <summary>
-        /// Shadow update frequency.
-        /// A value of 1 means the shadow is updated each frame. 
-        /// A value of n indicates that the light depth texture is generated in one frame and
-        /// in the next the shadow map is calculated (and the light depth texture released.
-        /// In n - 1 frames later the light depth texture is again recalculated. 
-        /// If the light was frustum culled then the internal render targets are released.
+	    /// <summary>
+        /// Distribute shadow calculations between frames.
+        /// If it is true, cascaded shadows are calculated in one frame and the other active shadows in another.
         /// </summary>
-	    public virtual int UpdateFrequency
+        public static bool DistributeShadowCalculationsBetweenFrames
 	    {
-            get { return updateFrequency; }
-            set
-            {
-                updateFrequency = value;
-                if (updateFrequency < 1)
-                    updateFrequency = 1;
-            }
-        } // UpdateFrequency
+	        get { return distributeShadowCalculationsBetweenFrames; }
+	        set { distributeShadowCalculationsBetweenFrames = value; }
+        } // DistributeShadowCalculationsBetweenFrames
 
 	    #endregion
+
+        #region Release Light Depth Texture
+
+        /// <summary>
+        /// Release Light Depth Texture.
+        /// </summary>
+	    internal abstract void ReleaseLightDepthTexture();
+
+        #endregion
 
     } // Shadow
 } // XNAFinalEngine.Assets

@@ -308,6 +308,16 @@ namespace XNAFinalEngine.Graphics
             spFrustumCorners.Value = boundingFrustum;
         } // SetLight
 
+        /// <summary>
+        /// Determines the size of the frustum needed to cover the viewable area, then creates the light view matrix and an appropriate orthographic projection.
+        /// </summary>
+        internal void SetLight(Matrix viewMatrix, Vector3[] boundingFrustum)
+        {
+            // We'll use these clip planes to determine which split a pixel belongs to
+            spViewToLightViewProjMatrix.Value = Matrix.Invert(viewMatrix) * lightViewMatrix * lightProjectionMatrix;
+            spFrustumCorners.Value = boundingFrustum;
+        } // SetLight
+
 		#endregion
 
     } // BasicShadowMapShader

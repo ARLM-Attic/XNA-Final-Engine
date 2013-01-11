@@ -555,6 +555,8 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         public static void Release(RenderTarget rendertarget)
         {
+            if (rendertarget == null)
+                return;
             for (int i = 0; i < renderTargets.Count; i++)
             {
                 if (rendertarget == renderTargets[i])

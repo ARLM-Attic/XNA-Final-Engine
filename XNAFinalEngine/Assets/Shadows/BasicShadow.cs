@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -28,13 +28,17 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 */
 #endregion
 
+#region Using directives
 using System;
 using XNAFinalEngine.Helpers;
+#endregion
 
 namespace XNAFinalEngine.Assets
 {
 	/// <summary>
 	/// Basic shadows.
+	/// Could be used on directional lights and spot lights.
+    /// Only one directional light could have active shadows so that the data could be arranged better.
 	/// </summary>
     public class BasicShadow : Shadow
 	{
@@ -94,6 +98,19 @@ namespace XNAFinalEngine.Assets
             if (LightDepthTexture != null)
                 RenderTarget.Release(LightDepthTexture);
         } // DisposeUnmanagedResources
+
+        #endregion
+
+        #region Release Light Depth Texture
+
+        /// <summary>
+        /// Release Light Depth Texture.
+        /// </summary>
+        internal override void ReleaseLightDepthTexture()
+        {
+            if (LightDepthTexture != null)
+                RenderTarget.Release(LightDepthTexture);
+        } // ReleaseLightDepthTexture
 
         #endregion
 
