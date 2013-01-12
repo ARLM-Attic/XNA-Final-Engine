@@ -242,7 +242,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render the point light.
         /// </summary>
-        public void Render(Color diffuseColor, Vector3 position, float intensity, float radius, CubeShadow shadow)
+        public void Render(Color diffuseColor, Vector3 position, float intensity, float radius, TextureCube shadowTexture)
         {
             try
             {
@@ -281,9 +281,9 @@ namespace XNAFinalEngine.Graphics
                 spLightIntensity.Value = intensity;
                 spInvLightRadius.Value = 1 / radius;
 
-                if (shadow != null)
+                if (shadowTexture != null)
                 {
-                    spShadowTexture.Value = shadow.LightDepthTexture;
+                    spShadowTexture.Value = shadowTexture;
                     spViewInverse.Value = Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix)));
                 }
                 else
@@ -320,7 +320,7 @@ namespace XNAFinalEngine.Graphics
                     // Second pass.
                     // Render the clip volume back faces with the light shader.
                     // The pixel with stencil value of 1 that are in front of the geometry will be discarded.
-                    Resource.CurrentTechnique = shadow != null ? pointLightWithShadowsTechnique : pointLightTechnique;
+                    Resource.CurrentTechnique = shadowTexture != null ? pointLightWithShadowsTechnique : pointLightTechnique;
                     EngineManager.Device.RasterizerState = RasterizerState.CullClockwise;
                     EngineManager.Device.BlendState = lightBlendState;
                     EngineManager.Device.DepthStencilState = lightDepthStencilState;

@@ -150,14 +150,5 @@ namespace XNAFinalEngine.Assets
 
 	    #endregion
 
-        #region Release Light Depth Texture
-
-        /// <summary>
-        /// Release Light Depth Texture.
-        /// </summary>
-	    internal abstract void ReleaseLightDepthTexture();
-
-        #endregion
-
     } // Shadow
 } // XNAFinalEngine.Assets

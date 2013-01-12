@@ -118,32 +118,6 @@ namespace XNAFinalEngine.Assets
         } // CascadedShadow
 
         #endregion
-
-        #region Dispose
-
-        /// <summary>
-        /// Dispose unmanaged resources.
-        /// </summary>
-        protected override void DisposeUnmanagedResources()
-        {
-            if (LightDepthTexture != null)
-                RenderTarget.Release(LightDepthTexture);
-        } // DisposeUnmanagedResources
-
-        #endregion
-
-        #region Release Light Depth Texture
-
-        /// <summary>
-        /// Release Light Depth Texture.
-        /// </summary>
-        internal override void ReleaseLightDepthTexture()
-        {
-            if (LightDepthTexture != null)
-                RenderTarget.Release(LightDepthTexture);
-        } // ReleaseLightDepthTexture
-
-        #endregion
-
+        
     } // CascadedShadow
 } // XNAFinalEngine.Assets

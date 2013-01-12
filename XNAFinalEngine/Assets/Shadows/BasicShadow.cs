@@ -55,11 +55,6 @@ namespace XNAFinalEngine.Assets
         #region Properties
 
         /// <summary>
-        /// Light Depth Texture
-        /// </summary>
-        internal RenderTarget LightDepthTexture;
-
-        /// <summary>
         /// Light depth texture size.
         /// This is a temporal render target but its size is important. 
         /// Greater size equals better results but the performance penalty is significant.
@@ -85,32 +80,6 @@ namespace XNAFinalEngine.Assets
             Name = "Basic Shadow-" + nameNumber;
             nameNumber++;
         } // BasicShadow
-
-        #endregion
-
-        #region Dispose
-
-        /// <summary>
-        /// Dispose unmanaged resources.
-        /// </summary>
-        protected override void DisposeUnmanagedResources()
-        {
-            if (LightDepthTexture != null)
-                RenderTarget.Release(LightDepthTexture);
-        } // DisposeUnmanagedResources
-
-        #endregion
-
-        #region Release Light Depth Texture
-
-        /// <summary>
-        /// Release Light Depth Texture.
-        /// </summary>
-        internal override void ReleaseLightDepthTexture()
-        {
-            if (LightDepthTexture != null)
-                RenderTarget.Release(LightDepthTexture);
-        } // ReleaseLightDepthTexture
 
         #endregion
 
