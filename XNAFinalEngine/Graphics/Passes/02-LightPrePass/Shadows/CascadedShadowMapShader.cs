@@ -312,7 +312,8 @@ namespace XNAFinalEngine.Graphics
         } // SetLight
 
         /// <summary>
-        /// Determines the size of the frustum needed to cover the viewable area, then creates the light view matrix and an appropriate orthographic projection.
+        /// Set shader's global parameters need to perform the shadow map generation.
+        /// This method is used only when the light depth texture was created in a previous frame.
         /// </summary>
         internal void SetLight(Matrix viewMatrix, Vector3[] boundingFrustum,
                                Matrix lightViewMatrix, Matrix lightViewMatrix2, Matrix lightViewMatrix3, Matrix lightViewMatrix4,

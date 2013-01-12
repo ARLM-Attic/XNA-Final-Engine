@@ -227,6 +227,30 @@ namespace XNAFinalEngine.Graphics
             }
         } // Begin
 
+        /// <summary>
+        /// Begins the rendering of the depth information from the light point of view over a cube render target. 
+        /// </summary>
+        internal void Begin(RenderTargetCube lightDepthTexture, Vector3 lightPosition, float lightRadius)
+        {
+            try
+            {
+                // Creates the render target textures
+                lightDepthTextureCube = lightDepthTexture;
+
+                // Set Render States.
+                EngineManager.Device.BlendState = BlendState.Opaque;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+                EngineManager.Device.DepthStencilState = DepthStencilState.Default;
+
+                spLightPosition.Value = lightPosition;
+                spLightRadius.Value = lightRadius;
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Shadow Map Shader: Unable to begin the rendering.", e);
+            }
+        } // Begin
+
         #endregion
 
         #region Set Light Matrices
@@ -331,7 +355,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render objects in light space.
         /// </summary>
-        internal void RenderModelCubeShadows(Matrix worldMatrix, Model model, Matrix[] boneTransform)
+        internal void RenderModelCubeShadows(ref Matrix worldMatrix, Model model, Matrix[] boneTransform)
         {
             if (model.IsSkinned) // If it is a skinned model.
             {
@@ -346,6 +370,7 @@ namespace XNAFinalEngine.Graphics
                 Matrix worldLightProjectionMatrix;
                 Matrix.Multiply(ref worldMatrix, ref lightViewProjectionMatrix, out worldLightProjectionMatrix);
                 spWorldViewProjMatrix.Value = worldLightProjectionMatrix;
+                spWorldMatrix.Value = worldMatrix;
                 Resource.CurrentTechnique.Passes[0].Apply();
                 model.Render();
             }

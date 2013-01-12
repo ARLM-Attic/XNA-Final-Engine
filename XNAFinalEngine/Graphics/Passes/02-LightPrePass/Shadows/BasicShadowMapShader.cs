@@ -311,7 +311,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Determines the size of the frustum needed to cover the viewable area, then creates the light view matrix and an appropriate orthographic projection.
         /// </summary>
-        internal void SetLight(Matrix viewMatrix, Vector3[] boundingFrustum)
+        internal void SetLight(Matrix viewMatrix, Vector3[] boundingFrustum, Matrix lightViewMatrix, Matrix lightProjectionMatrix)
         {
             // We'll use these clip planes to determine which split a pixel belongs to
             spViewToLightViewProjMatrix.Value = Matrix.Invert(viewMatrix) * lightViewMatrix * lightProjectionMatrix;

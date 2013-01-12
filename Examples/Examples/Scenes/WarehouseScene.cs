@@ -201,22 +201,29 @@ namespace XNAFinalEngineExamples
             {
                 Filter = Shadow.FilterType.PcfPosion,
                 LightDepthTextureSize = Size.Square512X512,
-                TextureSize = Size.TextureSize.HalfSize, // Lower than this could produce artifacts if the light is to intense.
+                TextureSize = Size.TextureSize.FullSize, // Lower than this could produce artifacts if the light is to intense.
                 DepthBias = 0.0025f,
                 FarPlaneSplit1 = 15,
                 FarPlaneSplit2 = 40,
                 FarPlaneSplit3 = 100,
                 //FarPlaneSplit4 = 150
             };
-            Shadow.DistributeShadowCalculationsBetweenFrames = true;
+            /*directionalLight.DirectionalLight.Shadow = new BasicShadow
+            {
+                Filter = Shadow.FilterType.PcfPosion,
+                LightDepthTextureSize = Size.Square512X512,
+                TextureSize = Size.TextureSize.FullSize, // Lower than this could produce artifacts if the light is to intense.
+                DepthBias = 0.0025f,
+            };*/
+            Shadow.DistributeShadowCalculationsBetweenFrames = false;
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
-            pointLight.PointLight.Color = new Color(250, 0, 0); // new Color(240, 235, 200);
-            pointLight.PointLight.Intensity = 0;
+            pointLight.PointLight.Color = new Color(250, 250, 0); // new Color(240, 235, 200);
+            pointLight.PointLight.Intensity = 50;
             pointLight.PointLight.Range = 60;
             pointLight.Transform.Position = new Vector3(4.8f, 1.5f, 10); // new Vector3(8f, -1f, 10);
-            //pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 1024, };
+            pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 1024, };
 
             //for (int i = 0; i < 50; i++)
             {
@@ -231,18 +238,18 @@ namespace XNAFinalEngineExamples
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
             spotLight.SpotLight.Color = Color.Green;
-            spotLight.SpotLight.Intensity = 0f;
+            spotLight.SpotLight.Intensity = 10f;
             spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
             spotLight.Transform.Position = new Vector3(0, 15f, 10);
             spotLight.Transform.Rotate(new Vector3(-45, 0, 0));
             spotLight.SpotLight.LightMaskTexture = new Texture("LightMasks\\Crysis2TestLightMask");
-            /*spotLight.SpotLight.Shadow = new BasicShadow
+            spotLight.SpotLight.Shadow = new BasicShadow
             {
                 Filter = Shadow.FilterType.Pcf3X3,
                 LightDepthTextureSize = Size.Square1024X1024,
                 TextureSize = Size.TextureSize.FullSize,
                 DepthBias = 0.0025f,
-            };*/
+            };
             
             #endregion
             
