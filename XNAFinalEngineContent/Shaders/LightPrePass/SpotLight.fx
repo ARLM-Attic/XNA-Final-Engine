@@ -160,11 +160,11 @@ PixelShader_OUTPUT ps_main(uniform bool hasShadows, uniform bool hasLightMask, V
 		// This could be easily modified to support color texture projection.
 		shadowTerm *= tex2D(lightMaskSampler, shadowTexCoord).r;
 		
-		/*[branch]
+		[branch]
 		if (shadowTerm == 0)
 		{
 			Discard();
-		}*/
+		}
 	}
 
     // Surface-to-light vector (in view space)
@@ -203,7 +203,7 @@ PixelShader_OUTPUT ps_main(uniform bool hasShadows, uniform bool hasLightMask, V
 	// B: Color.b * N.L
 	// A: Specular Term * N.L (Look in Shader X7 to know why N * L is necesary in this last channel or use your brain, it is easy actually.)
 	// http://diaryofagraphicsprogrammer.blogspot.com/2008/03/light-pre-pass-renderer.html
-	output.diffuse = float4(GammaToLinear(lightColor) * DL * attenuation * lightIntensity * NL * shadowTerm, 0);
+	output.diffuse = float4(GammaToLinear(lightColor) * DL * attenuation * lightIntensity * NL * shadowTerm, 0);	
 	output.specular = float4(output.diffuse.rgb * specular, 0);
 	return output;
 }

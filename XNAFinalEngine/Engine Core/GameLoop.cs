@@ -77,7 +77,7 @@ namespace XNAFinalEngine.EngineCore
             public int MeshPart;
         } // MeshPartToRender
 
-        private struct LightDepthInformation
+        private struct DirectionalLightDepthInformation
         {
             // To avoid garbage I do not store an array of matrices.
             // I can't copy the array reference either, I need to clone the values.
@@ -90,10 +90,25 @@ namespace XNAFinalEngine.EngineCore
             public Matrix lightProjectionMatrix3;
             public Matrix lightProjectionMatrix4;
             public RenderTarget lightDepthTexture;
-            public RenderTargetCube lightDepthTextureCube;
-            public Light light;
+            public DirectionalLight light;
             public Camera camera;
-        } // LightDepthInformation
+        } // DirectionalLightDepthInformation
+
+        private struct SpotLightDepthInformation
+        {
+            public Matrix lightViewMatrix;
+            public Matrix lightProjectionMatrix;
+            public SpotLight light;
+            public RenderTarget lightDepthTexture;
+            public bool calculatedThisFrame;
+        } // SpotLightDepthInformation
+
+        private struct PointLightDepthInformation
+        {
+            public PointLight light;
+            public RenderTargetCube lightDepthTexture;
+            public bool calculatedThisFrame;
+        } // PointLightDepthInformation
 
         #endregion
 
@@ -134,8 +149,11 @@ namespace XNAFinalEngine.EngineCore
         private static readonly List<MeshPartToRender> opaqueConstant              = new List<MeshPartToRender>(10);
 
         // Shadows
-        private static LightDepthInformation[] activeShadows = new LightDepthInformation[50];
+        private static DirectionalLightDepthInformation[] activeDirectionalLightShadows = new DirectionalLightDepthInformation[10];
+        private static SpotLightDepthInformation[] activeSpotLightShadows = new SpotLightDepthInformation[10];
+        private static PointLightDepthInformation[] activePointLightShadows = new PointLightDepthInformation[5];
         private static List<RenderTargetCube> lightDepthTextureCubeArray = new List<RenderTargetCube>(20) ;
+        private static int activeCamerasCount;
         
         #endregion
 
@@ -488,7 +506,22 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             Camera mainCamera;
-            
+
+            #region Set shadows To Not calculated This Frame
+
+            // Used to avoid calculating the same shadow map in split screen mode.
+            for (int i = 0; i < activeSpotLightShadows.Length; i++)
+            {
+                activeSpotLightShadows[i].calculatedThisFrame = false;
+            }
+            // Used to avoid calculating the same shadow map in split screen mode.
+            for (int i = 0; i < activePointLightShadows.Length; i++)
+            {
+                activePointLightShadows[i].calculatedThisFrame = false;
+            }
+
+            #endregion
+
             if (CamerasToRender == null || CamerasToRender.Count == 0)
             {
 
@@ -504,22 +537,34 @@ namespace XNAFinalEngine.EngineCore
                         if (!currentCamera.IsActive)
                         {
                             // We search each active shadows members and we try to release resources.
-                            for (int i = 1; i < activeShadows.Length; i++)
+                            for (int i = 0; i < activeDirectionalLightShadows.Length; i++)
                             {
-                                if (activeShadows[i].camera == currentCamera)
+                                if (activeDirectionalLightShadows[i].camera == currentCamera)
                                 {
-                                    activeShadows[i].camera = null;
-                                    activeShadows[i].light = null;
-                                    RenderTarget.Release(activeShadows[i].lightDepthTexture);
-                                    RenderTargetCube.Release(activeShadows[i].lightDepthTextureCube);
-                                    activeShadows[i].lightDepthTexture = null;
-                                    activeShadows[i].lightDepthTextureCube = null;
+                                    activeDirectionalLightShadows[i].camera = null;
+                                    activeDirectionalLightShadows[i].light = null;
+                                    RenderTarget.Release(activeDirectionalLightShadows[i].lightDepthTexture);
+                                    activeDirectionalLightShadows[i].lightDepthTexture = null;
                                 }
-                                else if (activeShadows[i].camera == null)
+                                else if (activeDirectionalLightShadows[i].camera == null)
                                     break;
                             }
                         }
                     }
+                }
+
+                #endregion
+
+                #region Track Active Cameras
+
+                // This is useful to liberate resource in non split-screen render.
+                activeCamerasCount = 0;
+                for (int cameraIndex = 0; cameraIndex < Camera.ComponentPool.Count; cameraIndex++)
+                {
+                    Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
+                    // Only active master cameras are renderer.
+                    if (currentCamera.MasterCamera == null && currentCamera.IsActive)
+                        activeCamerasCount++;
                 }
 
                 #endregion
@@ -554,22 +599,34 @@ namespace XNAFinalEngine.EngineCore
                         if (!CamerasToRender.Contains(currentCamera))
                         {
                             // We search each active shadows members and we try to release resources.
-                            for (int i = 1; i < activeShadows.Length; i++)
+                            for (int i = 0; i < activeDirectionalLightShadows.Length; i++)
                             {
-                                if (activeShadows[i].camera == currentCamera)
+                                if (activeDirectionalLightShadows[i].camera == currentCamera)
                                 {
-                                    activeShadows[i].camera = null;
-                                    activeShadows[i].light = null;
-                                    RenderTarget.Release(activeShadows[i].lightDepthTexture);
-                                    RenderTargetCube.Release(activeShadows[i].lightDepthTextureCube);
-                                    activeShadows[i].lightDepthTexture = null;
-                                    activeShadows[i].lightDepthTextureCube = null;
+                                    activeDirectionalLightShadows[i].camera = null;
+                                    activeDirectionalLightShadows[i].light = null;
+                                    RenderTarget.Release(activeDirectionalLightShadows[i].lightDepthTexture);
+                                    activeDirectionalLightShadows[i].lightDepthTexture = null;
                                 }
-                                else if (activeShadows[i].camera == null)
+                                else if (activeDirectionalLightShadows[i].camera == null)
                                     break;
                             }
                         }
                     }
+                }
+
+                #endregion
+                
+                #region Track Active Cameras
+
+                // This is useful to liberate resource in non split-screen render.
+                activeCamerasCount = 0;
+                for (int cameraIndex = 0; cameraIndex < CamerasToRender.Count; cameraIndex++)
+                {
+                    Camera currentCamera = CamerasToRender[cameraIndex];
+                    // Only active master cameras are renderer.
+                    if (currentCamera.MasterCamera == null && currentCamera.IsActive)
+                        activeCamerasCount++;
                 }
 
                 #endregion
@@ -589,6 +646,32 @@ namespace XNAFinalEngine.EngineCore
 
                 mainCamera = CamerasToRender[CamerasToRender.Count - 1];
             }
+
+            #region Release Spot Shadows Resources
+            
+            // If memory constrains are too high, then it is possible to improve this mechanism.
+            // A spot and point shadow render target pool could be implemented.
+            // The frustum culling of spot and point lights could be performed before rendering the cameras and thus we can liberate shadows resources more eficiently.
+            for (int i = 0; i < activeSpotLightShadows.Length; i++)
+            {
+                if (!activeSpotLightShadows[i].calculatedThisFrame)
+                {
+                    activeSpotLightShadows[i].light = null;
+                    RenderTarget.Release(activeSpotLightShadows[i].lightDepthTexture);
+                    activeSpotLightShadows[i].lightDepthTexture = null;
+                }
+            }
+            for (int i = 0; i < activePointLightShadows.Length; i++)
+            {
+                if (!activePointLightShadows[i].calculatedThisFrame || (!Shadow.DistributeShadowCalculationsBetweenFrames && activeCamerasCount == 1))
+                {
+                    activePointLightShadows[i].light = null;
+                    RenderTargetCube.Release(activePointLightShadows[i].lightDepthTexture);
+                    activePointLightShadows[i].lightDepthTexture = null;
+                }
+            }
+
+            #endregion
 
             #region Screenshot Preparations
 
@@ -783,43 +866,110 @@ namespace XNAFinalEngine.EngineCore
         private static RenderTarget sceneTexture;
         private static RenderTarget ambientOcclusionTexture;
 
-        #region Active Shadow Array Methods
+        #region Active Shadows Methods
 
         /// <summary>
         /// Returns the index of the array that contains the light depth texture (and other data) previously generated.
         /// To work with split screen we need to store this map for each active camera.
         /// -1 indicates that is was not founded.
         /// </summary>
-        public static int GetIndexActiveShadows(Camera camera, Light light)
+        public static int GetIndexActiveDirectionalLightShadows(Camera camera, DirectionalLight light)
         {
-            for (int i = 0; i < activeShadows.Length; i++)
+            for (int i = 0; i < activeDirectionalLightShadows.Length; i++)
             {
-                if (activeShadows[i].camera == camera && activeShadows[i].light == light)
+                if (activeDirectionalLightShadows[i].camera == camera && activeDirectionalLightShadows[i].light == light)
                     return i;
             }
             return -1;
-        } // GetIndexActiveShadows
+        } // GetIndexActiveDirectionalLightShadows
 
         /// <summary>
-        /// Gets the index of the first free slot in the activeShadows array.
+        /// Gets the index of the first free slot in the active directiona light shadows array.
         /// </summary>
-        public static int GetFreeIndexActiveShadows()
+        public static int GetFreeIndexActiveDirectionalLightShadows()
         {
-            for (int i = 0; i < activeShadows.Length; i++)
+            for (int i = 0; i < activeDirectionalLightShadows.Length; i++)
             {
-                if (activeShadows[i].camera == null)
+                if (activeDirectionalLightShadows[i].camera == null)
                     return i;
             }
             // If there is no free slot (almost impossible)...
-
-            LightDepthInformation[] newArray = new LightDepthInformation[activeShadows.Length + 5];
-            for (int i = 0; i < activeShadows.Length; i++)
+            DirectionalLightDepthInformation[] newArray = new DirectionalLightDepthInformation[activeDirectionalLightShadows.Length + 5];
+            for (int i = 0; i < activeDirectionalLightShadows.Length; i++)
             {
-                newArray[i] = activeShadows[i];
+                newArray[i] = activeDirectionalLightShadows[i];
             }
-            activeShadows = newArray;
-            return activeShadows.Length - 5;
-        } // GetFreeIndexActiveShadows
+            activeDirectionalLightShadows = newArray;
+            return activeDirectionalLightShadows.Length - 5;
+        } // GetFreeIndexActiveDirectionalLightShadows
+
+        /// <summary>
+        /// Returns the index of the array that contains the light depth texture (and other data) previously generated.
+        /// -1 indicates that is was not founded.
+        /// </summary>
+        public static int GetIndexActiveSpotLightShadows(SpotLight light)
+        {
+            for (int i = 0; i < activeSpotLightShadows.Length; i++)
+            {
+                if (activeSpotLightShadows[i].light == light)
+                    return i;
+            }
+            return -1;
+        } // GetIndexActiveSpotLightShadows
+
+        /// <summary>
+        /// Gets the index of the first free slot in the active spot light shadows array.
+        /// </summary>
+        public static int GetFreeIndexActiveSpotLightShadows()
+        {
+            for (int i = 0; i < activeSpotLightShadows.Length; i++)
+            {
+                if (activeSpotLightShadows[i].light == null)
+                    return i;
+            }
+            // If there is no free slot...
+            SpotLightDepthInformation[] newArray = new SpotLightDepthInformation[activeDirectionalLightShadows.Length + 5];
+            for (int i = 0; i < activeSpotLightShadows.Length; i++)
+            {
+                newArray[i] = activeSpotLightShadows[i];
+            }
+            activeSpotLightShadows = newArray;
+            return activeSpotLightShadows.Length - 5;
+        } // GetFreeIndexActiveSpotLightShadows
+
+        /// <summary>
+        /// Returns the index of the array that contains the light depth texture (and other data) previously generated.
+        /// -1 indicates that is was not founded.
+        /// </summary>
+        public static int GetIndexActivePointLightShadows(PointLight light)
+        {
+            for (int i = 0; i < activePointLightShadows.Length; i++)
+            {
+                if (activePointLightShadows[i].light == light)
+                    return i;
+            }
+            return -1;
+        } // GetIndexActivePointLightShadows
+
+        /// <summary>
+        /// Gets the index of the first free slot in the active point light shadows array.
+        /// </summary>
+        public static int GetFreeIndexActivePointLightShadows()
+        {
+            for (int i = 0; i < activePointLightShadows.Length; i++)
+            {
+                if (activePointLightShadows[i].light == null)
+                    return i;
+            }
+            // If there is no free slot...
+            PointLightDepthInformation[] newArray = new PointLightDepthInformation[activeDirectionalLightShadows.Length + 5];
+            for (int i = 0; i < activePointLightShadows.Length; i++)
+            {
+                newArray[i] = activePointLightShadows[i];
+            }
+            activePointLightShadows = newArray;
+            return activePointLightShadows.Length - 5;
+        } // GetFreeIndexActivePointLightShadows
 
         #endregion
 
@@ -1069,44 +1219,34 @@ namespace XNAFinalEngine.EngineCore
             
             #region Shadow Maps
 
+            // There are several techniques that could be added. 
+            // * Black Rock Studios’ shadow edge detection (Rendering Techniques in Split Second). 
+            // * Spot shadow results grouped in one texture and filtered in just one pass (actually two).
+            // * A better shadow resource management that includes a pool of shadow textures and
+            //   a quick release of unnecessary render targets before the cameras' processing stage.
+            // * A better transition between cascades in the cascaded shadows.
+            // * Killzone 2 method in cascaded shadows to avoid rasterization artifacts when the camera rotates.
+
+            // Set Render States.
+            EngineManager.Device.BlendState = BlendState.Opaque;
+            EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+            EngineManager.Device.DepthStencilState = DepthStencilState.Default;
+
             #region Free Innecesary Shadow Resources
 
-            for (int i = 0; i < activeShadows.Length; i++)
+            for (int i = 0; i < activeDirectionalLightShadows.Length; i++)
             {
-                if (activeShadows[i].camera == currentCamera)
+                if (activeDirectionalLightShadows[i].camera == currentCamera)
                 {
-                    if (activeShadows[i].light is DirectionalLight)
+                    if (!activeDirectionalLightShadows[i].light.IsSun)
                     {
-                        if (!((DirectionalLight)activeShadows[i].light).IsSun)
-                        {
-                            activeShadows[i].camera = null;
-                            activeShadows[i].light = null;
-                            RenderTarget.Release(activeShadows[i].lightDepthTexture);
-                            activeShadows[i].lightDepthTexture = null;
-                        }
-                    }
-                    else if (activeShadows[i].light is SpotLight)
-                    {
-                        if (!spotLightsToRender.Contains((SpotLight)activeShadows[i].light))
-                        {
-                            activeShadows[i].camera = null;
-                            activeShadows[i].light = null;
-                            RenderTarget.Release(activeShadows[i].lightDepthTexture);
-                            activeShadows[i].lightDepthTexture = null;
-                        }
-                    }
-                    else if (activeShadows[i].light is PointLight)
-                    {
-                        if (!pointLightsToRender.Contains((PointLight)activeShadows[i].light))
-                        {
-                            activeShadows[i].camera = null;
-                            activeShadows[i].light = null;
-                            RenderTargetCube.Release(activeShadows[i].lightDepthTextureCube);
-                            activeShadows[i].lightDepthTextureCube = null;
-                        }
+                        activeDirectionalLightShadows[i].camera = null;
+                        activeDirectionalLightShadows[i].light = null;
+                        RenderTarget.Release(activeDirectionalLightShadows[i].lightDepthTexture);
+                        activeDirectionalLightShadows[i].lightDepthTexture = null;
                     }
                 }
-                else if (activeShadows[i].camera == null)
+                else if (activeDirectionalLightShadows[i].camera == null)
                     break;
             }
 
@@ -1129,9 +1269,9 @@ namespace XNAFinalEngine.EngineCore
 
                     // Select downsampled version or full version of the gbuffer textures.
                     RenderTarget depthTexture;
-                    if (directionalLight.Shadow.TextureSize == Size.TextureSize.FullSize)
+                    if (directionalLight.Shadow.ShadowTextureSize == Size.TextureSize.FullSize)
                         depthTexture = gbufferTextures.RenderTargets[0];
-                    else if (directionalLight.Shadow.TextureSize == Size.TextureSize.HalfSize)
+                    else if (directionalLight.Shadow.ShadowTextureSize == Size.TextureSize.HalfSize)
                         depthTexture = gbufferHalfTextures.RenderTargets[0];
                     else
                         depthTexture = gbufferQuarterTextures.RenderTargets[0];
@@ -1153,10 +1293,10 @@ namespace XNAFinalEngine.EngineCore
                         int shadowIndex = -1;
                         if (Shadow.DistributeShadowCalculationsBetweenFrames)
                         {
-                            shadowIndex = GetIndexActiveShadows(currentCamera, directionalLight);
+                            shadowIndex = GetIndexActiveDirectionalLightShadows(currentCamera, directionalLight);
                             // If there is in the array the light depth texture is used.
                             if (shadowIndex != -1)
-                                lightDepthTexture = activeShadows[shadowIndex].lightDepthTexture;
+                                lightDepthTexture = activeDirectionalLightShadows[shadowIndex].lightDepthTexture;
                             // If there was destroyed because the screen was resized or something similar...
                             if (lightDepthTexture != null && lightDepthTexture.IsDisposed)
                                 lightDepthTexture = null;
@@ -1230,20 +1370,20 @@ namespace XNAFinalEngine.EngineCore
                                 if (shadowIndex == -1)
                                 {
                                     // We create the entry...
-                                    shadowIndex = GetFreeIndexActiveShadows();
-                                    activeShadows[shadowIndex].camera = currentCamera;
-                                    activeShadows[shadowIndex].light = directionalLight;
+                                    shadowIndex = GetFreeIndexActiveDirectionalLightShadows();
+                                    activeDirectionalLightShadows[shadowIndex].camera = currentCamera;
+                                    activeDirectionalLightShadows[shadowIndex].light = directionalLight;
                                 }
                                 // And update the values.
-                                activeShadows[shadowIndex].lightViewMatrix = CascadedShadowMapShader.Instance.LightViewMatrix[0];
-                                activeShadows[shadowIndex].lightViewMatrix2 = CascadedShadowMapShader.Instance.LightViewMatrix[1];
-                                activeShadows[shadowIndex].lightViewMatrix3 = CascadedShadowMapShader.Instance.LightViewMatrix[2];
-                                activeShadows[shadowIndex].lightViewMatrix4 = CascadedShadowMapShader.Instance.LightViewMatrix[3];
-                                activeShadows[shadowIndex].lightProjectionMatrix = CascadedShadowMapShader.Instance.LightProjectionMatrix[0];
-                                activeShadows[shadowIndex].lightProjectionMatrix2 = CascadedShadowMapShader.Instance.LightProjectionMatrix[1];
-                                activeShadows[shadowIndex].lightProjectionMatrix3 = CascadedShadowMapShader.Instance.LightProjectionMatrix[2];
-                                activeShadows[shadowIndex].lightProjectionMatrix4 = CascadedShadowMapShader.Instance.LightProjectionMatrix[3];
-                                activeShadows[shadowIndex].lightDepthTexture = lightDepthTexture;
+                                activeDirectionalLightShadows[shadowIndex].lightViewMatrix = CascadedShadowMapShader.Instance.LightViewMatrix[0];
+                                activeDirectionalLightShadows[shadowIndex].lightViewMatrix2 = CascadedShadowMapShader.Instance.LightViewMatrix[1];
+                                activeDirectionalLightShadows[shadowIndex].lightViewMatrix3 = CascadedShadowMapShader.Instance.LightViewMatrix[2];
+                                activeDirectionalLightShadows[shadowIndex].lightViewMatrix4 = CascadedShadowMapShader.Instance.LightViewMatrix[3];
+                                activeDirectionalLightShadows[shadowIndex].lightProjectionMatrix = CascadedShadowMapShader.Instance.LightProjectionMatrix[0];
+                                activeDirectionalLightShadows[shadowIndex].lightProjectionMatrix2 = CascadedShadowMapShader.Instance.LightProjectionMatrix[1];
+                                activeDirectionalLightShadows[shadowIndex].lightProjectionMatrix3 = CascadedShadowMapShader.Instance.LightProjectionMatrix[2];
+                                activeDirectionalLightShadows[shadowIndex].lightProjectionMatrix4 = CascadedShadowMapShader.Instance.LightProjectionMatrix[3];
+                                activeDirectionalLightShadows[shadowIndex].lightDepthTexture = lightDepthTexture;
                             }
 
                             #endregion
@@ -1254,18 +1394,20 @@ namespace XNAFinalEngine.EngineCore
                             // View matrix information has to be updated to avoid an incorrect transformation.
                             CascadedShadowMapShader.Instance.SetLight(currentCamera.ViewMatrix, 
                                                                       cornersViewSpace,
-                                                                      activeShadows[shadowIndex].lightViewMatrix,
-                                                                      activeShadows[shadowIndex].lightViewMatrix2,
-                                                                      activeShadows[shadowIndex].lightViewMatrix3,
-                                                                      activeShadows[shadowIndex].lightViewMatrix4,
-                                                                      activeShadows[shadowIndex].lightProjectionMatrix,
-                                                                      activeShadows[shadowIndex].lightProjectionMatrix2,
-                                                                      activeShadows[shadowIndex].lightProjectionMatrix3,
-                                                                      activeShadows[shadowIndex].lightProjectionMatrix4);
+                                                                      activeDirectionalLightShadows[shadowIndex].lightViewMatrix,
+                                                                      activeDirectionalLightShadows[shadowIndex].lightViewMatrix2,
+                                                                      activeDirectionalLightShadows[shadowIndex].lightViewMatrix3,
+                                                                      activeDirectionalLightShadows[shadowIndex].lightViewMatrix4,
+                                                                      activeDirectionalLightShadows[shadowIndex].lightProjectionMatrix,
+                                                                      activeDirectionalLightShadows[shadowIndex].lightProjectionMatrix2,
+                                                                      activeDirectionalLightShadows[shadowIndex].lightProjectionMatrix3,
+                                                                      activeDirectionalLightShadows[shadowIndex].lightProjectionMatrix4);
                         }
                         
                         // Calculate a deferred shadow map.
-                        directionalLight.ShadowTexture = CascadedShadowMapShader.Instance.Render(lightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter);
+                        // I use a downsampled depth texture to improve performance.
+                        directionalLight.ShadowTexture = CascadedShadowMapShader.Instance.Render(lightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter,
+                                                                                                 shadow.ApplyBilateralFilter, shadow.BilateralFilterRadius, shadow.BilateralFilterSharpness);
                         
                         // If the depth light texture is not longer needed then we can released.
                         if (Shadow.DistributeShadowCalculationsBetweenFrames == false)
@@ -1289,10 +1431,10 @@ namespace XNAFinalEngine.EngineCore
                         int shadowIndex = -1;
                         if (Shadow.DistributeShadowCalculationsBetweenFrames)
                         {
-                            shadowIndex = GetIndexActiveShadows(currentCamera, directionalLight);
+                            shadowIndex = GetIndexActiveDirectionalLightShadows(currentCamera, directionalLight);
                             // If there is in the array the light depth texture is used.
                             if (shadowIndex != -1)
-                                lightDepthTexture = activeShadows[shadowIndex].lightDepthTexture;
+                                lightDepthTexture = activeDirectionalLightShadows[shadowIndex].lightDepthTexture;
                             // If there was destroyed because the screen was resized or something similar...
                             if (lightDepthTexture != null && lightDepthTexture.IsDisposed)
                                 lightDepthTexture = null;
@@ -1355,14 +1497,14 @@ namespace XNAFinalEngine.EngineCore
                                 if (shadowIndex == -1)
                                 {
                                     // We create the entry...
-                                    shadowIndex = GetFreeIndexActiveShadows();
-                                    activeShadows[shadowIndex].camera = currentCamera;
-                                    activeShadows[shadowIndex].light = directionalLight;
+                                    shadowIndex = GetFreeIndexActiveDirectionalLightShadows();
+                                    activeDirectionalLightShadows[shadowIndex].camera = currentCamera;
+                                    activeDirectionalLightShadows[shadowIndex].light = directionalLight;
                                 }
                                 // And update the values.
-                                activeShadows[shadowIndex].lightViewMatrix = BasicShadowMapShader.Instance.LightViewMatrix;
-                                activeShadows[shadowIndex].lightProjectionMatrix = BasicShadowMapShader.Instance.LightProjectionMatrix;
-                                activeShadows[shadowIndex].lightDepthTexture = lightDepthTexture;
+                                activeDirectionalLightShadows[shadowIndex].lightViewMatrix = BasicShadowMapShader.Instance.LightViewMatrix;
+                                activeDirectionalLightShadows[shadowIndex].lightProjectionMatrix = BasicShadowMapShader.Instance.LightProjectionMatrix;
+                                activeDirectionalLightShadows[shadowIndex].lightDepthTexture = lightDepthTexture;
                             }
 
                             #endregion
@@ -1373,11 +1515,12 @@ namespace XNAFinalEngine.EngineCore
                             // View matrix information has to be updated to avoid an incorrect transformation.
                             BasicShadowMapShader.Instance.SetLight(currentCamera.ViewMatrix,
                                                                    cornersViewSpace,
-                                                                   activeShadows[shadowIndex].lightViewMatrix,
-                                                                   activeShadows[shadowIndex].lightProjectionMatrix);
+                                                                   activeDirectionalLightShadows[shadowIndex].lightViewMatrix,
+                                                                   activeDirectionalLightShadows[shadowIndex].lightProjectionMatrix);
                         }
                         // Calculate a deferred shadow map.
-                        directionalLight.ShadowTexture = BasicShadowMapShader.Instance.Render(lightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter);
+                        directionalLight.ShadowTexture = BasicShadowMapShader.Instance.Render(lightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter,
+                                                                                              shadow.ApplyBilateralFilter, shadow.BilateralFilterRadius, shadow.BilateralFilterSharpness);
 
                         // If the depth light texture is not longer needed then we can released.
                         if (Shadow.DistributeShadowCalculationsBetweenFrames == false)
@@ -1392,7 +1535,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
             
             #region Spot Light Shadows
-
+            
             foreach (SpotLight spotLight in spotLightsToRender)
             {
                 // If there is a shadow map...
@@ -1403,9 +1546,9 @@ namespace XNAFinalEngine.EngineCore
 
                     // Select downsampled version or full version of the gbuffer textures.
                     RenderTarget depthTexture;
-                    if (spotLight.Shadow.TextureSize == Size.TextureSize.FullSize)
+                    if (spotLight.Shadow.ShadowTextureSize == Size.TextureSize.FullSize)
                         depthTexture = gbufferTextures.RenderTargets[0];
-                    else if (spotLight.Shadow.TextureSize == Size.TextureSize.HalfSize)
+                    else if (spotLight.Shadow.ShadowTextureSize == Size.TextureSize.HalfSize)
                         depthTexture = gbufferHalfTextures.RenderTargets[0];
                     else
                         depthTexture = gbufferQuarterTextures.RenderTargets[0];
@@ -1419,23 +1562,28 @@ namespace XNAFinalEngine.EngineCore
 
                         // The texture that contains the visibility information (depth map) from the light point of view.
                         RenderTarget lightDepthTexture = null;
+                        bool calculatedThisFrame = false;
 
                         // If the shadows are updated one frame but not the other
                         // then the light depth texture and some other information related to the frame when it was generated is stored.
                         // We try to find this information here.
-                        int shadowIndex = -1;
-                        if (Shadow.DistributeShadowCalculationsBetweenFrames)
+                        int shadowIndex = 0;
+                        if (Shadow.DistributeShadowCalculationsBetweenFrames || activeCamerasCount > 1)
                         {
-                            shadowIndex = GetIndexActiveShadows(currentCamera, spotLight);
+                            shadowIndex = GetIndexActiveSpotLightShadows(spotLight);
                             // If there is in the array the light depth texture is used.
                             if (shadowIndex != -1)
-                                lightDepthTexture = activeShadows[shadowIndex].lightDepthTexture;
+                            {
+                                lightDepthTexture = activeSpotLightShadows[shadowIndex].lightDepthTexture;
+                                calculatedThisFrame = activeSpotLightShadows[shadowIndex].calculatedThisFrame;
+                            }
+
                             // If there was destroyed because the screen was resized or something similar...
                             if (lightDepthTexture != null && lightDepthTexture.IsDisposed)
                                 lightDepthTexture = null;
                         }
 
-                        if (Shadow.DistributeShadowCalculationsBetweenFrames == false || Time.TotalFramesCount % 2 != 1 || lightDepthTexture == null)
+                        if (((!Shadow.DistributeShadowCalculationsBetweenFrames || Time.TotalFramesCount % 4 != 1) && !calculatedThisFrame) || lightDepthTexture == null)
                         {
 
                             #region Generate Light Depth Texture
@@ -1485,21 +1633,20 @@ namespace XNAFinalEngine.EngineCore
 
                             #region Update Active Shadows Array
 
-                            // If the information needs to be stored in the array...
-                            if (Shadow.DistributeShadowCalculationsBetweenFrames)
+                            if (Shadow.DistributeShadowCalculationsBetweenFrames || activeCamerasCount > 1)
                             {
-                                // and the entry was not created...
+                                // If the information needs to be stored in the array and the entry was not created...
                                 if (shadowIndex == -1)
                                 {
                                     // We create the entry...
-                                    shadowIndex = GetFreeIndexActiveShadows();
-                                    activeShadows[shadowIndex].camera = currentCamera;
-                                    activeShadows[shadowIndex].light = spotLight;
+                                    shadowIndex = GetFreeIndexActiveSpotLightShadows();
+                                    activeSpotLightShadows[shadowIndex].light = spotLight;
                                 }
                                 // And update the values.
-                                activeShadows[shadowIndex].lightViewMatrix = BasicShadowMapShader.Instance.LightViewMatrix;
-                                activeShadows[shadowIndex].lightProjectionMatrix = BasicShadowMapShader.Instance.LightProjectionMatrix;
-                                activeShadows[shadowIndex].lightDepthTexture = lightDepthTexture;
+                                activeSpotLightShadows[shadowIndex].lightViewMatrix = BasicShadowMapShader.Instance.LightViewMatrix;
+                                activeSpotLightShadows[shadowIndex].lightProjectionMatrix = BasicShadowMapShader.Instance.LightProjectionMatrix;
+                                activeSpotLightShadows[shadowIndex].lightDepthTexture = lightDepthTexture;
+                                activeSpotLightShadows[shadowIndex].calculatedThisFrame = true;
                             }
 
                             #endregion
@@ -1508,25 +1655,23 @@ namespace XNAFinalEngine.EngineCore
                         else // When the light depth textures is not updated it is need to set some global variables to the shader so that it can perform the work accordingly.
                         {
                             // View matrix information has to be updated to avoid an incorrect transformation.
-                            BasicShadowMapShader.Instance.SetLight(currentCamera.ViewMatrix,
-                                                                   cornersViewSpace,
-                                                                   activeShadows[shadowIndex].lightViewMatrix,
-                                                                   activeShadows[shadowIndex].lightProjectionMatrix);
+                            BasicShadowMapShader.Instance.SetLight(currentCamera.ViewMatrix, cornersViewSpace,
+                                                                   activeSpotLightShadows[shadowIndex].lightViewMatrix, 
+                                                                   activeSpotLightShadows[shadowIndex].lightProjectionMatrix);
                         }
                         // Calculate a deferred shadow map.
-                        spotLight.ShadowTexture = BasicShadowMapShader.Instance.Render(lightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter);
-
-                        // If the depth light texture is not longer needed then we can released.
-                        if (Shadow.DistributeShadowCalculationsBetweenFrames == false)
+                        spotLight.ShadowTexture = BasicShadowMapShader.Instance.Render(lightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter,
+                                                                                       shadow.ApplyBilateralFilter, shadow.BilateralFilterRadius, shadow.BilateralFilterSharpness);
+                        if (!Shadow.DistributeShadowCalculationsBetweenFrames && activeCamerasCount == 1)
                             RenderTarget.Release(lightDepthTexture);
                     }
                 }
             }
-
+            
             #endregion
             
             #region Point Light Shadows
-
+            
             foreach (PointLight pointLight in pointLightsToRender)
             {
                 // If there is a shadow map...
@@ -1539,23 +1684,24 @@ namespace XNAFinalEngine.EngineCore
 
                         // The texture that contains the visibility information (depth map) from the light point of view.
                         RenderTargetCube lightDepthTextureCube = null;
+                        bool calculatedThisFrame = false;
 
                         // If the shadows are updated one frame but not the other
                         // then the light depth texture and some other information related to the frame when it was generated is stored.
                         // We try to find this information here.
-                        int shadowIndex = -1;
-                        if (Shadow.DistributeShadowCalculationsBetweenFrames)
+                        int shadowIndex = GetIndexActivePointLightShadows(pointLight);
+                        // If there is in the array the light depth texture is used.
+                        if (shadowIndex != -1)
                         {
-                            shadowIndex = GetIndexActiveShadows(currentCamera, pointLight);
-                            // If there is in the array the light depth texture is used.
-                            if (shadowIndex != -1)
-                                lightDepthTextureCube = activeShadows[shadowIndex].lightDepthTextureCube;
-                            // If there was destroyed because the screen was resized or something similar...
-                            if (lightDepthTextureCube != null && lightDepthTextureCube.IsDisposed)
-                                lightDepthTextureCube = null;
+                            lightDepthTextureCube = activePointLightShadows[shadowIndex].lightDepthTexture;
+                            calculatedThisFrame = activeSpotLightShadows[shadowIndex].calculatedThisFrame;
                         }
+                                
+                        // If there was destroyed because the screen was resized or something similar...
+                        if (lightDepthTextureCube != null && lightDepthTextureCube.IsDisposed)
+                            lightDepthTextureCube = null;
 
-                        if (Shadow.DistributeShadowCalculationsBetweenFrames == false || Time.TotalFramesCount%2 != 1 || lightDepthTextureCube == null)
+                        if (((Shadow.DistributeShadowCalculationsBetweenFrames == false || Time.TotalFramesCount % 4 != 3) && !calculatedThisFrame) || lightDepthTextureCube == null)
                         {
                             #region Generate Light Depth Texture
 
@@ -1608,21 +1754,16 @@ namespace XNAFinalEngine.EngineCore
 
                             #region Update Active Shadows Array
 
-                            // If the information needs to be stored in the array...
-                            if (Shadow.DistributeShadowCalculationsBetweenFrames)
+                            // If the information needs to be stored in the array and the entry was not created...
+                            if (shadowIndex == -1)
                             {
-                                // and the entry was not created...
-                                if (shadowIndex == -1)
-                                {
-                                    // We create the entry...
-                                    shadowIndex = GetFreeIndexActiveShadows();
-                                    activeShadows[shadowIndex].camera = currentCamera;
-                                    activeShadows[shadowIndex].light = pointLight;
-                                }
-                                // And update the values.
-                                activeShadows[shadowIndex].lightDepthTextureCube = lightDepthTextureCube;
+                                // We create the entry...
+                                shadowIndex = GetFreeIndexActivePointLightShadows();
+                                activePointLightShadows[shadowIndex].light = pointLight;
                             }
-
+                            // And update the values.
+                            activePointLightShadows[shadowIndex].lightDepthTexture = lightDepthTextureCube;
+                            
                             #endregion
                         }
 
@@ -1632,7 +1773,7 @@ namespace XNAFinalEngine.EngineCore
                 else
                     lightDepthTextureCubeArray.Add(null);
             }
-
+            
             #endregion
             
             #endregion
@@ -1738,36 +1879,13 @@ namespace XNAFinalEngine.EngineCore
                     directionalLight.ShadowTexture = null;
                 }
             }
-            for (int i = 0; i < PointLight.ComponentPool.Count; i++)
-            {
-                PointLight pointLight = PointLight.ComponentPool.Elements[i];
-                if (pointLight.ShadowTexture != null)
-                {
-                    RenderTarget.Release(pointLight.ShadowTexture);
-                    pointLight.ShadowTexture = null;
-                }
-            }
 
             #endregion
 
-            #region Release Point Shadow Light Depth Textures
-
-            if (!Shadow.DistributeShadowCalculationsBetweenFrames)
-            {
-                for (int i = 0; i < lightDepthTextureCubeArray.Count; i++)
-                {
-                    if (lightDepthTextureCubeArray[i] != null)
-                    {
-                        RenderTargetCube.Release(lightDepthTextureCubeArray[i]);
-                    }
-                }
-            }
             lightDepthTextureCubeArray.Clear();
 
-            #endregion
-
             // Testing
-            FinishRendering(currentCamera, renderTarget, lightTextures.RenderTargets[0]); return;
+            //FinishRendering(currentCamera, renderTarget, lightTextures.RenderTargets[0]); return;
             
             #endregion
             
@@ -2374,8 +2492,7 @@ namespace XNAFinalEngine.EngineCore
                     hudText = HudText.ComponentPool2D.Elements[i];
                     if (hudText.IsVisible)
                     {
-                        SpriteManager.Draw2DText(hudText.Font ?? Font.DefaultFont, hudText.Text, hudText.CachedPosition, hudText.Color, 
-                                                 hudText.CachedRotation, Vector2.Zero, hudText.CachedScale);
+                        SpriteManager.Draw2DText(hudText.Font ?? Font.DefaultFont, hudText.Text, hudText.CachedPosition, hudText.Color, hudText.CachedRotation, Vector2.Zero, hudText.CachedScale);
                     }
                 }
 

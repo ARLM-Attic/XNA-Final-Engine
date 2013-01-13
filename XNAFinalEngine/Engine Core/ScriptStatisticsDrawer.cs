@@ -187,7 +187,7 @@ namespace XNAFinalEngine.EngineCore
             // Text
             drawCallsText = new GameObject2D();
             drawCallsText.AddComponent<HudText>();
-            drawCallsText.HudText.Text.Append("Draw Calls ");
+            drawCallsText.HudText.Text.Append("Average Draw Calls ");
             drawCallsText.Transform.LocalPosition = new Vector3(drawCallsPositionX, positionY + elementsHeight + 5, 0);
             
             #endregion
@@ -231,7 +231,7 @@ namespace XNAFinalEngine.EngineCore
             // Text
             trianglesDrawnText = new GameObject2D();
             trianglesDrawnText.AddComponent<HudText>();
-            trianglesDrawnText.HudText.Text.Append("Triangles Proceeded ");
+            trianglesDrawnText.HudText.Text.Append("Average Triangles Drawn ");
             trianglesDrawnText.Transform.LocalPosition = new Vector3(trianglesDrawnPositionX, positionY + elementsHeight + 5, 0);
 
             #endregion
@@ -481,8 +481,8 @@ namespace XNAFinalEngine.EngineCore
                             drawCallsGoodThreshold, drawCallsBadThreshold, new Color(100, 255, 100), Color.Yellow, Color.Red);
             }
             // Update Text
-            drawCallsText.HudText.Text.Length = 11;
-            drawCallsText.HudText.Text.AppendWithoutGarbage(Statistics.DrawCalls);
+            drawCallsText.HudText.Text.Length = 19;
+            drawCallsText.HudText.Text.AppendWithoutGarbage(Statistics.AverageDrawCalls);
             // Threshold Lines
             drawCallsLines.LineRenderer.Vertices[drawCallsNumberOfElements * 2 + 2].Position.Y = positionY + elementsHeight - (int)(elementsHeight * ((float)drawCallsBadThreshold / drawCallsMaxValue));
             drawCallsLines.LineRenderer.Vertices[drawCallsNumberOfElements * 2 + 3].Position.Y = positionY + elementsHeight - (int)(elementsHeight * ((float)drawCallsBadThreshold / drawCallsMaxValue));
@@ -513,8 +513,8 @@ namespace XNAFinalEngine.EngineCore
                             trianglesDrawnGoodThreshold, trianglesDrawnBadThreshold, new Color(100, 255, 100), Color.Yellow, Color.Red);
             }
             // Update Text
-            trianglesDrawnText.HudText.Text.Length = 20;
-            trianglesDrawnText.HudText.Text.AppendWithoutGarbage(Statistics.TrianglesDrawn, true);
+            trianglesDrawnText.HudText.Text.Length = 24;
+            trianglesDrawnText.HudText.Text.AppendWithoutGarbage(Statistics.AverageTrianglesDrawn, true);
             // Threshold Lines
             trianglesDrawnLines.LineRenderer.Vertices[trianglesDrawnNumberOfElements * 2 + 2].Position.Y = positionY + elementsHeight - (int)(elementsHeight * ((float)trianglesDrawnBadThreshold  / trianglesDrawnMaxValue));
             trianglesDrawnLines.LineRenderer.Vertices[trianglesDrawnNumberOfElements * 2 + 3].Position.Y = positionY + elementsHeight - (int)(elementsHeight * ((float)trianglesDrawnBadThreshold  / trianglesDrawnMaxValue));
@@ -541,8 +541,7 @@ namespace XNAFinalEngine.EngineCore
         {
             if (maxValue == 0)
                 maxValue = 1; // To avoid divisions by 0.
-            linesRenderer.Vertices[index * 2 + offset].Position.Y =
-                positionY + elementsHeight - (int)(elementsHeight * ((float)values[index + offset] / maxValue));
+            linesRenderer.Vertices[index * 2 + offset].Position.Y = positionY + elementsHeight - (int)(elementsHeight * ((float)values[index + offset] / maxValue));
             if (values[index + offset] < lowerThreshold)
                 linesRenderer.Vertices[index * 2 + offset].Color = lowerThresholdColor;
             else if (values[index + offset] > upperThreshold)

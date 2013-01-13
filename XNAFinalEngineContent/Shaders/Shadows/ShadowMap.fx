@@ -24,8 +24,12 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
 	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
 	float depth = tex2D(depthSampler, uv).r;
 
+	[branch] // Tested in Xbox, works better under a sky.
 	if (depth == 1) 
+	{
+		Discard();
 		return float4(1, 1, 1, 1);
+	}
 
 	float3 positionVS = frustumRay * depth; // To convert this position into world space it only needs to add the camera position (in the pixel shader), and the frustumray multiply by the camera orientation (in the vertex shader).
 	
@@ -34,7 +38,7 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
 		
 	float depthLightSpace = positionLightCS.z / positionLightCS.w; // range 0 to 1
 
-	[branch]
+	[branch] // Tested in Xbox, works better under a sky.
 	if (depthLightSpace > 1) // If it is outside the far plane
 	{
 		Discard();
@@ -58,8 +62,8 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
 		shadowTerm = CalculateShadowTermSoftPCF(depthLightSpace, shadowTexCoord, iFilterSize, depthBias);
 	
 	// Attenuate over distance.
-	depthLightSpace = pow(depthLightSpace, 20);
-	return float4((shadowTerm + 1 * depthLightSpace), 1, 1, 1);
+	//float attenuation =  saturate(length(positionVS) / range);
+	return float4(shadowTerm /* (1 - attenuation)*/, 1, 1, 1);
 
 } // ps_main
 

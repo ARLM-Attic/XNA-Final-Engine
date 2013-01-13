@@ -888,7 +888,7 @@ namespace XNAFinalEngineExamples
             {
                 Filter = Shadow.FilterType.Pcf3X3,
                 LightDepthTextureSize = Size.Square1024X1024,
-                TextureSize = Size.TextureSize.HalfSize,
+                ShadowTextureSize = Size.TextureSize.HalfSize,
                 Range = 50,
             };
             
@@ -954,7 +954,7 @@ namespace XNAFinalEngineExamples
             {
                 Filter = Shadow.FilterType.Pcf3X3,
                 LightDepthTextureSize = Size.Square1024X1024,
-                TextureSize = Size.TextureSize.FullSize
+                ShadowTextureSize = Size.TextureSize.FullSize
             };
 
             #endregion

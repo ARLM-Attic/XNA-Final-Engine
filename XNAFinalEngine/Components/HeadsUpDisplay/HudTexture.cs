@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -54,7 +54,7 @@ namespace XNAFinalEngine.Components
         #region Properties
 
         /// <summary>
-        /// The Font to use when rendering the text.
+        /// The texture.
         /// </summary>
         public Texture Texture { get; set; }
 
@@ -106,6 +106,8 @@ namespace XNAFinalEngine.Components
         internal override void Uninitialize()
         {
             Texture = null;
+            SourceRectangle = null;
+            DestinationRectangle = null;
             // Call this last because the owner information is needed.
             base.Uninitialize();
         } // Uninitialize

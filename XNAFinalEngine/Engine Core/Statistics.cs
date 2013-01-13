@@ -48,26 +48,43 @@ namespace XNAFinalEngine.EngineCore
     public static class Statistics
     {
 
+        #region Variables
+
+        private static float framePerSecondTimeHelper;
+        private static int frameCountThisSecond, drawCallThisSecond, trianglesDrawnThisSecond;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
         /// The number of triangles processed in the current frame.
         /// </summary>
         public static int TrianglesDrawn { get; internal set; }
+
+        /// <summary>
+        /// An approximation of the average number of triangles processed in the last second.
+        /// </summary>
+        public static int AverageTrianglesDrawn { get; internal set; }
         
         /// <summary>
-        /// The number of vertices processed in the current frame.
+        /// An approximation of the number of vertices processed in the current frame.
         /// </summary>
         public static int VerticesProcessed { get; internal set; }
 
         /// <summary>
-        /// The number of draw calls performed in the current frame.
+        /// An approximation of the number of draw calls performed in the current frame.
         /// </summary>
         /// <remarks>
         /// A draw call occurs every time you call one of the GraphicsDevice.Draw.
         /// When using Model, you get one draw call per mesh part.
         /// </remarks>
         public static int DrawCalls { get; internal set; }
+
+        /// <summary>
+        /// An approximation of the average number of draw calls performed in the last second.
+        /// </summary>
+        public static int AverageDrawCalls { get; internal set; }
 
         /// <summary>
         /// The number of garbage collections performed in execution time.
@@ -103,6 +120,25 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         internal static void ReserFrameStatistics()
         {
+            drawCallThisSecond += DrawCalls;
+            trianglesDrawnThisSecond += TrianglesDrawn;
+            // Update timer with the real elapsed time (not scaled)
+            framePerSecondTimeHelper += Time.FrameTime;
+            // Update frame count.
+            frameCountThisSecond++;
+            // One second elapsed?
+            if (framePerSecondTimeHelper > 1)
+            {
+                // Calculate frames per second
+                AverageDrawCalls = drawCallThisSecond / frameCountThisSecond;
+                AverageTrianglesDrawn = trianglesDrawnThisSecond / frameCountThisSecond;
+                // Reset startSecondTick and repaintCountSecond
+                framePerSecondTimeHelper = 0;
+                frameCountThisSecond = 0;
+                drawCallThisSecond = 0;
+                trianglesDrawnThisSecond = 0;
+            }
+
             TrianglesDrawn = 0;
             VerticesProcessed = 0;
             DrawCalls = 0;

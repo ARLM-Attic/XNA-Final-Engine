@@ -31,6 +31,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 /////////////// Parameters ///////////////////
 //////////////////////////////////////////////
 
+float3 textureSize;
+float3 textureSizeInv;
+
 float4x4 worldViewProj;
 float4x4 worldView;
 float  farPlane;
@@ -91,6 +94,11 @@ VS_OUT vs_main(in float4 position : POSITION)
 /////////////// Pixel Shader /////////////////
 //////////////////////////////////////////////
 
+float Lerp(float x, float y, float s)
+{
+	return x*(1-s) + y*s;
+}
+
 // This shader works in view space.
 PixelShader_OUTPUT ps_main(VS_OUT input, uniform bool hasShadows)
 {
@@ -147,8 +155,46 @@ PixelShader_OUTPUT ps_main(VS_OUT input, uniform bool hasShadows)
 	if (hasShadows) // No need for [branch], this is a uniform value.
 	{	
 		float3 direction = mul(normalize(L), viewI);
-		direction.z = -direction.z;				
-		shadowTerm = ((length(L) * invLightRadius - 0.01f) < texCUBE(cubeShadowSampler, -normalize(direction)).x) ? 1.0f: 0.0f;
+		direction.z = -direction.z;
+		float limit = length(L) * invLightRadius - 0.01f;
+
+		// Without filter
+		shadowTerm = (limit < texCUBE(cubeShadowSampler, -normalize(direction)).x) ? 1.0f: 0.0f;
+
+		// From Floating Point Cube Maps (ShaderX2 article)
+		// I try Poison distribution, but it was a subtle improvement.
+		// Multiply coordinates by the texture size
+		float3 texPos = -normalize(direction) * textureSize;
+		// Compute first integer coordinates
+		float3 texPos0 = floor(texPos + float3(0.5, 0.5, 0.5));
+		// Compute second integer coordinates
+		float3 texPos1 = texPos0 + float3(1.0, 1.0, 1.0);
+		// Perform division on integer coordinates
+		texPos0 = texPos0 * textureSizeInv;
+		texPos1 = texPos1 * textureSizeInv;
+		// Compute contributions for each coordinate
+		float3 blend = frac(texPos + float3(0.5, 0.5, 0.5));
+		// Construct 8 new coordinates
+		float3 texPos000 = texPos0;
+		float3 texPos001 = float3(texPos0.x, texPos0.y, texPos1.z);
+		float3 texPos010 = float3(texPos0.x, texPos1.y, texPos0.z);
+		float3 texPos011 = float3(texPos0.x, texPos1.y, texPos1.z);
+		float3 texPos100 = float3(texPos1.x, texPos0.y, texPos0.z);
+		float3 texPos101 = float3(texPos1.x, texPos0.y, texPos1.z);
+		float3 texPos110 = float3(texPos1.x, texPos1.y, texPos0.z);
+		float3 texPos111 = texPos1;
+		// Sample cube map
+		float C000 = (limit < texCUBE(cubeShadowSampler, texPos000).r) ? 1.0f: 0.0f;
+		float C001 = (limit < texCUBE(cubeShadowSampler, texPos001).r) ? 1.0f: 0.0f;
+		float C010 = (limit < texCUBE(cubeShadowSampler, texPos010).r) ? 1.0f: 0.0f;
+		float C011 = (limit < texCUBE(cubeShadowSampler, texPos011).r) ? 1.0f: 0.0f;
+		float C100 = (limit < texCUBE(cubeShadowSampler, texPos100).r) ? 1.0f: 0.0f;
+		float C101 = (limit < texCUBE(cubeShadowSampler, texPos101).r) ? 1.0f: 0.0f;
+		float C110 = (limit < texCUBE(cubeShadowSampler, texPos110).r) ? 1.0f: 0.0f;
+		float C111 = (limit < texCUBE(cubeShadowSampler, texPos111).r) ? 1.0f: 0.0f;
+
+		// Compute final pixel value by lerping everything
+		shadowTerm = Lerp(Lerp(Lerp(C000, C010, blend.y), Lerp(C100, C110, blend.y), blend.x), Lerp(Lerp(C001, C011, blend.y), Lerp(C101, C111, blend.y), blend.x), blend.z);
 
 		[branch]
 		if (shadowTerm == 0)

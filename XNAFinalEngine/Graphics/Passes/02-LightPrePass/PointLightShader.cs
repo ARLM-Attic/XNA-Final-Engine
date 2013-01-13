@@ -70,7 +70,7 @@ namespace XNAFinalEngine.Graphics
         private static ShaderParameterColor spLightColor;
         private static ShaderParameterTexture spDepthTexture, spNormalTexture;
         private static ShaderParameterTextureCube spShadowTexture;
-        private static ShaderParameterVector3 spLightPosition;
+        private static ShaderParameterVector3 spLightPosition, spTextureSize, spTextureSizeInv;
         private static ShaderParameterMatrix spWorldView, spWorldViewProj, spViewInverse;
 
         // Techniques references.
@@ -168,6 +168,8 @@ namespace XNAFinalEngine.Graphics
                 spNormalTexture = new ShaderParameterTexture("normalTexture", this, SamplerState.PointClamp, 1);
                 spShadowTexture = new ShaderParameterTextureCube("cubeShadowTexture", this, SamplerState.PointClamp, 3);
                 spLightPosition = new ShaderParameterVector3("lightPosition", this);
+                spTextureSize = new ShaderParameterVector3("textureSize", this);
+                spTextureSizeInv = new ShaderParameterVector3("textureSizeInv", this);
                 spWorldView = new ShaderParameterMatrix("worldView", this);
                 spWorldViewProj = new ShaderParameterMatrix("worldViewProj", this);
                 spViewInverse = new ShaderParameterMatrix("viewI", this);
@@ -285,6 +287,8 @@ namespace XNAFinalEngine.Graphics
                 {
                     spShadowTexture.Value = shadowTexture;
                     spViewInverse.Value = Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix)));
+                    spTextureSize.Value = new Vector3(shadowTexture.Size, shadowTexture.Size, shadowTexture.Size);
+                    spTextureSizeInv.Value = new Vector3(1.0f / shadowTexture.Size, 1.0f / shadowTexture.Size, 1.0f / shadowTexture.Size);
                 }
                 else
                     spShadowTexture.Value = TextureCube.BlackTexture;
@@ -330,7 +334,7 @@ namespace XNAFinalEngine.Graphics
                 else // Far lights
                 {
                     // Render the clip volume front faces with the light shader.
-                    Resource.CurrentTechnique = pointLightTechnique;
+                    Resource.CurrentTechnique = shadowTexture != null ? pointLightWithShadowsTechnique : pointLightTechnique;
                     EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
                     //EngineManager.Device.BlendState = lightBlendState; // Not need to set it.
                     EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;

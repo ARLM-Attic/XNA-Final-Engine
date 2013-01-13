@@ -176,14 +176,15 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// The last pass of the shadow calculations.
         /// </summary>
-        internal RenderTarget Render(Texture lightDepthTexture, RenderTarget depthTexture, float depthBias, Shadow.FilterType filterType)
+        internal RenderTarget Render(Texture lightDepthTexture, RenderTarget depthTexture, float depthBias, Shadow.FilterType filterType,
+                                     bool applyBilateralFilter, int bilateralFilterRadius, int bilateralFilterSharpness)
         {
             try
             {
                 // XBOX 360 Xbox does not support 16 bit render targets (http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx)
                 // Color would be the better choice for the XBOX 360.
                 // With color we have another good option, the possibility to gather four shadow results (local or global) in one texture.
-                shadowTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.HalfSingle, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
+                shadowTexture = RenderTarget.Fetch(depthTexture.Size, SurfaceFormat.Color, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
 
                 // Set parameters.
                 spShadowMapTexture.Value = lightDepthTexture;
@@ -219,7 +220,8 @@ namespace XNAFinalEngine.Graphics
                 RenderScreenPlane();
                 shadowTexture.DisableRenderTarget();
 
-                BilateralBlurShader.Instance.Filter(shadowTexture, shadowTexture, depthTexture, 10, 20);
+                if (applyBilateralFilter)
+                    BilateralBlurShader.Instance.Filter(shadowTexture, shadowTexture, depthTexture, bilateralFilterRadius, bilateralFilterSharpness);
 
                 return shadowTexture;
             }

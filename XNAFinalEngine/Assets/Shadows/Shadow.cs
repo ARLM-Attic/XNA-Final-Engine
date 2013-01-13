@@ -61,15 +61,21 @@ namespace XNAFinalEngine.Assets
 		#region Variables
         
         // Default values.
-        private FilterType filter = FilterType.Pcf5X5;
         private float depthBias = 0.0025f;
-        private Size.TextureSize textureSize = Size.TextureSize.FullSize;
+        private Size.TextureSize shadowTextureSize = Size.TextureSize.FullSize;
 	    private float range = 50;
         private bool enabled = true;
+	    private int bilateralFilterSharpness = 10;
 
         #if Xbox
+            private int bilateralFilterRadius = 2;
+            private FilterType filter = FilterType.PcfPosion;
+            private bool applyBilateralFilter = false;
             private static bool distributeShadowCalculationsBetweenFrames = true;
         #else
+            private int bilateralFilterRadius = 4;
+            private FilterType filter = FilterType.Pcf5X5;
+            private bool applyBilateralFilter = true;
             private static bool distributeShadowCalculationsBetweenFrames = false;
         #endif
 
@@ -89,7 +95,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Filter type.
         /// There are four PCF standard filters and one with poison distribution.
-        /// In the future it can be expected a variance and exponential filters.
+        /// Variance and exponential filters were not implemented because lack of time.
         /// </summary>
         public FilterType Filter
 	    {
@@ -98,7 +104,8 @@ namespace XNAFinalEngine.Assets
 	    } // Filter
 
 	    /// <summary>
-        /// Depth Bias (value between 0 to 0.1)
+        /// Depth bias to compensate precision problems.
+        /// Value between 0 to 0.1.
         /// </summary>
         public float DepthBias
         {
@@ -114,19 +121,20 @@ namespace XNAFinalEngine.Assets
         } // DepthBias
         
 	    /// <summary>
-        /// Shadow Texture Size.
-        /// This is a low frequency result therefore you don’t have to use a full screen size buffer.
+	    /// The size of the texture that hold the shadow processed into screen space. 
+        /// This is a low frequency result therefore you don’t have to use a full screen size buffer, 
+        /// however it is possible to add light bleeding into borders.
 	    /// </summary>
-	    public Size.TextureSize TextureSize
+	    public Size.TextureSize ShadowTextureSize
 	    {
-	        get { return textureSize; }
-	        set { textureSize = value; }
-        } // TextureSize
+	        get { return shadowTextureSize; }
+	        set { shadowTextureSize = value; }
+        } // ShadowTextureSize
 
         /// <summary>
         /// Shadow's far plane.
         /// </summary>
-        /// <remarks>This value is ignored when the shadow is associated with a spot light.</remarks>
+        /// <remarks>This value is just used for directional lights.</remarks>
         public float Range
         {
             get { return range; }
@@ -137,6 +145,34 @@ namespace XNAFinalEngine.Assets
                     range = 0;
             }
         } // Range
+        
+	    /// <summary>
+        /// A bilateral blur avoid bleeding color based on the depth information.
+        /// It is only used in directional and spot lights.
+        /// </summary>
+        public bool ApplyBilateralFilter
+	    {
+	        get { return applyBilateralFilter; }
+	        set { applyBilateralFilter = value; }
+	    } // ApplyBilateralFilter
+
+        /// <summary>
+        /// The blur radius. Bigger values could harm performance.
+        /// </summary>
+        public int BilateralFilterRadius
+        {
+            get { return bilateralFilterRadius; }
+            set { bilateralFilterRadius = value; }
+        } // BilateralFilterRadius
+
+        /// <summary>
+        /// The blur sharpness.
+        /// </summary>
+        public int BilateralFilterSharpness
+        {
+            get { return bilateralFilterSharpness; }
+            set { bilateralFilterSharpness = value; }
+        } // BilateralFilterSharpness
 
 	    /// <summary>
         /// Distribute shadow calculations between frames.
@@ -147,7 +183,7 @@ namespace XNAFinalEngine.Assets
 	        get { return distributeShadowCalculationsBetweenFrames; }
 	        set { distributeShadowCalculationsBetweenFrames = value; }
         } // DistributeShadowCalculationsBetweenFrames
-
+        
 	    #endregion
 
     } // Shadow

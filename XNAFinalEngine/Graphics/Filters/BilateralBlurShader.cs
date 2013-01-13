@@ -123,9 +123,11 @@ namespace XNAFinalEngine.Graphics
 	    /// Blurs a texture.
 	    /// </summary>
 	    /// <param name="texture">The texture to blur.</param>
-	    /// <param name="destionationTexture">The blured texture.</param>
-	    /// <param name="radius">Blur Radius.</param>
-        public void Filter(Texture texture, RenderTarget destionationTexture, Texture depthTexture, float radius = 5.0f, float sharpness = 15)
+	    /// <param name="destionationTexture">The result. Could be the same input texture.</param>
+	    /// <param name="depthTexture">Depth texture.</param>
+	    /// <param name="radius">Blur Radius. Bigger values could harm performance.</param>
+	    /// <param name="sharpness"></param>
+	    public void Filter(Texture texture, RenderTarget destionationTexture, Texture depthTexture, float radius = 5.0f, float sharpness = 15)
 		{
             if (texture == null || texture.Resource == null)
                 throw new ArgumentNullException("texture");
@@ -133,12 +135,7 @@ namespace XNAFinalEngine.Graphics
                 throw new ArgumentNullException("destionationTexture");
             try
             {
-                RenderTarget blurTempTexture = RenderTarget.Fetch(destionationTexture.Size, destionationTexture.SurfaceFormat, 
-                                                                  DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-                // Set Render States
-                EngineManager.Device.BlendState        = BlendState.Opaque;
-                EngineManager.Device.DepthStencilState = DepthStencilState.None;
-                EngineManager.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
+                RenderTarget blurTempTexture = RenderTarget.Fetch(destionationTexture.Size, destionationTexture.SurfaceFormat, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
 
                 // Set shader parameters
                 spBlurRadius.Value = radius;
@@ -170,6 +167,7 @@ namespace XNAFinalEngine.Graphics
                     else
                         destionationTexture.DisableRenderTarget();
                 }
+
                 // It's not used anymore.
                 RenderTarget.Release(blurTempTexture);
             }

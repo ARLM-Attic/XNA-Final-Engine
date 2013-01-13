@@ -29,16 +29,18 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 //using XNAFinalEngine.Editor;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
-using XNAFinalEngine.Helpers;
 using XNAFinalEngine.Input;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Size = XNAFinalEngine.Helpers.Size;
+using Texture = XNAFinalEngine.Assets.Texture;
 using TextureCube = XNAFinalEngine.Assets.TextureCube;
 #endregion
 
@@ -90,13 +92,13 @@ namespace XNAFinalEngineExamples
             camera.Camera.FieldOfView = 180 / 7f;
             camera.Camera.PostProcess = new PostProcess();
             camera.Camera.PostProcess.ToneMapping.AutoExposureEnabled = false;
-            camera.Camera.PostProcess.ToneMapping.LensExposure = -1.5f;
+            camera.Camera.PostProcess.ToneMapping.LensExposure = -1.0f;
             camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
             camera.Camera.PostProcess.MLAA.Enabled = false;
-            camera.Camera.PostProcess.Bloom.Enabled = false;
+            camera.Camera.PostProcess.Bloom.Enabled = true;
             camera.Camera.PostProcess.Bloom.Threshold = 2;
-            camera.Camera.PostProcess.FilmGrain.Enabled = false;
+            camera.Camera.PostProcess.FilmGrain.Enabled = true;
             camera.Camera.PostProcess.FilmGrain.Strength = 0.1f;
             camera.Camera.PostProcess.AnamorphicLensFlare.Enabled = false;
             camera.Camera.AmbientLight = new AmbientLight
@@ -107,12 +109,12 @@ namespace XNAFinalEngineExamples
                                                             AmbientOcclusionStrength = 2f };
             
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
-
-            /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
+            /*
+            camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
-                NumberSteps = 16, //12, // Don't change this.
-                NumberDirections = 12, // 16, // Don't change this.
-                Radius = 0.001f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                NumberSteps = 8, //15, // Don't change this.
+                NumberDirections = 6, // 12, // Don't change this.
+                Radius = 0.0005f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 1.0f,
                 Contrast = 1.3f,
                 AngleBias = 0.1f,
@@ -122,7 +124,7 @@ namespace XNAFinalEngineExamples
 
             #region Test Split Screen
             
-            camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
+            /*camera.Camera.NormalizedViewport = new RectangleF(0, 0, 1, 0.5f);
             camera2 = new GameObject3D();
             camera2.AddComponent<Camera>();
             camera2.Camera.MasterCamera = camera.Camera;
@@ -130,7 +132,7 @@ namespace XNAFinalEngineExamples
             camera2.Camera.FieldOfView = 180 / 8.0f;
             camera2.Camera.NormalizedViewport = new RectangleF(0, 0.5f, 1, 0.5f);
             camera2.Transform.LookAt(new Vector3(5, 10, 15), Vector3.Zero, Vector3.Up);
-            camera2.Camera.AmbientLight = camera.Camera.AmbientLight;
+            camera2.Camera.AmbientLight = camera.Camera.AmbientLight;*/
             
             #endregion
 
@@ -194,36 +196,40 @@ namespace XNAFinalEngineExamples
             
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
-            directionalLight.DirectionalLight.Color = new Color(250, 250, 220);
-            directionalLight.DirectionalLight.Intensity = 1.2f;
+            directionalLight.DirectionalLight.Color = new Color(190, 190, 150);
+            directionalLight.DirectionalLight.Intensity = 12.2f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.95f, -0.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
                 Filter = Shadow.FilterType.PcfPosion,
                 LightDepthTextureSize = Size.Square512X512,
-                TextureSize = Size.TextureSize.FullSize, // Lower than this could produce artifacts if the light is to intense.
+                ShadowTextureSize = Size.TextureSize.FullSize, // Lower than this could produce artifacts if the light is too intense.
                 DepthBias = 0.0025f,
                 FarPlaneSplit1 = 15,
                 FarPlaneSplit2 = 40,
                 FarPlaneSplit3 = 100,
+                ApplyBilateralFilter = false,
+                BilateralFilterRadius = 5,
+                BilateralFilterSharpness = 5,
                 //FarPlaneSplit4 = 150
             };
             /*directionalLight.DirectionalLight.Shadow = new BasicShadow
             {
                 Filter = Shadow.FilterType.PcfPosion,
                 LightDepthTextureSize = Size.Square512X512,
-                TextureSize = Size.TextureSize.FullSize, // Lower than this could produce artifacts if the light is to intense.
+                ShadowTextureSize = Size.TextureSize.FullSize, // Lower than this could produce artifacts if the light is to intense.
                 DepthBias = 0.0025f,
+                Range = 100,
             };*/
-            Shadow.DistributeShadowCalculationsBetweenFrames = false;
+            Shadow.DistributeShadowCalculationsBetweenFrames = true;
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
-            pointLight.PointLight.Color = new Color(250, 250, 0); // new Color(240, 235, 200);
-            pointLight.PointLight.Intensity = 50;
+            pointLight.PointLight.Color = new Color(50, 150, 250); // new Color(240, 235, 200);
+            pointLight.PointLight.Intensity = 2;
             pointLight.PointLight.Range = 60;
             pointLight.Transform.Position = new Vector3(4.8f, 1.5f, 10); // new Vector3(8f, -1f, 10);
-            pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 1024, };
+            pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 512, };
 
             //for (int i = 0; i < 50; i++)
             {
@@ -238,17 +244,18 @@ namespace XNAFinalEngineExamples
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
             spotLight.SpotLight.Color = Color.Green;
-            spotLight.SpotLight.Intensity = 10f;
+            spotLight.SpotLight.Intensity = 5f;
             spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
-            spotLight.Transform.Position = new Vector3(0, 15f, 10);
+            spotLight.Transform.Position = new Vector3(0, 12f, 25);
             spotLight.Transform.Rotate(new Vector3(-45, 0, 0));
             spotLight.SpotLight.LightMaskTexture = new Texture("LightMasks\\Crysis2TestLightMask");
             spotLight.SpotLight.Shadow = new BasicShadow
             {
-                Filter = Shadow.FilterType.Pcf3X3,
-                LightDepthTextureSize = Size.Square1024X1024,
-                TextureSize = Size.TextureSize.FullSize,
+                Filter = Shadow.FilterType.PcfPosion,
+                LightDepthTextureSize = Size.Square512X512,
+                ShadowTextureSize = Size.TextureSize.FullSize,
                 DepthBias = 0.0025f,
+                ApplyBilateralFilter = false,
             };
             
             #endregion
@@ -287,9 +294,10 @@ namespace XNAFinalEngineExamples
         public override void UpdateTasks()
         {
             if (GamePad.PlayerOne.AJustPressed)
-                EngineManager.ExitApplication();
+                throw new Exception("Quick exit in Xbox 360 tests.");
+                //EngineManager.ExitApplication();
             base.UpdateTasks();
-            warehouseWalls.Transform.Rotate(new Vector3(0.1f, 0, 0));
+            //warehouseWalls.Transform.Rotate(new Vector3(0.1f, 0, 0));
         } // UpdateTasks
 
         #endregion
@@ -305,7 +313,6 @@ namespace XNAFinalEngineExamples
         /// </summary>
         public override void PreRenderTasks()
         {
-            
         } // PreRenderTasks
 
         /// <summary>

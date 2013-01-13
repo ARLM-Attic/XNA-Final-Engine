@@ -232,7 +232,7 @@ namespace XNAFinalEngineExamples
             #region Body
 
             murcielagoBody                = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), carPaintMaterial) { Parent = LamborghiniMurcielago };
-            murcielagoLP640AirTakesEngine = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakesEngine"), airTakesEngineMaterial) { Parent = LamborghiniMurcielago };
+            /*murcielagoLP640AirTakesEngine = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakesEngine"), airTakesEngineMaterial) { Parent = LamborghiniMurcielago };
             murcielagoLP640AirTakes       = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakes"), airTakesMaterial) { Parent = LamborghiniMurcielago };
             murcielagoLights              = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Lights"), lightsMaterial) { Parent = LamborghiniMurcielago };
             murcielagoLightsGlasses       = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LightGlasses"), lightsGlassesMaterial) { Parent = LamborghiniMurcielago };
@@ -581,9 +581,9 @@ namespace XNAFinalEngineExamples
             murcielagoRearRightBrakeCaliper.Parent = rearRightRim;
             murcielagoRearRightTyre.Parent = rearRightRim;
             murcielagoRearRightTyre02.Parent = rearRightRim;
-
-            rearRightRim.Parent = LamborghiniMurcielago;
             
+            rearRightRim.Parent = LamborghiniMurcielago;
+            */
             #endregion             
             
         } // Load

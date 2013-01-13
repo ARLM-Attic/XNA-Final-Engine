@@ -1,5 +1,5 @@
 /***********************************************************************************************************************************************
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -59,6 +59,12 @@ struct VS_Output
 	float2 uv			: TEXCOORD0;
 };
 
+struct VS_OutputCrytek
+{
+   	float4 position    : POSITION;
+	float4 uv			: TEXCOORD0;
+};
+
 //////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
@@ -78,29 +84,28 @@ VS_Output VS_Blur(float4 position : POSITION, float2 uv : TEXCOORD0)
 /////////////// Pixel Shader /////////////////
 //////////////////////////////////////////////
 
-float BlurFunction(float2 uv, float r, float center_c, float center_d, inout float w_total)
+float BlurFunction(float2 uv, float r, float center_d, inout float w_total)
 {
-    float c = tex2Dlod(sceneTextureSamplerPoint, float4(uv, 0, 0));
+    float c = tex2Dlod(sceneTextureSamplerPoint, float4(uv, 0, 0)).r;
     float d = tex2Dlod(sceneTextureSamplerPoint, float4(uv, 0, 0)).r;
 
     float ddiff = d - center_d;
-    float w = exp(-r * r * blurFalloff - ddiff * ddiff * sharpness);
+    float w = exp2(-r * r * blurFalloff - ddiff * ddiff /* sharpness*/);
     w_total += w;
 
-    return w*c;
+    return w * c;
 } // BlurFunction
 
 float4 PS_BlurX(VS_Output input) : COLOR
 {	
 	float b = 0;
-    float w_total = 0;
-    float center_c = tex2D(sceneTextureSamplerPoint, input.uv);
+    float w_total = 0;    
     float center_d = tex2D(depthSampler, input.uv).r;
     	
     for (float r = -blurRadius; r <= blurRadius; ++r)
     {
         float2 uv = input.uv.xy + float2(r * invTextureResolution.x , 0);
-        b += BlurFunction(uv, r, center_c, center_d, w_total);	
+        b += BlurFunction(uv, r, center_d, w_total);	
     }
 
     return b / w_total;
@@ -110,13 +115,12 @@ float4 PS_BlurY(VS_Output input) : COLOR
 {
     float b = 0;
     float w_total = 0;
-    float center_c = tex2D(sceneTextureSamplerPoint, input.uv);
     float center_d = tex2D(depthSampler, input.uv).r;
     
     for (float r = -blurRadius; r <= blurRadius; ++r)
     {
         float2 uv = input.uv.xy + float2(0, r * invTextureResolution.y); 
-        b += BlurFunction(uv, r, center_c, center_d, w_total);
+        b += BlurFunction(uv, r, center_d, w_total);
     }
 	    
     return b/w_total;	
