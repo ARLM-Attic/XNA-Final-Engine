@@ -54,7 +54,7 @@ namespace Nebula.Scripts
         /// <summary>
         /// The material used to paint the GOs hit
         /// </summary>
-        private static Material greenMaterial = new BlinnPhong { DiffuseColor = new Color(0.0f, 0.85f, 0.0f) };
+        private static Material greenMaterial = new BlinnPhong { DiffuseColor = new Color(0.4f, 0.85f, 0.35f), SpecularIntensity = 0.3f, SpecularPower = 200 };
 
         private int enterCount = 0;
         private int exitCount = 0;

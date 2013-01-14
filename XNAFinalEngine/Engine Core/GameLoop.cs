@@ -1221,6 +1221,7 @@ namespace XNAFinalEngine.EngineCore
             
             #region Shadow Maps
 
+            // Big TODO!!
             // There are several techniques that could be added. 
             // * Black Rock Studios’ shadow edge detection (Rendering Techniques in Split Second). 
             // * Spot shadow results grouped in one texture and filtered in just one pass (actually two).
@@ -1408,8 +1409,7 @@ namespace XNAFinalEngine.EngineCore
                         
                         // Calculate a deferred shadow map.
                         // I use a downsampled depth texture to improve performance.
-                        directionalLight.ShadowTexture = CascadedShadowMapShader.Instance.Render(lightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter,
-                                                                                                 shadow.ApplyBilateralFilter, shadow.BilateralFilterRadius, shadow.BilateralFilterSharpness);
+                        directionalLight.ShadowTexture = CascadedShadowMapShader.Instance.Render(lightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter);
                         
                         // If the depth light texture is not longer needed then we can released.
                         if (Shadow.DistributeShadowCalculationsBetweenFrames == false)
@@ -1521,8 +1521,7 @@ namespace XNAFinalEngine.EngineCore
                                                                    activeDirectionalLightShadows[shadowIndex].lightProjectionMatrix);
                         }
                         // Calculate a deferred shadow map.
-                        directionalLight.ShadowTexture = BasicShadowMapShader.Instance.Render(lightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter,
-                                                                                              shadow.ApplyBilateralFilter, shadow.BilateralFilterRadius, shadow.BilateralFilterSharpness);
+                        directionalLight.ShadowTexture = BasicShadowMapShader.Instance.Render(lightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter);
 
                         // If the depth light texture is not longer needed then we can released.
                         if (Shadow.DistributeShadowCalculationsBetweenFrames == false)
@@ -1662,8 +1661,7 @@ namespace XNAFinalEngine.EngineCore
                                                                    activeSpotLightShadows[shadowIndex].lightProjectionMatrix);
                         }
                         // Calculate a deferred shadow map.
-                        spotLight.ShadowTexture = BasicShadowMapShader.Instance.Render(lightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter,
-                                                                                       shadow.ApplyBilateralFilter, shadow.BilateralFilterRadius, shadow.BilateralFilterSharpness);
+                        spotLight.ShadowTexture = BasicShadowMapShader.Instance.Render(lightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter);
                         if (!Shadow.DistributeShadowCalculationsBetweenFrames && activeCamerasCount == 1)
                             RenderTarget.Release(lightDepthTexture);
                     }

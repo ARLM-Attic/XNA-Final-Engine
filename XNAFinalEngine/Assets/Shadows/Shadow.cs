@@ -65,17 +65,12 @@ namespace XNAFinalEngine.Assets
         private Size.TextureSize shadowTextureSize = Size.TextureSize.FullSize;
 	    private float range = 50;
         private bool enabled = true;
-	    private int bilateralFilterSharpness = 10;
 
         #if Xbox
-            private int bilateralFilterRadius = 2;
             private FilterType filter = FilterType.PcfPosion;
-            private bool applyBilateralFilter = false;
             private static bool distributeShadowCalculationsBetweenFrames = true;
         #else
-            private int bilateralFilterRadius = 4;
             private FilterType filter = FilterType.Pcf5X5;
-            private bool applyBilateralFilter = true;
             private static bool distributeShadowCalculationsBetweenFrames = false;
         #endif
 
@@ -145,34 +140,6 @@ namespace XNAFinalEngine.Assets
                     range = 0;
             }
         } // Range
-        
-	    /// <summary>
-        /// A bilateral blur avoid bleeding color based on the depth information.
-        /// It is only used in directional and spot lights.
-        /// </summary>
-        public bool ApplyBilateralFilter
-	    {
-	        get { return applyBilateralFilter; }
-	        set { applyBilateralFilter = value; }
-	    } // ApplyBilateralFilter
-
-        /// <summary>
-        /// The blur radius. Bigger values could harm performance.
-        /// </summary>
-        public int BilateralFilterRadius
-        {
-            get { return bilateralFilterRadius; }
-            set { bilateralFilterRadius = value; }
-        } // BilateralFilterRadius
-
-        /// <summary>
-        /// The blur sharpness.
-        /// </summary>
-        public int BilateralFilterSharpness
-        {
-            get { return bilateralFilterSharpness; }
-            set { bilateralFilterSharpness = value; }
-        } // BilateralFilterSharpness
 
 	    /// <summary>
         /// Distribute shadow calculations between frames.

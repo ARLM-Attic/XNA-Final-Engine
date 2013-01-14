@@ -33,7 +33,6 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.EngineCore;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -334,8 +333,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Calculate the final shadows using the scene depth and light depth information.
         /// </summary>
-        internal RenderTarget Render(Texture lightDepthTexture, RenderTarget depthTexture, float depthBias, Shadow.FilterType filterType,
-                                     bool applyBilateralFilter, int bilateralFilterRadius, int bilateralFilterSharpness)
+        internal RenderTarget Render(Texture lightDepthTexture, RenderTarget depthTexture, float depthBias, Shadow.FilterType filterType)
         {
             try
             {
@@ -377,10 +375,7 @@ namespace XNAFinalEngine.Graphics
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
                 shadowTexture.DisableRenderTarget();
-
-                if (applyBilateralFilter)
-                    BilateralBlurShader.Instance.Filter(shadowTexture, shadowTexture, depthTexture, bilateralFilterRadius, bilateralFilterSharpness);
-
+                
                 return shadowTexture;
             }
             catch (Exception e)

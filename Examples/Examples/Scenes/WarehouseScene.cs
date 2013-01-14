@@ -208,9 +208,6 @@ namespace XNAFinalEngineExamples
                 FarPlaneSplit1 = 15,
                 FarPlaneSplit2 = 40,
                 FarPlaneSplit3 = 100,
-                ApplyBilateralFilter = false,
-                BilateralFilterRadius = 5,
-                BilateralFilterSharpness = 5,
                 //FarPlaneSplit4 = 150
             };
             /*directionalLight.DirectionalLight.Shadow = new BasicShadow
@@ -255,7 +252,6 @@ namespace XNAFinalEngineExamples
                 LightDepthTextureSize = Size.Square512X512,
                 ShadowTextureSize = Size.TextureSize.FullSize,
                 DepthBias = 0.0025f,
-                ApplyBilateralFilter = false,
             };
             
             #endregion
