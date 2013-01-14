@@ -1,7 +1,7 @@
 ﻿    
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -220,8 +220,8 @@ namespace XNAFinalEngine.Graphics
                 spLensFlareTexture = new ShaderParameterTexture("lensFlareTexture", this, SamplerState.AnisotropicClamp, 8);
                 spFilmLutTexture = new ShaderParameterTexture("filmLutTexture", this, SamplerState.AnisotropicClamp, 8);
 
-                spFirstlookupTable = new ShaderParameterLookupTable("firstlookupTableTexture", this, SamplerState.LinearClamp, 5);
-                spSecondlookupTable = new ShaderParameterLookupTable("secondlookupTableTexture", this, SamplerState.LinearClamp, 11);
+                spFirstlookupTable = new ShaderParameterLookupTable("firstlookupTableTexture", this, SamplerState.LinearClamp, 6);
+                spSecondlookupTable = new ShaderParameterLookupTable("secondlookupTableTexture", this, SamplerState.LinearClamp, 7);
             }
             /*catch
             {
@@ -249,11 +249,7 @@ namespace XNAFinalEngine.Graphics
                 RenderTarget initialLuminanceTexture = RenderTarget.Fetch(sceneTexture.Size.HalfSize().HalfSize(), SurfaceFormat.Single, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing, false);
 
                 Resource.CurrentTechnique = Resource.Techniques["LuminanceMap"];
-                // Set render states
-                EngineManager.Device.BlendState = BlendState.Opaque;
-                EngineManager.Device.DepthStencilState = DepthStencilState.None;
-                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-
+                
                 // Set parameters
                 spHalfPixel.Value = new Vector2(-0.5f / (sceneTexture.Width / 2), 0.5f / (sceneTexture.Height / 2));
                 spSceneTexture.Value = sceneTexture;
@@ -290,35 +286,29 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 Resource.CurrentTechnique = Resource.Techniques["LuminanceAdaptation"];
-                // Set render states
-                EngineManager.Device.BlendState = BlendState.Opaque;
-                EngineManager.Device.DepthStencilState = DepthStencilState.None;
-                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
 
                 RenderTarget luminanceTexture = RenderTarget.Fetch(currentLuminanceTexture.Size, SurfaceFormat.Single, DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing, true);
 
                 // Set parameters
                 spHalfPixel.Value = new Vector2(-0.5f / (luminanceTexture.Width / 2), 0.5f / (luminanceTexture.Height / 2));
                 spSceneTexture.Value = currentLuminanceTexture;
-                spTimeDelta.Value = Time.FrameTime; // It always changes.
+                spTimeDelta.Value = Time.FrameTime;
                 spExposureAdjustTimeMultiplier.Value = postProcess.ToneMapping.AutoExposureAdaptationTimeMultiplier;
                 
-                // The two first frames will use the current luminance texture.
-                // One because there is no last luminance texture, and two because I render a frame in the load content (to reduce garbage).
+                // To avoid a problem in the first frame.
                 if (lastLuminanceTexture != null && !lastLuminanceTexture.IsDisposed)
                     spLastLuminanceTexture.Value = lastLuminanceTexture;
                 else
                     spLastLuminanceTexture.Value = currentLuminanceTexture;
 
                 luminanceTexture.EnableRenderTarget();
-
-                // Render post process effect.
                 Resource.CurrentTechnique.Passes[0].Apply();
                 RenderScreenPlane();
-
                 RenderTarget.DisableCurrentRenderTargets();
-                // This luminance texture is not need anymore.
+
+                // This luminance texture is not needed anymore.
                 RenderTarget.Release(lastLuminanceTexture);
+
                 return luminanceTexture;
             }
             catch (Exception e)
@@ -340,11 +330,6 @@ namespace XNAFinalEngine.Graphics
                 throw new ArgumentNullException("sceneTexture");
             //try
             {
-                // Set render states
-                EngineManager.Device.BlendState = BlendState.Opaque;
-                EngineManager.Device.DepthStencilState = DepthStencilState.None;
-                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-
                 if (postProcess != null)
                 {
                     // Select technique with the tone mapping function.
@@ -391,7 +376,6 @@ namespace XNAFinalEngine.Graphics
                     #region Tone Mapping
 
                     spAutoExposureEnabled.Value = postProcess.ToneMapping.AutoExposureEnabled;
-                    EngineManager.Device.SamplerStates[12] = SamplerState.PointClamp; // To avoid an exception. Long story.
                     if (postProcess.ToneMapping.AutoExposureEnabled)
                         spLastLuminanceTexture.Value = luminanceTexture;
                     else

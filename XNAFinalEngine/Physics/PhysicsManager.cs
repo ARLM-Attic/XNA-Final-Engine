@@ -27,6 +27,7 @@ Author: Schefer, Gustavo Martín (gusschefer@hotmail.com)
 #endregion
 
 #region Using directives
+using System.Threading;
 using BEPUphysics;
 using BEPUphysics.Collidables.MobileCollidables;
 using Microsoft.Xna.Framework;

@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -65,17 +65,17 @@ namespace XNAFinalEngine.Assets
         #region Variables
 
         // Is auto exposure enabled?
-        private bool autoExposureEnabled = true;
+        private bool autoExposureEnabled = false;
 
         // Lens exposure.
         private float lensExposure = 0;
 
         // Controls how faster the camera’s auto exposure adaptation mechanism changes its response.
-        private float exposureAdaptationTimeMultiplier = 3f;
+        private float exposureAdaptationTimeMultiplier = 4f;
 
         // When auto exposure is enabled, the luminance intensity is clamp using the low and high threshold.
-        private float autoExposureLuminanceLowThreshold = 0.3f;
-        private float autoExposureLuminanceHighThreshold = 20f;
+        private float autoExposureLuminanceLowThreshold = 0.05f;
+        private float autoExposureLuminanceHighThreshold = 1f;
 
         // Tone Mapping Parameters
         // Logarithmic

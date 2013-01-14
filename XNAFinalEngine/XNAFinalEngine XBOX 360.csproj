@@ -179,15 +179,15 @@
     <Compile Include="Graphics\Passes\02-LightPrePass\Shadows\LightDepthBufferShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\Shadows\TetrahedronShadowMapShader.cs" />
     <Compile Include="Graphics\Passes\02-LightPrePass\SpotLightShader.cs" />
-    <Compile Include="Graphics\Passes\03-ScenePass\ScenePass.cs" />
-    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\AfterBurnerShader.cs" />
-    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\AtmosphereShader.cs" />
-    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\BlinnPhongShader.cs" />
-    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\CarPaintShader.cs" />
-    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\ConstantShader.cs" />
-    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\ForwardBlinnPhongShader.cs" />
-    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\SkyboxShader.cs" />
-    <Compile Include="Graphics\Passes\03-ScenePass\Shaders\SkydomeShader.cs" />
+    <Compile Include="Graphics\Passes\03-MaterialPass\MaterialPass.cs" />
+    <Compile Include="Graphics\Passes\03-MaterialPass\Shaders\AfterBurnerShader.cs" />
+    <Compile Include="Graphics\Passes\03-MaterialPass\Shaders\AtmosphereShader.cs" />
+    <Compile Include="Graphics\Passes\03-MaterialPass\Shaders\BlinnPhongShader.cs" />
+    <Compile Include="Graphics\Passes\03-MaterialPass\Shaders\CarPaintShader.cs" />
+    <Compile Include="Graphics\Passes\03-MaterialPass\Shaders\ConstantShader.cs" />
+    <Compile Include="Graphics\Passes\03-MaterialPass\Shaders\ForwardBlinnPhongShader.cs" />
+    <Compile Include="Graphics\Passes\03-MaterialPass\Shaders\SkyboxShader.cs" />
+    <Compile Include="Graphics\Passes\03-MaterialPass\Shaders\SkydomeShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\AnamorphicLensFlareShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\BloomShader.cs" />
     <Compile Include="Graphics\Passes\04-PostProcessPass\MLAAShader.cs" />
@@ -270,6 +270,9 @@
     <Reference Include="System.Xml.Linq">
       <Private>False</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Graphics\Passes\03-ScenePass\Shaders\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />

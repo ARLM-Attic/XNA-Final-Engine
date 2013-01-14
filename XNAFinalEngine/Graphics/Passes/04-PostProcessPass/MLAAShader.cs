@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -57,11 +57,11 @@ namespace XNAFinalEngine.Graphics
                                               spThresholdDepth;
         private static ShaderParameterVector2 spHalfPixel,
                                               spPixelSize;
-        private static ShaderParameterTexture spSceneTexture, // EngineManager.Device.SamplerStates[10] = SamplerState.PointClamp; EngineManager.Device.SamplerStates[11] = SamplerState.LinearClamp;
-                                              spDepthTexture, // EngineManager.Device.SamplerStates[14] = SamplerState.PointClamp;
-                                              spEdgeTexture,  // EngineManager.Device.SamplerStates[12] = SamplerState.LinearClamp;
-                                              spBlendedWeightsTexture, // EngineManager.Device.SamplerStates[13] = SamplerState.PointClamp;
-                                              spAreaTexture; // EngineManager.Device.SamplerStates[15] = SamplerState.PointClamp;
+        private static ShaderParameterTexture spSceneTexture,
+                                              spDepthTexture,
+                                              spEdgeTexture,
+                                              spBlendedWeightsTexture,
+                                              spAreaTexture;
 
         #endregion
         
@@ -156,7 +156,7 @@ namespace XNAFinalEngine.Graphics
                 // Set parameters
                 spHalfPixel.Value = new Vector2(-0.5f / (texture.Width / 2), 0.5f / (texture.Height / 2));
                 spPixelSize.Value = new Vector2(1f / texture.Width, 1f / texture.Height);
-                spSceneTexture.Value = texture; EngineManager.Device.SamplerStates[11] = SamplerState.LinearClamp; // The scene textura has to samplers.
+                spSceneTexture.Value = texture; EngineManager.Device.SamplerStates[11] = SamplerState.LinearClamp; // The scene texture has two samplers.
                 spDepthTexture.Value = depthTexture;
                 spThresholdColor.Value = postProcess.MLAA.ThresholdColor;
                 spThresholdDepth.Value = postProcess.MLAA.ThresholdDepth;
@@ -168,6 +168,12 @@ namespace XNAFinalEngine.Graphics
                     case MLAA.EdgeDetectionType.Color: Resource.CurrentTechnique = Resource.Techniques["EdgeDetectionColor"]; break;
                     case MLAA.EdgeDetectionType.Depth: Resource.CurrentTechnique = Resource.Techniques["EdgeDetectionDepth"]; break;
                 }
+
+                // To avoid an exception that is produced with adaptative exposure is enable in the first camera rendered.
+                // It seems the lastLuminanceTexture is still link to this sampler and when the technique is apply did not like this situation.
+                // I am not sure why.
+                // A possible solution is to reservate a small number of samplers for linear and anisotropic access and the rest for point.
+                EngineManager.Device.SamplerStates[12] = SamplerState.PointClamp;
 
                 foreach (EffectPass pass in Resource.CurrentTechnique.Passes)
                 {
@@ -186,8 +192,8 @@ namespace XNAFinalEngine.Graphics
                     else
                     {
                         // For testing
-                        //RenderTarget.Release(blendingWeightTexture);
-                        //return destinationTexture;
+                        /*RenderTarget.Release(blendingWeightTexture);
+                        return destinationTexture;*/
                         spBlendedWeightsTexture.Value = blendingWeightTexture;
                         destinationTexture.EnableRenderTarget();
                         destinationTexture.Clear(Color.Black);

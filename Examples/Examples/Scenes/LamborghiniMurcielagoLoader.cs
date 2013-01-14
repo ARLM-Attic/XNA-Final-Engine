@@ -32,7 +32,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
-using XNAFinalEngine.EngineCore;
 using Texture = XNAFinalEngine.Assets.Texture;
 using TextureCube = XNAFinalEngine.Assets.TextureCube;
 #endregion
@@ -119,18 +118,18 @@ namespace XNAFinalEngineExamples
 
             BlinnPhong rimMaterial = new BlinnPhong
             {
-                DiffuseColor = new Color(20, 20, 20),
-                SpecularPower = 200,
+                DiffuseColor = new Color(25, 25, 25),
+                SpecularPower = 75,
                 //NormalTexture = new Texture("LamborghiniMurcielago\\Murcielago-LP670-Rim-Normal"),
-                SpecularIntensity = 4f * reflectioTextureMultiplier,
+                SpecularIntensity = 5f * reflectioTextureMultiplier,
                 ReflectionTexture = reflectionTexture,
             };
 
             BlinnPhong airTakesMaterial = new BlinnPhong
             {
                 DiffuseColor = new Color(30, 30, 30),
-                SpecularIntensity = 0.15f,
-                SpecularPower = 50,
+                SpecularIntensity = 0.55f,
+                SpecularPower = 20,
             };
 
             BlinnPhong airTakesEngineMaterial = new BlinnPhong
@@ -157,19 +156,19 @@ namespace XNAFinalEngineExamples
             };
             BlinnPhong lightsGlassesMaterial = new BlinnPhong
             {
-                DiffuseColor = new Color(10, 10, 10),
+                DiffuseColor = new Color(10, 10, 11),
                 //DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Lights"),
-                AlphaBlending = 0.25f,
-                SpecularIntensity = 5 * reflectioTextureMultiplier,
-                SpecularPower = 4,
+                AlphaBlending = 0.2f,
+                SpecularIntensity = 3 * reflectioTextureMultiplier,
+                SpecularPower = 5,
                 ReflectionTexture = reflectionTexture,
             };
             BlinnPhong glassesMaterial = new BlinnPhong
             {
                 DiffuseColor = new Color(10, 10, 11),
                 AlphaBlending = 0.15f,
-                SpecularIntensity = 5 * reflectioTextureMultiplier,
-                SpecularPower = 1,
+                SpecularIntensity = 2 * reflectioTextureMultiplier,
+                SpecularPower = 5,
                 ReflectionTexture = reflectionTexture,
             };
 
@@ -232,7 +231,7 @@ namespace XNAFinalEngineExamples
             #region Body
 
             murcielagoBody                = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), carPaintMaterial) { Parent = LamborghiniMurcielago };
-            /*murcielagoLP640AirTakesEngine = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakesEngine"), airTakesEngineMaterial) { Parent = LamborghiniMurcielago };
+            murcielagoLP640AirTakesEngine = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakesEngine"), airTakesEngineMaterial) { Parent = LamborghiniMurcielago };
             murcielagoLP640AirTakes       = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-AirTakes"), airTakesMaterial) { Parent = LamborghiniMurcielago };
             murcielagoLights              = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Lights"), lightsMaterial) { Parent = LamborghiniMurcielago };
             murcielagoLightsGlasses       = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LightGlasses"), lightsGlassesMaterial) { Parent = LamborghiniMurcielago };
@@ -583,7 +582,7 @@ namespace XNAFinalEngineExamples
             murcielagoRearRightTyre02.Parent = rearRightRim;
             
             rearRightRim.Parent = LamborghiniMurcielago;
-            */
+            
             #endregion             
             
         } // Load

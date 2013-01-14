@@ -59,8 +59,8 @@ namespace XNAFinalEngineExamples
             // Now the engine will start.
             //EngineManager.StartEngine(new DudeEditableScene(), false);
             //EngineManager.StartEngine(new PrototypeScene(), false);
-            //EngineManager.StartEngine(new WarehouseScene(), false);
-            EngineManager.StartEngine(new PhysicsTestScene(), false);
+            EngineManager.StartEngine(new WarehouseScene(), false);
+            //EngineManager.StartEngine(new PhysicsTestScene(), false);
             //EngineManager.StartEngine(new LamborghiniMurcielagoScene(), false);
             //EngineManager.StartEngine(new NeoForceTestScene());
             //EngineManager.StartEngine(new HelloWorldScene(), false);

@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -40,21 +40,23 @@ using XNAFinalEngine.Assets;
 namespace XNAFinalEngine.Graphics
 {
     /// <summary>
-    /// Scene Pass.
+    /// Material Pass.
+    /// This is were the light information (partial BRDF) is composed with other materials properties of the objects.
     /// </summary>
     /// <remarks>
     /// The scene will be render in HDR linear space here. Then, the post process will apply tone mapping to transform it to LDR gamma space.
     /// </remarks>
-    internal static class ScenePass
+    internal static class MaterialPass
     {
 
         #region Variables
 
         /// <summary>
-        /// Light Texture.
+        /// This texture will hold the material or HDR pass.
         /// </summary>
         /// <remarks> 
-        /// It's in linear space. In this same render target the transparent object will be rendered. Maybe an RGBM encoding could work, but how?
+        /// It's calculated in linear space.  
+        /// A RGBM encoding won't work in XBOX nor PC because we need a ping pong scheme that only works in PS3.
         /// Multisampling could generate indeseable artifacts. Be careful!
         /// </remarks>
         private static RenderTarget sceneTexture;
@@ -73,7 +75,7 @@ namespace XNAFinalEngine.Graphics
                 sceneTexture = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.Depth24, RenderTarget.AntialiasingType.NoAntialiasing);
 
                 // Set Render States.
-                EngineManager.Device.BlendState        = BlendState.Opaque; // The resulting color will be added to current render target color.
+                EngineManager.Device.BlendState        = BlendState.Opaque;
                 EngineManager.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
                 EngineManager.Device.DepthStencilState = DepthStencilState.Default;
                 // If I set the sampler states here and no texture is set then this could produce exceptions 
@@ -111,5 +113,5 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-    } // ScenePass
+    } // MaterialPass
 } // XNAFinalEngine.Graphics

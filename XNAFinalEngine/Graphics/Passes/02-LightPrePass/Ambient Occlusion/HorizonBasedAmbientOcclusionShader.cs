@@ -485,7 +485,7 @@ namespace XNAFinalEngine.Graphics
                 // This pass is a lot cheaper than the ambient occlusion pass so the performance penalty is acceptable.
                 RenderTarget bluredAmbientOcclusionTexture = RenderTarget.Fetch(destinationSize, ambientOcclusionTexture.SurfaceFormat,
                                                                                 DepthFormat.None, RenderTarget.AntialiasingType.NoAntialiasing);
-                BilateralBlurShader.Instance.Filter(ambientOcclusionTexture, bluredAmbientOcclusionTexture, fullscreenDepthTexture, 5, 10);
+                BilateralBlurShader.Instance.Filter(ambientOcclusionTexture, bluredAmbientOcclusionTexture, depthTexture, 6, 1);
                 RenderTarget.Release(ambientOcclusionTexture);
                 return bluredAmbientOcclusionTexture;
             }

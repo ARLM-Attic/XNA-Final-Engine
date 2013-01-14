@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -31,10 +31,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
-//using XNAFinalEngine.Editor;
+using XNAFinalEngine.Editor;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Input;
@@ -50,7 +49,7 @@ namespace XNAFinalEngineExamples
     /// <summary>
     /// Lighthouse scene.
     /// </summary>
-    public class WarehouseScene : Scene
+    public class WarehouseScene : EditableScene
     {
 
         #region Variables
@@ -91,34 +90,44 @@ namespace XNAFinalEngineExamples
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 7f;
             camera.Camera.PostProcess = new PostProcess();
-            camera.Camera.PostProcess.ToneMapping.AutoExposureEnabled = false;
-            camera.Camera.PostProcess.ToneMapping.LensExposure = -1.0f;
+            camera.Camera.PostProcess.ToneMapping.AutoExposureEnabled = true;
+            camera.Camera.PostProcess.ToneMapping.LensExposure = -0.5f;
             camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
-            camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Both;
-            camera.Camera.PostProcess.MLAA.Enabled = false;
+            camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Color;
+            camera.Camera.PostProcess.MLAA.Enabled = true;
             camera.Camera.PostProcess.Bloom.Enabled = true;
-            camera.Camera.PostProcess.Bloom.Threshold = 2;
+            camera.Camera.PostProcess.Bloom.Threshold = 3f;
             camera.Camera.PostProcess.FilmGrain.Enabled = true;
-            camera.Camera.PostProcess.FilmGrain.Strength = 0.1f;
+            camera.Camera.PostProcess.FilmGrain.Strength = 0.15f;
             camera.Camera.PostProcess.AnamorphicLensFlare.Enabled = false;
             camera.Camera.AmbientLight = new AmbientLight
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
-                                                            Color = new Color(30, 30, 30),
-                                                            Intensity = 1.5f, //6
+                                                            Color = new Color(10, 10, 10),
+                                                            Intensity = 10f, //6
                                                             AmbientOcclusionStrength = 2f };
             
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
-            /*
+            
             camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
-                NumberSteps = 8, //15, // Don't change this.
-                NumberDirections = 6, // 12, // Don't change this.
-                Radius = 0.0005f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                NumberSteps = 12, //15, // Don't change this.
+                NumberDirections = 12, // 12, // Don't change this.
+                Radius = 0.001f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 1.0f,
-                Contrast = 1.3f,
+                Contrast = 1f,
                 AngleBias = 0.1f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
+                TextureSize = Size.TextureSize.HalfSize,
+            };
+            /*
+            camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
+            {
+                NumberSteps = 15, //15, // Don't change this.
+                NumberDirections = 12, // 12, // Don't change this.
+                Radius = 0.003f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                LineAttenuation = 1.0f,
+                Contrast = 1f,
                 TextureSize = Size.TextureSize.HalfSize,
             };*/
 
@@ -193,11 +202,13 @@ namespace XNAFinalEngineExamples
             #endregion
             
             #region Shadows and Lights
+
+            Shadow.DistributeShadowCalculationsBetweenFrames = true;
             
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.Color = new Color(190, 190, 150);
-            directionalLight.DirectionalLight.Intensity = 12.2f;
+            directionalLight.DirectionalLight.Intensity = 25.2f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.95f, -0.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
@@ -218,25 +229,21 @@ namespace XNAFinalEngineExamples
                 DepthBias = 0.0025f,
                 Range = 100,
             };*/
-            Shadow.DistributeShadowCalculationsBetweenFrames = true;
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.Color = new Color(50, 150, 250); // new Color(240, 235, 200);
-            pointLight.PointLight.Intensity = 2;
+            pointLight.PointLight.Intensity = 0.2f;
             pointLight.PointLight.Range = 60;
             pointLight.Transform.Position = new Vector3(4.8f, 1.5f, 10); // new Vector3(8f, -1f, 10);
             pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 512, };
 
-            //for (int i = 0; i < 50; i++)
-            {
-                pointLight2 = new GameObject3D();
-                pointLight2.AddComponent<PointLight>();
-                pointLight2.PointLight.Color = new Color(10, 10, 190);
-                pointLight2.PointLight.Intensity = 0.0f;// 0.05f;
-                pointLight2.PointLight.Range = 30;
-                pointLight2.Transform.Position = new Vector3(12f, 2, -3);
-            }
+            pointLight = new GameObject3D();
+            pointLight.AddComponent<PointLight>();
+            pointLight.PointLight.Color = new Color(50, 150, 250); // new Color(240, 235, 200);
+            pointLight.PointLight.Intensity = 0.2f;
+            pointLight.PointLight.Range = 60;
+            pointLight.Transform.Position = new Vector3(-4.8f, 1.5f, -10); // new Vector3(8f, -1f, 10);
 
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();

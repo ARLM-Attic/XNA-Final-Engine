@@ -538,9 +538,6 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                // If I set the sampler states here and no texture is set then this could produce exceptions 
-                // because another texture from another shader could have an incorrect sampler state when this shader is executed.
-
                 // Set initial parameters
                 this.viewMatrix = viewMatrix;
                 this.projectionMatrix = projectionMatrix;

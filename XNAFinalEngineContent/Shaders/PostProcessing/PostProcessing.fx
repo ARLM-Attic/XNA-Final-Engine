@@ -156,7 +156,7 @@ float4 psLuminanceMap(in float2 uv : TEXCOORD0) : COLOR0
 	luminance = max(luminance, luminanceLowThreshold);
 	luminance = min(luminance, luminanceHighThreshold);
                 
-    return float4(luminance, 1.0f, 1.0f, 1.0f);
+    return float4(luminance, 1, 1, 1);
 } // psLuminanceMap
 
 // Slowly adjusts the scene luminance based on the previous scene luminance

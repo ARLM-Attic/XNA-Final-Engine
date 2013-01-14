@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.EngineCore;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -68,11 +69,13 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         /// <param name="sceneTexture">Linear space HDR scene texture.</param>
         /// <param name="depthTexture">Depth texture.</param>
+        /// <param name="halfDepthTexture">Half resolution depth texture.</param>
         /// <param name="postProcess">Post process parameters.</param>
         /// <param name="luminanceTexture">This texture stores the previous luminance information.</param>
         /// <param name="destinationTexture">The gamma space post process texture of the linear space scene texture.</param>
-        public static void BeginAndProcess(Texture sceneTexture, Texture depthTexture, Texture halfDepthTexture, PostProcess postProcess,
-                                           ref RenderTarget luminanceTexture, RenderTarget destinationTexture, Matrix viewMatrix, Matrix projectionMatrix, float farPlane, Vector3 cameraPosition)
+        public static void BeginAndProcess(PostProcess postProcess, Texture sceneTexture, Texture depthTexture, Texture halfDepthTexture,
+                                           ref RenderTarget luminanceTexture, RenderTarget destinationTexture, 
+                                           Matrix viewMatrix, Matrix projectionMatrix, float farPlane, Vector3 cameraPosition)
         {
             if (destinationTexture == null)
                 throw new ArgumentNullException("destinationTexture");
@@ -83,16 +86,28 @@ namespace XNAFinalEngine.Graphics
             
             //try
             {
+                // Set render states
+                EngineManager.Device.BlendState = BlendState.Opaque;
+                EngineManager.Device.DepthStencilState = DepthStencilState.None;
+                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
+
+                // To avoid a potential exception. TODO: Rearrange the samplers or separete the auto exposure function to another FX file.
+                for (int i = 0; i < 16; i++)
+                {
+                    EngineManager.Device.Textures[i] = null;
+                    EngineManager.Device.SamplerStates[i] = SamplerState.PointClamp;
+                }
+
                 PostProcessingPass.depthTexture = depthTexture;
                 PostProcessingPass.postProcess = postProcess;
 
-                // Retrieve the post process shader instance.
+                // Retrieve the post process shader instance reference.
                 postProcessingShader = PostProcessingShader.Instance;
 
                 // Tone Mapping Auto Exposure.
                 if (postProcess != null && postProcess.ToneMapping.AutoExposureEnabled)
                 {
-                    // Luminance Map Generation
+                    // Luminance Map Generation. Transform the color information to just luminance. It also gives a downsample texture.
                     RenderTarget currentLuminanceTexture = postProcessingShader.LuminanceTextureGeneration(sceneTexture, postProcess);
 
                     // Luminance Adaptation

@@ -52,7 +52,11 @@ float thresholdColor;
 
 float thresholdDepth;
 
-#define MAX_SEARCH_STEPS 8
+#if defined(XBOX)
+	#define MAX_SEARCH_STEPS 4
+#else
+	#define MAX_SEARCH_STEPS 8
+#endif
 //const int maxSearchSteps = 12;
 
 //////////////////////////////////////////////
@@ -171,7 +175,7 @@ float4 EdgeDetectionDepthPS(in float2 uv : TEXCOORD0) : COLOR0
 
     float2 delta = abs(D.xx - float2(Dleft, Dtop));//, Dright, Dbottom));
     // Dividing by 10 give us results similar to the color-based detection
-    float2 edges = step(thresholdDepth.xx / 10.0, delta); // step(y, x) (x >= y) ? 1 : 0   In other words, is 1 if delta is greater than the threshold.
+    float2 edges = step(thresholdDepth.xx * D, delta); // step(y, x) (x >= y) ? 1 : 0   In other words, is 1 if delta is greater than the threshold. "* D" takes in consideration the proximity to the camera.
 	/*
     if (dot(edges, 1.0) == 0.0) // if there is no edge then discard.
 	{
@@ -202,7 +206,7 @@ float4 EdgeDetectionColorDepthPS(in float2 uv : TEXCOORD0) : COLOR0
 
     delta = abs(D.xx - float2(Dleft, Dtop));//, Dright, Dbottom));
     // Dividing by 10 give us results similar to the color-based detection
-    float2 edgesdepth = step(thresholdDepth.xx / 10.0, delta); // step(y, x) (x >= y) ? 1 : 0   In other words, is 1 if delta is greater than the threshold.
+    float2 edgesdepth = step(thresholdDepth.xx * D, delta); // step(y, x) (x >= y) ? 1 : 0   In other words, is 1 if delta is greater than the threshold. "* D" takes in consideration the proximity to the camera.
 	
     return float4(edgescolor + edgesdepth, 0, 0);
 } // EdgeDetectionDepthPS
@@ -316,9 +320,11 @@ float4 BlendingWeightCalculationPS(in float2 texcoord : TEXCOORD0) : COLOR0
     float4 weights = 0.0;
 
     float2 e = tex2D(edgeSampler, texcoord).rg;
+		
 	if (dot(e, 1.0) == 0.0) // if there is no edge then discard.
 	{		
         Discard();
+		return 1;
     }
 	
     [branch]
@@ -328,8 +334,7 @@ float4 BlendingWeightCalculationPS(in float2 texcoord : TEXCOORD0) : COLOR0
         
         // Instead of sampling between edgels, we sample at -0.25,
         // to be able to discern what value each edgel has.
-        float4 coords = mad(float4(d.x, -0.25, d.y + 1.0, -0.25),
-                            pixelSize.xyxy, texcoord.xyxy);
+        float4 coords = mad(float4(d.x, -0.25, d.y + 1.0, -0.25), pixelSize.xyxy, texcoord.xyxy);
         float e1 = tex2Dlod(edgeSampler, float4(coords.xy, 0, 0)).r;
         float e2 = tex2Dlod(edgeSampler, float4(coords.zw, 0, 0)).r;
         weights.rg = Area(abs(d), e1, e2);
@@ -340,8 +345,7 @@ float4 BlendingWeightCalculationPS(in float2 texcoord : TEXCOORD0) : COLOR0
 	{ 
         float2 d = float2(SearchYUp(texcoord), SearchYDown(texcoord));		
 		
-        float4 coords = mad(float4(-0.25, d.x, -0.25, d.y + 1.0),
-                            pixelSize.xyxy, texcoord.xyxy);
+        float4 coords = mad(float4(-0.25, d.x, -0.25, d.y + 1.0), pixelSize.xyxy, texcoord.xyxy);
         float e1 = tex2Dlod(edgeSampler, float4(coords.xy, 0, 0)).g;
         float e2 = tex2Dlod(edgeSampler, float4(coords.zw, 0, 0)).g;
         weights.ba = Area(abs(d), e1, e2);
@@ -372,7 +376,7 @@ float4 NeighborhoodBlendingPS(in float2 texcoord : TEXCOORD0) : COLOR0
         color = mad(tex2Dlod(sceneLinearSampler, float4(texcoord + float2( 0.0,  o.g), 0, 0)), a.g, color);
         color = mad(tex2Dlod(sceneLinearSampler, float4(texcoord + float2(-o.b,  0.0), 0, 0)), a.b, color);
         color = mad(tex2Dlod(sceneLinearSampler, float4(texcoord + float2( o.a,  0.0), 0, 0)), a.a, color);
-        return color / sum;
+		return color / sum;
     }
 	else
 	{	

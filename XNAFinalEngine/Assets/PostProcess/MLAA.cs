@@ -53,10 +53,10 @@ namespace XNAFinalEngine.Assets
         private bool enabled = true;
 
         // Threshold Color.
-        private float thresholdColor = 0.2f;
+        private float thresholdColor = 0.3f;
 
         // Threshold Depth.
-        private float thresholdDepth = 0.2f;
+        private float thresholdDepth = 0.03f;
 
         #endregion
 

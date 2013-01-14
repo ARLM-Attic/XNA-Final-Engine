@@ -39,7 +39,7 @@ using XNAFinalEngine.EngineCore;
 namespace XNAFinalEngine.Graphics
 {
     /// <summary>
-    /// Place the depth information into a real GPU’s Z buffer.
+    /// Place the depth information into a GPU’s Z-Buffer.
     /// </summary>
     internal class ReconstructZBufferShader : Shader
     {

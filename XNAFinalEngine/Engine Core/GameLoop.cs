@@ -1889,12 +1889,15 @@ namespace XNAFinalEngine.EngineCore
             
             #endregion
             
-            #region HDR Linear Space Pass
+            #region Material Pass
 
-            ScenePass.Begin(renderTarget.Size, currentCamera.ClearColor);
+            MaterialPass.Begin(renderTarget.Size, currentCamera.ClearColor);
 
-            //ReconstructZBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], currentCamera.FarPlane, currentCamera.ProjectionMatrix);
-            //EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
+            // Similar to Z-Pre Pass, the previously generated Z-Buffer is used to avoid the generation of invisible fragments.
+            // In XNA we lost the GPU Z-Buffer, therefore a regeneration pass is needed.
+            // It is possible that the cost of this regeneration could be higher than the performance improvement, particularly in small scenes.
+            ReconstructZBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], currentCamera.FarPlane, currentCamera.ProjectionMatrix);
+            EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
 
             #region Opaque Objects
 
@@ -2221,14 +2224,14 @@ namespace XNAFinalEngine.EngineCore
             LineManager.End();
             #endregion
 
-            sceneTexture = ScenePass.End();
+            sceneTexture = MaterialPass.End();
             RenderTarget.Release(lightTextures);
 
             #endregion
             
             #region Post Process Pass
 
-            PostProcessingPass.BeginAndProcess(sceneTexture, gbufferTextures.RenderTargets[0], gbufferHalfTextures.RenderTargets[0], currentCamera.PostProcess, ref currentCamera.LuminanceTexture, 
+            PostProcessingPass.BeginAndProcess(currentCamera.PostProcess, sceneTexture, gbufferTextures.RenderTargets[0], gbufferHalfTextures.RenderTargets[0], ref currentCamera.LuminanceTexture, 
                                                renderTarget, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, currentCamera.Position);
             
             // Render in gamma space
