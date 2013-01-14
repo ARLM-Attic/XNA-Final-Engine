@@ -10,8 +10,7 @@ Redistribution and use in source and binary forms, with or without modification,
 •	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer
     in the documentation and/or other materials provided with the distribution.
 
-•	Neither the name of the Universidad Nacional del Sur nor the names of its contributors may be used to endorse or promote products derived
-    from this software without specific prior written permission.
+•	The names of its contributors cannot be used to endorse or promote products derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
@@ -159,7 +158,6 @@ namespace XNAFinalEngine.Graphics
                     Layer.IsVisible(frustumCullingData.layerMask) && frustumCullingData.ownerActive && frustumCullingData.enabled)
                 {
                     if (fastBoundingFrustum.Intersects(ref frustumCullingData.boundingSphere))
-                    //if (boundingFrustum.Intersects(frustumCullingData.boundingSphere)) // It is not thread safe and is slow as hell.
                     {
                         modelsToRender.Add(frustumCullingData.component);
                     }

@@ -109,6 +109,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Scenes\LamborghiniMurcielagoLoader.cs" />
+    <Compile Include="Scenes\PhysicsTestScene.cs" />
     <Compile Include="Scenes\WarehouseScene.cs" />
     <Compile Include="Scenes\DudeEditableScene.cs" />
     <Compile Include="Scenes\HelloWorldScene.cs" />
@@ -123,12 +124,17 @@
     <Compile Include="Scenes\NeoForceScene\TaskEvents.cs" />
     <Compile Include="Scenes\NeoForceTestScene.cs" />
     <Compile Include="Scenes\TestScene.cs" />
+    <Compile Include="Scripts\CollisionResponseTest.cs" />
     <Compile Include="Scripts\ScriptCustomCamera.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\BEPUphysics\BEPUphysics.csproj">
+      <Project>{2A9D2227-78D7-4804-B6D1-560BB43AE911}</Project>
+      <Name>BEPUphysics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\XNAFinalEngineContent\XNAFinalEngineContent.contentproj">
       <Project>{93D209C6-BF21-42E8-A538-CE0E0D5CCDF5}</Project>
       <Name>XNAFinalEngineContent %28Content%29</Name>

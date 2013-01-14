@@ -224,6 +224,8 @@ namespace XNAFinalEngine.EngineCore
             // Initialize managers that are not related to the device.
             InputManager.Initialize();
             MusicManager.Initialize();
+            // Initialize the physics simulation for our scene
+            Physics.Initialize();
             
             // Begin run the scene.
             CurrentScene.Initialize();
@@ -283,7 +285,7 @@ namespace XNAFinalEngine.EngineCore
             #region Physics
 
             // Run the simulation
-            Physics.Scene.Update((float) gameTime.ElapsedGameTime.TotalSeconds);
+            Physics.Scene.Update(Time.GameDeltaTime);
 
             // Update physics components
             for (int i = 0; i < RigidBody.ComponentPool.Count; i++)

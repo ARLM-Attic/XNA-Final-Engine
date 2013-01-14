@@ -76,7 +76,7 @@ namespace XNAFinalEngine.Assets
         /// Get the vertices' positions of the model.
         /// </summary>        
         /// <remarks>This is a slow operation that generates garbage. We could store the vertices here, but there is no need to do this… for now.</remarks>
-        public override Vector3[] Vectices
+        public override Vector3[] Vertices
         {
             get
             {
@@ -267,6 +267,8 @@ namespace XNAFinalEngine.Assets
             this.slices = slices;
             this.radius = radius;
             RecreateResource();
+            boundingSphere = BoundingSphere.CreateFromPoints(Vertices);
+            boundingBox = BoundingBox.CreateFromPoints(Vertices);
         } // Sphere
 
         #endregion
@@ -427,6 +429,8 @@ namespace XNAFinalEngine.Assets
             this.height = height;
             this.depth = depth;
             RecreateResource();
+            boundingSphere = BoundingSphere.CreateFromPoints(Vertices);
+            boundingBox = BoundingBox.CreateFromPoints(Vertices);
         } // Box
 
         /// <summary>
@@ -625,6 +629,8 @@ namespace XNAFinalEngine.Assets
             bottomRight = new Vector3(width / 2.0f, 0, -height / 2.0f);
             
             RecreateResource();
+            boundingSphere = BoundingSphere.CreateFromPoints(Vertices);
+            boundingBox = BoundingBox.CreateFromPoints(Vertices);
         } // Plane
 
         /// <summary>
@@ -650,6 +656,8 @@ namespace XNAFinalEngine.Assets
             this.topRight = topRight;
             this.bottomRight = bottomRight;
             RecreateResource();
+            boundingSphere = BoundingSphere.CreateFromPoints(Vertices);
+            boundingBox = BoundingBox.CreateFromPoints(Vertices);
         } // Plane
 
         #endregion
@@ -785,6 +793,8 @@ namespace XNAFinalEngine.Assets
             this.length = length;
             this.slices = slices;
             RecreateResource();
+            boundingSphere = BoundingSphere.CreateFromPoints(Vertices);
+            boundingBox = BoundingBox.CreateFromPoints(Vertices);
         } // Cylinder
 
         #endregion
@@ -978,6 +988,8 @@ namespace XNAFinalEngine.Assets
             this.length = length;
             this.slices = slices;
             RecreateResource();
+            boundingSphere = BoundingSphere.CreateFromPoints(Vertices);
+            boundingBox = BoundingBox.CreateFromPoints(Vertices);
         } // Cone
 
         #endregion

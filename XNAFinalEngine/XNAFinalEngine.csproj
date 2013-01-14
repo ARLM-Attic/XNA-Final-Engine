@@ -44,10 +44,6 @@
     <XnaCompressContent>true</XnaCompressContent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BEPUphysics, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31f6a8732a21de19, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Libraries\BEPU_v1.2.0\x86\Release\BEPUphysics.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86">
       <Private>False</Private>
     </Reference>
@@ -372,6 +368,10 @@
     <Compile Include="Storage\StorageManager.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BEPUphysics\BEPUphysics.csproj">
+      <Project>{2A9D2227-78D7-4804-B6D1-560BB43AE911}</Project>
+      <Name>BEPUphysics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\XNAFinalEngineContentPipelineExtensionRuntime\XNAFinalEngineContentPipelineExtensionRuntime.csproj">
       <Project>{E3A98759-8C7F-4660-8D70-1B89C1F04235}</Project>
       <Name>XNAFinalEngineContentPipelineExtensionRuntime</Name>

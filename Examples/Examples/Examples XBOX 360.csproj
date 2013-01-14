@@ -65,13 +65,19 @@
     <Compile Include="Scenes\LamborghiniMurcielagoLoader.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Scenes\PhysicsTestScene.cs" />
     <Compile Include="Scenes\WarehouseScene.cs" />
+    <Compile Include="Scripts\CollisionResponseTest.cs" />
     <Compile Include="Scripts\ScriptCustomCamera.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\BEPUphysics\BEPUphysics XBOX 360.csproj">
+      <Project>{B71CDDD4-5A86-4C46-9403-E58157736D13}</Project>
+      <Name>BEPUphysics XBOX 360</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\XNAFinalEngineContentPipelineExtensionRuntime\XNAFinalEngineContentPipelineExtensionRuntime XBOX 360.csproj">
       <Project>{5D1093DE-88C6-4A36-9704-4B13C0D7BAB4}</Project>
       <Name>XNAFinalEngineContentPipelineExtensionRuntime XBOX 360</Name>

@@ -217,16 +217,16 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BEPUphysics\BEPUphysics XBOX 360.csproj">
+      <Project>{B71CDDD4-5A86-4C46-9403-E58157736D13}</Project>
+      <Name>BEPUphysics XBOX 360</Name>
+    </ProjectReference>
     <ProjectReference Include="..\XNAFinalEngineContentPipelineExtensionRuntime\XNAFinalEngineContentPipelineExtensionRuntime XBOX 360.csproj">
       <Project>{5D1093DE-88C6-4A36-9704-4B13C0D7BAB4}</Project>
       <Name>XNAFinalEngineContentPipelineExtensionRuntime XBOX 360</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="BEPUphysics, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31f6a8732a21de19, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Libraries\BEPU_v1.2.0\Xbox 360\Release\BEPUphysics.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Xna.Framework">
       <Private>False</Private>
     </Reference>

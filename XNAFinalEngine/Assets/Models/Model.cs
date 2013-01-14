@@ -60,7 +60,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Get the vertices' positions of the model.
         /// </summary>
-        public abstract Vector3[] Vectices { get; }
+        public abstract Vector3[] Vertices { get; }
 
         /// <summary>
         /// Bounding sphere in local space.

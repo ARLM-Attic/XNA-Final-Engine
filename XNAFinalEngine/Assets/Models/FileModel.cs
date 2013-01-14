@@ -72,7 +72,7 @@ namespace XNAFinalEngine.Assets
         /// We could store the vertices, but there is no need to do this… for now.
         /// So why waste precious memory space? And why fragment the data if I only use this method in the loading?
         /// </remarks>
-        public override Vector3[] Vectices
+        public override Vector3[] Vertices
         {
             get
             {
@@ -248,7 +248,7 @@ namespace XNAFinalEngine.Assets
                 Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<XnaModel>(Filename);
                 ContentManager = ContentManager.CurrentContentManager;
                 // Calcuate bounding volumes
-                Vector3[] vectices = Vectices;
+                Vector3[] vectices = Vertices;
                 boundingSphere = BoundingSphere.CreateFromPoints(vectices);
                 boundingBox    = BoundingBox.CreateFromPoints(vectices);
                 // Mesh Count

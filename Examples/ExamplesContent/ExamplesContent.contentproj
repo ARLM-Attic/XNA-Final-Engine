@@ -338,6 +338,10 @@
     <Folder Include="Fonts\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\BEPUphysics\BEPUphysics.csproj">
+      <Project>{2A9D2227-78D7-4804-B6D1-560BB43AE911}</Project>
+      <Name>BEPUphysics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\XNAFinalEngineContentPipelineExtension\XNAFinalEngineContentPipelineExtension.csproj">
       <Project>{D17667E3-C4A6-477E-8F3E-C6A4A9A95DE0}</Project>
       <Name>XNAFinalEngineContentPipelineExtension</Name>

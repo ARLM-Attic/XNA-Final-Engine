@@ -105,6 +105,18 @@ namespace XNAFinalEngine.Helpers
 
         private static readonly char[] digits = new[] { '9', '8', '7', '6', '5', '4', '3', '2', '1', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
+        public static StringBuilder ClearXbox(this StringBuilder stringBuilder)
+        {
+            #if XBOX 
+                if (stringBuilder.Length > 0)
+                    stringBuilder.Length = 0;
+                    //Text.Remove(0, Text.Length - 1); // Clear is not supported in XBOX.
+            #else
+                stringBuilder.Clear();
+            #endif
+            return stringBuilder;
+        }
+
         public static StringBuilder AppendWithoutGarbage(this StringBuilder stringBuilder, int number, bool insertDots = false)
         {
             if (number < 0)

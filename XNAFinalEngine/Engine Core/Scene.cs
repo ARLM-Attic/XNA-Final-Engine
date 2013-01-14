@@ -88,9 +88,6 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         internal void Initialize()
         {
-            // Initialize the physics simulation for our scene
-            Physics.Initialize();
-
             ContentManager = new ContentManager { Name = (GetType().Name + " Content Manager") };
             ContentManager.CurrentContentManager = ContentManager;
             LoadContent();
