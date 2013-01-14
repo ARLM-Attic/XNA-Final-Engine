@@ -45,7 +45,7 @@ using XNAFinalEngine.Input;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Model = XNAFinalEngine.Assets.Model;
 using RootAnimation = XNAFinalEngine.Components.RootAnimations;
-using XNAFinalEngine.PhysicSystem;
+using XNAFinalEngine.Physics;
 using RenderTargetCube = XNAFinalEngine.Assets.RenderTargetCube;
 #endregion
 
@@ -225,7 +225,7 @@ namespace XNAFinalEngine.EngineCore
             InputManager.Initialize();
             MusicManager.Initialize();
             // Initialize the physics simulation for our scene
-            Physics.Initialize();
+            PhysicsManager.Initialize();
             
             // Begin run the scene.
             CurrentScene.Initialize();
@@ -285,7 +285,7 @@ namespace XNAFinalEngine.EngineCore
             #region Physics
 
             // Run the simulation
-            Physics.Scene.Update(Time.GameDeltaTime);
+            PhysicsManager.Scene.Update(Time.GameDeltaTime);
 
             // Update physics components
             for (int i = 0; i < RigidBody.ComponentPool.Count; i++)

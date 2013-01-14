@@ -213,7 +213,7 @@
     <Compile Include="Input\InputManager.cs" />
     <Compile Include="Input\Keyboard.cs" />
     <Compile Include="Input\Mouse.cs" />
-    <Compile Include="PhysicSystem\Physics.cs" />
+    <Compile Include="Physics\PhysicsManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

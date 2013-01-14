@@ -1,5 +1,5 @@
-﻿#region License
-
+﻿
+#region License
 /*
 Copyright (c) 2008-2013, Schefer, Gustavo Martín.
 All rights reserved.
@@ -26,12 +26,14 @@ Author: Schefer, Gustavo Martín (gusschefer@hotmail.com)
 */
 #endregion
 
+#region Using directives
 using System;
 using BEPUphysics.Entities;
 using BEPUphysics.NarrowPhaseSystems.Pairs;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Helpers;
-using XNAFinalEngine.PhysicSystem;
+using XNAFinalEngine.Physics;
+#endregion
 
 namespace XNAFinalEngine.Components
 {
@@ -47,17 +49,14 @@ namespace XNAFinalEngine.Components
     ///   setting the position or rotation.     
     /// Remember that when you set the mass in a BEPU entity, you're creating a dynamic rigidbody and when no mass is set you're creating a kinematic one.
     /// </summary>
-
     public class RigidBody : Component
     {
 
         #region Variables
 
         private Entity entity;
-
-        /// <summary>
-        /// Cached contacts count information for the entity. It's used to know whether a collision start/end/stay in the current frame.
-        /// </summary>
+        
+        // Cached contacts count information for the entity. It's used to know whether a collision start/end/stay in the current frame.
         private int contactsCount;        
 
         #endregion
@@ -83,7 +82,7 @@ namespace XNAFinalEngine.Components
                 else
                     throw new InvalidOperationException("Entity already setted");
             }
-        }
+        } // Entity
 
         public bool IsDynamic
         {
@@ -94,7 +93,7 @@ namespace XNAFinalEngine.Components
                 else
                     throw new InvalidOperationException("Entity not properly setted");
             }
-        }
+        } // IsDynamic
 
         #endregion
 
@@ -121,9 +120,12 @@ namespace XNAFinalEngine.Components
         internal override void Uninitialize()
         {     
             // Remove the entity from the simulation
-            try {
-                Physics.Scene.Remove(entity);
-            } catch(ArgumentException ae) {
+            try
+            {
+                PhysicsManager.Scene.Remove(entity);
+            } 
+            catch(ArgumentException ae) 
+            {
                 // The entity was already removed
             }
             
@@ -140,7 +142,7 @@ namespace XNAFinalEngine.Components
         #region Update
 
         /// <summary>
-        /// Update RigidBody component transform in case of a dynamic rigidbody
+        /// Update RigidBody component transform in case of a dynamic rigidbody.
         /// </summary>
         internal void Update()
         {
@@ -152,6 +154,8 @@ namespace XNAFinalEngine.Components
         } // Update
 
         #endregion
+
+        #region Process Collisions
 
         /// <summary>
         /// Process the collision information of the component and fires the corresponding events if necessary.
@@ -189,6 +193,8 @@ namespace XNAFinalEngine.Components
             contactsCount = currentContactsCount;
         } // ProcessCollisions
 
+        #endregion
+
         #region Event Handlers
 
         /// <summary>
@@ -204,7 +210,6 @@ namespace XNAFinalEngine.Components
             }
         } // OnWorldMatrixChanged
 
-
         /// <summary>
         /// When the gameobject becomes inactive remove the associated entity from the simulation,
         /// and when the gameobject becomes active again add the entity to the simulation
@@ -212,9 +217,9 @@ namespace XNAFinalEngine.Components
         protected void OnActiveChanged(object sender, bool active)
         {
             if (active)
-                Physics.Scene.Add(entity);
+                PhysicsManager.Scene.Add(entity);
             else
-                Physics.Scene.Remove(entity);
+                PhysicsManager.Scene.Remove(entity);
         } // OnActiveChanged
 
         #endregion
@@ -232,4 +237,4 @@ namespace XNAFinalEngine.Components
         #endregion
 
     } // RigidBody
-} // XNAFinalEngine.Components.Physics
+} // XNAFinalEngine.Components

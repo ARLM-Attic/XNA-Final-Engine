@@ -33,7 +33,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using BEPUphysics;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Helpers;
-using XNAFinalEngine.PhysicSystem;
+using XNAFinalEngine.Physics;
 
 #endregion
 

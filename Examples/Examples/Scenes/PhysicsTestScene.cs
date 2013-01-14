@@ -35,7 +35,7 @@ using Nebula.Scripts;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
-using XNAFinalEngine.PhysicSystem;
+using XNAFinalEngine.Physics;
 using Box = BEPUphysics.Entities.Prefabs.Box;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Sphere = BEPUphysics.Entities.Prefabs.Sphere;
@@ -66,7 +66,7 @@ namespace XNAFinalEngineExamples
             #region Physics Simulation Settings
 
             // Setup gravity
-            Physics.Gravity = new Vector3(0, -9.81f, 0);
+            PhysicsManager.Gravity = new Vector3(0, -9.81f, 0);
 
             #endregion
 
@@ -126,7 +126,7 @@ namespace XNAFinalEngineExamples
             // collide with dynamic rigidbodies affecting them.
             var bepuGround = new Box(Vector3.Zero, 100, 1, 100);
             // We add the entity to the scene so as the entity can be simulated
-            Physics.Scene.Add(bepuGround);
+            PhysicsManager.Scene.Add(bepuGround);
             // Now, we create the game object and we add a rigidbody component to it.
             var floor = new GameObject3D(new XNAFinalEngine.Assets.Box(100, 1, 100), new BlinnPhong());            
             var floorRb = (RigidBody)floor.AddComponent<RigidBody>();
@@ -140,7 +140,7 @@ namespace XNAFinalEngineExamples
             // Dynamic rigidbodies are affected by gravity and respond to collisions with other rigidbodies.
             // Dynamic rigidbodies are under the control of physics so they don't have to be moved or rotated through the transform component.
             var bepuCube = new Box(new Vector3(0, 20, 2), 1, 1, 1, 1);
-            Physics.Scene.Add(bepuCube);            
+            PhysicsManager.Scene.Add(bepuCube);            
             cube = new GameObject3D(new XNAFinalEngine.Assets.Box(1, 1, 1), new BlinnPhong { DiffuseColor = new Color(1.0f, 1.0f, 1.0f) });            
             var cubeRb = (RigidBody)cube.AddComponent<RigidBody>();
             cubeRb.Entity = bepuCube;
@@ -153,7 +153,7 @@ namespace XNAFinalEngineExamples
 
             // Make an obstacle (Kinematic) //
             var bepuObstacle = new Box(new Vector3(0.5f, 1f, 0.5f), 4, 1, 1.5f);            
-            Physics.Scene.Add(bepuObstacle);
+            PhysicsManager.Scene.Add(bepuObstacle);
             obstacle = new GameObject3D(new XNAFinalEngine.Assets.Box(4, 1, 1.5f), new BlinnPhong { DiffuseColor = new Color(0.9f, 0.0f, 0.0f) });
             obstacle.Transform.Position = new Vector3(0.5f, 1f, 0.5f);
             var obstacleRb = (RigidBody) obstacle.AddComponent<RigidBody>();
@@ -166,7 +166,7 @@ namespace XNAFinalEngineExamples
 
             // Make a sphere obstacle (Dynamic) //
             var bepuSphere = new Sphere(new Vector3(-6f, 1f, -3f), 1f, 2.0f);
-            Physics.Scene.Add(bepuSphere);
+            PhysicsManager.Scene.Add(bepuSphere);
             var sphere = new GameObject3D(new XNAFinalEngine.Assets.Sphere(25, 25, 1f), new BlinnPhong { DiffuseColor = new Color(0.75f, 0.75f, 0.0f) });
             ((RigidBody) sphere.AddComponent<RigidBody>()).Entity = bepuSphere;  
 
@@ -298,7 +298,7 @@ namespace XNAFinalEngineExamples
             if (Keyboard.KeyJustPressed(Keys.LeftShift) || XNAFinalEngine.Input.GamePad.PlayerOne.BJustPressed)
             {                
                 RayCastResult raycastResult;
-                GameObject3D go = Physics.Raycast(new Ray(camera.Transform.Position, camera.Transform.Forward), 100f, out raycastResult);
+                GameObject3D go = PhysicsManager.Raycast(new Ray(camera.Transform.Position, camera.Transform.Forward), 100f, out raycastResult);
                 if (go != null)
                 {
                     // Change the color of the hitted GO                   
@@ -319,7 +319,7 @@ namespace XNAFinalEngineExamples
         private GameObject3D MakeBox(Vector3 position, float width, float height, float depth, float mass, Color color)
         {
             var cubeEntity = new Box(position, width, height, depth, mass);
-            Physics.Scene.Add(cubeEntity);
+            PhysicsManager.Scene.Add(cubeEntity);
             var go = new GameObject3D(new XNAFinalEngine.Assets.Box(width, height, depth), new BlinnPhong { DiffuseColor = color });
             var cubeRb = (RigidBody) go.AddComponent<RigidBody>();
             cubeRb.Entity = cubeEntity;

@@ -1,5 +1,5 @@
-﻿#region License
-
+﻿
+#region License
 /*
 Copyright (c) 2008-2013, Schefer, Gustavo Martín.
 All rights reserved.
@@ -26,19 +26,18 @@ Author: Schefer, Gustavo Martín (gusschefer@hotmail.com)
 */
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
+#region Using directives
 using BEPUphysics;
 using BEPUphysics.Collidables.MobileCollidables;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Helpers;
 using Space = BEPUphysics.Space;
+#endregion
 
-namespace XNAFinalEngine.PhysicSystem
+namespace XNAFinalEngine.Physics
 {
-    static public class Physics
+    public static class PhysicsManager
     {
         
         #region Properties
@@ -46,10 +45,11 @@ namespace XNAFinalEngine.PhysicSystem
         /// <summary>
         /// The gravity applied to all rigid bodies in the scene.
         /// </summary>
-        public static Vector3 Gravity {
+        public static Vector3 Gravity 
+        {
             get { return Scene.ForceUpdater.Gravity; }
             set { Scene.ForceUpdater.Gravity = value; }
-        }
+        } // Gravity
 
         /// <summary>
         /// Physic scene where the physics simulation occurs.
@@ -59,8 +59,9 @@ namespace XNAFinalEngine.PhysicSystem
 
         #endregion
 
+        #region Initialize
 
-         /// <summary>
+        /// <summary>
         /// Creates the physics scene and sets the defaults parameters.
         /// </summary>
         internal static void Initialize()
@@ -68,23 +69,27 @@ namespace XNAFinalEngine.PhysicSystem
             Scene = new Space();
 
             // Setup multithreading
-#if XBOX360
-            Scene.ThreadManager.AddThread(delegate(object information) { Thread.CurrentThread.SetProcessorAffinity(new int[] { 1 }); }, null);
-            Scene.ThreadManager.AddThread(delegate(object information) { Thread.CurrentThread.SetProcessorAffinity(new int[] { 3 }); }, null);
-            Scene.ThreadManager.AddThread(delegate(object information) { Thread.CurrentThread.SetProcessorAffinity(new int[] { 4 }); }, null);
-            Scene.ThreadManager.AddThread(delegate(object information) { Thread.CurrentThread.SetProcessorAffinity(new int[] { 5 }); }, null);
-#else
-            if (ProcessorsInformation.AvailableProcessors > 0)
-            {
-                // On windows, just throw a thread at every processor.  The thread scheduler will take care of where to put them.
-                for (int i = 0; i < ProcessorsInformation.AvailableProcessors + 1; i++)
+            #if XBOX360
+                Scene.ThreadManager.AddThread(delegate(object information) { Thread.CurrentThread.SetProcessorAffinity(new int[] { 1 }); }, null);
+                Scene.ThreadManager.AddThread(delegate(object information) { Thread.CurrentThread.SetProcessorAffinity(new int[] { 3 }); }, null);
+                Scene.ThreadManager.AddThread(delegate(object information) { Thread.CurrentThread.SetProcessorAffinity(new int[] { 4 }); }, null);
+                Scene.ThreadManager.AddThread(delegate(object information) { Thread.CurrentThread.SetProcessorAffinity(new int[] { 5 }); }, null);
+            #else
+                if (ProcessorsInformation.AvailableProcessors > 0)
                 {
-                    Scene.ThreadManager.AddThread();
+                    // On windows, just throw a thread at every processor. 
+                    // The thread scheduler will take care of where to put them.
+                    for (int i = 0; i < ProcessorsInformation.AvailableProcessors + 1; i++)
+                    {
+                        Scene.ThreadManager.AddThread();
+                    }
                 }
-            }
-#endif
+            #endif
         } // Initialize
 
+        #endregion
+
+        #region Raycast
 
         /// <summary>
         /// 
@@ -102,13 +107,12 @@ namespace XNAFinalEngine.PhysicSystem
             if (Scene.RayCast(r, distance, out result))
             {
                 var entityCollision = result.HitObject as EntityCollidable;
-                if (entityCollision != null)                                    
+                if (entityCollision != null)
                     go = (GameObject3D) entityCollision.Entity.Tag;
             }
             return go;
         } // Raycast
-
-
+        
         /// <summary>
         /// 
         /// </summary>
@@ -123,11 +127,13 @@ namespace XNAFinalEngine.PhysicSystem
             if (Scene.RayCast(ray, distance, out result))
             {
                 var entityCollision = result.HitObject as EntityCollidable;
-                if (entityCollision != null)                    
+                if (entityCollision != null)
                     go = (GameObject3D)entityCollision.Entity.Tag;
             }
             return go;
         } // Raycast
 
-    } // Physics
-} // XNAFinalEngine.PhysicSystem
+        #endregion
+
+    } // PhysicsManager
+} // XNAFinalEngine.Physics
