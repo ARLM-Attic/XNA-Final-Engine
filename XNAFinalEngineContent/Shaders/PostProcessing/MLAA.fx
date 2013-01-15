@@ -45,15 +45,12 @@
 //////////////////////////////////////////////
 
 float2 halfPixel; // -1f / sceneTexture.Width, 1f / sceneTexture.Height
-
 float2 pixelSize; // 1 / sceneTexture.Width, 1 / sceneTexture.Height
-
 float thresholdColor;
-
 float thresholdDepth;
 
 #if defined(XBOX)
-	#define MAX_SEARCH_STEPS 4
+	#define MAX_SEARCH_STEPS 6
 #else
 	#define MAX_SEARCH_STEPS 8
 #endif
@@ -173,9 +170,8 @@ float4 EdgeDetectionDepthPS(in float2 uv : TEXCOORD0) : COLOR0
     //float Dright  = tex2D(depthSampler, uv + float2(pixelSize.x, 0)).r;
     //float Dbottom = tex2D(depthSampler, uv + float2(0, pixelSize.y)).r;
 
-    float2 delta = abs(D.xx - float2(Dleft, Dtop));//, Dright, Dbottom));
-    // Dividing by 10 give us results similar to the color-based detection
-    float2 edges = step(thresholdDepth.xx * D, delta); // step(y, x) (x >= y) ? 1 : 0   In other words, is 1 if delta is greater than the threshold. "* D" takes in consideration the proximity to the camera.
+    float2 delta = abs(D.xx - float2(Dleft, Dtop));//, Dright, Dbottom));    
+    float2 edges = step(thresholdDepth.xx * D, delta); // step(y, x) (x >= y) ? 1 : 0 In other words, is 1 if delta is greater than the threshold. "* D" takes in consideration the proximity to the camera.
 	/*
     if (dot(edges, 1.0) == 0.0) // if there is no edge then discard.
 	{
@@ -204,8 +200,7 @@ float4 EdgeDetectionColorDepthPS(in float2 uv : TEXCOORD0) : COLOR0
     //float Dright  = tex2D(depthSampler, uv + float2(pixelSize.x, 0)).r;
     //float Dbottom = tex2D(depthSampler, uv + float2(0, pixelSize.y)).r;
 
-    delta = abs(D.xx - float2(Dleft, Dtop));//, Dright, Dbottom));
-    // Dividing by 10 give us results similar to the color-based detection
+    delta = abs(D.xx - float2(Dleft, Dtop));//, Dright, Dbottom));    
     float2 edgesdepth = step(thresholdDepth.xx * D, delta); // step(y, x) (x >= y) ? 1 : 0   In other words, is 1 if delta is greater than the threshold. "* D" takes in consideration the proximity to the camera.
 	
     return float4(edgescolor + edgesdepth, 0, 0);

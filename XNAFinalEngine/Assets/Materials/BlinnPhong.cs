@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -39,6 +39,12 @@ namespace XNAFinalEngine.Assets
     /// The Blinn–Phong shading model is a modification to the Phong reflection model developed by Jim Blinn 
     /// that performs the specular calculations using the half vector instead of the reflection vector.
     /// This is a cheap BRDF that performs well in the majority of the scenarios.
+    /// 
+    /// The engine implements a deferred lighting pipeline that calculates a partial BRDF in the light pre pass.
+    /// The BRDF implemented is Blinn-Phong. Oren Nayar, Cook Torrance and Ward are other good options, but no one is quicker than Blinn Phong.
+    /// It’s up to you the selection of the BRDF to implement in your game, but be aware of the parameters needed in the G-Buffer.
+    /// 
+    /// If you need a particular BRDF to apply in just a small amount of objects then you can always run the shader with the custom BRDF in forward mode.
     /// </summary>
     public class BlinnPhong : Material
     {

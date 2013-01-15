@@ -141,8 +141,6 @@
     <Compile Include="Assets\Fonts\Font.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Assets\Materials\AfterBurner.cs" />
-    <Compile Include="Assets\Materials\Atmosphere.cs" />
     <Compile Include="Assets\Materials\BlinnPhong.cs">
       <SubType>Code</SubType>
     </Compile>

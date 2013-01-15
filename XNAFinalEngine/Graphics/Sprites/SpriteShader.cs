@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,6 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.EngineCore;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
 
@@ -42,6 +41,7 @@ namespace XNAFinalEngine.Graphics
 
     /// <summary>
     /// Sprite Shader.
+    /// It test the depth using the depth buffer from the G-Buffer.
     /// </summary>    
     internal class SpriteShader : Shader
     {
@@ -56,99 +56,21 @@ namespace XNAFinalEngine.Graphics
         // Singleton reference.
         private static SpriteShader instance;
 
+        // Shader Parameters.
+        private static ShaderParameterFloat   spFarPlane;
+        private static ShaderParameterVector2 spHalfPixel;
+        private static ShaderParameterTexture spDepthTexture;
+        private static ShaderParameterMatrix  spWorldViewProj,
+                                              spProjectionInverse;
+
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// A singleton of a Constant shader.
+        /// A singleton of this shader.
         /// </summary>
         public static SpriteShader Instance { get { return instance ?? (instance = new SpriteShader()); } }
-
-        #endregion
-
-        #region Shader Parameters
-
-        /// <summary>
-        /// Effect handles for this shader.
-        /// </summary>
-        private static EffectParameter epWorldViewProj,
-                                       epDepthTexture,
-                                       epProjectionInverse,
-                                       epHalfPixel,
-                                       epFarPlane;
-
-        #region World View Projection Matrix
-
-        private static Matrix? lastUsedWorldViewProjMatrix;
-        private static void SetWorldViewProjMatrix(Matrix worldViewProjMatrix)
-        {
-            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix)
-            {
-                lastUsedWorldViewProjMatrix = worldViewProjMatrix;
-                epWorldViewProj.SetValue(worldViewProjMatrix);
-            }
-        } // WorldViewProjMatrix
-
-        #endregion
-
-        #region Projection Inverse Matrix
-
-        private static Matrix? lastUsedProjectionInverseMatrix;
-        private static void SetProjectionInverseMatrix(Matrix projectionInverseMatrix)
-        {
-            if (lastUsedProjectionInverseMatrix != projectionInverseMatrix)
-            {
-                lastUsedProjectionInverseMatrix = projectionInverseMatrix;
-                epProjectionInverse.SetValue(projectionInverseMatrix);
-            }
-        } // SetProjectionInverseMatrix
-
-        #endregion
-
-        #region Depth Texture
-
-        private static Texture2D lastUsedDepthTexture;
-        private static void SetDepthTexture(Texture depthTexture)
-        {
-            EngineManager.Device.SamplerStates[1] = SamplerState.PointClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDepthTexture != depthTexture.Resource)
-            {
-                lastUsedDepthTexture = depthTexture.Resource;
-                epDepthTexture.SetValue(depthTexture.Resource);
-            }
-        } // SetDepthTexture
-
-        #endregion
-
-        #region Half Pixel
-
-        private static Vector2? lastUsedHalfPixel;
-        private static void SetHalfPixel(Vector2 _halfPixel)
-        {
-            if (lastUsedHalfPixel != _halfPixel)
-            {
-                lastUsedHalfPixel = _halfPixel;
-                epHalfPixel.SetValue(_halfPixel);
-            }
-        } // SetHalfPixel
-
-        #endregion
-
-        #region Far Plane
-
-        private static float lastUsedFarPlane;
-        private static void SetFarPlane(float _farPlane)
-        {
-            if (lastUsedFarPlane != _farPlane)
-            {
-                lastUsedFarPlane = _farPlane;
-                epFarPlane.SetValue(_farPlane);
-            }
-        } // SetFarPlane
-
-        #endregion
 
         #endregion
 
@@ -156,6 +78,7 @@ namespace XNAFinalEngine.Graphics
 
         /// <summary>
 		/// Sprite shader.
+        /// It test the depth using the depth buffer from the G-Buffer.
 		/// </summary>
         private SpriteShader() : base("Sprites\\SpriteEffect") { }
 
@@ -173,11 +96,11 @@ namespace XNAFinalEngine.Graphics
 		{
 			try
 			{
-                epWorldViewProj  = Resource.Parameters["worldViewProj"];
-                epProjectionInverse = Resource.Parameters["projectionInverse"];
-                epFarPlane = Resource.Parameters["farPlane"];
-                epDepthTexture = Resource.Parameters["depthTexture"];
-                epHalfPixel = Resource.Parameters["halfPixel"];
+                spFarPlane = new ShaderParameterFloat("farPlane", this);
+                spWorldViewProj = new ShaderParameterMatrix("worldViewProj", this);
+                spProjectionInverse = new ShaderParameterMatrix("projectionInverse", this);
+                spDepthTexture = new ShaderParameterTexture("depthTexture", this, SamplerState.PointClamp, 1);
+                spHalfPixel = new ShaderParameterVector2("halfPixel", this);
             }
             catch
             {
@@ -217,15 +140,15 @@ namespace XNAFinalEngine.Graphics
                 // Set initial parameters
                 this.viewMatrix = viewMatrix;
                 this.projectionMatrix = projectionMatrix;
-                SetProjectionInverseMatrix(Matrix.Invert(projectionMatrix));
-                SetDepthTexture(depthTexture);
-                SetFarPlane(farPlane);
-                SetHalfPixel(new Vector2(0.5f / depthTexture.Width, 0.5f / depthTexture.Height)); // The half depth size produce flickering
+                spProjectionInverse.Value = Matrix.Invert(projectionMatrix);
+                spDepthTexture.Value = depthTexture;
+                spFarPlane.Value = farPlane;
+                spHalfPixel.Value = new Vector2(0.5f / depthTexture.Width, 0.5f / depthTexture.Height); // The half depth size produce flickering
                 Resource.CurrentTechnique = Resource.Techniques["SpriteBatchGammaSpace"];
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException("Constant Material: Unable to begin the rendering.", e);
+                throw new InvalidOperationException("Sprite Shader: Unable to begin the rendering.", e);
             }
         } // BeginGammaSpace
 
@@ -240,7 +163,7 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
+                spWorldViewProj.Value = worldMatrix * viewMatrix * projectionMatrix;
                 Resource.CurrentTechnique.Passes[0].Apply();                
             }
             catch (Exception e)

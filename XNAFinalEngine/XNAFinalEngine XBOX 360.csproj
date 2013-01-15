@@ -61,8 +61,6 @@
     <Compile Include="Assets\Cursors\Cursor.cs" />
     <Compile Include="Assets\Documents\Document.cs" />
     <Compile Include="Assets\Fonts\Font.cs" />
-    <Compile Include="Assets\Materials\AfterBurner.cs" />
-    <Compile Include="Assets\Materials\Atmosphere.cs" />
     <Compile Include="Assets\Materials\BlinnPhong.cs" />
     <Compile Include="Assets\Materials\CarPaint.cs" />
     <Compile Include="Assets\Materials\Constant.cs" />

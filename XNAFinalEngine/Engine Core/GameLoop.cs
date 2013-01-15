@@ -1896,12 +1896,19 @@ namespace XNAFinalEngine.EngineCore
             // Similar to Z-Pre Pass, the previously generated Z-Buffer is used to avoid the generation of invisible fragments.
             // In XNA we lost the GPU Z-Buffer, therefore a regeneration pass is needed.
             // It is possible that the cost of this regeneration could be higher than the performance improvement, particularly in small scenes.
-            ReconstructZBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], currentCamera.FarPlane, currentCamera.ProjectionMatrix);
-            EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
+            //ReconstructZBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], currentCamera.FarPlane, currentCamera.ProjectionMatrix);
+            //EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
 
             #region Opaque Objects
 
             #region  Sorting
+
+            /*gBufferSkinnedSimple.Clear();
+            gBufferSkinnedWithNormalMap.Clear();
+            gBufferWithParallax.Clear();
+            gbufferSimple.Clear();
+            gBufferWithNormalMap.Clear();*/
+
             
             opaqueBlinnPhong.Clear();
             opaqueBlinnPhongSkinned.Clear();
@@ -2142,6 +2149,8 @@ namespace XNAFinalEngine.EngineCore
             
             #endregion
 
+            // The 3D Heads Up Displays that needs to be calculated in linear space are processed here.
+
             #region Textures and Text
 
             if (HudText.ComponentPool3D.Count != 0 || HudTexture.ComponentPool3D.Count != 0)
@@ -2222,6 +2231,7 @@ namespace XNAFinalEngine.EngineCore
             }
 
             LineManager.End();
+
             #endregion
 
             sceneTexture = MaterialPass.End();
@@ -2307,12 +2317,10 @@ namespace XNAFinalEngine.EngineCore
 
             #region Bounding Volumes
 
-            for (int i = 0; i < ModelRenderer.ComponentPool.Count; i++)
+            for (int i = 0; i < modelsToRender.Count; i++)
             {
-                ModelRenderer modelRenderer = ModelRenderer.ComponentPool.Elements[i];
-                if (modelRenderer.CachedModel != null && 
-                    (modelRenderer.RenderNonAxisAlignedBoundingBox || modelRenderer.RenderBoundingSphere || modelRenderer.RenderAxisAlignedBoundingBox) &&
-                    modelRenderer.IsVisible)
+                ModelRenderer modelRenderer = modelsToRender[i];
+                if (modelRenderer.CachedModel != null && (modelRenderer.RenderNonAxisAlignedBoundingBox || modelRenderer.RenderBoundingSphere || modelRenderer.RenderAxisAlignedBoundingBox))
                 {
                     if (modelRenderer.RenderNonAxisAlignedBoundingBox)
                     {
@@ -2333,7 +2341,7 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
-            #region 3D Lines (Line List)
+            #region Lines
 
             for (int i = 0; i < LineRenderer.ComponentPool3D.Count; i++)
             {
@@ -2417,7 +2425,6 @@ namespace XNAFinalEngine.EngineCore
         /// </summary>
         private static void RenderHeadsUpDisplay()
         {
-            // If depth is important then a depth buffer should be generated in the back buffer.
             SpriteManager.Begin2D();
             {
 

@@ -33,7 +33,7 @@ using System;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
-using XNAFinalEngine.Editor;
+//using XNAFinalEngine.Editor;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Input;
@@ -49,7 +49,7 @@ namespace XNAFinalEngineExamples
     /// <summary>
     /// Lighthouse scene.
     /// </summary>
-    public class WarehouseScene : EditableScene
+    public class WarehouseScene : Scene
     {
 
         #region Variables
@@ -90,11 +90,11 @@ namespace XNAFinalEngineExamples
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 7f;
             camera.Camera.PostProcess = new PostProcess();
-            camera.Camera.PostProcess.ToneMapping.AutoExposureEnabled = true;
+            camera.Camera.PostProcess.ToneMapping.AutoExposureEnabled = false;
             camera.Camera.PostProcess.ToneMapping.LensExposure = -0.5f;
             camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
-            camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Color;
-            camera.Camera.PostProcess.MLAA.Enabled = true;
+            camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Depth;
+            camera.Camera.PostProcess.MLAA.Enabled = false;
             camera.Camera.PostProcess.Bloom.Enabled = true;
             camera.Camera.PostProcess.Bloom.Threshold = 3f;
             camera.Camera.PostProcess.FilmGrain.Enabled = true;
@@ -109,7 +109,7 @@ namespace XNAFinalEngineExamples
             
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
             
-            camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
+            /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 12, //15, // Don't change this.
                 NumberDirections = 12, // 12, // Don't change this.
@@ -119,7 +119,7 @@ namespace XNAFinalEngineExamples
                 AngleBias = 0.1f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
-            };
+            };*/
             /*
             camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
             {
