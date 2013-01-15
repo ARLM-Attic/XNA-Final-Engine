@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.EngineCore;
+using XNAFinalEngineContentPipelineExtensionRuntime.Animations;
 using Model = XNAFinalEngine.Assets.Model;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
@@ -44,22 +44,23 @@ namespace XNAFinalEngine.Graphics
     /// <summary>
     /// Constant Shader.
     /// </summary>
-    /// <remarks>
-    /// This works in both, forward and deferred lighting mode because a constant material does not have illumination.
-    /// However, alpha values different than 1 are only “permitted” in forward mode.
-    /// </remarks>
     internal class ConstantShader : Shader
     {
 
         #region Variables
 
-        /// <summary>
-        /// Current view and projection matrix. Used to set the shader parameters.
-        /// </summary>
-        private Matrix viewMatrix, projectionMatrix;
+        // Current view and projection matrix. Used to set the shader parameters.
+        private Matrix viewProjectionMatrix;
 
         // Singleton reference.
         private static ConstantShader instance;
+
+        // Shader Parameters.
+        private static ShaderParameterFloat spAlphaBlending;
+        private static ShaderParameterMatrix spWorldViewProjMatrix;
+        private static ShaderParameterMatrixArray spBones;
+        private static ShaderParameterColor spDiffuseColor;
+        private static ShaderParameterTexture spDiffuseTexture;
 
         #endregion
 
@@ -77,77 +78,6 @@ namespace XNAFinalEngine.Graphics
                 return instance;
             }
         } // Instance
-
-        #endregion
-
-        #region Shader Parameters
-
-        /// <summary>
-        /// Effect handles for this shader.
-        /// </summary>
-        private static EffectParameter
-                                       epWorldViewProj,
-                                       epDiffuseTexture,
-                                       epDiffuseColor,
-                                       epAlphaBlending;
-
-        #region World View Projection Matrix
-
-        private static Matrix lastUsedWorldViewProjMatrix;
-        private static void SetWorldViewProjMatrix(Matrix worldViewProjMatrix)
-        {
-            if (lastUsedWorldViewProjMatrix != worldViewProjMatrix)
-            {
-                lastUsedWorldViewProjMatrix = worldViewProjMatrix;
-                epWorldViewProj.SetValue(worldViewProjMatrix);
-            }
-        } // WorldViewProjMatrix
-
-        #endregion
-
-        #region Diffuse Texture
-        
-        private static Texture2D lastUsedDiffuseTexture;
-        private static void SetDiffuseTexture(Texture _diffuseTexture)
-        {
-            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicWrap;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedDiffuseTexture != _diffuseTexture.Resource)
-            {
-                lastUsedDiffuseTexture = _diffuseTexture.Resource;
-                epDiffuseTexture.SetValue(_diffuseTexture.Resource);
-            }
-        } // SetDiffuseTexture
-
-        #endregion
-
-        #region Diffuse Color
-
-        private static Color lastUsedDiffuseColor;
-        private static void SetDiffuseColor(Color diffuseColor)
-        {
-            if (lastUsedDiffuseColor != diffuseColor)
-            {
-                lastUsedDiffuseColor = diffuseColor;
-                epDiffuseColor.SetValue(new Vector3(diffuseColor.R / 255f, diffuseColor.G / 255f, diffuseColor.B / 255f));
-            }
-        } // SetDiffuseColor
-
-        #endregion
-
-        #region Alpha Blending
-
-        private static float lastUsedAlphaBlending;
-        private static void SetAlphaBlending(float alphaBlending)
-        {
-            if (lastUsedAlphaBlending != alphaBlending)
-            {
-                lastUsedAlphaBlending = alphaBlending;
-                epAlphaBlending.SetValue(alphaBlending);
-            }
-        } // SetAlphaBlending
-
-        #endregion
 
         #endregion
 
@@ -172,15 +102,11 @@ namespace XNAFinalEngine.Graphics
 		{
 			try
 			{
-                epDiffuseTexture = Resource.Parameters["diffuseTexture"];
-                    if (lastUsedDiffuseTexture != null && !lastUsedDiffuseTexture.IsDisposed)
-                        epDiffuseTexture.SetValue(lastUsedDiffuseTexture);
-                epDiffuseColor   = Resource.Parameters["diffuseColor"];
-                    epDiffuseColor.SetValue(new Vector3(lastUsedDiffuseColor.R / 255f, lastUsedDiffuseColor.G / 255f, lastUsedDiffuseColor.B / 255f));
-                epWorldViewProj  = Resource.Parameters["worldViewProj"];
-			        epWorldViewProj.SetValue(lastUsedWorldViewProjMatrix);
-                epAlphaBlending  = Resource.Parameters["alphaBlending"];
-                    epAlphaBlending.SetValue(lastUsedAlphaBlending);
+                spAlphaBlending = new ShaderParameterFloat("alphaBlending", this);
+                spWorldViewProjMatrix = new ShaderParameterMatrix("worldViewProj", this);
+                spDiffuseColor = new ShaderParameterColor("diffuseColor", this);
+                spDiffuseTexture = new ShaderParameterTexture("diffuseTexture", this, SamplerState.AnisotropicWrap, 0);
+                spBones = new ShaderParameterMatrixArray("Bones", this, ModelAnimationClip.MaxBones);
             }
             catch
             {
@@ -199,12 +125,8 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                // If I set the sampler states here and no texture is set then this could produce exceptions 
-                // because another texture from another shader could have an incorrect sampler state when this shader is executed.
-                
                 // Set initial parameters
-                this.viewMatrix = viewMatrix;
-                this.projectionMatrix = projectionMatrix;
+                Matrix.Multiply(ref viewMatrix, ref projectionMatrix, out viewProjectionMatrix);
             }
             catch (Exception e)
             {
@@ -217,26 +139,29 @@ namespace XNAFinalEngine.Graphics
         #region Render Model
 
         /// <summary>
-        /// Render a model.
+        /// Render a model using the simple technique.
 		/// </summary>		
-        internal void RenderModel(Matrix worldMatrix, Model model, Matrix[] boneTransform, Constant constantMaterial, int meshIndex, int meshPart)
+        internal void RenderModelSimple(ref Matrix worldMatrix, Model model, Constant material, int meshIndex, int meshPart)
         {
             try
             {
-                if (boneTransform != null)
-                    worldMatrix = boneTransform[meshIndex + 1] * worldMatrix;
-                SetWorldViewProjMatrix(worldMatrix * viewMatrix * projectionMatrix);
-                SetAlphaBlending(constantMaterial.AlphaBlending);
-                if (constantMaterial.DiffuseTexture == null)
+                Resource.CurrentTechnique = Resource.Techniques["ConstantSimple"];
+                // Matrix
+                Matrix worldViewProjection;
+                Matrix.Multiply(ref worldMatrix, ref viewProjectionMatrix, out worldViewProjection);
+                spWorldViewProjMatrix.QuickSetValue(ref worldViewProjection);
+                // Diffuse
+                if (material.DiffuseTexture == null)
                 {
-                    SetDiffuseColor(constantMaterial.DiffuseColor);
-                    Resource.CurrentTechnique = Resource.Techniques["ConstantWithoutTexture"];
+                    spDiffuseColor.Value = material.DiffuseColor;
+                    spDiffuseTexture.Value = Texture.BlackTexture;
                 }
                 else
                 {
-                    SetDiffuseTexture(constantMaterial.DiffuseTexture);
-                    Resource.CurrentTechnique = Resource.Techniques["ConstantWithTexture"];
+                    spDiffuseColor.Value = Color.Black;
+                    spDiffuseTexture.Value = material.DiffuseTexture;
                 }
+                spAlphaBlending.Value = material.AlphaBlending;
 
                 Resource.CurrentTechnique.Passes[0].Apply();
                 model.RenderMeshPart(meshIndex, meshPart);
@@ -245,7 +170,43 @@ namespace XNAFinalEngine.Graphics
             {
                 throw new InvalidOperationException("Constant Material: Unable to render model.", e);
             }
-        } // RenderModel
+        } // RenderModelSimple
+
+        /// <summary>
+        /// Render a skinned model.
+        /// </summary>		
+        internal void RenderModelSkinned(ref Matrix worldMatrix, Model model, Matrix[] boneTransform, Constant material, int meshIndex, int meshPart)
+        {
+            try
+            {
+                Resource.CurrentTechnique = Resource.Techniques["ConstantSkinned"];
+                // Skinned
+                spBones.Value = boneTransform;
+                // Matrix
+                Matrix worldViewProjection;
+                Matrix.Multiply(ref worldMatrix, ref viewProjectionMatrix, out worldViewProjection);
+                spWorldViewProjMatrix.QuickSetValue(ref worldViewProjection);
+                // Diffuse
+                if (material.DiffuseTexture == null)
+                {
+                    spDiffuseColor.Value = material.DiffuseColor;
+                    spDiffuseTexture.Value = Texture.BlackTexture;
+                }
+                else
+                {
+                    spDiffuseColor.Value = Color.Black;
+                    spDiffuseTexture.Value = material.DiffuseTexture;
+                }
+                spAlphaBlending.Value = material.AlphaBlending;
+
+                Resource.CurrentTechnique.Passes[0].Apply();
+                model.RenderMeshPart(meshIndex, meshPart);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("Constant Material: Unable to render model.", e);
+            }
+        } // RenderModelSkinned
 
 		#endregion
 

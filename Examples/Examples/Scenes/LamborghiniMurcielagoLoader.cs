@@ -111,7 +111,7 @@ namespace XNAFinalEngineExamples
                 SpecularPower = 5,
                 BasePaintColor = new Color(0.79f, 0.45f, 0),
                 SecondBasePaintColor = new Color(1f, 0.3f, 0),
-                FlakeLayerColor1 = new Color(0.35f, 0.6f, 0.5f),
+                ThirdBasePaintColor = new Color(0.35f, 0.6f, 0.5f),
                 FlakesColor = new Color(255, 100, 100),
                 ReflectionTexture = reflectionTexture,
             };

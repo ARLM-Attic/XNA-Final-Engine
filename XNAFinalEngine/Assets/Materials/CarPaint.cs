@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -58,7 +58,7 @@ namespace XNAFinalEngine.Assets
         private Color secondBasePaintColor = new Color(0.2f,  0.2f,  0.3f);
 
         // Middle color.
-        private Color flakeLayerColor1 = new Color(0.35f, 0.35f, 0.3f);
+        private Color thirdBasePaintColor = new Color(0.35f, 0.35f, 0.3f);
         
         // Flake layer color.
         private Color flakesColor = new Color(0.4f,  0.4f,  0.4f);
@@ -100,13 +100,13 @@ namespace XNAFinalEngine.Assets
         } // LightedPaintColor
 
         /// <summary>
-        /// Flake layer color.
+        /// Third Base Paint Color.
         /// </summary>
-        public Color FlakeLayerColor1
+        public Color ThirdBasePaintColor
         {
-            get { return flakeLayerColor1; }
-            set { flakeLayerColor1 = value; }
-        } // FlakeLayerColor1
+            get { return thirdBasePaintColor; }
+            set { thirdBasePaintColor = value; }
+        } // ThirdBasePaintColor
 
         #endregion
         
@@ -120,8 +120,6 @@ namespace XNAFinalEngine.Assets
             get { return flakesColor; }
             set { flakesColor = value; }
         } // FlakesColor
-
-        #endregion
         
         public float FlakesScale
         {
@@ -158,8 +156,6 @@ namespace XNAFinalEngine.Assets
             {
                 if (value >= 0 && value <= 1)
                     microflakePerturbationA = value;
-                if (normalPerturbation < microflakePerturbationA)
-                    microflakePerturbationA = normalPerturbation;
             }
         } // MicroflakePerturbationA
 
@@ -173,10 +169,10 @@ namespace XNAFinalEngine.Assets
             {
                 if (value >= -1 && value <= 1)
                     normalPerturbation = value;
-                if (normalPerturbation < microflakePerturbationA)
-                    normalPerturbation = microflakePerturbationA;
             }
         } // NormalPerturbation
+
+        #endregion
 
         #endregion
 

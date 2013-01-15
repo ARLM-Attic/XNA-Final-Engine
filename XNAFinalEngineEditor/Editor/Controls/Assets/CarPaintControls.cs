@@ -52,7 +52,7 @@ namespace XNAFinalEngine.Editor
             // Second Base Paint Color
             var sliderSecondBasePaintColor = CommonControls.SliderColor("Second Base Paint Color", groupDiffuse, asset.SecondBasePaintColor, asset, "SecondBasePaintColor");
             // Flake Layer Color 1
-            var sliderFlakeLayerColor1 = CommonControls.SliderColor("Flake Layer Color 1", groupDiffuse, asset.FlakeLayerColor1, asset, "FlakeLayerColor1"); 
+            var sliderFlakeLayerColor1 = CommonControls.SliderColor("Third Base Paint Color", groupDiffuse, asset.ThirdBasePaintColor, asset, "ThirdBasePaintColor"); 
             groupDiffuse.AdjustHeightFromChildren();
 
             #endregion

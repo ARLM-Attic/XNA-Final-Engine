@@ -6,6 +6,7 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 ************************************************************************************************************************************************/
 
+#include <..\GBuffer\GBufferReader.fxh>
 #include <..\Helpers\VertexAndFragmentDeclarations.fxh>
 #include <..\Helpers\GammaLinearSpace.fxh>
 #include <..\Helpers\RGBM.fxh>
@@ -17,6 +18,7 @@ Modified by: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 float4x4 worldViewProj : WorldViewProjection;
 float4x4 worldIT       : WorldInverseTranspose;
 float4x4 world         : World;
+float3x3 viewI         : ViewInverse;
 
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
@@ -62,8 +64,8 @@ sampler2D microflakeSampler : register(s0) = sampler_state
 	ADDRESSV = WRAP;*/
 };
 
-texture reflectionTexture : register(t4);
-samplerCUBE reflectionSampler : register(s4) = sampler_state
+texture reflectionTexture : register(t3);
+samplerCUBE reflectionSampler : register(s3) = sampler_state
 {
 	Texture = <reflectionTexture>;
 	/*MinFilter = Linear;
@@ -71,8 +73,8 @@ samplerCUBE reflectionSampler : register(s4) = sampler_state
 	MipFilter = Linear;*/
 };
 
-texture diffuseAccumulationTexture : register(t1);
-sampler2D diffuseAccumulationSampler : register(s1) = sampler_state
+texture diffuseAccumulationTexture : register(t4);
+sampler2D diffuseAccumulationSampler : register(s4) = sampler_state
 {
 	Texture = <diffuseAccumulationTexture>;
 	/*MipFilter = NONE;
@@ -117,7 +119,8 @@ VS_OUT vs_main(WithTangentVS_INPUT input)
 	output.position = mul(input.position, worldViewProj);
 	output.postProj = output.position;
 	
-    // Generate the tanget space to world space matrix. View space doesn't work in this case because the reflection vector is in world space.
+    // Generate the tanget space to world space matrix. 
+	// View space doesn't work in this case because the reflection vector is in world space.
     output.tangentToWorld[0] = mul(input.tangent,  worldIT);
     output.tangentToWorld[1] = mul(input.binormal, worldIT); // binormal = cross(input.tangent, input.normal)
     output.tangentToWorld[2] = mul(input.normal,   worldIT);
@@ -148,12 +151,11 @@ float4 ps_main(in float4 positionProj : TEXCOORD0, float2 sparkleUv : TEXCOORD1,
 	float2 lightMapUv = PostProjectToScreen(positionProj) + halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
 	
 	// Diffuse contribution + specular contribution.
-	float3 diffuseAccumulation = tex2D(diffuseAccumulationSampler, lightMapUv);
+	float3 diffuseAccumulation  = tex2D(diffuseAccumulationSampler, lightMapUv);
 	float3 specularAccumulation = tex2D(specularAccumulationSampler, lightMapUv);
 			
-	// Fetch from the incoming normal map. Scale and bias fetched normal to move into [-1.0, 1.0] range:
-    //float3 normal = 2 * tex2D(normalMap, uv) - 1.0;
-	float3 normal = float3(0, 0, 1); // To me: It is not float3(0, 1, 0). In tangent space normal textures the default value in textures is (0.5, 0.5, 1). 2 * this - 1 is... 0,0,1 Ok?
+	float3 normalCompressed = tex2Dlod(normalSampler, float4(lightMapUv, 0, 0)).xyz;
+	float3 normalWS = mul(DecompressNormal(normalCompressed.xyz), viewI);
 		
 	// Microflakes normal map is a high frequency normalized
     // vector noise map which is repeated across all surface. 
@@ -161,26 +163,19 @@ float4 ps_main(in float4 positionProj : TEXCOORD0, float2 sparkleUv : TEXCOORD1,
     // compute perturbed normal for the surface to simulate
     // appearance of microflakes suspected in the coat of paint.
 	// Don't forget to bias and scale to shift color into [-1.0, 1.0] range:
-    float fleckNoiseFrequency = 2;
-	float3 flakesNormal0 = tex2D(microflakeSampler, sparkleUv);
-	float3 flakesNormal1 = tex2D(microflakeSampler, sparkleUv * fleckNoiseFrequency);
-	float3 flakesNormal2 = tex2D(microflakeSampler, sparkleUv * fleckNoiseFrequency * fleckNoiseFrequency);
-	float3 flakesNormal3 = tex2D(microflakeSampler, sparkleUv * fleckNoiseFrequency * fleckNoiseFrequency * fleckNoiseFrequency);
-	float3 flakesNormal = normalize(flakesNormal2 + flakesNormal1 + flakesNormal3 + flakesNormal0) * 2.0f - 1.0f;
+	float3 flakesNormal = tex2D(microflakeSampler, sparkleUv) * 2.0f - 1.0f;
 
 	// This shader simulates two layers of microflakes suspended in 
     // the coat of paint. To compute the surface normal for the first layer,
     // the following formula is used:
-    //   Np1 = ( a * Np + b * N ) /  || a * Np + b * N || where a << b    
-    float3 Np1 = normalize(microflakePerturbationA * flakesNormal + normalPerturbation * normal);
+    //   Np1 = ( a * Np + b * N ) /  || a * Np + b * N || where a << b        
+	float3 Np1World = normalize(mul(microflakePerturbationA * flakesNormal, tangentToWorld) + normalPerturbation * normalWS);
 
     // To compute the surface normal for the second layer of microflakes, which
     // is shifted with respect to the first layer of microflakes, we use this formula:
-    //    Np2 = ( c * Np + d * N ) / || c * Np + d * N || where c == d
-    float3 Np2 = normalize(flakesNormal + normal);
+    //    Np2 = ( c * Np + d * N ) / || c * Np + d * N || where c == d    
+	float3 Np2World = normalize(microflakePerturbation * (mul(flakesNormal, tangentToWorld) + normalWS));
 	
-	float3 normalWorld = normalize(mul(normal, tangentToWorld));
-
 	// The view vector (which is currently in world space) needs to be normalized.
     // This vector is normalized in the pixel shader to ensure higher precision of
     // the resultinv view vector. For this highly detailed visual effect normalizing
@@ -188,16 +183,8 @@ float4 ps_main(in float4 positionProj : TEXCOORD0, float2 sparkleUv : TEXCOORD1,
     // and produces artifacts.
     view =  normalize(view);
 	
-	// Compute reflection vector resulted from the clear coat of paint on the metallic surface:
-    float  NdotV     = saturate(dot(normalWorld, view));
-    float3 reflectionUv = reflect(view, normalWorld);
-
-    // Here we just use a constant gloss value to bias reading from the environment
-    // map, however, in the real demo we use a gloss map which specifies which 
-    // regions will have reflection slightly blurred.
-    //float envBias = 0;
-    // Sample environment map using this reflection vector:
-    //float3 reflection = texCUBEbias(reflectionSampler, float4(reflectionUv, envBias)).rgb;
+	// Compute reflection vector resulted from the clear coat of paint on the metallic surface:    
+    float3 reflectionUv = reflect(view, normalWS);
 
 	float3 reflection;
 	[branch]
@@ -211,29 +198,26 @@ float4 ps_main(in float4 positionProj : TEXCOORD0, float2 sparkleUv : TEXCOORD1,
 
     // Compute modified Fresnel term for reflections from the first layer of
     // microflakes. First transform perturbed surface normal for that layer into 
-    // world space and then compute dot product of that normal with the view vector:
-    float3 Np1World = normalize(mul(Np1, tangentToWorld));
+    // world space and then compute dot product of that normal with the view vector:    
     float  fresnel1 = saturate(dot(Np1World, view));
 
     // Compute modified Fresnel term for reflections from the second layer of 
     // microflakes. Again, transform perturbed surface normal for that layer into 
-    // world space and then compute dot product of that normal with the view vector:
-    float3 Np2World = normalize(mul(Np2, tangentToWorld));
+    // world space and then compute dot product of that normal with the view vector:    
     float  fresnel2 = saturate(dot(Np2World, view));
 
     // Compute final paint color: combines all layers of paint as well as two layersof microflakes
-
-    float  fresnel1Sq = fresnel1 * fresnel1;
-
+	float  fresnel1Sq = fresnel1 * fresnel1;
 	float3 flakes =  pow(fresnel2, flakesExponent) * flakeLayerColor;	
-   
     float3 paintColor = fresnel1 * GammaToLinear(basePaintColor1) + fresnel1Sq * GammaToLinear(basePaintColor2) +
-	                    fresnel1Sq * fresnel1Sq * GammaToLinear(basePaintColor3) + flakes;
+	                    fresnel1Sq * fresnel1Sq * GammaToLinear(basePaintColor3) +
+						flakes;
 
     // View depend reflections are more realistic.
+	float  NdotV = saturate(dot(normalWS, view));
     float  envContribution = 1.0 - 0.5 * NdotV;
-	          
-    return float4(reflection * /*pow(envContribution, 1) */ specularAccumulation.rgb + paintColor * diffuseAccumulation.rgb, 1);
+				          
+    return float4(reflection * envContribution * specularAccumulation.rgb + paintColor * diffuseAccumulation.rgb, 1);
 }
 
 //////////////////////////////////////////////

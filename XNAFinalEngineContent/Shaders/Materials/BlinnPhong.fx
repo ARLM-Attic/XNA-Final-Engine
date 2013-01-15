@@ -1,5 +1,5 @@
 /***********************************************************************************************************************************************
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -22,6 +22,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 ************************************************************************************************************************************************/
 
+#include <..\GBuffer\GBufferReader.fxh>
 #include <..\Helpers\VertexAndFragmentDeclarations.fxh>
 #include <..\Helpers\GammaLinearSpace.fxh>
 #include <..\Helpers\RGBM.fxh>
@@ -35,6 +36,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 float4x4 world         : World;
 float4x4 worldIT       : WorldInverseTranspose;
 float4x4 worldViewProj : WorldViewProjection;
+float3x3 viewI         : ViewInverse;
 
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
@@ -44,14 +46,7 @@ float2 halfPixel;
 float3 diffuseColor;
 float  specularIntensity;
 float3 cameraPosition;
-
-//////////////////////////////////////////////
-///////////////// Options ////////////////////
-//////////////////////////////////////////////
-
-bool diffuseTextured;
-bool specularTextured;
-bool reflectionTextured;
+bool   reflectionTextured;
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
@@ -68,8 +63,30 @@ sampler2D diffuseSampler : register(s0) = sampler_state
 	AddressV = WRAP;*/
 };
 
-texture diffuseAccumulationTexture : register(t1);
-sampler2D diffuseAccumulationSampler : register(s1) = sampler_state
+texture specularTexture : register(t2);
+sampler2D specularSampler : register(s2) = sampler_state
+{
+	Texture = <specularTexture>;
+	/*ADDRESSU = WRAP;
+	ADDRESSV = WRAP;
+	MinFilter = ANISOTROPIC;
+	MagFilter = ANISOTROPIC;
+	MipFilter = LINEAR;*/
+};
+
+texture reflectionTexture : register(t3);
+samplerCUBE reflectionSampler : register(s3) = sampler_state
+{
+	Texture = <reflectionTexture>;
+	/*MinFilter = Linear;
+	MagFilter = Linear;
+	MipFilter = Linear;
+	AddressU = CLAMP;
+	AddressV = CLAMP;*/
+};
+
+texture diffuseAccumulationTexture : register(t4);
+sampler2D diffuseAccumulationSampler : register(s4) = sampler_state
 {
 	Texture = <diffuseAccumulationTexture>;
 	/*MipFilter = NONE;
@@ -90,39 +107,6 @@ sampler2D specularAccumulationSampler : register(s5) = sampler_state
 	AddressV = CLAMP;*/
 };
 
-texture specularTexture : register(t2);
-sampler2D specularSampler : register(s2) = sampler_state
-{
-	Texture = <specularTexture>;
-	/*ADDRESSU = WRAP;
-	ADDRESSV = WRAP;
-	MinFilter = ANISOTROPIC;
-	MagFilter = ANISOTROPIC;
-	MipFilter = LINEAR;*/
-};
-
-texture normalTexture : register(t3);
-sampler2D normalSampler : register(s3) = sampler_state
-{
-	Texture = <normalTexture>;
-    /*ADDRESSU = WRAP;
-	ADDRESSV = WRAP;
-	MAGFILTER = ANISOTROPIC; //LINEAR;
-	MINFILTER = ANISOTROPIC; //LINEAR;
-	MIPFILTER = LINEAR;*/
-};
-
-texture reflectionTexture : register(t4);
-samplerCUBE reflectionSampler : register(s4) = sampler_state
-{
-	Texture = <reflectionTexture>;
-	/*MinFilter = Linear;
-	MagFilter = Linear;
-	MipFilter = Linear;
-	AddressU = CLAMP;
-	AddressV = CLAMP;*/
-};
-
 //////////////////////////////////////////////
 ////////////// Data Structs //////////////////
 //////////////////////////////////////////////
@@ -132,7 +116,6 @@ struct VS_OUT
 	float4 position : POSITION;
 	float2 uv		: TEXCOORD0;
 	float4 postProj : TEXCOORD1;
-	float3 normalWS : TEXCOORD2;
 	float3 viewWS   : TEXCOORD3;
 };
 
@@ -155,8 +138,7 @@ VS_OUT vs_main(in float4 position : POSITION, in float3 normal : NORMAL, in floa
 	VS_OUT output = (VS_OUT)0;
 
 	output.position = mul(position, worldViewProj);
-	output.postProj = output.position;	
-	output.normalWS = mul(normal, worldIT);
+	output.postProj = output.position;
 	output.viewWS   = normalize(cameraPosition - mul(position, world));
 	output.uv = uv;
 	
@@ -169,7 +151,7 @@ VS_OUTTangent vs_mainWithTangent(WithTangentVS_INPUT input)
 
 	output.position = mul(input.position, worldViewProj);
 	output.postProj = output.position;
-	output.uv = input.uv;	
+	output.uv = input.uv;
 		   
 	// Generate the tanget space to view space matrix
 	output.tangentToWorld[0] = mul(input.tangent,  worldIT);
@@ -198,17 +180,16 @@ VS_OUTTangent vs_mainWithTangent(WithTangentVS_INPUT input)
 } // vs_mainWithTangent
 
 VS_OUT vs_Skinned(in float4 position : POSITION,
-	                      in float3 normal   : NORMAL,
-						  in float2 uv       : TEXCOORD0,
-						  in int4 indices    : BLENDINDICES0,
-						  in int4 weights  : BLENDWEIGHT0)
+	              in float3 normal   : NORMAL,
+				  in float2 uv       : TEXCOORD0,
+				  in int4 indices    : BLENDINDICES0,
+				  in int4 weights    : BLENDWEIGHT0)
 {
 	VS_OUT output = (VS_OUT)0;
 
-	SkinTransform(position, normal, indices, weights, 4);
+	SkinTransform(position, indices, weights, 4);
 	output.position = mul(position, worldViewProj);
-	output.postProj = output.position;	
-	output.normalWS = mul(normal, worldIT);
+	output.postProj = output.position;		
 	output.viewWS   = normalize(cameraPosition - mul(position, world));
 	output.uv = uv;
 	
@@ -235,37 +216,24 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float4 positionProj : TEXCOORD1, in 
 	float3 diffuseAccumulation = tex2D(diffuseAccumulationSampler, lightMapUv);
 	float3 specularAccumulation = tex2D(specularAccumulationSampler, lightMapUv);
 
-	viewWS = normalize(viewWS);
-	normalWS = normalize(normalWS);
+	viewWS = normalize(viewWS);	
 	
 	// Final Color Calculations //
 	float3 materialColor;
 	float3 specular;
 	// Albedo
-	[branch]
-	if (diffuseTextured)
-	{
-    	materialColor = tex2D(diffuseSampler, uv).rgb;
-	}
-	else
-	{
-		materialColor = diffuseColor;
-	}
+	materialColor = tex2D(diffuseSampler, uv).rgb + diffuseColor; // Faster than if and a branch.
 	// Specular
-	[branch]
-	if (specularTextured)
-	{
-    	specular = tex2D(specularSampler, uv).rgb * specularIntensity;
-	}
-	else
-	{
-		specular = specularIntensity;
-	}
+	specular = tex2D(specularSampler, uv).rgb * specularIntensity; // Faster than if and a branch.
 	// Reflection
+	// This in the other hand is a lot more complex and therefore a branch is needed.
 	[branch]
 	if (reflectionTextured)
-	{
-		float3 reflectionDir = normalize(reflect(viewWS, normalWS));	
+	{		
+	    float3 normalCompressed = tex2Dlod(normalSampler, float4(lightMapUv, 0, 0)).xyz;
+	    float3 normalWS = mul(DecompressNormal(normalCompressed.xyz), viewI);
+
+		float3 reflectionDir = normalize(reflect(viewWS, normalWS));
 		[branch]
 		if (isRGBM)
 			specular *= RgbmLinearToFloatLinear(GammaToLinear(texCUBE(reflectionSampler, reflectionDir).rgba));
@@ -292,27 +260,12 @@ float4 ps_mainWithParrallax(VS_OUTTangent input) : COLOR
 	// Final Color Calculations //
 	float3 materialColor;
 	float3 specular;
-	// Albedo
-	[branch]
-	if (diffuseTextured)
-	{
-    	materialColor = tex2D(diffuseSampler, uv).rgb;
-	}
-	else
-	{
-		materialColor = diffuseColor;
-	}
+	// Albedo	
+	materialColor = tex2D(diffuseSampler, uv).rgb + diffuseColor; // Faster than if and a branch.
 	// Specular
-	[branch]
-	if (specularTextured)
-	{
-    	specular = tex2D(specularSampler, uv).rgb * specularIntensity;
-	}
-	else
-	{
-		specular = specularIntensity;
-	}		
+	specular = tex2D(specularSampler, uv).rgb * specularIntensity; // Faster than if and a branch.
 	// Reflection
+	// This in the other hand is a lot more complex and therefore a branch is needed.
 	[branch]
 	if (reflectionTextured)
 	{	

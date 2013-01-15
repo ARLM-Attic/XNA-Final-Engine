@@ -1,5 +1,5 @@
 /***********************************************************************************************************************************************
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #include <..\Helpers\VertexAndFragmentDeclarations.fxh>
 #include <..\Helpers\GammaLinearSpace.fxh>
+#include <..\Helpers\SkinningCommon.fxh>
 
 //////////////////////////////////////////////
 //////////////// Matrices ////////////////////
@@ -67,7 +68,7 @@ struct vertexOutput
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
-vertexOutput VSConstant(SimpleVS_INPUT input)
+vertexOutput VSConstantSimple(SimpleVS_INPUT input)
 {	
     vertexOutput output;
     output.position = mul(input.position, worldViewProj);	
@@ -75,38 +76,46 @@ vertexOutput VSConstant(SimpleVS_INPUT input)
     return output;
 } // VSConstant
 
+vertexOutput VSConstantSkinned(in float4 position : POSITION,
+							   in float3 normal   : NORMAL,
+						  	   in float2 uv       : TEXCOORD0,
+						 	   in int4 indices    : BLENDINDICES0,
+							   in int4 weights    : BLENDWEIGHT0)
+{	
+	vertexOutput output;
+	SkinTransform(position, indices, weights, 4);
+	output.position = mul(position, worldViewProj);	
+	output.uv = uv;	
+	return output;
+} // VSConstant
+
 //////////////////////////////////////////////
 /////////////// Pixel Shader /////////////////
 //////////////////////////////////////////////
 
-float4 PSConstantWithoutTexture() : COLOR
+float4 PSConstant(vertexOutput input) : COLOR
 {
-    return float4(GammaToLinear(diffuseColor), alphaBlending);
-}
-
-float4 PSConstantWithTexture(vertexOutput input) : COLOR
-{
-    return float4(GammaToLinear(tex2D(diffuseSampler, input.uv).rgb), alphaBlending);
+    return float4(GammaToLinear(tex2D(diffuseSampler, input.uv).rgb + diffuseColor), alphaBlending);
 }
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-technique ConstantWithoutTexture
+technique ConstantSimple
 {
 	pass P0
 	{
-		VertexShader = compile vs_3_0 VSConstant();
-		PixelShader = compile ps_3_0 PSConstantWithoutTexture();
+		VertexShader = compile vs_3_0 VSConstantSimple();
+		PixelShader  = compile ps_3_0 PSConstant();
 	}
 }
 
-technique ConstantWithTexture
+technique ConstantSkinned
 {
 	pass P0
 	{
-		VertexShader = compile vs_3_0 VSConstant();
-		PixelShader = compile ps_3_0 PSConstantWithTexture();
+		VertexShader = compile vs_3_0 VSConstantSkinned();
+		PixelShader  = compile ps_3_0 PSConstant();
 	}
 }

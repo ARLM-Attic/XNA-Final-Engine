@@ -187,7 +187,7 @@ namespace XNAFinalEngineExamples
                 SpecularPower = 2,
                 BasePaintColor = new Color(180, 180, 180),
                 SecondBasePaintColor = new Color(220, 220, 220),
-                FlakeLayerColor1 = new Color(170, 170, 170),
+                ThirdBasePaintColor = new Color(170, 170, 170),
                 FlakesColor = new Color(100, 100, 100),
                 //ReflectionTexture = new TextureCube("Showroom", false),
                 ReflectionTexture = new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, },

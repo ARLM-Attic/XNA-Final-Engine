@@ -33,7 +33,9 @@ using System;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
-//using XNAFinalEngine.Editor;
+#if !Xbox
+    using XNAFinalEngine.Editor;
+#endif
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
 using XNAFinalEngine.Input;
@@ -49,7 +51,7 @@ namespace XNAFinalEngineExamples
     /// <summary>
     /// Lighthouse scene.
     /// </summary>
-    public class WarehouseScene : Scene
+    public class WarehouseScene : EditableScene
     {
 
         #region Variables
@@ -90,10 +92,10 @@ namespace XNAFinalEngineExamples
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 7f;
             camera.Camera.PostProcess = new PostProcess();
-            camera.Camera.PostProcess.ToneMapping.AutoExposureEnabled = false;
+            camera.Camera.PostProcess.ToneMapping.AutoExposureEnabled = true;
             camera.Camera.PostProcess.ToneMapping.LensExposure = -0.5f;
             camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
-            camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Depth;
+            camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Color;
             camera.Camera.PostProcess.MLAA.Enabled = false;
             camera.Camera.PostProcess.Bloom.Enabled = true;
             camera.Camera.PostProcess.Bloom.Threshold = 3f;
