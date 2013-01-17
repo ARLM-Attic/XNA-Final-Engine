@@ -235,9 +235,12 @@ float4 SoftParticlePixelShader(VertexShaderOutput input) : COLOR0
 	float depth = tex2D(depthSampler, uv).r;	
 
 	float depthDiff = depth - input.particleDepth;
+
+	[branch]
     if(depthDiff <= 0)
 	{
         Discard();
+		return float4(0, 0, 0, 0);
 	}
 
     float depthFade = saturate((fadeDistance * depthDiff) / (1 - input.particleDepth)); // I include the particle’s distance to the camera into the equation.

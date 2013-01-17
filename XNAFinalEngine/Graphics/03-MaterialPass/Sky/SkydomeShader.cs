@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,6 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
-using XNAFinalEngine.EngineCore;
 using Model = XNAFinalEngine.Assets.Model;
 using Texture = XNAFinalEngine.Assets.Texture;
 #endregion
@@ -58,6 +57,10 @@ namespace XNAFinalEngine.Graphics
 
         private static Texture skyTextureNight, skyTextureSunset, skyTextureDay;
 
+        private static ShaderParameterMatrix spViewProjectionMatrix, spWorldMatrix, spViewInverseMatrix;
+        private static ShaderParameterVector3 spLightDirection;
+        private static ShaderParameterTexture spTexture, spSkyNightTexture, spSkySunsetTexture, spSkyDayTexture;
+
         #endregion
 
         #region Properties
@@ -77,45 +80,6 @@ namespace XNAFinalEngine.Graphics
 
         #endregion
 
-        #region Shader Parameters
-        /// <summary>
-        /// Effect handles
-        /// </summary>
-        private static  EffectParameter epViewProjection,
-                                        epTexture;
-
-        #region View Projection Matrix
-
-        private static Matrix lastUsedViewProjectionMatrix;
-        private static void SetViewProjectionMatrix(Matrix viewProjectionMatrix)
-        {
-            if (lastUsedViewProjectionMatrix != viewProjectionMatrix)
-            {
-                lastUsedViewProjectionMatrix = viewProjectionMatrix;
-                epViewProjection.SetValue(viewProjectionMatrix);
-            }
-        } // SetViewProjectionMatrix
-
-        #endregion
-        
-        #region Texture
-
-        private static Texture2D lastUsedTexture;
-        private static void SetTexture(Texture texture)
-        {
-            EngineManager.Device.SamplerStates[0] = SamplerState.AnisotropicClamp;
-            // It’s not enough to compare the assets, the resources has to be different because the resources could be regenerated when a device is lost.
-            if (lastUsedTexture != texture.Resource)
-            {
-                lastUsedTexture = texture.Resource;
-                epTexture.SetValue(texture.Resource);
-            }
-        } // SetTexture
-
-        #endregion
-
-        #endregion
-
         #region Constructor
 
         /// <summary>
@@ -126,12 +90,9 @@ namespace XNAFinalEngine.Graphics
             skydomeModel = new FileModel("Skydome");
             ContentManager userContentManager = ContentManager.CurrentContentManager;
             ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
-            skyTextureNight = new Texture("Shaders\\SkyNight");
+            skyTextureNight  = new Texture("Shaders\\SkyNight");
             skyTextureSunset = new Texture("Shaders\\SkySunset");
-            skyTextureDay = new Texture("Shaders\\SkyDay");
-            Resource.Parameters["SkyTextureNight"].SetValue(skyTextureNight.Resource);
-            Resource.Parameters["SkyTextureSunset"].SetValue(skyTextureSunset.Resource);
-            Resource.Parameters["SkyTextureDay"].SetValue(skyTextureDay.Resource);  
+            skyTextureDay    = new Texture("Shaders\\SkyDay");
             ContentManager.CurrentContentManager = userContentManager;
         } // SkyboxShader
 
@@ -149,17 +110,14 @@ namespace XNAFinalEngine.Graphics
 		{
 			try
 			{
-                epViewProjection = Resource.Parameters["ViewITProj"];
-                    epViewProjection.SetValue(lastUsedViewProjectionMatrix);
-                epTexture = Resource.Parameters["diffuseTexture"];
-                    if (lastUsedTexture != null && !lastUsedTexture.IsDisposed)
-                        epTexture.SetValue(lastUsedTexture);
-                if (skyTextureNight != null)
-                {
-                    Resource.Parameters["SkyTextureNight"].SetValue(skyTextureNight.Resource);
-                    Resource.Parameters["SkyTextureSunset"].SetValue(skyTextureSunset.Resource);
-                    Resource.Parameters["SkyTextureDay"].SetValue(skyTextureDay.Resource);
-                }
+                spViewProjectionMatrix = new ShaderParameterMatrix("ViewITProj", this);
+                spWorldMatrix = new ShaderParameterMatrix("World", this);
+                spViewInverseMatrix = new ShaderParameterMatrix("ViewInv", this);
+                spLightDirection = new ShaderParameterVector3("LightDirection", this);
+                spTexture = new ShaderParameterTexture("diffuseTexture", this, SamplerState.AnisotropicClamp, 0);
+                spSkyNightTexture = new ShaderParameterTexture("SkyTextureNight", this, SamplerState.AnisotropicClamp, 5);
+                spSkySunsetTexture = new ShaderParameterTexture("SkyTextureSunset", this, SamplerState.AnisotropicClamp, 6);
+                spSkyDayTexture = new ShaderParameterTexture("SkyTextureDay", this, SamplerState.AnisotropicClamp, 7);
             }
             catch
             {
@@ -171,33 +129,22 @@ namespace XNAFinalEngine.Graphics
 
         #region Render
 
-        private float angle = 1;//3.1416f / 2;
-
         /// <summary>
         /// Render the sky.
 		/// </summary>		
-        internal void Render(Matrix viewMatrix, Matrix projectionMatrix, float farPlane, Skydome skydome)
+        internal void Render(Matrix viewMatrix, Matrix projectionMatrix, float farPlane, Vector3 sunLightDirection, Skydome skydome)
         {
             try
             {
-                // Set Render States.
-                EngineManager.Device.BlendState = BlendState.NonPremultiplied;
-                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
-                // If I set the sampler states here and no texture is set then this could produce exceptions 
-                // because another texture from another shader could have an incorrect sampler state when this shader is executed.
-                EngineManager.Device.SamplerStates[5] = SamplerState.AnisotropicClamp;
-                EngineManager.Device.SamplerStates[6] = SamplerState.AnisotropicClamp;
-                EngineManager.Device.SamplerStates[7] = SamplerState.AnisotropicClamp;
-
                 Matrix worldMatrix = Matrix.CreateScale(1f);
-                SetViewProjectionMatrix(worldMatrix * Matrix.Transpose(Matrix.Invert(viewMatrix)) * projectionMatrix); // I remove the translation and scale of the view matrix.
-                SetTexture(skydome.Texture);
-
-                Resource.Parameters["World"].SetValue(worldMatrix);
-                Resource.Parameters["ViewInv"].SetValue(Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix))));
-                angle += 0.001f;
-                Resource.Parameters["LightDirection"].SetValue(new Vector3(0, (float)Math.Cos(angle), (float)Math.Sin(angle)));
+                spViewProjectionMatrix.Value = worldMatrix * Matrix.Transpose(Matrix.Invert(viewMatrix)) * projectionMatrix; // I remove the translation and scale of the view matrix.
+                spTexture.Value = skydome.Texture;
+                spWorldMatrix.Value = worldMatrix;
+                spViewInverseMatrix.Value = Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix)));
+                spLightDirection.Value = sunLightDirection;
+                spSkyDayTexture.Value = skyTextureDay;
+                spSkyNightTexture.Value = skyTextureNight;
+                spSkySunsetTexture.Value = skyTextureSunset;
                 
                 Resource.CurrentTechnique.Passes[0].Apply();
                 skydomeModel.Render();

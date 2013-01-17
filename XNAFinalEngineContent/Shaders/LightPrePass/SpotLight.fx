@@ -175,7 +175,7 @@ PixelShader_OUTPUT ps_main(uniform bool hasShadows, uniform bool hasLightMask, V
 	
 	// Cone attenuation
 	float DL          = dot(-lightDirection, normalize(L));
-	float2 cosAngles  = cos(float2(lightOuterAngle, lightInnerAngle) * 0.5f);     
+	float2 cosAngles  = cos(float2(lightOuterAngle, lightInnerAngle) * 0.5f);
     DL               *= smoothstep(cosAngles[0], cosAngles[1], DL);
 			
     // Compute diffuse light
@@ -197,7 +197,7 @@ PixelShader_OUTPUT ps_main(uniform bool hasShadows, uniform bool hasLightMask, V
 	// Compute specular light
     float specular = pow(saturate(dot(N, H)), DecompressSpecularPower(normalCompressed.w));
 
-		// Fill the light buffer:
+	// Fill the light buffer:
 	// R: Color.r * N.L // The color need to be in linear space and right now it's in gamma.
 	// G: Color.g * N.L
 	// B: Color.b * N.L

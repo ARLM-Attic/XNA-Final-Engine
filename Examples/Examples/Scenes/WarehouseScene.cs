@@ -33,7 +33,7 @@ using System;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
-#if !Xbox
+#if !XBOX
     using XNAFinalEngine.Editor;
 #endif
 using XNAFinalEngine.EngineCore;
@@ -51,7 +51,7 @@ namespace XNAFinalEngineExamples
     /// <summary>
     /// Lighthouse scene.
     /// </summary>
-    public class WarehouseScene : EditableScene
+    public class WarehouseScene : Scene
     {
 
         #region Variables
@@ -106,10 +106,11 @@ namespace XNAFinalEngineExamples
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
                                                             Color = new Color(10, 10, 10),
-                                                            Intensity = 10f, //6
+                                                            Intensity = 6f,
                                                             AmbientOcclusionStrength = 2f };
             
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
+            //camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, } };
             
             /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
@@ -210,7 +211,7 @@ namespace XNAFinalEngineExamples
             directionalLight = new GameObject3D();
             directionalLight.AddComponent<DirectionalLight>();
             directionalLight.DirectionalLight.Color = new Color(190, 190, 150);
-            directionalLight.DirectionalLight.Intensity = 25.2f;
+            directionalLight.DirectionalLight.Intensity = 15.2f;
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.95f, -0.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
@@ -249,18 +250,18 @@ namespace XNAFinalEngineExamples
 
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
-            spotLight.SpotLight.Color = Color.Green;
-            spotLight.SpotLight.Intensity = 5f;
+            spotLight.SpotLight.Color = new Color(0, 250, 0);
+            spotLight.SpotLight.Intensity = 500f;
             spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
-            spotLight.Transform.Position = new Vector3(0, 12f, 25);
-            spotLight.Transform.Rotate(new Vector3(-45, 0, 0));
+            spotLight.Transform.Position = new Vector3(0, 16, 18);
+            spotLight.Transform.Rotate(new Vector3(-80, 0, 0));
             spotLight.SpotLight.LightMaskTexture = new Texture("LightMasks\\Crysis2TestLightMask");
             spotLight.SpotLight.Shadow = new BasicShadow
             {
                 Filter = Shadow.FilterType.PcfPosion,
-                LightDepthTextureSize = Size.Square512X512,
+                LightDepthTextureSize = Size.Square1024X1024,
                 ShadowTextureSize = Size.TextureSize.FullSize,
-                DepthBias = 0.0025f,
+                DepthBias = 0.0005f,
             };
             
             #endregion

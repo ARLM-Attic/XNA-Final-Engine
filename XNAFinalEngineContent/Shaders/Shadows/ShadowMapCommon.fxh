@@ -12,9 +12,7 @@
 //////////////////////////////////////////////
 
 float2 halfPixel;
-
 float3 frustumCorners[4];
-
 float2 shadowMapSize;
 
 // Texel size
@@ -160,7 +158,7 @@ float CalculateShadowTermPoisonPCF(float positionLightSpace, float2 shadowTexCoo
 	float shadowTerm = 0.0f;  
 
 	for (int i = 0; i < 10; i++)
-		shadowTerm += positionLightSpace > tex2D(shadowMapSampler, shadowTexCoord + FilterTaps[i] * invShadowMapSize).r + depthBias ? 0.0f : 1.0f / 10.0f;
+		shadowTerm += positionLightSpace >= tex2D(shadowMapSampler, shadowTexCoord + FilterTaps[i] * invShadowMapSize).r + depthBias ? 0.0f : 1.0f / 10.0f;
 
 	return shadowTerm;
 

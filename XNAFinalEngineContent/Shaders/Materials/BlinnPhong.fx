@@ -116,7 +116,7 @@ struct VS_OUT
 	float4 position : POSITION;
 	float2 uv		: TEXCOORD0;
 	float4 postProj : TEXCOORD1;
-	float3 viewWS   : TEXCOORD3;
+	float3 viewWS   : TEXCOORD2;
 };
 
 struct VS_OUTTangent
@@ -207,7 +207,7 @@ float2 PostProjectToScreen(float4 pos)
 	return (0.5f * (float2(screenPosition.x, -screenPosition.y) + 1));
 }
 
-float4 ps_main(in float2 uv : TEXCOORD0, in float4 positionProj : TEXCOORD1, in float3 normalWS : TEXCOORD2, in float3 viewWS : TEXCOORD3) : COLOR
+float4 ps_main(in float2 uv : TEXCOORD0, in float4 positionProj : TEXCOORD1, in float3 viewWS : TEXCOORD3) : COLOR
 {
 	// Find the screen space texture coordinate & offset
 	float2 lightMapUv = PostProjectToScreen(positionProj) + halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
@@ -219,12 +219,10 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float4 positionProj : TEXCOORD1, in 
 	viewWS = normalize(viewWS);	
 	
 	// Final Color Calculations //
-	float3 materialColor;
-	float3 specular;
 	// Albedo
-	materialColor = tex2D(diffuseSampler, uv).rgb + diffuseColor; // Faster than if and a branch.
+	float3 materialColor = tex2D(diffuseSampler, uv).rgb + diffuseColor; // Faster than if and a branch.
 	// Specular
-	specular = tex2D(specularSampler, uv).rgb * specularIntensity; // Faster than if and a branch.
+	float3 specular = tex2D(specularSampler, uv).rgb * specularIntensity; // Faster than if and a branch.
 	// Reflection
 	// This in the other hand is a lot more complex and therefore a branch is needed.
 	[branch]
@@ -258,12 +256,10 @@ float4 ps_mainWithParrallax(VS_OUTTangent input) : COLOR
 	float2 uv = CalculateParallaxUV(input.uv, input.parallaxOffsetTS, input.viewWS, input.tangentToWorld, normalSampler);
 	
 	// Final Color Calculations //
-	float3 materialColor;
-	float3 specular;
 	// Albedo	
-	materialColor = tex2D(diffuseSampler, uv).rgb + diffuseColor; // Faster than if and a branch.
+	float3 materialColor = tex2D(diffuseSampler, uv).rgb + diffuseColor; // Faster than if and a branch.
 	// Specular
-	specular = tex2D(specularSampler, uv).rgb * specularIntensity; // Faster than if and a branch.
+	float3 specular = tex2D(specularSampler, uv).rgb * specularIntensity; // Faster than if and a branch.
 	// Reflection
 	// This in the other hand is a lot more complex and therefore a branch is needed.
 	[branch]

@@ -122,20 +122,20 @@ namespace XNAFinalEngine.Graphics
                 spHalfPixel            = new ShaderParameterVector2("halfPixel", this);
                 spNormalTextureSize    = new ShaderParameterVector2("objectNormalTextureSize", this);
                 spCameraPosition       = new ShaderParameterVector3("cameraPosition", this);
-                spWorldMatrix                = new ShaderParameterMatrix("world", this);
-                spWorldITMatrix              = new ShaderParameterMatrix("worldIT", this);
-                spWorldViewProjMatrix        = new ShaderParameterMatrix("worldViewProj", this);
-                spViewInverseMatrix          = new ShaderParameterMatrix("viewI", this);
+                spWorldMatrix          = new ShaderParameterMatrix("world", this);
+                spWorldITMatrix        = new ShaderParameterMatrix("worldIT", this);
+                spWorldViewProjMatrix  = new ShaderParameterMatrix("worldViewProj", this);
+                spViewInverseMatrix    = new ShaderParameterMatrix("viewI", this);
                 spBones                = new ShaderParameterMatrixArray("Bones", this, ModelAnimationClip.MaxBones);
                 spDiffuseColor         = new ShaderParameterColor("diffuseColor", this);
-                spDiffuseTexture = new ShaderParameterTexture("diffuseTexture", this, SamplerState.AnisotropicWrap, 0);
-                spNormalTexture = new ShaderParameterTexture("normalTexture", this, SamplerState.PointClamp, 1); // SamplerState.AnisotropicWrap;
-                spSpecularTexture = new ShaderParameterTexture("specularTexture", this, SamplerState.AnisotropicWrap, 2);
+                spDiffuseTexture       = new ShaderParameterTexture("diffuseTexture", this, SamplerState.AnisotropicWrap, 0);
+                spNormalTexture        = new ShaderParameterTexture("normalTexture", this, SamplerState.PointClamp, 1); // SamplerState.AnisotropicWrap;
+                spSpecularTexture      = new ShaderParameterTexture("specularTexture", this, SamplerState.AnisotropicWrap, 2);
                 spDiffuseAccumulationTexture = new ShaderParameterTexture("diffuseAccumulationTexture", this, SamplerState.PointClamp, 4);
                 spSpecularAccumulationTexture = new ShaderParameterTexture("specularAccumulationTexture", this, SamplerState.PointClamp, 5);
-                spReflectionTexture = new ShaderParameterTextureCube("reflectionTexture", this, SamplerState.LinearClamp, 3);
-                spReflectionTextured = new ShaderParameterBool("reflectionTextured", this);
-                spIsRGBM = new ShaderParameterBool("isRGBM", this);
+                spReflectionTexture    = new ShaderParameterTextureCube("reflectionTexture", this, SamplerState.LinearClamp, 3);
+                spReflectionTextured   = new ShaderParameterBool("reflectionTextured", this);
+                spIsRGBM               = new ShaderParameterBool("isRGBM", this);
             }
             catch
             {

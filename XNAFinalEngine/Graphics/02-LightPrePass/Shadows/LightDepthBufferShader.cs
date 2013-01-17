@@ -165,7 +165,7 @@ namespace XNAFinalEngine.Graphics
             {
                 // Fetch the render target.
                 // http://blogs.msdn.com/b/shawnhar/archive/2010/07/09/rendertarget-formats-in-xna-game-studio-4-0.aspx
-                lightDepthTexture = RenderTarget.Fetch(lightDepthTextureSize, SurfaceFormat.HalfSingle, DepthFormat.Depth16, RenderTarget.AntialiasingType.NoAntialiasing);
+                lightDepthTexture = RenderTarget.Fetch(lightDepthTextureSize, SurfaceFormat.Single, DepthFormat.Depth24, RenderTarget.AntialiasingType.NoAntialiasing);
                 
                 lightDepthTexture.EnableRenderTarget();
                 lightDepthTexture.Clear(Color.White);
@@ -202,7 +202,7 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 // Creates the render target textures
-                lightDepthTextureCube = RenderTargetCube.Fetch(lightDepthTextureSize, SurfaceFormat.HalfSingle, DepthFormat.Depth16, RenderTarget.AntialiasingType.NoAntialiasing);
+                lightDepthTextureCube = RenderTargetCube.Fetch(lightDepthTextureSize, SurfaceFormat.Single, DepthFormat.Depth24, RenderTarget.AntialiasingType.NoAntialiasing);
                 
                 spLightPosition.Value = lightPosition;
                 spLightRadius.Value = lightRadius;

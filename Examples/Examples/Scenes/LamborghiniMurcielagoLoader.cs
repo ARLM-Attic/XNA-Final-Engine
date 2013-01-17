@@ -97,7 +97,7 @@ namespace XNAFinalEngineExamples
         {
 
             LamborghiniMurcielago = new GameObject3D();
-
+            
             #region Materials
 
             TextureCube reflectionTexture =
@@ -165,9 +165,9 @@ namespace XNAFinalEngineExamples
             };
             BlinnPhong glassesMaterial = new BlinnPhong
             {
-                DiffuseColor = new Color(10, 10, 11),
-                AlphaBlending = 0.15f,
-                SpecularIntensity = 2 * reflectioTextureMultiplier,
+                DiffuseColor = new Color(20, 20, 20),
+                AlphaBlending = 0.3f,
+                SpecularIntensity = 2f * reflectioTextureMultiplier,
                 SpecularPower = 5,
                 ReflectionTexture = reflectionTexture,
             };

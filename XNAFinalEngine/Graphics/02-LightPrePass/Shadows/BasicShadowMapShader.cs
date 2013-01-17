@@ -58,6 +58,11 @@ namespace XNAFinalEngine.Graphics
         // Singleton reference.
         private static BasicShadowMapShader instance;
 
+        // To avoid garbage use always the same values.
+        private static readonly Vector3[] cornersWorldSpace = new Vector3[8];
+        private static readonly Vector3[] frustumCornersLightSpace = new Vector3[8];
+        private static readonly BoundingFrustum boundingFrustumTemp = new BoundingFrustum(Matrix.Identity);
+
         // Shader Parameters.
         private static ShaderParameterFloat spDepthBias;
         private static ShaderParameterVector2 spHalfPixel, spShadowMapSize, spInvShadowMapSize;
@@ -227,22 +232,18 @@ namespace XNAFinalEngine.Graphics
         #endregion
         
         #region Set Light
-
-        // To avoid garbage use always the same values.
-        private static readonly Vector3[] cornersWorldSpace = new Vector3[8];
-        private static readonly Vector3[] frustumCornersLightSpace = new Vector3[8];
-        private static readonly BoundingFrustum boundingFrustumTemp = new BoundingFrustum(Matrix.Identity);
-
+        
         /// <summary>
 		/// Calculate light matrices.
 		/// </summary>
         internal void SetLight(Vector3 position, Vector3 direction, Matrix viewMatrix, float apertureCone, float range, Vector3[] boundingFrustum)
 		{
-
-            lightViewMatrix = Matrix.CreateLookAt(position, position + direction, Vector3.Up);
-            lightProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(apertureCone * (float)Math.PI / 180.0f, // field of view
+            lightViewMatrix = Matrix.CreateWorld(position, direction, Vector3.Cross(Vector3.Right, direction));
+            lightViewMatrix = Matrix.Invert(lightViewMatrix);
+            float fieldOfView = (float) Math.PI * apertureCone / 180.0f;
+            lightProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(fieldOfView, // field of view
                                                                         1.0f,   // Aspect ratio
-                                                                        1f,   // Near plane
+                                                                        1f,     // Near plane
                                                                         range); // Far plane
             spViewToLightViewProjMatrix.Value = Matrix.Invert(viewMatrix) * lightViewMatrix * lightProjectionMatrix;
             spFrustumCorners.Value = boundingFrustum;

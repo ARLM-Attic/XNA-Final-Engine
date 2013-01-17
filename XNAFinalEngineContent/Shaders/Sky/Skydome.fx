@@ -1,5 +1,5 @@
 /***********************************************************************************************************************************************
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -38,20 +38,13 @@ float4x4 ViewInv : ViewInverse;
 //////////////////////////////////////////////
 
 float3 LightDirection = float3(0, -0.05, 1);
-
 float fDensity = 0.0218;
-
 float SunLightness = 50;
-
 float sunRadiusAttenuation = 8000;
-
 float largeSunLightness = 0.5;
-
 float largeSunRadiusAttenuation = 48;
-
 // Day To Sunset Sharpness (Controls the curve from Day to Sunset)
 float dayToSunsetSharpness = 4;
-
 float hazeTopAltitude = 5;
 
 //////////////////////////////////////////////

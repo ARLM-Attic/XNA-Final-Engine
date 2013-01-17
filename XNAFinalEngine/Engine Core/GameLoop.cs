@@ -1162,6 +1162,8 @@ namespace XNAFinalEngine.EngineCore
 
             #region Light Pre Pass
 
+            DirectionalLight sun = null;
+
             // Frustum Culling
             pointLightsToRender.Clear();
             spotLightsToRender.Clear();
@@ -1334,7 +1336,8 @@ namespace XNAFinalEngine.EngineCore
                                 modelsToRenderShadowsSkinned.Clear();
                                 foreach (ModelRenderer modelRenderer in modelsToRenderShadows)
                                 {
-                                    if (modelRenderer.CastShadows) // This question could be made before the Intersects. Or we can track globally the objects that cast shadows.
+                                    if (modelRenderer.CastShadows &&
+                                        modelRenderer.Material.AlphaBlending == 1) // This question could be made before the Intersects. Or we can track globally the objects that cast shadows.
                                     {
                                         if (modelRenderer.CachedModel.IsSkinned)
                                             modelsToRenderShadowsSkinned.Add(modelRenderer);
@@ -1461,7 +1464,8 @@ namespace XNAFinalEngine.EngineCore
                             modelsToRenderShadowsSkinned.Clear();
                             foreach (ModelRenderer modelRenderer in modelsToRenderShadows)
                             {
-                                if (modelRenderer.CastShadows) // This question could be made before the Intersects. Or we can track globally the objects that cast shadows.
+                                if (modelRenderer.CastShadows &&
+                                    modelRenderer.Material.AlphaBlending == 1) // This question could be made before the Intersects. Or we can track globally the objects that cast shadows.
                                 {
                                     if (modelRenderer.CachedModel.IsSkinned)
                                         modelsToRenderShadowsSkinned.Add(modelRenderer);
@@ -1516,7 +1520,6 @@ namespace XNAFinalEngine.EngineCore
                         }
                         // Calculate a deferred shadow map.
                         directionalLight.ShadowTexture = BasicShadowMapShader.Instance.Render(lightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter);
-
                         // If the depth light texture is not longer needed then we can released.
                         if (Shadow.DistributeShadowCalculationsBetweenFrames == false)
                             RenderTarget.Release(lightDepthTexture);
@@ -1582,7 +1585,7 @@ namespace XNAFinalEngine.EngineCore
                         {
 
                             #region Generate Light Depth Texture
-
+                            
                             BasicShadowMapShader.Instance.SetLight(spotLight.cachedPosition, spotLight.cachedDirection, currentCamera.ViewMatrix, spotLight.OuterConeAngle, spotLight.Range, cornersViewSpace);
 
                             // Feth shadow texture and enable it for render.
@@ -1603,7 +1606,8 @@ namespace XNAFinalEngine.EngineCore
                             modelsToRenderShadowsSkinned.Clear();
                             foreach (ModelRenderer modelRenderer in modelsToRenderShadows)
                             {
-                                if (modelRenderer.CastShadows) // This question could be made before the Intersects. Or we can track globally the objects that cast shadows.
+                                if (modelRenderer.CastShadows &&
+                                    modelRenderer.Material.AlphaBlending == 1) // This question could be made before the Intersects. Or we can track globally the objects that cast shadows.
                                 {
                                     if (modelRenderer.CachedModel.IsSkinned)
                                         modelsToRenderShadowsSkinned.Add(modelRenderer);
@@ -1658,6 +1662,10 @@ namespace XNAFinalEngine.EngineCore
                         spotLight.ShadowTexture = BasicShadowMapShader.Instance.Render(lightDepthTexture, depthTexture, shadow.DepthBias, shadow.Filter);
                         if (!Shadow.DistributeShadowCalculationsBetweenFrames && activeCamerasCount == 1)
                             RenderTarget.Release(lightDepthTexture);
+                        // Testing.
+                        //RenderTarget.Release(spotLight.ShadowTexture);
+                        //FinishRendering(currentCamera, renderTarget, spotLight.ShadowTexture); return;
+
                     }
                 }
             }
@@ -1721,8 +1729,8 @@ namespace XNAFinalEngine.EngineCore
                                 modelsToRenderShadowsSkinned.Clear();
                                 foreach (ModelRenderer modelRenderer in modelsToRenderShadows)
                                 {
-                                    if (modelRenderer.CastShadows)
-                                        // This question could be made before the Intersects. Or we can track globally the objects that cast shadows.
+                                    if (modelRenderer.CastShadows &&
+                                        modelRenderer.Material.AlphaBlending == 1) // This question could be made before the Intersects. Or we can track globally the objects that cast shadows.
                                     {
                                         if (modelRenderer.CachedModel.IsSkinned)
                                             modelsToRenderShadowsSkinned.Add(modelRenderer);
@@ -1807,6 +1815,9 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
                 DirectionalLight directionalLight = DirectionalLight.ComponentPool.Elements[i];
+                // Transparent objects need to know the sun.
+                if (directionalLight.IsSun)
+                    sun = directionalLight;
                 if (directionalLight.Intensity > 0 && directionalLight.IsVisible)
                 {
                     DirectionalLightShader.Instance.Render(directionalLight.Color, directionalLight.cachedDirection, directionalLight.Intensity, directionalLight.ShadowTexture);
@@ -1933,7 +1944,7 @@ namespace XNAFinalEngine.EngineCore
                                                                  meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
             }
             // Blinn Phong Parallax
-            // This has to be after the other techniques because unlink the G-Buffer normal texture.
+            // This has to be after the other techniques because it unlink the G-Buffer normal texture that is used in the other techniques.
             for (int i = 0; i < gBufferWithParallax.Count; i++)
             {
                 var meshPartToRender = gBufferWithParallax[i];
@@ -2019,6 +2030,10 @@ namespace XNAFinalEngine.EngineCore
 
             #endregion
 
+            // Set Render States.
+            EngineManager.Device.BlendState = BlendState.NonPremultiplied;
+            EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
+
             #region Sky
 
             // The sky is render later so that the GPU can avoid fragment processing. But it has to be done before the transparent objects.
@@ -2030,7 +2045,7 @@ namespace XNAFinalEngine.EngineCore
                 }
                 if (currentCamera.Sky is Skydome && ((Skydome)currentCamera.Sky).Texture != null)
                 {
-                    SkydomeShader.Instance.Render(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, (Skydome)(currentCamera.Sky));
+                    SkydomeShader.Instance.Render(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, sun.cachedDirection, (Skydome)(currentCamera.Sky));
                 }
             }
 
@@ -2056,10 +2071,69 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Transparent Objects
+
+            #region Blinn Phong
+
+            if (sun != null)
+                ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.AmbientLight,
+                                                       sun.Color, sun.cachedDirection, sun.Intensity, null, renderTarget.Size);
+            else
+                ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.AmbientLight, Color.Black, Vector3.UnitZ, 0, null, Size.FullScreen);
+            // Blinn Phong Simple
+            for (int i = 0; i < transparentObjects.Count; i++)
+            {
+                var meshPartToRender = transparentObjects[i];
+                if (meshPartToRender.Material is BlinnPhong)
+                {
+                    // Search closer lights.
+
+                    #region Spot Light
+
+                    SpotLight closerSpotLight = null;
+                    float closerDistantance = currentCamera.FarPlane;
+                    foreach (SpotLight spotLight in spotLightsToRender)
+                    {
+                        float spotLightDistance = Vector3.Distance(meshPartToRender.WorldMatrix.Translation, currentCamera.Position);
+                        if (spotLightDistance < closerDistantance)
+                        {
+                            closerDistantance = spotLightDistance;
+                            closerSpotLight = spotLight;
+                        }
+                    }
+                    Vector3 spotLightPosition = Vector3.Zero;
+                    Vector3 spotLightDirection = Vector3.UnitX;
+                    Color spotLightColor = Color.Black;
+                    float spotLightIntensity = 0;
+                    float spotLightInnerAngle = 0;
+                    float spotLightOuterAngle = 0;
+                    float range = 0;
+                    if (closerSpotLight != null)
+                    {
+                        spotLightPosition = closerSpotLight.cachedPosition;
+                        spotLightDirection = closerSpotLight.cachedDirection;
+                        spotLightColor = closerSpotLight.Color;
+                        spotLightIntensity = closerSpotLight.Intensity;
+                        spotLightInnerAngle = closerSpotLight.InnerConeAngle;
+                        spotLightOuterAngle = closerSpotLight.OuterConeAngle;
+                        range = closerSpotLight.Range;
+                    }
+
+                    #endregion
+
+                    ForwardBlinnPhongShader.Instance.RenderModel(ref meshPartToRender.WorldMatrix,
+                                                                 meshPartToRender.Model,
+                                                                 (BlinnPhong) meshPartToRender.Material,
+                                                                 meshPartToRender.MeshIndex, meshPartToRender.MeshPart,
+                                                                 spotLightPosition, spotLightDirection, spotLightColor,
+                                                                 spotLightIntensity, spotLightInnerAngle, spotLightOuterAngle, range);
+                }
+            }
+
+            #endregion
             
             // The transparent objects will be render in forward fashion.
             // I should first render the additive materials and then the alpha blending ones.
-            foreach (ModelRenderer modelRenderer in modelsToRender)
+            /*foreach (ModelRenderer modelRenderer in modelsToRender)
             {
                 if (modelRenderer.CachedModel != null && modelRenderer.IsVisible)
                 {
@@ -2117,7 +2191,7 @@ namespace XNAFinalEngine.EngineCore
                         }
                     }
                 }
-            }
+            }*/
             
             #endregion
 

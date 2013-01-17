@@ -19,7 +19,7 @@ float4x4 viewToLightViewProj;
 //////////////////////////////////////////////
 
 // Pixel shader for computing the shadow occlusion factor
-float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, uniform int iFilterSize	) : COLOR0
+float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, uniform int iFilterSize) : COLOR0
 {
 	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
 	float depth = tex2D(depthSampler, uv).r;
@@ -51,6 +51,13 @@ float4 ps_main(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1, unifo
         
     // Offset the coordinate by half a texel so we sample it correctly
     shadowTexCoord += (0.5f / shadowMapSize);
+
+	[branch]
+	if (shadowTexCoord.x > 1 || shadowTexCoord.y > 1 || shadowTexCoord.x < 0 || shadowTexCoord.y < 0)
+	{
+		Discard();
+		return float4(1, 1, 1, 1);
+	}
 			
 	// Get the shadow occlusion factor and output it
 	float shadowTerm;

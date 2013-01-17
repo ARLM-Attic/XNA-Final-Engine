@@ -96,7 +96,7 @@ GenerateCubeShadowMapVS_OUTPUT  VS_SkinnedGenerateCubeShadowMap(VertexInputSkinn
 
 float4 PS_GenerateShadowMap(GenerateShadowMapVS_OUTPUT input) : COLOR
 {		
-	return float4(input.depth, 1, 1, 1);
+	return float4(input.depth, 0, 0, 1);
 } // PS_GenerateShadowMap
 
 float4 PS_GenerateCubeShadowMap(GenerateCubeShadowMapVS_OUTPUT input) : COLOR

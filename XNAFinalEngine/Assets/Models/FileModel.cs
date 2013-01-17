@@ -259,7 +259,7 @@ namespace XNAFinalEngine.Assets
                 {
                     foreach (ModelMeshPart part in Resource.Meshes[i].MeshParts)
                     {
-                        MeshPartsCountPerMesh[i] = 1;
+                        MeshPartsCountPerMesh[i]++;
                         MeshPartsTotalCount++;
                     }
                 }

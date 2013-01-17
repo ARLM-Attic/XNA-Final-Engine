@@ -1,5 +1,5 @@
 /***********************************************************************************************************************************************
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -25,6 +25,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #include <..\Helpers\GammaLinearSpace.fxh>
 #include <..\Helpers\RGBM.fxh>
 #include <..\Helpers\SphericalHarmonics.fxh>
+#include <..\Helpers\Attenuation.fxh>
 
 //////////////////////////////////////////////
 //////////////// Matrices ////////////////////
@@ -39,19 +40,12 @@ float4x4 world         : World;
 //////////////////////////////////////////////
 
 float3 cameraPosition;
-
 float3 diffuseColor;
-
 float specularIntensity;
-
 float specularPower;
-
 float3 ambientColor;
-
 float ambientIntensity;
-
 float alphaBlending;
-
 bool diffuseTextured;
 
 //////////////////////////////////////////////
@@ -61,9 +55,23 @@ bool diffuseTextured;
 float3 directionalLightDirection;
 float3 directionalLightColor;
 float  directionalLightIntensity;
-float3 pointLightPos = float3(-15, 50, -30);
-float3 pointLightColor = float3(0.9, 0.9, 0.9);
-float  pointLightIntensity = 0.35;
+bool   hasShadows;
+float2 halfPixel;
+float3 pointLightPos;
+float3 pointLightColor;
+float  pointLightIntensity;
+float  invPointLightRadius;
+float3 pointLightPos2 ;
+float3 pointLightColor2;
+float  pointLightIntensity2 ;
+float  invPointLightRadius2;
+float3 spotLightPos;
+float3 spotLightDirection;
+float3 spotLightColor;
+float  spotLightIntensity;
+float  spotLightInnerAngle;
+float  spotLightOuterAngle;
+float  invSpotLightRadius;
 
 //////////////////////////////////////////////
 ///////////////// Options ////////////////////
@@ -88,6 +96,17 @@ sampler2D diffuseSampler : register(s0) = sampler_state
 	AddressV = WRAP;*/
 };
 
+texture shadowTexture : register(t3);
+sampler2D shadowSampler : register(s3) = sampler_state
+{
+	Texture = <shadowTexture>;
+    /*ADDRESSU = CLAMP;
+	ADDRESSV = CLAMP;
+	MAGFILTER = POINT;
+	MINFILTER = POINT;
+	MIPFILTER = NONE;*/
+};
+
 texture reflectionTexture : register(t4);
 samplerCUBE reflectionSampler : register(s4) = sampler_state
 {
@@ -105,57 +124,34 @@ samplerCUBE reflectionSampler : register(s4) = sampler_state
 
 struct vertexOutput
 {
-    float4 position		: POSITION;
-    float4 positionProj : TEXCOORD0;  
-    float3 normalWS		: TEXCOORD1;
-    float3 viewWS       : TEXCOORD2;
-	float2 uv           : TEXCOORD3;
-    float3 pointLightVec: TEXCOORD4;
-    //float3 spotLightVec : TEXCOORD5;
+    float4 position		  : POSITION;
+    float4 screenPosition : TEXCOORD0;  
+    float3 normalWS	 	  : TEXCOORD1;
+    float3 viewWS         : TEXCOORD2;
+	float2 uv             : TEXCOORD3;
+    float3 pointLightVec  : TEXCOORD4;
+	float3 pointLightVec2 : TEXCOORD5;
+    float3 spotLightVec   : TEXCOORD6;
 };
 
 //////////////////////////////////////////////
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
-vertexOutput vs_mainWithoutTexture(in float4 position : POSITION, in float3 normal : NORMAL)
+vertexOutput vs_main(in float4 position : POSITION, in float3 normal : NORMAL, in float2 uv : TEXCOORD0)
 {	
     vertexOutput output;
 	
     output.position = mul(position, worldViewProj);
-	output.positionProj = output.position;
+	output.screenPosition = output.position;
     output.normalWS = mul(normal, worldIT).xyz;
 	
-	float3 positionWS = mul(position, world);
+	float3 positionWS = mul(position, world);	
 
-	// Light information
-	float3 Pw = mul(position, world).xyz;		    	// world coordinates
-    output.pointLightVec = pointLightPos - Pw;
-    /*output.SpotLightVec  = SpotLightPos - Pw;*/
-
-	// Texture coordinates
-	output.uv = float2(0, 0);
-		
-	// Eye position - P
-    output.viewWS = normalize(cameraPosition - positionWS);
-    
-    return output;
-} // VSBlinn
-
-vertexOutput vs_mainWithTexture(in float4 position : POSITION, in float3 normal : NORMAL, in float2 uv : TEXCOORD0)
-{	
-    vertexOutput output;
-	
-    output.position = mul(position, worldViewProj);
-	output.positionProj = output.position;
-    output.normalWS = mul(normal, worldIT).xyz;
-	
-	float3 positionWS = mul(position, world);
-
-	// Light information
-	float3 Pw = mul(position, world).xyz;		    	// world coordinates
-    output.pointLightVec = pointLightPos - Pw;
-    /*output.SpotLightVec  = SpotLightPos - Pw;*/
+	// Light information	
+    output.pointLightVec  = pointLightPos  - positionWS;
+	output.pointLightVec2 = pointLightPos2 - positionWS;
+    output.spotLightVec   = spotLightPos   - positionWS;
 	
     // Texture coordinates
 	output.uv = uv;
@@ -175,57 +171,73 @@ float4 ps_main(vertexOutput input) : COLOR
 	float3 normalWS  = normalize(input.normalWS);
     float3 viewWS    = normalize(input.viewWS);
     float3 diffuse;  // = float3(0,0,0);
-    float3 specular; // = float3(0,0,0);	
+    float3 specular = 0;
 
 	// Ambient Light //
+	diffuse = ambientColor;	
 	[branch]
 	if (hasAmbientSphericalHarmonics)
-		diffuse = ambientColor + SampleSH(normalWS) * ambientIntensity;
-	else
-		diffuse = ambientColor;
-	// Albedo
-	float3 materialColor;
+		diffuse += SampleSH(normalWS);
+	diffuse *= ambientIntensity;
+    // Directional Light //
+	float shadowTerm = 1.0;	
 	[branch]
-	if (diffuseTextured)
+	if (hasShadows)
 	{
-    	materialColor = tex2D(diffuseSampler, input.uv).rgb;
+		// Obtain screen position
+		input.screenPosition.xy /= input.screenPosition.w;
+
+		// Obtain textureCoordinates corresponding to the current pixel
+		// The screen coordinates are in [-1,1]*[1,-1]
+		// The texture coordinates need to be in [0,1]*[0,1]
+		// http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
+		// http://diaryofagraphicsprogrammer.blogspot.com.ar/2008/09/calculating-screen-space-texture.html
+		float2 shadowUv = 0.5f * (float2(input.screenPosition.x, -input.screenPosition.y) + 1) + halfPixel;
+		
+		// TODO: Shadow calculations.		
 	}
-	else
-	{
-		materialColor = diffuseColor;
-	}
-    // Directional Light //		
-	float shadowTerm = 1.0;
-	float NL = max(dot(-directionalLightDirection, normalWS), 0);
-    diffuse += GammaToLinear(directionalLightColor) * NL *  directionalLightIntensity * shadowTerm;
-	// In "Experimental Validation of Analytical BRDF Models" (Siggraph2004) the autors arrive to the conclusion that half vector lobe is better than mirror lobe.
+	float LN  = max(dot(-directionalLightDirection, normalWS), 0);
 	float3 H  = normalize(viewWS - directionalLightDirection);
-    specular = pow(saturate(dot(normalWS, H)), specularPower) * NL *  directionalLightIntensity * specularIntensity * shadowTerm;
+	float HN  = dot(H, normalWS);
+	float3 diffuseContribution = GammaToLinear(directionalLightColor) * LN *  directionalLightIntensity * shadowTerm;
+    diffuse += diffuseContribution;	
+    specular = pow(saturate(dot(normalWS, H)), specularPower) * diffuseContribution;
 	
-	// Point Light //
+	// Point Lights //
     float3 L       = normalize(input.pointLightVec);
-    H       = normalize(viewWS + L);
-    float  HdN     = dot(H, normalWS);
-    float  LdN     = dot(L, normalWS);
-    float4 litVec  = lit(LdN, HdN, specularPower);
-    diffuse        += litVec.y * GammaToLinear(pointLightColor) * pointLightIntensity;
-    specular       += specularIntensity * litVec.z * pointLightIntensity;
-	/*
+    H              = normalize(viewWS + L);
+    HN             = dot(H, normalWS);
+    LN             = dot(L, normalWS);    	
+	float attenuation = Attenuation(L, invPointLightRadius);
+	diffuseContribution = LN * attenuation * pointLightIntensity * GammaToLinear(pointLightColor);
+    diffuse        += diffuseContribution;
+    specular       += pow(saturate(HN), specularPower) * diffuseContribution;
+
+	L              = normalize(input.pointLightVec2);
+    H              = normalize(viewWS + L);
+    HN             = dot(H, normalWS);
+    LN             = dot(L, normalWS);
+	attenuation = Attenuation(L, invPointLightRadius2);
+	diffuseContribution = LN * attenuation * pointLightIntensity * GammaToLinear(pointLightColor2);
+    diffuse        += diffuseContribution;
+    specular       += pow(saturate(HN), specularPower) * diffuseContribution;
+	
     // Spot Light // 
-   	/*L			     = normalize(IN.SpotLightVec);    
-    float CosSpotAng = cos(SpotLightCone*(float)(3.141592/180.0));
-    float DdL        = dot(normalize(-SpotLightDir), L);
-    DdL              = ((DdL - CosSpotAng)/(((float)1.0) - CosSpotAng));
-    if (DdL > 0)
-    {
-		H = normalize(V + L);
-    	LdN = dot(L, N);    	
-    	HdN = dot(H,N);
-    	litVec = lit(LdN, HdN, SpecExponent);
-		diffContrib +=  litVec.y * SpotLightIntensity * DdL * SpotLightColor;
-    	specContrib +=  litVec.y * SpotLightIntensity * litVec.z * SpecIntensity * SpotLightColor;
-    }*/
-    
+   	L = normalize(input.spotLightVec);
+	// Cone Attenuation	
+    float2 cosAngles = cos(float2(spotLightOuterAngle, spotLightInnerAngle) * 0.5f);
+    float DL         = dot(-spotLightDirection, L);
+    DL              *= smoothstep(cosAngles[0], cosAngles[1], DL);
+	// Light Attenuation
+	attenuation = Attenuation(input.spotLightVec, invSpotLightRadius);
+	// Compute specular light
+	H = normalize(viewWS + L);
+    LN = dot(L, normalWS);
+    HN = dot(H, normalWS); 
+	diffuseContribution = DL * LN * attenuation * spotLightIntensity * GammaToLinear(spotLightColor);
+	diffuse  +=  diffuseContribution;
+    specular +=  pow(saturate(HN), specularPower) * diffuseContribution;
+
 	// Reflection
 	[branch]
 	if (reflectionTextured)
@@ -236,29 +248,24 @@ float4 ps_main(vertexOutput input) : COLOR
 			specular *= RgbmLinearToFloatLinear(GammaToLinear(texCUBE(reflectionSampler, reflectionDir).rgba));
 		else
 			specular *= GammaToLinear(texCUBE(reflectionSampler, reflectionDir).rgb);
-	}
-	// Final color (in linear space)	
-	return float4(GammaToLinear(materialColor) * diffuse + specular, alphaBlending);
+	}	
+	// Albedo
+	float3 materialColor = tex2D(diffuseSampler, input.uv).rgb + diffuseColor; // Faster than if and a branch.			
+	// View depend reflections are more realistic.
+	float  envContribution = 1.0 - 0.5 * saturate(dot(normalWS, viewWS));
+	// Final color (in linear space)
+	return float4(GammaToLinear(materialColor) * diffuse + specular * envContribution * specularIntensity, alphaBlending);
 } // PSBlinn
 
 //////////////////////////////////////////////
 //////////////// Techniques //////////////////
 //////////////////////////////////////////////
 
-technique ForwardBlinnPhongWithoutTexture
+technique ForwardBlinnPhong
 {
     pass P0
     {
-        VertexShader = compile vs_3_0 vs_mainWithoutTexture();
+        VertexShader = compile vs_3_0 vs_main();
         PixelShader  = compile ps_3_0 ps_main();
     }
-} // BlinnPhongWithoutTexture
-
-technique ForwardBlinnPhongWithTexture
-{
-    pass P0
-    {
-        VertexShader = compile vs_3_0 vs_mainWithTexture();
-        PixelShader  = compile ps_3_0 ps_main();
-    }
-} // BlinnPhongWithTexture
+} // ForwardBlinnPhong

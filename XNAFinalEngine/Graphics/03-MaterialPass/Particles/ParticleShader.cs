@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -138,12 +138,6 @@ namespace XNAFinalEngine.Graphics
         {
             try
             {
-                // Set Render States.
-                EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
-                EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
-                // If I set the sampler states here and no texture is set then this could produce exceptions 
-                // because another texture from another shader could have an incorrect sampler state when this shader is executed.
-
                 // Set initial parameters
                 spViewProjection.Value = viewMatrix * projectionMatrix;
                 spProjection.Value = projectionMatrix;
