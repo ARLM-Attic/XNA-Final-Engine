@@ -203,9 +203,7 @@ namespace XNAFinalEngine.Graphics
                     RenderScreenPlane();
 
                     if (pass.Name == "EdgeDetection")
-                    {
                         destinationTexture.DisableRenderTarget();
-                    }
                     else if (pass.Name == "BlendingWeight")
                         blendingWeightTexture.DisableRenderTarget();
                     else

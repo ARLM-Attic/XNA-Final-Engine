@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -30,8 +30,13 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using Statements
 using System;
+//using System.Drawing;
+//using System.Drawing.Imaging;
 using System.IO;
+using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
+using Texture = XNAFinalEngine.Assets.Texture;
+
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -153,8 +158,13 @@ namespace XNAFinalEngine.EngineCore
                 screenshotNumber = CurrentScreenshotNumber();
                 screenshotNumber++;
 
-                var stream = new FileStream(ScreenshotNameBuilder(screenshotNumber), FileMode.OpenOrCreate);
-                texture.Resource.SaveAsJpeg(stream, texture.Width, texture.Height);
+                // It produced a memory leak and it was never fixed by the XNA team.
+                //var stream = new FileStream(ScreenshotNameBuilder(screenshotNumber), FileMode.OpenOrCreate);
+                //texture.Resource.SaveAsJpeg(stream, texture.Width, texture.Height);
+
+                //BmpWriter bmpWriter = new BmpWriter(texture.Width, texture.Height);
+                //bmpWriter.TextureToBmp(texture.Resource, ScreenshotNameBuilder(screenshotNumber));
+                
             } // try
             catch (Exception e)
             {
@@ -164,5 +174,44 @@ namespace XNAFinalEngine.EngineCore
 
 		#endregion
 
-	} // ScreenshotCapturer
+        #region Bmp Writer
+
+        /*public class BmpWriter
+        {
+            byte[] textureData;
+            Bitmap bmp;
+            BitmapData bitmapData;
+            IntPtr safePtr;
+            Rectangle rect;
+            public ImageFormat imageFormat;
+
+            public BmpWriter(int width, int height)
+            {
+                textureData = new byte[4 * width * height];
+                bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+                rect = new Rectangle(0, 0, width, height);
+                imageFormat = ImageFormat.Jpeg;
+            }
+
+            public void TextureToBmp(Texture2D texture, String filename)
+            {
+                texture.GetData(textureData);
+                byte blue;
+                for (int i = 0; i < textureData.Length; i += 4)
+                {
+                    blue = textureData[i];
+                    textureData[i] = textureData[i + 2];
+                    textureData[i + 2] = blue;
+                }
+                bitmapData = bmp.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+                safePtr = bitmapData.Scan0;
+                System.Runtime.InteropServices.Marshal.Copy(textureData, 0, safePtr, textureData.Length);
+                bmp.UnlockBits(bitmapData);
+                bmp.Save(filename, imageFormat);
+            }
+        } */
+
+        #endregion
+
+    } // ScreenshotCapturer
 } // XNAFinalEngine.EngineCore

@@ -96,7 +96,7 @@ namespace XNAFinalEngineExamples
             camera.Camera.PostProcess.ToneMapping.LensExposure = -0.5f;
             camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Color;
-            camera.Camera.PostProcess.MLAA.Enabled = false;
+            camera.Camera.PostProcess.MLAA.Enabled = true;
             camera.Camera.PostProcess.Bloom.Enabled = true;
             camera.Camera.PostProcess.Bloom.Threshold = 3f;
             camera.Camera.PostProcess.FilmGrain.Enabled = true;
@@ -259,7 +259,7 @@ namespace XNAFinalEngineExamples
             spotLight.SpotLight.Shadow = new BasicShadow
             {
                 Filter = Shadow.FilterType.PcfPosion,
-                LightDepthTextureSize = Size.Square1024X1024,
+                LightDepthTextureSize = Size.Square512X512,
                 ShadowTextureSize = Size.TextureSize.FullSize,
                 DepthBias = 0.0005f,
             };
@@ -276,7 +276,7 @@ namespace XNAFinalEngineExamples
             #region Lamborghini Murcielago LP640
             
             // To test performance.
-            //for (int i = 0; i < 10; i++)
+            //for (int i = 0; i < 100; i++)
             {
                 LamborghiniMurcielagoLoader lamborghiniMurcielagoLoader = new LamborghiniMurcielagoLoader();
                 lamborghiniMurcielagoLoader.LoadContent();

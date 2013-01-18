@@ -73,10 +73,11 @@ namespace XNAFinalEngine.Graphics
         // Shader Parameters.
         private static ShaderParameterVector2 spHalfPixel;
         private static ShaderParameterFloat spSpecularIntensity, spSpecularPower, spMaxRange, spAlphaBlending, spAmbientIntensity, spDirectionalLightIntensity,
-                                            spSpotLightIntensity, spSpotLightInnerAngle, spSpotLightOuterAngle, spInvSpotLightRadius;
-        private static ShaderParameterVector3 spCameraPosition, spDirectionalLightDirection, spSpotLightPosition, spSpotLightDirection;
+                                            spSpotLightIntensity, spSpotLightInnerAngle, spSpotLightOuterAngle, spInvSpotLightRadius,
+                                            spPointLightIntensity1, spInvPointLightRadius1, spPointLightIntensity2, spInvPointLightRadius2;
+        private static ShaderParameterVector3 spCameraPosition, spDirectionalLightDirection, spSpotLightPosition, spSpotLightDirection, spPointLightPos1, spPointLightPos2;
         private static ShaderParameterMatrix spWorldMatrix, spWorldITMatrix, spWorldViewProjMatrix;
-        private static ShaderParameterColor spDiffuseColor, spAmbientColor, spDirectionalLightColor, spSpotLightColor;
+        private static ShaderParameterColor spDiffuseColor, spAmbientColor, spDirectionalLightColor, spSpotLightColor, spPointLightColor1, spPointLightColor2;
         private static ShaderParameterTexture spDiffuseTexture, spShadowTexture;
         private static ShaderParameterTextureCube spReflectionTexture;
         private static ShaderParameterBool spReflectionTextured, spIsRGBM, spHasAmbientSphericalHarmonics, spHasShadows;
@@ -156,6 +157,15 @@ namespace XNAFinalEngine.Graphics
                 spSpotLightInnerAngle = new ShaderParameterFloat("spotLightInnerAngle", this);
                 spSpotLightOuterAngle = new ShaderParameterFloat("spotLightOuterAngle", this);
                 spInvSpotLightRadius = new ShaderParameterFloat("invSpotLightRadius", this);
+                // Point
+                spPointLightIntensity1 = new ShaderParameterFloat("pointLightIntensity", this);
+                spInvPointLightRadius1 = new ShaderParameterFloat("invPointLightRadius", this);
+                spPointLightIntensity2 = new ShaderParameterFloat("pointLightIntensity2", this);
+                spInvPointLightRadius2 = new ShaderParameterFloat("invPointLightRadius2", this);
+                spPointLightPos1 = new ShaderParameterVector3("pointLightPos", this);
+                spPointLightPos2 = new ShaderParameterVector3("pointLightPos2", this);
+                spPointLightColor1 = new ShaderParameterColor("pointLightColor", this);
+                spPointLightColor2 = new ShaderParameterColor("pointLightColor2", this);
             }
             catch
             {
@@ -230,7 +240,10 @@ namespace XNAFinalEngine.Graphics
 		/// </summary>
         internal void RenderModel(ref Matrix worldMatrix, Model model, BlinnPhong material, int meshIndex, int meshPart,
                                   Vector3 spotLightPosition, Vector3 spotLightDirection, Color spotLightColor, float spotLightIntensity,
-                                  float  spotLightInnerAngle, float  spotLightOuterAngle, float  range)
+                                  float  spotLightInnerAngle, float  spotLightOuterAngle, float  spotLightRange,
+                                  Vector3 pointLightPos1, Color pointLightColor1, float pointLightIntensity1,
+                                  float pointLightRange1, Vector3 pointLightPos2, Color pointLightColor2,
+                                  float pointLightIntensity2, float pointLightRange2)
         {
             // Set Render States.
             EngineManager.Device.RasterizerState = material.BothSides ? RasterizerState.CullNone : RasterizerState.CullCounterClockwise;
@@ -279,7 +292,16 @@ namespace XNAFinalEngine.Graphics
                 spSpotLightIntensity.Value  = spotLightIntensity;
                 spSpotLightInnerAngle.Value = spotLightInnerAngle * (3.141592f / 180.0f);
                 spSpotLightOuterAngle.Value = spotLightOuterAngle * (3.141592f / 180.0f);
-                spInvSpotLightRadius.Value  = 1 / range;
+                spInvSpotLightRadius.Value  = 1 / spotLightRange;
+                // Point Light //
+                spPointLightPos1.Value = pointLightPos1;
+                spPointLightColor1.Value = pointLightColor1;
+                spPointLightIntensity1.Value = pointLightIntensity1;
+                spInvPointLightRadius1.Value = 1 / pointLightRange1;
+                spPointLightPos2.Value = pointLightPos2;
+                spPointLightColor2.Value = pointLightColor2;
+                spPointLightIntensity2.Value = pointLightIntensity2;
+                spInvPointLightRadius2.Value = 1 / pointLightRange2;
                 
                 Resource.CurrentTechnique.Passes[0].Apply();
                 model.RenderMeshPart(meshIndex, meshPart);

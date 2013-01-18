@@ -114,6 +114,9 @@ namespace XNAFinalEngine.EngineCore
 
         #region Variables
 
+        // Used in the transparent sorting.
+        private static Vector3 cameraPosition;
+
         // Render Targets used in the deferred lighting pipeline.
         private static RenderTarget.RenderTargetBinding gbufferTextures;
         private static RenderTarget.RenderTargetBinding gbufferHalfTextures;
@@ -861,114 +864,7 @@ namespace XNAFinalEngine.EngineCore
         #endregion
 
         #region Render Camera
-
-        #region Active Shadows Methods
-
-        /// <summary>
-        /// Returns the index of the array that contains the light depth texture (and other data) previously generated.
-        /// To work with split screen we need to store this map for each active camera.
-        /// -1 indicates that is was not founded.
-        /// </summary>
-        public static int GetIndexActiveDirectionalLightShadows(Camera camera, DirectionalLight light)
-        {
-            for (int i = 0; i < activeDirectionalLightShadows.Length; i++)
-            {
-                if (activeDirectionalLightShadows[i].camera == camera && activeDirectionalLightShadows[i].light == light)
-                    return i;
-            }
-            return -1;
-        } // GetIndexActiveDirectionalLightShadows
-
-        /// <summary>
-        /// Gets the index of the first free slot in the active directiona light shadows array.
-        /// </summary>
-        public static int GetFreeIndexActiveDirectionalLightShadows()
-        {
-            for (int i = 0; i < activeDirectionalLightShadows.Length; i++)
-            {
-                if (activeDirectionalLightShadows[i].camera == null)
-                    return i;
-            }
-            // If there is no free slot (almost impossible)...
-            DirectionalLightDepthInformation[] newArray = new DirectionalLightDepthInformation[activeDirectionalLightShadows.Length + 5];
-            for (int i = 0; i < activeDirectionalLightShadows.Length; i++)
-            {
-                newArray[i] = activeDirectionalLightShadows[i];
-            }
-            activeDirectionalLightShadows = newArray;
-            return activeDirectionalLightShadows.Length - 5;
-        } // GetFreeIndexActiveDirectionalLightShadows
-
-        /// <summary>
-        /// Returns the index of the array that contains the light depth texture (and other data) previously generated.
-        /// -1 indicates that is was not founded.
-        /// </summary>
-        public static int GetIndexActiveSpotLightShadows(SpotLight light)
-        {
-            for (int i = 0; i < activeSpotLightShadows.Length; i++)
-            {
-                if (activeSpotLightShadows[i].light == light)
-                    return i;
-            }
-            return -1;
-        } // GetIndexActiveSpotLightShadows
-
-        /// <summary>
-        /// Gets the index of the first free slot in the active spot light shadows array.
-        /// </summary>
-        public static int GetFreeIndexActiveSpotLightShadows()
-        {
-            for (int i = 0; i < activeSpotLightShadows.Length; i++)
-            {
-                if (activeSpotLightShadows[i].light == null)
-                    return i;
-            }
-            // If there is no free slot...
-            SpotLightDepthInformation[] newArray = new SpotLightDepthInformation[activeDirectionalLightShadows.Length + 5];
-            for (int i = 0; i < activeSpotLightShadows.Length; i++)
-            {
-                newArray[i] = activeSpotLightShadows[i];
-            }
-            activeSpotLightShadows = newArray;
-            return activeSpotLightShadows.Length - 5;
-        } // GetFreeIndexActiveSpotLightShadows
-
-        /// <summary>
-        /// Returns the index of the array that contains the light depth texture (and other data) previously generated.
-        /// -1 indicates that is was not founded.
-        /// </summary>
-        public static int GetIndexActivePointLightShadows(PointLight light)
-        {
-            for (int i = 0; i < activePointLightShadows.Length; i++)
-            {
-                if (activePointLightShadows[i].light == light)
-                    return i;
-            }
-            return -1;
-        } // GetIndexActivePointLightShadows
-
-        /// <summary>
-        /// Gets the index of the first free slot in the active point light shadows array.
-        /// </summary>
-        public static int GetFreeIndexActivePointLightShadows()
-        {
-            for (int i = 0; i < activePointLightShadows.Length; i++)
-            {
-                if (activePointLightShadows[i].light == null)
-                    return i;
-            }
-            // If there is no free slot...
-            PointLightDepthInformation[] newArray = new PointLightDepthInformation[activeDirectionalLightShadows.Length + 5];
-            for (int i = 0; i < activePointLightShadows.Length; i++)
-            {
-                newArray[i] = activePointLightShadows[i];
-            }
-            activePointLightShadows = newArray;
-            return activePointLightShadows.Length - 5;
-        } // GetFreeIndexActivePointLightShadows
-
-        #endregion
-
+        
         /// <summary>
         /// Deferred lighting pipeline for one camera. 
         /// </summary>
@@ -976,6 +872,9 @@ namespace XNAFinalEngine.EngineCore
         {
             if (renderTarget == null)
                 throw new ArgumentNullException("renderTarget");
+
+            // Store a the camera position for the tranparent object sorting.
+            cameraPosition = currentCamera.Position;
 
             // Calculate view space bounding frustum.
             currentCamera.BoundingFrustumViewSpace(cornersViewSpace);
@@ -2072,6 +1971,12 @@ namespace XNAFinalEngine.EngineCore
 
             #region Transparent Objects
 
+            // Sorting from back to front.
+            // The mesh parts compares the bounding sphere of the entire model.
+            // If you need a better sorting separate the mesh parts into models or store and update a bounding sphere per mesh part.
+            // transparentObjects.Sort(CompareMeshParts); // Produces garbage.
+            HeapSort(transparentObjects);
+
             #region Blinn Phong
 
             if (sun != null)
@@ -2093,7 +1998,7 @@ namespace XNAFinalEngine.EngineCore
                     float closerDistantance = currentCamera.FarPlane;
                     foreach (SpotLight spotLight in spotLightsToRender)
                     {
-                        float spotLightDistance = Vector3.Distance(meshPartToRender.WorldMatrix.Translation, currentCamera.Position);
+                        float spotLightDistance = Vector3.Distance(meshPartToRender.Model.BoundingSphere.Center, spotLight.cachedPosition);
                         if (spotLightDistance < closerDistantance)
                         {
                             closerDistantance = spotLightDistance;
@@ -2106,7 +2011,7 @@ namespace XNAFinalEngine.EngineCore
                     float spotLightIntensity = 0;
                     float spotLightInnerAngle = 0;
                     float spotLightOuterAngle = 0;
-                    float range = 0;
+                    float spotLightRange = 0;
                     if (closerSpotLight != null)
                     {
                         spotLightPosition = closerSpotLight.cachedPosition;
@@ -2115,7 +2020,56 @@ namespace XNAFinalEngine.EngineCore
                         spotLightIntensity = closerSpotLight.Intensity;
                         spotLightInnerAngle = closerSpotLight.InnerConeAngle;
                         spotLightOuterAngle = closerSpotLight.OuterConeAngle;
-                        range = closerSpotLight.Range;
+                        spotLightRange = closerSpotLight.Range;
+                    }
+
+                    #endregion
+
+                    #region Point Lights
+
+                    PointLight closerPointLight1 = null;
+                    PointLight closerPointLight2 = null;
+                    float closerDistantance1 = currentCamera.FarPlane;
+                    float closerDistantance2 = currentCamera.FarPlane;
+                    foreach (PointLight pointLight in pointLightsToRender)
+                    {
+                        float pointLightDistance = Vector3.Distance(meshPartToRender.Model.BoundingSphere.Center, pointLight.cachedPosition);
+                        if (pointLightDistance < closerDistantance2)
+                        {
+                            closerDistantance2 = pointLightDistance;
+                            closerPointLight2 = pointLight;
+                            if (pointLightDistance < closerDistantance1)
+                            {
+                                float swapCloserDistance= closerDistantance2;
+                                PointLight swapCloserPointLight = closerPointLight2;
+                                closerDistantance2 = closerDistantance1;
+                                closerPointLight2 = closerPointLight1;
+                                closerDistantance1 = swapCloserDistance;
+                                closerPointLight1 = swapCloserPointLight;
+                            }
+                        }
+                    }
+                    Vector3 pointLightPos1 = Vector3.Zero;
+                    Color pointLightColor1 = Color.Black;
+                    float pointLightIntensity1 = 0;
+                    float pointLightRange1 = 0;
+                    Vector3 pointLightPos2 = Vector3.Zero;
+                    Color pointLightColor2 = Color.Black;
+                    float pointLightIntensity2 = 0;
+                    float pointLightRange2 = 0;
+                    if (closerPointLight1 != null)
+                    {
+                        pointLightPos1 = closerPointLight1.cachedPosition;
+                        pointLightColor1 = closerPointLight1.Color;
+                        pointLightIntensity1 = closerPointLight1.Intensity;
+                        pointLightRange1 = closerPointLight1.Range;
+                    }
+                    if (closerPointLight2 != null)
+                    {
+                        pointLightPos2 = closerPointLight2.cachedPosition;
+                        pointLightColor2 = closerPointLight2.Color;
+                        pointLightIntensity2 = closerPointLight2.Intensity;
+                        pointLightRange2 = closerPointLight2.Range;
                     }
 
                     #endregion
@@ -2125,73 +2079,44 @@ namespace XNAFinalEngine.EngineCore
                                                                  (BlinnPhong) meshPartToRender.Material,
                                                                  meshPartToRender.MeshIndex, meshPartToRender.MeshPart,
                                                                  spotLightPosition, spotLightDirection, spotLightColor,
-                                                                 spotLightIntensity, spotLightInnerAngle, spotLightOuterAngle, range);
+                                                                 spotLightIntensity, spotLightInnerAngle, spotLightOuterAngle, spotLightRange,
+                                                                 pointLightPos1, pointLightColor1, pointLightIntensity1, pointLightRange1,
+                                                                 pointLightPos2, pointLightColor2, pointLightIntensity2, pointLightRange2);
                 }
             }
 
             #endregion
-            
-            // The transparent objects will be render in forward fashion.
-            // I should first render the additive materials and then the alpha blending ones.
-            /*foreach (ModelRenderer modelRenderer in modelsToRender)
+
+            #region Constant
+
+            ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
+            // Constant Simple
+            for (int i = 0; i < transparentObjects.Count; i++)
             {
-                if (modelRenderer.CachedModel != null && modelRenderer.IsVisible)
+                var meshPartToRender = transparentObjects[i];
+                if (meshPartToRender.Material is Constant)
                 {
-                    int currentMeshPart = 0;
-                    // Render each mesh
-                    for (int j = 0; j < modelRenderer.CachedModel.MeshesCount; j++)
-                    {
-                        // I need to know the total index of the current part for the materials.
-                        int meshPartsCount = 1;
-                        if (modelRenderer.CachedModel is FileModel)
-                        {
-                            meshPartsCount = ((FileModel)modelRenderer.CachedModel).Resource.Meshes[j].MeshParts.Count;
-                        }
-                        for (int k = 0; k < meshPartsCount; k++)
-                        {
-                            // Find material
-                            Material material = null;
-                            if (modelRenderer.MeshMaterial != null && currentMeshPart < modelRenderer.MeshMaterial.Length &&
-                                modelRenderer.MeshMaterial[currentMeshPart] != null)
-                            {
-                                material = modelRenderer.MeshMaterial[currentMeshPart];
-                            }
-                            else if (modelRenderer.Material != null)
-                            {
-                                material = modelRenderer.Material;
-                            }
-                            // Render mesh with finded material.
-                            if (material != null && material.AlphaBlending < 1)
-                            {
-                                if (modelRenderer.Material is Constant)
-                                {
-                                    ConstantShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
-                                    ConstantShader.Instance.RenderModelSimple(ref modelRenderer.CachedWorldMatrix,
-                                                                              modelRenderer.CachedModel,
-                                                                              (Constant)material, j, k);
-                                }
-                                else if (modelRenderer.Material is BlinnPhong)
-                                {
-                                    ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix);
-                                    ForwardBlinnPhongShader.Instance.RenderModel(modelRenderer.CachedWorldMatrix,
-                                                                                 modelRenderer.CachedModel,
-                                                                                 modelRenderer.cachedBoneTransforms,
-                                                                                 (BlinnPhong)material,
-                                                                                 currentCamera.AmbientLight, j, k);
-                                }
-                                else if (modelRenderer.Material is CarPaint)
-                                {
-                                    CarPaintShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, lightTextures.RenderTargets[0], lightTextures.RenderTargets[1], gbufferTextures.RenderTargets[1]);
-                                    CarPaintShader.Instance.RenderModel(ref modelRenderer.CachedWorldMatrix,
-                                                                        modelRenderer.CachedModel,
-                                                                        (CarPaint)material, j, k);
-                                }
-                            }
-                            currentMeshPart++;
-                        }
-                    }
+                    // Search closer lights.
+                    ConstantShader.Instance.RenderModelSimple(ref meshPartToRender.WorldMatrix,
+                                                              meshPartToRender.Model,
+                                                              (Constant)meshPartToRender.Material,
+                                                              meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
                 }
-            }*/
+            }
+            for (int i = 0; i < transparentSkinnedObjects.Count; i++)
+            {
+                var meshPartToRender = transparentSkinnedObjects[i];
+                if (meshPartToRender.Material is Constant)
+                {
+                    // Search closer lights.
+                    ConstantShader.Instance.RenderModelSkinned(ref meshPartToRender.WorldMatrix,
+                                                               meshPartToRender.Model, meshPartToRender.BoneTransform,
+                                                               (Constant)meshPartToRender.Material,
+                                                               meshPartToRender.MeshIndex, meshPartToRender.MeshPart);
+                }
+            }
+
+            #endregion
             
             #endregion
 
@@ -2441,6 +2366,175 @@ namespace XNAFinalEngine.EngineCore
             
         } // RenderCamera
 
+        #region Active Shadows Methods
+
+        /// <summary>
+        /// Returns the index of the array that contains the light depth texture (and other data) previously generated.
+        /// To work with split screen we need to store this map for each active camera.
+        /// -1 indicates that is was not founded.
+        /// </summary>
+        public static int GetIndexActiveDirectionalLightShadows(Camera camera, DirectionalLight light)
+        {
+            for (int i = 0; i < activeDirectionalLightShadows.Length; i++)
+            {
+                if (activeDirectionalLightShadows[i].camera == camera && activeDirectionalLightShadows[i].light == light)
+                    return i;
+            }
+            return -1;
+        } // GetIndexActiveDirectionalLightShadows
+
+        /// <summary>
+        /// Gets the index of the first free slot in the active directiona light shadows array.
+        /// </summary>
+        public static int GetFreeIndexActiveDirectionalLightShadows()
+        {
+            for (int i = 0; i < activeDirectionalLightShadows.Length; i++)
+            {
+                if (activeDirectionalLightShadows[i].camera == null)
+                    return i;
+            }
+            // If there is no free slot (almost impossible)...
+            DirectionalLightDepthInformation[] newArray = new DirectionalLightDepthInformation[activeDirectionalLightShadows.Length + 5];
+            for (int i = 0; i < activeDirectionalLightShadows.Length; i++)
+            {
+                newArray[i] = activeDirectionalLightShadows[i];
+            }
+            activeDirectionalLightShadows = newArray;
+            return activeDirectionalLightShadows.Length - 5;
+        } // GetFreeIndexActiveDirectionalLightShadows
+
+        /// <summary>
+        /// Returns the index of the array that contains the light depth texture (and other data) previously generated.
+        /// -1 indicates that is was not founded.
+        /// </summary>
+        public static int GetIndexActiveSpotLightShadows(SpotLight light)
+        {
+            for (int i = 0; i < activeSpotLightShadows.Length; i++)
+            {
+                if (activeSpotLightShadows[i].light == light)
+                    return i;
+            }
+            return -1;
+        } // GetIndexActiveSpotLightShadows
+
+        /// <summary>
+        /// Gets the index of the first free slot in the active spot light shadows array.
+        /// </summary>
+        public static int GetFreeIndexActiveSpotLightShadows()
+        {
+            for (int i = 0; i < activeSpotLightShadows.Length; i++)
+            {
+                if (activeSpotLightShadows[i].light == null)
+                    return i;
+            }
+            // If there is no free slot...
+            SpotLightDepthInformation[] newArray = new SpotLightDepthInformation[activeDirectionalLightShadows.Length + 5];
+            for (int i = 0; i < activeSpotLightShadows.Length; i++)
+            {
+                newArray[i] = activeSpotLightShadows[i];
+            }
+            activeSpotLightShadows = newArray;
+            return activeSpotLightShadows.Length - 5;
+        } // GetFreeIndexActiveSpotLightShadows
+
+        /// <summary>
+        /// Returns the index of the array that contains the light depth texture (and other data) previously generated.
+        /// -1 indicates that is was not founded.
+        /// </summary>
+        public static int GetIndexActivePointLightShadows(PointLight light)
+        {
+            for (int i = 0; i < activePointLightShadows.Length; i++)
+            {
+                if (activePointLightShadows[i].light == light)
+                    return i;
+            }
+            return -1;
+        } // GetIndexActivePointLightShadows
+
+        /// <summary>
+        /// Gets the index of the first free slot in the active point light shadows array.
+        /// </summary>
+        public static int GetFreeIndexActivePointLightShadows()
+        {
+            for (int i = 0; i < activePointLightShadows.Length; i++)
+            {
+                if (activePointLightShadows[i].light == null)
+                    return i;
+            }
+            // If there is no free slot...
+            PointLightDepthInformation[] newArray = new PointLightDepthInformation[activeDirectionalLightShadows.Length + 5];
+            for (int i = 0; i < activePointLightShadows.Length; i++)
+            {
+                newArray[i] = activePointLightShadows[i];
+            }
+            activePointLightShadows = newArray;
+            return activePointLightShadows.Length - 5;
+        } // GetFreeIndexActivePointLightShadows
+
+        #endregion
+
+        #region Sort Mesh Parts
+
+        /// <summary> 
+        /// Average case: O(n log n)
+        /// Best case: O(n log n)
+        /// Worst case: O(n log n)
+        /// </summary>
+        private static void HeapSort(List<MeshPartToRender> list)
+        {
+            for (int i = (list.Count / 2) - 1; i >= 0; i--)
+                HeapInternalFunction(list, i, list.Count);
+            for (int i = list.Count - 1; i >= 1; i--)
+            {
+                // Swap
+                MeshPartToRender temp = list[0];
+                list[0] = list[i];
+                list[i] = temp;
+
+                HeapInternalFunction(list, 0, i - 1);
+            }
+        } // HeapSort
+
+        private static void HeapInternalFunction(List<MeshPartToRender> list, int root, int bottom)
+        {
+            bool completed = false;
+
+            while ((root * 2 <= bottom) && (!completed))
+            {
+                float pointLightDistance1 = Vector3.Distance(list[root * 2].Model.BoundingSphere.Center, cameraPosition);
+                float pointLightDistance2 = Vector3.Distance(list[root * 2 + 1].Model.BoundingSphere.Center, cameraPosition);
+
+                int maxChild;
+                if (root * 2 == bottom)
+                    maxChild = root * 2;
+                else if (pointLightDistance1 > pointLightDistance2)
+                    maxChild = root * 2;
+                else
+                    maxChild = root * 2 + 1;
+
+                pointLightDistance1 = Vector3.Distance(list[root].Model.BoundingSphere.Center, cameraPosition);
+                pointLightDistance2 = Vector3.Distance(list[maxChild].Model.BoundingSphere.Center, cameraPosition);
+
+                if (pointLightDistance1 < pointLightDistance2)
+                {
+                    // Swap
+                    MeshPartToRender temp = list[root];
+                    list[root] = list[maxChild];
+                    list[maxChild] = temp;
+
+                    root = maxChild;
+                }
+                else
+                {
+                    completed = true;
+                }
+            }
+        } // Heapify
+
+        #endregion
+
+        #region Release Unused Render Targets
+
         /// <summary>
         /// Release Unused Render Targets.
         /// </summary>
@@ -2461,6 +2555,8 @@ namespace XNAFinalEngine.EngineCore
                 ambientOcclusionTexture = null;
             }
         } // ReleaseUnusedRenderTargets
+
+        #endregion
 
         #endregion
 
