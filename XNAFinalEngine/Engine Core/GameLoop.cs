@@ -292,18 +292,11 @@ namespace XNAFinalEngine.EngineCore
             // Run the simulation
             PhysicsManager.Scene.Update(Time.GameDeltaTime);
 
-            // Update physics components
+            // Update physics components, i.e. update the game object's transform
             for (int i = 0; i < RigidBody.ComponentPool.Count; i++)
             {
                 if (RigidBody.ComponentPool.Elements[i].IsActive)
                     RigidBody.ComponentPool.Elements[i].Update();
-            }
-
-            // Process collisions
-            for (int i = 0; i < RigidBody.ComponentPool.Count; i++)
-            {
-                if (RigidBody.ComponentPool.Elements[i].IsActive)
-                    RigidBody.ComponentPool.Elements[i].ProcessCollisions();
             }
 
             #endregion
@@ -1796,7 +1789,7 @@ namespace XNAFinalEngine.EngineCore
             #region Material Pass
 
             MaterialPass.Begin(renderTarget.Size, currentCamera.ClearColor);
-
+            
             // Similar to Z-Pre Pass, the previously generated Z-Buffer is used to avoid the generation of invisible fragments.
             // In XNA we lost the GPU Z-Buffer, therefore a regeneration pass is needed.
             // It is possible that the cost of this regeneration could be higher than the performance improvement, particularly in small scenes.
@@ -2204,9 +2197,11 @@ namespace XNAFinalEngine.EngineCore
             LineManager.End();
 
             #endregion
-
+            
             sceneTexture = MaterialPass.End();
             RenderTarget.Release(lightTextures);
+            // Testing
+            //FinishRendering(currentCamera, renderTarget, sceneTexture); return;
 
             #endregion
             

@@ -26,13 +26,13 @@ Author: Schefer, Gustavo Martín (gusschefer@hotmail.com)
 */
 #endregion
 
-using System.Text;
+using BEPUphysics.NarrowPhaseSystems.Pairs;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.Helpers;
 
-namespace Nebula.Scripts
+namespace XNAFinalEngineExamples
 {
     /// <summary>
     /// Example script that paints green one of the GOs that are touching the GO this script belongs to.
@@ -56,10 +56,6 @@ namespace Nebula.Scripts
         /// </summary>
         private static Material greenMaterial = new BlinnPhong { DiffuseColor = new Color(0.4f, 0.85f, 0.35f), SpecularIntensity = 0.3f, SpecularPower = 200 };
 
-        private int enterCount = 0;
-        private int exitCount = 0;
-        private StringBuilder lastEvent = new StringBuilder();
-
         #endregion
 
         #region Properties
@@ -71,11 +67,34 @@ namespace Nebula.Scripts
 
         #endregion
 
-        public override void OnCollisionEnter(BEPUphysics.Collidables.MobileCollidables.EntityCollidable collisionInfo)
+        public override void OnCollisionEnter(GameObject3D go, ContactCollection contacts)
         {
-            enterCount++;
-            lastEvent.ClearXbox();
-            lastEvent.Append("CollisionEnter");
+            // Save the go that was hit and the material that it has
+            lastCollidedGO = go;
+            lastCollidedGOMaterial = go.ModelRenderer.Material;
+
+            // Paint it green
+            go.ModelRenderer.Material = greenMaterial;
+        }
+
+        public override void OnCollisionExit(GameObject3D go, ContactCollection contacts)
+        {
+            // Restore the last collided gameobject's original material
+            if (lastCollidedGO != null)
+                lastCollidedGO.ModelRenderer.Material = lastCollidedGOMaterial;
+        }
+
+        public override void OnCollisionStay(GameObject3D go, ContactCollection contacts)
+        {
+            var thisGo = (GameObject3D) Owner;
+            thisGo.RigidBody.Entity.ApplyImpulse(thisGo.Transform.Position, Vector3.Up * 0.5f);
+        }
+
+        /*
+        public override void OnCollisionEnter(BEPUphysics.BroadPhaseEntries.MobileCollidables.EntityCollidable collisionInfo)
+        {
+            DebugText.Text.ClearXbox();
+            DebugText.Text.Append("White Box Info\n\n- Last event: Collision Enter");
 
             // Paint green the GO that was hit
             // We only check ONE contact pair, NOT ALL of them. The GO could be in contact with two or more game objects.
@@ -83,7 +102,7 @@ namespace Nebula.Scripts
             GameObject3D go = collisionInfo.Pairs[0].EntityA.Tag as GameObject3D;
             if (go != null)
             {
-                if (go == this.Owner)
+                if (go == Owner)
                     go = collisionInfo.Pairs[0].EntityB.Tag as GameObject3D;
 
                 // Save the go that was hit and the material that it has
@@ -94,13 +113,12 @@ namespace Nebula.Scripts
                 go.ModelRenderer.Material = greenMaterial;
             }
         } // OnCollisionEnter
-        
 
-        public override void OnCollisionExit(BEPUphysics.Collidables.MobileCollidables.EntityCollidable collisionInfo)
+
+        public override void OnCollisionExit(BEPUphysics.BroadPhaseEntries.MobileCollidables.EntityCollidable collisionInfo)
         {
-            exitCount++;
-            lastEvent.ClearXbox();
-            lastEvent.Append("CollisionExit");
+            DebugText.Text.ClearXbox();
+            DebugText.Text.Append("White Box Info\n\n- Last event: Collision Exit");
 
             // Restore the last collided gameobject's original material
             if (lastCollidedGO != null)
@@ -108,24 +126,11 @@ namespace Nebula.Scripts
         } // OnCollisionExit
 
 
-        public override void OnCollisionStay(BEPUphysics.Collidables.MobileCollidables.EntityCollidable collisionInfo)
-        {
-            lastEvent.ClearXbox();
-            lastEvent.Append("CollisionStay");
-        } // OnCollisionStay
-
-
-        public override void Update()
+        public override void OnCollisionStay(BEPUphysics.BroadPhaseEntries.MobileCollidables.EntityCollidable collisionInfo)
         {
             DebugText.Text.ClearXbox();
-            DebugText.Text.Append("White Box Info\n\n");
-            DebugText.Text.Append("- OnCollisionEnter count: ");
-            DebugText.Text.Append(enterCount);
-            DebugText.Text.Append("\n- OnCollisionExit count: ");
-            DebugText.Text.Append(exitCount);
-            DebugText.Text.Append("\n- Last event: ");
-            DebugText.Text.Append(lastEvent);
-        } // Update
-
+            DebugText.Text.Append("White Box Info\n\n- Last event: Collision Stay");
+        } // OnCollisionStay
+        */
     } // CollisionResponseTest
 } // Nebula.Scripts

@@ -107,22 +107,22 @@ namespace XNAFinalEngineExamples
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
                                                             Color = new Color(10, 10, 10),
                                                             Intensity = 6f,
-                                                            AmbientOcclusionStrength = 2f };
+                                                            AmbientOcclusionStrength = 1f };
             
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
             //camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, } };
             
-            /*camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
+            camera.Camera.AmbientLight.AmbientOcclusion = new HorizonBasedAmbientOcclusion
             {
                 NumberSteps = 12, //15, // Don't change this.
                 NumberDirections = 12, // 12, // Don't change this.
-                Radius = 0.001f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                Radius = 0.0002f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 1.0f,
                 Contrast = 1f,
                 AngleBias = 0.1f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
-            };*/
+            };
             /*
             camera.Camera.AmbientLight.AmbientOcclusion = new RayMarchingAmbientOcclusion
             {
@@ -215,8 +215,8 @@ namespace XNAFinalEngineExamples
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.95f, -0.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
-                Filter = Shadow.FilterType.PcfPosion,
-                LightDepthTextureSize = Size.Square512X512,
+                Filter = Shadow.FilterType.Pcf7X7,
+                LightDepthTextureSize = Size.Square1024X1024,
                 ShadowTextureSize = Size.TextureSize.FullSize, // Lower than this could produce artifacts if the light is too intense.
                 DepthBias = 0.0025f,
                 FarPlaneSplit1 = 15,
@@ -236,22 +236,22 @@ namespace XNAFinalEngineExamples
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.Color = new Color(50, 150, 250); // new Color(240, 235, 200);
-            pointLight.PointLight.Intensity = 0.2f;
+            pointLight.PointLight.Intensity = 0.5f;
             pointLight.PointLight.Range = 60;
             pointLight.Transform.Position = new Vector3(4.8f, 1.5f, 10); // new Vector3(8f, -1f, 10);
-            pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 512, };
+            //pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 512, };
 
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
             pointLight.PointLight.Color = new Color(50, 150, 250); // new Color(240, 235, 200);
-            pointLight.PointLight.Intensity = 0.2f;
+            pointLight.PointLight.Intensity = 0.5f;
             pointLight.PointLight.Range = 60;
             pointLight.Transform.Position = new Vector3(-4.8f, 1.5f, -10); // new Vector3(8f, -1f, 10);
 
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
             spotLight.SpotLight.Color = new Color(0, 250, 0);
-            spotLight.SpotLight.Intensity = 500f;
+            spotLight.SpotLight.Intensity = 0f;
             spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
             spotLight.Transform.Position = new Vector3(0, 16, 18);
             spotLight.Transform.Rotate(new Vector3(-80, 0, 0));
@@ -276,7 +276,7 @@ namespace XNAFinalEngineExamples
             #region Lamborghini Murcielago LP640
             
             // To test performance.
-            //for (int i = 0; i < 100; i++)
+            //for (int i = 0; i < 10; i++)
             {
                 LamborghiniMurcielagoLoader lamborghiniMurcielagoLoader = new LamborghiniMurcielagoLoader();
                 lamborghiniMurcielagoLoader.LoadContent();

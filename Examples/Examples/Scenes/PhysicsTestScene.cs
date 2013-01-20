@@ -28,10 +28,11 @@ Author: Schefer, Gustavo Martín (gusschefer@hotmail.com)
 
 #region Using directives
 using BEPUphysics;
+using BEPUphysics.CollisionShapes.ConvexShapes;
+using BEPUphysics.EntityStateManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Nebula.Scripts;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
@@ -57,9 +58,14 @@ namespace XNAFinalEngineExamples
         #region Variables
          
         // Camera, cube and obstacles.
-        private static GameObject3D camera, cube, obstacle;        
+        private static GameObject3D camera, cube, obstacle, floor;        
         // Used to show the engine statistics onto screen.
         private static GameObject2D statistics;
+
+        // Materials //
+        private static Material hitMaterial = new BlinnPhong { DiffuseColor = new Color(0.10f, 0.10f, 0.85f) };
+        private static Material mat1 = new BlinnPhong { DiffuseColor = new Color(0.85f, 0.65f, 0f) };
+        private static Material mat2 = new BlinnPhong { DiffuseColor = new Color(0.5f, 0.9f, 0.5f) };
 
         #endregion
 
@@ -115,14 +121,12 @@ namespace XNAFinalEngineExamples
             // Make the floor (Kinematic) //
             // First, we create a bepu box entity that we will be used in our rigidbody component. 
             // Notice that we don't specify the mass, so we are creating a kinematic entity.
-            // Kinematic rigidbodies are moved using through the transform component of the gameobject the rigidbody belongs to.
+            // Kinematic rigidbodies are moved through the transform component of the gameobject the rigidbody belongs to.
             // Kinematic rigidbodies don't respond to collisions and can't collide with other kinematic rigidbodies. However, they can
             // collide with dynamic rigidbodies affecting them.
-            var bepuGround = new Box(Vector3.Zero, 50, 1, 50);
-            // We add the entity to the scene so as the entity can be simulated
-            PhysicsManager.Scene.Add(bepuGround);
+            var bepuGround = new Box(Vector3.Zero, 50, 1, 50);            
             // Now, we create the game object and we add a rigidbody component to it.
-            var floor = new GameObject3D(new XNAFinalEngine.Assets.Box(50, 1, 50), new BlinnPhong { SpecularIntensity = 0.3f, SpecularPower = 200 });            
+            floor = new GameObject3D(new XNAFinalEngine.Assets.Box(50, 1, 50), new BlinnPhong { SpecularIntensity = 0.3f, SpecularPower = 200 });            
             var floorRb = (RigidBody)floor.AddComponent<RigidBody>();
             // Finally, we set the entity created previously to the rigidbody component
             floorRb.Entity = bepuGround;
@@ -132,8 +136,7 @@ namespace XNAFinalEngineExamples
             // Notice that this time we specify the entity's mass in order to create a dynamic entity. 
             // Dynamic rigidbodies are affected by gravity and respond to collisions with other rigidbodies.
             // Dynamic rigidbodies are under the control of physics so they don't have to be moved or rotated through the transform component.
-            var bepuCube = new Box(new Vector3(0, 20, 2), 1, 1, 1, 1);
-            PhysicsManager.Scene.Add(bepuCube);
+            var bepuCube = new Box(new Vector3(0, 20, 2), 1, 1, 1, 1);            
             cube = new GameObject3D(new XNAFinalEngine.Assets.Box(1, 1, 1), new BlinnPhong { DiffuseColor = new Color(0.8f, 0.8f, 0.85f) } );            
             var cubeRb = (RigidBody)cube.AddComponent<RigidBody>();
             cubeRb.Entity = bepuCube;
@@ -144,27 +147,47 @@ namespace XNAFinalEngineExamples
             crt.DebugText = (HudText)debugGo.AddComponent<HudText>();
             
             // Make an obstacle (Kinematic) //
-            var bepuObstacle = new Box(new Vector3(0.5f, 1f, 0.5f), 4, 1, 1.5f);            
-            PhysicsManager.Scene.Add(bepuObstacle);
+            var bepuObstacle = new Box(new Vector3(0.5f, 1f, 0.5f), 4, 1, 1.5f);                        
             obstacle = new GameObject3D(new XNAFinalEngine.Assets.Box(4, 1, 1.5f), new BlinnPhong { DiffuseColor = new Color(0.9f, 0.2f, 0.15f), SpecularPower = 20 });
             obstacle.Transform.Position = new Vector3(0.5f, 1f, 0.5f);
             var obstacleRb = (RigidBody) obstacle.AddComponent<RigidBody>();
-            obstacleRb.Entity = bepuObstacle;            
+            obstacleRb.Entity = bepuObstacle;
+            var motionState = new MotionState();
+            motionState.Position = new Vector3(2, 4, -4);
+            motionState.Orientation = Quaternion.Identity;
+            motionState.LinearVelocity = new Vector3(2,2,2);
+            motionState.AngularVelocity = new Vector3(5,5,5);
+            obstacleRb.Entity.MotionState = motionState;
             
             // Make a wall of boxes //
-            MakeWall(20, 20);
+            MakeWall(6, 9);
 
-            // Make a sphere obstacle (Dynamic) //
-            var bepuSphere = new Sphere(new Vector3(-6f, 1f, -3f), 1f, 2.0f);
-            PhysicsManager.Scene.Add(bepuSphere);
+            // Make a sphere obstacle (Dynamic) //             
             var sphere = new GameObject3D(new XNAFinalEngine.Assets.Sphere(25, 25, 1f), new BlinnPhong { DiffuseColor = new Color(0.79f, 0.75f, 0.2f), SpecularPower = 20 });
-            ((RigidBody) sphere.AddComponent<RigidBody>()).Entity = bepuSphere;  
+            ((RigidBody)sphere.AddComponent<RigidBody>()).Entity = new Sphere(new Vector3(-6f, 1f, -3f), 1f, 2.0f);
+
+            // Lambo body
+            var lambo = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RearTyre"), new BlinnPhong() { DiffuseColor = Color.Black });
+            lambo.Transform.Position = new Vector3(0f, 10f, 8f);
+            ((RigidBody) lambo.AddComponent<RigidBody>()).CreateDynamicEntityFromModelFilter(new MotionState(), 1f);
+            
             
             // Very Simple Crosshair //
             GameObject2D crosshair = new GameObject2D();
             crosshair.Transform.Position = new Vector3(Screen.Width / 2f, Screen.Height / 2f, 0f);
             var crossText = (HudText) crosshair.AddComponent<HudText>();
             crossText.Text.Append("+");
+
+            #endregion
+
+            #region Development
+
+            /*var bigBox = new GameObject3D(new XNAFinalEngine.Assets.Box(3f, 3f, 3f), new BlinnPhong { DiffuseColor = new Color(0.79f, 0.75f, 0.2f), SpecularPower = 20 });            
+            var bigBoxRb = (RigidBody)  bigBox.AddComponent<RigidBody>();
+            bigBoxRb.CollisionShape = new BoxShape(3f, 3f, 3f);
+            //bigBoxRb.Entity.Position = new Vector3(5f, 15f, 2f);
+            bigBoxRb.Entity.BecomeKinematic();
+            bigBox.Transform.Position = new Vector3(5f, 15f, 2f);*/
 
             #endregion
 
@@ -266,7 +289,7 @@ namespace XNAFinalEngineExamples
             // Fire a box //
             if (Keyboard.KeyJustPressed(Keys.LeftControl) || XNAFinalEngine.Input.GamePad.PlayerOne.XJustPressed)
             {
-                var bullet = MakeBox(camera.Transform.Position, 1, 1, 1, 1, new Color(0.10f, 0.10f, 0.85f));
+                var bullet = MakeBox(camera.Transform.Position, 1, 1, 1, 1, hitMaterial);
                 var rb = bullet.RigidBody;
                 rb.Entity.Orientation = camera.Transform.Rotation;
                 rb.Entity.LinearVelocity = camera.Transform.Forward * 45f;
@@ -277,7 +300,7 @@ namespace XNAFinalEngineExamples
             {                
                 RayCastResult raycastResult;
                 GameObject3D go = PhysicsManager.Raycast(new Ray(camera.Transform.Position, camera.Transform.Forward), 100f, out raycastResult);
-                if (go != null)
+                if (go != null && go != floor && go != cube && go != obstacle)
                 {
                     // Change the color of the hitted GO                   
                     go.ModelRenderer.Material = new BlinnPhong { DiffuseColor = new Color(1.0f, 1.0f, 0.0f), SpecularPower = 500, SpecularIntensity = 0.5f };
@@ -297,11 +320,10 @@ namespace XNAFinalEngineExamples
         /// <summary>
         /// Makes a box that is affected by physics.
         /// </summary>
-        private static GameObject3D MakeBox(Vector3 position, float width, float height, float depth, float mass, Color color)
+        private static GameObject3D MakeBox(Vector3 position, float width, float height, float depth, float mass, Material mat)
         {
-            var cubeEntity = new Box(position, width, height, depth, mass);
-            PhysicsManager.Scene.Add(cubeEntity);
-            var gameObject = new GameObject3D(new XNAFinalEngine.Assets.Box(width, height, depth), new BlinnPhong { DiffuseColor = color });
+            var cubeEntity = new Box(position, width, height, depth, mass);            
+            var gameObject = new GameObject3D(new XNAFinalEngine.Assets.Box(width, height, depth), mat);
             var rigidBody = (RigidBody) gameObject.AddComponent<RigidBody>();
             rigidBody.Entity = cubeEntity;
 
@@ -316,7 +338,7 @@ namespace XNAFinalEngineExamples
             for (int i = 0; i <= rows; i++)
                 for (int j = 0; j <= cols; j++)
                 {
-                    MakeBox(new Vector3(5 + j + 0.05f * j, i + 0.05f * i, 0), 1, 1, 1, 1, j % 2 == 0? new Color(0.85f, 0.65f, 0f) : new Color(0.5f, 0.9f, 0.5f));
+                    MakeBox(new Vector3(5 + j + 0.05f * j, i + 0.05f * i, 0), 1, 1, 1, 1, j % 2 == 0? mat1 : mat2);
                 }
         } // MakeWall
 

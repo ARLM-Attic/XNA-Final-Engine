@@ -1,10 +1,8 @@
 ﻿using System;
-using BEPUphysics.Collidables;
-using BEPUphysics.Collidables.MobileCollidables;
+using BEPUphysics.BroadPhaseEntries;
+using BEPUphysics.BroadPhaseEntries.MobileCollidables;
 using BEPUphysics.CollisionTests.CollisionAlgorithms;
-using Microsoft.Xna.Framework;
-using BEPUphysics.DataStructures;
-using BEPUphysics.ResourceManagement;
+using BEPUutilities.DataStructures;
 using BEPUphysics.CollisionShapes.ConvexShapes;
 
 namespace BEPUphysics.CollisionTests.Manifolds
@@ -122,11 +120,11 @@ namespace BEPUphysics.CollisionTests.Manifolds
         ///</summary>
         public override void CleanUp()
         {
-            contacts.Clear();
             sphereA = null;
             sphereB = null;
             previouslyColliding = false;
-            base.CleanUp();
+            //We don't have to worry about losing a reference to our contact- we keep it local!
+            contacts.Clear();
         }
 
         /// <summary>

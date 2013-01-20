@@ -96,7 +96,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             if (channels.Count == 2 && channels.Contains(VertexChannelNames.Normal()) && channels.Contains(VertexChannelNames.TextureCoordinate(0)))
             {
                 // No compressed Vertex Data
-                base.ProcessVertexChannel(geometry, vertexChannelIndex, context);    
+                base.ProcessVertexChannel(geometry, vertexChannelIndex, context);
             }
             else // If not then the data is compressed.
             {
@@ -108,8 +108,22 @@ namespace XNAFinalEngineContentPipelineExtension.Models
                 }
                 else if (name == VertexChannelNames.TextureCoordinate(0))
                 {
+                    // Clamp values.
+                    /*for (int i = 0; i < channels[vertexChannelIndex].Count; i++)
+                    {
+                        Vector2 uv = (Vector2)channels[vertexChannelIndex][i];
+                        if (uv.X < 0) 
+                            uv.X *= -1;
+                        if (uv.Y < 0) 
+                            uv.Y *= -1;
+                        Vector2 uvCampled = new Vector2(uv.X - (float)Math.Truncate(uv.X), uv.Y - (float)Math.Truncate(uv.Y));
+                        channels[vertexChannelIndex][i] = uvCampled;
+                    }
                     // If the resource has texture coordinates outside the range [-1, 1] the values will be clamped.
-                    channels.ConvertChannelContent<NormalizedShort2>(vertexChannelIndex);
+                    channels.ConvertChannelContent<NormalizedShort2>(vertexChannelIndex);*/
+                    // Sometimes you can't just clamp values, because the distance between vertices surpass 1 uv unit.
+                    // And given that I am not removing the binormals I won't normalize the UVs.
+                    channels.ConvertChannelContent<HalfVector2>(vertexChannelIndex);
                 }
                 else if (name == VertexChannelNames.TextureCoordinate(1))
                     channels.Remove(VertexChannelNames.TextureCoordinate(1));

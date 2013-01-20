@@ -145,6 +145,30 @@ namespace XNAFinalEngine.Graphics
 
 		#endregion
 
+        #region Get Techniques Handles
+
+        /// <summary>
+        /// Get the handles of the techniques from the shader.
+        /// </summary>
+        /// <remarks>
+        /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
+        /// </remarks>
+        protected override void GetTechniquesHandles()
+        {
+            try
+            {
+                blinnPhongSkinnedTechnique = Resource.Techniques["BlinnPhongSkinned"];
+                blinnPhongSimpleTechnique = Resource.Techniques["BlinnPhongSimple"];
+                blinnPhongWithParrallaxTechnique = Resource.Techniques["BlinnPhongWithParrallax"];
+            }
+            catch
+            {
+                throw new InvalidOperationException("The technique's handles from the " + Name + " shader could not be retrieved.");
+            }
+        } // GetTechniquesHandles
+
+        #endregion
+
         #region Begin
 
         /// <summary>
@@ -168,30 +192,6 @@ namespace XNAFinalEngine.Graphics
                 throw new InvalidOperationException("Blinn Phong Material: Unable to begin the rendering.", e);
             }
         } // Begin
-
-        #endregion
-
-        #region Get Techniques Handles
-
-        /// <summary>
-        /// Get the handles of the techniques from the shader.
-        /// </summary>
-        /// <remarks>
-        /// Creating and assigning a EffectParameter instance for each technique in your Effect is significantly faster than using the Parameters indexed property on Effect.
-        /// </remarks>
-        protected override void GetTechniquesHandles()
-        {
-            try
-            {
-                blinnPhongSkinnedTechnique = Resource.Techniques["BlinnPhongSkinned"];
-                blinnPhongSimpleTechnique = Resource.Techniques["BlinnPhongSimple"];
-                blinnPhongWithParrallaxTechnique = Resource.Techniques["BlinnPhongWithParrallax"];
-            }
-            catch
-            {
-                throw new InvalidOperationException("The technique's handles from the " + Name + " shader could not be retrieved.");
-            }
-        } // GetTechniquesHandles
 
         #endregion
 

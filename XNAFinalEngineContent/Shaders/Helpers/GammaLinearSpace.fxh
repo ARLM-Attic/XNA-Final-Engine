@@ -1,5 +1,5 @@
 /***********************************************************************************************************************************************
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 // But probably it is a waste of precious GPU cycles.
 // Actually, to improve performance a simplification could be made. The gamma value could be assumed to be 2.0.
 // That made the gamma and digamma functions a lot simpler because we can use a square root and a square function.
-#define ACCURATE_GAMMA // The accurate gamma option utilizes a 2.2 gamma value and the other utilizes a 2.0 gamma value.
+#if defined(Windows)
+	#define ACCURATE_GAMMA // The accurate gamma option utilizes a 2.2 gamma value and the other utilizes a 2.0 gamma value.
+#endif
 
 // Converts from linear RGB space to gamma.
 float3 LinearToGamma(float3 color)

@@ -28,7 +28,11 @@ Author: Schefer, Gustavo Martín (gusschefer@hotmail.com)
 
 #region Using directives
 using System;
+using BEPUphysics.BroadPhaseEntries;
+using BEPUphysics.BroadPhaseEntries.MobileCollidables;
+using BEPUphysics.CollisionShapes.ConvexShapes;
 using BEPUphysics.Entities;
+using BEPUphysics.EntityStateManagement;
 using BEPUphysics.NarrowPhaseSystems.Pairs;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Helpers;
@@ -53,11 +57,12 @@ namespace XNAFinalEngine.Components
     {
 
         #region Variables
-
+        
+        // Supporting Bepu entity.
         private Entity entity;
         
-        // Cached contacts count information for the entity. It's used to know whether a collision start/end/stay in the current frame.
-        private int contactsCount;        
+        // Cached owner's transform component.
+        private Transform3D cachedTransform3D;
 
         #endregion
 
@@ -71,19 +76,34 @@ namespace XNAFinalEngine.Components
             get { return entity; }
             set 
             {
-                if (entity == null)
+                // Remove previous entity.
+                if (entity != null)
                 {
-                    entity = value;
-                    entity.Tag = this.Owner;
-                    foreach (CollidablePairHandler pair in entity.CollisionInformation.Pairs)
-                        //TODO: Should verify that the contacts in contacts list have negative depth to count as a collision
-                        contactsCount += pair.Contacts.Count;                     
+                    PhysicsManager.Scene.Remove(entity);                    
+                    entity.Tag = null;
+                    entity.CollisionInformation.Tag = null;
+                    entity.CollisionInformation.Events.InitialCollisionDetected -= OnInitialCollisionDetected;
+                    entity.CollisionInformation.Events.CollisionEnded -= OnCollisionEnded;
+                    entity.CollisionInformation.Events.PairTouched -= OnPairTouched;
                 }
-                else
-                    throw new InvalidOperationException("Entity already setted");
+                // Add the new one.
+                entity = value;                
+                entity.Tag = Owner;
+                entity.CollisionInformation.Tag = Owner;
+                entity.CollisionInformation.Events.InitialCollisionDetected += OnInitialCollisionDetected;
+                entity.CollisionInformation.Events.CollisionEnded += OnCollisionEnded;
+                entity.CollisionInformation.Events.PairTouched += OnPairTouched;                
+                PhysicsManager.Scene.Add(entity);
+                // Kinematic entities need as initial position the transform's world matrix.
+                OnWorldMatrixChanged(cachedTransform3D.WorldMatrix);
             }
         } // Entity
-
+        
+        /// <summary>
+        /// Gets whether or not the entity is dynamic.
+        /// Dynamic entities have finite mass and respond to collisions.
+        /// Kinematic (non-dynamic) entities have infinite mass and inertia and will plow through anything.
+        /// </summary>
         public bool IsDynamic
         {
             get
@@ -91,7 +111,7 @@ namespace XNAFinalEngine.Components
                 if (entity != null)
                     return entity.IsDynamic;
                 else
-                    throw new InvalidOperationException("Entity not properly setted");
+                    throw new InvalidOperationException("RigidBody: Entity not properly setted");
             }
         } // IsDynamic
 
@@ -107,6 +127,9 @@ namespace XNAFinalEngine.Components
             base.Initialize(owner);                                    
             ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
             Owner.ActiveChanged += OnActiveChanged;
+
+            // We store the transform component to avoid casting and to improve access time.
+            cachedTransform3D = ((GameObject3D) Owner).Transform;
         } // Initialize
 
         #endregion
@@ -118,20 +141,21 @@ namespace XNAFinalEngine.Components
         /// Is important to remove event associations and any other reference.
         /// </summary>
         internal override void Uninitialize()
-        {     
-            // Remove the entity from the simulation
-            try
+        {
+            cachedTransform3D = null;
+
+            if (entity != null)
             {
+                entity.CollisionInformation.Events.InitialCollisionDetected -= OnCollisionEnded;
+                entity.CollisionInformation.Events.PairTouched -= OnCollisionEnded;
+                entity.CollisionInformation.Events.CollisionEnded -= OnCollisionEnded;                                
                 PhysicsManager.Scene.Remove(entity);
-            } 
-            catch(ArgumentException ae) 
-            {
-                // The entity was already removed
             }
             
             // Clean the entity and event reference
             entity = null;
             ((GameObject3D)Owner).Transform.WorldMatrixChanged -= OnWorldMatrixChanged;
+            Owner.ActiveChanged -= OnActiveChanged;
             
             // Call this last because the owner information is needed.
             base.Uninitialize();
@@ -146,52 +170,53 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal void Update()
         {
-            if (entity.IsDynamic)
-            {                
-                ((GameObject3D) Owner).Transform.Position = entity.Position;
-                ((GameObject3D) Owner).Transform.Rotation = entity.Orientation;
+            if (entity != null && entity.IsDynamic)
+            {
+                cachedTransform3D.Position = entity.Position;
+                cachedTransform3D.Rotation = entity.Orientation;
             }
         } // Update
 
         #endregion
 
-        #region Process Collisions
+        #region Create Entity From Model Filter
 
         /// <summary>
-        /// Process the collision information of the component and fires the corresponding events if necessary.
+        /// Creates and assign an dynamic entity usign the model stored in the model filter component.
         /// </summary>
-        internal void ProcessCollisions()
-        {      
-            // Calculate the current contacts count      
-            var currentContactsCount = 0;
-            if (entity.CollisionInformation.Pairs.Count > 0)
-            {              
-                foreach (CollidablePairHandler pair in entity.CollisionInformation.Pairs)
-                {                    
-                    //TODO: Should verify that the contacts in contacts list have negative depth to count as a 100% collision                    
-                    currentContactsCount += pair.Contacts.Count;
-                }
+        public void CreateDynamicEntityFromModelFilter(MotionState motionState, float mass = 0f)
+        {
+            ModelFilter modelFilter = ((GameObject3D)Owner).ModelFilter;
+            if (modelFilter != null && modelFilter.Model != null)
+            {
+                ConvexHullShape shape = new ConvexHullShape(modelFilter.Model.Vertices);
+                Entity = new Entity(shape, mass)
+                {
+                    MotionState = motionState
+                };
             }
+            else
+            {
+                throw new InvalidOperationException("RigidBody: Model filter or model not present.");
+            }
+        } // CreateDynamicEntityFromModelFilter
 
-            // Test if collision initiated
-            if (contactsCount == 0 && currentContactsCount > 0)                
-                // Get the list of scripts attached to the game object and invoke OnCollisionEnter on each one
-                foreach (var script in Owner.Scripts)
-                    script.OnCollisionEnter(entity.CollisionInformation);
-            // Test if collision ended
-            if (contactsCount > 0 && currentContactsCount == 0)
-                // Get the list of scripts attached to the owner game object and invoke OnCollisionExit on each one
-                foreach (var script in Owner.Scripts)
-                    script.OnCollisionExit(entity.CollisionInformation);
-            // Test if collision stays on
-            if (contactsCount > 0 && currentContactsCount > 0)
-                // Get the list of scripts attached to the owner game object and invoke OnCollisionStay on each one
-                foreach (var script in Owner.Scripts)
-                    script.OnCollisionStay(entity.CollisionInformation);
-            
-            // Update the contacts count
-            contactsCount = currentContactsCount;
-        } // ProcessCollisions
+        /// <summary>
+        /// Creates and assign an kinematic entity usign the model stored in the model filter component.
+        /// </summary>
+        public void CreateKinematicEntityFromModelFilter()
+        {
+            ModelFilter modelFilter = ((GameObject3D)Owner).ModelFilter;
+            if (modelFilter != null && modelFilter.Model != null)
+            {
+                ConvexHullShape shape = new ConvexHullShape(modelFilter.Model.Vertices);
+                Entity = new Entity(shape);
+            }
+            else
+            {
+                throw new InvalidOperationException("RigidBody: Model filter or model not present.");
+            }
+        } // CreateKinematicEntityFromModelFilter
 
         #endregion
 
@@ -221,6 +246,33 @@ namespace XNAFinalEngine.Components
             else
                 PhysicsManager.Scene.Remove(entity);
         } // OnActiveChanged
+
+        private void OnInitialCollisionDetected(EntityCollidable entity, Collidable collidable, CollidablePairHandler pair)
+        {            
+            foreach (var script in Owner.Scripts)
+            {
+                GameObject3D go = (GameObject3D)collidable.Tag;
+                script.OnCollisionEnter(go, pair.Contacts);
+            }
+        } // OnInitialCollisionDetected
+
+        private void OnCollisionEnded(EntityCollidable entity, Collidable collidable, CollidablePairHandler pair)
+        {
+            foreach (var script in Owner.Scripts)
+            {
+                GameObject3D go = (GameObject3D)collidable.Tag;
+                script.OnCollisionExit(go, pair.Contacts);
+            }
+        } // OnCollisionEnded
+
+        private void OnPairTouched(EntityCollidable entity, Collidable collidable, CollidablePairHandler pair)
+        {
+            foreach (var script in Owner.Scripts)
+            {
+                GameObject3D go = (GameObject3D)collidable.Tag;
+                script.OnCollisionStay(go, pair.Contacts);
+            }
+        } // OnPairTouched
 
         #endregion
 

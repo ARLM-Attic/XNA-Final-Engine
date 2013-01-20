@@ -1,9 +1,5 @@
 ﻿using BEPUphysics.CollisionTests;
-using System.Collections.ObjectModel;
-using BEPUphysics.ResourceManagement;
-using BEPUphysics.DataStructures;
-using System.Diagnostics;
-using System.Collections;
+using BEPUutilities.DataStructures;
 using System.Collections.Generic;
 
 namespace BEPUphysics.Constraints.Collision
@@ -78,7 +74,6 @@ namespace BEPUphysics.Constraints.Collision
             {
                 var penetrationConstraint = new ContactPenetrationConstraint();
                 Add(penetrationConstraint);
-                penetrationConstraint.Tag = i;
                 penetrationConstraintPool.Push(penetrationConstraint);
             }
             slidingFriction = new SlidingFrictionTwoAxis();
@@ -95,7 +90,7 @@ namespace BEPUphysics.Constraints.Collision
         public override void CleanUp()
         {
             //Deactivate any remaining constraints.
-            for (int i = penetrationConstraints.count - 1; i >= 0; i--)
+            for (int i = penetrationConstraints.Count - 1; i >= 0; i--)
             {
                 var penetrationConstraint = penetrationConstraints.Elements[i];
                 penetrationConstraint.CleanUp();
@@ -121,9 +116,9 @@ namespace BEPUphysics.Constraints.Collision
             var penetrationConstraint = penetrationConstraintPool.Pop();
             penetrationConstraint.Setup(this, contact);
             penetrationConstraints.Add(penetrationConstraint);
-            if (penetrationConstraints.count == 1)
+            if (!twistFriction.isActive)
             {
-                //This is the first contact.  All constraints need to become active.
+                //This is the first real contact.  All constraints need to become active.
                 twistFriction.Setup(this);
                 slidingFriction.Setup(this);
             }
@@ -135,7 +130,7 @@ namespace BEPUphysics.Constraints.Collision
         ///<param name="contact">Contact to remove.</param>
         public override void RemoveContact(Contact contact)
         {
-            for (int i = 0; i < penetrationConstraints.count; i++)
+            for (int i = 0; i < penetrationConstraints.Count; i++)
             {
                 ContactPenetrationConstraint penetrationConstraint;
                 if ((penetrationConstraint = penetrationConstraints.Elements[i]).contact == contact)
@@ -146,13 +141,15 @@ namespace BEPUphysics.Constraints.Collision
                     break;
                 }
             }
-            if (penetrationConstraints.count == 0)
+            if (penetrationConstraints.Count == 0)
             {
                 //No more contacts.  Disable everything.
+                //Don't have to worry about speculative contacts here; if there existed a regular manifold contact, there couldn't now exist a speculative contact.
                 twistFriction.CleanUp();
                 slidingFriction.CleanUp();
             }
         }
+
 
 
         //NOTE: Even though the order of addition to the solver group ensures penetration constraints come first, the
@@ -169,7 +166,7 @@ namespace BEPUphysics.Constraints.Collision
         ///<param name="dt">Timestep duration.</param>
         public sealed override void Update(float dt)
         {
-            for (int i = 0; i < penetrationConstraints.count; i++)
+            for (int i = 0; i < penetrationConstraints.Count; i++)
                 UpdateUpdateable(penetrationConstraints.Elements[i], dt);
             UpdateUpdateable(slidingFriction, dt);
             UpdateUpdateable(twistFriction, dt);
@@ -184,7 +181,7 @@ namespace BEPUphysics.Constraints.Collision
         /// </summary>
         public sealed override void ExclusiveUpdate()
         {
-            for (int i = 0; i < penetrationConstraints.count; i++)
+            for (int i = 0; i < penetrationConstraints.Count; i++)
                 ExclusiveUpdateUpdateable(penetrationConstraints.Elements[i]);
             ExclusiveUpdateUpdateable(slidingFriction);
             ExclusiveUpdateUpdateable(twistFriction);
@@ -199,7 +196,7 @@ namespace BEPUphysics.Constraints.Collision
         {
 
             int activeConstraints = 0;
-            for (int i = 0; i < penetrationConstraints.count; i++)
+            for (int i = 0; i < penetrationConstraints.Count; i++)
                 SolveUpdateable(penetrationConstraints.Elements[i], ref activeConstraints);
             SolveUpdateable(slidingFriction, ref activeConstraints);
             SolveUpdateable(twistFriction, ref activeConstraints);

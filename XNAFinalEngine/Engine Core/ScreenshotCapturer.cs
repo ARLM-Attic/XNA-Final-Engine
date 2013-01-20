@@ -30,13 +30,13 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using Statements
 using System;
-//using System.Drawing;
-//using System.Drawing.Imaging;
+#if !XBOX
+    using System.Drawing;
+    using System.Drawing.Imaging;
+#endif
 using System.IO;
-using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Assets;
 using Texture = XNAFinalEngine.Assets.Texture;
-
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -157,13 +157,14 @@ namespace XNAFinalEngine.EngineCore
 
                 screenshotNumber = CurrentScreenshotNumber();
                 screenshotNumber++;
-
-                // It produced a memory leak and it was never fixed by the XNA team.
-                //var stream = new FileStream(ScreenshotNameBuilder(screenshotNumber), FileMode.OpenOrCreate);
-                //texture.Resource.SaveAsJpeg(stream, texture.Width, texture.Height);
-
-                //BmpWriter bmpWriter = new BmpWriter(texture.Width, texture.Height);
-                //bmpWriter.TextureToBmp(texture.Resource, ScreenshotNameBuilder(screenshotNumber));
+                
+                #if XBOX
+                    // It produced a memory leak and it was never fixed by the XNA team.
+                    var stream = new FileStream(ScreenshotNameBuilder(screenshotNumber), FileMode.OpenOrCreate);
+                    texture.Resource.SaveAsJpeg(stream, texture.Width, texture.Height);
+                #else
+                    SaveAsJpeg(texture, ScreenshotNameBuilder(screenshotNumber));
+                #endif
                 
             } // try
             catch (Exception e)
@@ -174,42 +175,37 @@ namespace XNAFinalEngine.EngineCore
 
 		#endregion
 
-        #region Bmp Writer
+        #region Save As Jpeg
 
-        /*public class BmpWriter
+#if !XBOX
+        /// <summary>
+        /// Saves texture data as a .jpg. 
+        /// </summary>
+        /// <remarks>
+        /// The XNA functions produce a memory leak. JohnU function does not.
+        /// http://xboxforums.create.msdn.com/forums/p/65527/515125.aspx
+        /// </remarks>
+        private static void SaveAsJpeg(Texture texture, String filename)
         {
-            byte[] textureData;
-            Bitmap bmp;
-            BitmapData bitmapData;
-            IntPtr safePtr;
-            Rectangle rect;
-            public ImageFormat imageFormat;
-
-            public BmpWriter(int width, int height)
+            Rectangle textureRectangle = new Rectangle(0, 0, texture.Width, texture.Height);
+            byte[] textureData = new byte[4 * texture.Width * texture.Height];
+            Bitmap bitmap = new Bitmap(texture.Width, texture.Height, PixelFormat.Format32bppArgb);
+ 
+            texture.Resource.GetData(textureData);
+            for (int i = 0; i < textureData.Length; i += 4)
             {
-                textureData = new byte[4 * width * height];
-                bmp = new Bitmap(width, height, PixelFormat.Format32bppArgb);
-                rect = new Rectangle(0, 0, width, height);
-                imageFormat = ImageFormat.Jpeg;
+                byte blue = textureData[i];
+                textureData[i] = textureData[i + 2];
+                textureData[i + 2] = blue;
             }
 
-            public void TextureToBmp(Texture2D texture, String filename)
-            {
-                texture.GetData(textureData);
-                byte blue;
-                for (int i = 0; i < textureData.Length; i += 4)
-                {
-                    blue = textureData[i];
-                    textureData[i] = textureData[i + 2];
-                    textureData[i + 2] = blue;
-                }
-                bitmapData = bmp.LockBits(rect, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-                safePtr = bitmapData.Scan0;
-                System.Runtime.InteropServices.Marshal.Copy(textureData, 0, safePtr, textureData.Length);
-                bmp.UnlockBits(bitmapData);
-                bmp.Save(filename, imageFormat);
-            }
-        } */
+            BitmapData bitmapData = bitmap.LockBits(textureRectangle, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            IntPtr safePtr = bitmapData.Scan0;
+            System.Runtime.InteropServices.Marshal.Copy(textureData, 0, safePtr, textureData.Length);
+            bitmap.UnlockBits(bitmapData);
+            bitmap.Save(filename, ImageFormat.Jpeg);
+        } // SaveAsJpeg
+#endif
 
         #endregion
 
