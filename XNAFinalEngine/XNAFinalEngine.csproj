@@ -260,6 +260,7 @@
     <Compile Include="Components\Layer.cs" />
     <Compile Include="Components\Particles\ParticleEmitter.cs" />
     <Compile Include="Components\Physics\RigidBody.cs" />
+    <Compile Include="Components\Physics\StaticCollider.cs" />
     <Compile Include="Components\Rendering\LineRenderer.cs" />
     <Compile Include="Components\Rendering\VideoRenderer.cs" />
     <Compile Include="Components\Rendering\ParticleRenderer.cs" />

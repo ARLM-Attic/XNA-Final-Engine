@@ -59,10 +59,10 @@ namespace XNAFinalEngineExamples
                                     murcielagoInteriorCostura, murcielagoTablero, murcielagoRedPlastic,
                                     // Left Door
                                     murcielagoLeftDoorBody, murcielagoLeftDoorBlackMetal, murcielagoLeftDoorGrayMetal, murcielagoLeftDoorLeather,
-                                    murcielagoLeftDoorSpeakers, murcielagoLeftDoorGlass,
+                                    murcielagoLeftDoorSpeakers, murcielagoLeftDoorGlass, murcielagoLeftDoorCostura, murcielagoLeftDoorDetails, murcielagoLeftDoor,
                                     // Right Door
                                     murcielagoRightDoorBody, murcielagoRightDoorBlackMetal, murcielagoRightDoorGrayMetal, murcielagoRightDoorLeather,
-                                    murcielagoRightDoorSpeakers,
+                                    murcielagoRightDoorSpeakers, murcielagoRightDoorGlass, murcielagoRightDoorCostura, murcielagoRightDoorDetails,
                                     // Front Left Wheel
                                     murcielagoLP670FrontLeftRim, murcielagoLP640FrontLeftRimBase, murcielagoLP640FrontLeftRimBase02,
                                     murcielagoFrontLeftRimLogo, murcielagoFrontLeftBrakeDisc, murcielagoFrontLeftBrakeCaliper, murcielagoFrontLeftTyre,
@@ -101,9 +101,9 @@ namespace XNAFinalEngineExamples
             #region Materials
 
             TextureCube reflectionTexture =
-                // new TextureCube("Showroom");
-                new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50 };
-            const float reflectioTextureMultiplier = 1;
+                 new TextureCube("Showroom");
+                //new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50 };
+            const float reflectioTextureMultiplier = 25;
 
             CarPaint carPaintMaterial = new CarPaint
             {
@@ -118,10 +118,10 @@ namespace XNAFinalEngineExamples
 
             BlinnPhong rimMaterial = new BlinnPhong
             {
-                DiffuseColor = new Color(25, 25, 25),
+                DiffuseColor = new Color(35, 35, 35),
                 SpecularPower = 75,
                 //NormalTexture = new Texture("LamborghiniMurcielago\\Murcielago-LP670-Rim-Normal"),
-                SpecularIntensity = 5f * reflectioTextureMultiplier,
+                SpecularIntensity = 15f * reflectioTextureMultiplier,
                 ReflectionTexture = reflectionTexture,
             };
 
@@ -156,18 +156,18 @@ namespace XNAFinalEngineExamples
             };
             BlinnPhong lightsGlassesMaterial = new BlinnPhong
             {
-                DiffuseColor = new Color(10, 10, 11),
+                DiffuseColor = new Color(20, 20, 21),
                 //DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Lights"),
-                AlphaBlending = 0.3f,
-                SpecularIntensity = 1 * reflectioTextureMultiplier,
-                SpecularPower = 30,
+                AlphaBlending = 0.6f,
+                SpecularIntensity = 0.4f * reflectioTextureMultiplier,
+                SpecularPower = 0.5f,
                 ReflectionTexture = reflectionTexture,
             };
             BlinnPhong glassesMaterial = new BlinnPhong
             {
-                DiffuseColor = new Color(10, 10, 10),
+                DiffuseColor = new Color(20, 20, 20),
                 AlphaBlending = 0.6f,
-                SpecularIntensity = 0.03f * reflectioTextureMultiplier,
+                SpecularIntensity = 0.3f * reflectioTextureMultiplier,
                 SpecularPower = 1,
                 ReflectionTexture = reflectionTexture,
             };
@@ -244,6 +244,29 @@ namespace XNAFinalEngineExamples
                 DiffuseTexture = new Texture("LamborghiniMurcielago\\Speaker-Diffuse"),
                 SpecularIntensity = 0f,
                 SpecularPower = 50,
+            };
+            BlinnPhong leatherMaterial = new BlinnPhong
+            {
+                DiffuseTexture = new Texture("LamborghiniMurcielago\\Leather-Diffuse"),
+                NormalTexture = new Texture("LamborghiniMurcielago\\Leather-Normal"),
+                SpecularIntensity = 0.15f,
+                SpecularPower = 20,
+            };
+            BlinnPhong costuraMaterial = new BlinnPhong
+            {
+                DiffuseTexture = new Texture("LamborghiniMurcielago\\Costura-Diffuse"),
+                NormalTexture = new Texture("LamborghiniMurcielago\\Costura-Normal"),
+                SpecularTexture = new Texture("LamborghiniMurcielago\\Costura-Specular"),
+                SpecularIntensity = 0.15f,
+                SpecularPower = 20,
+            };
+            BlinnPhong detailsMaterial = new BlinnPhong
+            {
+                DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-InteriorDetails-Diffuse"),
+                NormalTexture = new Texture("LamborghiniMurcielago\\Murcielago-InteriorDetails-Normal"),
+                SpecularTexture = new Texture("LamborghiniMurcielago\\Murcielago-InteriorDetails-Specular"),
+                SpecularIntensity = 2f,
+                SpecularPower = 300,
             };
             
             #endregion
@@ -357,15 +380,7 @@ namespace XNAFinalEngineExamples
                                                      SpecularIntensity = 0.15f,
                                                      SpecularPower = 10,
                                                  }) { Parent = LamborghiniMurcielago };
-            murcielagoInteriorDetails = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-InteriorDetails"),
-                                                             new BlinnPhong
-                                                             {
-                                                                 DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-InteriorDetails-Diffuse"),
-                                                                 NormalTexture = new Texture("LamborghiniMurcielago\\Murcielago-InteriorDetails-Normal"),
-                                                                 SpecularTexture = new Texture("LamborghiniMurcielago\\Murcielago-InteriorDetails-Specular"),
-                                                                 SpecularIntensity = 2f,
-                                                                 SpecularPower = 300,
-                                                             }) { Parent = LamborghiniMurcielago };
+            murcielagoInteriorDetails = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-InteriorDetails"), detailsMaterial) { Parent = LamborghiniMurcielago };
             murcielagoTablero = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Tablero"),
                                                 new BlinnPhong
                                                 {
@@ -374,23 +389,8 @@ namespace XNAFinalEngineExamples
                                                     SpecularPower = 500,
                                                 }) { Parent = LamborghiniMurcielago };
             
-            murcielagoInteriorLeather = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-InteriorLeather"),
-                                        new BlinnPhong
-                                        {
-                                            DiffuseTexture = new Texture("LamborghiniMurcielago\\Leather-Diffuse"),
-                                            NormalTexture = new Texture("LamborghiniMurcielago\\Leather-Normal"),
-                                            SpecularIntensity = 0.15f,
-                                            SpecularPower = 20,
-                                        }) { Parent = LamborghiniMurcielago };
-            murcielagoInteriorCostura = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-InteriorCostura"),
-                                        new BlinnPhong
-                                        {
-                                            DiffuseTexture = new Texture("LamborghiniMurcielago\\Costura-Diffuse"),
-                                            NormalTexture = new Texture("LamborghiniMurcielago\\Costura-Normal"),
-                                            SpecularTexture = new Texture("LamborghiniMurcielago\\Costura-Specular"),
-                                            SpecularIntensity = 0.15f,
-                                            SpecularPower = 20,
-                                        }) { Parent = LamborghiniMurcielago };
+            murcielagoInteriorLeather = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-InteriorLeather"), leatherMaterial) { Parent = LamborghiniMurcielago };
+            murcielagoInteriorCostura = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-InteriorCostura"), costuraMaterial) { Parent = LamborghiniMurcielago };
 
             /*                  
             murcielagoLP640RearSpoilerDarkPart = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LP640-RearSpoilerDarkPart"),
@@ -404,60 +404,32 @@ namespace XNAFinalEngineExamples
             #endregion
             
             #region Left Door
-            
-            murcielagoLeftDoorBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorBody"), carPaintMaterial) { Parent = LamborghiniMurcielago };
-            murcielagoLeftDoorBlackMetal = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorBlackMetal"), blackMetalMaterial) { Parent = LamborghiniMurcielago };
-            murcielagoLeftDoorGrayMetal = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorGrayMetal"), grayMetalMaterial) { Parent = LamborghiniMurcielago };
-            murcielagoLeftDoorSpeakers = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorSpeakers"), leftDoorSpeakersMaterial) { Parent = LamborghiniMurcielago };
-            murcielagoLeftDoorGlass = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorGlass"), glassesMaterial) { Parent = LamborghiniMurcielago };
-            /*
-            murcielagoLeftDoorLeather = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorLeather"),
-                                                             new BlinnPhong
-                                                             {
-                                                                 DiffuseTexture = new Texture("LamborghiniMurcielago\\Leather-Diffuse"),
-                                                                 NormalTexture = new Texture("LamborghiniMurcielago\\Leather-Normal"),
-                                                                 SpecularIntensity = 0.15f,
-                                                                 SpecularPower = 20,
-                                                             }) { Parent = LamborghiniMurcielago };
-            
+
+            murcielagoLeftDoor = new GameObject3D { Parent = LamborghiniMurcielago};
+            murcielagoLeftDoor.Transform.Rotate(new Vector3(10, 0, 0), Space.World);
+            murcielagoLeftDoor.Transform.Position = new Vector3(0, 0.2708f, 2.2335f);
+
+            murcielagoLeftDoorBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorBody"), carPaintMaterial) { Parent = murcielagoLeftDoor };
+            murcielagoLeftDoorBlackMetal = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorBlackMetal"), blackMetalMaterial) { Parent = murcielagoLeftDoor };
+            murcielagoLeftDoorGrayMetal = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorGrayMetal"), grayMetalMaterial) { Parent = murcielagoLeftDoor };
+            murcielagoLeftDoorSpeakers = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorSpeakers"), leftDoorSpeakersMaterial) { Parent = murcielagoLeftDoor };
+            murcielagoLeftDoorGlass = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorGlass"), glassesMaterial) { Parent = murcielagoLeftDoor };
+            murcielagoLeftDoorLeather = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorLeather"), leatherMaterial) { Parent = murcielagoLeftDoor };
+            murcielagoLeftDoorCostura = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorCostura"), costuraMaterial) { Parent = murcielagoLeftDoor };
+            murcielagoLeftDoorDetails = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorDetails"), detailsMaterial) { Parent = murcielagoLeftDoor };
 
             #endregion
 
             #region Right Door
-            /*
+
             murcielagoRightDoorBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RightDoorBody"), carPaintMaterial) { Parent = LamborghiniMurcielago };
-                                              
-            murcielagoRightDoorBlackMetal = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RightDoorBlackMetal"),
-                                            new BlinnPhong
-                                            {
-                                                DiffuseColor = new Color(20, 20, 20),
-                                                SpecularIntensity = 50,
-                                                SpecularPower = 3,
-                                                ReflectionTexture = new TextureCube("Showroom"),
-                                            }) { Parent = LamborghiniMurcielago };
-            murcielagoRightDoorGrayMetal = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RightDoorGrayMetal"),
-                                            new BlinnPhong
-                                            {
-                                                DiffuseColor = new Color(100, 100, 100),
-                                                SpecularIntensity = 100.0f,
-                                                SpecularPower = 100,
-                                                ReflectionTexture = new TextureCube("Showroom"),
-                                            }) { Parent = LamborghiniMurcielago };
-            murcielagoRightDoorLeather = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RightDoorLeather"),
-                                                             new BlinnPhong
-                                                             {
-                                                                 DiffuseTexture = new Texture("LamborghiniMurcielago\\Leather-Diffuse"),
-                                                                 NormalTexture = new Texture("LamborghiniMurcielago\\Leather-Normal"),
-                                                                 SpecularIntensity = 0.15f,
-                                                                 SpecularPower = 20,
-                                                             }) { Parent = LamborghiniMurcielago };
-            murcielagoRightDoorSpeakers = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RightDoorSpeakers"),
-                                                             new BlinnPhong
-                                                             {
-                                                                 DiffuseTexture = new Texture("LamborghiniMurcielago\\Speaker-Diffuse"),
-                                                                 SpecularIntensity = 0f,
-                                                                 SpecularPower = 50,
-                                                             }) { Parent = LamborghiniMurcielago };*/
+            murcielagoRightDoorBlackMetal = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RightDoorBlackMetal"), blackMetalMaterial) { Parent = LamborghiniMurcielago };
+            murcielagoRightDoorGrayMetal = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RightDoorGrayMetal"), grayMetalMaterial) { Parent = LamborghiniMurcielago };
+            murcielagoRightDoorSpeakers = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RightDoorSpeakers"), leftDoorSpeakersMaterial) { Parent = LamborghiniMurcielago };
+            murcielagoRightDoorGlass = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RightDoorGlass"), glassesMaterial) { Parent = LamborghiniMurcielago };
+            murcielagoRightDoorLeather = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RightDoorLeather"), leatherMaterial) { Parent = LamborghiniMurcielago };
+            murcielagoRightDoorCostura = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RightDoorCostura"), costuraMaterial) { Parent = LamborghiniMurcielago };
+            murcielagoRightDoorDetails = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RightDoorDetails"), detailsMaterial) { Parent = LamborghiniMurcielago };
             
             #endregion
             

@@ -51,7 +51,7 @@ namespace XNAFinalEngineExamples
     /// <summary>
     /// Lighthouse scene.
     /// </summary>
-    public class WarehouseScene : Scene
+    public class WarehouseScene : EditableScene
     {
 
         #region Variables
@@ -106,7 +106,7 @@ namespace XNAFinalEngineExamples
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
                                                             Color = new Color(10, 10, 10),
-                                                            Intensity = 6f,
+                                                            Intensity = 12f,
                                                             AmbientOcclusionStrength = 1f };
             
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
@@ -116,9 +116,9 @@ namespace XNAFinalEngineExamples
             {
                 NumberSteps = 12, //15, // Don't change this.
                 NumberDirections = 12, // 12, // Don't change this.
-                Radius = 0.0002f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
+                Radius = 0.003f, // Bigger values produce more cache misses and you don’t want GPU cache misses, trust me.
                 LineAttenuation = 1.0f,
-                Contrast = 1f,
+                Contrast = 1.1f,
                 AngleBias = 0.1f,
                 Quality = HorizonBasedAmbientOcclusion.QualityType.HighQuality,
                 TextureSize = Size.TextureSize.HalfSize,
@@ -235,23 +235,23 @@ namespace XNAFinalEngineExamples
             
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
-            pointLight.PointLight.Color = new Color(50, 150, 250); // new Color(240, 235, 200);
+            pointLight.PointLight.Color = new Color(180, 190, 230);
             pointLight.PointLight.Intensity = 0.5f;
             pointLight.PointLight.Range = 60;
-            pointLight.Transform.Position = new Vector3(4.8f, 1.5f, 10); // new Vector3(8f, -1f, 10);
-            //pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 512, };
+            pointLight.Transform.Position = new Vector3(4.8f, 1.5f, 10);
+            pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 512, };
 
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
-            pointLight.PointLight.Color = new Color(50, 150, 250); // new Color(240, 235, 200);
-            pointLight.PointLight.Intensity = 0.5f;
+            pointLight.PointLight.Color = new Color(130, 130, 190);
+            pointLight.PointLight.Intensity = 3.5f;
             pointLight.PointLight.Range = 60;
-            pointLight.Transform.Position = new Vector3(-4.8f, 1.5f, -10); // new Vector3(8f, -1f, 10);
+            pointLight.Transform.Position = new Vector3(-4.8f, 0, -4);
 
             spotLight = new GameObject3D();
             spotLight.AddComponent<SpotLight>();
             spotLight.SpotLight.Color = new Color(0, 250, 0);
-            spotLight.SpotLight.Intensity = 0f;
+            spotLight.SpotLight.Intensity = 15f;
             spotLight.SpotLight.Range = 40; // I always forget to set the light range lower than the camera far plane.
             spotLight.Transform.Position = new Vector3(0, 16, 18);
             spotLight.Transform.Rotate(new Vector3(-80, 0, 0));

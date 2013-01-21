@@ -28,17 +28,18 @@ Author: Schefer, Gustavo Martín (gusschefer@hotmail.com)
 
 #region Using directives
 using BEPUphysics;
-using BEPUphysics.CollisionShapes.ConvexShapes;
 using BEPUphysics.EntityStateManagement;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
+#if (!XBOX)
+    using XNAFinalEngine.Editor;
+#endif
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Physics;
 using Box = BEPUphysics.Entities.Prefabs.Box;
-using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
 using Sphere = BEPUphysics.Entities.Prefabs.Sphere;
 using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Size = XNAFinalEngine.Helpers.Size;
@@ -52,7 +53,7 @@ namespace XNAFinalEngineExamples
     /// The physic interface was not completed in both functionality and ease of use.
     /// However it implements the key elements to perform a proper adaptation of Bepu Physics.
     /// </summary>
-    class PhysicsTestScene : Scene
+    class PhysicsTestScene : EditableScene
     {
 
         #region Variables
@@ -121,7 +122,7 @@ namespace XNAFinalEngineExamples
             // Make the floor (Kinematic) //
             // First, we create a bepu box entity that we will be used in our rigidbody component. 
             // Notice that we don't specify the mass, so we are creating a kinematic entity.
-            // Kinematic rigidbodies are moved through the transform component of the gameobject the rigidbody belongs to.
+            // Kinematic rigidbodies are moved through the transform component of the gameobject which it belongs.
             // Kinematic rigidbodies don't respond to collisions and can't collide with other kinematic rigidbodies. However, they can
             // collide with dynamic rigidbodies affecting them.
             var bepuGround = new Box(Vector3.Zero, 50, 1, 50);            
@@ -152,26 +153,23 @@ namespace XNAFinalEngineExamples
             obstacle.Transform.Position = new Vector3(0.5f, 1f, 0.5f);
             var obstacleRb = (RigidBody) obstacle.AddComponent<RigidBody>();
             obstacleRb.Entity = bepuObstacle;
-            var motionState = new MotionState();
-            motionState.Position = new Vector3(2, 4, -4);
-            motionState.Orientation = Quaternion.Identity;
-            motionState.LinearVelocity = new Vector3(2,2,2);
-            motionState.AngularVelocity = new Vector3(5,5,5);
-            obstacleRb.Entity.MotionState = motionState;
             
             // Make a wall of boxes //
             MakeWall(6, 9);
 
             // Make a sphere obstacle (Dynamic) //             
-            var sphere = new GameObject3D(new XNAFinalEngine.Assets.Sphere(25, 25, 1f), new BlinnPhong { DiffuseColor = new Color(0.79f, 0.75f, 0.2f), SpecularPower = 20 });
-            ((RigidBody)sphere.AddComponent<RigidBody>()).Entity = new Sphere(new Vector3(-6f, 1f, -3f), 1f, 2.0f);
+            GameObject3D sphere = new GameObject3D(new FileModel("SphereTransformed"), new BlinnPhong { DiffuseColor = new Color(1f, 0f, 0f), SpecularPower = 20 });
+            sphere = new GameObject3D(new FileModel("SphereTransformed"), new BlinnPhong { DiffuseColor = new Color(0.79f, 0.75f, 0.2f), SpecularPower = 20 });
+            MotionState motionState = new MotionState { Position = new Vector3(0f, 10f, 0f), Orientation = Quaternion.Identity };
+            ((RigidBody)sphere.AddComponent<RigidBody>()).CreateDynamicEntityFromModelFilter(motionState, 1);
 
             // Lambo body
-            var lambo = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RearTyre"), new BlinnPhong() { DiffuseColor = Color.Black });
-            lambo.Transform.Position = new Vector3(0f, 10f, 8f);
-            ((RigidBody) lambo.AddComponent<RigidBody>()).CreateDynamicEntityFromModelFilter(new MotionState(), 1f);
-            
-            
+            var lambo = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RearTyre"), new BlinnPhong() { DiffuseColor = Color.Black });            
+            var ms = new MotionState();
+            ms.Position = new Vector3(10f, 10f, 8f);
+            ms.Orientation = Quaternion.Identity;
+            ((RigidBody) lambo.AddComponent<RigidBody>()).CreateDynamicEntityFromModelFilter(ms, 1f);
+                        
             // Very Simple Crosshair //
             GameObject2D crosshair = new GameObject2D();
             crosshair.Transform.Position = new Vector3(Screen.Width / 2f, Screen.Height / 2f, 0f);
@@ -180,14 +178,15 @@ namespace XNAFinalEngineExamples
 
             #endregion
 
-            #region Development
+            #region WIP
 
-            /*var bigBox = new GameObject3D(new XNAFinalEngine.Assets.Box(3f, 3f, 3f), new BlinnPhong { DiffuseColor = new Color(0.79f, 0.75f, 0.2f), SpecularPower = 20 });            
-            var bigBoxRb = (RigidBody)  bigBox.AddComponent<RigidBody>();
-            bigBoxRb.CollisionShape = new BoxShape(3f, 3f, 3f);
-            //bigBoxRb.Entity.Position = new Vector3(5f, 15f, 2f);
-            bigBoxRb.Entity.BecomeKinematic();
-            bigBox.Transform.Position = new Vector3(5f, 15f, 2f);*/
+            Vector3[] vertices;
+            int[] indices;
+
+            var tire = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), new BlinnPhong() { DiffuseColor = Color.Black });
+            tire.Transform.Position = new Vector3(-3,10,3);
+            var sc = (StaticCollider) tire.AddComponent<StaticCollider>();
+            sc.CreateStaticCollidableFromModelFilter();
 
             #endregion
 

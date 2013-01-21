@@ -66,6 +66,7 @@ namespace XNAFinalEngine.Components
         private Pool<HudTexture>.Accessor hudTextureAccessor;        
         private Pool<LineRenderer>.Accessor lineRendererAccessor;
         private Pool<RigidBody>.Accessor rigidBodyAccessor;
+        private Pool<StaticCollider>.Accessor staticColliderAccessor;
 
         #endregion
 
@@ -85,6 +86,7 @@ namespace XNAFinalEngine.Components
         private HudTexture hudTexture;        
         private LineRenderer lineRenderer;
         private RigidBody rigidBody;
+        private StaticCollider staticCollider;
 
         #endregion
 
@@ -393,10 +395,38 @@ namespace XNAFinalEngine.Components
         public RigidBody RigidBody
         {
             get { return rigidBody; }
-            set { rigidBody = value; }
+            private set 
+            {
+                RigidBody oldValue = rigidBody;
+                rigidBody = value; 
+                // Invoke event
+                if (RigidBodyChanged != null)
+                    RigidBodyChanged(this, oldValue, value);
+            }
         }
 
         #endregion
+
+        #region Static Collider
+
+        /// <summary>
+        /// Associated static collider component.
+        /// </summary>
+        public StaticCollider StaticCollider
+        {
+            get { return staticCollider; }
+            private set
+            {
+                StaticCollider oldValue = staticCollider;
+                staticCollider = value;
+                // Invoke event
+                if (StaticColliderChanged != null)
+                    StaticColliderChanged(this, oldValue, value);
+            }
+        }
+
+        #endregion
+
 
         #endregion
 
@@ -466,6 +496,16 @@ namespace XNAFinalEngine.Components
         /// Raised when the game object's line renderer changes.
         /// </summary>
         internal event ComponentEventHandler LineRendererChanged;
+
+        /// <summary>
+        /// Raised when the game object's rigid body changes.
+        /// </summary>
+        internal event ComponentEventHandler RigidBodyChanged;
+
+        /// <summary>
+        /// Raised when the game object's static collider changes.
+        /// </summary>
+        internal event ComponentEventHandler StaticColliderChanged;
 
         #endregion
 
@@ -705,7 +745,6 @@ namespace XNAFinalEngine.Components
                 particleEmitterAccessor = ParticleEmitter.ComponentPool.Fetch();
                 // A component is a reference value, so no problem to do this.
                 ParticleEmitter = ParticleEmitter.ComponentPool[particleEmitterAccessor];
-
                 // Initialize the component to the default values.
                 ParticleEmitter.Initialize(this);
                 result = ParticleEmitter;
@@ -841,7 +880,7 @@ namespace XNAFinalEngine.Components
                 // Search for an empty component in the pool.
                 lineRendererAccessor = LineRenderer.ComponentPool3D.Fetch();
                 // A component is a reference value, so no problem to do this.
-                lineRenderer = LineRenderer.ComponentPool3D[lineRendererAccessor];
+                LineRenderer = LineRenderer.ComponentPool3D[lineRendererAccessor];
                 // Initialize the component to the default values.
                 lineRenderer.Initialize(this);
                 result = lineRenderer;
@@ -860,10 +899,29 @@ namespace XNAFinalEngine.Components
                 // Search for an empty component in the pool.
                 rigidBodyAccessor = RigidBody.ComponentPool.Fetch();
                 // A component is a reference value, so no problem to do this.
-                rigidBody = RigidBody.ComponentPool[rigidBodyAccessor];
+                RigidBody = RigidBody.ComponentPool[rigidBodyAccessor];
                 // Initialize the component to the default values.
                 rigidBody.Initialize(this);
                 result = rigidBody;
+            }
+
+            #endregion
+
+            #region Static Collider
+
+            if (typeof(TComponentType) == typeof(StaticCollider))
+            {
+                if (staticColliderAccessor != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the static collider component. There is one already.");
+                }
+                // Search for an empty component in the pool.
+                staticColliderAccessor = StaticCollider.ComponentPool.Fetch();
+                // A component is a reference value, so no problem to do this.
+                StaticCollider = StaticCollider.ComponentPool[staticColliderAccessor];
+                // Initialize the component to the default values.
+                staticCollider.Initialize(this);
+                result = staticCollider;
             }
 
             #endregion
@@ -1169,7 +1227,24 @@ namespace XNAFinalEngine.Components
                 rigidBodyAccessor = null;
             }
 
-            #endregion Rigid Body
+            #endregion
+
+            #region Static Collider
+
+            if (typeof(TComponentType) == typeof(StaticCollider))
+            {
+                if (staticColliderAccessor == null)
+                {
+                    throw new InvalidOperationException("Game Object 3D: Unable to remove the static collider component. There is not one.");
+                }
+                StaticCollider.Uninitialize();
+                Components.Remove(StaticCollider);
+                StaticCollider.ComponentPool.Release(staticColliderAccessor);
+                StaticCollider = null;
+                staticColliderAccessor = null;
+            }
+
+            #endregion
 
         } // RemoveComponent
 
@@ -1214,6 +1289,8 @@ namespace XNAFinalEngine.Components
                 RemoveComponent<LineRenderer>();
             if (RigidBody != null)
                 RemoveComponent<RigidBody>();
+            if (StaticCollider != null)
+                RemoveComponent<StaticCollider>();
             foreach (var script in scripts)
                 script.Uninitialize();
             scripts.Clear();

@@ -60,6 +60,10 @@ namespace XNAFinalEngine.Components
         
         // Supporting Bepu entity.
         private Entity entity;
+
+        // Offset between the model local position and its center of mass.
+        private Vector3 offset = Vector3.Zero;
+        private Matrix offsetMatrix = Matrix.Identity;
         
         // Cached owner's transform component.
         private Transform3D cachedTransform3D;
@@ -115,6 +119,11 @@ namespace XNAFinalEngine.Components
             }
         } // IsDynamic
 
+        /// <summary>
+        /// The center of mass of the object in object's model space.
+        /// </summary>
+        public Vector3 CenterOfMass { get { return offset; } }
+
         #endregion
 
         #region Initialize
@@ -124,6 +133,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Initialize(GameObject owner)
         {
+            // Setup events
             base.Initialize(owner);                                    
             ((GameObject3D)Owner).Transform.WorldMatrixChanged += OnWorldMatrixChanged;
             Owner.ActiveChanged += OnActiveChanged;
@@ -172,37 +182,39 @@ namespace XNAFinalEngine.Components
         {
             if (entity != null && entity.IsDynamic)
             {
-                cachedTransform3D.Position = entity.Position;
-                cachedTransform3D.Rotation = entity.Orientation;
+                cachedTransform3D.WorldMatrix = offsetMatrix * entity.WorldTransform;
             }
         } // Update
 
         #endregion
 
         #region Create Entity From Model Filter
-
+        
         /// <summary>
-        /// Creates and assign an dynamic entity usign the model stored in the model filter component.
+        /// Creates and assign a dynamic entity usign the model stored in the model filter component.
         /// </summary>
-        public void CreateDynamicEntityFromModelFilter(MotionState motionState, float mass = 0f)
+        public void CreateDynamicEntityFromModelFilter(MotionState motionState, float mass)
         {
             ModelFilter modelFilter = ((GameObject3D)Owner).ModelFilter;
             if (modelFilter != null && modelFilter.Model != null)
             {
-                ConvexHullShape shape = new ConvexHullShape(modelFilter.Model.Vertices);
-                Entity = new Entity(shape, mass)
-                {
-                    MotionState = motionState
-                };
+                // http://bepuphysics.codeplex.com/wikipage?title=Shape%20Recentering
+                ConvexHullShape shape = new ConvexHullShape(modelFilter.Model.Vertices, out offset);
+                // Bepu centers the object in its center of mass.
+                // This offset will be used to match the engine representation.
+                offsetMatrix = Matrix.CreateTranslation(-offset);
+                // To made the interface more uniform the offset will be accounted in the initial motion state.
+                motionState.Position += offset;
+                Entity = new Entity(shape, mass) { MotionState = motionState };
             }
             else
             {
-                throw new InvalidOperationException("RigidBody: Model filter or model not present.");
+                throw new InvalidOperationException("Rigid Body: Model filter or model not present.");
             }
         } // CreateDynamicEntityFromModelFilter
 
         /// <summary>
-        /// Creates and assign an kinematic entity usign the model stored in the model filter component.
+        /// Creates and assign a kinematic entity usign the model stored in the model filter component.
         /// </summary>
         public void CreateKinematicEntityFromModelFilter()
         {
@@ -214,7 +226,7 @@ namespace XNAFinalEngine.Components
             }
             else
             {
-                throw new InvalidOperationException("RigidBody: Model filter or model not present.");
+                throw new InvalidOperationException("Rigid Body: Model filter or model not present.");
             }
         } // CreateKinematicEntityFromModelFilter
 
@@ -225,21 +237,21 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// On transform's world matrix change update the world matrix of the associated entity only in case of a kinematic rigidbody.
         /// </summary>
-        protected void OnWorldMatrixChanged(Matrix worldMatrix)
+        private void OnWorldMatrixChanged(Matrix worldMatrix)
         {
             if (!IsDynamic)
             {
-                Matrix wm = Matrix.CreateFromQuaternion(((GameObject3D) Owner).Transform.Rotation);
-                wm.Translation = ((GameObject3D) Owner).Transform.Position;
+                Matrix wm = Matrix.CreateFromQuaternion(cachedTransform3D.Rotation);
+                wm.Translation = cachedTransform3D.Position;
                 entity.WorldTransform = wm;
             }
         } // OnWorldMatrixChanged
 
         /// <summary>
         /// When the gameobject becomes inactive remove the associated entity from the simulation,
-        /// and when the gameobject becomes active again add the entity to the simulation
+        /// and when the gameobject becomes active again add the entity to the simulation.
         /// </summary>
-        protected void OnActiveChanged(object sender, bool active)
+        private void OnActiveChanged(object sender, bool active)
         {
             if (active)
                 PhysicsManager.Scene.Add(entity);
@@ -247,6 +259,9 @@ namespace XNAFinalEngine.Components
                 PhysicsManager.Scene.Remove(entity);
         } // OnActiveChanged
 
+        /// <summary>
+        /// When a collision is detected fire the proper handler in every script attached to the game object.
+        /// </summary>        
         private void OnInitialCollisionDetected(EntityCollidable entity, Collidable collidable, CollidablePairHandler pair)
         {            
             foreach (var script in Owner.Scripts)
@@ -256,6 +271,9 @@ namespace XNAFinalEngine.Components
             }
         } // OnInitialCollisionDetected
 
+        /// <summary>
+        /// When a collision ended fire the proper handler in every script attached to the game object
+        /// </summary>
         private void OnCollisionEnded(EntityCollidable entity, Collidable collidable, CollidablePairHandler pair)
         {
             foreach (var script in Owner.Scripts)
@@ -265,6 +283,9 @@ namespace XNAFinalEngine.Components
             }
         } // OnCollisionEnded
 
+        /// <summary>
+        /// When a collision is still occurring fire the proper handler in every script attached to the game object
+        /// </summary>
         private void OnPairTouched(EntityCollidable entity, Collidable collidable, CollidablePairHandler pair)
         {
             foreach (var script in Owner.Scripts)

@@ -311,7 +311,7 @@ namespace XNAFinalEngine.Components
                 // Search for an empty component in the pool.
                 videoRendererAccessor = VideoRenderer.ComponentPool.Fetch();
                 // A component is a reference value, so no problem to do this.
-                videoRenderer = VideoRenderer.ComponentPool[videoRendererAccessor];
+                VideoRenderer = VideoRenderer.ComponentPool[videoRendererAccessor];
                 // Initialize the component to the default values.
                 videoRenderer.Initialize(this);
                 result = videoRenderer;
@@ -330,7 +330,7 @@ namespace XNAFinalEngine.Components
                 // Search for an empty component in the pool.
                 lineRendererAccessor = LineRenderer.ComponentPool2D.Fetch();
                 // A component is a reference value, so no problem to do this.
-                lineRenderer = LineRenderer.ComponentPool2D[lineRendererAccessor];
+                LineRenderer = LineRenderer.ComponentPool2D[lineRendererAccessor];
                 // Initialize the component to the default values.
                 lineRenderer.Initialize(this);
                 result = lineRenderer;
