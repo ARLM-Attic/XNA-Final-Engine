@@ -29,6 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
@@ -46,45 +48,69 @@ namespace XNAFinalEngineExamples
     {
 
         #region Variables
+
+        private float leftDoorAngle = 0; 
         
         // Now every entity is a game object and the entity’s behavior is defined by the components attached to it.
         // There are several types of components, components related to models, to sound, to particles, to physics, etc.
-        private static GameObject3D // Lambo body
-                                    murcielagoBody, murcielagoLP640AirTakesEngine, murcielagoLP640AirTakes, murcielagoAirTakesDark,
-                                    murcielagoFrontLightBase, murcielagoLights, murcielagoLightsGlasses,
-                                    murcielagoWhiteMetal, murcielagoGrayMetal, murcielagoCarbonFiber, murcielagoGlasses,
-                                    murcielagoEngineGlasses, murcielagoBlackMetal, murcielagoLogo, murcielagoBlackContant, murcielagoFloor,
-                                    murcielagoLP640Grid, murcielagoLP640RearSpoilerDarkPart, murcielagoLP640Exhaust, murcielagoLP640LeatherPattern,
-                                    murcielagoInteriorLeather, murcielagoSteeringWheel, murcielagoInteriorDetails, murcielagoBlackPlastic,
-                                    murcielagoInteriorCostura, murcielagoTablero, murcielagoRedPlastic,
-                                    // Left Door
-                                    murcielagoLeftDoorBody, murcielagoLeftDoorBlackMetal, murcielagoLeftDoorGrayMetal, murcielagoLeftDoorLeather,
-                                    murcielagoLeftDoorSpeakers, murcielagoLeftDoorGlass, murcielagoLeftDoorCostura, murcielagoLeftDoorDetails, murcielagoLeftDoor,
-                                    // Right Door
-                                    murcielagoRightDoorBody, murcielagoRightDoorBlackMetal, murcielagoRightDoorGrayMetal, murcielagoRightDoorLeather,
-                                    murcielagoRightDoorSpeakers, murcielagoRightDoorGlass, murcielagoRightDoorCostura, murcielagoRightDoorDetails,
-                                    // Front Left Wheel
-                                    murcielagoLP670FrontLeftRim, murcielagoLP640FrontLeftRimBase, murcielagoLP640FrontLeftRimBase02,
-                                    murcielagoFrontLeftRimLogo, murcielagoFrontLeftBrakeDisc, murcielagoFrontLeftBrakeCaliper, murcielagoFrontLeftTyre,
-                                    murcielagoFrontLeftTyre02, frontLeftRim,
-                                    // Front Right Wheel
-                                    murcielagoLP670FrontRightRim, murcielagoLP640FrontRightRimBase, murcielagoLP640FrontRightRimBase02,
-                                    murcielagoFrontRightRimLogo, murcielagoFrontRightBrakeDisc, murcielagoFrontRightBrakeCaliper, murcielagoFrontRightTyre,
-                                    murcielagoFrontRightTyre02, frontRightRim,
-                                    // Rear Left Wheel
-                                    murcielagoLP670RearLeftRim, murcielagoLP640RearLeftRimBase, murcielagoLP640RearLeftRimBase02,
-                                    murcielagoRearLeftRimLogo, murcielagoRearLeftBrakeDisc, murcielagoRearLeftBrakeCaliper, murcielagoRearLeftTyre,
-                                    murcielagoRearLeftTyre02, rearLeftRim,
-                                    // Rear Right Wheel
-                                    murcielagoLP670RearRightRim, murcielagoLP640RearRightRimBase, murcielagoLP640RearRightRimBase02,
-                                    murcielagoRearRightRimLogo, murcielagoRearRightBrakeDisc, murcielagoRearRightBrakeCaliper, murcielagoRearRightTyre,
-                                    murcielagoRearRightTyre02, rearRightRim;
+        private GameObject3D // Lambo body
+                            murcielagoBody, murcielagoLP640AirTakesEngine, murcielagoLP640AirTakes, murcielagoAirTakesDark,
+                            murcielagoFrontLightBase, murcielagoLights, murcielagoLightsGlasses,
+                            murcielagoWhiteMetal, murcielagoGrayMetal, murcielagoCarbonFiber, murcielagoGlasses,
+                            murcielagoEngineGlasses, murcielagoBlackMetal, murcielagoLogo, murcielagoBlackContant, murcielagoFloor,
+                            murcielagoLP640Grid, murcielagoLP640RearSpoilerDarkPart, murcielagoLP640Exhaust, murcielagoLP640LeatherPattern,
+                            murcielagoInteriorLeather, murcielagoSteeringWheel, murcielagoInteriorDetails, murcielagoBlackPlastic,
+                            murcielagoInteriorCostura, murcielagoTablero, murcielagoRedPlastic,
+                            // Left Door
+                            murcielagoLeftDoorBody, murcielagoLeftDoorBlackMetal, murcielagoLeftDoorGrayMetal, murcielagoLeftDoorLeather,
+                            murcielagoLeftDoorSpeakers, murcielagoLeftDoorGlass, murcielagoLeftDoorCostura, murcielagoLeftDoorDetails, murcielagoLeftDoor,
+                            // Right Door
+                            murcielagoRightDoorBody, murcielagoRightDoorBlackMetal, murcielagoRightDoorGrayMetal, murcielagoRightDoorLeather,
+                            murcielagoRightDoorSpeakers, murcielagoRightDoorGlass, murcielagoRightDoorCostura, murcielagoRightDoorDetails,
+                            // Front Left Wheel
+                            murcielagoLP670FrontLeftRim, murcielagoLP640FrontLeftRimBase, murcielagoLP640FrontLeftRimBase02,
+                            murcielagoFrontLeftRimLogo, murcielagoFrontLeftBrakeDisc, murcielagoFrontLeftBrakeCaliper, murcielagoFrontLeftTyre,
+                            murcielagoFrontLeftTyre02, frontLeftRim,
+                            // Front Right Wheel
+                            murcielagoLP670FrontRightRim, murcielagoLP640FrontRightRimBase, murcielagoLP640FrontRightRimBase02,
+                            murcielagoFrontRightRimLogo, murcielagoFrontRightBrakeDisc, murcielagoFrontRightBrakeCaliper, murcielagoFrontRightTyre,
+                            murcielagoFrontRightTyre02, frontRightRim,
+                            // Rear Left Wheel
+                            murcielagoLP670RearLeftRim, murcielagoLP640RearLeftRimBase, murcielagoLP640RearLeftRimBase02,
+                            murcielagoRearLeftRimLogo, murcielagoRearLeftBrakeDisc, murcielagoRearLeftBrakeCaliper, murcielagoRearLeftTyre,
+                            murcielagoRearLeftTyre02, rearLeftRim,
+                            // Rear Right Wheel
+                            murcielagoLP670RearRightRim, murcielagoLP640RearRightRimBase, murcielagoLP640RearRightRimBase02,
+                            murcielagoRearRightRimLogo, murcielagoRearRightBrakeDisc, murcielagoRearRightBrakeCaliper, murcielagoRearRightTyre,
+                            murcielagoRearRightTyre02, rearRightRim;
         
         #endregion
 
         #region Properties
 
         public GameObject3D LamborghiniMurcielago { get; private set; }
+
+        public float LeftDoorAngle
+        {
+            get { return leftDoorAngle; }
+            set
+            {
+                leftDoorAngle = value;
+                if (leftDoorAngle < 0)
+                    leftDoorAngle = 0;
+                if (leftDoorAngle > 55)
+                    leftDoorAngle = 55;
+                float yaw;
+                if (leftDoorAngle < 4)
+                    yaw = -(float) Math.Pow(leftDoorAngle * 3.1416f / 1800f, 0.85f);
+                else
+                    yaw = -(float)Math.Pow(4 * 3.1416f / 1800f, 0.85f);
+                // Move the model to the world origin, rotate and then move again to its original position.
+                murcielagoLeftDoor.Transform.LocalMatrix = Matrix.CreateTranslation(new Vector3(0, -0.2586f, -2.1334f)) *
+                                                           Matrix.CreateFromYawPitchRoll(yaw, leftDoorAngle * 3.1416f / 180f, 0) *
+                                                           Matrix.CreateTranslation(new Vector3(0, 0.2586f, 2.1334f));
+            }
+        }
 
         #endregion
 
@@ -405,9 +431,7 @@ namespace XNAFinalEngineExamples
             
             #region Left Door
 
-            murcielagoLeftDoor = new GameObject3D { Parent = LamborghiniMurcielago};
-            murcielagoLeftDoor.Transform.Rotate(new Vector3(10, 0, 0), Space.World);
-            murcielagoLeftDoor.Transform.Position = new Vector3(0, 0.2708f, 2.2335f);
+            murcielagoLeftDoor = new GameObject3D { Parent = LamborghiniMurcielago};           
 
             murcielagoLeftDoorBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorBody"), carPaintMaterial) { Parent = murcielagoLeftDoor };
             murcielagoLeftDoorBlackMetal = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-LeftDoorBlackMetal"), blackMetalMaterial) { Parent = murcielagoLeftDoor };

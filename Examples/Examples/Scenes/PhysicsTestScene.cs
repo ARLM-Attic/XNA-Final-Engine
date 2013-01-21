@@ -53,7 +53,7 @@ namespace XNAFinalEngineExamples
     /// The physic interface was not completed in both functionality and ease of use.
     /// However it implements the key elements to perform a proper adaptation of Bepu Physics.
     /// </summary>
-    class PhysicsTestScene : EditableScene
+    class PhysicsTestScene : Scene
     {
 
         #region Variables

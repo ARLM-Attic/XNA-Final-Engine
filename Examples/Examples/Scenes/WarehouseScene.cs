@@ -51,7 +51,7 @@ namespace XNAFinalEngineExamples
     /// <summary>
     /// Lighthouse scene.
     /// </summary>
-    public class WarehouseScene : EditableScene
+    public class WarehouseScene : Scene
     {
 
         #region Variables
@@ -65,6 +65,8 @@ namespace XNAFinalEngineExamples
                                     // Cameras
                                     camera, camera2,
                                     skydome;
+
+        private static LamborghiniMurcielagoLoader lamborghiniMurcielagoLoader;
 
         private static GameObject2D statistics;
         
@@ -278,7 +280,7 @@ namespace XNAFinalEngineExamples
             // To test performance.
             //for (int i = 0; i < 10; i++)
             {
-                LamborghiniMurcielagoLoader lamborghiniMurcielagoLoader = new LamborghiniMurcielagoLoader();
+                lamborghiniMurcielagoLoader = new LamborghiniMurcielagoLoader();
                 lamborghiniMurcielagoLoader.LoadContent();
 
                 lamborghiniMurcielagoLoader.LamborghiniMurcielago.Transform.LocalScale = new Vector3(1.2f, 1.2f, 1.2f);
@@ -303,6 +305,11 @@ namespace XNAFinalEngineExamples
                 throw new Exception("Quick exit in Xbox 360 tests.");
                 //EngineManager.ExitApplication();
             base.UpdateTasks();
+            if (GamePad.PlayerOne.BPressed)
+                lamborghiniMurcielagoLoader.LeftDoorAngle += Time.SmoothFrameTime * 30;
+            if (GamePad.PlayerOne.XPressed)
+                lamborghiniMurcielagoLoader.LeftDoorAngle -= Time.SmoothFrameTime * 30;
+
             //warehouseWalls.Transform.Rotate(new Vector3(0.1f, 0, 0));
         } // UpdateTasks
 

@@ -40,7 +40,7 @@ using XNAFinalEngine.Physics;
 namespace XNAFinalEngine.Components
 {
     /// <summary>
-    /// To representate static physic objects.
+    /// Representates static physic objects.
     /// If you intend to move the collider around a lot it is recommended to also attach a kinematic rigidbody to it.
     /// </summary>
     public class StaticCollider : Component
