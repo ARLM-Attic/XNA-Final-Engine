@@ -121,8 +121,18 @@ namespace XNAFinalEngine.Components
 
         /// <summary>
         /// The center of mass of the object in object's model space.
+        /// Change this value is you add the entity manually and if Bepu creates and offset to center the entity to the physic space’s origin.
+        /// http://bepuphysics.codeplex.com/wikipage?title=Shape%20Recentering
         /// </summary>
-        public Vector3 CenterOfMass { get { return offset; } }
+        public Vector3 CenterOfMass
+        {
+            get { return offset; }
+            set
+            {
+                offset = value;
+                offsetMatrix = Matrix.CreateTranslation(-offset);
+            }
+        } // CenterOfMass
 
         #endregion
 

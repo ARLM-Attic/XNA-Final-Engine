@@ -39,6 +39,10 @@ using XNAFinalEngine.Physics;
 
 namespace XNAFinalEngine.Components
 {
+    /// <summary>
+    /// To representate static physic objects.
+    /// If you intend to move the collider around a lot it is recommended to also attach a kinematic rigidbody to it.
+    /// </summary>
     public class StaticCollider : Component
     {
 
@@ -78,29 +82,7 @@ namespace XNAFinalEngine.Components
         } // StaticCollidable
 
         #endregion
-
-        #region Methods
-
-        public void CreateStaticCollidableFromModelFilter(TriangleSidedness triangleSidedness = TriangleSidedness.Counterclockwise)
-        {
-            ModelFilter modelFilter = ((GameObject3D)Owner).ModelFilter;
-            if (modelFilter != null && modelFilter.Model != null && modelFilter.Model is FileModel)
-            {
-                Vector3[] vertices;
-                int[] indices;
-                TriangleMesh.GetVerticesAndIndicesFromModel(((FileModel) modelFilter.Model).Resource, out vertices, out indices);
-                StaticMesh staticMesh = new StaticMesh(vertices, indices) { Sidedness = triangleSidedness };
-
-                StaticCollidable = staticMesh;
-            }
-            else
-            {
-                throw new InvalidOperationException("Static Collider: Model filter not present, model not present or model is not a FileModel.");
-            }
-        } // CreateStaticCollidableFromModelFilter
-
-        #endregion
-
+        
         #region Initialize
 
         /// <summary>
@@ -141,6 +123,32 @@ namespace XNAFinalEngine.Components
             // Call this last because the owner information is needed.
             base.Uninitialize();
         } // Uninitialize
+
+        #endregion
+
+        #region Create Static Collidable From Model Filter
+
+        /// <summary>
+        /// Creates and assign a static mesh usign the model stored in the model filter component.
+        /// </summary>
+        /// <param name="triangleSidedness">A triangle can be double sided, or allow one of its sides to let interacting objects through.</param>
+        public void CreateStaticCollidableFromModelFilter(TriangleSidedness triangleSidedness = TriangleSidedness.Counterclockwise)
+        {
+            ModelFilter modelFilter = ((GameObject3D)Owner).ModelFilter;
+            if (modelFilter != null && modelFilter.Model != null && modelFilter.Model is FileModel)
+            {
+                Vector3[] vertices;
+                int[] indices;
+                TriangleMesh.GetVerticesAndIndicesFromModel(((FileModel)modelFilter.Model).Resource, out vertices, out indices);
+                StaticMesh staticMesh = new StaticMesh(vertices, indices) { Sidedness = triangleSidedness };
+
+                StaticCollidable = staticMesh;
+            }
+            else
+            {
+                throw new InvalidOperationException("Static Collider: Model filter not present, model not present or model is not a FileModel.");
+            }
+        } // CreateStaticCollidableFromModelFilter
 
         #endregion
 

@@ -157,19 +157,23 @@ namespace XNAFinalEngineExamples
             // Make a wall of boxes //
             MakeWall(6, 9);
 
-            // Make a sphere obstacle (Dynamic) //             
+            // Make a sphere obstacle (Dynamic) //
+            // The sphere model is not center in its model space, instead is displaced 10 units on Z.
+            // First we creates this sphere with no physics representation.
             GameObject3D sphere = new GameObject3D(new FileModel("SphereTransformed"), new BlinnPhong { DiffuseColor = new Color(1f, 0f, 0f), SpecularPower = 20 });
+            // Then we creates the same sphere and asign a dynamic physic object representation.
             sphere = new GameObject3D(new FileModel("SphereTransformed"), new BlinnPhong { DiffuseColor = new Color(0.79f, 0.75f, 0.2f), SpecularPower = 20 });
+            // The initial motion state place the sphere just a little above.
             MotionState motionState = new MotionState { Position = new Vector3(0f, 10f, 0f), Orientation = Quaternion.Identity };
+            // We create the physic object. The offset that creates Bepu is hide transparently.
+            // Moreover the initial motion state takes in consideration this offset and places the sphere in the same x, z coordinates as the other sphere.
             ((RigidBody)sphere.AddComponent<RigidBody>()).CreateDynamicEntityFromModelFilter(motionState, 1);
 
-            // Lambo body
-            var lambo = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-RearTyre"), new BlinnPhong() { DiffuseColor = Color.Black });            
-            var ms = new MotionState();
-            ms.Position = new Vector3(10f, 10f, 8f);
-            ms.Orientation = Quaternion.Identity;
-            ((RigidBody) lambo.AddComponent<RigidBody>()).CreateDynamicEntityFromModelFilter(ms, 1f);
-                        
+            // Static mesh.
+            var lamboBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), new BlinnPhong { DiffuseColor = Color.Black });
+            lamboBody.Transform.Position = new Vector3(-3, 3, 3);
+            ((StaticCollider)lamboBody.AddComponent<StaticCollider>()).CreateStaticCollidableFromModelFilter();
+
             // Very Simple Crosshair //
             GameObject2D crosshair = new GameObject2D();
             crosshair.Transform.Position = new Vector3(Screen.Width / 2f, Screen.Height / 2f, 0f);
@@ -177,19 +181,7 @@ namespace XNAFinalEngineExamples
             crossText.Text.Append("+");
 
             #endregion
-
-            #region WIP
-
-            Vector3[] vertices;
-            int[] indices;
-
-            var tire = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), new BlinnPhong() { DiffuseColor = Color.Black });
-            tire.Transform.Position = new Vector3(-3,10,3);
-            var sc = (StaticCollider) tire.AddComponent<StaticCollider>();
-            sc.CreateStaticCollidableFromModelFilter();
-
-            #endregion
-
+            
             #region Shadows and Lights
 
             Shadow.DistributeShadowCalculationsBetweenFrames = true;
