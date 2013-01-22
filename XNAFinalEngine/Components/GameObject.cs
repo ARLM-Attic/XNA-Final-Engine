@@ -54,7 +54,7 @@ namespace XNAFinalEngine.Components
         private bool active = true;
         
         // Default layer mask = 1 (the default layer).
-        private uint layerMask = 1;
+        private uint layerMask;
 
         protected readonly List<Script> scripts = new List<Script>(2);
 
@@ -185,6 +185,7 @@ namespace XNAFinalEngine.Components
             uniqueIdCounter++;
             GameObjects.Add(this);
             Components = new List<Component>(5);
+            Layer = Layer.CurrentCreationLayer;
         } // GameObject
 
         /// <summary>

@@ -49,7 +49,6 @@ namespace XNAFinalEngineExamples
         /// <remarks>Remember to call the base implementation of this method.</remarks>
         public override void LoadContent()
         {
-            base.LoadContent();
         } // Load
 
         #endregion

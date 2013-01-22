@@ -314,9 +314,9 @@
     <Compile Include="Graphics\03-MaterialPass\MaterialPass.cs" />
     <Compile Include="Graphics\Miscellaneous\GammaLinearSpace.cs" />
     <Compile Include="Graphics\Miscellaneous\RGBM.cs" />
-    <Compile Include="Graphics\Miscellaneous\SphericalHarmonics.cs" />
-    <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL1.cs" />
-    <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL2.cs" />
+    <Compile Include="Assets\SphericalHarmonics\SphericalHarmonics.cs" />
+    <Compile Include="Assets\SphericalHarmonics\SphericalHarmonicsL1.cs" />
+    <Compile Include="Assets\SphericalHarmonics\SphericalHarmonicsL2.cs" />
     <Compile Include="Graphics\03-MaterialPass\Materials\BlinnPhongShader.cs">
       <SubType>Code</SubType>
     </Compile>

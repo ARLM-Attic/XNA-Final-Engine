@@ -158,6 +158,11 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public static uint CurrentCameraCullingMask { get; internal set; }
 
+        /// <summary>
+        /// Indicates the layer in witch the new game objects will be created.
+        /// </summary>
+        public static Layer CurrentCreationLayer { get; set; }
+
         #endregion
 
         #region Initialize Layers
@@ -184,6 +189,7 @@ namespace XNAFinalEngine.Components
             ActiveLayers = uint.MaxValue;
             VisibleLayers = uint.MaxValue;
             CurrentCameraCullingMask = uint.MaxValue;
+            CurrentCreationLayer = layerList[0];
         } // Layer
 
         #endregion

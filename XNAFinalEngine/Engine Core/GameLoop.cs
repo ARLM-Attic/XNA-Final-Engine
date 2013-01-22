@@ -47,6 +47,8 @@ using Model = XNAFinalEngine.Assets.Model;
 using RootAnimation = XNAFinalEngine.Components.RootAnimations;
 using XNAFinalEngine.Physics;
 using RenderTargetCube = XNAFinalEngine.Assets.RenderTargetCube;
+using Texture = Microsoft.Xna.Framework.Graphics.Texture;
+
 #endregion
 
 namespace XNAFinalEngine.EngineCore
@@ -696,6 +698,7 @@ namespace XNAFinalEngine.EngineCore
                 // Render the main camera onto back buffer.
                 if (mainCamera != null && mainCamera.RenderTarget != null)
                     SpriteManager.DrawTextureToFullScreen(Camera.MainCamera.RenderTarget);
+                RenderHeadsUpDisplay();
             }
 
             #endregion
@@ -847,8 +850,6 @@ namespace XNAFinalEngine.EngineCore
             renderTarget.EnableRenderTarget();
             if (showToScreen != null)
                 SpriteManager.DrawTextureToFullScreen(showToScreen);
-            if (currentCamera.RenderHeadUpDisplay)
-                RenderHeadsUpDisplay();
             renderTarget.DisableRenderTarget();
             Layer.CurrentCameraCullingMask = uint.MaxValue;
             ReleaseUnusedRenderTargets();
@@ -1228,8 +1229,7 @@ namespace XNAFinalEngine.EngineCore
                                 modelsToRenderShadowsSkinned.Clear();
                                 foreach (ModelRenderer modelRenderer in modelsToRenderShadows)
                                 {
-                                    if (modelRenderer.CastShadows &&
-                                        modelRenderer.Material.AlphaBlending == 1) // This question could be made before the Intersects. Or we can track globally the objects that cast shadows.
+                                    if (modelRenderer.CastShadows && (modelRenderer.Material == null || modelRenderer.Material.AlphaBlending == 1))
                                     {
                                         if (modelRenderer.CachedModel.IsSkinned)
                                             modelsToRenderShadowsSkinned.Add(modelRenderer);
@@ -1356,8 +1356,7 @@ namespace XNAFinalEngine.EngineCore
                             modelsToRenderShadowsSkinned.Clear();
                             foreach (ModelRenderer modelRenderer in modelsToRenderShadows)
                             {
-                                if (modelRenderer.CastShadows &&
-                                    modelRenderer.Material.AlphaBlending == 1) // This question could be made before the Intersects. Or we can track globally the objects that cast shadows.
+                                if (modelRenderer.CastShadows && (modelRenderer.Material == null || modelRenderer.Material.AlphaBlending == 1))
                                 {
                                     if (modelRenderer.CachedModel.IsSkinned)
                                         modelsToRenderShadowsSkinned.Add(modelRenderer);
@@ -1498,8 +1497,7 @@ namespace XNAFinalEngine.EngineCore
                             modelsToRenderShadowsSkinned.Clear();
                             foreach (ModelRenderer modelRenderer in modelsToRenderShadows)
                             {
-                                if (modelRenderer.CastShadows &&
-                                    modelRenderer.Material.AlphaBlending == 1) // This question could be made before the Intersects. Or we can track globally the objects that cast shadows.
+                                if (modelRenderer.CastShadows && (modelRenderer.Material == null || modelRenderer.Material.AlphaBlending == 1))
                                 {
                                     if (modelRenderer.CachedModel.IsSkinned)
                                         modelsToRenderShadowsSkinned.Add(modelRenderer);
@@ -1621,8 +1619,7 @@ namespace XNAFinalEngine.EngineCore
                                 modelsToRenderShadowsSkinned.Clear();
                                 foreach (ModelRenderer modelRenderer in modelsToRenderShadows)
                                 {
-                                    if (modelRenderer.CastShadows &&
-                                        modelRenderer.Material.AlphaBlending == 1) // This question could be made before the Intersects. Or we can track globally the objects that cast shadows.
+                                    if (modelRenderer.CastShadows && (modelRenderer.Material == null || modelRenderer.Material.AlphaBlending == 1))
                                     {
                                         if (modelRenderer.CachedModel.IsSkinned)
                                             modelsToRenderShadowsSkinned.Add(modelRenderer);
@@ -1782,7 +1779,7 @@ namespace XNAFinalEngine.EngineCore
             lightDepthTextureCubeArray.Clear();
 
             // Testing
-            //FinishRendering(currentCamera, renderTarget, lightTextures.RenderTargets[0]); return;
+            //FinishRendering(currentCamera, renderTarget, lightTextures.RenderTargets[1]); return;
             
             #endregion
             
@@ -1795,6 +1792,7 @@ namespace XNAFinalEngine.EngineCore
             // It is possible that the cost of this regeneration could be higher than the performance improvement, particularly in small scenes.
             ReconstructZBufferShader.Instance.Render(gbufferTextures.RenderTargets[0], currentCamera.FarPlane, currentCamera.ProjectionMatrix);
             EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
+            EngineManager.Device.BlendState = BlendState.Opaque;
 
             #region Opaque Objects
           
@@ -1923,6 +1921,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             // Set Render States.
+
             EngineManager.Device.BlendState = BlendState.NonPremultiplied;
             EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
 
@@ -2340,13 +2339,6 @@ namespace XNAFinalEngine.EngineCore
             }
 
             LineManager.End();
-
-            #endregion
-
-            #region Head Up Display
-            
-            if (currentCamera.RenderHeadUpDisplay)
-                RenderHeadsUpDisplay();
 
             #endregion
 

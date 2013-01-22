@@ -56,6 +56,7 @@ namespace XNAFinalEngine.Graphics
         private static ShaderParameterTexture spDepthTexture;
 
         private static DepthStencilState depthStencilState;
+        private static BlendState blendState;
 
         #endregion
 
@@ -83,6 +84,10 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private ReconstructZBufferShader() : base("GBuffer\\ReconstructZBuffer")
         {
+            blendState = new BlendState
+            {
+                ColorWriteChannels = ColorWriteChannels.None,
+            };
             depthStencilState = new DepthStencilState
             {
                 DepthBufferEnable = true,
@@ -129,7 +134,7 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 // Set Render States.
-                EngineManager.Device.BlendState = BlendState.Opaque;
+                EngineManager.Device.BlendState = blendState;
                 EngineManager.Device.RasterizerState = RasterizerState.CullCounterClockwise;
                 EngineManager.Device.DepthStencilState = depthStencilState;
 

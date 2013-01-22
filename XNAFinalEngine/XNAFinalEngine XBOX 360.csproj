@@ -102,6 +102,9 @@
     <Compile Include="Assets\Sky\Sky.cs" />
     <Compile Include="Assets\Sky\Skybox.cs" />
     <Compile Include="Assets\Sky\Skydome.cs" />
+    <Compile Include="Assets\SphericalHarmonics\SphericalHarmonics.cs" />
+    <Compile Include="Assets\SphericalHarmonics\SphericalHarmonicsL1.cs" />
+    <Compile Include="Assets\SphericalHarmonics\SphericalHarmonicsL2.cs" />
     <Compile Include="Assets\Textures\LookupTable.cs" />
     <Compile Include="Assets\Textures\RenderTarget.cs" />
     <Compile Include="Assets\Textures\RenderTargetCube.cs" />
@@ -189,9 +192,6 @@
     <Compile Include="Graphics\Filters\DilateShader.cs" />
     <Compile Include="Graphics\Miscellaneous\GammaLinearSpace.cs" />
     <Compile Include="Graphics\Miscellaneous\RGBM.cs" />
-    <Compile Include="Graphics\Miscellaneous\SphericalHarmonics.cs" />
-    <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL1.cs" />
-    <Compile Include="Graphics\Miscellaneous\SphericalHarmonicsL2.cs" />
     <Compile Include="Helpers\ArrayHelper.cs" />
     <Compile Include="Helpers\Chronometer.cs" />
     <Compile Include="Helpers\Curve3D.cs" />

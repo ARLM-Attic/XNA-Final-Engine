@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using XNAFinalEngine.Assets;
 using XNAFinalEngine.Components;
 #if !XBOX
@@ -38,8 +39,9 @@ using XNAFinalEngine.Components;
 #endif
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Graphics;
-using XNAFinalEngine.Input;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
+using GamePad = XNAFinalEngine.Input.GamePad;
+using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Size = XNAFinalEngine.Helpers.Size;
 using Texture = XNAFinalEngine.Assets.Texture;
 using TextureCube = XNAFinalEngine.Assets.TextureCube;
@@ -90,12 +92,12 @@ namespace XNAFinalEngineExamples
             camera.Camera.NearPlane = 1f; // Do not place a small value here, you can destroy performance, not just precision.
             camera.Transform.LookAt(new Vector3(5, 0, 15), Vector3.Zero, Vector3.Up);
             ScriptCustomCamera script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
-            script.SetPosition(new Vector3(0, 13, 22), Vector3.Zero);
-            camera.Camera.ClearColor = Color.Black;
+            script.SetPosition(new Vector3(5, 3, 18), Vector3.Zero);
+            camera.Camera.ClearColor = Color.White;
             camera.Camera.FieldOfView = 180 / 7f;
             camera.Camera.PostProcess = new PostProcess();
             camera.Camera.PostProcess.ToneMapping.AutoExposureEnabled = true;
-            camera.Camera.PostProcess.ToneMapping.LensExposure = -0.5f;
+            camera.Camera.PostProcess.ToneMapping.LensExposure = 0.5f;
             camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
             camera.Camera.PostProcess.MLAA.EdgeDetection = MLAA.EdgeDetectionType.Color;
             camera.Camera.PostProcess.MLAA.Enabled = true;
@@ -103,13 +105,16 @@ namespace XNAFinalEngineExamples
             camera.Camera.PostProcess.Bloom.Threshold = 3f;
             camera.Camera.PostProcess.FilmGrain.Enabled = true;
             camera.Camera.PostProcess.FilmGrain.Strength = 0.15f;
+            /*camera.Camera.PostProcess.AdjustLevels.Enabled = true;
+            camera.Camera.PostProcess.AdjustLevels.InputGamma = 0.9f;
+            camera.Camera.PostProcess.AdjustLevels.InputWhite = 0.95f;*/
             camera.Camera.PostProcess.AnamorphicLensFlare.Enabled = false;
             camera.Camera.AmbientLight = new AmbientLight
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
-                                                            Color = new Color(10, 10, 10),
-                                                            Intensity = 12f,
-                                                            AmbientOcclusionStrength = 1f };
+                Color = new Color(10, 10, 10),
+                Intensity = 12f,
+                AmbientOcclusionStrength = 1.5f };
             
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
             //camera.Camera.Sky = new Skybox { TextureCube = new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, } };
@@ -217,8 +222,8 @@ namespace XNAFinalEngineExamples
             directionalLight.Transform.LookAt(new Vector3(0.3f, 0.95f, -0.3f), Vector3.Zero, Vector3.Forward);
             directionalLight.DirectionalLight.Shadow = new CascadedShadow
             {
-                Filter = Shadow.FilterType.Pcf7X7,
-                LightDepthTextureSize = Size.Square1024X1024,
+                Filter = Shadow.FilterType.PcfPosion,
+                LightDepthTextureSize = Size.Square512X512,
                 ShadowTextureSize = Size.TextureSize.FullSize, // Lower than this could produce artifacts if the light is too intense.
                 DepthBias = 0.0025f,
                 FarPlaneSplit1 = 15,
@@ -241,7 +246,7 @@ namespace XNAFinalEngineExamples
             pointLight.PointLight.Intensity = 0.5f;
             pointLight.PointLight.Range = 60;
             pointLight.Transform.Position = new Vector3(4.8f, 1.5f, 10);
-            pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 512, };
+            //pointLight.PointLight.Shadow = new CubeShadow { LightDepthTextureSize = 512, };
 
             pointLight = new GameObject3D();
             pointLight.AddComponent<PointLight>();
@@ -258,13 +263,13 @@ namespace XNAFinalEngineExamples
             spotLight.Transform.Position = new Vector3(0, 16, 18);
             spotLight.Transform.Rotate(new Vector3(-80, 0, 0));
             spotLight.SpotLight.LightMaskTexture = new Texture("LightMasks\\Crysis2TestLightMask");
-            spotLight.SpotLight.Shadow = new BasicShadow
+            /*spotLight.SpotLight.Shadow = new BasicShadow
             {
                 Filter = Shadow.FilterType.PcfPosion,
                 LightDepthTextureSize = Size.Square512X512,
                 ShadowTextureSize = Size.TextureSize.FullSize,
                 DepthBias = 0.0005f,
-            };
+            };*/
             
             #endregion
             
@@ -305,10 +310,15 @@ namespace XNAFinalEngineExamples
                 throw new Exception("Quick exit in Xbox 360 tests.");
                 //EngineManager.ExitApplication();
             base.UpdateTasks();
-            if (GamePad.PlayerOne.BPressed)
+            if (Keyboard.KeyPressed(Keys.Right))
                 lamborghiniMurcielagoLoader.LeftDoorAngle += Time.SmoothFrameTime * 30;
-            if (GamePad.PlayerOne.XPressed)
+            if (Keyboard.KeyPressed(Keys.Left))
                 lamborghiniMurcielagoLoader.LeftDoorAngle -= Time.SmoothFrameTime * 30;
+
+            if (Keyboard.KeyPressed(Keys.Up))
+                lamborghiniMurcielagoLoader.RightDoorAngle += Time.SmoothFrameTime * 30;
+            if (Keyboard.KeyPressed(Keys.Down))
+                lamborghiniMurcielagoLoader.RightDoorAngle -= Time.SmoothFrameTime * 30;
 
             //warehouseWalls.Transform.Rotate(new Vector3(0.1f, 0, 0));
         } // UpdateTasks

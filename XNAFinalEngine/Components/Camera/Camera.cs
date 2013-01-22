@@ -141,15 +141,6 @@ namespace XNAFinalEngine.Components
 
         #region Properties
 
-        #region Render Head Up Display
-
-        /// <summary>
-        /// Render Head Up Display?
-        /// </summary>
-        public bool RenderHeadUpDisplay { get; set; }
-
-        #endregion
-
         #region Clear Color
 
         /// <summary>
@@ -583,7 +574,6 @@ namespace XNAFinalEngine.Components
             ClearColor = new Color(20, 20, 20, 255);
             orthographicVerticalSize = 10;
             RenderingOrder = 0;
-            RenderHeadUpDisplay = true;
             CullingMask = uint.MaxValue & ~(uint)(Math.Pow(2, 31)) & ~(uint)(Math.Pow(2, 30)); // All layers minus the last because it's a reserved layer.
             // Generate the projection matrix.
             CalculateProjectionMatrix();

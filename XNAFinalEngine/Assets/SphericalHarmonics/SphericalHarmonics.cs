@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 using Microsoft.Xna.Framework;
 #endregion
 
-namespace XNAFinalEngine.Graphics
+namespace XNAFinalEngine.Assets
 {
 
     /// <summary>
@@ -40,16 +40,29 @@ namespace XNAFinalEngine.Graphics
     /// A spherical harmonic approximates a spherical function using only a few values.
     /// They are great for store low frequency ambient colors and are very fast.
     /// </summary>
-    public abstract class SphericalHarmonic
+    public abstract class SphericalHarmonic : AssetWithoutResource
     {
 
         #region Variables
+
+        // The count of assets for naming purposes.
+        private static int nameNumber = 1;
 
         /// <summary>
         /// Accumulated weighting value. This value is provided as a helper to make averaging easier. It stores accumulated weighting values from calls to AddLight.
         /// See AddLight method for further details.
         /// </summary>
         protected float weighting;
+
+        #endregion
+
+        #region Constructor
+
+        protected SphericalHarmonic()
+        {
+            Name = "Spherical Harmonic-" + nameNumber;
+            nameNumber++;
+        } // SphericalHarmonic
 
         #endregion
         
@@ -95,4 +108,4 @@ namespace XNAFinalEngine.Graphics
         #endregion
         
     } // SphericalHarmonic
-} // XNAFinalEngine.Graphics
+} // XNAFinalEngine.Assets

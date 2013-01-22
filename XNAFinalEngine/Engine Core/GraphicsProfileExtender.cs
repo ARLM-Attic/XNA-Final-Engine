@@ -15,9 +15,10 @@ namespace XNAFinalEngine.EngineCore
 {
 
     /// <summary>
-    /// Change the XNA profile capabilities.
+    /// Alters the XNA profile capabilities.
     /// You can expand reach with some features from Hi-Def.
-    /// Or you can reduce Hi-Def to work more like Reach.
+    /// Or you can reduce Hi-Def constrains to work in older GPUs, 
+    /// with the risk to lost an important GPU functionality.
     /// http://forums.create.msdn.com/forums/p/55788/339828.aspx
     /// </summary>
     internal static class GraphicsProfileExtender

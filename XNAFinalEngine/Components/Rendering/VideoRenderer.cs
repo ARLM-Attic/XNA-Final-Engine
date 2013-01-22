@@ -141,9 +141,10 @@ namespace XNAFinalEngine.Components
         {
             get
             {
-                if (State != MediaState.Stopped)
+                // It is possible that the state changes after the update and the stop should handle the rest.
+                //if (State != MediaState.Stopped)
                     return texture;
-                return null;
+                //return null;
             }
         } // Texture
         

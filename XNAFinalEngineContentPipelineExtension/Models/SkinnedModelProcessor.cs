@@ -111,7 +111,7 @@ namespace XNAFinalEngineContentPipelineExtension.Models
             else if (name == VertexChannelNames.TextureCoordinate(0))
             {
                 // If the resource has texture coordinates outside the range [-1, 1] the values will be clamped.
-                channels.ConvertChannelContent<NormalizedShort2>(vertexChannelIndex);
+                channels.ConvertChannelContent<HalfVector2>(vertexChannelIndex);
             }
             else if (name == VertexChannelNames.TextureCoordinate(1))
                 channels.Remove(VertexChannelNames.TextureCoordinate(1));

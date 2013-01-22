@@ -14,10 +14,10 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using TextureCube = XNAFinalEngine.Assets.TextureCube;
+using XNAFinalEngine.Graphics;
 #endregion
 
-namespace XNAFinalEngine.Graphics
+namespace XNAFinalEngine.Assets
 {
 
     /// <summary>
@@ -425,4 +425,4 @@ namespace XNAFinalEngine.Graphics
         #endregion
 
     } // SphericalHarmonicL1
-} // XNAFinalEngine.Graphics
+} // XNAFinalEngine.Assets

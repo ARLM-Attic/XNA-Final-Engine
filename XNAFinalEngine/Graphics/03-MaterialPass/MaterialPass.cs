@@ -73,11 +73,6 @@ namespace XNAFinalEngine.Graphics
             try
             {
                 sceneTexture = RenderTarget.Fetch(size, SurfaceFormat.HdrBlendable, DepthFormat.Depth24, RenderTarget.AntialiasingType.NoAntialiasing);
-
-                // Set Render States.
-                EngineManager.Device.BlendState        = BlendState.Opaque;
-                EngineManager.Device.RasterizerState   = RasterizerState.CullCounterClockwise;
-                EngineManager.Device.DepthStencilState = DepthStencilState.Default;
                 
                 sceneTexture.EnableRenderTarget();
                 

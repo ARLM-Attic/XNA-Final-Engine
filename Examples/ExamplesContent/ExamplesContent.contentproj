@@ -176,11 +176,6 @@
       <Processor>RigidModelProcessor</Processor>
       <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP640-RearSpoilerDarkPart.fbx">
-      <Name>Murcielago-LP640-RearSpoilerDarkPart</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
     <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP640-RimBase.fbx">
       <Name>Murcielago-LP640-RimBase</Name>
       <Importer>FbxImporter</Importer>
@@ -1066,6 +1061,48 @@
   <ItemGroup>
     <Compile Include="Models\SphereTransformed.fbx">
       <Name>SphereTransformed</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-Shadow.fbx">
+      <Name>Murcielago-Shadow</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-ShadowLeftDoor.fbx">
+      <Name>Murcielago-ShadowLeftDoor</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-ShadowRightDoor.fbx">
+      <Name>Murcielago-ShadowRightDoor</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-ShadowFrontTyre.fbx">
+      <Name>Murcielago-ShadowFrontTyre</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\LamborghiniMurcielago\Murcielago-ShadowRearTyre.fbx">
+      <Name>Murcielago-ShadowRearTyre</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\XNAFinalEngine.fbx">
+      <Name>XNAFinalEngine</Name>
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
     </Compile>

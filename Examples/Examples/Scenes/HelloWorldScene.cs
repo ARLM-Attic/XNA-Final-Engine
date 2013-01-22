@@ -62,13 +62,13 @@ namespace XNAFinalEngineExamples
         public override void LoadContent()
         {
             // Hello World
-            camera = new GameObject3D();
-            camera.AddComponent<Camera>();
             helloWorldText = new GameObject2D();
             helloWorldText.AddComponent<HudText>();
             helloWorldText.HudText.Text.Append("Hello World");
             helloWorldText.Transform.LocalPosition = new Vector3(10, 10, 0);
             // Creating a 3D World
+            camera = new GameObject3D();
+            camera.AddComponent<Camera>();
             /*body = new GameObject3D();
             body.AddComponent<ModelFilter>();
             body.ModelFilter.Model = new FileModel("LamborghiniMurcielago\\Murcielago-Body");
@@ -76,7 +76,7 @@ namespace XNAFinalEngineExamples
             body.ModelRenderer.Material = new Constant();*/
             body = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), new Constant());
             camera.Transform.LookAt(new Vector3(5, 0, 10), Vector3.Zero, Vector3.Up);
-
+            
             body.ModelRenderer.Material = new BlinnPhong();
             ((BlinnPhong)body.ModelRenderer.Material).DiffuseColor = Color.Yellow;
             directionalLight = new GameObject3D();
@@ -87,7 +87,7 @@ namespace XNAFinalEngineExamples
 
             camera.Camera.PostProcess = new PostProcess();
             camera.Camera.PostProcess.ToneMapping.ToneMappingFunction = ToneMapping.ToneMappingFunctionEnumerate.FilmicALU;
-
+            
             base.LoadContent();
         } // Load
 

@@ -31,9 +31,9 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 // But probably it is a waste of precious GPU cycles.
 // Actually, to improve performance a simplification could be made. The gamma value could be assumed to be 2.0.
 // That made the gamma and digamma functions a lot simpler because we can use a square root and a square function.
-#if defined(Windows)
+//#if defined(Windows)
 	#define ACCURATE_GAMMA // The accurate gamma option utilizes a 2.2 gamma value and the other utilizes a 2.0 gamma value.
-#endif
+//#endif
 
 // Converts from linear RGB space to gamma.
 float3 LinearToGamma(float3 color)

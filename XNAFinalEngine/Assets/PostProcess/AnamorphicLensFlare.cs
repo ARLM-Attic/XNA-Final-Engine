@@ -44,7 +44,7 @@ namespace XNAFinalEngine.Assets
         #region Variables
         
         // Default values.
-        private bool enabled = true;
+        private bool enabled;
         private float dispersal = 0.1875f;
         private float haloWidth = 0.45f;
         private float intensity = 1.5f;

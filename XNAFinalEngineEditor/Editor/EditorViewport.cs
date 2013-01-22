@@ -463,7 +463,6 @@ namespace XNAFinalEngine.Editor
             viewportCamera.Camera.FieldOfView = 36;
             viewportCamera.Camera.NearPlane = 0.1f;
             viewportCamera.Camera.FarPlane = 2000;
-            viewportCamera.Camera.RenderHeadUpDisplay = false;
             viewportCamera.Camera.ResetProjectionMatrix();
             // Set the camera size to the client are of the viewport.
             viewportCamera.Camera.RenderTargetSize = new Size(ClientWidth, ClientHeight);
@@ -499,7 +498,6 @@ namespace XNAFinalEngine.Editor
             Camera mainCamera = Camera.MainCamera;
             Layer.ActiveLayers = Layer.GetLayerByNumber(31).Mask; // Update just the editor
 
-            viewportCamera.Camera.RenderHeadUpDisplay = mainCamera.RenderHeadUpDisplay;
             viewportCamera.Camera.ClearColor = mainCamera.ClearColor;
             viewportCamera.Camera.AmbientLight = mainCamera.AmbientLight;
             viewportCamera.Camera.Sky = mainCamera.Sky;
