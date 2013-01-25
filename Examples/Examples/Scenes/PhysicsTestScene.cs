@@ -59,14 +59,12 @@ namespace XNAFinalEngineExamples
         #region Variables
          
         // Camera, cube and obstacles.
-        private static GameObject3D camera, cube, obstacle, floor;        
-        // Used to show the engine statistics onto screen.
-        private static GameObject2D statistics;
+        private GameObject3D camera, cube, obstacle, floor;
 
         // Materials //
-        private static Material hitMaterial;
-        private static Material mat1;
-        private static Material mat2;
+        private Material hitMaterial;
+        private Material mat1;
+        private Material mat2;
 
         #endregion
 
@@ -77,7 +75,7 @@ namespace XNAFinalEngineExamples
         /// </summary>
         protected override void LoadContent()
         {
-            hitMaterial = new BlinnPhong {DiffuseColor = new Color(0.10f, 0.10f, 0.85f)};
+            hitMaterial = new BlinnPhong { DiffuseColor = new Color(0.10f, 0.10f, 0.85f) };
             mat1 = new BlinnPhong { DiffuseColor = new Color(0.85f, 0.65f, 0f) };
             mat2 = new BlinnPhong { DiffuseColor = new Color(0.5f, 0.9f, 0.5f) };
 
@@ -207,13 +205,6 @@ namespace XNAFinalEngineExamples
 
             #endregion
 
-            #region Statistics
-            
-            statistics = new GameObject2D();
-            statistics.AddComponent<ScriptStatisticsDrawer>();
-            
-            #endregion
-
             #region Demo Legend
 
             #region Legend Background 
@@ -328,7 +319,7 @@ namespace XNAFinalEngineExamples
         /// <summary>
         /// Makes a wall of boxes that are affected by physics.
         /// </summary>
-        private static void MakeWall(int rows, int cols)
+        private void MakeWall(int rows, int cols)
         {
             for (int i = 0; i <= rows; i++)
                 for (int j = 0; j <= cols; j++)
