@@ -1,7 +1,7 @@
 
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -29,26 +29,19 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Xml.Serialization;
 using XNAFinalEngine.Helpers;
 #endregion
 
-namespace XNAFinalEngine.Assets
+namespace XNAFinalEngine.Components
 {
-
     /// <summary>
-    /// Base class for assets.
-    /// They have a name and can be disposed.
-    /// However, some resources could be managed by the XNA content pipeline and the content manager does not allow individual disposes in all type of assets.
-    /// If you want to dispose this unmanaged resource use the unload method of the content manager.
+    /// An container to dispose game object quicker and safer.
     /// </summary>
-    public abstract class Asset : Disposable
+    public class GameObjectContentManager : Disposable
     {
-
+        
         #region Variables
 
         // A simple but effective way of having unique ids.
@@ -58,40 +51,34 @@ namespace XNAFinalEngine.Assets
         // If performance is critical consider the int type (4.294.967.294 unique values).
         private static long uniqueIdCounter = long.MinValue;
 
-        // The asset name.
-        protected string name;
-
-        // The content manager that stores this asset.
-        private AssetContentManager contentManager;
-        
-        // Loaded assets of this type.
-        private static readonly List<Asset> loadedAssets = new List<Asset>();
+        // Content Manager name.
+        private string name;
 
         // We only sorted if we need to do it. Don't need to wast time in game mode.
-        private static bool areLoadedAssetsSorted;
+        private static bool areContentManagersSorted;
+
+        private static readonly List<GameObjectContentManager> contentManagers = new List<GameObjectContentManager>();
 
         #endregion
 
         #region Properties
 
         /// <summary>
+        /// Current content manager.
+        /// </summary>
+        public static GameObjectContentManager CurrentContentManager { get; set; }
+
+        /// <summary>
         /// Identification number. Every asset has a unique ID.
         /// </summary>
-        [XmlIgnore]
         public long Id { get; private set; }
 
         /// <summary>
-        /// Asset Filename (if any).
-        /// </summary>
-        [XmlIgnore]
-        public string Filename { get; protected set; }
-
-        /// <summary>
-        /// The name of the asset.
+        /// The name of the content manager.
         /// </summary>
         /// <remarks>
         /// The name is not unique. 
-        /// Consequently it can be used to identify the asset, use Id instead.
+        /// Consequently it can be used to identify the content manager, use Id instead.
         /// </remarks>
         public virtual string Name
         {
@@ -101,69 +88,42 @@ namespace XNAFinalEngine.Assets
                 if (!string.IsNullOrEmpty(value) && name != value)
                 {
                     name = value;
-                    areLoadedAssetsSorted = false;
+                    areContentManagersSorted = false;
                 }
             }
         } // Name
-
-        /// <summary>
-        /// The content manager that stores this asset.
-        /// </summary>
-        [XmlIgnore]
-        public virtual AssetContentManager ContentManager
-        {
-            get { return contentManager; }
-            internal set
-            {
-                if (contentManager != null)
-                    contentManager.Assets.Remove(this);
-                contentManager = value;
-                if (value != null)
-                    value.Assets.Add(this);
-            }
-        } // ContentManager
         
         /// <summary>
-        /// This is a flag controled by the content manager that tells to the editor that the asset has to be hiding from the user.
-        /// Hidden objects are also not saved.
+        /// The list of loaded assets in this content manager.
         /// </summary>
-        [XmlIgnore]
-        public bool Hidden
-        {
-            get
-            {
-                if (ContentManager == null)
-                    return true;
-                return ContentManager.Hidden;
-            }
-        }
+        public List<GameObject> GameObjects { get; private set; }
 
-        #region Loaded Assets
+        #region Content Managers
 
         /// <summary>
-        /// Loaded textures.
+        /// Loaded Content Managers.
         /// </summary>
-        public static List<Asset> LoadedAssets { get { return loadedAssets; } }
+        public static List<GameObjectContentManager> ContentManagers { get { return contentManagers; } }
 
         /// <summary>
-        /// Sorted loaded assets list.
+        /// Sorted content manager list.
         /// If the list is already sorted this operation is O(c).
         /// </summary>
-        public static List<Asset> SortedLoadedAssets
+        public static List<GameObjectContentManager> SortedContentManagers
         {
             get
             {
-                if (!areLoadedAssetsSorted)
+                if (!areContentManagersSorted)
                 {
                     // The assets are sorted by name.
                     // But they are only sorted when it is needed .
                     // This won't affect game performance, just the editor performance.
-                    areLoadedAssetsSorted = true;
-                    loadedAssets.Sort(CompareAssets);
+                    areContentManagersSorted = true;
+                    ContentManagers.Sort(CompareContentManagers);
                 }
-                return loadedAssets;
+                return ContentManagers;
             }
-        } // SortedLoadedAssets
+        } // SortedContentManagers
 
         #endregion
 
@@ -171,17 +131,23 @@ namespace XNAFinalEngine.Assets
 
         #region Constructor
 
-        protected Asset()
+        /// <summary>
+        /// The ContentManager manages the loaded assets.
+        /// To use it you have to create an instance of this class and set the CurrentContentManager static
+        /// property of this class so that references the newly created ContentManager instance. 
+        /// All the assets that you load latter will be automatically managed by this content manager.
+        /// You can unload or dispose it. In any case the loaded assets will be disposed.
+        /// </summary>
+        public GameObjectContentManager()
         {
             // Create a unique ID
             Id = uniqueIdCounter;
             uniqueIdCounter++;
-            LoadedAssets.Add(this);
-            areLoadedAssetsSorted = false;
-            if (AssetContentManager.CurrentContentManager == null)
-                throw new InvalidOperationException("Asset: The current content manager is null.");
-            ContentManager = AssetContentManager.CurrentContentManager;
-        } // Asset
+            Name = "Content Manager";
+            ContentManagers.Add(this);
+            GameObjects = new List<GameObject>();
+            areContentManagersSorted = false;
+        } // GameObjectContentManager
 
         #endregion
 
@@ -192,71 +158,59 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         protected override void DisposeManagedResources()
         {
-            if (ContentManager != null)
-                throw new InvalidOperationException("Assets loaded with content managers cannot be disposed individually.");
-            LoadedAssets.Remove(this);
-            areLoadedAssetsSorted = false;
+            ContentManagers.Remove(this);
+            areContentManagersSorted = false;
+            // Dispose assets
+            List<GameObject> gameObjectsTemporalList = new List<GameObject>(); // An auxiliary list is needed because the original will be modified for each asset.
+            gameObjectsTemporalList.AddRange(GameObjects);
+            foreach (GameObject gameObject in gameObjectsTemporalList)
+            {
+                gameObject.Dispose();
+            }
+            gameObjectsTemporalList.Clear();
+            // A collection of all generations could be a good idea at this point.
+            // Besides the used managed memory indicates rational values when this is executed here.
+            GarbageCollector.CollectGarbage();
         } // DisposeManagedResources
 
         #endregion
 
-        #region Search Assets Filename
+        #region Unload
 
         /// <summary>
-        /// Search for available assets.
+        /// Disposes all data that was loaded by this ContentManager.
         /// </summary>
-        protected static string[] SearchAssetsFilename(string directoryPath)
+        public void Unload()
         {
-            string[] filenames;
-            #if XBOX
-                return new string[0];
-            #else
-                // Search the texture files //
-                DirectoryInfo texturesDirectory = new DirectoryInfo(directoryPath);
-                try
-                {
-                    FileInfo[] filesInformation = texturesDirectory.GetFiles("*.xnb", SearchOption.AllDirectories);
-                    // Count the textures, except cube textures and user interface textures.
-                    filenames = new string[filesInformation.Length];
-                    for (int i = 0; i < filesInformation.Length; i++)
-                    {
-                        FileInfo fileInformation = filesInformation[i];
-                        // Some textures are in a sub directory, in that case we have to know how is called.
-                        string[] splitDirectoryName = fileInformation.DirectoryName.Split(new[] { directoryPath }, StringSplitOptions.None);
-                        string subdirectory = "";
-                        // If is in a sub directory
-                        if (splitDirectoryName[1] != "")
-                        {
-                            subdirectory = splitDirectoryName[1].Substring(1, splitDirectoryName[1].Length - 1) + "\\"; // We delete the start \ and add another \ to the end.
-                        }
-                        filenames[i] = subdirectory + fileInformation.Name.Substring(0, fileInformation.Name.Length - 4);
-
-                    }
-                }
-                // If there was an error then do nothing.
-                catch
-                {
-                    filenames = new string[0];
-                }
-                return filenames;
-            #endif
-        } // SearchAssetsFilename
-
+            // Dispose assets
+            List<GameObject> gameObjectsTemporalList = new List<GameObject>(); // An auxiliary list is needed because the original will be modified for each asset.
+            gameObjectsTemporalList.AddRange(GameObjects);
+            foreach (GameObject gameObject in gameObjectsTemporalList)
+            {
+                gameObject.ContentManager = null;
+                gameObject.Dispose();
+            }
+            gameObjectsTemporalList.Clear();
+            // A collection of all generations could be a good idea at this point.
+            // Besides the used managed memory indicates rational values when this is executed here.
+            GarbageCollector.CollectGarbage();
+        } // Unload
+        
         #endregion
 
         #region Sort
 
         /// <summary>
-        /// This comparation allows to sort the assets by their names.
+        /// This comparation allows to sort the content managers by their names.
         /// </summary>
-        protected static int CompareAssets(Asset asset1, Asset asset2)
+        protected static int CompareContentManagers(GameObjectContentManager contentManager1, GameObjectContentManager contentManager2)
         {
             // If they are the same asset then return equals.
-            if (asset1 == asset2)
+            if (contentManager1 == contentManager2)
                 return 0;
 
-            string x = asset1.Name;
-            string y = asset2.Name;
+            string x = contentManager1.Name;
+            string y = contentManager2.Name;
             if (x == null)
             {
                 if (y == null)
@@ -270,7 +224,7 @@ namespace XNAFinalEngine.Assets
             {
                 // If x is not null...
                 if (y == null)
-                // ...and y is null, x is greater.
+                    // ...and y is null, x is greater.
                     return 1;
                 else
                 {
@@ -284,15 +238,15 @@ namespace XNAFinalEngine.Assets
                     else
                     {
                         // Create a new unique name for the second asset and do a comparation again.
-                        asset2.SetUniqueName(y);
-                        y = asset2.Name;
+                        contentManager2.SetUniqueName(y);
+                        y = contentManager2.Name;
                         // If the strings are of equal length,
                         // sort them with ordinary string comparison.
                         return x.CompareTo(y);
                     }
                 }
             }
-        } // CompareAssets
+        } // CompareContentManagers
 
         #endregion
 
@@ -304,13 +258,13 @@ namespace XNAFinalEngine.Assets
         public void SetUniqueName(string newName)
         {
             // Is the name unique?
-            bool isUnique = LoadedAssets.All(assetFromList => assetFromList == this || assetFromList.Name != newName);
+            bool isUnique = ContentManagers.All(contentManagerFromList => contentManagerFromList == this || contentManagerFromList.Name != newName);
             if (isUnique)
             {
                 if (name != newName)
                 {
                     name = newName;
-                    areLoadedAssetsSorted = false;
+                    areContentManagersSorted = false;
                 }
             }
             // If not then we add one to its name and search again to see if is unique.
@@ -320,17 +274,5 @@ namespace XNAFinalEngine.Assets
 
         #endregion
 
-        #region Recreate Resource
-
-        /// <summary>
-        /// Useful when the XNA device is disposed.
-        /// </summary>
-        internal virtual void RecreateResource()
-        {
-            // Override if necessary.
-        } // RecreateResource
-
-        #endregion
-
-    } // Asset
-}  // XNAFinalEngine.Assets
+    } // GameObjectContentManager
+} // XNAFinalEngine.Components

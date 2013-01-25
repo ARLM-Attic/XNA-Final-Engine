@@ -306,10 +306,10 @@ namespace XNAFinalEngine.Assets
                 }
             }
             // If there is not one unlook or present we create one.
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
             renderTarget = new RenderTargetCube(size, surfaceFormat, depthFormat, antialiasingType, mipMap);
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
             renderTargets.Add(renderTarget);
             renderTarget.looked = true;
             return renderTarget;

@@ -55,10 +55,10 @@ namespace XNAFinalEngine.Editor
             #region Group Image
 
             var groupImage = CommonControls.Group("Image", owner);
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = UserInterfaceManager.UserInterfaceContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = UserInterfaceManager.UserInterfaceContentManager;
             var imageBoxImage = CommonControls.ImageBox(LookupTable.LookupTableToTexture(asset), groupImage);
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
             groupImage.AdjustHeightFromChildren();
 
             #endregion
@@ -80,10 +80,10 @@ namespace XNAFinalEngine.Editor
                 comboBoxResource.ItemIndexChanged += delegate
                 {
                     imageBoxImage.Texture.Dispose();
-                    userContentManager = ContentManager.CurrentContentManager;
-                    ContentManager.CurrentContentManager = UserInterfaceManager.UserInterfaceContentManager;
+                    userContentManager = AssetContentManager.CurrentContentManager;
+                    AssetContentManager.CurrentContentManager = UserInterfaceManager.UserInterfaceContentManager;
                     imageBoxImage.Texture = LookupTable.LookupTableToTexture((LookupTable)AssetWindow.CurrentCreatedAsset);
-                    ContentManager.CurrentContentManager = userContentManager;
+                    AssetContentManager.CurrentContentManager = userContentManager;
                     sizeTextBox.Text = ((LookupTable)AssetWindow.CurrentCreatedAsset).Size.ToString();
                 };
                 // If the user creates the asset (press the create button) then update the changeable properties.

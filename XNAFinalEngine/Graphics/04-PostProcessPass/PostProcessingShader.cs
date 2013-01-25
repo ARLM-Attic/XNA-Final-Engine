@@ -140,10 +140,10 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private PostProcessingShader() : base("PostProcessing\\PostProcessing")
         {
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
             filmLutTexture = new Texture("Shaders\\FilmLut");
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
         } // PostProcessingShader
 
         #endregion

@@ -106,7 +106,7 @@ namespace XNAFinalEngine.Audio
         private static readonly Random random = new Random();
 
         // A content manager to store temporal songs that are loaded in real time.
-        private static ContentManager musicContentManager;
+        private static AssetContentManager musicContentManager;
 
         #endregion
 
@@ -224,7 +224,7 @@ namespace XNAFinalEngine.Audio
             // Search the song files //
             try
             {
-                DirectoryInfo musicDirectory = new DirectoryInfo(ContentManager.GameDataDirectory + "Music");
+                DirectoryInfo musicDirectory = new DirectoryInfo(AssetContentManager.GameDataDirectory + "Music");
                 FileInfo[] songsFileInformation = musicDirectory.GetFiles("*.xnb");
                 SongsFilename = new string[songsFileInformation.Length];
                 for (int i = 0; i < songsFileInformation.Length; i++)
@@ -326,19 +326,19 @@ namespace XNAFinalEngine.Audio
             try
             {
                 // Save the current content manager.
-                ContentManager userContentManager = ContentManager.CurrentContentManager;
+                AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
                 
                 if (musicContentManager != null)
                     musicContentManager.Unload();
                 else
                     // Creates a new content manager and load the new song.
-                    musicContentManager = new ContentManager { Name = "Temporal Content Manager", Hidden = true };
+                    musicContentManager = new AssetContentManager { Name = "Temporal Content Manager", Hidden = true };
 
-                ContentManager.CurrentContentManager = musicContentManager;
+                AssetContentManager.CurrentContentManager = musicContentManager;
                 Song song = new Song(_currentSongFilename);
 
                 // Restore the user content manager.
-                ContentManager.CurrentContentManager = userContentManager;
+                AssetContentManager.CurrentContentManager = userContentManager;
 
                 return song;
             }
@@ -407,7 +407,7 @@ namespace XNAFinalEngine.Audio
         /// <remarks>
         /// If a content manager is unload and this content manager was used to load songs then this method is very useful for remove all the songs loaded in there.
         /// </remarks>
-        public static void RemoveSongs(ContentManager contentManager)
+        public static void RemoveSongs(AssetContentManager contentManager)
         {
             // First we count how much elements the new playlist will have.
             int elementCount = 0;

@@ -174,7 +174,7 @@ namespace XNAFinalEngine.EngineCore
             MainSettings mainSettings;
             try
             {
-                mainSettings = Content.Load<MainSettings>(ContentManager.GameDataDirectory + "MainSettings");
+                mainSettings = Content.Load<MainSettings>(AssetContentManager.GameDataDirectory + "MainSettings");
             }
             catch
             {
@@ -598,8 +598,6 @@ namespace XNAFinalEngine.EngineCore
         /// </param>
         public static void StartEngine(Scene scene, bool useGamerServices = false, bool showExceptionsWithGuide = false)
         {
-            GameLoop.CurrentScene = scene;
-
             UseGamerServices = useGamerServices;
             ShowExceptionsWithGuide = showExceptionsWithGuide;
             #if (XBOX)

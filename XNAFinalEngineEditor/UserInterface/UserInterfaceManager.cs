@@ -267,7 +267,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// User Interface Content Manager.
         /// </summary>
-        internal static ContentManager UserInterfaceContentManager { get; private set; }
+        internal static AssetContentManager UserInterfaceContentManager { get; private set; }
         
         #endregion
 
@@ -348,14 +348,14 @@ namespace XNAFinalEngine.UserInterface
                 InputSystem.KeyPress   += KeyPressProcess;
 
                 // Final render target.
-                ContentManager userContentManager = ContentManager.CurrentContentManager;
-                UserInterfaceContentManager = new ContentManager { Name = "User Interface Content Manager", Hidden = true };
-                ContentManager.CurrentContentManager = UserInterfaceContentManager;
+                AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+                UserInterfaceContentManager = new AssetContentManager { Name = "User Interface Content Manager", Hidden = true };
+                AssetContentManager.CurrentContentManager = UserInterfaceContentManager;
                 renderTarget = new RenderTarget(Helpers.Size.FullScreen, SurfaceFormat.Color, false, RenderTarget.AntialiasingType.NoAntialiasing)
                 {
                     Name = "User Interface Render Target",
                 };
-                ContentManager.CurrentContentManager = userContentManager;
+                AssetContentManager.CurrentContentManager = userContentManager;
 
                 // Init User Interface Renderer.
                 Renderer.Initialize();

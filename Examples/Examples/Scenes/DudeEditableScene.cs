@@ -77,7 +77,7 @@ namespace XNAFinalEngineExamples
         /// Load the resources.
         /// </summary>
         /// <remarks>Remember to call the base implementation of this method.</remarks>
-        public override void LoadContent()
+        protected override void LoadContent()
         {
 
             #region Camera
@@ -247,7 +247,7 @@ namespace XNAFinalEngineExamples
         /// Tasks executed during the update.
         /// This is the place to put the application logic.
         /// </summary>
-        public override void UpdateTasks()
+        protected override void UpdateTasks()
         {
             /*
             if (Keyboard.KeyPressed(Keys.Space))
@@ -313,7 +313,7 @@ namespace XNAFinalEngineExamples
         /// for that reason the pre render task exists.
         /// For example, is more correct to update the HUD information here because is related with the rendering.
         /// </summary>
-        public override void PreRenderTasks()
+        protected override void PreRenderTasks()
         {
             
         } // PreRenderTasks
@@ -322,7 +322,7 @@ namespace XNAFinalEngineExamples
         /// Tasks after the engine render.
         /// Probably you won’t need to place any task here.
         /// </summary>
-        public override void PostRenderTasks()
+        protected override void PostRenderTasks()
         {
             
         } // PostRenderTasks

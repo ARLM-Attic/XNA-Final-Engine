@@ -1041,7 +1041,7 @@ namespace XNAFinalEngine.Components
 
             #region Light
 
-            if (typeof(TComponentType) == typeof(Light))
+            if (typeof(Light).IsAssignableFrom(typeof(TComponentType)))
             {
                 if (Light == null)
                 {

@@ -102,7 +102,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
-            model = null;
+            Model = null;
             ModelChanged = null;
             // Call this last because the owner information is needed.
             base.Uninitialize();

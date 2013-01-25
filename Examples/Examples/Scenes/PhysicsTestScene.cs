@@ -64,9 +64,9 @@ namespace XNAFinalEngineExamples
         private static GameObject2D statistics;
 
         // Materials //
-        private static Material hitMaterial = new BlinnPhong { DiffuseColor = new Color(0.10f, 0.10f, 0.85f) };
-        private static Material mat1 = new BlinnPhong { DiffuseColor = new Color(0.85f, 0.65f, 0f) };
-        private static Material mat2 = new BlinnPhong { DiffuseColor = new Color(0.5f, 0.9f, 0.5f) };
+        private static Material hitMaterial;
+        private static Material mat1;
+        private static Material mat2;
 
         #endregion
 
@@ -75,8 +75,11 @@ namespace XNAFinalEngineExamples
         /// <summary>
         /// Load the resources.
         /// </summary>
-        public override void LoadContent()
+        protected override void LoadContent()
         {
+            hitMaterial = new BlinnPhong {DiffuseColor = new Color(0.10f, 0.10f, 0.85f)};
+            mat1 = new BlinnPhong { DiffuseColor = new Color(0.85f, 0.65f, 0f) };
+            mat2 = new BlinnPhong { DiffuseColor = new Color(0.5f, 0.9f, 0.5f) };
 
             #region Physics Simulation Settings
 
@@ -159,8 +162,9 @@ namespace XNAFinalEngineExamples
 
             // Make a sphere obstacle (Dynamic) //
             // The sphere model is not center in its model space, instead is displaced 10 units on Z.
+            GameObject3D sphere;
             // First we creates this sphere with no physics representation.
-            GameObject3D sphere = new GameObject3D(new FileModel("SphereTransformed"), new BlinnPhong { DiffuseColor = new Color(1f, 0f, 0f), SpecularPower = 20 });
+            //sphere = new GameObject3D(new FileModel("SphereTransformed"), new BlinnPhong { DiffuseColor = new Color(1f, 0f, 0f), SpecularPower = 20 });
             // Then we creates the same sphere and asign a dynamic physic object representation.
             sphere = new GameObject3D(new FileModel("SphereTransformed"), new BlinnPhong { DiffuseColor = new Color(0.79f, 0.75f, 0.2f), SpecularPower = 20 });
             // The initial motion state place the sphere just a little above.
@@ -170,7 +174,7 @@ namespace XNAFinalEngineExamples
             ((RigidBody)sphere.AddComponent<RigidBody>()).CreateDynamicEntityFromModelFilter(motionState, 1);
 
             // Static mesh.
-            var lamboBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), new BlinnPhong { DiffuseColor = Color.Black });
+            var lamboBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), new BlinnPhong { DiffuseColor = Color.Gray });
             lamboBody.Transform.Position = new Vector3(-3, 3, 3);
             ((StaticCollider)lamboBody.AddComponent<StaticCollider>()).CreateStaticCollidableFromModelFilter();
 
@@ -251,7 +255,7 @@ namespace XNAFinalEngineExamples
         /// Tasks executed during the update.
         /// This is the place to put the application logic.
         /// </summary>
-        public override void UpdateTasks()
+        protected override void UpdateTasks()
         {
             #if XBOX
                 // This is intended to be used in Xbox tests.

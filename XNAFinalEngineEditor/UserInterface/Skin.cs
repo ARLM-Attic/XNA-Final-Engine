@@ -491,7 +491,7 @@ namespace XNAFinalEngine.UserInterface
         /// <summary>
         /// Skin content manager.
         /// </summary>
-        private static ContentManager skinContentManager;
+        private static AssetContentManager skinContentManager;
         
         #endregion
 
@@ -535,7 +535,7 @@ namespace XNAFinalEngine.UserInterface
         {
             CurrentSkinName = skinName;
 
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
 
             #region Unload previous skin
             
@@ -547,10 +547,10 @@ namespace XNAFinalEngine.UserInterface
             #endif
 
             if (skinContentManager == null)
-                skinContentManager = new ContentManager { Name = "Skin Content Manager", Hidden = true };
+                skinContentManager = new AssetContentManager { Name = "Skin Content Manager", Hidden = true };
             else
                 skinContentManager.Unload();
-            ContentManager.CurrentContentManager = skinContentManager;
+            AssetContentManager.CurrentContentManager = skinContentManager;
 
             #endregion
 
@@ -625,7 +625,7 @@ namespace XNAFinalEngine.UserInterface
             #endregion
             
             // Restore user content manager.
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
 
         } // LoadSkin
 

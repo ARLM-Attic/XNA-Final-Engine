@@ -158,7 +158,7 @@ namespace XNAFinalEngineExamples
             CarPaint carPaintMaterial = new CarPaint
             {
                 SpecularIntensity = 2f * reflectioTextureMultiplier,
-                SpecularPower = 5,
+                SpecularPower = 1,
                 BasePaintColor = new Color(0.79f, 0.45f, 0),
                 SecondBasePaintColor = new Color(1f, 0.3f, 0),
                 ThirdBasePaintColor = new Color(0.35f, 0.6f, 0.5f),
@@ -169,7 +169,7 @@ namespace XNAFinalEngineExamples
             BlinnPhong rimMaterial = new BlinnPhong
             {
                 DiffuseColor = new Color(30, 30, 30),
-                SpecularPower = 70,
+                SpecularPower = 50,
                 //NormalTexture = new Texture("LamborghiniMurcielago\\Murcielago-LP670-Rim-Normal"),
                 SpecularIntensity = 150f * reflectioTextureMultiplier,
                 ReflectionTexture = reflectionTexture,
@@ -208,8 +208,8 @@ namespace XNAFinalEngineExamples
             {
                 DiffuseColor = new Color(20, 20, 21),
                 //DiffuseTexture = new Texture("LamborghiniMurcielago\\Murcielago-Lights"),
-                AlphaBlending = 0.6f,
-                SpecularIntensity = 0.4f * reflectioTextureMultiplier,
+                AlphaBlending = 0.7f,
+                SpecularIntensity = 5f * reflectioTextureMultiplier,
                 SpecularPower = 0.5f,
                 ReflectionTexture = reflectionTexture,
             };
@@ -217,7 +217,7 @@ namespace XNAFinalEngineExamples
             {
                 DiffuseColor = new Color(20, 20, 20),
                 AlphaBlending = 0.6f,
-                SpecularIntensity = 0.3f * reflectioTextureMultiplier,
+                SpecularIntensity = 0.5f * reflectioTextureMultiplier,
                 SpecularPower = 1,
                 ReflectionTexture = reflectionTexture,
             };

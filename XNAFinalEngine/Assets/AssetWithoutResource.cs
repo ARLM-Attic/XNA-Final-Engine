@@ -56,7 +56,7 @@ namespace XNAFinalEngine.Assets
         /// <summary>
         /// Change the content manager.
         /// </summary>
-        public void ChangeContentManager(ContentManager contentManager)
+        public void ChangeContentManager(AssetContentManager contentManager)
         {
             ContentManager = contentManager;
         } // ChangeContentManager

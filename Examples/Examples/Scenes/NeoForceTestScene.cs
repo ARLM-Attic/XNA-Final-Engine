@@ -91,7 +91,7 @@ namespace XNAFinalEngineExamples
         /// Load the resources.
         /// </summary>
         /// <remarks>Remember to call the base implementation of this method.</remarks>
-        public override void LoadContent()
+        protected override void LoadContent()
         {
             UserInterfaceManager.Initialize();
 

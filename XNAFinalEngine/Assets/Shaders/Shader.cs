@@ -79,15 +79,15 @@ namespace XNAFinalEngine.Assets
         public Shader(string filename)
         {            
             Name = filename;
-            Filename = ContentManager.GameDataDirectory + "Shaders\\" + filename;
+            Filename = AssetContentManager.GameDataDirectory + "Shaders\\" + filename;
             if (File.Exists(Filename + ".xnb") == false)
             {
                 throw new ArgumentException("Failed to load shader: File " + Filename + " does not exists!", "filename");
             }
             try
             {
-                Resource = ContentManager.SystemContentManager.XnaContentManager.Load<Effect>(Filename);
-                ContentManager = ContentManager.SystemContentManager;
+                Resource = AssetContentManager.SystemContentManager.XnaContentManager.Load<Effect>(Filename);
+                ContentManager = AssetContentManager.SystemContentManager;
             }
             catch (ObjectDisposedException)
             {
@@ -190,7 +190,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
-            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<Effect>(Filename);
+            Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<Effect>(Filename);
             GetParametersHandles();
         } // RecreateResource
 

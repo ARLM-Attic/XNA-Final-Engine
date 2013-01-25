@@ -46,8 +46,11 @@ namespace XNAFinalEngine.Components
 
         #region Variables
 
-        // Cached transfomr's position.
+        // Cached transform's position.
         internal Vector3 cachedPosition;
+
+        // Cached game object's world matrix.
+        internal Matrix cachedWorldMatrix;
 
         // Light attenuation.
         private float range;
@@ -89,6 +92,16 @@ namespace XNAFinalEngine.Components
             }
         } // Shadow
 
+        /// <summary>
+        /// Clip volumes restricts the area of influence of the light.
+        /// </summary>
+        public Model ClipVolume { get; set; }
+
+        /// <summary>
+        /// Ignores the world matrix of the light rendering the model on the world's origin.
+        /// </summary>
+        public bool RenderClipVolumeInLocalSpace { get; set; }
+
         #endregion
 
         #region Initialize
@@ -101,8 +114,25 @@ namespace XNAFinalEngine.Components
             base.Initialize(owner);
             // Values
             range = 1;
+            RenderClipVolumeInLocalSpace = false;
             cachedPosition = ((GameObject3D)Owner).Transform.Position;
+            cachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
         } // Initialize
+
+        #endregion
+
+        #region Uninitialize
+
+        /// <summary>
+        /// Uninitialize the component.
+        /// Is important to remove event associations and any other reference.
+        /// </summary>
+        internal override void Uninitialize()
+        {
+            ClipVolume = null;
+            // Call this last because the owner information is needed.
+            base.Uninitialize();
+        } // Uninitialize
 
         #endregion
 
@@ -113,6 +143,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         protected override void OnWorldMatrixChanged(Matrix worldMatrix)
         {
+            cachedWorldMatrix = worldMatrix;
             cachedPosition = worldMatrix.Translation;
         } // OnWorldMatrixChanged
 

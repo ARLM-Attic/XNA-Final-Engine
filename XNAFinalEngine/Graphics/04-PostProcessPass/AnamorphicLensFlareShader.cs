@@ -88,11 +88,11 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private AnamorphicLensFlareShader() : base("PostProcessing\\AnamorphicLensFlare")
         {
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
             //sunObject = new Sphere(6, 6, 1);   // Algorithmically generated mesh normally sucks when optimized vertex access is needed.
             sunObject = new FileModel("Sphere"); // Exported models for the contrary are great.
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
         } // AnamorphicLensFlareShader
 
         #endregion

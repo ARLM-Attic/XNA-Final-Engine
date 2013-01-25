@@ -75,14 +75,14 @@ namespace XNAFinalEngine.Assets
         /// <param name="filename">The filename must be relative and be a valid file in the music directory.</param>
         public Song(string filename)
         {            
-            Filename = ContentManager.GameDataDirectory + "Music\\" + filename;
+            Filename = AssetContentManager.GameDataDirectory + "Music\\" + filename;
             if (File.Exists(Filename + ".xnb") == false)
             {
                 throw new Exception("Failed to load song: File " + Filename + " does not exists!");
             }
             try
             {
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Media.Song>(Filename);
+                Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Media.Song>(Filename);
             }
             catch (ObjectDisposedException e)
             {
@@ -124,7 +124,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
-            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Media.Song>(Filename);
+            Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Media.Song>(Filename);
         } // RecreateResource
 
         #endregion

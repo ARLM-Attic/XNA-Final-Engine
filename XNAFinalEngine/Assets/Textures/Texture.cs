@@ -157,10 +157,10 @@ namespace XNAFinalEngine.Assets
 	        {
                 if (blackTexture == null)
                 {
-                    ContentManager userContentManager = ContentManager.CurrentContentManager;
-                    ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                    AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+                    AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
                     blackTexture = new Texture("Black");
-                    ContentManager.CurrentContentManager = userContentManager;
+                    AssetContentManager.CurrentContentManager = userContentManager;
                 }
 	            return blackTexture;
 	        }
@@ -175,10 +175,10 @@ namespace XNAFinalEngine.Assets
             {
                 if (whiteTexture == null)
                 {
-                    ContentManager userContentManager = ContentManager.CurrentContentManager;
-                    ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                    AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+                    AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
                     whiteTexture = new Texture("White");
-                    ContentManager.CurrentContentManager = userContentManager;
+                    AssetContentManager.CurrentContentManager = userContentManager;
                 }
                 return whiteTexture;
             }
@@ -193,10 +193,10 @@ namespace XNAFinalEngine.Assets
             {
                 if (greyTexture == null)
                 {
-                    ContentManager userContentManager = ContentManager.CurrentContentManager;
-                    ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                    AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+                    AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
                     greyTexture = new Texture("Grey");
-                    ContentManager.CurrentContentManager = userContentManager;
+                    AssetContentManager.CurrentContentManager = userContentManager;
                 }
                 return greyTexture;
             }
@@ -233,14 +233,14 @@ namespace XNAFinalEngine.Assets
         public Texture(string filename)
         {
             Name = filename;
-            Filename = ContentManager.GameDataDirectory + "Textures\\" + filename;
+            Filename = AssetContentManager.GameDataDirectory + "Textures\\" + filename;
             if (File.Exists(Filename + ".xnb") == false)
             {
                 throw new ArgumentException("Failed to load texture: File " + Filename + " does not exists!", "filename");
             }
             try
             {
-                xnaTexture = ContentManager.CurrentContentManager.XnaContentManager.Load<Texture2D>(Filename);
+                xnaTexture = AssetContentManager.CurrentContentManager.XnaContentManager.Load<Texture2D>(Filename);
                 Size = new Size(xnaTexture.Width, xnaTexture.Height);
                 Resource.Name = filename;
             }
@@ -266,7 +266,7 @@ namespace XNAFinalEngine.Assets
             #if XBOX
                 Filenames = new string[0];
             #else
-                const string texturesDirectoryPath = ContentManager.GameDataDirectory + "Textures";
+                const string texturesDirectoryPath = AssetContentManager.GameDataDirectory + "Textures";
                 // Search the texture files //
                 DirectoryInfo texturesDirectory = new DirectoryInfo(texturesDirectoryPath);
                 try
@@ -347,7 +347,7 @@ namespace XNAFinalEngine.Assets
             if (string.IsNullOrEmpty(Filename))
                 xnaTexture = new Texture2D(EngineManager.Device, Size.Width, Size.Height);
             else
-                xnaTexture = ContentManager.CurrentContentManager.XnaContentManager.Load<Texture2D>(Filename);
+                xnaTexture = AssetContentManager.CurrentContentManager.XnaContentManager.Load<Texture2D>(Filename);
         } // RecreateResource
 
         #endregion

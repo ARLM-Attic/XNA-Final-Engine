@@ -114,14 +114,14 @@ namespace XNAFinalEngine.Assets
             Name = filename;
             IsLooped = isLooped;
             Type = type;
-            Filename = ContentManager.GameDataDirectory + "Sounds\\" + filename;
+            Filename = AssetContentManager.GameDataDirectory + "Sounds\\" + filename;
             if (File.Exists(Filename + ".xnb") == false)
             {
                 throw new Exception("Failed to load sound: File " + Filename + " does not exists!");
             }
             try
             {
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SoundEffect>(Filename);
+                Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<SoundEffect>(Filename);
             }
             catch (ObjectDisposedException e)
             {
@@ -242,7 +242,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
-            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SoundEffect>(Filename);
+            Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<SoundEffect>(Filename);
         } // RecreateResource
 
         #endregion

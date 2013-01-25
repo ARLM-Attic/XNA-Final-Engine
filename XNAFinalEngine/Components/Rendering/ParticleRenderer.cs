@@ -132,6 +132,11 @@ namespace XNAFinalEngine.Components
         public int TilesY { get; set; }
 
         /// <summary>
+        /// How many times the particle animation will be played.
+        /// </summary>
+        public int AnimationRepetition { get; set; }
+
+        /// <summary>
         /// Alpha blending state. 
         /// </summary>
         public BlendState BlendState { get; set; }
@@ -160,6 +165,7 @@ namespace XNAFinalEngine.Components
             BlendState = BlendState.Additive;
             TilesX = 1;
             TilesY = 1;
+            AnimationRepetition = 1;
             // Particle Emitter
             ((GameObject3D)Owner).ParticleEmitterChanged += OnParticleEmitterChanged;
             if (((GameObject3D)Owner).ParticleEmitter != null)

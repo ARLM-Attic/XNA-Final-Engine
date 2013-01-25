@@ -63,10 +63,10 @@ namespace XNAFinalEngine.Assets
             {
                 if (defaultFont == null)
                 {
-                    ContentManager userContentManager = ContentManager.CurrentContentManager;
-                    ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                    AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+                    AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
                     defaultFont = new Font("Default");
-                    ContentManager.CurrentContentManager = userContentManager;
+                    AssetContentManager.CurrentContentManager = userContentManager;
                 }
                 return defaultFont;
             }
@@ -74,7 +74,7 @@ namespace XNAFinalEngine.Assets
             {
                 if (value == null)
                     throw new ArgumentNullException("value");
-                if (defaultFont != null && defaultFont.ContentManager == ContentManager.SystemContentManager)
+                if (defaultFont != null && defaultFont.ContentManager == AssetContentManager.SystemContentManager)
                     defaultFont.Dispose();
                 defaultFont = value;
             }
@@ -129,14 +129,14 @@ namespace XNAFinalEngine.Assets
         public Font(string filename)
         {
             Name = filename;
-            Filename = ContentManager.GameDataDirectory + "Fonts\\" + filename;
+            Filename = AssetContentManager.GameDataDirectory + "Fonts\\" + filename;
             if (File.Exists(Filename + ".xnb") == false)
             {
                 throw new Exception("Failed to load font: File " + Filename + " does not exists!");
             }
             try
             {
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SpriteFont>(Filename);
+                Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<SpriteFont>(Filename);
             }
             catch (ObjectDisposedException e)
             {
@@ -179,7 +179,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
-            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<SpriteFont>(Filename);
+            Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<SpriteFont>(Filename);
         } // RecreateResource
 
         #endregion

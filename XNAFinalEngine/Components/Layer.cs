@@ -78,6 +78,7 @@ namespace XNAFinalEngine.Components
 
         /// <summary>
         /// Is it active?
+        /// This not affects the visibility of the elements.
         /// </summary>
         public bool Active
         {
@@ -98,6 +99,7 @@ namespace XNAFinalEngine.Components
 
         /// <summary>
         /// Is it visible?
+        /// Invisible objects could be updated if active is true.
         /// </summary>
         public bool Visible
         {

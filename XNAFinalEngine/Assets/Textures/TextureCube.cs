@@ -95,10 +95,10 @@ namespace XNAFinalEngine.Assets
             {
                 if (blackTexture == null)
                 {
-                    ContentManager userContentManager = ContentManager.CurrentContentManager;
-                    ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                    AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+                    AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
                     blackTexture = new TextureCube("BlackCube");
-                    ContentManager.CurrentContentManager = userContentManager;
+                    AssetContentManager.CurrentContentManager = userContentManager;
                 }
                 return blackTexture;
             }
@@ -113,10 +113,10 @@ namespace XNAFinalEngine.Assets
             {
                 if (whiteTexture == null)
                 {
-                    ContentManager userContentManager = ContentManager.CurrentContentManager;
-                    ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                    AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+                    AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
                     whiteTexture = new TextureCube("WhiteCube");
-                    ContentManager.CurrentContentManager = userContentManager;
+                    AssetContentManager.CurrentContentManager = userContentManager;
                 }
                 return whiteTexture;
             }
@@ -137,14 +137,14 @@ namespace XNAFinalEngine.Assets
             Name = filename;
 		    IsRgbm = false;
 	        RgbmMaxRange = 50;
-            Filename = ContentManager.GameDataDirectory + "Textures\\CubeTextures\\" + filename;
+            Filename = AssetContentManager.GameDataDirectory + "Textures\\CubeTextures\\" + filename;
             if (File.Exists(Filename + ".xnb") == false)
             {
                 throw new ArgumentException("Failed to load cube map: File " + Filename + " does not exists!");
             }
             try
             {
-                xnaTextureCube = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Graphics.TextureCube>(Filename);
+                xnaTextureCube = AssetContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Graphics.TextureCube>(Filename);
                 Size = xnaTextureCube.Size;
                 Resource.Name = filename;
             }
@@ -169,7 +169,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         static TextureCube()
         {
-            Filenames = SearchAssetsFilename(ContentManager.GameDataDirectory + "Textures\\CubeTextures");
+            Filenames = SearchAssetsFilename(AssetContentManager.GameDataDirectory + "Textures\\CubeTextures");
         } // TextureCube
 
         #endregion
@@ -181,7 +181,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
-            xnaTextureCube = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Graphics.TextureCube>(Filename);
+            xnaTextureCube = AssetContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Graphics.TextureCube>(Filename);
         } // RecreateResource
 
         #endregion

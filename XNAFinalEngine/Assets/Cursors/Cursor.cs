@@ -62,15 +62,15 @@ namespace XNAFinalEngine.Assets
         public Cursor(string filename)
 		{
             Name = filename;
-            Filename = ContentManager.GameDataDirectory + "Cursors\\" + filename;
+            Filename = AssetContentManager.GameDataDirectory + "Cursors\\" + filename;
             if (File.Exists(Filename + ".xnb") == false)
             {
                 throw new ArgumentException("Failed to load cursor: File " + Filename + " does not exists!", "filename");
             }
             try
             {
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<System.Windows.Forms.Cursor>(Filename);
-                ContentManager = ContentManager.CurrentContentManager;
+                Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<System.Windows.Forms.Cursor>(Filename);
+                ContentManager = AssetContentManager.CurrentContentManager;
             }
             catch (ObjectDisposedException)
             {
@@ -91,7 +91,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
-            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<System.Windows.Forms.Cursor>(Filename);
+            Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<System.Windows.Forms.Cursor>(Filename);
         } // RecreateResource
 
         #endregion

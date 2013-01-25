@@ -130,7 +130,7 @@ namespace XNAFinalEngine.Storage
             #region Content Managers
 
             // Save content managers data.
-            foreach (var contentManager in ContentManager.SortedContentManagers)
+            foreach (var contentManager in AssetContentManager.SortedContentManagers)
             {
                 // Hidden content managers are ignored.
                 // They carried information only useful for the system to work.
@@ -244,7 +244,7 @@ namespace XNAFinalEngine.Storage
             foreach (var contentManagerData in sceneData.ContentManagersData)
             {
                 // Create Content Manager
-                ContentManager contentManager = new ContentManager { Name = contentManagerData.Name };
+                AssetContentManager contentManager = new AssetContentManager { Name = contentManagerData.Name };
                 foreach (var assetId in contentManagerData.AssetsId)
                 {
                     // The not resourced assets are already created and can change the content manager without recreation.
@@ -396,8 +396,8 @@ namespace XNAFinalEngine.Storage
                     gameObject.Dispose();
                 }
             }
-            List<ContentManager> contentManagers = new List<ContentManager>();
-            contentManagers.AddRange(ContentManager.ContentManagers);
+            List<AssetContentManager> contentManagers = new List<AssetContentManager>();
+            contentManagers.AddRange(AssetContentManager.ContentManagers);
             foreach (var contentManager in contentManagers)
             {
                 if (!contentManager.Hidden)

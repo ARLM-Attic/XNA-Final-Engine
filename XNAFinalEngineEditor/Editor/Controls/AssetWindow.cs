@@ -82,8 +82,8 @@ namespace XNAFinalEngine.Editor
         /// </summary>
         public static Window Show<TAssetType>(Asset asset) where TAssetType : Asset
         {
-            ContentManager temporalContentManager = null;
-            ContentManager userContentManager = null;
+            AssetContentManager temporalContentManager = null;
+            AssetContentManager userContentManager = null;
 
             bool assetCreation = asset == null;
             PropertyInfo filenamesProperty = typeof(TAssetType).GetProperty("Filenames"); // Search for the Filenames property, not all assets have it.
@@ -101,9 +101,9 @@ namespace XNAFinalEngine.Editor
                         CurrentCreatedAsset = null; // To avoid unwanted event references.
                         return null;
                     }
-                    userContentManager = ContentManager.CurrentContentManager;
-                    temporalContentManager = new ContentManager { Name = "Temporal Content Manager", Hidden = true };
-                    ContentManager.CurrentContentManager = temporalContentManager;
+                    userContentManager = AssetContentManager.CurrentContentManager;
+                    temporalContentManager = new AssetContentManager { Name = "Temporal Content Manager", Hidden = true };
+                    AssetContentManager.CurrentContentManager = temporalContentManager;
 
                     // Create a temporal asset with the first resource in the list.
                     asset = (Asset)typeof(TAssetType).GetConstructor(new[] { typeof(string) }).Invoke(new object[] { filenames[0] });
@@ -219,7 +219,7 @@ namespace XNAFinalEngine.Editor
                     // The names of the content manager are added here because we want to place the item index in the current content manager.
                     comboBoxContentManager.Items.Clear();
                     // Add content names.
-                    foreach (ContentManager contentManager in ContentManager.SortedContentManagers)
+                    foreach (AssetContentManager contentManager in AssetContentManager.SortedContentManagers)
                     {
                         if (!contentManager.Hidden)
                             comboBoxContentManager.Items.Add(contentManager.Name);
@@ -228,7 +228,7 @@ namespace XNAFinalEngine.Editor
                     comboBoxContentManager.ItemIndex = 0;
                     for (int i = 0; i < comboBoxContentManager.Items.Count; i++)
                     {
-                        if (ContentManager.SortedContentManagers[i] == userContentManager)
+                        if (AssetContentManager.SortedContentManagers[i] == userContentManager)
                         {
                             comboBoxContentManager.ItemIndex = i;
                             break;
@@ -239,7 +239,7 @@ namespace XNAFinalEngine.Editor
                         // The names of the content manager are added here because someone could dispose or add a new one.
                         comboBoxContentManager.Items.Clear();
                         // Add names
-                        foreach (ContentManager contentManager in ContentManager.SortedContentManagers)
+                        foreach (AssetContentManager contentManager in AssetContentManager.SortedContentManagers)
                         {
                             if (!contentManager.Hidden)
                                 comboBoxContentManager.Items.Add(contentManager.Name);
@@ -269,11 +269,11 @@ namespace XNAFinalEngine.Editor
                             if (!asset.IsDisposed) // To contemplate some assets like Lookup Tables and some textures.
                                 asset.Dispose();
                             // Search the content manager reference using its name.
-                            foreach (ContentManager contenManager in ContentManager.SortedContentManagers)
+                            foreach (AssetContentManager contenManager in AssetContentManager.SortedContentManagers)
                             {
                                 if (contenManager.Name == (string)(comboBoxContentManager.Items[comboBoxContentManager.ItemIndex]))
                                 {
-                                    ContentManager.CurrentContentManager = contenManager;
+                                    AssetContentManager.CurrentContentManager = contenManager;
                                     break;
                                 }
                             }
@@ -284,7 +284,7 @@ namespace XNAFinalEngine.Editor
                     }
                     // Restore user content manager.
                     if (resourcedAsset)
-                        ContentManager.CurrentContentManager = userContentManager;
+                        AssetContentManager.CurrentContentManager = userContentManager;
                     // Remove references to the event.
                     CurrentCreatedAssetChanged = null;
                 };

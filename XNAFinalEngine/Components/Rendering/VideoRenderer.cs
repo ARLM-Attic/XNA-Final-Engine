@@ -258,10 +258,10 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public VideoRenderer()
         {
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
             texture = new Texture();
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
         } // VideoRenderer
 
         #endregion

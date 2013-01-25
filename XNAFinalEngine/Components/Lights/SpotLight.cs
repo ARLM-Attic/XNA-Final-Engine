@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2011, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -29,7 +29,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
-
 using System;
 using Microsoft.Xna.Framework;
 using XNAFinalEngine.Assets;
@@ -49,6 +48,9 @@ namespace XNAFinalEngine.Components
 
         // Cached transfomr's position.
         internal Vector3 cachedPosition;
+
+        // Cached game object's world matrix.
+        internal Matrix cachedWorldMatrix;
 
         // Cached transform's direction.
         internal Vector3 cachedDirection;
@@ -131,6 +133,16 @@ namespace XNAFinalEngine.Components
             }
         } // Shadow
 
+        /// <summary>
+        /// Clip volumes restricts the area of influence of the light.
+        /// </summary>
+        public Model ClipVolume { get; set; }
+
+        /// <summary>
+        /// Ignores the world matrix of the light rendering the model on the world's origin.
+        /// </summary>
+        public bool RenderClipVolumeInLocalSpace { get; set; }
+
         #endregion
 
         #region Initialize
@@ -145,8 +157,10 @@ namespace XNAFinalEngine.Components
             range = 100;
             innerConeAngle = 20;
             outerConeAngle = 60;
+            RenderClipVolumeInLocalSpace = false;
             cachedPosition = ((GameObject3D)Owner).Transform.Position;
             cachedDirection = ((GameObject3D)Owner).Transform.Forward;
+            cachedWorldMatrix = ((GameObject3D)Owner).Transform.WorldMatrix;
         } // Initialize
 
         #endregion
@@ -160,6 +174,7 @@ namespace XNAFinalEngine.Components
         internal override void Uninitialize()
         {
             LightMaskTexture = null;
+            ClipVolume = null;
             // Call this last because the owner information is needed.
             base.Uninitialize();
         } // Uninitialize
@@ -175,6 +190,7 @@ namespace XNAFinalEngine.Components
         {
             cachedDirection = worldMatrix.Forward;
             cachedPosition = worldMatrix.Translation;
+            cachedWorldMatrix = worldMatrix;
         } // OnWorldMatrixChanged
 
         #endregion

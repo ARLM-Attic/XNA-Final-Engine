@@ -235,10 +235,10 @@ namespace XNAFinalEngine.Assets
             {
                 if (defaultMaterial == null)
                 {
-                    ContentManager userContentManager = ContentManager.CurrentContentManager;
-                    ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                    AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+                    AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
                     defaultMaterial = new BlinnPhong { Name = "Default Material", DiffuseColor = Color.Gray };
-                    ContentManager.CurrentContentManager = userContentManager;
+                    AssetContentManager.CurrentContentManager = userContentManager;
                 }
                 return defaultMaterial;
             }
@@ -246,7 +246,7 @@ namespace XNAFinalEngine.Assets
             {
                 if (value == null)
                     throw new ArgumentNullException("value");
-                if (defaultMaterial != null && defaultMaterial.ContentManager == ContentManager.SystemContentManager)
+                if (defaultMaterial != null && defaultMaterial.ContentManager == AssetContentManager.SystemContentManager)
                     defaultMaterial.Dispose();
                 defaultMaterial = value;
             }

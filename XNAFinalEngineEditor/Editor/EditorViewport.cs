@@ -554,10 +554,10 @@ namespace XNAFinalEngine.Editor
                 }
                 if (viewportCamera.Camera.RenderTarget == null)
                 {
-                    ContentManager userContentManager = ContentManager.CurrentContentManager;
-                    ContentManager.CurrentContentManager = EditorManager.EditorContentManager;
+                    AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+                    AssetContentManager.CurrentContentManager = EditorManager.EditorContentManager;
                     viewportCamera.Camera.RenderTarget = new RenderTarget(viewportCamera.Camera.RenderTargetSize, SurfaceFormat.Color, false);
-                    ContentManager.CurrentContentManager = userContentManager;
+                    AssetContentManager.CurrentContentManager = userContentManager;
                 }
             }
         } // OnScreenSizeChanged

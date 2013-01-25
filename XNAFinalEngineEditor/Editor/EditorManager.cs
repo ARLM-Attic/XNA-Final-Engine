@@ -210,7 +210,7 @@ namespace XNAFinalEngine.Editor
         /// <summary>
         /// Editor Content Manager.
         /// </summary>
-        internal static ContentManager EditorContentManager { get; private set; }
+        internal static AssetContentManager EditorContentManager { get; private set; }
         
         #endregion
 
@@ -229,9 +229,9 @@ namespace XNAFinalEngine.Editor
             UserInterfaceManager.Visible = false;
 
             // Load all resources in a hidden content manager.
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            EditorContentManager = new ContentManager { Name = "Editor Content Manager", Hidden = true };
-            ContentManager.CurrentContentManager = EditorContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            EditorContentManager = new AssetContentManager { Name = "Editor Content Manager", Hidden = true };
+            AssetContentManager.CurrentContentManager = EditorContentManager;
             
             // Call the manager's update and render methods in the correct order without explicit calls. 
             editorManagerGameObject = new GameObject2D { Layer = Layer.GetLayerByNumber(31) };
@@ -304,7 +304,7 @@ namespace XNAFinalEngine.Editor
             scaleGizmo = new ScaleGizmo();
             rotationGizmo = new RotationGizmo();
 
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
         } // Initialize
 
         #endregion
@@ -777,10 +777,10 @@ namespace XNAFinalEngine.Editor
             RenderTarget editorRenderTarget = null;
             if (colorPickerNeedsToPick)
             {
-                ContentManager userContentManager = ContentManager.CurrentContentManager;
-                ContentManager.CurrentContentManager = EditorContentManager;
+                AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+                AssetContentManager.CurrentContentManager = EditorContentManager;
                 editorRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false);
-                ContentManager.CurrentContentManager = userContentManager;
+                AssetContentManager.CurrentContentManager = userContentManager;
                 editorRenderTarget.EnableRenderTarget();
             }
 

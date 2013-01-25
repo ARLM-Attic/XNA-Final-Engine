@@ -78,7 +78,7 @@ namespace XNAFinalEngine.Assets
         public LookupTable(string filename)
         {
             Name = filename;
-            Filename = ContentManager.GameDataDirectory + "Textures\\LookupTables\\" + filename;
+            Filename = AssetContentManager.GameDataDirectory + "Textures\\LookupTables\\" + filename;
             if (File.Exists(Filename + ".xnb") == false)
             {
                 throw new ArgumentException("Failed to load texture: File " + Filename + " does not exists!", "filename");
@@ -116,9 +116,9 @@ namespace XNAFinalEngine.Assets
         private void Create(string filename)
         {
             // If I use a create-dispose method, the texture can't be used again, that could mean a potential ObjectDisposedException.
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager temporalContentManager = new ContentManager { Name = "Temporal Content Manager", Hidden = true };
-            ContentManager.CurrentContentManager = temporalContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager temporalContentManager = new AssetContentManager { Name = "Temporal Content Manager", Hidden = true };
+            AssetContentManager.CurrentContentManager = temporalContentManager;
             Texture lookupTableTexture2D = new Texture("LookupTables\\" + filename);
             // SideSize is inaccurate because Math.Pow is a bad way to calculate cube roots.
             int sideSize = (int)Math.Pow(lookupTableTexture2D.Width * lookupTableTexture2D.Height, 1 / 3.0);
@@ -133,7 +133,7 @@ namespace XNAFinalEngine.Assets
 
             // Dispose the temporal content manager and restore the user content manager.
             temporalContentManager.Dispose();
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
         } // Create
 
         #endregion
@@ -145,7 +145,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         static LookupTable()
         {
-            Filenames = SearchAssetsFilename(ContentManager.GameDataDirectory + "Textures\\LookupTables");
+            Filenames = SearchAssetsFilename(AssetContentManager.GameDataDirectory + "Textures\\LookupTables");
         } // LookupTable
 
         #endregion

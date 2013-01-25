@@ -107,15 +107,15 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         internal GBufferShader() : base("GBuffer\\GBuffer")
         {
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
             // Set the random normal map. Helps to make the samplers more random.
             #if (WINDOWS)
                 normalsFittingTexture = new Texture("Shaders\\NormalsFitting1024");
             #else
                 normalsFittingTexture = new Texture("Shaders\\NormalsFitting512");
             #endif
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
         } // GBufferShader
 
         #endregion

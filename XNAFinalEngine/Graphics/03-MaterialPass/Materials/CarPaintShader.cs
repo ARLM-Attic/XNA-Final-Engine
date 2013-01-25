@@ -94,10 +94,10 @@ namespace XNAFinalEngine.Graphics
 
         private CarPaintShader() : base("Materials\\CarPaint")
         {
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
             sparkleNoiseTexture = new Texture("Shaders\\SparkleNoiseMap");
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
         } // CarPaintShader
 
 		#endregion

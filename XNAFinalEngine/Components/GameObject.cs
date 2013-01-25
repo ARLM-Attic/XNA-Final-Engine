@@ -27,6 +27,8 @@ Authors: Schneider, José Ignacio (jischneider@hotmail.com)
 #endregion
 
 #region Using directives
+
+using System;
 using XNAFinalEngine.Helpers;
 using System.Collections.Generic;
 #endregion
@@ -55,6 +57,9 @@ namespace XNAFinalEngine.Components
         
         // Default layer mask = 1 (the default layer).
         private uint layerMask;
+
+        // The content manager in witch it is.
+        private GameObjectContentManager contentManager;
 
         protected readonly List<Script> scripts = new List<Script>(2);
 
@@ -130,6 +135,22 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public static List<GameObject> GameObjects { get; private set; }
 
+        /// <summary>
+        /// The content manager that stores this asset.
+        /// </summary>
+        public GameObjectContentManager ContentManager
+        {
+            get { return contentManager; }
+            internal set
+            {
+                if (contentManager != null)
+                    contentManager.GameObjects.Remove(this);
+                contentManager = value;
+                if (value != null)
+                    value.GameObjects.Add(this);
+            }
+        } // ContentManager
+
         #endregion
 
         #region Events
@@ -186,6 +207,9 @@ namespace XNAFinalEngine.Components
             GameObjects.Add(this);
             Components = new List<Component>(5);
             Layer = Layer.CurrentCreationLayer;
+            if (GameObjectContentManager.CurrentContentManager == null)
+                throw new InvalidOperationException("Game Object: The Content Manager is null.");
+            ContentManager = GameObjectContentManager.CurrentContentManager;
         } // GameObject
 
         /// <summary>
@@ -205,6 +229,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         protected override void DisposeManagedResources()
         {
+            ContentManager = null;
             GameObjects.Remove(this);
             // A disposed object could be still generating events, because it is alive for a time, in a disposed state, but alive nevertheless.
             LayerChanged = null;

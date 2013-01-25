@@ -346,12 +346,12 @@ namespace XNAFinalEngine.Graphics
 		/// </summary>
         private HorizonBasedAmbientOcclusionShader() : base("GlobalIllumination\\HorizonBasedAmbientOcclusion")
 		{
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
             // Set the random normal map. Helps to make the samplers more random.
             randomNormalTexture = new Texture("Shaders\\RandomNormal");
             Resource.Parameters["randomTexture"].SetValue(randomNormalTexture.Resource);
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
         } // HorizonBasedAmbientOcclusionShader
 
 		#endregion

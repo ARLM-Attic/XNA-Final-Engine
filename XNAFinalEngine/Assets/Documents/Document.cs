@@ -62,15 +62,15 @@ namespace XNAFinalEngine.Assets
         public Document(string filename)
 		{
             Name = filename;
-            Filename = ContentManager.GameDataDirectory + filename;
+            Filename = AssetContentManager.GameDataDirectory + filename;
             if (File.Exists(Filename + ".xnb") == false)
             {
                 throw new ArgumentException("Failed to load document: File " + Filename + " does not exists!", "filename");
             }
             try
             {
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<XDocument>(Filename);
-                ContentManager = ContentManager.CurrentContentManager;
+                Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<XDocument>(Filename);
+                ContentManager = AssetContentManager.CurrentContentManager;
             }
             catch (ObjectDisposedException)
             {
@@ -91,7 +91,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
-            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<XDocument>(Filename);
+            Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<XDocument>(Filename);
         } // RecreateResource
 
         #endregion

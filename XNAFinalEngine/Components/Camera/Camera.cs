@@ -249,11 +249,11 @@ namespace XNAFinalEngine.Components
                 if (RenderTarget != null && renderTargetSize != value)
                 {
                     // Recreate render target with new size
-                    ContentManager userContentManager = ContentManager.CurrentContentManager;
-                    ContentManager.CurrentContentManager = RenderTarget.ContentManager;
+                    AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+                    AssetContentManager.CurrentContentManager = RenderTarget.ContentManager;
                     RenderTarget.Dispose();
                     RenderTarget = new RenderTarget(value, RenderTarget.SurfaceFormat, RenderTarget.DepthFormat, RenderTarget.Antialiasing);
-                    ContentManager.CurrentContentManager = userContentManager;
+                    AssetContentManager.CurrentContentManager = userContentManager;
                 }
                 renderTargetSize = value;
                 CalculateProjectionMatrix(); // The render target size could affect the aspect ratio.
@@ -600,6 +600,7 @@ namespace XNAFinalEngine.Components
             AmbientLight = null;
             Sky = null;
             masterCamera = null;
+            RenderTarget = null;
             // Call this last because the owner information is needed.
             base.Uninitialize();
         } // Uninitialize

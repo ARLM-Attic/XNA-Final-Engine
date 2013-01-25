@@ -54,10 +54,10 @@
     <Compile Include="Assets\Animations\ModelAnimation.cs" />
     <Compile Include="Assets\Animations\RootAnimation.cs" />
     <Compile Include="Assets\Asset.cs" />
+    <Compile Include="Assets\AssetContentManager.cs" />
     <Compile Include="Assets\AssetWithoutResource.cs" />
     <Compile Include="Assets\Audio\Song.cs" />
     <Compile Include="Assets\Audio\Sound.cs" />
-    <Compile Include="Assets\ContentManager.cs" />
     <Compile Include="Assets\Cursors\Cursor.cs" />
     <Compile Include="Assets\Documents\Document.cs" />
     <Compile Include="Assets\Fonts\Font.cs" />
@@ -122,6 +122,7 @@
     <Compile Include="Components\GameObject.cs" />
     <Compile Include="Components\GameObject2D.cs" />
     <Compile Include="Components\GameObject3D.cs" />
+    <Compile Include="Components\GameObjectContentManager.cs" />
     <Compile Include="Components\HeadsUpDisplay\HudElement.cs" />
     <Compile Include="Components\HeadsUpDisplay\HudText.cs" />
     <Compile Include="Components\HeadsUpDisplay\HudTexture.cs" />

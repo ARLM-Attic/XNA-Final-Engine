@@ -238,15 +238,14 @@ namespace XNAFinalEngine.Assets
         public FileModel(string filename)
         {
             Name = filename;
-            Filename = ContentManager.GameDataDirectory + "Models\\" + filename;
+            Filename = AssetContentManager.GameDataDirectory + "Models\\" + filename;
             if (File.Exists(Filename + ".xnb") == false)
             {
                 throw new ArgumentException("Failed to load model: File " + Filename + " does not exists!", "filename");
             }
             try
             {
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<XnaModel>(Filename);
-                ContentManager = ContentManager.CurrentContentManager;
+                Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<XnaModel>(Filename);
                 // Calcuate bounding volumes
                 Vector3[] vectices = Vertices;
                 boundingSphere = BoundingSphere.CreateFromPoints(vectices);
@@ -313,7 +312,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         static FileModel()
         {
-            Filenames = SearchAssetsFilename(ContentManager.GameDataDirectory + "Models");
+            Filenames = SearchAssetsFilename(AssetContentManager.GameDataDirectory + "Models");
         } // FileModel
 
         #endregion
@@ -437,7 +436,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
-            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<XnaModel>(Filename);
+            Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<XnaModel>(Filename);
         } // RecreateResource
 
         #endregion

@@ -81,14 +81,14 @@ namespace XNAFinalEngine.Assets
         public Video(string filename)
         {
             Name = filename;
-            Filename = ContentManager.GameDataDirectory + "Videos\\" + filename;
+            Filename = AssetContentManager.GameDataDirectory + "Videos\\" + filename;
             if (File.Exists(Filename + ".xnb") == false)
             {
                 throw new Exception("Failed to load sound: File " + Filename + " does not exists!");
             }
             try
             {
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Media.Video>(Filename);
+                Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Media.Video>(Filename);
             }
             catch (ObjectDisposedException e)
             {
@@ -109,7 +109,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
-            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Media.Video>(Filename);
+            Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<Microsoft.Xna.Framework.Media.Video>(Filename);
         } // RecreateResource
 
         #endregion

@@ -129,7 +129,7 @@
     <Compile Include="Assets\Audio\Sound.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Assets\ContentManager.cs">
+    <Compile Include="Assets\AssetContentManager.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Assets\Cursors\Cursor.cs">
@@ -246,6 +246,7 @@
     <Compile Include="Assets\Videos\Video.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Components\GameObjectContentManager.cs" />
     <Compile Include="Components\HeadsUpDisplay\HudTexture.cs" />
     <Compile Include="Audio\SoundManager.cs" />
     <Compile Include="Components\Animation\ModelAnimations.cs" />

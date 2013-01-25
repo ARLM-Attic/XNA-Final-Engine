@@ -152,8 +152,8 @@ namespace XNAFinalEngine.EngineCore
             try
             {
                 // Make sure screenshots directory exists
-                if (Directory.Exists(ContentManager.GameDataDirectory + "Screenshots") == false)
-                    Directory.CreateDirectory(ContentManager.GameDataDirectory + "Screenshots");
+                if (Directory.Exists(AssetContentManager.GameDataDirectory + "Screenshots") == false)
+                    Directory.CreateDirectory(AssetContentManager.GameDataDirectory + "Screenshots");
 
                 screenshotNumber = CurrentScreenshotNumber();
                 screenshotNumber++;

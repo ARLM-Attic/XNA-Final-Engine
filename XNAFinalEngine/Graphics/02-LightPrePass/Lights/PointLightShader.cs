@@ -104,11 +104,11 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private PointLightShader() : base("LightPrePass\\PointLight")
         {
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
             //boundingLightObject = new Sphere(6, 6, 1);   // Algorithmically generated mesh normally sucks when optimized vertex access is needed.
             boundingLightObject = new FileModel("Sphere"); // Exported models for the contrary are great.
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
             
             stencilBlendState = new BlendState
             {
@@ -244,7 +244,7 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render the point light.
         /// </summary>
-        public void Render(Color diffuseColor, Vector3 position, float intensity, float radius, TextureCube shadowTexture)
+        public void Render(Color diffuseColor, Vector3 position, float intensity, float radius, TextureCube shadowTexture, Matrix worldMatrix, bool renderClipVolumeInLocalSpace, Model clipVolume = null)
         {
             try
             {
@@ -294,8 +294,13 @@ namespace XNAFinalEngine.Graphics
                     spShadowTexture.Value = TextureCube.BlackTexture;
 
                 // Compute the light world matrix.
-                // Scale according to light radius, and translate it to light position.
-                Matrix boundingLightObjectWorldMatrix = Matrix.CreateScale(radius) * Matrix.CreateTranslation(position); // This operation could be optimized.
+                Matrix boundingLightObjectWorldMatrix;
+                if (clipVolume != null)
+                    boundingLightObjectWorldMatrix = renderClipVolumeInLocalSpace ? Matrix.Identity : worldMatrix;
+                else
+                    // Scale according to light radius, and translate it to light position.
+                    boundingLightObjectWorldMatrix = Matrix.CreateScale(radius) * Matrix.CreateTranslation(position);
+
                 spWorldViewProj.Value = boundingLightObjectWorldMatrix * viewMatrix * projectionMatrix;
                 spWorldView.Value = boundingLightObjectWorldMatrix * viewMatrix;
 
@@ -305,7 +310,7 @@ namespace XNAFinalEngine.Graphics
                 // The formula was inspired from Guerilla´s GDC 09 presentation.
                 float distanceToCamera = Vector3.Distance(Matrix.Invert(viewMatrix).Translation, position);
                 float angularDiameter = (float)(2 * Math.Atan(radius / distanceToCamera));
-                if (angularDiameter > 1.5f * (3.1416f * fieldOfView / 180.0f)) // 0.2f is the original value.
+                if (angularDiameter > 0.2f * (3.1416f * fieldOfView / 180.0f)) // 0.2f is the original value.
                 {
                     // This only works when the clip volume does not intercept the camera´s far plane.
 
@@ -319,7 +324,10 @@ namespace XNAFinalEngine.Graphics
                     EngineManager.Device.BlendState = stencilBlendState;
                     EngineManager.Device.DepthStencilState = stencilDepthStencilState;
                     Resource.CurrentTechnique.Passes[0].Apply();
-                    boundingLightObject.Render();
+                    if (clipVolume != null)
+                        clipVolume.Render();
+                    else
+                        boundingLightObject.Render();
 
                     // Second pass.
                     // Render the clip volume back faces with the light shader.
@@ -329,7 +337,10 @@ namespace XNAFinalEngine.Graphics
                     EngineManager.Device.BlendState = lightBlendState;
                     EngineManager.Device.DepthStencilState = lightDepthStencilState;
                     Resource.CurrentTechnique.Passes[0].Apply();
-                    boundingLightObject.Render();
+                    if (clipVolume != null)
+                        clipVolume.Render();
+                    else
+                        boundingLightObject.Render();
                 }
                 else // Far lights
                 {
@@ -339,7 +350,10 @@ namespace XNAFinalEngine.Graphics
                     //EngineManager.Device.BlendState = lightBlendState; // Not need to set it.
                     EngineManager.Device.DepthStencilState = DepthStencilState.DepthRead;
                     Resource.CurrentTechnique.Passes[0].Apply();
-                    boundingLightObject.Render();
+                    if (clipVolume != null)
+                        clipVolume.Render();
+                    else
+                        boundingLightObject.Render();
                 }
             }
             catch (Exception e)

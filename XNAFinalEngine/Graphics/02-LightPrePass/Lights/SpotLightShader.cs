@@ -101,10 +101,12 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private SpotLightShader() : base("LightPrePass\\SpotLight")
         {
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
-            boundingLightObject = new Sphere(8, 8, 1);
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
+            //boundingLightObject = new Sphere(6, 6, 1);   // Algorithmically generated mesh normally sucks when optimized vertex access is needed.
+            boundingLightObject = new FileModel("Sphere"); // Exported models for the contrary are great.
+            // TODO: Export a cone.
+            AssetContentManager.CurrentContentManager = userContentManager;
             interiorOfBoundingVolumeDepthStencilState = new DepthStencilState
             {
                 DepthBufferEnable = true,
@@ -215,7 +217,8 @@ namespace XNAFinalEngine.Graphics
         /// Render the spot light.
         /// </summary>
         public void Render(Color diffuseColor, Vector3 position, Vector3 direction, float intensity,
-                           float range, float innerConeAngle, float outerConeAngle, Texture shadowTexture, Texture lightMaskTexture)
+                           float range, float innerConeAngle, float outerConeAngle, Texture shadowTexture, Texture lightMaskTexture,
+                           Matrix worldMatrix, bool renderClipVolumeInLocalSpace, Model clipVolume = null)
         {
             try
             {
@@ -246,8 +249,12 @@ namespace XNAFinalEngine.Graphics
                     spLightMaskTexture.Value = Texture.BlackTexture; // To avoid a potential exception.
 
                 // Compute the light world matrix.
-                // Scale according to light radius, and translate it to light position.
-                Matrix boundingLightObjectWorldMatrix = Matrix.CreateScale(range) * Matrix.CreateTranslation(position);
+                Matrix boundingLightObjectWorldMatrix;
+                if (clipVolume != null)
+                    boundingLightObjectWorldMatrix = renderClipVolumeInLocalSpace ? Matrix.Identity : worldMatrix;
+                else
+                    // Scale according to light radius, and translate it to light position.
+                    boundingLightObjectWorldMatrix = Matrix.CreateScale(range) * Matrix.CreateTranslation(position); // TODO: when the cone model is exported I have to include the rotation into consideration.
 
                 spWorldViewProjMatrix.Value = boundingLightObjectWorldMatrix * viewMatrix * projectionMatrix;
                 spWorldViewMatrix.Value = boundingLightObjectWorldMatrix * viewMatrix;
@@ -265,10 +272,12 @@ namespace XNAFinalEngine.Graphics
 
                 #endregion
 
+                // TODO: Implement the stencil optimization.
+
                 // Calculate the distance between the camera and light center.
                 float cameraToCenter = Vector3.Distance(Matrix.Invert(viewMatrix).Translation, position) - nearPlane;
                 // If we are inside the light volume, draw the sphere's inside face.
-                if (cameraToCenter <= range) 
+                if (cameraToCenter <= range)
                 {
                     EngineManager.Device.DepthStencilState = interiorOfBoundingVolumeDepthStencilState;
                     EngineManager.Device.RasterizerState = RasterizerState.CullClockwise;
@@ -280,7 +289,10 @@ namespace XNAFinalEngine.Graphics
                 }
 
                 Resource.CurrentTechnique.Passes[0].Apply();
-                boundingLightObject.Render();
+                if (clipVolume != null)
+                    clipVolume.Render();
+                else
+                    boundingLightObject.Render();
             }
             catch (Exception e)
             {

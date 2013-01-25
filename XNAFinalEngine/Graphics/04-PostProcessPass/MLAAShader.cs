@@ -89,13 +89,13 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         private MLAAShader() : base("PostProcessing\\MLAA")
         {
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
             // IMPORTANT: Be careful of the content processor properties of this texture
             // Pre multiply alpha: false
             // Texture format: No change.
             areaTexture = new Texture("Shaders\\AreaMap32");
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
         } // MLAAShader
 
         #endregion

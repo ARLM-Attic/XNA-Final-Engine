@@ -47,6 +47,11 @@ float2 EndSize;
 
 // How many images the texture is tiled into, in X and Y.
 float2 tiles;
+float animationRepetition;
+
+// Bigger values makes the particles opaque for more of its life time.
+// Still when it is created and when dies it will be transparent.
+float transparencyFactor = 60.7; // TODO
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////
@@ -145,9 +150,9 @@ float4 ComputeParticleColor(float4 projectedPosition, float randomValue, float n
     // to make the particle fade in fairly quickly, then fade out more slowly:
     // plot x*(1-x)*(1-x) for x=0:1 in a graphing program if you want to see what
     // this looks like. The 6.7 scaling factor normalizes the curve so the alpha
-    // will reach all the way up to fully solid.
-    
-    color.a *= normalizedAge * (1-normalizedAge) * (1-normalizedAge) * 6.7;
+    // will reach all the way up to fully solid.    	
+    color.a *= normalizedAge * (1-normalizedAge) * (1-normalizedAge) * transparencyFactor;
+	color.a = saturate(color.a);
    
     return color;
 } // ComputeParticleColor
@@ -198,6 +203,8 @@ VertexShaderOutput ParticleVertexShader(VertexShaderInput input)
 
     output.textureCoordinate = (input.Corner + 1) / 2;		
 
+	float notUsefullInformation;
+	normalizedAge = modf(normalizedAge * animationRepetition, notUsefullInformation);
 	float ageTilesSpace =  normalizedAge * tiles.x * tiles.y;
 	output.textureCoordinate.y = (output.textureCoordinate.y / tiles.y) + ((int)(ageTilesSpace / tiles.y) / tiles.y);
 	float ageTilesSpacedivTilesY = ageTilesSpace / tiles.y;
@@ -232,7 +239,7 @@ float4 SoftParticlePixelShader(VertexShaderOutput input) : COLOR0
     float2 uv = 0.5f * (float2(input.screenPosition.x, -input.screenPosition.y) + 1) + halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
 
 	// Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
-	float depth = tex2D(depthSampler, uv).r;	
+	float depth = tex2D(depthSampler, uv).r;
 
 	float depthDiff = depth - input.particleDepth;
 

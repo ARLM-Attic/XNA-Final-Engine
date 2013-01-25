@@ -88,12 +88,12 @@ namespace XNAFinalEngine.Graphics
         private SkydomeShader() : base("Sky\\Skydome")
         {
             skydomeModel = new FileModel("Skydome");
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
             skyTextureNight  = new Texture("Shaders\\SkyNight");
             skyTextureSunset = new Texture("Shaders\\SkySunset");
             skyTextureDay    = new Texture("Shaders\\SkyDay");
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
         } // SkyboxShader
 
 		#endregion

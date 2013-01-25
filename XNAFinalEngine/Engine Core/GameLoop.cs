@@ -167,11 +167,6 @@ namespace XNAFinalEngine.EngineCore
         #region Properties
 
         /// <summary>
-        /// Current Scene.
-        /// </summary>
-        public static Scene CurrentScene { get; internal set; }
-
-        /// <summary>
         /// This indicates the cameras to render and their order, ignoring the camera component settings.
         /// The camera component provides an interface to set this information. 
         /// The editor and maybe some user testing will benefit with this functionality.
@@ -204,11 +199,14 @@ namespace XNAFinalEngine.EngineCore
             SoundManager.Initialize();
             
             // Recreate assets.
-            ContentManager.RecreateContentManagers();
+            AssetContentManager.RecreateContentManagers();
 
             // Call the DeviceDisposed method only when the the device was disposed.
-            if (CurrentScene.ContentLoaded)
-                CurrentScene.DeviceDisposed();
+            foreach (Scene scene in Scene.CurrentScenes)
+            {
+                if (scene.ContentLoaded)
+                    scene.DeviceDisposedFromGameLoop();
+            }
 
             // Collect all garbage.
             // Garbage collections are performed in XBOX 360 between 1 Mb of created data.
@@ -235,8 +233,12 @@ namespace XNAFinalEngine.EngineCore
             PhysicsManager.Initialize();
             
             // Begin run the scene.
-            CurrentScene.Initialize();
-            CurrentScene.BeginRun();
+            foreach (Scene scene in Scene.CurrentScenes)
+            {
+                scene.Initialize();
+                scene.BeginRunFromGameLoop();
+            }
+            
             // Start scripts.
             for (int i = 0; i < Script.ScriptList.Count; i++) // The for sentence is needed because the script list could be modified by some script.
             {
@@ -357,7 +359,13 @@ namespace XNAFinalEngine.EngineCore
             #region Logic Update
             
             // Update the scene
-            CurrentScene.UpdateTasks();
+            for (int i = 0; i < Scene.CurrentScenes.Count; i++)
+            {
+                Scene scene = Scene.CurrentScenes[i];
+                if (!scene.ContentLoaded)
+                    scene.Initialize();
+                scene.UpdateTasksFromGameLoop();
+            }
             // Update the scripts
             for (int i = 0; i < Script.ScriptList.Count; i++) // The for sentence is needed because the script list could be modified by some script.
             {
@@ -373,7 +381,12 @@ namespace XNAFinalEngine.EngineCore
                 }
             }
             // Perform the late update of the scene.
-            CurrentScene.LateUpdateTasks();
+            for (int i = 0; i < Scene.CurrentScenes.Count; i++)
+            {
+                Scene scene = Scene.CurrentScenes[i];
+                if (scene.ContentLoaded)
+                    scene.LateUpdateTasksFromGameLoop();
+            }
             // Perform the late update of the scripts.
             for (int i = 0; i < Script.ScriptList.Count; i++) // The for sentence is needed because the script list could be modified by some script.
             {
@@ -479,7 +492,12 @@ namespace XNAFinalEngine.EngineCore
             #region Logic Update
 
             // Perform the pre draw update of the scene and scripts.
-            CurrentScene.PreRenderTasks();
+            for (int i = 0; i < Scene.CurrentScenes.Count; i++)
+            {
+                Scene scene = Scene.CurrentScenes[i];
+                if (scene.ContentLoaded)
+                    scene.PreRenderTasksFromGameLoop();
+            }
             for (int i = 0; i < Script.ScriptList.Count; i++) // The for sentence is needed because the script list could be modified by some script.
             {
                 var script = Script.ScriptList[i];
@@ -681,10 +699,10 @@ namespace XNAFinalEngine.EngineCore
             if (ScreenshotCapturer.MakeScreenshot)
             {
                 // Instead of render into the back buffer we render into a render target.
-                ContentManager userContentManager = ContentManager.CurrentContentManager;
-                ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+                AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+                AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
                 screenshotRenderTarget = new RenderTarget(Size.FullScreen, SurfaceFormat.Color, false);
-                ContentManager.CurrentContentManager = userContentManager;
+                AssetContentManager.CurrentContentManager = userContentManager;
                 screenshotRenderTarget.EnableRenderTarget();
             }
 
@@ -705,7 +723,12 @@ namespace XNAFinalEngine.EngineCore
 
             #region Logic Update
 
-            CurrentScene.PostRenderTasks();
+            for (int i = 0; i < Scene.CurrentScenes.Count; i++)
+            {
+                Scene scene = Scene.CurrentScenes[i];
+                if (scene.ContentLoaded)
+                    scene.PostRenderTasksFromGameLoop();
+            }
             for (int i = 0; i < Script.ScriptList.Count; i++) // The for sentence is needed because the script list could be modified by some script.
             {
                 var script = Script.ScriptList[i];
@@ -1104,6 +1127,8 @@ namespace XNAFinalEngine.EngineCore
                                                                                                 (RayMarchingAmbientOcclusion)currentCamera.AmbientLight.AmbientOcclusion,
                                                                                                 currentCamera.FieldOfView);
                 }
+                // Testing
+                //FinishRendering(currentCamera, renderTarget, ambientOcclusionTexture); RenderTarget.Release(ambientOcclusionTexture); return;
             }
             
             #endregion
@@ -1727,7 +1752,8 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < pointLightsToRender.Count; i++)
             {
                 PointLight pointLight = pointLightsToRender[i];
-                PointLightShader.Instance.Render(pointLight.Color, pointLight.cachedPosition, pointLight.Intensity, pointLight.Range, lightDepthTextureCubeArray[i]);
+                PointLightShader.Instance.Render(pointLight.Color, pointLight.cachedPosition, pointLight.Intensity, pointLight.Range, lightDepthTextureCubeArray[i],
+                                                 pointLight.cachedWorldMatrix, pointLight.RenderClipVolumeInLocalSpace, pointLight.ClipVolume);
             }
 
             #endregion
@@ -1743,7 +1769,8 @@ namespace XNAFinalEngine.EngineCore
             foreach (SpotLight spotLight in spotLightsToRender)
             {
                 SpotLightShader.Instance.Render(spotLight.Color, spotLight.cachedPosition, spotLight.cachedDirection, spotLight.Intensity, spotLight.Range, 
-                                                spotLight.InnerConeAngle, spotLight.OuterConeAngle, spotLight.ShadowTexture, spotLight.LightMaskTexture);
+                                                spotLight.InnerConeAngle, spotLight.OuterConeAngle, spotLight.ShadowTexture, spotLight.LightMaskTexture,
+                                                spotLight.cachedWorldMatrix, spotLight.RenderClipVolumeInLocalSpace, spotLight.ClipVolume);
             }
 
             #endregion
@@ -1955,7 +1982,7 @@ namespace XNAFinalEngine.EngineCore
                                                    particleRenderer.BlendState, particleRenderer.DurationRandomness, particleRenderer.Gravity,
                                                    particleRenderer.EndVelocity, particleRenderer.MinimumColor, particleRenderer.MaximumColor,
                                                    particleRenderer.RotateSpeed, particleRenderer.StartSize, particleRenderer.EndSize,
-                                                   particleRenderer.Texture, particleRenderer.TilesX, particleRenderer.TilesY, 
+                                                   particleRenderer.Texture, particleRenderer.TilesX, particleRenderer.TilesY, particleRenderer.AnimationRepetition, 
                                                    particleRenderer.SoftParticles, particleRenderer.FadeDistance);
             }
 
@@ -2668,8 +2695,10 @@ namespace XNAFinalEngine.EngineCore
 
         internal static void EndRun()
         {
-            CurrentScene.EndRun();
-            CurrentScene.Unitialize();
+            foreach (Scene scene in Scene.CurrentScenes)
+            {
+                scene.Unitialize();
+            }
             // Disable wiimote and keyboard hook.
             InputManager.UnloadInputDevices();
         } // UnloadContent

@@ -541,10 +541,10 @@ namespace XNAFinalEngine.Assets
                 }
             }
             // If there is not one unlook or present we create one.
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
             renderTarget = new RenderTarget(size, surfaceFormat, depthFormat, antialiasingType, mipMap);
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
             renderTargets.Add(renderTarget);
             renderTarget.looked = true;
             return renderTarget;
@@ -606,12 +606,12 @@ namespace XNAFinalEngine.Assets
                 }
             }
             // If there is not one unlook or present we create one.
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
             RenderTarget renderTarget1 = new RenderTarget(size, surfaceFormat1, depthFormat, AntialiasingType.NoAntialiasing);
             RenderTarget renderTarget2 = new RenderTarget(size, surfaceFormat2, false, AntialiasingType.NoAntialiasing);
             renderTargetBinding = BindRenderTargets(renderTarget1, renderTarget2);
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
             multipleRenderTargets.Add(renderTargetBinding);
             renderTargetBinding.RenderTargets[0].looked = true;
             return renderTargetBinding;
@@ -641,13 +641,13 @@ namespace XNAFinalEngine.Assets
                 }
             }
             // If there is not one unlook or present we create one.
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager.CurrentContentManager = ContentManager.SystemContentManager;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
             RenderTarget renderTarget1 = new RenderTarget(size, surfaceFormat1, depthFormat, AntialiasingType.NoAntialiasing);
             RenderTarget renderTarget2 = new RenderTarget(size, surfaceFormat2, false, AntialiasingType.NoAntialiasing);
             RenderTarget renderTarget3 = new RenderTarget(size, surfaceFormat3, false, AntialiasingType.NoAntialiasing);
             renderTargetBinding = BindRenderTargets(renderTarget1, renderTarget2, renderTarget3);
-            ContentManager.CurrentContentManager = userContentManager;
+            AssetContentManager.CurrentContentManager = userContentManager;
             multipleRenderTargets.Add(renderTargetBinding);
             renderTargetBinding.RenderTargets[0].looked = true;
             return renderTargetBinding;

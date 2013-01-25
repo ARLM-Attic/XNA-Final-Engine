@@ -36,9 +36,9 @@ namespace XNAFinalEngine.UserInterface
         public static Container Load(string filename)
         {
             Container mainContainer = null;
-            ContentManager userContentManager = ContentManager.CurrentContentManager;
-            ContentManager temporalContent = new ContentManager { Name = "Temporal Content Manager", Hidden = true };
-            ContentManager.CurrentContentManager = temporalContent;
+            AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+            AssetContentManager temporalContent = new AssetContentManager { Name = "Temporal Content Manager", Hidden = true };
+            AssetContentManager.CurrentContentManager = temporalContent;
             try
             {
                 Document layoutDocument = new Document("Layout\\" + filename);
@@ -67,7 +67,7 @@ namespace XNAFinalEngine.UserInterface
             {
                 // Dispose the temporal content manager and restore the user content manager.
                 temporalContent.Dispose();
-                ContentManager.CurrentContentManager = userContentManager;
+                AssetContentManager.CurrentContentManager = userContentManager;
             }
 
             return mainContainer;

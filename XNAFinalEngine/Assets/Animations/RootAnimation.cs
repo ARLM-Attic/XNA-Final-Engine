@@ -71,14 +71,14 @@ namespace XNAFinalEngine.Assets
         public RootAnimation(string filename)
         {
             Name = filename;
-            Filename = ContentManager.GameDataDirectory + "Animations\\" + filename;
+            Filename = AssetContentManager.GameDataDirectory + "Animations\\" + filename;
             if (File.Exists(Filename + ".xnb") == false)
             {
                 throw new ArgumentException("Failed to load animation data: File " + Filename + " does not exists!", "filename");
             }
             try
             {
-                Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<RootAnimationClip>(Filename);
+                Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<RootAnimationClip>(Filename);
             }
             catch (ObjectDisposedException)
             {
@@ -99,7 +99,7 @@ namespace XNAFinalEngine.Assets
         /// </summary>
         internal override void RecreateResource()
         {
-            Resource = ContentManager.CurrentContentManager.XnaContentManager.Load<RootAnimationClip>(Filename);
+            Resource = AssetContentManager.CurrentContentManager.XnaContentManager.Load<RootAnimationClip>(Filename);
         } // RecreateResource
 
         #endregion

@@ -63,6 +63,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Scenes\EmptyScene.cs" />
     <Compile Include="Scenes\ExamplesMainScene.cs" />
+    <Compile Include="Scenes\HelloWorldScene.cs" />
     <Compile Include="Scenes\LamborghiniMurcielagoLoader.cs">
       <SubType>Code</SubType>
     </Compile>

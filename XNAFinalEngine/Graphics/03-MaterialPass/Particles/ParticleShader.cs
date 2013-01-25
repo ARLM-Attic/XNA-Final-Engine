@@ -54,7 +54,7 @@ namespace XNAFinalEngine.Graphics
         
         // Shader Parameters.
         private static ShaderParameterMatrix spViewProjection, spProjection, spProjectionInvert;
-        private static ShaderParameterFloat spCurrentTime, spDuration, spDurationRandomness, spEndVelocity, spFarPlane, spFadeDistance;
+        private static ShaderParameterFloat spCurrentTime, spDuration, spDurationRandomness, spEndVelocity, spFarPlane, spFadeDistance, spAnimationRepetition;
         private static ShaderParameterVector2 spViewportScale, spRotateSpeed, spStartSize, spEndSize, spHalfPixel, spTiles;
         private static ShaderParameterVector3 spGravity;
         private static ShaderParameterColorWithAlpha spMinColor, spMaxColor;
@@ -109,6 +109,7 @@ namespace XNAFinalEngine.Graphics
                 spEndVelocity = new ShaderParameterFloat("EndVelocity", this);
                 spFarPlane = new ShaderParameterFloat("farPlane", this);
                 spFadeDistance = new ShaderParameterFloat("fadeDistance", this);
+                spAnimationRepetition = new ShaderParameterFloat("animationRepetition", this);
                 spViewportScale = new ShaderParameterVector2("ViewportScale", this);
                 spRotateSpeed = new ShaderParameterVector2("RotateSpeed", this);
                 spStartSize = new ShaderParameterVector2("StartSize", this);
@@ -162,8 +163,9 @@ namespace XNAFinalEngine.Graphics
         /// Draws a particle system.
         /// </summary>
         public void Render(ParticleSystem particleSystem, float duration, BlendState blendState, float durationRandomness,
-                                    Vector3 gravity, float endVelocity, Color minimumColor, Color maximumColor, Vector2 rotateSpeed,
-                                    Vector2 startSize, Vector2 endSize, Texture texture, int tilesX, int tilesY, bool softParticles, float fadeDistance)
+                           Vector3 gravity, float endVelocity, Color minimumColor, Color maximumColor, Vector2 rotateSpeed,
+                           Vector2 startSize, Vector2 endSize, Texture texture, int tilesX, int tilesY, int animationRepetition,
+                           bool softParticles, float fadeDistance)
         {
             try
             {
@@ -186,6 +188,7 @@ namespace XNAFinalEngine.Graphics
                 // Texture
                 spTexture.Value = texture;
                 spTiles.Value = new Vector2(tilesX, tilesY);
+                spAnimationRepetition.Value = animationRepetition;
                 // Soft Particles
                 if (softParticles)
                 {
