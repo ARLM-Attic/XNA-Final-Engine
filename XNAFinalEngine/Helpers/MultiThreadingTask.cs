@@ -78,6 +78,8 @@ namespace XNAFinalEngine.Helpers
         /// </summary>
         public MultiThreadingTask(Action<T> task, int numberOfThreads, int[] processorAffinity = null)
         {
+            if (numberOfThreads <= 0)
+                throw new ArgumentOutOfRangeException("numberOfThreads");
             this.task = task;
             taskDone = new ManualResetEvent[numberOfThreads];
             waitForWork = new ManualResetEvent[numberOfThreads];

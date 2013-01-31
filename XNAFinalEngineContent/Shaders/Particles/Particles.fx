@@ -51,7 +51,7 @@ float animationRepetition;
 
 // Bigger values makes the particles opaque for more of its life time.
 // Still when it is created and when dies it will be transparent.
-float transparencyFactor = 60.7; // TODO
+float transparencyFactor = 6.7; // TODO 6.7 Default
 
 //////////////////////////////////////////////
 ///////////////// Textures ///////////////////

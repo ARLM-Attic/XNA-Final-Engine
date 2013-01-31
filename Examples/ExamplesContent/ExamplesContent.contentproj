@@ -85,228 +85,10 @@
       <Processor>SkinnedModelProcessor</Processor>
       <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-AirTakesEngine.fbx">
-      <Name>Murcielago-AirTakesEngine</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-BlackMetal.fbx">
-      <Name>Murcielago-BlackMetal</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-Body.fbx">
-      <Name>Murcielago-Body</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-BrakeCaliper.fbx">
-      <Name>Murcielago-BrakeCaliper</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-BrakeDisc.fbx">
-      <Name>Murcielago-BrakeDisc</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-Floor.fbx">
-      <Name>Murcielago-Floor</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontLightBase.fbx">
-      <Name>Murcielago-FrontLightBase</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-WhiteMetal.fbx">
-      <Name>Murcielago-WhiteMetal</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontRimLogo.fbx">
-      <Name>Murcielago-FrontRimLogo</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontTyre.fbx">
-      <Name>Murcielago-FrontTyre</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-FrontTyre02.fbx">
-      <Name>Murcielago-FrontTyre02</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-Glasses.fbx">
-      <Name>Murcielago-Glasses</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-Logo.fbx">
-      <Name>Murcielago-Logo</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP640-EngineGlasses.fbx">
-      <Name>Murcielago-LP640-EngineGlasses</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP640-Exhaust.fbx">
-      <Name>Murcielago-LP640-Exhaust</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP640-Grid.fbx">
-      <Name>Murcielago-LP640-Grid</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP640-RimBase.fbx">
-      <Name>Murcielago-LP640-RimBase</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP640-RimBase02.fbx">
-      <Name>Murcielago-LP640-RimBase02</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP670-FrontRim.fbx">
-      <Name>Murcielago-LP670-FrontRim</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP670-RearRim.fbx">
-      <Name>Murcielago-LP670-RearRim</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RearTyre.fbx">
-      <Name>Murcielago-RearTyre</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RearTyre02.fbx">
-      <Name>Murcielago-RearTyre02</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-BlackConstant.fbx">
-      <Name>Murcielago-BlackConstant</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
     <Compile Include="Music\01 - Artexflow - Feeling Good.mp3">
       <Name>01 - Artexflow - Feeling Good</Name>
       <Importer>Mp3Importer</Importer>
       <Processor>SongProcessor</Processor>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\BrakeDisc-Diffuse.dds">
-      <Name>BrakeDisc-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\BrakeDisc-Normal.dds">
-      <Name>BrakeDisc-Normal</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\BrakeDisc-Specular.dds">
-      <Name>BrakeDisc-Specular</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Lamborghini-Logo.dds">
-      <Name>Lamborghini-Logo</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\LamborghiniBrakeCaliper.dds">
-      <Name>LamborghiniBrakeCaliper</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\LP640-AirTakesEngine-Diffuse.dds">
-      <Name>LP640-AirTakesEngine-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\LP640-AirTakesEngine-Specular.dds">
-      <Name>LP640-AirTakesEngine-Specular</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Floor.dds">
-      <Name>Murcielago-Floor</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Logo-Diffuse.dds">
-      <Name>Murcielago-Logo-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Logo-Normal.dds">
-      <Name>Murcielago-Logo-Normal</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Logo-Specular.dds">
-      <Name>Murcielago-Logo-Specular</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-LP640-Exhaust.dds">
-      <Name>Murcielago-LP640-Exhaust</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-LP640-Grid.dds">
-      <Name>Murcielago-LP640-Grid</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\PirelliPZero-Diffuse.dds">
-      <Name>PirelliPZero-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\PirelliPZero-Normal.dds">
-      <Name>PirelliPZero-Normal</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -340,124 +122,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-AirTakes.fbx">
-      <Name>Murcielago-AirTakes</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-AirTakesDark.fbx">
-      <Name>Murcielago-AirTakesDark</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-GrayMetal.fbx">
-      <Name>Murcielago-GrayMetal</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-CarbonFiber.fbx">
-      <Name>Murcielago-CarbonFiber</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-InteriorLeather.fbx">
-      <Name>Murcielago-InteriorLeather</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-SteeringWheel.fbx">
-      <Name>Murcielago-SteeringWheel</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-InteriorDetails.fbx">
-      <Name>Murcielago-InteriorDetails</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-BlackPlastic.fbx">
-      <Name>Murcielago-BlackPlastic</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-InteriorCostura.fbx">
-      <Name>Murcielago-InteriorCostura</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-Tablero.fbx">
-      <Name>Murcielago-Tablero</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorBlackMetal.fbx">
-      <Name>Murcielago-LeftDoorBlackMetal</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorBody.fbx">
-      <Name>Murcielago-LeftDoorBody</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorGrayMetal.fbx">
-      <Name>Murcielago-LeftDoorGrayMetal</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorLeather.fbx">
-      <Name>Murcielago-LeftDoorLeather</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorSpeakers.fbx">
-      <Name>Murcielago-LeftDoorSpeakers</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RightDoorBlackMetal.fbx">
-      <Name>Murcielago-RightDoorBlackMetal</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RightDoorBody.fbx">
-      <Name>Murcielago-RightDoorBody</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RightDoorGrayMetal.fbx">
-      <Name>Murcielago-RightDoorGrayMetal</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RightDoorLeather.fbx">
-      <Name>Murcielago-RightDoorLeather</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RightDoorSpeakers.fbx">
-      <Name>Murcielago-RightDoorSpeakers</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LightGlasses.fbx">
-      <Name>Murcielago-LightGlasses</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-Lights.fbx">
-      <Name>Murcielago-Lights</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
     <Compile Include="Animations\AnimatedCube.fbx">
       <Name>AnimatedCube</Name>
       <Importer>FbxImporter</Importer>
@@ -514,133 +178,8 @@
       <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
       <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
     </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Tyre-Diffuse.dds">
-      <Name>Murcielago-Tyre-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Tyre-Normal.dds">
-      <Name>Murcielago-Tyre-Normal</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\CarbonFiber.dds">
-      <Name>CarbonFiber</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Leather-Diffuse.dds">
-      <Name>Leather-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Leather-Normal.dds">
-      <Name>Leather-Normal</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\SteeringWheel-Diffuse.dds">
-      <Name>SteeringWheel-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\SteeringWheel-Normal.dds">
-      <Name>SteeringWheel-Normal</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\SteeringWheel-Specular.dds">
-      <Name>SteeringWheel-Specular</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-Dark.dds">
-      <Name>Murcielago-InteriorDetails-Dark</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-Diffuse.dds">
-      <Name>Murcielago-InteriorDetails-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-Normal.dds">
-      <Name>Murcielago-InteriorDetails-Normal</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-Specular.dds">
-      <Name>Murcielago-InteriorDetails-Specular</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Costura-Diffuse.dds">
-      <Name>Costura-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Costura-Specular.dds">
-      <Name>Costura-Specular</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Costura-Normal.dds">
-      <Name>Costura-Normal</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Tablero.dds">
-      <Name>Murcielago-Tablero</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Speaker-Diffuse.dds">
-      <Name>Speaker-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\Murcielago-Lights.dds">
-      <Name>Murcielago-Lights</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\HotPursuitSkydome.dds">
-      <Name>HotPursuitSkydome</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
-    </Compile>
-    <Compile Include="Textures\LightMasks\Crysis2TestLightMask.dds">
-      <Name>Crysis2TestLightMask</Name>
+    <Compile Include="Textures\LightMasks\TestLightMask.dds">
+      <Name>TestLightMask</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
@@ -824,275 +363,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\Warehouse\WarehouseWalls.fbx">
-      <Name>WarehouseWalls</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\Warehouse\WarehouseRoof.fbx">
-      <Name>WarehouseRoof</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-    <Compile Include="Models\Warehouse\WarehouseRoof1.fbx">
-      <Name>WarehouseRoof1</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Textures\Warehouse\MetalRoof-Diffuse.jpg">
-      <Name>MetalRoof-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_GenerateMipmaps>True</ProcessorParameters_GenerateMipmaps>
-      <ProcessorParameters_TextureFormat>DxtCompressed</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\Warehouse\MetalRoof2-Diffuse.jpg">
-      <Name>MetalRoof2-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_GenerateMipmaps>True</ProcessorParameters_GenerateMipmaps>
-      <ProcessorParameters_TextureFormat>DxtCompressed</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\Warehouse\Warehouse-Diffuse.jpg">
-      <Name>Warehouse-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_GenerateMipmaps>True</ProcessorParameters_GenerateMipmaps>
-      <ProcessorParameters_TextureFormat>DxtCompressed</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\Warehouse\Warehouse-Normal.jpg">
-      <Name>Warehouse-Normal</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_GenerateMipmaps>True</ProcessorParameters_GenerateMipmaps>
-      <ProcessorParameters_TextureFormat>DxtCompressed</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\Warehouse\Warehouse-Specular.jpg">
-      <Name>Warehouse-Specular</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_GenerateMipmaps>True</ProcessorParameters_GenerateMipmaps>
-      <ProcessorParameters_TextureFormat>DxtCompressed</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\Warehouse\Warehouse2-Diffuse.jpg">
-      <Name>Warehouse2-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_GenerateMipmaps>True</ProcessorParameters_GenerateMipmaps>
-      <ProcessorParameters_TextureFormat>DxtCompressed</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\Warehouse\Wood-Diffuse.jpg">
-      <Name>Wood-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_GenerateMipmaps>True</ProcessorParameters_GenerateMipmaps>
-      <ProcessorParameters_TextureFormat>DxtCompressed</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\Warehouse\Wood-Normal.jpg">
-      <Name>Wood-Normal</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_GenerateMipmaps>True</ProcessorParameters_GenerateMipmaps>
-      <ProcessorParameters_TextureFormat>DxtCompressed</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\Warehouse\Wood2-Diffuse.jpg">
-      <Name>Wood2-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_GenerateMipmaps>True</ProcessorParameters_GenerateMipmaps>
-      <ProcessorParameters_TextureFormat>DxtCompressed</ProcessorParameters_TextureFormat>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\Warehouse\WarehouseWood2.fbx">
-      <Name>WarehouseWood2</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\Warehouse\WarehouseWood.fbx">
-      <Name>WarehouseWood</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\Warehouse\WarehouseBrokenWindow.fbx">
-      <Name>WarehouseBrokenWindow</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\Warehouse\WarehouseWindow.fbx">
-      <Name>WarehouseWindow</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Textures\Warehouse\Window-Diffuse.jpg">
-      <Name>Window-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_GenerateMipmaps>True</ProcessorParameters_GenerateMipmaps>
-      <ProcessorParameters_TextureFormat>DxtCompressed</ProcessorParameters_TextureFormat>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Textures\Warehouse\Ground-Diffuse.jpg">
-      <Name>Ground-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>DxtCompressed</ProcessorParameters_TextureFormat>
-      <ProcessorParameters_GenerateMipmaps>True</ProcessorParameters_GenerateMipmaps>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\Warehouse\WarehouseGround.fbx">
-      <Name>WarehouseGround</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Textures\Warehouse\Ground-Normals.dds">
-      <Name>Ground-Normals</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-      <ProcessorParameters_GenerateMipmaps>True</ProcessorParameters_GenerateMipmaps>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LP640-LeatherPattern.fbx">
-      <Name>Murcielago-LP640-LeatherPattern</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Textures\LamborghiniMurcielago\LeatherPattern-Diffuse.dds">
-      <Name>LeatherPattern-Diffuse</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-    <Compile Include="Textures\LamborghiniMurcielago\LeatherPattern-Normal.dds">
-      <Name>LeatherPattern-Normal</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Textures\LamborghiniMurcielago\LeatherPattern-Specular.dds">
-      <Name>LeatherPattern-Specular</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RedPlastic.fbx">
-      <Name>Murcielago-RedPlastic</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorGlass.fbx">
-      <Name>Murcielago-LeftDoorGlass</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>ModelProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorCostura.fbx">
-      <Name>Murcielago-LeftDoorCostura</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorDetails.fbx">
-      <Name>Murcielago-LeftDoorDetails</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RightDoorDetails.fbx">
-      <Name>Murcielago-RightDoorDetails</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RightDoorCostura.fbx">
-      <Name>Murcielago-RightDoorCostura</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-RightDoorGlass.fbx">
-      <Name>Murcielago-RightDoorGlass</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Models\SphereTransformed.fbx">
       <Name>SphereTransformed</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-Shadow.fbx">
-      <Name>Murcielago-Shadow</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-ShadowLeftDoor.fbx">
-      <Name>Murcielago-ShadowLeftDoor</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-ShadowRightDoor.fbx">
-      <Name>Murcielago-ShadowRightDoor</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-ShadowFrontTyre.fbx">
-      <Name>Murcielago-ShadowFrontTyre</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\LamborghiniMurcielago\Murcielago-ShadowRearTyre.fbx">
-      <Name>Murcielago-ShadowRearTyre</Name>
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
     </Compile>
@@ -1102,30 +374,6 @@
       <Name>XNAFinalEngine</Name>
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Textures\Particles\PaperFlying.dds">
-      <Name>PaperFlying</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Textures\Particles\SmokeAdditive.dds">
-      <Name>SmokeAdditive</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Textures\Particles\Explosion.dds">
-      <Name>Explosion</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -1139,26 +387,12 @@
       <Importer>FbxImporter</Importer>
       <Processor>SkinnedAnimationProcessor</Processor>
     </Compile>
-    <Compile Include="Animations\DudeWalk.fbx">
-      <Name>DudeWalk</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>SkinnedAnimationProcessor</Processor>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Rifle.fbx">
       <Name>Rifle</Name>
       <Importer>FbxImporter</Importer>
       <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Models\Flashlight.fbx">
-      <Name>Flashlight</Name>
-      <Importer>FbxImporter</Importer>
-      <Processor>RigidModelProcessor</Processor>
-      <ProcessorParameters_GenerateTangentFrames>True</ProcessorParameters_GenerateTangentFrames>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -1207,6 +441,1013 @@
       <Processor>TextureProcessor</Processor>
       <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\ExamplesImages\EditorScene.jpg">
+      <Name>EditorScene</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\SelectOneScene.fbx">
+      <Name>SelectOneScene</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\Examples.fbx">
+      <Name>Examples</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\XNA.fbx">
+      <Name>XNA</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\DogFightStudios.png">
+      <Name>DogFightStudios</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Textures\ExamplesImages\AnimationScene.jpg">
+      <Name>AnimationScene</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Models\Warehouse\WarehouseBrokenWindowXbox.xnb">
+      <Name>WarehouseBrokenWindowXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Warehouse\WarehouseGroundXbox.xnb">
+      <Name>WarehouseGroundXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Warehouse\WarehouseRoofXbox.xnb">
+      <Name>WarehouseRoofXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Warehouse\WarehouseRoof1Xbox.xnb">
+      <Name>WarehouseRoof1Xbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Warehouse\WarehouseWallsXbox.xnb">
+      <Name>WarehouseWallsXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Warehouse\WarehouseWindowXbox.xnb">
+      <Name>WarehouseWindowXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Warehouse\WarehouseWoodXbox.xnb">
+      <Name>WarehouseWoodXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Warehouse\WarehouseWood2Xbox.xnb">
+      <Name>WarehouseWood2Xbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Compile Include="Textures\Particles\Smoke.png">
+      <Name>Smoke</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <ProcessorParameters_TextureFormat>NoChange</ProcessorParameters_TextureFormat>
+      <ProcessorParameters_PremultiplyAlpha>False</ProcessorParameters_PremultiplyAlpha>
+    </Compile>
+    <Compile Include="Textures\LookupTables\LookupTableWarehouse.png">
+      <Name>LookupTableWarehouse</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Models\Warehouse\WarehouseBrokenWindow.xnb">
+      <Name>WarehouseBrokenWindow</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Warehouse\WarehouseGround.xnb">
+      <Name>WarehouseGround</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Warehouse\WarehouseRoof.xnb">
+      <Name>WarehouseRoof</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Warehouse\WarehouseRoof1.xnb">
+      <Name>WarehouseRoof1</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Warehouse\WarehouseWalls.xnb">
+      <Name>WarehouseWalls</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Warehouse\WarehouseWindow.xnb">
+      <Name>WarehouseWindow</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Warehouse\WarehouseWood.xnb">
+      <Name>WarehouseWood</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Warehouse\WarehouseWood2.xnb">
+      <Name>WarehouseWood2</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Textures\Warehouse\Ground-Diffuse.xnb">
+      <Name>Ground-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Ground-DiffuseXbox.xnb">
+      <Name>Ground-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Ground-Normals.xnb">
+      <Name>Ground-Normals</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Ground-NormalsXbox.xnb">
+      <Name>Ground-NormalsXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\MetalRoof-Diffuse.xnb">
+      <Name>MetalRoof-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\MetalRoof-DiffuseXbox.xnb">
+      <Name>MetalRoof-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\MetalRoof2-Diffuse.xnb">
+      <Name>MetalRoof2-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\MetalRoof2-DiffuseXbox.xnb">
+      <Name>MetalRoof2-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Warehouse-Diffuse.xnb">
+      <Name>Warehouse-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Warehouse-DiffuseXbox.xnb">
+      <Name>Warehouse-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Warehouse-Normal.xnb">
+      <Name>Warehouse-Normal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Warehouse-NormalXbox.xnb">
+      <Name>Warehouse-NormalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Warehouse-Specular.xnb">
+      <Name>Warehouse-Specular</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Warehouse-SpecularXbox.xnb">
+      <Name>Warehouse-SpecularXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Warehouse2-Diffuse.xnb">
+      <Name>Warehouse2-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Warehouse2-DiffuseXbox.xnb">
+      <Name>Warehouse2-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Window-Diffuse.xnb">
+      <Name>Window-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Window-DiffuseXbox.xnb">
+      <Name>Window-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Wood-Diffuse.xnb">
+      <Name>Wood-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Wood-DiffuseXbox.xnb">
+      <Name>Wood-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Wood-Normal.xnb">
+      <Name>Wood-Normal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Wood-NormalXbox.xnb">
+      <Name>Wood-NormalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Wood2-Diffuse.xnb">
+      <Name>Wood2-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\Warehouse\Wood2-DiffuseXbox.xnb">
+      <Name>Wood2-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Animations\DudeAttack.xnb">
+      <Name>DudeAttack</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animations\DudeAttackXbox.xnb">
+      <Name>DudeAttackXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animations\DudeRun.xnb">
+      <Name>DudeRun</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Animations\DudeRunXbox.xnb">
+      <Name>DudeRunXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Textures\LamborghiniMurcielago\BrakeDisc-Diffuse.xnb">
+      <Name>BrakeDisc-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\BrakeDisc-DiffuseXbox.xnb">
+      <Name>BrakeDisc-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\BrakeDisc-Normal.xnb">
+      <Name>BrakeDisc-Normal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\BrakeDisc-NormalXbox.xnb">
+      <Name>BrakeDisc-NormalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\BrakeDisc-Specular.xnb">
+      <Name>BrakeDisc-Specular</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\BrakeDisc-SpecularXbox.xnb">
+      <Name>BrakeDisc-SpecularXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\CarbonFiber.xnb">
+      <Name>CarbonFiber</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\CarbonFiberXbox.xnb">
+      <Name>CarbonFiberXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Costura-Diffuse.xnb">
+      <Name>Costura-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Costura-DiffuseXbox.xnb">
+      <Name>Costura-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Costura-Normal.xnb">
+      <Name>Costura-Normal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Costura-NormalXbox.xnb">
+      <Name>Costura-NormalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Costura-Specular.xnb">
+      <Name>Costura-Specular</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Costura-SpecularXbox.xnb">
+      <Name>Costura-SpecularXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Lamborghini-Logo.xnb">
+      <Name>Lamborghini-Logo</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Lamborghini-LogoXbox.xnb">
+      <Name>Lamborghini-LogoXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\LamborghiniBrakeCaliper.xnb">
+      <Name>LamborghiniBrakeCaliper</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\LamborghiniBrakeCaliperXbox.xnb">
+      <Name>LamborghiniBrakeCaliperXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Leather-Diffuse.xnb">
+      <Name>Leather-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Leather-DiffuseXbox.xnb">
+      <Name>Leather-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Leather-Normal.xnb">
+      <Name>Leather-Normal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Leather-NormalXbox.xnb">
+      <Name>Leather-NormalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\LeatherPattern-Diffuse.xnb">
+      <Name>LeatherPattern-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\LeatherPattern-DiffuseXbox.xnb">
+      <Name>LeatherPattern-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\LeatherPattern-Normal.xnb">
+      <Name>LeatherPattern-Normal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\LeatherPattern-NormalXbox.xnb">
+      <Name>LeatherPattern-NormalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\LeatherPattern-Specular.xnb">
+      <Name>LeatherPattern-Specular</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\LeatherPattern-SpecularXbox.xnb">
+      <Name>LeatherPattern-SpecularXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\LP640-AirTakesEngine-Diffuse.xnb">
+      <Name>LP640-AirTakesEngine-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\LP640-AirTakesEngine-DiffuseXbox.xnb">
+      <Name>LP640-AirTakesEngine-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\LP640-AirTakesEngine-Specular.xnb">
+      <Name>LP640-AirTakesEngine-Specular</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\LP640-AirTakesEngine-SpecularXbox.xnb">
+      <Name>LP640-AirTakesEngine-SpecularXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-Floor.xnb">
+      <Name>Murcielago-Floor</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-FloorXbox.xnb">
+      <Name>Murcielago-FloorXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-Dark.xnb">
+      <Name>Murcielago-InteriorDetails-Dark</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-DarkXbox.xnb">
+      <Name>Murcielago-InteriorDetails-DarkXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-Diffuse.xnb">
+      <Name>Murcielago-InteriorDetails-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-Normal.xnb">
+      <Name>Murcielago-InteriorDetails-Normal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-Specular.xnb">
+      <Name>Murcielago-InteriorDetails-Specular</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-Lights.xnb">
+      <Name>Murcielago-Lights</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-LightsXbox.xnb">
+      <Name>Murcielago-LightsXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-Logo-Diffuse.xnb">
+      <Name>Murcielago-Logo-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-Logo-DiffuseXbox.xnb">
+      <Name>Murcielago-Logo-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-Logo-Normal.xnb">
+      <Name>Murcielago-Logo-Normal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-Logo-NormalXbox.xnb">
+      <Name>Murcielago-Logo-NormalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-Logo-Specular.xnb">
+      <Name>Murcielago-Logo-Specular</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-Logo-SpecularXbox.xnb">
+      <Name>Murcielago-Logo-SpecularXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-LP640-Exhaust.xnb">
+      <Name>Murcielago-LP640-Exhaust</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-LP640-ExhaustXbox.xnb">
+      <Name>Murcielago-LP640-ExhaustXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-LP640-Grid.xnb">
+      <Name>Murcielago-LP640-Grid</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-LP640-GridXbox.xnb">
+      <Name>Murcielago-LP640-GridXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-Tablero.xnb">
+      <Name>Murcielago-Tablero</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-TableroXbox.xnb">
+      <Name>Murcielago-TableroXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-Tyre-Diffuse.xnb">
+      <Name>Murcielago-Tyre-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-Tyre-DiffuseXbox.xnb">
+      <Name>Murcielago-Tyre-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-Tyre-Normal.xnb">
+      <Name>Murcielago-Tyre-Normal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-Tyre-NormalXbox.xnb">
+      <Name>Murcielago-Tyre-NormalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\PirelliPZero-Diffuse.xnb">
+      <Name>PirelliPZero-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\PirelliPZero-DiffuseXbox.xnb">
+      <Name>PirelliPZero-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\PirelliPZero-Normal.xnb">
+      <Name>PirelliPZero-Normal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\PirelliPZero-NormalXbox.xnb">
+      <Name>PirelliPZero-NormalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Speaker-Diffuse.xnb">
+      <Name>Speaker-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Speaker-DiffuseXbox.xnb">
+      <Name>Speaker-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\SteeringWheel-Diffuse.xnb">
+      <Name>SteeringWheel-Diffuse</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\SteeringWheel-DiffuseXbox.xnb">
+      <Name>SteeringWheel-DiffuseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\SteeringWheel-Normal.xnb">
+      <Name>SteeringWheel-Normal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\SteeringWheel-NormalXbox.xnb">
+      <Name>SteeringWheel-NormalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\SteeringWheel-Specular.xnb">
+      <Name>SteeringWheel-Specular</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\SteeringWheel-SpecularXbox.xnb">
+      <Name>SteeringWheel-SpecularXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-DXbox.xnb">
+      <Name>Murcielago-InteriorDetails-DXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-NXbox.xnb">
+      <Name>Murcielago-InteriorDetails-NXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Textures\LamborghiniMurcielago\Murcielago-InteriorDetails-SXbox.xnb">
+      <Name>Murcielago-InteriorDetails-SXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\Loading.fbx">
+      <Name>Loading</Name>
+      <Importer>FbxImporter</Importer>
+      <Processor>RigidModelProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-AirTakes.xnb">
+      <Name>Murcielago-AirTakes</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-AirTakesDark.xnb">
+      <Name>Murcielago-AirTakesDark</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-AirTakesDarkXbox.xnb">
+      <Name>Murcielago-AirTakesDarkXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-AirTakesEngine.xnb">
+      <Name>Murcielago-AirTakesEngine</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-AirTakesEngineXbox.xnb">
+      <Name>Murcielago-AirTakesEngineXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-AirTakesXbox.xnb">
+      <Name>Murcielago-AirTakesXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-BlackConstant.xnb">
+      <Name>Murcielago-BlackConstant</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-BlackConstantXbox.xnb">
+      <Name>Murcielago-BlackConstantXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-BlackMetal.xnb">
+      <Name>Murcielago-BlackMetal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-BlackMetalXbox.xnb">
+      <Name>Murcielago-BlackMetalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-BlackPlastic.xnb">
+      <Name>Murcielago-BlackPlastic</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-BlackPlasticXbox.xnb">
+      <Name>Murcielago-BlackPlasticXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-Body.xnb">
+      <Name>Murcielago-Body</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-BodyXbox.xnb">
+      <Name>Murcielago-BodyXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-BrakeCaliper.xnb">
+      <Name>Murcielago-BrakeCaliper</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-BrakeCaliperXbox.xnb">
+      <Name>Murcielago-BrakeCaliperXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-BrakeDisc.xnb">
+      <Name>Murcielago-BrakeDisc</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-BrakeDiscXbox.xnb">
+      <Name>Murcielago-BrakeDiscXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-CarbonFiber.xnb">
+      <Name>Murcielago-CarbonFiber</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-CarbonFiberXbox.xnb">
+      <Name>Murcielago-CarbonFiberXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-Floor.xnb">
+      <Name>Murcielago-Floor</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-FloorXbox.xnb">
+      <Name>Murcielago-FloorXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-FrontLightBase.xnb">
+      <Name>Murcielago-FrontLightBase</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-FrontLightBaseXbox.xnb">
+      <Name>Murcielago-FrontLightBaseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-FrontRimLogo.xnb">
+      <Name>Murcielago-FrontRimLogo</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-FrontRimLogoXbox.xnb">
+      <Name>Murcielago-FrontRimLogoXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-FrontTyre.xnb">
+      <Name>Murcielago-FrontTyre</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-FrontTyre02.xnb">
+      <Name>Murcielago-FrontTyre02</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-FrontTyre02Xbox.xnb">
+      <Name>Murcielago-FrontTyre02Xbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-FrontTyreXbox.xnb">
+      <Name>Murcielago-FrontTyreXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-Glasses.xnb">
+      <Name>Murcielago-Glasses</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-GlassesXbox.xnb">
+      <Name>Murcielago-GlassesXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-GrayMetal.xnb">
+      <Name>Murcielago-GrayMetal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-GrayMetalXbox.xnb">
+      <Name>Murcielago-GrayMetalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-InteriorCostura.xnb">
+      <Name>Murcielago-InteriorCostura</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-InteriorCosturaXbox.xnb">
+      <Name>Murcielago-InteriorCosturaXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-InteriorDetails.xnb">
+      <Name>Murcielago-InteriorDetails</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-InteriorDetailsXbox.xnb">
+      <Name>Murcielago-InteriorDetailsXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-InteriorLeather.xnb">
+      <Name>Murcielago-InteriorLeather</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-InteriorLeatherXbox.xnb">
+      <Name>Murcielago-InteriorLeatherXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorBlackMetal.xnb">
+      <Name>Murcielago-LeftDoorBlackMetal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorBlackMetalXbox.xnb">
+      <Name>Murcielago-LeftDoorBlackMetalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorBody.xnb">
+      <Name>Murcielago-LeftDoorBody</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorBodyXbox.xnb">
+      <Name>Murcielago-LeftDoorBodyXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorCostura.xnb">
+      <Name>Murcielago-LeftDoorCostura</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorCosturaXbox.xnb">
+      <Name>Murcielago-LeftDoorCosturaXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorDetails.xnb">
+      <Name>Murcielago-LeftDoorDetails</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorDetailsXbox.xnb">
+      <Name>Murcielago-LeftDoorDetailsXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorGlass.xnb">
+      <Name>Murcielago-LeftDoorGlass</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorGlassXbox.xnb">
+      <Name>Murcielago-LeftDoorGlassXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorGrayMetal.xnb">
+      <Name>Murcielago-LeftDoorGrayMetal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorGrayMetalXbox.xnb">
+      <Name>Murcielago-LeftDoorGrayMetalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorLeather.xnb">
+      <Name>Murcielago-LeftDoorLeather</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorLeatherXbox.xnb">
+      <Name>Murcielago-LeftDoorLeatherXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorSpeakers.xnb">
+      <Name>Murcielago-LeftDoorSpeakers</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LeftDoorSpeakersXbox.xnb">
+      <Name>Murcielago-LeftDoorSpeakersXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LightGlasses.xnb">
+      <Name>Murcielago-LightGlasses</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LightGlassesXbox.xnb">
+      <Name>Murcielago-LightGlassesXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-Lights.xnb">
+      <Name>Murcielago-Lights</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LightsXbox.xnb">
+      <Name>Murcielago-LightsXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-Logo.xnb">
+      <Name>Murcielago-Logo</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LogoXbox.xnb">
+      <Name>Murcielago-LogoXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP640-EngineGlasses.xnb">
+      <Name>Murcielago-LP640-EngineGlasses</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP640-EngineGlassesXbox.xnb">
+      <Name>Murcielago-LP640-EngineGlassesXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP640-Exhaust.xnb">
+      <Name>Murcielago-LP640-Exhaust</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP640-ExhaustXbox.xnb">
+      <Name>Murcielago-LP640-ExhaustXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP640-Grid.xnb">
+      <Name>Murcielago-LP640-Grid</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP640-GridXbox.xnb">
+      <Name>Murcielago-LP640-GridXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP640-LeatherPattern.xnb">
+      <Name>Murcielago-LP640-LeatherPattern</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP640-LeatherPatternXbox.xnb">
+      <Name>Murcielago-LP640-LeatherPatternXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP640-RimBase.xnb">
+      <Name>Murcielago-LP640-RimBase</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP640-RimBase02.xnb">
+      <Name>Murcielago-LP640-RimBase02</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP640-RimBase02Xbox.xnb">
+      <Name>Murcielago-LP640-RimBase02Xbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP640-RimBaseXbox.xnb">
+      <Name>Murcielago-LP640-RimBaseXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP670-FrontRim.xnb">
+      <Name>Murcielago-LP670-FrontRim</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP670-FrontRimXbox.xnb">
+      <Name>Murcielago-LP670-FrontRimXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP670-RearRim.xnb">
+      <Name>Murcielago-LP670-RearRim</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-LP670-RearRimXbox.xnb">
+      <Name>Murcielago-LP670-RearRimXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RearTyre.xnb">
+      <Name>Murcielago-RearTyre</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RearTyre02.xnb">
+      <Name>Murcielago-RearTyre02</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RearTyre02Xbox.xnb">
+      <Name>Murcielago-RearTyre02Xbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RearTyreXbox.xnb">
+      <Name>Murcielago-RearTyreXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RedPlastic.xnb">
+      <Name>Murcielago-RedPlastic</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RedPlasticXbox.xnb">
+      <Name>Murcielago-RedPlasticXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorBlackMetal.xnb">
+      <Name>Murcielago-RightDoorBlackMetal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorBlackMetalXbox.xnb">
+      <Name>Murcielago-RightDoorBlackMetalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorBody.xnb">
+      <Name>Murcielago-RightDoorBody</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorBodyXbox.xnb">
+      <Name>Murcielago-RightDoorBodyXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorCostura.xnb">
+      <Name>Murcielago-RightDoorCostura</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorCosturaXbox.xnb">
+      <Name>Murcielago-RightDoorCosturaXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorDetails.xnb">
+      <Name>Murcielago-RightDoorDetails</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorDetailsXbox.xnb">
+      <Name>Murcielago-RightDoorDetailsXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorGlass.xnb">
+      <Name>Murcielago-RightDoorGlass</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorGlassXbox.xnb">
+      <Name>Murcielago-RightDoorGlassXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorGrayMetal.xnb">
+      <Name>Murcielago-RightDoorGrayMetal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorGrayMetalXbox.xnb">
+      <Name>Murcielago-RightDoorGrayMetalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorLeather.xnb">
+      <Name>Murcielago-RightDoorLeather</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorLeatherXbox.xnb">
+      <Name>Murcielago-RightDoorLeatherXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorSpeakers.xnb">
+      <Name>Murcielago-RightDoorSpeakers</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-RightDoorSpeakersXbox.xnb">
+      <Name>Murcielago-RightDoorSpeakersXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-Shadow.xnb">
+      <Name>Murcielago-Shadow</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-ShadowFrontTyre.xnb">
+      <Name>Murcielago-ShadowFrontTyre</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-ShadowFrontTyreXbox.xnb">
+      <Name>Murcielago-ShadowFrontTyreXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-ShadowLeftDoor.xnb">
+      <Name>Murcielago-ShadowLeftDoor</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-ShadowLeftDoorXbox.xnb">
+      <Name>Murcielago-ShadowLeftDoorXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-ShadowRearTyre.xnb">
+      <Name>Murcielago-ShadowRearTyre</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-ShadowRearTyreXbox.xnb">
+      <Name>Murcielago-ShadowRearTyreXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-ShadowRightDoor.xnb">
+      <Name>Murcielago-ShadowRightDoor</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-ShadowRightDoorXbox.xnb">
+      <Name>Murcielago-ShadowRightDoorXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-ShadowXbox.xnb">
+      <Name>Murcielago-ShadowXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-SteeringWheel.xnb">
+      <Name>Murcielago-SteeringWheel</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-SteeringWheelXbox.xnb">
+      <Name>Murcielago-SteeringWheelXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-Tablero.xnb">
+      <Name>Murcielago-Tablero</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-TableroXbox.xnb">
+      <Name>Murcielago-TableroXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-WhiteMetal.xnb">
+      <Name>Murcielago-WhiteMetal</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\LamborghiniMurcielago\Murcielago-WhiteMetalXbox.xnb">
+      <Name>Murcielago-WhiteMetalXbox</Name>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 

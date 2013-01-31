@@ -891,6 +891,10 @@ namespace XNAFinalEngine.Components
 
             if (typeof(TComponentType) == typeof(RigidBody))
             {
+                if (StaticCollider != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the rigid body component. There is one static collider component already.");
+                }
                 if (rigidBodyAccessor != null)
                 {
                     throw new ArgumentException("Game Object 3D: Unable to create the rigid body component. There is one already.");
@@ -910,6 +914,10 @@ namespace XNAFinalEngine.Components
 
             if (typeof(TComponentType) == typeof(StaticCollider))
             {
+                if (RigidBody != null)
+                {
+                    throw new ArgumentException("Game Object 3D: Unable to create the static collider component. There is one rigid body component already.");
+                }
                 if (staticColliderAccessor != null)
                 {
                     throw new ArgumentException("Game Object 3D: Unable to create the static collider component. There is one already.");

@@ -54,7 +54,7 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// The sun could generate shadows and be controlled by an atmospheric Skydome (not yet implemented).
         /// </summary>
-        public bool IsSun { get; set;}
+        public static DirectionalLight Sun { get; set; }
 
         #endregion
 
@@ -66,10 +66,24 @@ namespace XNAFinalEngine.Components
         internal override void Initialize(GameObject owner)
         {
             base.Initialize(owner);
-            // Values
-            IsSun = componentPool.Count == 1; // The first light added is the sun.
             cachedDirection = ((GameObject3D)Owner).Transform.Forward;
         } // Initialize
+
+        #endregion
+
+        #region Uninitialize
+
+        /// <summary>
+        /// Uninitialize the component.
+        /// Is important to remove event associations and any other reference.
+        /// </summary>
+        internal override void Uninitialize()
+        {
+            if (Sun == this)
+                Sun = null;
+            // Call this last because the owner information is needed.
+            base.Uninitialize();
+        } // Uninitialize
 
         #endregion
 

@@ -323,6 +323,8 @@ namespace XNAFinalEngine.EngineCore
             // We will always use the back buffer for 2D operations, so no need to waste space in a depth buffer and multisampling.
             Device.PresentationParameters.MultiSampleCount   = 0;
             Device.PresentationParameters.DepthStencilFormat = DepthFormat.None;
+            Device.PresentationParameters.BackBufferWidth = Screen.Width;
+            Device.PresentationParameters.BackBufferHeight = Screen.Height;
         } // OnPreparingDeviceSettings
         
         /// <summary>

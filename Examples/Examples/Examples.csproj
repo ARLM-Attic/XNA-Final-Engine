@@ -109,24 +109,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Scenes\ExamplesMainScene.cs" />
-    <Compile Include="Scripts\CollisionResponseTest.cs" />
+    <Compile Include="Scripts\CollisionResponseTestScript.cs" />
     <Compile Include="Scenes\LamborghiniMurcielagoLoader.cs" />
     <Compile Include="Scenes\PhysicsTestScene.cs" />
     <Compile Include="Scenes\WarehouseScene.cs" />
-    <Compile Include="Scenes\DudeEditableScene.cs" />
+    <Compile Include="Scenes\AnimationScene.cs" />
     <Compile Include="Scenes\HelloWorldScene.cs" />
-    <Compile Include="Scenes\LamborghiniMurcielagoScene.cs" />
     <Compile Include="Scenes\EmptyScene.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Scenes\MiscellaneousTestScene.cs" />
-    <Compile Include="Scenes\NeoForceScene\TaskAutoScroll.cs" />
-    <Compile Include="Scenes\NeoForceScene\TaskControls.cs" />
-    <Compile Include="Scenes\NeoForceScene\TaskDialog.cs" />
-    <Compile Include="Scenes\NeoForceScene\TaskEvents.cs" />
-    <Compile Include="Scenes\NeoForceTestScene.cs" />
-    <Compile Include="Scenes\TestScene.cs" />
-    <Compile Include="Scripts\ScriptCustomCamera.cs" />
+    <Compile Include="Scripts\WarehouseCameraScript.cs" />
+    <Compile Include="Scripts\ScriptCustomCameraScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

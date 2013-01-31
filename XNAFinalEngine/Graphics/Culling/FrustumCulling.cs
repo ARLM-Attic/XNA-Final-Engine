@@ -95,7 +95,7 @@ namespace XNAFinalEngine.Graphics
         public static void ModelRendererFrustumCulling(BoundingFrustum boundingFrustum, List<ModelRenderer> modelToRenderList)
         {
             // If the number of objects is high then the task is devided in threads.
-            if (ModelRenderer.ComponentPool.Count > 50)
+            if (ModelRenderer.ComponentPool.Count > 50 && ProcessorsInformation.AvailableProcessors > 0)
             {
                 // If it is the first execution then the threads are created.
                 if (modelRendererFrustumCullingThreads == null)

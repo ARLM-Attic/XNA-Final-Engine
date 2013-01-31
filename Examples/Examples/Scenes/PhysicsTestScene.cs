@@ -92,7 +92,7 @@ namespace XNAFinalEngineExamples
             camera.AddComponent<Camera>();
             camera.AddComponent<SoundListener>();
             camera.Transform.LookAt(Vector3.Zero, Vector3.Forward, Vector3.Up);
-            var script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
+            var script = (ScriptCustomCameraScript)camera.AddComponent<ScriptCustomCameraScript>();
             script.SetPosition(new Vector3(0, 15, 45), new Vector3(0, 5, 0));
             camera.Camera.RenderTargetSize = Size.FullScreen;
             camera.Camera.FarPlane = 500;
@@ -143,7 +143,7 @@ namespace XNAFinalEngineExamples
             var cubeRb = (RigidBody)cube.AddComponent<RigidBody>();
             cubeRb.Entity = bepuCube;
             // Create a script for test collisions
-            var crt = (CollisionResponseTest)cube.AddComponent<CollisionResponseTest>();
+            var crt = (CollisionResponseTestScript)cube.AddComponent<CollisionResponseTestScript>();
             GameObject2D debugGo = new GameObject2D();
             debugGo.Transform.Position = new Vector3(15f, Screen.Height - 90, 0f);
             crt.DebugText = (HudText)debugGo.AddComponent<HudText>();
@@ -248,11 +248,9 @@ namespace XNAFinalEngineExamples
         /// </summary>
         protected override void UpdateTasks()
         {
-            #if XBOX
-                // This is intended to be used in Xbox tests.
-                //if (XNAFinalEngine.Input.GamePad.PlayerOne.BackJustPressed)
-                //    throw new Exception("Quick exit in Xbox 360 tests.");
-            #endif
+            // This is intended to be used in Xbox tests.
+            //if (XNAFinalEngine.Input.GamePad.PlayerOne.BackJustPressed)
+            //    throw new Exception("Quick exit in Xbox 360 tests.");
 
             // Move the dynamic box //
             if (Keyboard.KeyJustPressed(Keys.Space) || XNAFinalEngine.Input.GamePad.PlayerOne.AJustPressed)

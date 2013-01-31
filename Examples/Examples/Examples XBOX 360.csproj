@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Scenes\AnimationScene.cs" />
     <Compile Include="Scenes\EmptyScene.cs" />
     <Compile Include="Scenes\ExamplesMainScene.cs" />
     <Compile Include="Scenes\HelloWorldScene.cs" />
@@ -69,10 +70,9 @@
     </Compile>
     <Compile Include="Scenes\PhysicsTestScene.cs" />
     <Compile Include="Scenes\WarehouseScene.cs" />
-    <Compile Include="Scripts\CollisionResponseTest.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Scripts\ScriptCustomCamera.cs" />
+    <Compile Include="Scripts\CollisionResponseTestScript.cs" />
+    <Compile Include="Scripts\ScriptCustomCameraScript.cs" />
+    <Compile Include="Scripts\WarehouseCameraScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

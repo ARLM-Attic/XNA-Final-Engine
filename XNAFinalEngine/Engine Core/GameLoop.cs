@@ -554,7 +554,7 @@ namespace XNAFinalEngine.EngineCore
                     {
                         Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
                         // If the camera is not longer active then we need to remove it.
-                        if (!currentCamera.IsActive)
+                        if (!currentCamera.IsVisible)
                         {
                             // We search each active shadows members and we try to release resources.
                             for (int i = 0; i < activeDirectionalLightShadows.Length; i++)
@@ -583,7 +583,7 @@ namespace XNAFinalEngine.EngineCore
                 {
                     Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
                     // Only active master cameras are renderer.
-                    if (currentCamera.MasterCamera == null && currentCamera.IsActive)
+                    if (currentCamera.MasterCamera == null && currentCamera.IsVisible)
                         activeCamerasCount++;
                 }
 
@@ -596,7 +596,7 @@ namespace XNAFinalEngine.EngineCore
                 {
                     Camera currentCamera = Camera.ComponentPool.Elements[cameraIndex];
                     // Only active master cameras are renderer.
-                    if (currentCamera.MasterCamera == null && currentCamera.IsActive)
+                    if (currentCamera.MasterCamera == null && currentCamera.IsVisible)
                         RenderMasterCamera(currentCamera);
                 }
             
@@ -645,7 +645,7 @@ namespace XNAFinalEngine.EngineCore
                 {
                     Camera currentCamera = CamerasToRender[cameraIndex];
                     // Only active master cameras are renderer.
-                    if (currentCamera.MasterCamera == null && currentCamera.IsActive)
+                    if (currentCamera.MasterCamera == null && currentCamera.IsVisible)
                         activeCamerasCount++;
                 }
 
@@ -658,7 +658,7 @@ namespace XNAFinalEngine.EngineCore
                 {
                     Camera currentCamera = CamerasToRender[cameraIndex];
                     // Only active master cameras are renderer.
-                    if (currentCamera.MasterCamera == null && currentCamera.IsActive)
+                    if (currentCamera.MasterCamera == null && currentCamera.IsVisible)
                         RenderMasterCamera(currentCamera);
                 }
 
@@ -769,7 +769,12 @@ namespace XNAFinalEngine.EngineCore
         {
             // If the camera does not have a render target we create one for the user.
             if (currentCamera.RenderTarget == null)
+            {
+                AssetContentManager userContentManager = AssetContentManager.CurrentContentManager;
+                AssetContentManager.CurrentContentManager = AssetContentManager.SystemContentManager;
                 currentCamera.RenderTarget = new RenderTarget(currentCamera.RenderTargetSize, SurfaceFormat.Color, DepthFormat.None);
+                AssetContentManager.CurrentContentManager = userContentManager;
+            }
             // If it does not have slaves cameras and it occupied the whole render target...
             if (currentCamera.slavesCameras.Count == 0 && currentCamera.NormalizedViewport == new RectangleF(0, 0, 1, 1))
                 RenderCamera(currentCamera, currentCamera.RenderTarget);
@@ -1077,9 +1082,7 @@ namespace XNAFinalEngine.EngineCore
             #endregion
 
             #region Light Pre Pass
-
-            DirectionalLight sun = null;
-
+            
             // Frustum Culling
             pointLightsToRender.Clear();
             spotLightsToRender.Clear();
@@ -1155,7 +1158,7 @@ namespace XNAFinalEngine.EngineCore
             {
                 if (activeDirectionalLightShadows[i].camera == currentCamera)
                 {
-                    if (!activeDirectionalLightShadows[i].light.IsSun)
+                    if (activeDirectionalLightShadows[i].light != DirectionalLight.Sun)
                     {
                         activeDirectionalLightShadows[i].camera = null;
                         activeDirectionalLightShadows[i].light = null;
@@ -1179,7 +1182,7 @@ namespace XNAFinalEngine.EngineCore
             {
                 DirectionalLight directionalLight = DirectionalLight.ComponentPool.Elements[i];
                 // If there is a shadow map and the light is visible.
-                if (directionalLight.IsSun && directionalLight.Shadow != null && directionalLight.Shadow.Enabled && directionalLight.IsVisible && directionalLight.Intensity > 0)
+                if (directionalLight == DirectionalLight.Sun && directionalLight.Shadow != null && directionalLight.Shadow.Enabled && directionalLight.IsVisible && directionalLight.Intensity > 0)
                 {
 
                     #region Search Correct Depth Texture
@@ -1729,9 +1732,6 @@ namespace XNAFinalEngine.EngineCore
             for (int i = 0; i < DirectionalLight.ComponentPool.Count; i++)
             {
                 DirectionalLight directionalLight = DirectionalLight.ComponentPool.Elements[i];
-                // Transparent objects need to know the sun.
-                if (directionalLight.IsSun)
-                    sun = directionalLight;
                 if (directionalLight.Intensity > 0 && directionalLight.IsVisible)
                 {
                     DirectionalLightShader.Instance.Render(directionalLight.Color, directionalLight.cachedDirection, directionalLight.Intensity, directionalLight.ShadowTexture);
@@ -1963,7 +1963,10 @@ namespace XNAFinalEngine.EngineCore
                 }
                 if (currentCamera.Sky is Skydome && ((Skydome)currentCamera.Sky).Texture != null)
                 {
-                    SkydomeShader.Instance.Render(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, sun.cachedDirection, (Skydome)(currentCamera.Sky));
+                    if (DirectionalLight.Sun != null)
+                        SkydomeShader.Instance.Render(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, DirectionalLight.Sun.cachedDirection, (Skydome)(currentCamera.Sky));
+                    else
+                        SkydomeShader.Instance.Render(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, Vector3.Forward, (Skydome)(currentCamera.Sky));
                 }
             }
 
@@ -1993,14 +1996,14 @@ namespace XNAFinalEngine.EngineCore
             // Sorting from back to front.
             // The mesh parts compares the bounding sphere of the entire model.
             // If you need a better sorting separate the mesh parts into models or store and update a bounding sphere per mesh part.
-            // transparentObjects.Sort(CompareMeshParts); // Produces garbage.
-            HeapSort(transparentObjects);
+            //transparentObjects.Sort(CompareMeshParts); // Produces garbage.
+            BubbleSort(transparentObjects);
 
             #region Blinn Phong
 
-            if (sun != null)
+            if (DirectionalLight.Sun != null)
                 ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.AmbientLight,
-                                                       sun.Color, sun.cachedDirection, sun.Intensity, null, renderTarget.Size);
+                                                       DirectionalLight.Sun.Color, DirectionalLight.Sun.cachedDirection, DirectionalLight.Sun.Intensity, null, renderTarget.Size);
             else
                 ForwardBlinnPhongShader.Instance.Begin(currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.AmbientLight, Color.Black, Vector3.UnitZ, 0, null, Size.FullScreen);
             // Blinn Phong Simple
@@ -2489,7 +2492,28 @@ namespace XNAFinalEngine.EngineCore
 
         #region Sort Mesh Parts
 
-        /// <summary> 
+        /// <summary>
+        /// Simple Bubble Sort.
+        /// </summary>
+        private static void BubbleSort(List<MeshPartToRender> list)
+        {
+            for (int pass = 1; pass < list.Count; pass++)
+                for (int i = 0; i < list.Count - 1; i++)
+                {
+                    float objectDistance1 = Vector3.Distance(list[i].Model.BoundingSphere.Center, cameraPosition);
+                    float objectDistance2 = Vector3.Distance(list[i + 1].Model.BoundingSphere.Center, cameraPosition);
+                    if (objectDistance1 > objectDistance2)
+                    {
+                        // Swap
+                        MeshPartToRender temp = list[i];
+                        list[i] = list[i + 1];
+                        list[i + 1] = temp;
+                    }
+                }
+        } // BubbleSort
+
+        /*/// <summary> 
+        /// TODO: it seems it is broken. I have to replace it.
         /// Average case: O(n log n)
         /// Best case: O(n log n)
         /// Worst case: O(n log n)
@@ -2515,21 +2539,21 @@ namespace XNAFinalEngine.EngineCore
 
             while ((root * 2 <= bottom) && (!completed))
             {
-                float pointLightDistance1 = Vector3.Distance(list[root * 2].Model.BoundingSphere.Center, cameraPosition);
-                float pointLightDistance2 = Vector3.Distance(list[root * 2 + 1].Model.BoundingSphere.Center, cameraPosition);
+                float objectDistance1 = Vector3.Distance(list[root * 2].Model.BoundingSphere.Center, cameraPosition);
+                float objectDistance2 = Vector3.Distance(list[root * 2 + 1].Model.BoundingSphere.Center, cameraPosition);
 
                 int maxChild;
                 if (root * 2 == bottom)
                     maxChild = root * 2;
-                else if (pointLightDistance1 > pointLightDistance2)
+                else if (objectDistance1 > objectDistance2)
                     maxChild = root * 2;
                 else
                     maxChild = root * 2 + 1;
 
-                pointLightDistance1 = Vector3.Distance(list[root].Model.BoundingSphere.Center, cameraPosition);
-                pointLightDistance2 = Vector3.Distance(list[maxChild].Model.BoundingSphere.Center, cameraPosition);
+                objectDistance1 = Vector3.Distance(list[root].Model.BoundingSphere.Center, cameraPosition);
+                objectDistance2 = Vector3.Distance(list[maxChild].Model.BoundingSphere.Center, cameraPosition);
 
-                if (pointLightDistance1 < pointLightDistance2)
+                if (objectDistance1 < objectDistance2)
                 {
                     // Swap
                     MeshPartToRender temp = list[root];
@@ -2543,7 +2567,7 @@ namespace XNAFinalEngine.EngineCore
                     completed = true;
                 }
             }
-        } // Heapify
+        } // Heapify*/
 
         #endregion
 

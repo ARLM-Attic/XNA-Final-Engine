@@ -113,7 +113,8 @@ namespace XNAFinalEngine.Components
         {
             foreach (var script in scripts)
             {
-                if (typeof(TComponentType) == script.GetType())
+                if (typeof(TComponentType).IsAssignableFrom(script.GetType()))
+                //if (typeof(TComponentType) == script.GetType())
                     return script;
             }
             return null;
@@ -207,8 +208,9 @@ namespace XNAFinalEngine.Components
             GameObjects.Add(this);
             Components = new List<Component>(5);
             Layer = Layer.CurrentCreationLayer;
-            if (GameObjectContentManager.CurrentContentManager == null)
-                throw new InvalidOperationException("Game Object: The Content Manager is null.");
+            // TODO: I have to analyse if a content manager for game objects is needed in all cases.
+            // if (GameObjectContentManager.CurrentContentManager == null)
+                // throw new InvalidOperationException("Game Object: The Content Manager is null.");
             ContentManager = GameObjectContentManager.CurrentContentManager;
         } // GameObject
 

@@ -160,6 +160,10 @@ namespace XNAFinalEngine.Components
         /// </summary>
         internal override void Uninitialize()
         {
+            // Animations
+            animationStates.Clear();
+            activeAnimations.Clear();
+
             cachedModel = null;
             BoneTransformChanged = null;
             ((GameObject3D)Owner).ModelFilterChanged -= OnModelFilterChanged;

@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using XNAFinalEngine.Assets;
+using XNAFinalEngine.Audio;
 using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Helpers;
@@ -16,7 +17,7 @@ namespace XNAFinalEngineExamples
 {
 
     /// <summary>
-    /// This scene loads the other scenes.
+    /// This scene used to load the other scenes.
     /// It also shows an intro video and a selection menu.
     /// </summary>
     public class ExamplesMainScene : Scene
@@ -24,29 +25,34 @@ namespace XNAFinalEngineExamples
 
         #region Variables
 
+        // Indicates if the video started.
         private bool videoStarted;
 
         // Every entity is a game object. Even videos.
-        private GameObject2D introVideo;
+        private GameObject2D introVideo, demoLegend;
         
+        // Scene information.
         private GameObject2D[] exampleImage, exampleText, exampleTitle;
 
+        // 3D Objects
         private GameObject3D examplesCamera,
-                             xnaFinalEngineLogo;
+                             finalEngineLogo,
+                             xnaLogo,
+                             examplesLogo,
+                             selectOneScene,
+                             loading,
+                             directionalLight;
 
+        // The scene selected.
         private int currentScene;
+        // The scene in execution.
         private Scene loadedScene;
 
+        // Indicates if the main scene is executing.
+        private bool mainSceneExecuting;
+
+        // Statistics graph.
         private GameObject2D statistics;
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Indicates if the main scene is executing.
-        /// </summary>
-        public bool MainSceneExecuting { get; internal set; }
 
         #endregion
 
@@ -58,7 +64,7 @@ namespace XNAFinalEngineExamples
         /// <remarks>Remember to call the base implementation of this method.</remarks>
         protected override void LoadContent()
         {
-            MainSceneExecuting = true;
+            mainSceneExecuting = true;
 
             #region Setup Input Controls
             
@@ -185,18 +191,42 @@ namespace XNAFinalEngineExamples
             examplesCamera.Camera.PostProcess.MLAA.Enabled = true;
             examplesCamera.Camera.AmbientLight = new AmbientLight
             {
-                Color = new Color(50, 50, 55),
+                Color = new Color(80, 75, 85),
                 Intensity = 5f,
             };
 
             #endregion
 
-            xnaFinalEngineLogo = new GameObject3D(new FileModel("XNAFinalEngine"), new BlinnPhong());
-            xnaFinalEngineLogo.Transform.Position = new Vector3(-17, 6, 0);
+            finalEngineLogo = new GameObject3D(new FileModel("XNAFinalEngine"), new BlinnPhong { DiffuseColor = new Color(250, 250, 250) });
+            finalEngineLogo.Transform.Position = new Vector3(-37, 6, 0);
+            finalEngineLogo.Transform.LocalScale = new Vector3(1.3f, 1.3f, 1.3f);
 
-            exampleImage = new GameObject2D[3];
-            exampleTitle = new GameObject2D[3];
-            exampleText = new GameObject2D[3];
+            xnaLogo = new GameObject3D(new FileModel("XNA"), new BlinnPhong { DiffuseColor = new Color(250, 120, 0) });
+            xnaLogo.Transform.Position = new Vector3(-37, 6, 0);
+            xnaLogo.Transform.LocalScale = new Vector3(1.3f, 1.3f, 1.3f);
+
+            examplesLogo = new GameObject3D(new FileModel("Examples"), new BlinnPhong { DiffuseColor = new Color(150, 250, 0) });
+            examplesLogo.Transform.Position = new Vector3(40, 5.7f, 0);
+            examplesLogo.Transform.LocalScale = new Vector3(1f, 1f, 1f);
+
+            selectOneScene = new GameObject3D(new FileModel("SelectOneScene"), new BlinnPhong { DiffuseColor = new Color(150, 250, 0) });
+            selectOneScene.Transform.Position = new Vector3(6, -55, 0);
+
+            loading = new GameObject3D(new FileModel("Loading"), new BlinnPhong { DiffuseColor = new Color(150, 150, 150) });
+            loading.Transform.Position = new Vector3(-7, -5, 0);
+            loading.ModelRenderer.Enabled = false;
+
+            directionalLight = new GameObject3D();
+            directionalLight.AddComponent<DirectionalLight>();
+            directionalLight.DirectionalLight.Color = new Color(190, 110, 150);
+            directionalLight.DirectionalLight.Intensity = 1.2f;
+            directionalLight.Transform.LookAt(new Vector3(0.6f, 0.05f, 0.6f), Vector3.Zero, Vector3.Forward);
+
+            #region Scene Information
+
+            exampleImage = new GameObject2D[4];
+            exampleTitle = new GameObject2D[4];
+            exampleText = new GameObject2D[4];
 
             #region Warehouse Scene
 
@@ -211,7 +241,7 @@ namespace XNAFinalEngineExamples
             exampleTitle[0].Transform.Position = new Vector3(500, 200, 0);
             exampleText[0] = new GameObject2D();
             exampleText[0].AddComponent<HudText>();
-            exampleText[0].HudText.Text.Append("This scene shows a Lamborghini Murcielago LP640 in a warehouse.\n\nThe car consists of 430.000 polygons. The scene includes an ambient light with spherical harmonic\nlighting and horizon based ambient occlusion (PC only), one directional light with cascade shadows,\ntwo point lights and one spot light with a light mask. The post processing stage use tone mapping,\nmorphological antialiasing (MLAA), bloom and film grain. Also a particles system that emits 150\nsoft tiled particles was placed.\n\nAlmost all the car was modeled by me, with the exception of some interior elements and the rear lights.\nI actually modeled these parts but because of my lack of texture experience and time I used some\nheavy textured models (and their textures) from a couple of games.\n\nMehar Gill (Dog Fight Studios) provides me the warehouse model (originally created by igorlmax).");
+            exampleText[0].HudText.Text.Append("This scene shows a Lamborghini Murcielago LP640 in a warehouse.\n\nThe car consists of 430.000 polygons. The scene includes an ambient light with spherical\nharmonic lighting and horizon based ambient occlusion (PC only), one directional light\nwith cascade shadows,two point lights and one spot light with a light mask. The post\nprocessing stage uses tone mapping, morphological antialiasing (MLAA), bloom and film\ngrain. Also a particles system that emits soft tiled particles was placed.\n\nAlmost all the car was modeled by me, with the exception of some interior elements, the\nengine and the rear lights because of my lack of texture experience and time.\n\nMehar Gill (Dog Fight Studios) provides me the warehouse model (originally created\nby igorlmax).\n\nThe reflections do not match the environment. I plan to address this soon.");
             exampleText[0].HudText.Font = new Font("BellGothicText");
             exampleText[0].Transform.Position = new Vector3(500, 250, 0);
 
@@ -230,33 +260,93 @@ namespace XNAFinalEngineExamples
             exampleTitle[1].Transform.Position = new Vector3(500, 200, 0);
             exampleText[1] = new GameObject2D();
             exampleText[1].AddComponent<HudText>();
-            exampleText[1].HudText.Text.Append("Bepu physics library was integrated on the engine through a simple interface that hides the\ncommunication between the physic and graphic world.\n\nGarbage generation could be avoided if the initial pools are configured correctly and no other\n memory allocation should occur. Bepu physics 1.2 has a bug in witch garbage is generated,\nto avoid this we use the developed version of Bepu that fix this bug.\n\nThis example shows dynamic and kinematic rigid bodies and static meshes. This example also\nloads a non-centered sphere, the interface implemented detects this offset and address this miss\ncalculations without user action.\n\n");
+            exampleText[1].HudText.Text.Append("Bepu physics library was integrated on the engine through a simple interface that hides the\ncommunication between the physic and graphic world.\n\nThis example shows the interaction between dynamic and kinematic rigid bodies and static\nmeshes. This example also loads a non-centered sphere, the interface implemented detects\nthe offset between the center of mass of the object and the model space center and match\nboth representations without user action.\n\nGarbage generation could be avoided if the initial pools are configured correctly and no other\nmemory allocation should occur. Bepu physics 1.2 has a bug in witch garbage is generated,\nto avoid this we use the developement version of Bepu that fix this bug.\n\n");
             exampleText[1].HudText.Font = new Font("BellGothicText");
             exampleText[1].Transform.Position = new Vector3(500, 250, 0);
 
             #endregion
 
-            #region Hellow World Scene
-
+            #region Animation Scene
+            
             exampleImage[2] = new GameObject2D();
             exampleImage[2].AddComponent<HudTexture>();
-            exampleImage[2].HudTexture.Texture = new Texture("ExamplesImages\\HelloWorldScene");
+            exampleImage[2].HudTexture.Texture = new Texture("ExamplesImages\\AnimationScene");
             exampleImage[2].Transform.Position = new Vector3(75, 250, 0);
             exampleTitle[2] = new GameObject2D();
             exampleTitle[2].AddComponent<HudText>();
-            exampleTitle[2].HudText.Text.Append("Hello World");
+            exampleTitle[2].HudText.Text.Append("Animations");
             exampleTitle[2].HudText.Font = new Font("BellGothicTitle");
             exampleTitle[2].Transform.Position = new Vector3(500, 200, 0);
             exampleText[2] = new GameObject2D();
             exampleText[2].AddComponent<HudText>();
-            exampleText[2].HudText.Text.Append("This is the...");
+            exampleText[2].HudText.Text.Append("This is the simple scene used to test the animation system. It includes three animations:\nwalk, run and shoot. Animation blending is performed in the transition between different\nactions.\n\nDog Fight Studios have shared with us three of their test animations resources. However\nthe animations should not be used in commercial projects.");
             exampleText[2].HudText.Font = new Font("BellGothicText");
             exampleText[2].Transform.Position = new Vector3(500, 250, 0);
+            
+            #endregion
+
+            #region Hellow World Scene
+
+            exampleImage[3] = new GameObject2D();
+            exampleImage[3].AddComponent<HudTexture>();
+            exampleImage[3].HudTexture.Texture = new Texture("ExamplesImages\\HelloWorldScene");
+            exampleImage[3].Transform.Position = new Vector3(75, 250, 0);
+            exampleTitle[3] = new GameObject2D();
+            exampleTitle[3].AddComponent<HudText>();
+            exampleTitle[3].HudText.Text.Append("Hello World");
+            exampleTitle[3].HudText.Font = new Font("BellGothicTitle");
+            exampleTitle[3].Transform.Position = new Vector3(500, 200, 0);
+            exampleText[3] = new GameObject2D();
+            exampleText[3].AddComponent<HudText>();
+            exampleText[3].HudText.Text.Append("This is from the documentation's tutorial that shows you how to create a simple scene\nso that you can understand the basic mechanism involved in the creation of a game world.");
+            exampleText[3].HudText.Font = new Font("BellGothicText");
+            exampleText[3].Transform.Position = new Vector3(500, 250, 0);
+
+            #endregion
+
+            #region Editor Scene
+
+            /*#if !Xbox
+                exampleImage[3] = new GameObject2D();
+                exampleImage[3].AddComponent<HudTexture>();
+                exampleImage[3].HudTexture.Texture = new Texture("ExamplesImages\\EditorScene");
+                exampleImage[3].Transform.Position = new Vector3(75, 250, 0);
+                exampleTitle[3] = new GameObject2D();
+                exampleTitle[3].AddComponent<HudText>();
+                exampleTitle[3].HudText.Text.Append("Editor");
+                exampleTitle[3].HudText.Font = new Font("BellGothicTitle");
+                exampleTitle[3].Transform.Position = new Vector3(500, 200, 0);
+                exampleText[3] = new GameObject2D();
+                exampleText[3].AddComponent<HudText>();
+                exampleText[3].HudText.Text.Append("Unfortunately the editor is not finished, but most of the key elements are already done and it is\nvery easy to create new windows because everything is parameterized (thanks in part to .NET\nreflection) and its internal code is very clean.\n\nAt the moment it is possible to transform objects in global and local space, configure materials,\nlights, shadows, cameras and the post processing stage. You can also see the scene from\northographic views and perform undo and redo operations over almost all editor commands.\n\nIn the Editor Shortcuts section of the CodePlex documentation there is a list of all useful\nkeyboard shortcuts.");
+                exampleText[3].HudText.Font = new Font("BellGothicText");
+                exampleText[3].Transform.Position = new Vector3(500, 250, 0);
+            #endif*/
+
+            #endregion
+
+            #endregion
+
+            #region Legend
+
+            demoLegend = new GameObject2D();            
+            var legend = (HudText) demoLegend.AddComponent<HudText>();
+            legend.Color = new Color(0.5f, 0.5f, 0.5f, 1f);
+            #if XBOX
+                legend.Text.Append("Start to show the statistics\n");
+                legend.Text.Append("Back to comeback to this menu");
+            #else
+                legend.Text.Append("Start or F1 to show the statistics\n");
+                legend.Text.Append("Back or Escape to comeback to this menu");
+            #endif
 
             #endregion
 
             // Set Default Layer.
             Layer.CurrentCreationLayer = Layer.GetLayerByNumber(0);
+
+            MusicManager.LoadAllSong(true);
+            MusicManager.Play(1, true);
         } // Load
 
         #endregion
@@ -269,9 +359,11 @@ namespace XNAFinalEngineExamples
         /// </summary>
         protected override void UpdateTasks()
         {
+            // Show or hide statistics graph.
             if (Button.JustPressed("Show Statistics"))
                 Layer.GetLayerByNumber(26).Visible = !Layer.GetLayerByNumber(26).Visible;
-            if (MainSceneExecuting)
+            // If the scene is executing...
+            if (mainSceneExecuting)
             {
                 // Starts the video...
                 if (Time.ApplicationTime > 1 && !videoStarted)
@@ -285,10 +377,25 @@ namespace XNAFinalEngineExamples
                 if (introVideo.VideoRenderer.State == MediaState.Stopped && videoStarted)
                 {
                     Layer.GetLayerByNumber(25).Visible = true;
-                    if (xnaFinalEngineLogo.Transform.Position.X < -7)
-                        xnaFinalEngineLogo.Transform.Translate(Time.SmoothFrameTime * 25, 0, 0);
+                    demoLegend.Transform.Position = new Vector3(20, Screen.Height - 35f, 0f);
+                    if (finalEngineLogo.Transform.Position.X < -6)
+                    {
+                        finalEngineLogo.Transform.Translate(Time.SmoothFrameTime * 50, 0, 0);
+                        xnaLogo.Transform.Translate(Time.SmoothFrameTime * 50, 0, 0);
+                    }
                     else
-                        xnaFinalEngineLogo.Transform.Position = new Vector3(-7, 6, 0);
+                    {
+                        xnaLogo.Transform.Position = new Vector3(-6, 6, 0);
+                        finalEngineLogo.Transform.Position = new Vector3(-6, 6, 0);
+                    }
+                    if (examplesLogo.Transform.Position.X > 1.3f)
+                        examplesLogo.Transform.Translate(-Time.SmoothFrameTime * 70, 0, 0);
+                    else
+                        examplesLogo.Transform.Position = new Vector3(1.3f, 5.7f, 0);
+                    if (selectOneScene.Transform.Position.Y < -5)
+                        selectOneScene.Transform.Translate(0, Time.SmoothFrameTime * 65, 0);
+                    else
+                        selectOneScene.Transform.Position = new Vector3(6, -5, 0);
                     // Handle input...
                     if (Button.JustPressed("Next Scene"))
                         currentScene++;
@@ -300,20 +407,8 @@ namespace XNAFinalEngineExamples
                         currentScene = exampleImage.Length - 1;
                     if (Button.JustPressed("Load Scene"))
                     {
-                        Layer.GetLayerByNumber(25).Visible = false;
-                        MainSceneExecuting = false;
-                        switch (currentScene)
-                        {
-                            case 0:
-                                loadedScene = new WarehouseScene();
-                                break;
-                            case 1:
-                                loadedScene = new PhysicsTestScene();
-                                break;
-                            case 2:
-                                loadedScene = new HelloWorldScene();
-                                break;
-                        }
+                        loading.ModelRenderer.Enabled = true;
+                        mainSceneExecuting = false;
                     }
                 }
                 // Set as visible only the current scene.
@@ -324,6 +419,12 @@ namespace XNAFinalEngineExamples
                         exampleImage[i].Active = true;
                         exampleTitle[i].Active = true;
                         exampleText[i].Active  = true;
+                        // Center the scenes information.
+                        int offsetx = (Screen.Width - 1100) / 2;
+                        int offsety = (Screen.Height - 400) / 2;
+                        exampleImage[i].Transform.Position = new Vector3(offsetx, offsety + 50, 0);
+                        exampleTitle[i].Transform.Position = new Vector3(425 + offsetx, offsety, 0);
+                        exampleText[i].Transform.Position = new Vector3(425 + offsetx, offsety + 50, 0);
                     }
                     else
                     {
@@ -335,16 +436,36 @@ namespace XNAFinalEngineExamples
             }
             else
             {
+                Layer.GetLayerByNumber(25).Visible = false;
+                if (loadedScene == null)
+                {
+                    loading.ModelRenderer.Enabled = false;
+                    switch (currentScene)
+                    {
+                        case 0:
+                            loadedScene = new WarehouseScene();
+                            break;
+                        case 1:
+                            loadedScene = new PhysicsTestScene();
+                            break;
+                        case 2:
+                            loadedScene = new AnimationScene();
+                            break;
+                        case 3:
+                            loadedScene = new HelloWorldScene();
+                            break;
+                    }
+                }
                 if (Button.JustPressed("Back To Menu"))
                 {
                     loadedScene.Dispose();
                     loadedScene = null;
-                    MainSceneExecuting = true;
+                    mainSceneExecuting = true;
                 }
             }
         } // UpdateTasks
 
         #endregion
-        
-    } // EmptyScene
+
+    } // ExamplesMainScene
 } // XNAFinalEngineExamples
