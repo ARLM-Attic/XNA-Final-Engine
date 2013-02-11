@@ -30,6 +30,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using System;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.EngineCore;
@@ -164,14 +165,15 @@ namespace XNAFinalEngine.Graphics
             // For each color component we create the RGBM counterpart.
             for (int i = 0; i < hdrTexture.Width * hdrTexture.Height; i++)
             {
-                // Vector3 rgb = rgbe2float(floatArray[i*4], floatArray[i*4 + 1], floatArray[i*4 + 2], floatArray[i*4 + 3]); // If the texture is in rgbe format.
-                colorArray[i] = FloatLinearToRgbmGamma(floatArray[i * 4], floatArray[i * 4 + 1], floatArray[i * 4 + 2], maxRange);
+                //Vector3 rgb = RgbeToFloat(floatArray[i * 4], floatArray[i * 4 + 1], floatArray[i * 4 + 2], floatArray[i * 4 + 3]); // If the texture is in rgbe format.
+                //colorArray[i] = FloatLinearToRgbmGamma(rgb.X, rgb.Y, rgb.Z, maxRange);
+                colorArray[i] = FloatLinearToRgbmGamma(floatArray[i * 4], floatArray[i * 4 + 1], floatArray[i * 4 + 2], maxRange); // If not.
                 colorArray[i] = new Color(colorArray[i].R, colorArray[i].G, colorArray[i].B);
             }
             Texture result = new Texture(new Texture2D(EngineManager.Device, hdrTexture.Width, hdrTexture.Height));
             result.Resource.SetData(colorArray);
             return result;
-        } // ConvertHdrTextureToRgbm
+        } // ConvertHdrTextureToRgbmOnlyRgb
 
         #endregion
 
@@ -193,14 +195,15 @@ namespace XNAFinalEngine.Graphics
             // For each color component we create the RGBM counterpart.
             for (int i = 0; i < hdrTexture.Width * hdrTexture.Height; i++)
             {
-                // Vector3 rgb = rgbe2float(floatArray[i*4], floatArray[i*4 + 1], floatArray[i*4 + 2], floatArray[i*4 + 3]); // If the texture is in rgbe format.
-                colorArray[i] = FloatLinearToRgbmGamma(floatArray[i * 4], floatArray[i * 4 + 1], floatArray[i * 4 + 2], maxRange);
+                //Vector3 rgb = RgbeToFloat(floatArray[i * 4], floatArray[i * 4 + 1], floatArray[i * 4 + 2], floatArray[i * 4 + 3]); // If the texture is in rgbe format.
+                //colorArray[i] = FloatLinearToRgbmGamma(rgb.X, rgb.Y, rgb.Z, maxRange);
+                colorArray[i] = FloatLinearToRgbmGamma(floatArray[i * 4], floatArray[i * 4 + 1], floatArray[i * 4 + 2], maxRange); // If not.
                 colorArray[i] = new Color(colorArray[i].A, colorArray[i].A, colorArray[i].A);
             }
             Texture result = new Texture(new Texture2D(EngineManager.Device, hdrTexture.Width, hdrTexture.Height));
             result.Resource.SetData(colorArray);
             return result;
-        } // ConvertHdrTextureToRgbm
+        } // ConvertHdrTextureToRgbmOnlyM
 
         #endregion
 

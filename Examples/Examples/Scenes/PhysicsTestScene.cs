@@ -172,7 +172,11 @@ namespace XNAFinalEngineExamples
             ((RigidBody)sphere.AddComponent<RigidBody>()).CreateDynamicEntityFromModelFilter(motionState, 1);
 
             // Static mesh.
-            var lamboBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"), new BlinnPhong { DiffuseColor = Color.Gray });
+            var lamboBody = new GameObject3D(new FileModel("LamborghiniMurcielago\\Murcielago-Body"
+#if XBOX 
+    + "Xbox"
+#endif
+                ), new BlinnPhong { DiffuseColor = Color.Gray });
             lamboBody.Transform.Position = new Vector3(-3, 3, 3);
             ((StaticCollider)lamboBody.AddComponent<StaticCollider>()).CreateStaticCollidableFromModelFilter();
 

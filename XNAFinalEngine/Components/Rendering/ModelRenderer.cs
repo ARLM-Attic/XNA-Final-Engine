@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -107,7 +107,7 @@ namespace XNAFinalEngine.Components
         /// Allows to use different materials for the different model’s mesh.
         /// If the mesh material is null the material from them Material property will be used.
         /// </summary>
-        public Material[] MeshMaterial { get; set; }
+        public Material[] MeshMaterials { get; set; }
 
         /// <summary>
         /// If enabled, this mesh will create opaque shadows.
@@ -210,7 +210,7 @@ namespace XNAFinalEngine.Components
             ((GameObject3D)Owner).ModelAnimationChanged += OnModelAnimationChanged;
             if (((GameObject3D)Owner).ModelAnimations != null)
             {
-                ((GameObject3D)Owner).ModelAnimations.BoneTransformChanged += OnBoneTransformChanged;
+                ((GameObject3D)Owner).ModelAnimations.WorldBoneTransformChanged += OnBoneTransformChanged;
                 //cachedBoneTransforms = ((GameObject3D)Owner).ModelAnimations.BoneTransform;
             }
         } // Initialize
@@ -228,14 +228,14 @@ namespace XNAFinalEngine.Components
             Material = null;
             cachedBoneTransforms = null;
             cachedModel = null;
-            MeshMaterial = null;
+            MeshMaterials = null;
 
             ((GameObject3D)Owner).ModelFilterChanged -= OnModelFilterChanged;
             if (((GameObject3D)Owner).ModelFilter != null)
                 ((GameObject3D)Owner).ModelFilter.ModelChanged -= OnModelChanged;
             ((GameObject3D)Owner).ModelAnimationChanged -= OnModelAnimationChanged;
             if (((GameObject3D)Owner).ModelAnimations != null)
-                ((GameObject3D)Owner).ModelAnimations.BoneTransformChanged -= OnBoneTransformChanged;
+                ((GameObject3D)Owner).ModelAnimations.WorldBoneTransformChanged -= OnBoneTransformChanged;
 
             Owner.LayerChanged -= OnLayerChanged;
             Owner.ActiveChanged -= OnActiveChanged;
@@ -303,28 +303,27 @@ namespace XNAFinalEngine.Components
         #region On Bone Transform Changed
 
         /// <summary>
-        /// On model animation's bone transfomr changed.
+        /// On model animation's bone transform changed.
         /// </summary>
-        private void OnBoneTransformChanged(object sender, Matrix[] boneTransform)
+        private void OnBoneTransformChanged(object sender, Matrix[] worldBoneTransform)
         {
             // If it is a skinned model then the skin transform should be updated.
-            // Why do it here? Because it should be do it only one time for frame and because the animation component has nothing to do with the model. 
-            // The skinning transforms information is only useful for rendering.
+            // Why do it here? Because it should be do it only one time for frame and because the skinning transforms information is only useful for rendering.
             // Also, normally there are few skinned models in a scene and I don’t discriminate them like, for example, Unity does.
             // So it’s difficult in this scheme to update the skinning data using a high level task and producing
             // at the same time few cache misses (the majority of the model are not skinned)
             // However, it’s possible that some skinned models will be updated that will be frustum culled
             // but I doubt that too much animations will be performed on off-screen models.
             // The Unity scheme could be faked using two pools in the ModelFilter component, one for common models and one for skinned models. This is a matter of choice.
-            if (cachedModel != null && cachedModel is FileModel && ((FileModel)cachedModel).IsSkinned)
+            if (cachedModel != null && cachedModel is FileModel && cachedModel.IsSkinned)
             {
-                if (cachedBoneTransforms == null) // TODO!!!
+                if (cachedBoneTransforms == null)
                     cachedBoneTransforms = new Matrix[ModelAnimationClip.MaxBones];
-                ((FileModel)cachedModel).UpdateSkinTransforms(boneTransform, cachedBoneTransforms);
+                ((FileModel)cachedModel).UpdateSkinTransforms(worldBoneTransform, cachedBoneTransforms);
             }
             else // It is rigid animated.
             {
-                cachedBoneTransforms = boneTransform; // TODO Hay que clonar, no copiar
+                cachedBoneTransforms = worldBoneTransform;
             }
         } // OnBoneTransformChanged
 
@@ -339,12 +338,12 @@ namespace XNAFinalEngine.Components
         {
             // Remove event association.
             if (oldComponent != null)
-                ((ModelAnimations)oldComponent).BoneTransformChanged -= OnBoneTransformChanged;
+                ((ModelAnimations)oldComponent).WorldBoneTransformChanged -= OnBoneTransformChanged;
 
             if (newComponent != null)
             {
-                ((ModelAnimations)newComponent).BoneTransformChanged += OnBoneTransformChanged;
-                //cachedBoneTransforms = ((GameObject3D)Owner).ModelAnimations.BoneTransform;
+                ((ModelAnimations)newComponent).WorldBoneTransformChanged += OnBoneTransformChanged;
+                OnBoneTransformChanged(null, ((ModelAnimations) newComponent).WorldBoneTransforms);
             }
             else
             {

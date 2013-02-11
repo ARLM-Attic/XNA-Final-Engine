@@ -114,7 +114,7 @@ namespace XNAFinalEngineExamples
             camera.Camera.PostProcess.ColorCorrection.FirstLookupTable = new LookupTable("LookupTableWarehouse"); // A little more red and blue.
             camera.Camera.AmbientLight = new AmbientLight
             {
-                SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
+                SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeTexture(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
                 Color = new Color(10, 10, 10),
                 Intensity = 8f,
                 AmbientOcclusionStrength = 1.5f

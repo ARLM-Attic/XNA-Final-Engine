@@ -297,7 +297,7 @@ namespace XNAFinalEngine.Graphics
         /// </summary>
         internal void RenderModel(ref Matrix worldMatrix, Model model, Matrix[] boneTransform)
         {
-            if (model.IsSkinned) // If it is a skinned model.
+            if (model.IsSkinned && boneTransform != null)
             {
                 spBones.Value = boneTransform;
                 Resource.CurrentTechnique = generateLightDepthBufferSkinnedTechnique;

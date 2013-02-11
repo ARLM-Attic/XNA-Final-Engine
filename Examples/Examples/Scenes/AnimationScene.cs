@@ -8,6 +8,7 @@ using XNAFinalEngine.Components;
 using XNAFinalEngine.EngineCore;
 using XNAFinalEngine.Input;
 using DirectionalLight = XNAFinalEngine.Components.DirectionalLight;
+using Keyboard = XNAFinalEngine.Input.Keyboard;
 using Size = XNAFinalEngine.Helpers.Size;
 using Texture = XNAFinalEngine.Assets.Texture;
 using TextureCube = XNAFinalEngine.Assets.TextureCube;
@@ -96,7 +97,7 @@ namespace XNAFinalEngineExamples
             camera.Camera.FarPlane = 100;
             camera.Camera.NearPlane = 1f;
             camera.Transform.LookAt(new Vector3(-10, 10, 20), new Vector3(0, 5, 0), Vector3.Up);
-            //ScriptCustomCamera script = (ScriptCustomCamera)camera.AddComponent<ScriptCustomCamera>();
+            //ScriptCustomCameraScript script = (ScriptCustomCameraScript)camera.AddComponent<ScriptCustomCameraScript>();
             //script.SetPosition(new Vector3(0, 10, 20), new Vector3(0, 5, 0));
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 6f;
@@ -107,7 +108,7 @@ namespace XNAFinalEngineExamples
             camera.Camera.PostProcess.Bloom.Threshold = 3.5f;
             camera.Camera.AmbientLight = new AmbientLight
             {
-                SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeMap(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
+                SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeTexture(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
                 Color = new Color(10, 10, 10),
                 Intensity = 5f,
             };
@@ -119,12 +120,12 @@ namespace XNAFinalEngineExamples
 
             dude = new GameObject3D(new FileModel("DudeWalk"), new BlinnPhong());
             // One material for mesh part.
-            dude.ModelRenderer.MeshMaterial = new Material[5];
-            dude.ModelRenderer.MeshMaterial[0] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\head"), NormalTexture = new Texture("Dude\\headN"), SpecularTexture = new Texture("Dude\\headS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-            dude.ModelRenderer.MeshMaterial[2] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\jacket"), NormalTexture = new Texture("Dude\\jacketN"), SpecularTexture = new Texture("Dude\\jacketS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-            dude.ModelRenderer.MeshMaterial[3] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\pants"), NormalTexture = new Texture("Dude\\pantsN"), SpecularTexture = new Texture("Dude\\pantsS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-            dude.ModelRenderer.MeshMaterial[1] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
-            dude.ModelRenderer.MeshMaterial[4] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
+            dude.ModelRenderer.MeshMaterials = new Material[5];
+            dude.ModelRenderer.MeshMaterials[0] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\head"), NormalTexture = new Texture("Dude\\headN"), SpecularTexture = new Texture("Dude\\headS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
+            dude.ModelRenderer.MeshMaterials[2] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\jacket"), NormalTexture = new Texture("Dude\\jacketN"), SpecularTexture = new Texture("Dude\\jacketS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
+            dude.ModelRenderer.MeshMaterials[3] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\pants"), NormalTexture = new Texture("Dude\\pantsN"), SpecularTexture = new Texture("Dude\\pantsS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
+            dude.ModelRenderer.MeshMaterials[1] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
+            dude.ModelRenderer.MeshMaterials[4] = new BlinnPhong { DiffuseTexture = new Texture("Dude\\upBodyC"), NormalTexture = new Texture("Dude\\upbodyN"), SpecularTexture = new Texture("Dude\\upbodyCS"), SpecularPowerFromTexture = false, SpecularPower = 300 };
             dude.Transform.LocalScale = new Vector3(0.1f, 0.1f, 0.1f);
             // Add animations.
             dude.AddComponent<ModelAnimations>();
@@ -151,7 +152,7 @@ namespace XNAFinalEngineExamples
             #endif
             // Set the parameters from the animation that it is stored in DudeWalk (this animation is added automatically by the system).
             dude.ModelAnimations["Take 001"].WrapMode = WrapMode.Loop;
-
+            
             // Load the rifle model.
             rifle = new GameObject3D(new FileModel("Rifle"), new BlinnPhong { DiffuseColor = new Color(15, 15, 15), SpecularPower = 100, SpecularIntensity = 0.01f});
             
@@ -262,7 +263,32 @@ namespace XNAFinalEngineExamples
             }
 
             if (animating != -1)
-                animating += Time.GameDeltaTime;
+                animating += Time.GameDeltaTime;              
+        } // UpdateTasks
+
+        #endregion
+
+        #region Render Tasks
+
+        /// <summary>
+        /// Tasks before the engine render.
+        /// Some tasks are more related to the frame rendering than the update,
+        /// or maybe the update frequency is too high to waste time in this kind of tasks,
+        /// for that reason the pre render task exists.
+        /// For example, is more correct to update the HUD information here because is related with the rendering.
+        /// </summary>
+        protected override void PreRenderTasks()
+        {
+            if (Keyboard.KeyPressed(Keys.T))
+            {
+                dude.ModelAnimations.LocalBoneTransforms[7] = dude.ModelAnimations.LocalBoneTransforms[7] * Matrix.CreateFromYawPitchRoll(0.3f, 0, 0);
+                dude.ModelAnimations.UpdateLocalBoneTransforms();
+            }
+            if (Keyboard.KeyPressed(Keys.G))
+            {
+                dude.ModelAnimations.LocalBoneTransforms[7] = dude.ModelAnimations.LocalBoneTransforms[7] * Matrix.CreateFromYawPitchRoll(-0.3f, 0, 0);
+                dude.ModelAnimations.UpdateLocalBoneTransforms();
+            }
 
             // Rifle placement.
             // The rifle matchs the 30th bone transformation.
@@ -274,7 +300,7 @@ namespace XNAFinalEngineExamples
             rifle.Transform.Rotate(new Vector3(0, 45, 0));
             rifle.Transform.LocalScale = new Vector3(16, 16, 16f);
             rifle.Transform.LocalMatrix = rifle.Transform.LocalMatrix * dude.ModelAnimations.WorldBoneTransforms[30] * dude.Transform.WorldMatrix;
-        } // UpdateTasks
+        } // PreRenderTasks
 
         #endregion
 

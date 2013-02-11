@@ -961,8 +961,8 @@ namespace XNAFinalEngine.EngineCore
                     {
                         // Find material (the mesh part could have a custom material or use the model material)
                         Material material = null;
-                        if (modelRenderer.MeshMaterial != null && currentMeshPart < modelRenderer.MeshMaterial.Length && modelRenderer.MeshMaterial[currentMeshPart] != null)
-                            material = modelRenderer.MeshMaterial[currentMeshPart];
+                        if (modelRenderer.MeshMaterials != null && currentMeshPart < modelRenderer.MeshMaterials.Length && modelRenderer.MeshMaterials[currentMeshPart] != null)
+                            material = modelRenderer.MeshMaterials[currentMeshPart];
                         else if (modelRenderer.Material != null)
                             material = modelRenderer.Material;
                         // Once the material is felt then the classification begins.

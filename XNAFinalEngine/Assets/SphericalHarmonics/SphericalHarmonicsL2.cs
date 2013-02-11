@@ -15,7 +15,6 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAFinalEngine.Graphics;
-using TextureCube = XNAFinalEngine.Assets.TextureCube;
 #endregion
 
 namespace XNAFinalEngine.Assets
@@ -399,9 +398,13 @@ namespace XNAFinalEngine.Assets
 
         /// <summary>
         /// Generate a spherical harmonic from the faces of a cubemap, treating each pixel as a light source and averaging the result.
+        /// This method only accepts RGBM and color textures.
         /// </summary>
-        public static SphericalHarmonicL2 GenerateSphericalHarmonicFromCubeMap(TextureCube cubeMap)
+        public static SphericalHarmonicL2 GenerateSphericalHarmonicFromCubeTexture(TextureCube cubeTexture)
         {
+            if (cubeTexture.Resource.Format != SurfaceFormat.Color)
+                throw new InvalidOperationException("Spherical Harmonic: the texture has to have a color surface format. DXT and floating point formats are not supported for the moment.");
+
             SphericalHarmonicL2 sh = new SphericalHarmonicL2();
 
             // Extract the 6 faces of the cubemap.
@@ -409,7 +412,7 @@ namespace XNAFinalEngine.Assets
             {
                 CubeMapFace faceId = (CubeMapFace)face;
 
-                // Get the transformation for this face,
+                // Get the transformation for this face.
                 Matrix cubeFaceMatrix;
                 switch (faceId)
                 {
@@ -434,16 +437,16 @@ namespace XNAFinalEngine.Assets
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-                Color[] colorArray = new Color[cubeMap.Size * cubeMap.Size];
-                cubeMap.Resource.GetData(faceId, colorArray);
+                Color[] colorArray = new Color[cubeTexture.Size * cubeTexture.Size];
+                cubeTexture.Resource.GetData(faceId, colorArray);
 
                 // Extract the spherical harmonic for this face and accumulate it.
-                sh += ExtractSphericalHarmonicForCubeFace(cubeFaceMatrix, colorArray, cubeMap.Size, cubeMap.IsRgbm, cubeMap.RgbmMaxRange);
+                sh += ExtractSphericalHarmonicForCubeFace(cubeFaceMatrix, colorArray, cubeTexture.Size, cubeTexture.IsRgbm, cubeTexture.RgbmMaxRange);
             }
 
-            //average out over the sphere
+            // Average out over the sphere.
             return sh.GetWeightedAverageLightInputFromSphere();
-        } // GenerateSphericalHarmonicFromCubeMap
+        } // GenerateSphericalHarmonicFromCubeTexture
 
         /// <summary>
         /// Use this function after accumulating multiple lights with the AddLight method.
@@ -480,19 +483,16 @@ namespace XNAFinalEngine.Assets
 
                 for (int x = 0; x < faceSize; x++)
                 {
-                    //the direction to the pixel in the cube
+                    // The direction to the pixel in the cube.
                     Vector3 direction = new Vector3(dirX, dirY, 1);
                     Vector3.TransformNormal(ref direction, ref faceTransform, out direction);
 
-                    //length of the direction vector
+                    // Length of the direction vector.
                     float length = direction.Length();
-                    //approximate area of the pixel (pixels close to the cube edges appear smaller when projected)
+                    // Approximate area of the pixel (pixels close to the cube edges appear smaller when projected).
                     float weight = 1.0f / length;
-
-                    //normalise:
-                    direction.X *= weight;
-                    direction.Y *= weight;
-                    direction.Z *= weight;
+                    
+                    direction.Normalize();
 
                     Vector3 rgbFloat;
                     if (isRgbm)
@@ -512,7 +512,7 @@ namespace XNAFinalEngine.Assets
                     dirX += directionStep;
                 }
 
-                //average the SH
+                // Average the SH.
                 if (lineSh.weighting > 0)
                     lineSh *= 1 / lineSh.weighting;
 
@@ -523,11 +523,65 @@ namespace XNAFinalEngine.Assets
                 dirY -= directionStep;
             }
 
+            // Average the SH.
             if (sh.weighting > 0)
                 sh *= 1 / sh.weighting;
 
             return sh;
         } // ExtractSphericalHarmonicForCubeFace
+
+        #endregion
+
+        #region Generate Spherical Harmonic from Lat-Long Texture
+
+        /// <summary>
+        /// Generate a spherical harmonic from the faces of a cubemap, treating each pixel as a light source and averaging the result.
+        /// This method only accepts floating point textures.
+        /// </summary>
+        public static SphericalHarmonicL2 GenerateSphericalHarmonicFromLatLongTexture(Texture texture)
+        {
+            if (texture.Resource.Format != SurfaceFormat.Vector4)
+                throw new InvalidOperationException("Spherical Harmonic: the texture has to have a floating point surface format. DXT formats are not supported for the moment.");
+            
+            SphericalHarmonicL2 sh = new SphericalHarmonicL2();
+
+            float[] colorArray = new float[texture.Width * texture.Height * 4];
+            texture.Resource.GetData(colorArray);
+            
+            int pixelIndex = 0;
+
+            for (int y = 0; y < texture.Height; y++)
+            {
+                SphericalHarmonicL2 lineSh = new SphericalHarmonicL2();
+
+                for (int x = 0; x < texture.Width; x++)
+                {
+                    // http://www.scratchapixel.com/lessons/3d-advanced-lessons/reflection-mapping/converting-latitute-longitude-maps-and-mirror-balls/
+                    float theta = (x / (float)texture.Width) * (float)Math.PI;
+                    float phi = (1 - (y / (float)texture.Height)) * 2 * (float)Math.PI;
+                    Vector3 direction = -new Vector3((float)(Math.Sin(theta) * Math.Cos(phi)), (float)(Math.Sin(theta) * Math.Sin(phi)), (float)(Math.Cos(theta)));
+                    direction.Normalize();
+
+                    Vector3 rgb = new Vector3(colorArray[pixelIndex * 4], colorArray[pixelIndex * 4 + 1], colorArray[pixelIndex * 4 + 2]);
+
+                    //Add it to the SH
+                    lineSh.AddLight(rgb, direction, 1);
+
+                    pixelIndex++;
+                }
+
+                //average the SH
+                if (lineSh.weighting > 0)
+                    lineSh *= 1 / lineSh.weighting;
+
+                // Add the line to the full SH
+                // (SH is generated line by line to ease problems with floating point accuracy loss)
+                sh += lineSh;
+            }
+
+            //average out over the sphere
+            return sh.GetWeightedAverageLightInputFromSphere();
+        } // GenerateSphericalHarmonicFromLatLongHdrTexture
 
         #endregion
 

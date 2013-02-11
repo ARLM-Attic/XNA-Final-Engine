@@ -120,7 +120,7 @@ namespace XNAFinalEngineExamples
             Vector3 yawPitchRoll = Quaternion.CreateFromRotationMatrix(Matrix.CreateLookAt(position, lookAtPosition, Vector3.Up)).GetYawPitchRoll();
             Yaw = yawPitchRoll.X;
             Pitch = yawPitchRoll.Y;
-            Roll = yawPitchRoll.Z;
+            Roll = 0;// yawPitchRoll.Z;
         } // SetPosition
 
         #endregion

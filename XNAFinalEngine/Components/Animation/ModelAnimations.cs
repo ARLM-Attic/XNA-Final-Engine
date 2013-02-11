@@ -1,7 +1,7 @@
 ﻿
 #region License
 /*
-Copyright (c) 2008-2012, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
+Copyright (c) 2008-2013, Laboratorio de Investigación y Desarrollo en Visualización y Computación Gráfica - 
                          Departamento de Ciencias e Ingeniería de la Computación - Universidad Nacional del Sur.
 All rights reserved.
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -80,7 +80,11 @@ namespace XNAFinalEngine.Components
 
         // Current bone transform matrices in absolute format.
         // They have to be transform to world space and if the model is skinned they have to be transformed by the inverse bind pose.
-        private readonly Matrix[] boneTransform = new Matrix[ModelAnimationClip.MaxBones];
+        private readonly Matrix[] localBoneTransform = new Matrix[ModelAnimationClip.MaxBones];
+
+        // Current bone transform matrices with parent transformations.
+        // If the model is skinned they have to be transformed by the inverse bind pose.
+        private readonly Matrix[] worldBoneTransform = new Matrix[ModelAnimationClip.MaxBones];
 
         // Chaded model filter's model value.
         private Model cachedModel;
@@ -91,12 +95,6 @@ namespace XNAFinalEngine.Components
 
         #region Properties
         
-        /// <summary>
-        /// Current bone transform matrices in absolute format.
-        /// They have to be transform to world space and if the model is skinned they have to be transformed by the inverse bind pose.
-        /// </summary>
-        internal Matrix[] BoneTransform { get { return boneTransform; } }
-
         /// <summary>
         /// Are we playing any animations?
         /// </summary>
@@ -113,9 +111,17 @@ namespace XNAFinalEngine.Components
         public int AnimationsCount { get { return animationStates.Count; } }
 
         /// <summary>
-        /// Bone transforms for rigid and animated skinning models.
+        /// Current bone transform matrices in absolute format.
+        /// They have to be transform to world space and if the model is skinned they have to be transformed by the inverse bind pose.
+        /// If you update the local bone transform manually call UpdateLocalBoneTransforms.
         /// </summary>
-        public Matrix[] WorldBoneTransforms { get { return boneTransform; } }
+        public Matrix[] LocalBoneTransforms { get { return localBoneTransform; } }
+
+        /// <summary>
+        /// Bone transforms for rigid and animated skinning models.
+        /// If you update the world bone transform manually call UpdateWorldBoneTransforms.
+        /// </summary>
+        public Matrix[] WorldBoneTransforms { get { return worldBoneTransform; } }
 
         #endregion
 
@@ -124,12 +130,12 @@ namespace XNAFinalEngine.Components
         /// <summary>
         /// http://xnafinalengine.codeplex.com/wikipage?title=Improving%20performance&referringTitle=Documentation
         /// </summary>
-        internal delegate void AnimationEventHandler(object sender, Matrix[] boneTransform);
+        internal delegate void AnimationEventHandler(object sender, Matrix[] worldBoneTransform);
 
         /// <summary>
         /// Raised when the model animation's bone transform changes.
         /// </summary>
-        internal event AnimationEventHandler BoneTransformChanged;
+        internal event AnimationEventHandler WorldBoneTransformChanged;
 
         #endregion
 
@@ -165,7 +171,7 @@ namespace XNAFinalEngine.Components
             activeAnimations.Clear();
 
             cachedModel = null;
-            BoneTransformChanged = null;
+            WorldBoneTransformChanged = null;
             ((GameObject3D)Owner).ModelFilterChanged -= OnModelFilterChanged;
             if (((GameObject3D)Owner).ModelFilter != null)
                 ((GameObject3D)Owner).ModelFilter.ModelChanged -= OnModelChanged;
@@ -279,7 +285,7 @@ namespace XNAFinalEngine.Components
         /// </summary>
         public void Stop()
         {
-            
+            // TODO!!
         } // Stop
 
         /// <summary>
@@ -292,7 +298,7 @@ namespace XNAFinalEngine.Components
         /// </param>
         public void Stop(string name, bool immediate = true)
         {
-            
+            // TODO!!
         } // Stop
 
         #endregion
@@ -322,25 +328,24 @@ namespace XNAFinalEngine.Components
                 if (stopAnimations)
                     activeAnimations[i].ModelAnimationPlayer.Stop();
                 else
-                    // If cross fade is completed the rest of the animations are removed.);
+                    // If cross fade is completed the rest of the animations are removed.
                     if (activeAnimations[activeAnimations.Count - 1].ElapsedTime > activeAnimations[activeAnimations.Count - 1].FadeLenght)
                     {
                         stopAnimations = true;
                     }
             }
-
-            const int currentAnimation = 0;
+            
             FileModel fileModel = (FileModel)cachedModel;
-            if (currentAnimation + 2 <= activeAnimations.Count)
+            if (activeAnimations.Count >= 2)
             {
                 // Update bone transform
                 for (int bone = 0; bone < fileModel.BoneCount; bone++)
                 {
                     float amout = activeAnimations[activeAnimations.Count - 1].ElapsedTime / activeAnimations[activeAnimations.Count - 1].FadeLenght;
                     ModelAnimationPlayer.BoneTransformationData blendedPose = InterpolatePose(activeAnimations[activeAnimations.Count - 2].ModelAnimationPlayer.BoneTransforms[bone],
-                                                                                                     activeAnimations[activeAnimations.Count - 1].ModelAnimationPlayer.BoneTransforms[bone],
-                                                                                                     amout);
-                    boneTransform[bone] = Matrix.CreateScale(blendedPose.scale) *
+                                                                                              activeAnimations[activeAnimations.Count - 1].ModelAnimationPlayer.BoneTransforms[bone],
+                                                                                              amout);
+                    localBoneTransform[bone] = Matrix.CreateScale(blendedPose.scale) *
                                           Matrix.CreateFromQuaternion(blendedPose.rotation) *
                                           Matrix.CreateTranslation(blendedPose.position);
                 }
@@ -350,62 +355,16 @@ namespace XNAFinalEngine.Components
                 // Update bone transform
                 for (int bone = 0; bone < fileModel.BoneCount; bone++)
                 {
-                    boneTransform[bone] = Matrix.CreateScale(activeAnimations[0].ModelAnimationPlayer.BoneTransforms[bone].scale) *
+                    localBoneTransform[bone] = Matrix.CreateScale(activeAnimations[0].ModelAnimationPlayer.BoneTransforms[bone].scale) *
                                           Matrix.CreateFromQuaternion(activeAnimations[0].ModelAnimationPlayer.BoneTransforms[bone].rotation) *
                                           Matrix.CreateTranslation(activeAnimations[0].ModelAnimationPlayer.BoneTransforms[bone].position);
                 }
             }
 
-            #region Old
-            /*
-            // If cross fade is completed the rest of the animations are removed.
-            if (activeAnimations[activeAnimations.Count - 1].ElapsedTime > activeAnimations[activeAnimations.Count - 1].FadeLenght)
-            {
-                // Stops animation if the cross fade is over.
-                ModelAnimationPlayer modelAnimationPlayer = activeAnimations[activeAnimations.Count - 1].ModelAnimationPlayer;
-                foreach (AnimationPlayed activeAnimation in activeAnimations)
-                {
-                    if (activeAnimation.ModelAnimationPlayer != modelAnimationPlayer)
-                        activeAnimation.ModelAnimationPlayer.Stop();
-                }
-                activeAnimations.Clear();
-                activeAnimations.Add(new AnimationPlayed(modelAnimationPlayer.AnimationState, modelAnimationPlayer));
-            }
+            // When the local bone transforms change the world bone transforms are updated.
+            UpdateLocalBoneTransforms();
 
-            int currentAnimation = 0;
-            FileModel fileModel = (FileModel)cachedModel;
-            if (currentAnimation + 2 <= activeAnimations.Count)
-            {
-                // Update bone transform
-                for (int bone = 0; bone < fileModel.BoneCount; bone++)
-                {
-                    float amout = activeAnimations[currentAnimation + 1].ElapsedTime / activeAnimations[currentAnimation + 1].FadeLenght;
-                    ModelAnimationPlayer.BoneTransformationData blendedPose = InterpolatePose(activeAnimations[currentAnimation].ModelAnimationPlayer.BoneTransforms[bone],
-                                                                                                     activeAnimations[currentAnimation + 1].ModelAnimationPlayer.BoneTransforms[bone],
-                                                                                                     amout);
-                    boneTransform[bone] = Matrix.CreateScale(blendedPose.scale) *
-                                          Matrix.CreateFromQuaternion(blendedPose.rotation) *
-                                          Matrix.CreateTranslation(blendedPose.position);
-                }
-            }
-            else
-            {
-                // Update bone transform
-                for (int bone = 0; bone < fileModel.BoneCount; bone++)
-                {
-                    boneTransform[bone] = Matrix.CreateScale(activeAnimations[0].ModelAnimationPlayer.BoneTransforms[bone].scale) *
-                                          Matrix.CreateFromQuaternion(activeAnimations[0].ModelAnimationPlayer.BoneTransforms[bone].rotation) *
-                                          Matrix.CreateTranslation(activeAnimations[0].ModelAnimationPlayer.BoneTransforms[bone].position);
-                }
-            }*/
-
-            #endregion
-
-            ((FileModel)cachedModel).UpdateWorldTransforms(boneTransform, boneTransform);
-            if (BoneTransformChanged != null)
-                BoneTransformChanged(this, boneTransform);
-
-            // Remove finished animations from the active animations (Change to array TODO)
+            // Remove finished animations from the active animations (Change the list to array TODO)
             for (int i = 0; i < activeAnimations.Count; i++)
             {
                 if (activeAnimations[i].ModelAnimationPlayer.State == MediaState.Stopped)
@@ -432,6 +391,29 @@ namespace XNAFinalEngine.Components
         } // InterpolatePose
 
         #endregion
+
+        #endregion
+
+        #region Update Bone Transforms
+
+        /// <summary>
+        /// Call this if you update the local bone transform manually.
+        /// </summary>
+        public void UpdateLocalBoneTransforms()
+        {
+            if (cachedModel != null && cachedModel is FileModel)
+                ((FileModel)cachedModel).UpdateWorldTransforms(localBoneTransform, worldBoneTransform);
+            UpdateWorldBoneTransforms();
+        } // UpdateBoneTransforms
+
+        /// <summary>
+        /// Call this if you update the world bone transform manually.
+        /// </summary>
+        public void UpdateWorldBoneTransforms()
+        {
+            if (WorldBoneTransformChanged != null)
+                WorldBoneTransformChanged(this, worldBoneTransform);
+        } // UpdateBoneTransforms
 
         #endregion
 
@@ -495,23 +477,22 @@ namespace XNAFinalEngine.Components
             }
             cachedModel = model;
             // If the model is skined initialize the bone transform with the bind pose.
-            if (model != null && model is FileModel && ((FileModel)model).IsSkinned)
+            if (model != null && model is FileModel && model.IsSkinned)
             {
                 for (int i = 0; i < ((FileModel)model).BindPose.Count; i++)
                 {
-                    boneTransform[i] = ((FileModel)model).BindPose[i];
+                    localBoneTransform[i] = ((FileModel)model).BindPose[i];
                 }
             }
             else
             {
                 // If not use the identity transformation.
-                for (int i = 0; i < boneTransform.Length; i++)
+                for (int i = 0; i < localBoneTransform.Length; i++)
                 {
-                    boneTransform[i] = Matrix.Identity;
+                    localBoneTransform[i] = Matrix.Identity;
                 }
             }
-            if (BoneTransformChanged != null)
-                BoneTransformChanged(this, boneTransform);
+            UpdateLocalBoneTransforms();
             if (cachedModel != null && cachedModel is FileModel)
             {
                 foreach (var modelAnimation in ((FileModel)cachedModel).ModelAnimations)
@@ -535,9 +516,7 @@ namespace XNAFinalEngine.Components
                 ((ModelFilter)oldComponent).ModelChanged -= OnModelChanged;
             // Add new event association
             if (newComponent != null)
-            {
                 ((ModelFilter)newComponent).ModelChanged += OnModelChanged;
-            }
             OnModelChanged(null, ((GameObject3D)Owner).ModelFilter == null ? null : ((GameObject3D)Owner).ModelFilter.Model);
         } // OnModelFilterChanged
 
