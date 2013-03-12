@@ -74,8 +74,8 @@ namespace XNAFinalEngine.Graphics
         /// <param name="luminanceTexture">This texture stores the previous luminance information.</param>
         /// <param name="destinationTexture">The gamma space post process texture of the linear space scene texture.</param>
         public static void BeginAndProcess(PostProcess postProcess, Texture sceneTexture, Texture depthTexture, Texture halfDepthTexture,
-                                           ref RenderTarget luminanceTexture, RenderTarget destinationTexture, 
-                                           Matrix viewMatrix, Matrix projectionMatrix, float farPlane, Vector3 cameraPosition)
+                                           ref RenderTarget luminanceTexture, RenderTarget destinationTexture,
+                                           Matrix viewMatrix, Matrix projectionMatrix, float farPlane, Vector3 cameraPosition, Vector3[] boundingFrustum)
         {
             if (destinationTexture == null)
                 throw new ArgumentNullException("destinationTexture");
@@ -135,7 +135,7 @@ namespace XNAFinalEngine.Graphics
 
                 postProcessedSceneTexture.EnableRenderTarget();
                 // Post process the scene texture.
-                postProcessingShader.Render(sceneTexture, postProcess, bloomTexture, lensFlareTexture, luminanceTexture);
+                postProcessingShader.Render(sceneTexture, depthTexture, postProcess, bloomTexture, lensFlareTexture, luminanceTexture, boundingFrustum, cameraPosition, viewMatrix);
                 // Release textures (they return to the pool).
                 if (bloomTexture != null)
                     RenderTarget.Release(bloomTexture);

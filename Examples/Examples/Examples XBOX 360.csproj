@@ -64,11 +64,13 @@
     <Compile Include="Scenes\AnimationScene.cs" />
     <Compile Include="Scenes\EmptyScene.cs" />
     <Compile Include="Scenes\ExamplesMainScene.cs" />
+    <Compile Include="Scenes\HDRToRGBMScene.cs" />
     <Compile Include="Scenes\HelloWorldScene.cs" />
     <Compile Include="Scenes\LamborghiniMurcielagoLoader.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Scenes\PhysicsTestScene.cs" />
+    <Compile Include="Scenes\TechDemoScene.cs" />
     <Compile Include="Scenes\WarehouseScene.cs" />
     <Compile Include="Scripts\CollisionResponseTestScript.cs" />
     <Compile Include="Scripts\ScriptCustomCameraScript.cs" />

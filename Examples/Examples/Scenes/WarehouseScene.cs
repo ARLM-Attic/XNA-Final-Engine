@@ -29,6 +29,8 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #endregion
 
 #region Using directives
+
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -93,7 +95,8 @@ namespace XNAFinalEngineExamples
             camera.Camera.NearPlane = 1f; // Do not place a small value here, you can destroy performance, not just precision.
             camera.Transform.LookAt(new Vector3(0, 0, 15), Vector3.Zero, Vector3.Up);
             WarehouseCameraScript script = (WarehouseCameraScript)camera.AddComponent<WarehouseCameraScript>();
-            script.SetPosition(new Vector3(0, 3, 18), new Vector3(0, 1.5f, 2.2f));
+            //script.SetPosition(new Vector3(0, 3, 18), new Vector3(0, 1.5f, 2.2f));
+            script.SetPosition(new Vector3(10, 3, 18), new Vector3(0, 1.5f, 3.2f));
             camera.Camera.ClearColor = Color.Black;
             camera.Camera.FieldOfView = 180 / 7f;
             camera.Camera.PostProcess = new PostProcess();
@@ -116,7 +119,7 @@ namespace XNAFinalEngineExamples
             {
                 SphericalHarmonicLighting = SphericalHarmonicL2.GenerateSphericalHarmonicFromCubeTexture(new TextureCube("FactoryCatwalkRGBM") { IsRgbm = true, RgbmMaxRange = 50, }),
                 Color = new Color(10, 10, 10),
-                Intensity = 8f,
+                Intensity = 2f,
                 AmbientOcclusionStrength = 1.5f
             };
             //camera.Camera.Sky = new Skydome { Texture = new Texture("HotPursuitSkydome") };
@@ -408,8 +411,16 @@ namespace XNAFinalEngineExamples
             
             #endregion
 
-            #region Legend
+            #region Statistics
 
+            Layer.GetLayerByNumber(26).Name = "Statistics Layer";
+            GameObject2D statistics = new GameObject2D();
+            statistics.AddComponent<ScriptStatisticsDrawer>();
+
+            #endregion
+
+            #region Legend
+            /*
             demoLegend = new GameObject2D();
             var legend = (HudText)demoLegend.AddComponent<HudText>();
             legend.Color = new Color(0.1f, 0.1f, 0.1f, 1f);
@@ -420,8 +431,8 @@ namespace XNAFinalEngineExamples
                 legend.Text.Append("Space or A to open the doors\n");
                 legend.Text.Append("Left and right cursors or left stick to rotate the wheels\n");
                 legend.Text.Append("Left mouse button or right stick to move the camera");
-            #endif
-
+            #endif*/
+            
             #endregion
             
         } // Load
@@ -437,10 +448,10 @@ namespace XNAFinalEngineExamples
         protected override void UpdateTasks()
         {
             // This is intended to be used in Xbox tests.
-            //if (XNAFinalEngine.Input.GamePad.PlayerOne.BackJustPressed)
-            //    throw new Exception("Quick exit in Xbox 360 tests.");
+            if (XNAFinalEngine.Input.GamePad.PlayerOne.BackJustPressed)
+                throw new Exception("Quick exit in Xbox 360 tests.");
 
-            demoLegend.Transform.Position = new Vector3(20, Screen.Height - 50f, 0f);
+            //demoLegend.Transform.Position = new Vector3(20, Screen.Height - 50f, 0f);
             
             #region Doors
 

@@ -1806,7 +1806,7 @@ namespace XNAFinalEngine.EngineCore
             lightDepthTextureCubeArray.Clear();
 
             // Testing
-            //FinishRendering(currentCamera, renderTarget, lightTextures.RenderTargets[1]); return;
+            //FinishRendering(currentCamera, renderTarget, lightTextures.RenderTargets[0]); return;
             
             #endregion
             
@@ -2236,8 +2236,8 @@ namespace XNAFinalEngine.EngineCore
             
             #region Post Process Pass
 
-            PostProcessingPass.BeginAndProcess(currentCamera.PostProcess, sceneTexture, gbufferTextures.RenderTargets[0], gbufferHalfTextures.RenderTargets[0], ref currentCamera.LuminanceTexture, 
-                                               renderTarget, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, currentCamera.Position);
+            PostProcessingPass.BeginAndProcess(currentCamera.PostProcess, sceneTexture, gbufferTextures.RenderTargets[0], gbufferHalfTextures.RenderTargets[0], ref currentCamera.LuminanceTexture,
+                                               renderTarget, currentCamera.ViewMatrix, currentCamera.ProjectionMatrix, currentCamera.FarPlane, currentCamera.Position, cornersViewSpace);
             
             // Render in gamma space
 

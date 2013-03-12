@@ -105,12 +105,15 @@ namespace XNAFinalEngine.Graphics
                                               spInputWhiteRgb,
                                               spInputGammaRgb,
                                               spOutputBlackRgb,
-                                              spOutputWhiteRgb;
+                                              spOutputWhiteRgb,
+                                              spCameraPosition;
+        private static ShaderParameterVector3Array spFrustumCorners;
         private static ShaderParameterTexture spSceneTexture,
                                               spLastLuminanceTexture,
                                               spBloomTexture,
                                               spLensFlareTexture,
-                                              spFilmLutTexture;
+                                              spFilmLutTexture,
+                                              spDepthTexture;
         private static ShaderParameterLookupTable spFirstlookupTable,
                                                   spSecondlookupTable;
 
@@ -168,7 +171,6 @@ namespace XNAFinalEngine.Graphics
                 spColorCorrectOneLutEnabled = new ShaderParameterBool("colorCorrectOneLutEnabled", this);
                 spColorCorrectTwoLutEnabled = new ShaderParameterBool("colorCorrectTwoLutEnabled", this);
                 spFilmGrainEnabled = new ShaderParameterBool("filmGrainEnabled", this);
-                // Float
                 // Exposure
                 spLensExposure = new ShaderParameterFloat("lensExposure", this);
                 spTimeDelta = new ShaderParameterFloat("timeDelta", this);
@@ -206,6 +208,7 @@ namespace XNAFinalEngine.Graphics
                 spRandomValue = new ShaderParameterFloat("randomValue", this);
 
                 spHalfPixel = new ShaderParameterVector2("halfPixel", this);
+                spFrustumCorners = new ShaderParameterVector3Array("frustumCorners", this, 4);
 
                 // Leves Individual Channels
                 spInputBlackRgb = new ShaderParameterVector3("inputBlackRGB", this);
@@ -214,11 +217,15 @@ namespace XNAFinalEngine.Graphics
                 spOutputBlackRgb = new ShaderParameterVector3("outputBlackRGB", this);
                 spOutputWhiteRgb = new ShaderParameterVector3("outputWhiteRGB", this);
 
+                // Fog
+                spCameraPosition = new ShaderParameterVector3("cameraPosition", this);
+
                 spSceneTexture = new ShaderParameterTexture("sceneTexture", this, SamplerState.PointClamp, 9);
                 spLastLuminanceTexture = new ShaderParameterTexture("lastLuminanceTexture", this, SamplerState.PointClamp, 12);
                 spBloomTexture = new ShaderParameterTexture("bloomTexture", this, SamplerState.AnisotropicClamp, 10);
                 spLensFlareTexture = new ShaderParameterTexture("lensFlareTexture", this, SamplerState.AnisotropicClamp, 8);
                 spFilmLutTexture = new ShaderParameterTexture("filmLutTexture", this, SamplerState.AnisotropicClamp, 8);
+                spDepthTexture = new ShaderParameterTexture("depthTexture", this, SamplerState.PointClamp, 0);
 
                 spFirstlookupTable = new ShaderParameterLookupTable("firstlookupTableTexture", this, SamplerState.LinearClamp, 6);
                 spSecondlookupTable = new ShaderParameterLookupTable("secondlookupTableTexture", this, SamplerState.LinearClamp, 7);
@@ -324,7 +331,8 @@ namespace XNAFinalEngine.Graphics
         /// <summary>
         /// Render.
         /// </summary>
-        public void Render(Texture sceneTexture, PostProcess postProcess, RenderTarget bloomTexture, RenderTarget lensFlareTexture, RenderTarget luminanceTexture)
+        public void Render(Texture sceneTexture, Texture depthTexture, PostProcess postProcess, RenderTarget bloomTexture, RenderTarget lensFlareTexture, RenderTarget luminanceTexture,
+                           Vector3[] boundingFrustum, Vector3 cameraPosition, Matrix viewMatrix)
         {
             if (sceneTexture == null || sceneTexture.Resource == null)
                 throw new ArgumentNullException("sceneTexture");
@@ -371,7 +379,16 @@ namespace XNAFinalEngine.Graphics
                     }
                     // Set parameters
                     spHalfPixel.Value = new Vector2(-0.5f / (sceneTexture.Width / 2), 0.5f / (sceneTexture.Height / 2));
+                    spFrustumCorners.Value = boundingFrustum;
                     spSceneTexture.Value = sceneTexture;
+
+                    #region Fog
+
+                    spDepthTexture.Value = depthTexture;
+                    spCameraPosition.Value = cameraPosition;
+                    Resource.Parameters["viewI"].SetValue(Matrix.Invert(Matrix.Transpose(Matrix.Invert(viewMatrix))));
+
+                    #endregion
 
                     #region Tone Mapping
 

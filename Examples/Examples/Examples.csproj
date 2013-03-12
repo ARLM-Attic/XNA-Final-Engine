@@ -108,6 +108,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Scenes\HDRToRGBMScene.cs" />
+    <Compile Include="Scenes\TechDemoScene.cs" />
     <Compile Include="Scenes\ExamplesMainScene.cs" />
     <Compile Include="Scripts\CollisionResponseTestScript.cs" />
     <Compile Include="Scenes\LamborghiniMurcielagoLoader.cs" />

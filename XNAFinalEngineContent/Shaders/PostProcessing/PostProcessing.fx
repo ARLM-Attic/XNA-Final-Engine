@@ -29,15 +29,18 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 // High Dynamic Range Imaging - Acquisition, Display, and Image-Based Lighting (Reinhard, Ward, Pattanaik)
 // http://www.mpi-inf.mpg.de/resources/hdr/lightness/krawczyk05eg.pdf
 
+#include <..\GBuffer\GBufferReader.fxh>
 #include <ColorCorrection.fxh>
 #include <Filmgrain.fxh>
 #include <ToneMapping.fxh>
+#include <VolumetricFog.fxh>
 
 //////////////////////////////////////////////
 /////////////// Parameters ///////////////////
 //////////////////////////////////////////////
 
 float2 halfPixel;
+float3 frustumCorners[4];
 
 float tau;
 float timeDelta; // frame time delta in seconds.
@@ -98,6 +101,7 @@ struct VS_OUT
 {
 	float4 position		: POSITION;
 	float2 uv			: TEXCOORD0;
+	float3 frustumRay	: TEXCOORD1;
 };
 
 //////////////////////////////////////////////
@@ -128,27 +132,32 @@ float3 Bloom(float3 color, float2 uv)
 ////////////// Vertex Shader /////////////////
 //////////////////////////////////////////////
 
+float3 FrustumRay(in float2 uv)
+{
+	float  index = uv.x + (uv.y * 2);
+	return frustumCorners[index];
+}
+
 VS_OUT vs_main(in float4 position : POSITION, in float2 uv : TEXCOORD)
 {
-	VS_OUT output = (VS_OUT)0;
-	
+	VS_OUT output = (VS_OUT)0;	
 	output.position = position;
 	output.position.xy += halfPixel; // http://drilian.com/2008/11/25/understanding-half-pixel-and-half-texel-offsets/
-	output.uv = uv; 
-	
+	output.uv = uv;
+	output.frustumRay = FrustumRay(uv);	
 	return output;
-} // vs_main
+}
 
 //////////////////////////////////////////////
 /////////////// Pixel Shader /////////////////
 //////////////////////////////////////////////
 
 // Creates the luminance map for the scene
-float4 psLuminanceMap(in float2 uv : TEXCOORD0) : COLOR0
+float4 psLuminanceMap(in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1) : COLOR0
 {
     // Sample the input
     float3 color = tex2D(sceneSampler, uv);
-   
+
     // calculate the luminance using a weighted average
     float luminance = max(dot(color, float3(0.299f, 0.587f, 0.114f)), 0.0001f);
 
@@ -172,10 +181,16 @@ float4 psAdaptLuminance(in float2 uv : TEXCOORD0) : COLOR0
 } // psAdaptLuminance
 
 // An easy optimization consists in make a specific technique without branching.
-float4 psPostProcess(uniform int toneMappingFunction, in float2 uv : TEXCOORD0) : COLOR0
+float4 psPostProcess(uniform int toneMappingFunction, in float2 uv : TEXCOORD0, in float3 frustumRay : TEXCOORD1) : COLOR0
 {
 	float4 color = tex2D(sceneSampler, uv).rgba;	// HDR Linear space	
 	
+	// Fog	
+	/*float depth = tex2D(depthSampler, uv).r; // Reconstruct position from the depth value, making use of the ray pointing towards the far clip plane	
+	float3 cameraToWorldPos = frustumRay * depth;
+	float4 fog = GetVolumetricFogColorDistanceBased(cameraToWorldPos);
+	color.rgb = lerp(fog.xyz, color.rgb, fog.w);*/
+		
 	color.rgb = ExposureColor(color.rgb, uv);
 
 	// This function takes an input colour in linear space, and converts it to a tone mapped gamma corrected color output		

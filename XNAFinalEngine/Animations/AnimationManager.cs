@@ -30,7 +30,6 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 
 #region Using directives
 using Microsoft.Xna.Framework.Media;
-using XNAFinalEngine.Components;
 using XNAFinalEngine.Helpers;
 #endregion
 

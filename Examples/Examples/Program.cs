@@ -31,6 +31,7 @@ Author: Schneider, José Ignacio (jis@cs.uns.edu.ar)
 #region Using directives
 using System;
 using XNAFinalEngine.EngineCore;
+
 #endregion
 
 namespace XNAFinalEngineExamples
@@ -57,8 +58,10 @@ namespace XNAFinalEngineExamples
             // User initial code. Like network updates or some checking.
 
             // Now the engine will start.
-            EngineManager.StartEngine(new ExamplesMainScene(), false);
-            //EngineManager.StartEngine(new WarehouseScene(), false);
+            //EngineManager.StartEngine(new HDRToRGBMScene(), false);
+            //EngineManager.StartEngine(new TechDemoScene(), false);
+            //EngineManager.StartEngine(new ExamplesMainScene(), false);
+            EngineManager.StartEngine(new WarehouseScene(), false);
             //EngineManager.StartEngine(new PhysicsTestScene(), false);
             //EngineManager.StartEngine(new AnimationScene(), false);
             //EngineManager.StartEngine(new HelloWorldScene(), false);
